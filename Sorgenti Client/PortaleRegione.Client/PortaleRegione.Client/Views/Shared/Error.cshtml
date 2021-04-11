@@ -1,0 +1,34 @@
+﻿@model HandleErrorInfo
+
+@{
+    Layout = "_Layout.cshtml";
+    ViewBag.Title = "Errore";
+}
+<hgroup>
+    @if (Model != null)
+    {
+        if (HttpContext.Current.IsDebuggingEnabled)
+        {
+            <div>
+                <p>
+                    <b>Exception:</b> @Model.Exception.Message<br/>
+                    <b>Controller:</b> @Model.ControllerName<br/>
+                    <b>Action:</b> @Model.ActionName
+                </p>
+                <div style="overflow: scroll">
+                    <pre>
+                    @Model.Exception.StackTrace
+                </pre>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div>
+                <p>
+                    <b>Exception:</b> @Model.Exception.Message<br/>
+                </p>
+            </div>
+        }
+    }
+</hgroup>

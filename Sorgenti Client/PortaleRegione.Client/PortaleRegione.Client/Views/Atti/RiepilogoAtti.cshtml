@@ -1,0 +1,138 @@
+﻿@model PortaleRegione.Client.Models.AttiViewModel
+
+@{
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
+}
+
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').hide();
+    });
+</script>
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+}
+
+<div id="attiTable" class="row">
+
+    @if (!Model.Data.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono atti al momento
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    @foreach (var atto in Model.Data.Results)
+    {
+        var titolo_atto = string.Format("{0} {1}", atto.TIPI_ATTO.Tipo_Atto, atto.NAtto);
+
+        var statoAtto = "";
+        var coloreStatoAtto = "";
+        if (atto.Data_chiusura.HasValue)
+        {
+            if (atto.Data_chiusura.Value < DateTime.Now)
+            {
+                statoAtto = "Chiuso";
+                coloreStatoAtto = "grey";
+            }
+        }
+        if (string.IsNullOrEmpty(statoAtto))
+        {
+            if (atto.Data_apertura.HasValue)
+            {
+                if (atto.Data_apertura.Value < DateTime.Now)
+                {
+                    statoAtto = "Aperto";
+                    coloreStatoAtto = "green";
+                }
+                else
+                {
+                    var span = atto.Data_apertura.Value - DateTime.Now;
+                    var totalMinutes = Math.Round(span.TotalMinutes, MidpointRounding.AwayFromZero);
+
+                    if (totalMinutes <= 60)
+                    {
+                        statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
+                    }
+                    else
+                    {
+                        statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
+                    }
+
+                    coloreStatoAtto = "green";
+                }
+            }
+        }
+
+        <div class="col s12">
+            <div class="card green lighten-4 hoverable">
+                <div class="card-content">
+                    <div class="card-title">
+                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s12">
+                                <span>
+                                    <b>@titolo_atto</b>
+                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                    {
+                                        <a href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})">
+                                            <i class="material-icons pink-text">cloud_download</i>
+                                        </a>
+                                    }
+                                </span>
+                                <h6 class="active">
+                                    <i>@Html.Raw(atto.Oggetto)</i>
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s12">
+                                @if (!string.IsNullOrEmpty(statoAtto))
+                                {
+                                    <div class="chip white-text @coloreStatoAtto" style="min-width: unset">@statoAtto</div>
+                                }
+                            </div>
+                        </div>
+                        <div class="row valign-wrapper" style="margin-left: unset !important; margin-right: unset !important; margin-bottom: unset!important">
+                            <div class="col s6">
+                                <h6 class="black-text"><b>@atto.Conteggio_EM EM/SUBEM (@atto.Conteggio_SubEM SUBEM)</b></h6>
+                            </div>
+                            <div class="col s6 right-align">
+                                <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                    <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts
+{
+    <script>
+        setListaEmendamenti([])
+        setSelezionaTutti(false);
+    </script>
+}

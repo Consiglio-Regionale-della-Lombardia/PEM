@@ -1,0 +1,203 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.Client.Models.AttiViewModel
+
+@{
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
+}
+
+<script>
+    $(document).ready(function() {
+        $('#btnSearch').hide();
+    });
+
+    function openDeleteModal(id) {
+        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaAtto", "Atti", new {sedutaUId = Model.Seduta.UIDSeduta})?id=' + id);
+        $('#modalDeleteAtto').modal('open');
+    }
+
+    $(document).ready(function() {
+        $('#btnCreaAtto').attr('href', '@Url.Action("NuovoAtto", "Atti", new {sedutaUId = Model.Seduta.UIDSeduta})');
+    });
+</script>
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+}
+
+<div id="attiTable" class="row">
+
+    @if (!Model.Data.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono atti al momento
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    @foreach (var atto in Model.Data.Results)
+    {
+        var titolo_atto = string.Format("{0} {1}", atto.TIPI_ATTO.Tipo_Atto, atto.NAtto);
+
+        var statoAtto = "";
+        var coloreStatoAtto = "";
+        if (atto.Chiuso)
+        {
+            statoAtto = "Chiuso";
+            coloreStatoAtto = "grey";
+        }
+        else
+        {
+            if (atto.Data_apertura.Value < DateTime.Now)
+            {
+                statoAtto = "Aperto";
+                coloreStatoAtto = "green";
+            }
+            else
+            {
+                var span = atto.Data_apertura.Value - DateTime.Now;
+                var totalMinutes = Math.Round(span.TotalMinutes, MidpointRounding.AwayFromZero);
+
+                if (totalMinutes <= 60)
+                {
+                    if (totalMinutes > 0 && totalMinutes <= 5)
+                    {
+                        statoAtto = "Mancano pochi minuti minuti all'apertura";
+                    }
+                    else
+                    {
+                        statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
+                    }
+                }
+                else
+                {
+                    statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
+                }
+                coloreStatoAtto = "amber darken-3";
+            }
+        }
+
+        <div class="col s12">
+            <div class="card green lighten-4 hoverable">
+                <div class="card-action grey lighten-4">
+                    <div class="row" style="margin: 0 !important; padding: 0 !important">
+                        <div class="col s6" style="display: inline-block">
+                            <p style="display: inline-block">
+                                <label>
+                                    <input data-val="true" id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Presentazione))"
+                                           @Html.Raw(atto.OrdinePresentazione.Value ? "checked=\"checked\"" : "")>
+                                    <span>Abilita fascicolo presentazione</span>
+                                </label>
+                            </p>
+                            <p style="display: inline-block; padding-left: 30px">
+                                <label>
+                                    <input data-val="true" id="chkAbilitaFascicoloVotazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Votazione))"
+                                           @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
+                                    <span>Abilita fascicolo votazione</span>
+                                </label>
+                            </p>
+                        </div>
+                        <div class="col s6 right-align">
+                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new {id = atto.UIDAtto})')" title="Modifica">
+                                <i class="material-icons" style="margin-top:15px">edit</i>
+                            </a>
+                            <a class="hoverable center red-text" onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
+                                <i class="material-icons">delete</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <div class="row valign-wrapper" style="margin: 0 !important;">
+                            <div class="col s12">
+                                <h5>
+                                    <b>@titolo_atto</b>
+                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                    {
+                                        <a href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})">
+                                            <i class="material-icons pink-text">cloud_download</i>
+                                        </a>
+                                    }
+                                </h5>
+                                <h6 class="active">
+                                    <i>@Html.Raw(atto.Oggetto)</i>
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s6">
+                                @if (!string.IsNullOrEmpty(statoAtto))
+                                {
+                                    <div class="chip white-text @coloreStatoAtto" style="min-width: unset">@statoAtto</div>
+                                }
+                            </div>
+                            <div class="col s6 right-align">
+                                @if (atto.Informazioni_Mancanti)
+                                {
+                                    <div class="chip yellow black-text" style="min-width: unset">
+                                        <i class="icon material-icons">warning</i> Mancano alcune informazioni
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
+                            <div class="col s6">
+                                <h6 class="black-text">
+                                    <b>@atto.Conteggio_EM EM/SUBEM (@atto.Conteggio_SubEM SUBEM)</b>
+                                </h6>
+                            </div>
+                            <div class="col s6 right-align">
+                                <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                    <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="fixed-action-btn">
+    <a id="btnCreaAtto" class="btn-floating btn-large blue darken-1">
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+<div id="modalDeleteAtto" class="modal">
+    <div class="modal-content">
+        <h5>Attenzione</h5>
+        <p>Sei sicuro di voler eliminare quest'atto?</p>
+        <div class="modal-footer">
+            <button type="button" class="btn modal-close grey">Annulla</button>
+            <a id="btnConfermaEliminazione" class="btn red" href="#">Elimina</a>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        setListaEmendamenti([]);
+        setSelezionaTutti(false);
+    </script>
+}

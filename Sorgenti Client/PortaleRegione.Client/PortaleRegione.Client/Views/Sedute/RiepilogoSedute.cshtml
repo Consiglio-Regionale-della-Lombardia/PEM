@@ -1,0 +1,103 @@
+﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
+
+@{
+    ViewBag.Title = "Riepilogo Sedute";
+    if (Model.Filters.Any())
+    {
+        ViewBag.Title += " - Ricerca";
+    }
+}
+
+<div class="row">
+    <div class="col s12">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+<div id="seduteTable" class="row">
+
+    @if (!Model.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono sedute al momento
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    @foreach (var seduta in Model.Results)
+    {
+        var css_sedutaAttiva = "green lighten-4";
+        if (seduta.Data_effettiva_fine.HasValue)
+        {
+            if (seduta.Data_effettiva_fine.Value < DateTime.Now)
+            {
+                css_sedutaAttiva = string.Empty;
+            }
+        }
+
+        <div class="col l4 m6 s12">
+            <div class="card hoverable @css_sedutaAttiva">
+                <div class="card-content" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new {id = seduta.UIDSeduta})')">
+                    <h5 class="card-title">
+                        <span>Seduta del @seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                    </h5>
+                    <div class="row valign-wrapper">
+                        <div class="col s10">
+                            <p>
+                                Scadenza presentazione: @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                            </p>
+                        </div>
+                        <div class="col s2">
+                            <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@{
+    Html.RenderPartial("_SeduteFiltri", Model.Paging);
+}
+
+
+<script>
+    $(document).ready(function() {
+        var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
+        if (filters == 0)
+            set_Filtri_Sedute({});
+
+        Filtri_Sedute_CaricaLegislature("filter_sedute_legislature");
+        Filtri_Sedute_CaricaAnni("filter_sedute_anno");
+        Filtri_Sedute_CaricaDa("filter_sedute_da");
+        Filtri_Sedute_CaricaA("filter_sedute_a");
+    });
+
+    function filtra() {
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formFiltraSedute').submit();
+    }
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formFiltraSedute').submit();
+    }
+</script>

@@ -1,0 +1,219 @@
+﻿@model PortaleRegione.Client.Models.ViewUtenteModel
+
+@{
+    ViewBag.Title = Model.Persona.DisplayName;
+    var backUrl = Url.Action("RiepilogoUtenti");
+}
+
+<script>
+    $(document).ready(function() {
+        $('#btnSearch').hide();
+    });
+</script>
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>
+                <span>@ViewBag.Title</span>
+            </b>
+        </h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12">
+        @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new {id = "formPersona"}))
+        {
+            @Html.AntiForgeryToken()
+            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona"/>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.UID_persona)
+                @Html.TextBoxFor(s => s.Persona.UID_persona, new {@class = "form-control"})
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.cognome)
+                @Html.TextBoxFor(s => s.Persona.cognome, new {@class = "form-control"})
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.nome)
+                @Html.TextBoxFor(s => s.Persona.nome, new {@class = "form-control"})
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.email)
+                @Html.TextBoxFor(s => s.Persona.email, new {@class = "form-control"})
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.foto)
+                @Html.TextBoxFor(s => s.Persona.foto, new {@class = "form-control"})
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.userAD)
+                @Html.TextBoxFor(s => s.Persona.userAD, new {@class = "form-control"})
+            </div>
+
+            <div class="form-group">
+                <p>
+                    <label>
+                        <input id="No_Cons" name="No_Cons" type="checkbox" value="true"
+                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "" : "checked=\"checked\"")>
+                        <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
+                    </label>
+                </p>
+            </div>
+            
+            @*if (Model.Persona.Gruppo != null)
+            {
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Persona.Gruppo)
+                    @Html.TextBoxFor(s => s.Persona.Gruppo.nome_gruppo, new {@class = "form-control"})
+                </div>
+            }*@
+
+            var notifica_Firma = Model.Persona.notifica_firma.HasValue ? Model.Persona.notifica_firma.Value : false;
+
+            <div class="form-group">
+                <p>
+                    <label>
+                        <input id="notifica_firma" name="notifica_firma" type="checkbox" value="true"
+                               @Html.Raw(notifica_Firma ? "" : "checked=\"checked\"")>
+                        <span>@Html.LabelFor(s => s.Persona.notifica_firma)</span>
+                    </label>
+                </p>
+            </div>
+
+            var notifica_Deposito = Model.Persona.notifica_deposito.HasValue ? Model.Persona.notifica_deposito.Value : false;
+
+            <div class="form-group">
+                <p>
+                    <label>
+                        <input id="notifica_deposito" name="notifica_deposito" type="checkbox" value="true"
+                               @Html.Raw(notifica_Deposito ? "checked=\"checked\"" : "")>
+                        <span>@Html.LabelFor(s => s.Persona.notifica_deposito)</span>
+                    </label>
+                </p>
+            </div>
+
+            var attivo = Model.Persona.attivo.HasValue ? Model.Persona.attivo.Value : false;
+
+            <div class="form-group">
+                <p>
+                    <label>
+                        <input id="attivo" name="attivo" type="checkbox" value="true"
+                               @Html.Raw(attivo ? "checked=\"checked\"" : "")>
+                        <span>@Html.LabelFor(s => s.Persona.attivo)</span>
+                    </label>
+                </p>
+            </div>
+
+            var eliminato = Model.Persona.deleted.HasValue ? Model.Persona.deleted.Value : false;
+
+            <div class="form-group">
+                <p>
+                    <label>
+                        <input id="deleted" name="deleted" type="checkbox" value="true"
+                               @Html.Raw(eliminato ? "checked=\"checked\"" : "")>
+                        <span>@Html.LabelFor(s => s.Persona.deleted)</span>
+                    </label>
+                </p>
+            </div>
+            <div class="row">
+                @foreach (var gruppiAD in Model.GruppiAD)
+                {
+                    var classCss = gruppiAD.IsRuolo ? "light-blue lighten-5" : "lime lighten-5";
+                    <div class="col s3">
+                        <div class="card @classCss">
+                            <div class="card-content">
+                                <p>
+                                    <label>
+                                        <input id="gruppiAD" name="gruppiAD" type="checkbox" value="true" data-name="@gruppiAD.GruppoAD"
+                                               @Html.Raw(gruppiAD.Membro ? "checked=\"checked\"" : "")>
+                                        <span></span>
+                                    </label>
+                                </p>
+                                <p class="truncate">@gruppiAD.GruppoAD</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        <div class="fixed-action-btn">
+            <button id="btnSalvaUtente" class="btn-floating btn-large blue">
+                <i class="large material-icons">save</i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#btnSalvaUtente").on("click",
+        function() {
+            setTimeout(function () {
+                $('body').removeClass('loaded');
+            }, 200);
+            $('#formPersona').submit();
+        });
+
+    $("#formPersona").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+
+            var groups = $('input[name="gruppiAD"]');
+            var selected_groups = []
+            $.each(groups, function(index, item) {
+                selected_groups.push({
+                    gruppoAd: $(item).data('name'),
+                    membro: $(item).is(":checked")
+                });
+            });
+
+            var form_data = new FormData();
+            form_data.append("uid_persona", $('input[name="Persona.UID_persona"]').val());
+            form_data.append("id_persona", $('input[name="Persona.id_persona"]').val());
+            form_data.append("nome", $('input[name="Persona.nome"]').val());
+            form_data.append("cognome", $('input[name="Persona.cognome"]').val());
+            form_data.append("email", $('input[name="Persona.email"]').val());
+            form_data.append("foto", $('input[name="Persona.foto"]').val());
+            form_data.append("userAd", $('input[name="Persona.userAD"]').val());
+            form_data.append("notifica_firma", $('input[name="notifica_firma"]').is(":checked"));
+            form_data.append("notifica_deposito", $('input[name="notifica_deposito"]').is(":checked"));
+            form_data.append("attivo", $('input[name="attivo"]').is(":checked"));
+            form_data.append("deleted", $('input[name="deleted"]').is(":checked"));
+            form_data.append("no_cons", $('input[name="No_Cons"]').is(":checked") ? 0 : 1);
+            form_data.append("gruppiAd", selected_groups);
+
+            //submit via ajax
+            $.ajax({
+                    url: '@Url.Action("SalvaPersona", "AdminPanel")',
+                    type: "POST",
+                    data: form_data,
+                    processData: false,
+                    contentType: false
+                }).done(function(dataResult) {
+                    if (dataResult.message)
+                        ErrorAlert(dataResult.message);
+                    else {
+                        SuccessAlert("Profilo salvato correttamente");
+                    }
+                })
+                .fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
+</script>

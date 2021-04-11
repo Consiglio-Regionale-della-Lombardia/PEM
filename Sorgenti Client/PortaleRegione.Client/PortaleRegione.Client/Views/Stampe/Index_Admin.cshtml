@@ -1,0 +1,206 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.StampaDto>
+
+@{
+    ViewBag.Title = "Riepilogo Stampe";
+}
+
+<div class="row">
+    <div class="col s12">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+<div id="seduteTable" class="row">
+
+    @if (!Model.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono stampe al momento
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Utente</th>
+                    <th>Atto</th>
+                    <th>Data stampa</th>
+                    <th>Da</th>
+                    <th>A</th>
+                    <th>Stato</th>
+                    <th>Stato Invio</th>
+                    <th>Scarica</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var stampa in Model.Results)
+                {
+                    <tr>
+                        <td>
+                            @if (stampa.Richiedente != null)
+                            {
+                                <b>@stampa.Richiedente.DisplayName</b>
+                            }
+                        </td>
+                        <td>
+                            @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
+                            <a class="blue-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto})')" title="Vai all'atto">
+                                <i class="material-icons">call_made</i>
+                            </a>
+                        </td>
+                        <td>
+                            @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        @if (stampa.Da == 0 && stampa.A == 0)
+                        {
+                            <td colspan="2">
+                                @switch ((OrdinamentoEnum) stampa.Ordine.Value)
+                                {
+                                    case OrdinamentoEnum.Presentazione:
+                                        <div class="chip center">
+                                            Fascicolo Presentazione
+                                        </div>
+                                        break;
+                                    case OrdinamentoEnum.Votazione:
+                                        <div class="chip center">
+                                            Fascicolo Votazione
+                                        </div>
+                                        break;
+                                    case OrdinamentoEnum.Default:
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @stampa.Da
+                            </td>
+                            <td>
+                                @stampa.A
+                            </td>
+                        }
+                        <td>
+                            @{
+                                var abilitaReset = false;
+                            }
+                            @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
+                            {
+                                if (stampa.DataInizioEsecuzione.HasValue)
+                                {
+                                    if (stampa.DataFineEsecuzione.HasValue)
+                                    {
+                                        <div class="chip center green white-text" title="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")">
+                                            Completata
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        abilitaReset = true;
+
+                                        <div class="chip center amber white-text">
+                                            In lavorazione
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="chip center grey white-text">
+                                        In attesa
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                abilitaReset = true;
+
+                                <div class="chip center red white-text" title="Messaggio di errore: @stampa.MessaggioErrore">
+                                    Errore
+                                </div>
+                            }
+
+                            @if (abilitaReset && stampa.Lock)
+                            {
+                                <a class="btn-floating pink" title="Ristampa" onclick="ResetStampa('@stampa.UIDStampa', '@Url.Action("Index")')">
+                                    <i class="material-icons">settings_backup_restore</i>
+                                </a>
+                            }
+                            else
+                            {
+                                if (stampa.Tentativi >= 2)
+                                {
+                                    <span class="new badge" data-badge-caption="tentativi">@stampa.Tentativi</span>
+                                }
+                            }
+
+                        </td>
+                        <td>
+                            @if (stampa.DataInvio.HasValue)
+                            {
+                                <div class="chip center blue white-text" title="Data invio: @stampa.DataInvio.Value.ToString("dd/MM/yyyy HH:mm")">
+                                    Inviato
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(stampa.PathFile))
+                            {
+                                var enable = true;
+                                if (stampa.Scadenza.HasValue)
+                                {
+                                    if (stampa.Scadenza.Value < DateTime.Now)
+                                    {
+                                        enable = false;
+                                    }
+                                }
+
+                                if (enable == false)
+                                {
+                                    <a class="btn-floating grey" title="File scaduto il @stampa.Scadenza.Value.ToString("dd/MM/yyyy HH:mm")">
+                                        <i class="material-icons">file_download</i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="btn-floating pink" onclick="DownloadStampa('@stampa.UIDStampa')" title="Scarica file">
+                                        <i class="material-icons">file_download</i>
+                                    </a>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+<div id="slide-out-DX" class="sidenav">
+    <ul style="margin: 0">
+        <li>
+            <a class="subheader">Ricerca</a>
+        </li>
+    </ul>
+</div>

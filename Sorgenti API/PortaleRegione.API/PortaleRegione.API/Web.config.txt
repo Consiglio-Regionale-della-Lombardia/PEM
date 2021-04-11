@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  For more information on how to configure your ASP.NET application, please visit
+  https://go.microsoft.com/fwlink/?LinkId=301879
+  -->
+<configuration>
+  <configSections>
+    <!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+    <section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+    <sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <section name="PortaleRegione.API.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+    </sectionGroup>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler,log4net" />
+  </configSections>
+  <log4net>  
+  <appender name="RollingFile" type="log4net.Appender.RollingFileAppender">  
+    <file value="C:\YOUR_PATH\YOUR_FILENAME.log" />  
+    <appendToFile value="true" />  
+    <maximumFileSize value="500KB" />  
+    <maxSizeRollBackups value="10" />  
+    <layout type="log4net.Layout.PatternLayout">  
+      <conversionPattern value="[%d{dd/MM/yyyy}] - [%d{HH:mm:ss}] - [%t] %-5p %c - %m%n" />  
+    </layout>  
+  </appender>  
+  <root>  
+    <level value="All" />  
+    <appender-ref ref="RollingFile" />  
+  </root>  
+  </log4net> 
+  <connectionStrings>
+    <add name="PortaleRegioneDbContext" connectionString="YOUR_CONNECTION_STRING" providerName="System.Data.SqlClient" />
+  </connectionStrings>
+  <appSettings>
+    <add key="webpages:Version" value="3.0.0.0" />
+    <add key="webpages:Enabled" value="false" />
+    <add key="ClientValidationEnabled" value="true" />
+    <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+
+    <add key="AutenticazioneAD " value="1" />
+    <add key="JWT_MASTER" value="YOUR_JWT_MASTER_KEY" />
+    <!-- Valore in minuti -->
+    <add key="JWT_EXPIRATION" value="525600" /> 
+    <add key="TOKEN_R" value="YOUR_TOKEN_R" />
+    <add key="TOKEN_W" value="YOUR_TOKEN_W" />
+    <add key="MasterPIN" value="YOUR_MASTER_PIN" />
+    <add key="masterKey" value="YOUR_MASTER_KEY" />
+    <add key="URLPEM" value="YOUR_URL_PEM" />
+    <add key="urlPEM_ViewEM" value="YOUR_URL_CLIENT/emendamenti/view/{0}" />
+    <add key="urlPEM_RiepilogoEM" value="YOUR_URL_CLIENT/emendamenti/{0}" />
+    <add key="URL_API" value="YOUR_URL_API" />
+    <add key="SMTP" value="YOUR_SMTP" />
+    <add key="InvioNotifiche" value="0 (spento) oppure 1 (attivo)" />
+    <add key="UtenteFirmaUfficio" value="YOUR_UTENTE_FIRMA_UFFICIO" />
+    <add key="LimiteFirmaMassivo" value="YOUR_LIMITE" />
+    <add key="LimiteDepositoMassivo" value="YOUR_LIMITE" />
+    <add key="GiorniValiditaLink" value="YOUR_GIORNI_VALIDITA" />
+    <add key="CartellaTemp" value="c:\YOUR_PATH\Temp" />
+    <add key="AbilitaOpenData" value="0 (spento) oppure 1 (attivo)" />
+    <add key="OpenData_PrivateToken" value="YOUR_OPENDATA_PRIVATEKEY" />
+    <add key="OpenData_Separatore" value="|" />
+    <add key="CartellaDocumentiAtti" value="C:\YOUR_PATH\DocumentiPEM" />
+    <add key="CartellaAllegatiEM" value="C:\YOUR_PATH\Allegati" />
+
+    <!-- TestoEMCartaceo -->
+    <add key="TestoEMCartaceo" value="Emendamento presentarto in forma cartacea da {0}" />
+    
+    <!--SERVICE JOBBER-->
+    <add key="Service_Username" value="YOUR_SERVICE_USER" />
+    <add key="Service_Password" value="YOUR_SERVICE_PASSWORD" />
+
+    <!--STAMPE-->
+    <add key="RootRepository" value="C:\YOUR_PATH\Repository" />
+    <add key="CartellaLavoroStampe" value="C:\YOUR_PATH\Stampe" />
+    <add key="LimiteGeneraStampaImmediata" value="20" />
+
+    <add key="MessaggioInizialeDeposito" value="Salve, {br}è stato depositato il seguente emendamento:" />
+    <add key="MessaggioInizialeInvito" value="Gentile Consigliere/Assessore, {br}la invito a firmare il seguente emendamento:" />
+  </appSettings>
+  <system.web>
+    <compilation debug="true" targetFramework="4.7.2" />
+    <httpRuntime targetFramework="4.7.2" />
+  </system.web>
+  <system.webServer>
+    <handlers>
+      <remove name="ExtensionlessUrlHandler-Integrated-4.0" />
+      <remove name="OPTIONSVerbHandler" />
+      <remove name="TRACEVerbHandler" />
+      <add name="ExtensionlessUrlHandler-Integrated-4.0" path="*." verb="*" type="System.Web.Handlers.TransferRequestHandler" preCondition="integratedMode,runtimeVersionv4.0" />
+    </handlers>
+  </system.webServer>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Antlr3.Runtime" publicKeyToken="eb42632606e9261f" />
+        <bindingRedirect oldVersion="0.0.0.0-3.5.0.2" newVersion="3.5.0.2" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" culture="neutral" publicKeyToken="30ad4fe6b2a6aeed" />
+        <bindingRedirect oldVersion="0.0.0.0-12.0.0.0" newVersion="12.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Optimization" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="1.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="WebGrease" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="0.0.0.0-1.6.5135.21930" newVersion="1.6.5135.21930" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Helpers" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.WebPages" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Mvc" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-5.2.7.0" newVersion="5.2.7.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Http" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-5.2.7.0" newVersion="5.2.7.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Net.Http.Formatting" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-5.2.7.0" newVersion="5.2.7.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+  <entityFramework>
+    <defaultConnectionFactory type="System.Data.Entity.Infrastructure.LocalDbConnectionFactory, EntityFramework">
+      <parameters>
+        <parameter value="mssqllocaldb" />
+      </parameters>
+    </defaultConnectionFactory>
+    <providers>
+      <provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+    </providers>
+  </entityFramework>
+  <applicationSettings>
+    <PortaleRegione.API.Properties.Settings>
+      <setting name="PortaleRegione_API_it_lombardia_regione_consiglio_intranet_proxyAD" serializeAs="String">
+        <value>https://intranet.consiglio.regione.lombardia.it/proxyad/proxyad.asmx</value>
+      </setting>
+    </PortaleRegione.API.Properties.Settings>
+  </applicationSettings>
+</configuration>

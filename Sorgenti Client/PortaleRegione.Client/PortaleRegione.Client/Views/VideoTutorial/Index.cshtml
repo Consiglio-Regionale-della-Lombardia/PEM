@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "Video turorial";
+}
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+<ul class="collapsible">
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Impostazione PIN dispositivo</div>
+        <div class="collapsible-body">
+            <p>Per poter firmare e depositare emendamenti occorre essere in possesso di un PIN dispositivo (un numero di 4 cifre). Il PIN va obbligatoriamente modificato al primo accesso, sostituendo quello impostasto dall'amministratore del sistema, e successivamente può essere modificato ogni volta che lo si ritiene necessario.</p>
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_ImpostazioniPIN.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Inserimento nuovo emendamento</div>
+        <div class="collapsible-body">
+            <p>All'interno dell'area privata del Gruppo Politico, è possibile inserire in bozza emendamenti relativi ad uno specifico ProgettoDiLegge iscritto all'ordine del giorno della seduta. Per l'inserimento degli emendamenti basta seguire il form guidato di inserimento.</p>
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_InserimentoEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Firma singolo emendamento</div>
+        <div class="collapsible-body">
+            <p>Un emendamento per poter essere depositato ed acquisire valore formale deve prima essere firmato. Gli emendameni possono essere firmati singolarmente o in maniera massiva (massimo 10 alla volta). L'operazione di firma è molto semplice e si effettua utilizzando il PIN dispositivo personale.</p>
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_FirmaSingolaEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Eliminazione firma</div>
+        <div class="collapsible-body">
+            <p>Prima che un emendamento venga depositato e diventi ufficiale, è possibile eliminare la propria firma. Anche per l'eliminazione della firma basta digitare il proprio PIN personale. Dopo il deposito dell'emendamento una firma può essere solo ritirata ovvero la firma rimarrà sull'emendamento e indicata come "firma ritirata".</p>
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_EliminaFirmaEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Deposito singolo emendamento</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_DespositoSingoloEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Firma massiva emendamenti</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_FirmaMassivaEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Deposito massivo emendamenti</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_DepositoMassivoEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Invito a firmare un emendamento</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_Invito.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Fascicoli emendamenti (in ordine di presentazione/votazione)</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_VisualizzaFascicoli.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Inserimento, firma e doposito subemendamento</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_InserimentoSUBEM.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">ondemand_video</i> Ricerche e stampe</div>
+        <div class="collapsible-body">
+            <video class="responsive-video" controls>
+                <source src="~/VideoPEM/PEM_Filtri_e_Stampe.mp4" type="video/mp4"/>
+            </video>
+        </div>
+    </li>
+</ul>

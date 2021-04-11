@@ -1,0 +1,1783 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="https://intranet.consiglio.regione.lombardia.it/OpenData" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="https://intranet.consiglio.regione.lombardia.it/OpenData" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="https://intranet.consiglio.regione.lombardia.it/OpenData">
+      <s:element name="ConnTest">
+        <s:complexType />
+      </s:element>
+      <s:element name="ConnTestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ConnTestResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckInfoTAB">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckInfoTABResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckInfoTABResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertLR">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODLeggeRegionale" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertLRResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertLRResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteLR">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteLRResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteLRResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertLINK_ATTI">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODLinkAtti" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertLINK_ATTIResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertLINK_ATTIResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteLINK_ATTI">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteLINK_ATTIResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteLINK_ATTIResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODAtto" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ambiente" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertATTOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ambiente" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteATTOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectATTI">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectATTIResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectATTIResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO_SI">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODAtto_SI" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO_SIResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertATTO_SIResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO_SI">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO_SIResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteATTO_SIResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCONS">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODConsigliere" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCONSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertCONSResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCONS">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCONSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteCONSResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectCONS">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectCONSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectCONSResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCONS_LEG">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODCons_Leg" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCONS_LEGResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertCONS_LEGResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteLINK_CONS_LEG">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteLINK_CONS_LEGResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteLINK_CONS_LEGResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertORGANO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODOrgano" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertORGANOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertORGANOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteORGANO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteORGANOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteORGANOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertGRUPPO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODListaGruppo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertGRUPPOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertGRUPPOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteGRUPPO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteGRUPPOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteGRUPPOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCOMPOSIZIONE_GRUPPO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODComposizioneListaGruppo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCOMPOSIZIONE_GRUPPOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertCOMPOSIZIONE_GRUPPOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCOMPOSIZIONE_GRUPPO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCOMPOSIZIONE_GRUPPOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteCOMPOSIZIONE_GRUPPOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectCOMPOSIZIONE_GRUPPO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectCOMPOSIZIONE_GRUPPOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectCOMPOSIZIONE_GRUPPOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCARICA">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODCarica" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCARICAResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertCARICAResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCARICA">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCARICAResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteCARICAResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectCARICHE">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectCARICHEResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectCARICHEResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertDUP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODDelibera" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertDUPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertDUPResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteDUP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteDUPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteDUPResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO_VAL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODAtto_val" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO_VALResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertATTO_VALResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO_VAL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO_VALResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteATTO_VALResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectATTI_VAL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectATTI_VALResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectATTI_VALResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO_VAL_ALLEGATO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODAtto_val_allegato" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertATTO_VAL_ALLEGATOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertATTO_VAL_ALLEGATOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO_VAL_ALLEGATO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteATTO_VAL_ALLEGATOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteATTO_VAL_ALLEGATOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectATTO_VAL_ALLEGATI">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectATTO_VAL_ALLEGATIResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectATTO_VAL_ALLEGATIResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCALENDARIO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODCalendario" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertCALENDARIOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertCALENDARIOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCALENDARIO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCALENDARIOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteCALENDARIOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertEM">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODEm" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertEMResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertEMResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteEM">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteEMResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteEMResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectEM">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectEMResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectEMResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertTest">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ODTest" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PRIVATE_TOKEN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpsertTestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpsertTestResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectGIUNTA">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="qry" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="order" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SelectGIUNTAResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SelectGIUNTAResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ConnTestSoapIn">
+    <wsdl:part name="parameters" element="tns:ConnTest" />
+  </wsdl:message>
+  <wsdl:message name="ConnTestSoapOut">
+    <wsdl:part name="parameters" element="tns:ConnTestResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckInfoTABSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckInfoTAB" />
+  </wsdl:message>
+  <wsdl:message name="CheckInfoTABSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckInfoTABResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertLRSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertLR" />
+  </wsdl:message>
+  <wsdl:message name="UpsertLRSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertLRResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteLRSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteLR" />
+  </wsdl:message>
+  <wsdl:message name="DeleteLRSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteLRResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertLINK_ATTISoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertLINK_ATTI" />
+  </wsdl:message>
+  <wsdl:message name="UpsertLINK_ATTISoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertLINK_ATTIResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteLINK_ATTISoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteLINK_ATTI" />
+  </wsdl:message>
+  <wsdl:message name="DeleteLINK_ATTISoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteLINK_ATTIResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTOSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertATTO" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTOSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertATTOResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTOSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteATTO" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTOSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteATTOResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectATTISoapIn">
+    <wsdl:part name="parameters" element="tns:SelectATTI" />
+  </wsdl:message>
+  <wsdl:message name="SelectATTISoapOut">
+    <wsdl:part name="parameters" element="tns:SelectATTIResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTO_SISoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertATTO_SI" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTO_SISoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertATTO_SIResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTO_SISoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteATTO_SI" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTO_SISoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteATTO_SIResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCONSSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertCONS" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCONSSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertCONSResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCONSSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteCONS" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCONSSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteCONSResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectCONSSoapIn">
+    <wsdl:part name="parameters" element="tns:SelectCONS" />
+  </wsdl:message>
+  <wsdl:message name="SelectCONSSoapOut">
+    <wsdl:part name="parameters" element="tns:SelectCONSResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCONS_LEGSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertCONS_LEG" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCONS_LEGSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertCONS_LEGResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteLINK_CONS_LEGSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteLINK_CONS_LEG" />
+  </wsdl:message>
+  <wsdl:message name="DeleteLINK_CONS_LEGSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteLINK_CONS_LEGResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertORGANOSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertORGANO" />
+  </wsdl:message>
+  <wsdl:message name="UpsertORGANOSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertORGANOResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteORGANOSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteORGANO" />
+  </wsdl:message>
+  <wsdl:message name="DeleteORGANOSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteORGANOResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertGRUPPOSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertGRUPPO" />
+  </wsdl:message>
+  <wsdl:message name="UpsertGRUPPOSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertGRUPPOResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteGRUPPOSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteGRUPPO" />
+  </wsdl:message>
+  <wsdl:message name="DeleteGRUPPOSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteGRUPPOResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCOMPOSIZIONE_GRUPPOSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertCOMPOSIZIONE_GRUPPO" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCOMPOSIZIONE_GRUPPOSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertCOMPOSIZIONE_GRUPPOResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCOMPOSIZIONE_GRUPPOSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteCOMPOSIZIONE_GRUPPO" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCOMPOSIZIONE_GRUPPOSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteCOMPOSIZIONE_GRUPPOResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectCOMPOSIZIONE_GRUPPOSoapIn">
+    <wsdl:part name="parameters" element="tns:SelectCOMPOSIZIONE_GRUPPO" />
+  </wsdl:message>
+  <wsdl:message name="SelectCOMPOSIZIONE_GRUPPOSoapOut">
+    <wsdl:part name="parameters" element="tns:SelectCOMPOSIZIONE_GRUPPOResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCARICASoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertCARICA" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCARICASoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertCARICAResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCARICASoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteCARICA" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCARICASoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteCARICAResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectCARICHESoapIn">
+    <wsdl:part name="parameters" element="tns:SelectCARICHE" />
+  </wsdl:message>
+  <wsdl:message name="SelectCARICHESoapOut">
+    <wsdl:part name="parameters" element="tns:SelectCARICHEResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertDUPSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertDUP" />
+  </wsdl:message>
+  <wsdl:message name="UpsertDUPSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertDUPResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteDUPSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteDUP" />
+  </wsdl:message>
+  <wsdl:message name="DeleteDUPSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteDUPResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTO_VALSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertATTO_VAL" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTO_VALSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertATTO_VALResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTO_VALSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteATTO_VAL" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTO_VALSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteATTO_VALResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectATTI_VALSoapIn">
+    <wsdl:part name="parameters" element="tns:SelectATTI_VAL" />
+  </wsdl:message>
+  <wsdl:message name="SelectATTI_VALSoapOut">
+    <wsdl:part name="parameters" element="tns:SelectATTI_VALResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTO_VAL_ALLEGATOSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertATTO_VAL_ALLEGATO" />
+  </wsdl:message>
+  <wsdl:message name="UpsertATTO_VAL_ALLEGATOSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertATTO_VAL_ALLEGATOResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTO_VAL_ALLEGATOSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteATTO_VAL_ALLEGATO" />
+  </wsdl:message>
+  <wsdl:message name="DeleteATTO_VAL_ALLEGATOSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteATTO_VAL_ALLEGATOResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectATTO_VAL_ALLEGATISoapIn">
+    <wsdl:part name="parameters" element="tns:SelectATTO_VAL_ALLEGATI" />
+  </wsdl:message>
+  <wsdl:message name="SelectATTO_VAL_ALLEGATISoapOut">
+    <wsdl:part name="parameters" element="tns:SelectATTO_VAL_ALLEGATIResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCALENDARIOSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertCALENDARIO" />
+  </wsdl:message>
+  <wsdl:message name="UpsertCALENDARIOSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertCALENDARIOResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCALENDARIOSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteCALENDARIO" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCALENDARIOSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteCALENDARIOResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertEMSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertEM" />
+  </wsdl:message>
+  <wsdl:message name="UpsertEMSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertEMResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteEMSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteEM" />
+  </wsdl:message>
+  <wsdl:message name="DeleteEMSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteEMResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectEMSoapIn">
+    <wsdl:part name="parameters" element="tns:SelectEM" />
+  </wsdl:message>
+  <wsdl:message name="SelectEMSoapOut">
+    <wsdl:part name="parameters" element="tns:SelectEMResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpsertTestSoapIn">
+    <wsdl:part name="parameters" element="tns:UpsertTest" />
+  </wsdl:message>
+  <wsdl:message name="UpsertTestSoapOut">
+    <wsdl:part name="parameters" element="tns:UpsertTestResponse" />
+  </wsdl:message>
+  <wsdl:message name="SelectGIUNTASoapIn">
+    <wsdl:part name="parameters" element="tns:SelectGIUNTA" />
+  </wsdl:message>
+  <wsdl:message name="SelectGIUNTASoapOut">
+    <wsdl:part name="parameters" element="tns:SelectGIUNTAResponse" />
+  </wsdl:message>
+  <wsdl:portType name="UpsertOpenDataSoap">
+    <wsdl:operation name="ConnTest">
+      <wsdl:input message="tns:ConnTestSoapIn" />
+      <wsdl:output message="tns:ConnTestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckInfoTAB">
+      <wsdl:input message="tns:CheckInfoTABSoapIn" />
+      <wsdl:output message="tns:CheckInfoTABSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertLR">
+      <wsdl:input message="tns:UpsertLRSoapIn" />
+      <wsdl:output message="tns:UpsertLRSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLR">
+      <wsdl:input message="tns:DeleteLRSoapIn" />
+      <wsdl:output message="tns:DeleteLRSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertLINK_ATTI">
+      <wsdl:input message="tns:UpsertLINK_ATTISoapIn" />
+      <wsdl:output message="tns:UpsertLINK_ATTISoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLINK_ATTI">
+      <wsdl:input message="tns:DeleteLINK_ATTISoapIn" />
+      <wsdl:output message="tns:DeleteLINK_ATTISoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO">
+      <wsdl:input message="tns:UpsertATTOSoapIn" />
+      <wsdl:output message="tns:UpsertATTOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO">
+      <wsdl:input message="tns:DeleteATTOSoapIn" />
+      <wsdl:output message="tns:DeleteATTOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTI">
+      <wsdl:input message="tns:SelectATTISoapIn" />
+      <wsdl:output message="tns:SelectATTISoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_SI">
+      <wsdl:input message="tns:UpsertATTO_SISoapIn" />
+      <wsdl:output message="tns:UpsertATTO_SISoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_SI">
+      <wsdl:input message="tns:DeleteATTO_SISoapIn" />
+      <wsdl:output message="tns:DeleteATTO_SISoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCONS">
+      <wsdl:input message="tns:UpsertCONSSoapIn" />
+      <wsdl:output message="tns:UpsertCONSSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCONS">
+      <wsdl:input message="tns:DeleteCONSSoapIn" />
+      <wsdl:output message="tns:DeleteCONSSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectCONS">
+      <wsdl:input message="tns:SelectCONSSoapIn" />
+      <wsdl:output message="tns:SelectCONSSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCONS_LEG">
+      <wsdl:input message="tns:UpsertCONS_LEGSoapIn" />
+      <wsdl:output message="tns:UpsertCONS_LEGSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLINK_CONS_LEG">
+      <wsdl:input message="tns:DeleteLINK_CONS_LEGSoapIn" />
+      <wsdl:output message="tns:DeleteLINK_CONS_LEGSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertORGANO">
+      <wsdl:input message="tns:UpsertORGANOSoapIn" />
+      <wsdl:output message="tns:UpsertORGANOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteORGANO">
+      <wsdl:input message="tns:DeleteORGANOSoapIn" />
+      <wsdl:output message="tns:DeleteORGANOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertGRUPPO">
+      <wsdl:input message="tns:UpsertGRUPPOSoapIn" />
+      <wsdl:output message="tns:UpsertGRUPPOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteGRUPPO">
+      <wsdl:input message="tns:DeleteGRUPPOSoapIn" />
+      <wsdl:output message="tns:DeleteGRUPPOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCOMPOSIZIONE_GRUPPO">
+      <wsdl:input message="tns:UpsertCOMPOSIZIONE_GRUPPOSoapIn" />
+      <wsdl:output message="tns:UpsertCOMPOSIZIONE_GRUPPOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCOMPOSIZIONE_GRUPPO">
+      <wsdl:input message="tns:DeleteCOMPOSIZIONE_GRUPPOSoapIn" />
+      <wsdl:output message="tns:DeleteCOMPOSIZIONE_GRUPPOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectCOMPOSIZIONE_GRUPPO">
+      <wsdl:input message="tns:SelectCOMPOSIZIONE_GRUPPOSoapIn" />
+      <wsdl:output message="tns:SelectCOMPOSIZIONE_GRUPPOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCARICA">
+      <wsdl:input message="tns:UpsertCARICASoapIn" />
+      <wsdl:output message="tns:UpsertCARICASoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCARICA">
+      <wsdl:input message="tns:DeleteCARICASoapIn" />
+      <wsdl:output message="tns:DeleteCARICASoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectCARICHE">
+      <wsdl:input message="tns:SelectCARICHESoapIn" />
+      <wsdl:output message="tns:SelectCARICHESoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertDUP">
+      <wsdl:input message="tns:UpsertDUPSoapIn" />
+      <wsdl:output message="tns:UpsertDUPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteDUP">
+      <wsdl:input message="tns:DeleteDUPSoapIn" />
+      <wsdl:output message="tns:DeleteDUPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_VAL">
+      <wsdl:input message="tns:UpsertATTO_VALSoapIn" />
+      <wsdl:output message="tns:UpsertATTO_VALSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_VAL">
+      <wsdl:input message="tns:DeleteATTO_VALSoapIn" />
+      <wsdl:output message="tns:DeleteATTO_VALSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTI_VAL">
+      <wsdl:input message="tns:SelectATTI_VALSoapIn" />
+      <wsdl:output message="tns:SelectATTI_VALSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_VAL_ALLEGATO">
+      <wsdl:input message="tns:UpsertATTO_VAL_ALLEGATOSoapIn" />
+      <wsdl:output message="tns:UpsertATTO_VAL_ALLEGATOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_VAL_ALLEGATO">
+      <wsdl:input message="tns:DeleteATTO_VAL_ALLEGATOSoapIn" />
+      <wsdl:output message="tns:DeleteATTO_VAL_ALLEGATOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTO_VAL_ALLEGATI">
+      <wsdl:input message="tns:SelectATTO_VAL_ALLEGATISoapIn" />
+      <wsdl:output message="tns:SelectATTO_VAL_ALLEGATISoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCALENDARIO">
+      <wsdl:input message="tns:UpsertCALENDARIOSoapIn" />
+      <wsdl:output message="tns:UpsertCALENDARIOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCALENDARIO">
+      <wsdl:input message="tns:DeleteCALENDARIOSoapIn" />
+      <wsdl:output message="tns:DeleteCALENDARIOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertEM">
+      <wsdl:input message="tns:UpsertEMSoapIn" />
+      <wsdl:output message="tns:UpsertEMSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEM">
+      <wsdl:input message="tns:DeleteEMSoapIn" />
+      <wsdl:output message="tns:DeleteEMSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectEM">
+      <wsdl:input message="tns:SelectEMSoapIn" />
+      <wsdl:output message="tns:SelectEMSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpsertTest">
+      <wsdl:input message="tns:UpsertTestSoapIn" />
+      <wsdl:output message="tns:UpsertTestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SelectGIUNTA">
+      <wsdl:input message="tns:SelectGIUNTASoapIn" />
+      <wsdl:output message="tns:SelectGIUNTASoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="UpsertOpenDataSoap" type="tns:UpsertOpenDataSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ConnTest">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/ConnTest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckInfoTAB">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/CheckInfoTAB" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertLR">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertLR" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLR">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteLR" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertLINK_ATTI">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertLINK_ATTI" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLINK_ATTI">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteLINK_ATTI" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTI">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectATTI" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_SI">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO_SI" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_SI">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO_SI" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCONS">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCONS" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCONS">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCONS" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectCONS">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectCONS" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCONS_LEG">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCONS_LEG" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLINK_CONS_LEG">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteLINK_CONS_LEG" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertORGANO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertORGANO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteORGANO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteORGANO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertGRUPPO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertGRUPPO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteGRUPPO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteGRUPPO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCOMPOSIZIONE_GRUPPO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCOMPOSIZIONE_GRUPPO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCOMPOSIZIONE_GRUPPO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCOMPOSIZIONE_GRUPPO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectCOMPOSIZIONE_GRUPPO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectCOMPOSIZIONE_GRUPPO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCARICA">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCARICA" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCARICA">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCARICA" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectCARICHE">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectCARICHE" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertDUP">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertDUP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteDUP">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteDUP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_VAL">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO_VAL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_VAL">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO_VAL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTI_VAL">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectATTI_VAL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_VAL_ALLEGATO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO_VAL_ALLEGATO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_VAL_ALLEGATO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO_VAL_ALLEGATO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTO_VAL_ALLEGATI">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectATTO_VAL_ALLEGATI" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCALENDARIO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCALENDARIO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCALENDARIO">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCALENDARIO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertEM">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertEM" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEM">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteEM" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectEM">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectEM" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertTest">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertTest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectGIUNTA">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectGIUNTA" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="UpsertOpenDataSoap12" type="tns:UpsertOpenDataSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ConnTest">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/ConnTest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckInfoTAB">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/CheckInfoTAB" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertLR">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertLR" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLR">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteLR" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertLINK_ATTI">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertLINK_ATTI" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLINK_ATTI">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteLINK_ATTI" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTI">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectATTI" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_SI">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO_SI" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_SI">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO_SI" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCONS">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCONS" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCONS">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCONS" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectCONS">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectCONS" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCONS_LEG">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCONS_LEG" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteLINK_CONS_LEG">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteLINK_CONS_LEG" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertORGANO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertORGANO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteORGANO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteORGANO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertGRUPPO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertGRUPPO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteGRUPPO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteGRUPPO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCOMPOSIZIONE_GRUPPO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCOMPOSIZIONE_GRUPPO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCOMPOSIZIONE_GRUPPO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCOMPOSIZIONE_GRUPPO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectCOMPOSIZIONE_GRUPPO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectCOMPOSIZIONE_GRUPPO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCARICA">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCARICA" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCARICA">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCARICA" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectCARICHE">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectCARICHE" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertDUP">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertDUP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteDUP">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteDUP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_VAL">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO_VAL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_VAL">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO_VAL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTI_VAL">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectATTI_VAL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertATTO_VAL_ALLEGATO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertATTO_VAL_ALLEGATO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteATTO_VAL_ALLEGATO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteATTO_VAL_ALLEGATO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectATTO_VAL_ALLEGATI">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectATTO_VAL_ALLEGATI" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertCALENDARIO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCALENDARIO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCALENDARIO">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteCALENDARIO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertEM">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertEM" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEM">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/DeleteEM" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectEM">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectEM" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpsertTest">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertTest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SelectGIUNTA">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/OpenData/SelectGIUNTA" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="UpsertOpenData">
+    <wsdl:port name="UpsertOpenDataSoap" binding="tns:UpsertOpenDataSoap">
+      <soap:address location="https://intranet.consiglio.regione.lombardia.it/OpenData/upsertopendata.asmx" />
+    </wsdl:port>
+    <wsdl:port name="UpsertOpenDataSoap12" binding="tns:UpsertOpenDataSoap12">
+      <soap12:address location="https://intranet.consiglio.regione.lombardia.it/OpenData/upsertopendata.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

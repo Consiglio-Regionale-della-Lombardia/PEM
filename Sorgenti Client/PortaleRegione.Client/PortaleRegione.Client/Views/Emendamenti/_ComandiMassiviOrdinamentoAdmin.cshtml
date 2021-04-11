@@ -1,0 +1,26 @@
+﻿@model Guid
+
+<div style="bottom: 0; position: fixed; right: 250px; z-index: 998">
+    <ul id="dropdown3" class="dropdown-content">
+        <li>
+            <a href="#!" class="amber white-text" onclick="Ordina_EMTrattazione('@Model')"><i class="material-icons">cached</i> Ordina atto</a>
+        </li>
+        <li>
+            <a href="#!" class="blue white-text" onclick="SpostaUP_EMTrattazione()"><i class="material-icons">redo</i> Sposta EM UP</a>
+        </li>
+        <li>
+            <a href="#!" class="blue white-text" onclick="SpostaDOWN_EMTrattazione()"><i class="material-icons">undo</i> Sposta EM DOWN</a>
+        </li>
+        <li>
+            <a href="#!" class="purple white-text" onclick="Sposta_EMTrattazione()"><i class="material-icons">arrow_forward</i> Sposta EM POSIZIONE</a>
+        </li>
+        @*<li>
+            <a href="#!" class="green white-text" onclick="OrdinaEMTrattazione('@Model')"><i class="material-icons">send</i> Ordinamento concluso</a>
+        </li>*@
+        <li class="divider"></li>
+        <li>
+            <a href="#!">Annulla</a>
+        </li>
+    </ul>
+    <a id="btnComandiMassiviOrdinamentoAdmin" class="btn-large orange dropdown-trigger" href="#!" data-target="dropdown3" style="min-width: 250px">ORDINAMENTI<i class="material-icons right">arrow_drop_down</i></a>
+</div>

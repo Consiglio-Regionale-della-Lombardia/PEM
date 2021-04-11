@@ -1,0 +1,241 @@
+﻿@using Newtonsoft.Json
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@using PortaleRegione.DTO.Model
+@{
+    var displayName = "";
+    var foto = "";
+    IEnumerable<RuoliDto> ruoli = new List<RuoliDto>();
+    IEnumerable<KeyValueDto> gruppiAdmin = new List<KeyValueDto>();
+    GruppiDto gruppo = null;
+    var currentRole = RuoliIntEnum.Utente;
+    var carica = string.Empty;
+
+    if (HttpContext.Current.User.Identity.IsAuthenticated)
+    {
+        var authCookie1 = Request.Cookies["PRCookies1"];
+        var authCookie2 = Request.Cookies["PRCookies2"];
+        var authCookie3 = Request.Cookies["PRCookies3"];
+        if (authCookie1 != null && authCookie2 != null && authCookie3 != null)
+        {
+            if (!string.IsNullOrEmpty(authCookie1.Value) && !string.IsNullOrEmpty(authCookie2.Value) && !string.IsNullOrEmpty(authCookie3.Value))
+            {
+                var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
+                var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
+                var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
+                var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
+
+                currentRole = data.CurrentRole;
+                ruoli = data.Ruoli;
+                displayName = data.DisplayName;
+                foto = data.foto;
+                gruppo = data.Gruppo;
+                carica = data.IsGiunta() ? data.Carica : string.Empty;
+                if (HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
+                {
+                    var gCookie = Request.Cookies["GCookies"];
+                    if (gCookie != null)
+                    {
+                        if (!string.IsNullOrEmpty(gCookie.Value))
+                        {
+                            var gTicket = FormsAuthentication.Decrypt(gCookie.Value);
+                            var gData = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(gTicket.UserData);
+                            if (gData != null)
+                            {
+                                gruppiAdmin = gData;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+<div id="slide-out" class="sidenav sidenav-fixed">
+    @if (!string.IsNullOrEmpty(carica))
+    {
+        <div class="row green darken-3 center" style="margin: 0 !important">
+            <div class="col s12">
+                <label class="white-text" style="padding: 10px">@carica</label>
+            </div>
+        </div>
+    }
+    <ul style="margin: 0">
+        <li>
+            <div class="user-view" style="padding: 10px">
+                <div class="row" style="margin-bottom: unset !important;margin-top: unset !important">
+                    <div class="col s12">
+                        <ul class="dropdown-content" id="ddlSubMenu" style="z-index: 9999">
+                            <li>
+                                <a href="@Url.Action("CambioPin", "Persone")">
+                                    <i class="material-icons">settings</i>Impostazioni Pin
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Index", "VideoTutorial")">
+                                    <i class="material-icons">music_video</i>Video Tutorial
+                                </a>
+                            </li>
+                        </ul>
+                        <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 4px">
+                            <i class="material-icons">more_vert</i>
+                        </a>
+                    </div>
+                </div>
+                <div class="row valign-wrapper" style="margin-bottom: unset !important;margin-top: unset !important">
+                    <div class="col s3 center">
+                        <img class="responsive-img circle" style="width: 35px;height: 35px" src='http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto'>
+                    </div>
+                    <div class="col s9" style="padding-left: 0">
+                        <h6 class="black-text">
+                            <b>@displayName</b>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (ruoli.Any())
+                        {
+                            var testo = string.Empty;
+                            var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int) currentRole);
+
+                            if (ruoliDto != null)
+                            {
+                                testo = ruoliDto.Ruolo;
+                            }
+                            else
+                            {
+                                testo = "Responsabile Segreteria Politica";
+                            }
+
+                            var triggerClass = "";
+                            var iconClassSwapRuoli = "";
+                            if (ruoli.Count() > 1)
+                            {
+                                //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
+                                triggerClass = "dropdown-trigger";
+                                iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
+                                <ul id='ddlCambioRuolo' class='dropdown-content'>
+                                    @foreach (var ruolo in ruoli)
+                                    {
+                                        if (ruolo.IDruolo != (int) currentRole)
+                                        {
+                                            <li>
+                                                <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            }
+
+                            <a class='@triggerClass truncate chip black-text' style="min-width: unset; background-color: unset" href='#' data-target='ddlCambioRuolo'>
+                                @testo @Html.Raw(iconClassSwapRuoli)
+                            </a>
+                        }
+                    </div>
+                    <div class="col s12" style="margin-top:-15px">
+                        @{
+                            var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
+                            if (HttpContext.Current.User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale)
+                                || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_Giunta))
+                            {
+                                testoGruppo = "Giunta";
+                            }
+                            var triggerClassGruppi = "";
+                            var iconClassSwapGruppi = "";
+                            if (gruppiAdmin.Any())
+                            {
+                                triggerClassGruppi = "dropdown-trigger";
+                                iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
+                                <ul id='ddlCambioGruppo' class='dropdown-content'>
+                                    @foreach (var gruppiDto in gruppiAdmin)
+                                    {
+                                        <li>
+                                            <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
+                                               href="@Url.Action("CambioGruppo", "Autenticazione", new {gruppo = gruppiDto.id, returnUrl = Request.Url})">
+                                                <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            if (!HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+                            {
+                                <a class='@triggerClassGruppi chip truncate black-text' style="min-width: unset; background-color: unset" href='#' data-target='ddlCambioGruppo'>
+                                    @testoGruppo @Html.Raw(iconClassSwapGruppi)
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="menuItem_Sedute">
+            <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "Sedute")"><i class="material-icons">event</i>Riepilogo sedute</a>
+        </li>
+        <li class="menuItem_Notifiche">
+            <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})"><i class="material-icons">email</i>Notifiche</a>
+        </li>
+        <li class="menuItem_Stampe">
+            <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
+        </li>
+        @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
+        {
+            <li class="menuItem_Amministrazione">
+                <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">build</i>Amministrazione</a>
+            </li>
+        }
+    </ul>
+    <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
+        <div class="row valign-wrapper">
+            <div class="col s9">
+                <p>Trattazione aula</p>
+            </div>
+            <div class="col s3">
+                <div class="switch">
+                    <label>
+                        <input id="switchTrattazione" type="checkbox" onclick="AbilitaTrattazione('@Request.RawUrl')">
+                        <span class="lever"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed-action-btn" style="bottom: 150px !important; left: 23px; right: unset !important;">
+        @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
+        {
+            @Html.AntiForgeryToken()
+            <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
+                <i class="icon material-icons">lock_outline</i> Esci
+            </a>
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        var url = '@Request.Url';
+         if (url.includes("notifiche")) {
+            $('.menuItem_Notifiche').addClass("active");
+        } else if (url.includes("stampe")) {
+            $('.menuItem_Stampe').addClass("active");
+        } else if (url.includes("adminpanel")) {
+             $('.menuItem_Amministrazione').addClass("active");
+         } else {
+             $('.menuItem_Sedute').addClass("active");
+         }
+        var mode = getClientMode();
+        if (mode == 2) {
+            $('#switchTrattazione').prop("checked", true);
+        }
+    });
+
+    function logout() {
+        $('#formLogout').submit();
+    }
+</script>

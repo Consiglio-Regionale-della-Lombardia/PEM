@@ -1,0 +1,51 @@
+﻿@using PortaleRegione.DTO.Enum
+@model bool
+@if (!Model)
+{
+    <div class="fixed-action-btn">
+        <a class="btn-floating blue tooltipped" onclick="ConfirmStampa()" style="right: 90px" data-tooltip="Stampa" data-position="left">
+            <i class="material-icons">print</i>
+        </a>
+    </div>
+    <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
+        <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+            <i class="large material-icons">playlist_add</i>
+        </a>
+        <ul>
+            <li>
+                <a id="btnFirmaMassivo" class="btn-floating green tooltipped" onclick="RevealFirmaDepositoMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
+                    <i class="material-icons">gavel</i>
+                </a>
+            </li>
+            <li>
+                <a id="btnDepositaMassivo" class="btn-floating purple darken-1 tooltipped" onclick="RevealFirmaDepositoMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                    <i class="material-icons">lock</i>
+                </a>
+            </li>
+            <li>
+                <a id="btnInvitaMassivo" class="btn-floating amber tooltipped" data-position="left" data-tooltip="Invito massivo">
+                    <i class="material-icons">send</i>
+                </a>
+            </li>
+            <li>
+                <a class="btn-floating grey tooltipped" onclick="DeselectALLEM()" data-position="left" data-tooltip="Annulla">
+                    <i class="material-icons">undo</i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="btnNuovoEM" class="fixed-action-btn" style="display: block">
+        <a id="btnCreaEM" class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo emendamento">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+}
+else
+{
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large blue darken-1 tooltipped" onclick="ConfirmStampa()" data-position="left" data-tooltip="Stampa">
+            <i class="material-icons">print</i>
+        </a>
+    </div>
+}

@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+<body>
+    {MESSAGGIOINIZIALE}
+    <br />
+    <br />
+    <table style="width: 80%; border: 1px dotted gray;">
+        <tr>
+            <td style="text-align:left" colspan="2">
+                <h5>&nbsp;</h5>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 150px; border-right: solid; text-align:center; border-right-width: 1px; border-right-color: #000000; border-right-style: solid; border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: #000000;">
+                {IMGLOGO}
+            </td>
+            <td style="width: 100%; text-align:center; border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: #000000;">
+                <h3>
+                    <b>{lblTitoloEMView}</b>
+                </h3>
+                <div style="font-size: small; font-style: italic; text-align: right">
+                    {lblPDLEMView}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 150px; border-right: solid; vertical-align:bottom; border-right-width: 1px; border-right-color: #000000;">
+                <label></label>
+            </td>
+            <td style="width: 100%;text-align:center">
+                <b>{lblTitoloPDLEMView}</b><br />
+                {lblSubTitoloPDLEMView}<br />
+                <br />
+
+                <div style="border-color: Gray;border-width: 1px; border-style: solid; border-radius: 10px; padding: 10px; margin-left:100px; margin-right:100px;">
+                    {lblTipoEMView} - {lblParteEMView}
+                </div>
+                <p></p>
+                <br /><b>EMENDAMENTO</b><br />
+                <p style="text-align: left">
+                    &nbsp;{lblTestoEMView}
+                </p>
+                <br />
+                <p style="text-align: left">
+                    RELAZIONE
+                </p>
+                <p style="text-align: left">
+                    &nbsp;{lblTestoRelEMView}
+                </p>
+                <p style="text-align: left">
+                    <b>L'EMENDAMENTO HA EFFETTI FINANZIARI?</b> {lblEffettiFinanziari}
+                </p>
+                <br />
+                <div style="padding:10px">
+                    <div style="width:100%; text-align: left;">
+                        <h4>Firme</h4>
+                    </div>
+                    <div style="text-align:left; font-style: normal;">
+                        {radGridFirmeView}
+                    </div>
+                </div>
+                <br />
+            </td>
+        </tr>
+    </table>
+
+    <p>
+        Collegati alla <a href='{LINKPEM}'>piattaforma PEM</a> per {azione} questo emendamento.
+        <br />
+        <br />
+        {LINKPEMRIEPILOGO}
+        <br />
+        <br />
+        {LINKPEMRIEPILOGO_FIRME}
+    </p>
+
+</body>
+</html>

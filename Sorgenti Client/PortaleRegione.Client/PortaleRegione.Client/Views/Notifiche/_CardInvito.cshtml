@@ -1,0 +1,69 @@
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Domain.NotificaDto
+@{
+    var titoloSeduta = string.Format("Seduta del {0:dd/MM/yyyy}", Model.ATTI.SEDUTE.Data_seduta.Value);
+    var isSubEM = Model.EM.Rif_UIDEM.HasValue;
+    var progressivo = Model.EM.Progressivo.Value;
+    var title = "TEMP";
+    if (isSubEM)
+    {
+        progressivo = Model.EM.SubProgressivo.Value;
+        title = "SUBEM";
+    }
+
+    var displayRiferimentoTemporaneo = string.Empty;
+    if (Model.EM.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+    {
+        displayRiferimentoTemporaneo = string.Format("(ex. {0} {1})", title, progressivo);
+    }
+}
+
+<div class="collapsible-header" onclick="GetDestinatariNotifica(@Model.UIDNotifica)">
+    <label><b>@titoloSeduta</b> - @Model.ATTI.TIPI_ATTO.Tipo_Atto @Model.ATTI.NAtto - <b>@Model.EM.DisplayTitle @displayRiferimentoTemporaneo</b></label>
+</div>
+<div class="collapsible-body">
+    <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+        <div class="col s6">
+            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+                <div class="col s12">
+                    <h5>Mittente</h5>
+                    <hr/>
+                    <div class="chip" style="min-width: unset">
+                        <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@Model.UTENTI_NoCons.foto" alt="@Model.UTENTI_NoCons.DisplayName">
+                        @Model.UTENTI_NoCons.DisplayName_GruppoCode
+                    </div>
+                </div>
+
+                <div class="col s12">
+                    <label>Invito a firmare</label>
+                    <div class="form-group">
+                        <p><b>@Model.EM.DisplayTitle</b></p>
+                        <h6>@Utility.MetaDatiEM_Label(Model.EM)</h6>
+                        <label>
+                            <b>Scadenza Presentazione EM:</b> @Model.ATTI.SEDUTE.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px">
+                        @if (Model.EM.Firmabile)
+                        {
+                            <div class="btn chip hoverable green center white-text" onclick="RevealFirmaDeposito('@Model.EM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
+                                <i class="icon material-icons">gavel</i> Firma
+                            </div>
+                        }
+                        <div class="btn chip blue white-text" style="min-width: unset" onclick="go('@Url.Action("ViewEmendamento", "Emendamenti", new {id = Model.UIDEM, notificaId = Model.UIDNotifica})')" title="Vedi EM">
+                            <i class="icon material-icons">arrow_forward</i> Vedi EM
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col s6">
+            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+                <div class="col s12">
+                    @Html.Partial("_CardInvito_Destinatari", Model.UIDNotifica)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

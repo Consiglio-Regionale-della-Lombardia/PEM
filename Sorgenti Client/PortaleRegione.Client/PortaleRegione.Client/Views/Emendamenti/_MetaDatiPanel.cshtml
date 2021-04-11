@@ -1,0 +1,268 @@
+﻿@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.EmendamentiFormModel
+
+<div class="form-group">
+    @Html.LabelFor(s => s.Emendamento.IDParte)
+    <div class="row">
+        <div class="col s12">
+            @foreach (var partiTestoDto in Model.ListaPartiEmendabili)
+            {
+                if (partiTestoDto.IDParte == PartiEMEnum.Missione)
+                {
+                    if (!Model.Emendamento.ATTI.VIS_Mis_Prog)
+                    {
+                        continue;
+                    }
+                }
+                <label class="black-text" style="margin-left: 20px">
+                    @Html.RadioButtonFor(m => m.Emendamento.IDParte, (int) partiTestoDto.IDParte, new {onchange = string.Format("PartiTestoEmendamento_OnChange({0})", (int) partiTestoDto.IDParte)})
+                    <span>@partiTestoDto.Parte</span>
+                </label>
+            }
+        </div>
+    </div>
+    @{
+        var detailPanelVisible = Model.Emendamento.IDParte == (int) PartiEMEnum.Titolo_PDL ? "none" : "block";
+    }
+    <div class="row" id="detailsPanel" style="display: @detailPanelVisible">
+        <div class="col s12">
+            <div class="card">
+
+                <div class="card-content">
+                    @{
+                        var pnlTitoloVisible = string.IsNullOrEmpty(Model.Emendamento.NTitolo) ? "none" : "block";
+                    }
+                    <div id="pnlTitolo" style="display: @pnlTitoloVisible">
+                        @Html.LabelFor(m => m.Emendamento.NTitolo)
+                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)"/>
+
+                    </div>
+                    @{
+                        var pnlCapoVisible = string.IsNullOrEmpty(Model.Emendamento.NCapo) ? "none" : "block";
+                    }
+                    <div id="pnlCapo" style="display: @pnlCapoVisible">
+                        @Html.LabelFor(m => m.Emendamento.NCapo)
+                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)"/>
+                    </div>
+                    @{
+                        var pnlArticoliVisible = Model.Emendamento.UIDArticolo.HasValue ? "block" : "none";
+                        if (pnlArticoliVisible == "block")
+                        {
+                            if (Model.Emendamento.UIDComma.HasValue)
+                            {
+                                if (Model.Emendamento.UIDLettera.HasValue)
+                                {
+                                    <script>
+                                        Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', '@Model.Emendamento.UIDComma.Value', '@Model.Emendamento.UIDLettera.Value')
+                                    </script>
+                                }
+                                else
+                                {
+                                    <script>
+                                        Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', '@Model.Emendamento.UIDComma', null)
+                                    </script>
+                                }
+                            }
+                            else
+                            {
+                                <script>
+                                    Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', null, null)
+                                </script>
+                            }
+                        }
+                    }
+                    <div id="pnlArticoli" style="display: @pnlArticoliVisible">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.UIDArticolo)
+                            @Html.DropDownListFor(m => m.Emendamento.UIDArticolo, new SelectList(Model.ListaArticoli, "UIDArticolo", "Articolo"), "Seleziona articolo", new {@class = "form-control", onchange = "Articoli_OnChange(this.value, null, null)", id = "ArticoliList"})
+                        </div>
+
+                        <div id="pnlCommi" style="display: none">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Emendamento.UIDComma)
+                                @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new {@class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList"})
+                            </div>
+                        </div>
+                        <div id="pnlLettere" style="display: none">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Emendamento.UIDLettera)
+                                @Html.DropDownListFor(m => m.Emendamento.UIDLettera, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona lettera", new {@class = "form-control", id = "LettereList"})
+                            </div>
+                        </div>
+                        @{
+                            var pnlLettereOLDVisible = string.IsNullOrEmpty(Model.Emendamento.NLettera) ? "none" : "block";
+                        }
+                        <div id="pnlLettereOLD" style="display: @pnlLettereOLDVisible">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Emendamento.NLettera)
+                                @Html.TextBoxFor(m => m.Emendamento.NLettera, new {id = "txtLetteraOLD"})
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pnlMissioni" style="display: none">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.NMissione)
+                            @Html.DropDownListFor(m => m.Emendamento.NMissione, new SelectList(Model.ListaMissioni, "NMissione", "Display"), "Seleziona elemento", new {@class = "form-control", id = "MissioniList"})
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.NProgramma)
+                            <input type="number" name="Emendamento.NProgramma" value="@Model.Emendamento.NProgramma" />
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.NTitoloB)
+                            @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new {@class = "form-control", id = "TitoliMissioniList"})
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(s => s.Emendamento.IDTipo_EM)
+    <div class="row">
+        <div class="col s12">
+            @foreach (var tipoDto in Model.ListaTipiEmendamento)
+            {
+                <label class="black-text" style="margin-left: 20px">
+                    @Html.RadioButtonFor(m => m.Emendamento.IDTipo_EM, tipoDto.IDTipo_EM, new {onchange = "TipoEmendamento_OnChange(this)"})
+                    <span>@tipoDto.Tipo_EM</span>
+                </label>
+            }
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdParteId"/>
+<input type="hidden" id="hdTipoId"/>
+<script>
+
+    function PartiTestoEmendamento_OnChange(item) {
+
+        ClearMetaDati();
+        $('#hdParteId').val(item);
+        var viewPanel = true;
+        if (item == "2")
+            $("#pnlTitolo").show();
+        else if (item == "3")
+            $("#pnlCapo").show();
+        else if (item == "4")
+            $("#pnlArticoli").show();
+        else if (item == "5")
+            $("#pnlMissioni").show();
+        else
+            viewPanel = false;
+
+        if (viewPanel == true)
+            $("#detailsPanel").show();
+        else
+            $("#detailsPanel").hide();
+    }
+
+    function TipoEmendamento_OnChange(item) {
+        TestoEmendamento_TipoEM(item.value);
+    }
+
+    function TestoEmendamento_TipoEM(tipo) {
+        $('#hdTipoId').val(tipo);
+        if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce").text().length < 200) {
+            var parteEMList = $('input[name="Emendamento.IDParte"]');
+            $.each(parteEMList,
+                function (index, itemParteEM) {
+                    if (itemParteEM.checked) {
+                        var testo = "";
+                        if (itemParteEM.value == 1) {
+                            testo = "Il titolo del PDL ";
+                        } else if (itemParteEM.value == 2) {
+                            testo = "Il titolo " + $("#Emendamento_NTitolo").val();
+                        } else if (itemParteEM.value == 3) {
+                            testo = "Il capo " + $("#Emendamento_NCapo").val();
+                        } else if (itemParteEM.value == 4) {
+                            if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
+                                testo = "La lettera " + $("#Emendamento_NLettera").val();
+                            } else if ($("#pnlLettere").is(":visible") && $("#LettereList option:selected").val() != 0) {
+                                testo = "La lettera " + $("#LettereList option:selected").text();
+                            }
+
+                            if ($("#pnlCommi").is(":visible") && $("#CommiList option:selected").val() != 0) {
+                                if (testo == "") {
+                                    testo = "Il comma ";
+                                } else {
+                                    testo = testo + " del comma ";
+                                }
+
+                                testo = testo + $("#CommiList option:selected").text();
+                            }
+                            if ($("#pnlArticoli").is(":visible") && $("#ArticoliList option:selected").val() != 0) {
+                                if (testo == "") {
+                                    testo = "L'articolo ";
+                                } else {
+                                    testo = testo + " dell'articolo ";
+                                }
+
+                                testo = testo + $("#ArticoliList option:selected").text();
+                            }
+                        } else if (itemParteEM.value == 5) {
+                            testo = "La missione " +
+                                $("#MissioniList option:selected").val() +
+                                " programma " +
+                                $("#Emendamento_NProgramma").val() +
+                                " titolo " +
+                                $("#TitoliMissioniList option:selected").val() +
+                                " ";
+                        }
+
+                        if (tipo == 1) {
+                            testo = testo + " è soppresso.";
+                        } else if (tipo == 2) {
+                            testo = testo + " è modificato come segue: ";
+                        } else if (tipo == 3) {
+                            testo = testo + " viene emendato aggiungendo: ";
+                        } else if (tipo == 4) {
+                            testo = testo + " è sostituito.";
+                        }
+                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce").text(testo);
+                    }
+                });
+        }
+    }
+
+    function ClearMetaDati() {
+        $("#pnlTitolo").hide();
+        $("#pnlCapo").hide();
+        $("#pnlMissioni").hide();
+        $("#pnlArticoli").hide();
+        $("#pnlCommi").hide();
+        $("#pnlLettere").hide();
+        $("#pnlLettereOLD").hide();
+
+        //$('input[id="Emendamento_IDTipo_EM"]').each(function (index, item) {
+        //    if (item.checked) {
+        //        item.checked = false;
+        //    }
+        //});
+
+        $("#Emendamento_NLettera").val("");
+        $("#Emendamento_NCapo").val("");
+        $("#Emendamento_NTitolo").val("");
+        $("#Emendamento_NProgramma").val("");
+
+        $("#ArticoliList").prop("selectedIndex", 0);
+        var elemsArticoli = document.querySelectorAll("#ArticoliList");
+        M.FormSelect.init(elemsArticoli, null);
+        $("#CommiList").prop("selectedIndex", 0);
+        var elemsCommi = document.querySelectorAll("#CommiList");
+        M.FormSelect.init(elemsCommi, null);
+        $("#LettereList").prop("selectedIndex", 0);
+        var elemsLettere = document.querySelectorAll("#LettereList");
+        M.FormSelect.init(elemsLettere, null);
+
+        $("#MissioniList").prop("selectedIndex", 0);
+        var elemsMissioni = document.querySelectorAll("#MissioniList");
+        M.FormSelect.init(elemsMissioni, null);
+        $("#TitoliMissioniList").prop("selectedIndex", 0);
+        var elemsTitiliMissioni = document.querySelectorAll("#TitoliMissioniList");
+        M.FormSelect.init(elemsTitiliMissioni, null);
+    }
+
+</script>

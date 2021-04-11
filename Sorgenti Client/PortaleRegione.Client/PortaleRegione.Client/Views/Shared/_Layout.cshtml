@@ -1,0 +1,95 @@
+﻿@using System.Configuration
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Applicazione ASP.NET</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    @Styles.Render("~/Content/css")
+    <script src="https://cdn.tiny.cloud/1/2mqsotaemo0a1w4fsiq3j7vf4901zkryk9pem18pws7m6do9/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @Scripts.Render("~/bundles/lib")
+    @Scripts.Render("~/bundles/logic")
+
+    <script>
+        baseUrl = '@Html.Raw(ConfigurationManager.AppSettings["URL_CLIENT"])';
+        AggiornaPosizioneTemi(baseUrl);
+        var cssTheme = "";
+        var mode = getClientMode();
+        if (mode == 2) {
+            cssTheme = trattazione_theme;
+        } else {
+            cssTheme = gruppi_theme;
+        }
+
+        var cssId = 'client-mode-theme'; // you could encode the css path itself to generate id..
+        if (!document.getElementById(cssId)) {
+            var head = document.getElementsByTagName('head')[0];
+            var link = document.createElement('link');
+            link.id = cssId;
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = cssTheme;
+            link.media = 'all';
+            head.appendChild(link);
+        }
+    </script>
+</head>
+<body>
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+    </div>
+
+@Html.Partial("_NavigationBar")
+
+<main>
+    @Html.Partial("_SXNavigationBar")
+    @RenderBody()
+</main>
+
+
+
+<div id="modalAction" class="modal">
+    <div class="modal-content">
+        <h5 id="emActionDisplayName"></h5>
+        <p id="emActionMessage"></p>
+        <div class="modal-footer">
+            <button type="button" class="btn modal-close grey">Annulla</button>
+            <a id="btnConfermaAction" class="btn red" href="#">Elimina</a>
+        </div>
+    </div>
+</div>
+
+@RenderSection("scripts", false)
+
+<script>
+    $("body").on("keyup",
+        function(event) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 27) {
+                // Trigger the button element with a click
+                swal({
+                        title: "Ops!",
+                        text: "Hai premuto il tasto 'ESC'. Vuoi uscire dal portale?",
+                        icon: "warning",
+                        buttons: { cancel: "Annulla", confirm: "Esci" },
+                        dangerMode: true,
+                    })
+                    .then((willDelete) => {
+                        if (!willDelete) return;
+                        logout();
+                    });
+            }
+        });
+</script>
+</body>
+</html>

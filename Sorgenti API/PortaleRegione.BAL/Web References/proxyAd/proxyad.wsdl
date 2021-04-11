@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="https://intranet.consiglio.regione.lombardia.it/proxyAD" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="https://intranet.consiglio.regione.lombardia.it/proxyAD" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="https://intranet.consiglio.regione.lombardia.it/proxyAD">
+      <s:element name="ConnTest">
+        <s:complexType />
+      </s:element>
+      <s:element name="ConnTestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ConnTestResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Authenticate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="domain" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AuthenticateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AuthenticateResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PasswordExpire">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="domain" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PasswordExpireResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="PasswordExpireResult" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroups">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="simplefilter" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupsResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUser_in_Group">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="groupDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUser_in_GroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUser_in_GroupResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveUserFromADGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="groupDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveUserFromADGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="RemoveUserFromADGroupResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddUserToADGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="groupDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddUserToADGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddUserToADGroupResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreatePEMADUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="usrGiunta" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreatePEMADUserResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ChangeADUserPass">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oldPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="newPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangeADUserPassResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ChangeADUserPassResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreatePEMADGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="groupDn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="users" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreatePEMADGroupResponse">
+        <s:complexType />
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ConnTestSoapIn">
+    <wsdl:part name="parameters" element="tns:ConnTest" />
+  </wsdl:message>
+  <wsdl:message name="ConnTestSoapOut">
+    <wsdl:part name="parameters" element="tns:ConnTestResponse" />
+  </wsdl:message>
+  <wsdl:message name="AuthenticateSoapIn">
+    <wsdl:part name="parameters" element="tns:Authenticate" />
+  </wsdl:message>
+  <wsdl:message name="AuthenticateSoapOut">
+    <wsdl:part name="parameters" element="tns:AuthenticateResponse" />
+  </wsdl:message>
+  <wsdl:message name="PasswordExpireSoapIn">
+    <wsdl:part name="parameters" element="tns:PasswordExpire" />
+  </wsdl:message>
+  <wsdl:message name="PasswordExpireSoapOut">
+    <wsdl:part name="parameters" element="tns:PasswordExpireResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroups" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUser_in_GroupSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUser_in_Group" />
+  </wsdl:message>
+  <wsdl:message name="GetUser_in_GroupSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUser_in_GroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromADGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:RemoveUserFromADGroup" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromADGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:RemoveUserFromADGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToADGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:AddUserToADGroup" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToADGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:AddUserToADGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreatePEMADUserSoapIn">
+    <wsdl:part name="parameters" element="tns:CreatePEMADUser" />
+  </wsdl:message>
+  <wsdl:message name="CreatePEMADUserSoapOut">
+    <wsdl:part name="parameters" element="tns:CreatePEMADUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeADUserPassSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangeADUserPass" />
+  </wsdl:message>
+  <wsdl:message name="ChangeADUserPassSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangeADUserPassResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreatePEMADGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:CreatePEMADGroup" />
+  </wsdl:message>
+  <wsdl:message name="CreatePEMADGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:CreatePEMADGroupResponse" />
+  </wsdl:message>
+  <wsdl:portType name="proxyADSoap">
+    <wsdl:operation name="ConnTest">
+      <wsdl:input message="tns:ConnTestSoapIn" />
+      <wsdl:output message="tns:ConnTestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Authenticate">
+      <wsdl:input message="tns:AuthenticateSoapIn" />
+      <wsdl:output message="tns:AuthenticateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PasswordExpire">
+      <wsdl:input message="tns:PasswordExpireSoapIn" />
+      <wsdl:output message="tns:PasswordExpireSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroups">
+      <wsdl:input message="tns:GetGroupsSoapIn" />
+      <wsdl:output message="tns:GetGroupsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUser_in_Group">
+      <wsdl:input message="tns:GetUser_in_GroupSoapIn" />
+      <wsdl:output message="tns:GetUser_in_GroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromADGroup">
+      <wsdl:input message="tns:RemoveUserFromADGroupSoapIn" />
+      <wsdl:output message="tns:RemoveUserFromADGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToADGroup">
+      <wsdl:input message="tns:AddUserToADGroupSoapIn" />
+      <wsdl:output message="tns:AddUserToADGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreatePEMADUser">
+      <wsdl:input message="tns:CreatePEMADUserSoapIn" />
+      <wsdl:output message="tns:CreatePEMADUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeADUserPass">
+      <wsdl:input message="tns:ChangeADUserPassSoapIn" />
+      <wsdl:output message="tns:ChangeADUserPassSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreatePEMADGroup">
+      <wsdl:input message="tns:CreatePEMADGroupSoapIn" />
+      <wsdl:output message="tns:CreatePEMADGroupSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="proxyADSoap" type="tns:proxyADSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ConnTest">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/ConnTest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Authenticate">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/Authenticate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PasswordExpire">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/PasswordExpire" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroups">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/GetGroups" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUser_in_Group">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/GetUser_in_Group" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromADGroup">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/RemoveUserFromADGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToADGroup">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/AddUserToADGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePEMADUser">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/CreatePEMADUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeADUserPass">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/ChangeADUserPass" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePEMADGroup">
+      <soap:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/CreatePEMADGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="proxyADSoap12" type="tns:proxyADSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ConnTest">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/ConnTest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Authenticate">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/Authenticate" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PasswordExpire">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/PasswordExpire" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroups">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/GetGroups" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUser_in_Group">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/GetUser_in_Group" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromADGroup">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/RemoveUserFromADGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToADGroup">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/AddUserToADGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePEMADUser">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/CreatePEMADUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeADUserPass">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/ChangeADUserPass" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePEMADGroup">
+      <soap12:operation soapAction="https://intranet.consiglio.regione.lombardia.it/proxyAD/CreatePEMADGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="proxyAD">
+    <wsdl:port name="proxyADSoap" binding="tns:proxyADSoap">
+      <soap:address location="https://intranet.consiglio.regione.lombardia.it/proxyad/proxyad.asmx" />
+    </wsdl:port>
+    <wsdl:port name="proxyADSoap12" binding="tns:proxyADSoap12">
+      <soap12:address location="https://intranet.consiglio.regione.lombardia.it/proxyad/proxyad.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

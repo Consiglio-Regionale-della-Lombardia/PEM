@@ -1,0 +1,219 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.ReportResponse
+
+@{
+    ViewBag.Title = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
+
+    var query_type = HttpUtility.ParseQueryString(Request.Url.Query).Get("type");
+    var type = ReportTypeEnum.NOI;
+    if (!string.IsNullOrEmpty(query_type))
+    {
+        int query_result;
+        var check = int.TryParse(query_type, out query_result);
+        if (check)
+        {
+            type = (ReportTypeEnum) query_result;
+        }
+    }
+}
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" onclick="window.history.back();">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+@{
+    var activeNOI = string.Empty;
+    var activePCR = string.Empty;
+    var activePROG = string.Empty;
+    switch (type)
+    {
+        case ReportTypeEnum.NOI:
+            activeNOI = "active";
+            break;
+        case ReportTypeEnum.PCR:
+            activePCR = "active";
+            break;
+        case ReportTypeEnum.PROG:
+            activePROG = "active";
+            break;
+    }
+}
+<div id="reportTable" class="row">
+    <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
+        <li class="tab col s3">
+            <a class="@activeNOI" onclick="go('@Url.Action("Index", "Report", new {id = Model.Atto.UIDAtto, type = (int) ReportTypeEnum.NOI})')">NOI</a>
+        </li>
+        <li class="tab col s3">
+            <a class="@activePCR" onclick="go('@Url.Action("Index", "Report", new {id = Model.Atto.UIDAtto, type = (int) ReportTypeEnum.PCR})')">PCR</a>
+        </li>
+        <li class="tab col s3">
+            <a class="@activePROG" onclick="go('@Url.Action("Index", "Report", new {id = Model.Atto.UIDAtto, type = (int) ReportTypeEnum.PROG})')">PROGRESSIVO</a>
+        </li>
+    </ul>
+
+    @if (!Model.Data.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono emendamenti
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        var col_span = 15;
+        <table>
+            <thead>
+            <tr>
+                <th>NUMERO EM</th>
+                <th>PROPONENTE</th>
+                <th>ARTICOLO</th>
+                <th>COMMA</th>
+                <th>LETTERA</th>
+                <th>TITOLO</th>
+                <th>CAPO</th>
+                <th>CONTENUTO</th>
+                <th>INAMM.</th>
+                @if (type == ReportTypeEnum.NOI || type == ReportTypeEnum.PROG)
+                {
+                    col_span += 4;
+                    <th>RITIRATO</th>
+                    <th>SI</th>
+                    <th>NO</th>
+                    <th>DECADE</th>
+                }
+                <th>NOTE</th>
+                <th>NOTE RISERVATE</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var em in Model.Data.Results)
+            {
+                <tr>
+                    <td>
+                        @em.DisplayTitle
+                    </td>
+                    <td>
+                        @em.PersonaProponente.DisplayName
+                    </td>
+                    <td>
+                        @if (em.UIDArticolo.HasValue && em.UIDArticolo != Guid.Empty)
+                        {
+                            @em.ARTICOLI.Articolo
+                        }
+                    </td>
+                    <td>
+                        @if (em.UIDComma.HasValue && em.UIDComma != Guid.Empty)
+                        {
+                            @em.COMMI.Comma
+                        }
+                    </td>
+                    <td>
+                        @if (em.UIDLettera.HasValue && em.UIDLettera != Guid.Empty)
+                        {
+                            @em.LETTERE.Lettera
+                        }
+                        else
+                        {
+                            @em.NLettera
+                        }
+                    </td>
+                    <td>
+                        @em.NTitolo
+                    </td>
+                    <td>
+                        @em.NCapo
+                    </td>
+                    <td>
+                        @em.TIPI_EM.Tipo_EM
+                    </td>
+                    <td>
+                        @if (em.IDStato == (int) StatiEnum.Inammissibile)
+                        {
+                            <label>X</label>
+                        }
+                    </td>
+                    @if (type == ReportTypeEnum.NOI || type == ReportTypeEnum.PROG)
+                    {
+                        <td>
+                            @if (em.IDStato == (int) StatiEnum.Ritirato)
+                            {
+                                <label>X</label>
+                            }
+                        </td>
+                        <td>
+                            @if (em.IDStato == (int) StatiEnum.Approvato)
+                            {
+                                <label>X</label>
+                            }
+                        </td>
+                        <td>
+                            @if (em.IDStato == (int) StatiEnum.Non_Approvato)
+                            {
+                                <label>X</label>
+                            }
+                        </td>
+                        <td>
+                            @if (em.IDStato == (int) StatiEnum.Decaduto)
+                            {
+                                <label>X</label>
+                            }
+                        </td>
+                    }
+                    <td>
+                        @em.NOTE_Griglia
+                    </td>
+                    <td>
+                        @em.NOTE_EM
+                    </td>
+                </tr>
+            }
+            </tbody>
+            <tfoot>
+            <tr>
+                <th colspan="@col_span" style="bottom: 0; top: unset;">
+                    <div class="row valign-wrapper" style="margin-top: 0">
+                        <div class="col s2 center">
+                            <div class="btn chip hoverable green lighten-1 center white-text" onclick="login()" style="min-width: unset">
+                                <i class="icon material-icons">cloud_download</i> Esporta
+                            </div>
+                        </div>
+                        <div class="col s2">
+                            <label>Approvati:</label> <h4 class="approvatoT">@Model.Approvati</h4>
+                        </div>
+                        <div class="col s2">
+                            <label>Non Approvati:</label> <h4 class="NOapprovatoT">@Model.Non_Approvati</h4>
+                        </div>
+                        <div class="col s2">
+                            <label>Inammissibili:</label> <h4 class="inammissibileT">@Model.Inammissibili</h4>
+                        </div>
+                        <div class="col s2">
+                            <label>Decaduti:</label> <h4 class="decadutoT">@Model.Decaduti</h4>
+                        </div>
+                        <div class="col s2">
+                            <label>Ritirati:</label> <h4 class="ritiratoT">@Model.Ritirati</h4>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
+        </table>
+    }
+
+</div>
+
+<script>
+    $('#btnSearch').hide();
+</script>

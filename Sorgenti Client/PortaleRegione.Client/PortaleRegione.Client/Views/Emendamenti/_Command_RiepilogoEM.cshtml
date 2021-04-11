@@ -1,0 +1,113 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.CommandRiepilogoEMModel
+@{
+    var port = "";
+    if (Request.Url.Port > 0)
+    {
+        port = string.Format(":{0}", Request.Url.Port);
+    }
+
+    var atto = Request.Form["atto"];
+    var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
+    var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
+    int ordinePaginaEnum = 1;
+    var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
+    if (string.IsNullOrEmpty(mode))
+    {
+        mode = "1";
+    }
+    var url = string.Format("{0}://{1}{2}{3}", Request.Url.Scheme, Request.Url.Host, port, Request.Url.AbsolutePath);
+    if (url.Contains("filtra"))
+    {
+        url = Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto, mode = mode, ordine = ordinePaginaEnum});
+    }
+    else
+    {
+        url += string.Format("?mode={0}", mode);
+
+        if (!string.IsNullOrEmpty(ordinePagina))
+        {
+            ordinePaginaEnum = Convert.ToInt16(ordinePagina);
+        }
+        else if (ordineFromCache != null)
+        {
+            ordinePaginaEnum = Convert.ToInt16(ordineFromCache);
+        }
+        if (ordinePaginaEnum != 0)
+        {
+            url += string.Format("&ordine={0}", ordinePaginaEnum);
+        }
+    }
+
+    if (Model.view == "zoom")
+    {
+        url += "&view=grid";
+    }
+    else if (Model.view == "grid")
+    {
+        url += "&view=zoom";
+    }
+
+
+
+    var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+
+}
+<div class="row valign-wrapper">
+    <div class="col s3 left">
+        <label>
+            <input type="checkbox" id="checkAll" />
+            <span for="checkAll">Seleziona tutti</span>
+        </label>
+    </div>
+    <div class="col s5 left">
+        <label>
+            <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
+            <span for="checkAllMy">Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma</span>
+        </label>
+    </div>
+    <div class="col s6">
+        <div class="right">
+            <label>Cambia vista</label>
+            @if (Model.view == "zoom")
+            {
+                <a onclick="go('@url')">
+                    <i class="icon material-icons" title="Visualizza EM in griglia">developer_board</i>
+                </a>
+            }
+            @if (Model.view == "grid")
+            {
+                <a onclick="go('@url')">
+                    <i class="icon material-icons" title="Visualizza EM in preview">desktop_windows</i>
+                </a>
+            }
+        </div>
+        @if (HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea)
+             || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
+        {
+            <div class="right" style="margin-right: 20px">
+                <label>Reports</label>
+                <a onclick="go('@Url.Action("Index", "Report", new {id = Model.Atto.UIDAtto, type = (int) ReportTypeEnum.NOI})')">
+                    <i class="icon material-icons" title="Visualizza report segreteria">trending_up</i>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function filtraEM_RichiestaFirma(enable) {
+        if (enable) {
+            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {require_my_sign = true})');
+        } else {
+            go('@Url.Action("RiepilogoEmendamenti","Emendamenti", new { require_my_sign = false})');
+        }
+    }
+
+    $("#checkAll").click(function () {
+        setSelezionaTutti(this.checked);
+        setListaEmendamenti([]);
+        $('input[id^="chk_EM_"]').not(this).prop('checked', this.checked);
+        AbilitaComandiMassivi(null);
+    });
+</script>

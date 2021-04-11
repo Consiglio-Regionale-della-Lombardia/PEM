@@ -1,0 +1,215 @@
+﻿@using System.Threading.Tasks
+@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@using PortaleRegione.Gateway
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+@if (!Model.Data.Results.Any())
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel panel-warning center">
+                <span class="center">
+                    @{
+                        var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+                        if (require_my_sign)
+                        {
+                            <p>Non ci sono emendamenti dove è richiesta la tua firma</p>
+                        }
+    else{
+                            <p>Non ci sono emendamenti al momento</p>
+                        }
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    var data_scadenza = Model.Atto.SEDUTE.Scadenza_presentazione;
+    var countRow = 0;
+    var lastRow = 0;
+    foreach (var itemEM in Model.Data.Results)
+    {
+        countRow++;
+        if (countRow >= Model.Data.Paging.Entities)
+        {
+            lastRow = 1;
+        }
+
+        <div class="col s12 m12 l12">
+            <div class="card hoverable" style="min-height: 300px">
+                <div class="card-content">
+                    <div class="card-title">
+                        <div class="row valign-wrapper" style="margin-top: 5px !important;">
+                            <div class="col s1 m1 l1" style="margin-top: 10px">
+                                <label>
+                                    <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
+                                    <span></span>
+                                </label>
+                            </div>
+                            <div class="col s11 m11 l3">
+                                <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip hoverable center white-text @itemEM.STATI_EM.CssClass" style="width: 100%">
+                                    @if (itemEM.Depositabile)
+                                    {
+                                        <i class="icon material-icons left" title="EM depositabile">gavel</i>
+                                    }
+                                    @itemEM.STATI_EM.Stato
+                                </div>
+                            </div>
+                            <div class="col s12 m12 l8 right-align">
+                                <label style="font-size: small !important">Proponente: </label>
+                                <h6 id="lblProponente_@itemEM.UIDEM" style="font-size: small; margin-top: 0">
+                                    @itemEM.PersonaProponente.DisplayName
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12 m6 l5 center">
+                                <h5 style="margin-top: 7px">
+                                    <b>@itemEM.N_EM</b>
+                                </h5>
+                                <h6>@Utility.MetaDatiEM_Label(itemEM)</h6>
+                                @if (itemEM.STATI_EM.IDStato <= (int) StatiEnum.Bozza)
+                                {
+                                    <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
+                                        Bozza predisposta da:
+                                        <span id="lblCreatore_@itemEM.UIDEM">
+                                            @itemEM.PersonaCreazione.DisplayName
+                                        </span>
+                                    </h6>
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(itemEM.DataDeposito))
+                                    {
+                                        <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
+                                            @{
+                                                if (data_scadenza.HasValue)
+                                                {
+                                                    var data_deposito = Convert.ToDateTime(itemEM.DataDeposito);
+
+                                                    if (data_deposito > data_scadenza.Value)
+                                                    {
+                                                        //presentato oltre i termini
+                                                        <i class="material-icons red-text left" title="Presentato oltre i termini">warning</i>
+                                                    }
+                                                }
+                                            }
+
+                                            Depositato da
+                                            <span id="lblPersonaDeposito_@itemEM.UIDEM">
+                                                @itemEM.PersonaDeposito.DisplayName
+                                            </span>
+                                            il @itemEM.DataDeposito
+
+
+                                        </h6>
+                                    }
+                                }
+                            </div>
+                            <div id="pnlAzioniEM_@itemEM.UIDEM" class="col s12 m6 l6 center" style="padding-top: 20px">
+
+                                @if (itemEM.STATI_EM.IDStato < (int) StatiEnum.Depositato)
+                                {
+                                    if (!string.IsNullOrEmpty(itemEM.Firmatari))
+                                    {
+                                        <div class="card row">
+                                            <div class="col s12">
+                                                <h6>
+                                                    <b>Firmatari</b>
+                                                </h6>
+                                                <hr/>
+                                                @Html.Raw(itemEM.Firmatari)
+                                            </div>
+                                        </div>
+                                    }
+                                    if (!string.IsNullOrEmpty(itemEM.Destinatari))
+                                    {
+                                        <div class="card row">
+                                            <div class="col s12">
+                                                <h6>
+                                                    <b>Invitati</b>
+                                                </h6>
+                                                <hr/>
+                                                @Html.Raw(itemEM.Destinatari)
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')">
+                                        Firmatari: @itemEM.PersonaProponente.DisplayName
+
+                                        @if (itemEM.ConteggioFirme > 1)
+                                        {
+                                            <span class="chip hoverable grey darken-1 white-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                                                + @(itemEM.ConteggioFirme - 1)
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-action grey lighten-4">
+                    <div class="row" style="margin: 0 !important">
+                        <div class="col s7 center" style="margin-top: 5px">
+                            @if (itemEM.Firmabile)
+                            {
+                                <div class="btn chip hoverable green lighten-1 center white-text" onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
+                                    <i class="icon material-icons">gavel</i> Firma
+                                </div>
+                            }
+                            @if (itemEM.Depositabile)
+                            {
+                                <div class="btn chip hoverable purple lighten-3 center white-text" onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                    <i class="icon material-icons">lock</i> Deposita
+                                </div>
+                            }
+                            @if (itemEM.Eliminabile)
+                            {
+                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.DisplayTitle', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                    <i class="icon material-icons">delete</i> Elimina
+                                </div>
+                            }
+                            @if (itemEM.Ritirabile)
+                            {
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.DisplayTitle', @Html.Raw((int) ActionEnum.RITIRA))">
+                                    <i class="icon material-icons">settings_backup_restore</i> Ritira
+                                </div>
+                            }
+                            @if (itemEM.Modificabile)
+                            {
+                                <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("ModificaEmendamento", new {id = itemEM.UIDEM})')">
+                                    <i class="icon material-icons">edit</i> Modifica
+                                </div>
+                            }
+                        </div>
+                        <div class="col s5 right-align">
+                            <a class="btn-floating green" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-reveal" id="reveal_@itemEM.UIDEM" style="overflow: hidden; padding-bottom: 65px">
+                    <span class="card-title grey-text text-darken-4 center">
+                        <span id="titleReveal">Firmatari</span> <i class="material-icons right">close</i>
+                    </span>
+                    <div id="dataItems" class="collection" style="height: 100%; overflow: auto;">
+                        <div class="progress">
+                            <div class="indeterminate"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

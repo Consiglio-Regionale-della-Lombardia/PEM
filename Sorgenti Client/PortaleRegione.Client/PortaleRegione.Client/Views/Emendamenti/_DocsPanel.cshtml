@@ -1,0 +1,54 @@
+﻿@model PortaleRegione.DTO.Model.EmendamentiFormModel
+
+@{
+    var placeholder_allegato_generico_text = string.Empty;
+    placeholder_allegato_generico_text = !string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoGenerico) ? "Sostituisci documento" : "Inserisci documento";
+}
+<div class="form-group">
+    @Html.LabelFor(s => s.Emendamento.PATH_AllegatoGenerico)
+</div>
+<div class="file-field input-field">
+    <div class="btn">
+        <span>SFOGLIA</span>
+        <input type="file" name="DocAllegatoGenerico" accept="application/pdf">
+    </div>
+    <div class="file-path-wrapper">
+        <input class="file-path validate" type="text" placeholder="@placeholder_allegato_generico_text">
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoGenerico))
+{
+    <div class="form-group">
+        <div class="chip">@Model.Emendamento.PATH_AllegatoGenerico</div>
+    </div>
+}
+<div class="form-group">
+    @Html.Label("Ci sono effetti finanziari?")
+    <label class="black-text" style="margin-left: 20px">
+        @Html.RadioButtonFor(model => model.Emendamento.EffettiFinanziari, 1, new {onchange = "EffettiFinanziari_OnChange(1)"})
+        <span>Si</span>
+    </label>
+    <label class="black-text" style="margin-left: 20px">
+        @Html.RadioButtonFor(model => model.Emendamento.EffettiFinanziari, 0, new {onchange = "EffettiFinanziari_OnChange(0)"})
+        <span>No</span>
+    </label>
+</div>
+@{
+    var placeholder_effetti_finanziari_text = string.Empty;
+    placeholder_effetti_finanziari_text = !string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoTecnico) ? "Sostituisci documento" : "Inserisci documento";
+}
+<div class="file-field input-field only-effetti">
+    <div class="btn">
+        <span>SFOGLIA</span>
+        <input type="file" name="DocEffettiFinanziari" accept="application/pdf">
+    </div>
+    <div class="file-path-wrapper">
+        <input class="file-path validate" type="text" placeholder="@placeholder_effetti_finanziari_text">
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoTecnico))
+{
+    <div class="form-group">
+        <div class="chip">@Model.Emendamento.PATH_AllegatoTecnico</div>
+    </div>
+}

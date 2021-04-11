@@ -1,0 +1,59 @@
+﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.NotificaDto>
+@{
+    ViewBag.Title = "Riepilogo notifiche";
+}
+
+<div class="row">
+    <div class="col s12">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+
+@{
+    var inviateReq = HttpUtility.ParseQueryString(Request.Url.Query).Get("is_inviate");
+    var is_inviate = false;
+    if (!string.IsNullOrEmpty(inviateReq))
+    {
+        is_inviate = Convert.ToBoolean(inviateReq);
+    }
+
+}
+
+<ul id="RiepilogoNotificheTabs" class="tabs tabs-fixed-width">
+    <li class="tab col s3">
+        <a class="@(!is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})')">
+            <i class="icon material-icons">move_to_inbox</i> Ricevute
+        </a>
+    </li>
+    <li class="tab col s3">
+        <a class="@(is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">
+            <i class="icon material-icons">send</i> Inviate
+        </a>
+    </li>
+</ul>
+
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+@if (!is_inviate)
+{
+    @Html.Partial("RiepilogoNotificheRicevute", Model.Results)
+}
+else if (is_inviate)
+{
+    @Html.Partial("RiepilogoNotificheInviate", Model.Results)
+}
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+<script>
+    $(document).ready(function () {
+        //Reset_ClientMode();
+    });
+</script>

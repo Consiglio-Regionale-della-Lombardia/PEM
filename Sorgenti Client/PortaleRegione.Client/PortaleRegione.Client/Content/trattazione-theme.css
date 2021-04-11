@@ -1,0 +1,24 @@
+﻿.user-view { background-color: #BBDEFB !important; }
+
+.nav-wrapper { background-color: #BBDEFB !important; }
+
+.page-footer { background-color: #BBDEFB !important; }
+
+.tabs .tab a:hover, .tabs .tab a.active {
+    background-color: #BBDEFB !important;
+    color: white !important;
+}
+
+.tabs .tab a {
+    background-color: white !important;
+    border: solid 1px #BBDEFB;
+    color: #BBDEFB !important;
+}
+
+.tabs .indicator { background-color: #73bbf7 !important; }
+
+.green.darken-3 { background-color: #73bbf7 !important; }
+
+.green { background-color: #73bbf7 !important; }
+
+.green.lighten-4 { background-color: #BBDEFB !important; }

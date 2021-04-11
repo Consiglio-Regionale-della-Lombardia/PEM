@@ -1,0 +1,314 @@
+﻿@using PortaleRegione.DTO.Domain
+@model PortaleRegione.Client.Models.AttiViewModel
+
+@{
+    var isNew = Model.Atto.UIDAtto == Guid.Empty;
+    ViewBag.Title = isNew ? "Nuova atto" : "Modifica atto";
+}
+
+<script>
+    var chipInstance;
+    $(document).ready(function() {
+        $('#btnCrea').hide();
+        $('#btnSearch').hide();
+        var elems = document.querySelector('#autocompleteRelatori');
+
+        var autocompleteDataOptions = {
+            data: [
+                @foreach (var persona in Model.Relatori)
+                {
+                    if (!string.IsNullOrEmpty(persona.DisplayName))
+                    {
+                        @Html.Raw("{ tag: '" + persona.DisplayName + "', id: '" + persona.UID_persona + "'}, ")
+                    }
+                }
+            ],
+            limit: 10,
+            minLength: 1
+        };
+
+        chipInstance = M.Chips.init(elems,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                data: [
+                    @if (Model.Atto.Relatori != null && Model.Atto.Relatori.Any())
+                    {
+                        foreach (var relatoriDto in Model.Atto.Relatori)
+                        {
+                            @Html.Raw("{ tag: '" + relatoriDto.DisplayName + "', id: '" + relatoriDto.UID_persona + "'}, ")
+                        }
+                    }
+                ],
+                onChipAdd: function(e, chip) {
+                },
+                onChipSelect: function(e, chip) {
+                },
+                onChipDelete: function(e, chip) {
+                }
+            });
+        GetArticoliAtto($('#Atto_UIDAtto').val());
+    });
+</script>
+
+<div class="row">
+    <div class="col s1">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col s6">
+        <h5>
+            <b>
+                @if (isNew)
+                {
+                    <span>Nuova atto</span>
+                    <input id="hfMode" type="hidden" value="new"/>
+                }
+                else
+                {
+                    <span>Modifica atto</span>
+                    <input id="hfMode" type="hidden" value="edit"/>
+                }
+            </b>
+        </h5>
+    </div>
+</div>
+@if (!isNew)
+{
+    <div class="row valign-wrapper">
+        <div class="col s4">
+            <div class="form-group">
+                <label>Seduta</label>
+                <select id="selectSpostaAtto">
+                    <option selected="selected">Seleziona</option>
+                </select>
+            </div>
+        </div>
+        <div class="col s8">
+            <a class="btn chip hoverable yellow center black-text" onclick="spostaAtto('@Model.Atto.UIDAtto')">
+                Sposta
+            </a>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col s12">
+
+        @using (Html.BeginForm("SalvaAtto", "Atti", FormMethod.Post, new
+        {enctype = "multipart/form-data", id = "formAtto"}))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(s => s.Atto.UIDAtto)
+            @Html.HiddenFor(s => s.Atto.UIDSeduta)
+            @Html.HiddenFor(s => s.Atto.IDTipoAtto)
+
+            <ul id="attoFormsTabs" class="tabs tabs-fixed-width">
+                <li class="tab col s3">
+                    <a class="active" href="#generalTab">Info</a>
+                </li>
+                @if (Model.Atto.UIDAtto != Guid.Empty)
+                {
+                    <li class="tab col s3">
+                        <a href="#articoliCommiLettereTab">Articoli, Commi e Lettere</a>
+                    </li>
+                }
+                <li class="tab col s3">
+                    <a href="#assessoreRelatoriTab">Assessore e Relatori</a>
+                </li>
+                <li class="tab col s3">
+                    <a href="#commonsTab">Opzioni</a>
+                </li>
+            </ul>
+            <div id="generalTab" class="col s12">
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.NAtto)
+                    @Html.TextBoxFor(s => s.Atto.NAtto, new {@class = "form-control"})
+                </div>
+                @{
+                    var placeholder_text = string.Empty;
+                    placeholder_text = !string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto) ? "Sostituisci documento" : "Inserisci documento atto";
+                }
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>SFOGLIA</span>
+                        <input type="file" name="DocAtto" accept="application/pdf">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="@placeholder_text">
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
+                {
+                    <div class="form-group">
+                        <div class="chip">@Model.Atto.Path_Testo_Atto</div>
+                    </div>
+                }
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Data_apertura)
+                    @Html.TextBoxFor(s => s.Atto.Data_apertura, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Data_chiusura)
+                    @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Oggetto)
+                    @Html.TextAreaFor(model => model.Atto.Oggetto, new {@class = "form-control tinymce"})
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Note)
+                    @Html.TextAreaFor(model => model.Atto.Note, new {@class = "form-control tinymce"})
+                </div>
+            </div>
+
+            if (Model.Atto.UIDAtto != Guid.Empty)
+            {
+                <div id="articoliCommiLettereTab" class="col s12">
+                    <div class="row">
+                        <div class="col s4">
+                            <span>Articoli</span>
+                            <ul id="tableArticoli" class="collection">
+                            </ul>
+                        </div>
+                        <div class="col s4">
+                            <span>Commi</span>
+                            <ul id="tableCommi" class="collection">
+                                <li class='collection-item'>Crea da un articolo</li>
+                            </ul>
+                        </div>
+                        <div class="col s4">
+                            <span>Lettere</span>
+                            <ul id="tableLettere" class="collection">
+                                <li class='collection-item'>Crea da un comma</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div id="assessoreRelatoriTab" class="col s12">
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.UIDAssessoreRiferimento)
+                    @Html.DropDownListFor(s => s.Atto.UIDAssessoreRiferimento, new SelectList(Model.Assessori, "UID_persona", "DisplayName"), "Seleziona persona", new {@class = "form-control"})
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Relatori)
+                    <div id="autocompleteRelatori" class="chips chips-autocomplete"></div>
+                </div>
+            </div>
+            <div id="commonsTab" class="col s12">
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input data-val="true" data-val-required="Il campo VIS_Mis_Prog è obbligatorio." id="Atto_VIS_Mis_Prog" name="Atto.VIS_Mis_Prog" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.VIS_Mis_Prog ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.VIS_Mis_Prog)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input data-val="true" data-val-required="Il campo Notifica_deposito_differita è obbligatorio." id="Notifica_deposito_differita" name="Atto.Notifica_deposito_differita" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.Notifica_deposito_differita ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.Notifica_deposito_differita)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fixed-action-btn">
+                <button id="btnSalvaAtto" class="btn-floating btn-large blue">
+                    <i class="large material-icons">save</i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    $("#btnSave").on("click",
+        function() {
+            setTimeout(function () {
+                $('body').removeClass('loaded');
+            }, 200);
+            $('#formAtto').submit();
+        });
+
+    $("#formAtto").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+            var doc;
+            var inputsAtto = $('input[name=DocAtto]');
+            if (inputsAtto.length != 0) {
+                var inputFileAtto = inputsAtto[0];
+                if (!inputFileAtto.files) {
+                    alert("This browser doesn't seem to support the `files` property of file inputs.");
+                }
+                if (inputFileAtto.files.length > 0)
+                    doc = inputFileAtto.files[0];
+            }
+
+            var form_data = new FormData();
+            form_data.append("NAtto", $('input[name="Atto.NAtto"]').val());
+            form_data.append("Data_apertura", $('input[name="Atto.Data_apertura"]').val());
+            form_data.append("Data_chiusura", $('input[name="Atto.Data_chiusura"]').val());
+            form_data.append("DocAtto", doc);
+            form_data.append("IDTipoAtto", $('input[name="Atto.IDTipoAtto"]').val());
+            form_data.append("Note", $("#Atto_Note_ifr").contents().find("#tinymce").html());
+            form_data.append("Notifica_deposito_differita", $('input[name="Atto.Notifica_deposito_differita"]').is(":checked"));
+            form_data.append("Oggetto", $("#Atto_Oggetto_ifr").contents().find("#tinymce").html());
+            form_data.append("UIDAssessoreRiferimento", $('select[name="Atto.UIDAssessoreRiferimento"]').children("option:selected").val());
+            form_data.append("UIDAtto", $('input[name="Atto.UIDAtto"]').val());
+            form_data.append("UIDSeduta", $('input[name="Atto.UIDSeduta"]').val());
+            form_data.append("VIS_Mis_Prog", $('input[name="Atto.VIS_Mis_Prog"]').is(":checked"));
+
+            //submit via ajax
+            $.ajax({
+                    url: baseUrl + "/atti/salva",
+                    type: "POST",
+                    data: form_data,
+                    processData: false,
+                    contentType: false
+                }).done(function(dataResult) {
+                    if (dataResult.message)
+                        ErrorAlert(dataResult.message);
+                    else {
+                        var relatori = chipInstance.getData();
+
+                        var newRelatori = [];
+                        $.each(relatori,
+                            function(index, item) {
+                                newRelatori.push(item.id);
+                            });
+                        $.ajax({
+                            url: baseUrl + "/atti/relatori",
+                            type: "POST",
+                            data: JSON.stringify({
+                                id: dataResult.entity.UIDAtto,
+                                persone: newRelatori
+                            }),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json"
+                        }).done(function(data) {
+                            go(dataResult.url);
+                        }).fail(function(err) {
+                            console.log("ERROR - RELATORI", err);
+                        });
+                    }
+                })
+                .fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
+</script>

@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PortaleRegione.BAL.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PortaleRegione_BAL_OpenData_UpsertOpenData" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://intranet.consiglio.regione.lombardia.it/OpenData/upsertopendata.asmx</Value>
+    </Setting>
+    <Setting Name="PortaleRegione_BAL_proxyAd_proxyAD" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://intranet.consiglio.regione.lombardia.it/proxyad/proxyad.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

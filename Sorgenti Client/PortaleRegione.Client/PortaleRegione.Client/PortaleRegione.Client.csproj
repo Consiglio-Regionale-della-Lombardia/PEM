@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A02AC8C7-9905-4D72-80F7-8B89465F17D3}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PortaleRegione.Client</RootNamespace>
+    <AssemblyName>PortaleRegione.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44356</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <LangVersion>8</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>8</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>8</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AdminPanelController.cs" />
+    <Compile Include="Controllers\AttiController.cs" />
+    <Compile Include="Controllers\AutenticazioneController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\NotificheController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Models\ClientJsonResponse.cs" />
+    <Compile Include="Controllers\EmendamentiController.cs" />
+    <Compile Include="Controllers\PersoneController.cs" />
+    <Compile Include="Controllers\StampeController.cs" />
+    <Compile Include="Controllers\VideoTutorialController.cs" />
+    <Compile Include="Helpers\Utility.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\SeduteController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AttiViewModel.cs" />
+    <Compile Include="Models\ViewUtenteModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\gruppi-theme.css" />
+    <Content Include="Content\jquery-hex-picker.css" />
+    <Content Include="Content\trattazione-theme.css" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\text-security-disc.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="Content\Site.css" />
+    <Content Include="fonts\text-security-disc.eot" />
+    <Content Include="fonts\text-security-disc.ttf" />
+    <Content Include="fonts\text-security-disc.woff" />
+    <Content Include="Web.config.txt" />
+    <None Include="Properties\PublishProfiles\Pubblicazione - FileSystem.pubxml" />
+    <None Include="Scripts\jquery-3.4.1.intellisense.js" />
+    <Content Include="Scripts\FiltriManager.js" />
+    <Content Include="Scripts\jquery-3.4.1.js" />
+    <Content Include="Scripts\jquery-3.4.1.min.js" />
+    <Content Include="Scripts\jquery-3.4.1.slim.js" />
+    <Content Include="Scripts\jquery-3.4.1.slim.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery-hex-picker.js" />
+    <Content Include="Scripts\jquery.disableAutoFill.min.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\materialize.js" />
+    <Content Include="Scripts\SessionManager.js" />
+    <Content Include="Scripts\site.js" />
+    <Content Include="VideoPEM\PEM_DepositoMassivoEM.mp4" />
+    <Content Include="VideoPEM\PEM_DespositoSingoloEM.mp4" />
+    <Content Include="VideoPEM\PEM_EliminaFirmaEM.mp4" />
+    <Content Include="VideoPEM\PEM_Filtri_e_Stampe.mp4" />
+    <Content Include="VideoPEM\PEM_FirmaMassivaEM.mp4" />
+    <Content Include="VideoPEM\PEM_FirmaSingolaEM.mp4" />
+    <Content Include="VideoPEM\PEM_ImpostazioniPIN.mp4" />
+    <Content Include="VideoPEM\PEM_InserimentoEM.mp4" />
+    <Content Include="VideoPEM\PEM_InserimentoSUBEM.mp4" />
+    <Content Include="VideoPEM\PEM_Invito.mp4" />
+    <Content Include="VideoPEM\PEM_VisualizzaFascicoli.mp4" />
+    <Content Include="Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Error\AccessDenied.cshtml" />
+    <Content Include="Views\Autenticazione\FormAutenticazione.cshtml" />
+    <Content Include="Views\Shared\_SXNavigationBar.cshtml" />
+    <Content Include="Views\Shared\_NavigationBar.cshtml" />
+    <Content Include="Views\Sedute\RiepilogoSedute.cshtml" />
+    <Content Include="Views\Shared\_PaginationBar.cshtml" />
+    <Content Include="Views\Sedute\SedutaForm.cshtml" />
+    <Content Include="Views\Atti\RiepilogoAtti.cshtml" />
+    <Content Include="Views\Atti\AttoForm.cshtml" />
+    <Content Include="Views\Sedute\RiepilogoSedute_Admin.cshtml" />
+    <Content Include="Views\Atti\RiepilogoAtti_Admin.cshtml" />
+    <Content Include="Views\Emendamenti\RiepilogoEM_Admin.cshtml" />
+    <Content Include="Views\Emendamenti\RiepilogoEM.cshtml" />
+    <Content Include="Views\Emendamenti\EmendamentoForm.cshtml" />
+    <Content Include="Views\Emendamenti\_Command_RiepilogoEM.cshtml" />
+    <Content Include="Views\Emendamenti\_GridView_RiepilogoEM.cshtml" />
+    <Content Include="Views\Emendamenti\_ZoomView_RiepilogoEM.cshtml" />
+    <Content Include="Views\Emendamenti\ViewEmendamento.cshtml" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\Persone\CambioPinForm.cshtml" />
+    <Content Include="Views\VideoTutorial\Index.cshtml" />
+    <Content Include="Views\Stampe\Index.cshtml" />
+    <Content Include="Views\Stampe\Index_Admin.cshtml" />
+    <Content Include="Views\Emendamenti\_GridView_Admin_RiepilogoEM.cshtml" />
+    <Content Include="Views\Emendamenti\_ComandiMassiviAdmin.cshtml" />
+    <Content Include="Views\Emendamenti\_PannelloStrumentiRicerche.cshtml" />
+    <Content Include="Views\Emendamenti\_ComandiMassivi.cshtml" />
+    <Content Include="Views\Emendamenti\EmendamentoFormAdmin.cshtml" />
+    <Content Include="Views\Emendamenti\MetaDatiForm.cshtml" />
+    <Content Include="Views\Emendamenti\_ComandiMassiviOrdinamentoAdmin.cshtml" />
+    <Content Include="Views\Emendamenti\_MetaDatiPanel.cshtml" />
+    <Content Include="Views\Notifiche\RiepilogoNotificheInviate.cshtml" />
+    <Content Include="Views\Notifiche\_CardInvito.cshtml" />
+    <Content Include="Views\Notifiche\RiepilogoNotificheRicevute.cshtml" />
+    <Content Include="Views\Notifiche\RiepilogoNotifiche.cshtml" />
+    <Content Include="Views\Emendamenti\EmendamentoFormSegreteria.cshtml" />
+    <Content Include="Views\Notifiche\_CardInvito_Destinatari.cshtml" />
+    <Content Include="Views\AdminPanel\RiepilogoUtenti.cshtml" />
+    <Content Include="Views\AdminPanel\ViewUtente.cshtml" />
+    <Content Include="Views\Sedute\_SeduteFiltri.cshtml" />
+    <Content Include="Views\Emendamenti\_EMFormScript.cshtml" />
+    <Content Include="Views\Emendamenti\_DocsPanel.cshtml" />
+    <Content Include="Views\Emendamenti\_CommandSUBEM.cshtml" />
+    <Content Include="Views\Emendamenti\ViewerProietta.cshtml" />
+    <Content Include="Views\Report\Index.cshtml" />
+    <Content Include="Views\Emendamenti\_PannelloStrumentiRicercheAdmin.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.4.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj">
+      <Project>{70bf550d-5943-4162-8fab-0bba743a3d93}</Project>
+      <Name>ExpressionBuilder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.Common\PortaleRegione.Common.csproj">
+      <Project>{4948dd2a-a842-46a9-b987-a537894487bf}</Project>
+      <Name>PortaleRegione.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
+      <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
+      <Name>PortaleRegione.DTO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
+      <Project>{1f9eec0b-08cc-481f-820e-c07b8327ac25}</Project>
+      <Name>PortaleRegione.Logger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj">
+      <Project>{34c5c26e-50bd-49f3-8500-62a8c209273b}</Project>
+      <Name>PortaleRegione.Gateway</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>58019</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:58019/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>
