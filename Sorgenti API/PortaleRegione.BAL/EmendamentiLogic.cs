@@ -1306,8 +1306,8 @@ namespace PortaleRegione.BAL
 
         #endregion
 
-        public async Task<List<EmendamentiDto>> GetEmendamenti(BaseRequest<EmendamentiDto> model,
-            PersonaDto persona, int CLIENT_MODE)
+        public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona, int CLIENT_MODE, Uri uri)
         {
             try
             {
@@ -1316,6 +1316,17 @@ namespace PortaleRegione.BAL
                     filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
                         EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
+                List<Guid> firmatari = new List<Guid>();
+                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
+                {
+                    var firmatari_request = new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement => statement.PropertyId == "Firmatario"));
+                    firmatari.AddRange( firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
+                    foreach (var firmatarioStatement in firmatari_request)
+                    {
+                        model.filtro.Remove(firmatarioStatement);
+                    }
+                }   
+                
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
@@ -1326,7 +1337,8 @@ namespace PortaleRegione.BAL
                         model.page,
                         model.size,
                         CLIENT_MODE,
-                        queryFilter);
+                        queryFilter,
+                        firmatari);
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
@@ -1368,7 +1380,18 @@ namespace PortaleRegione.BAL
                     result.Add(dto);
                 }
 
-                return result;
+                return new EmendamentiViewModel
+                {
+                    Data = new BaseResponse<EmendamentiDto>(
+                        model.page,
+                        model.size,
+                        result,
+                        model.filtro,
+                        await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE, firmatari),
+                        uri),
+                    Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    CurrentUser = persona
+                };
             }
             catch (Exception e)
             {
@@ -1468,11 +1491,9 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #region CountEM
-
+        
         public async Task<int> CountEM(BaseRequest<EmendamentiDto> model, PersonaDto persona, int CLIENT_MODE,
-            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE)
+            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null)
         {
             try
             {
@@ -1480,7 +1501,7 @@ namespace PortaleRegione.BAL
                 queryFilter.ImportStatements(model.filtro);
 
                 return await _unitOfWork.Emendamenti.Count(model.id,
-                    persona, type, CLIENT_MODE, queryFilter);
+                    persona, type, CLIENT_MODE, queryFilter, firmatari);
             }
             catch (Exception e)
             {
@@ -1501,7 +1522,5 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
     }
 }

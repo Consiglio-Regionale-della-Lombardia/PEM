@@ -66,8 +66,6 @@ namespace PortaleRegione.API.Controllers
         [Route("view")]
         public async Task<IHttpActionResult> GetEmendamenti(BaseRequest<EmendamentiDto> model)
         {
-            ///TODO: implementare i controlli anche sull'atto
-
             try
             {
                 var atto = await _logicAtti.GetAtto(model.id);
@@ -80,21 +78,9 @@ namespace PortaleRegione.API.Controllers
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var results =
-                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE));
-
-                return Ok(new EmendamentiViewModel
-                {
-                    Data = new BaseResponse<EmendamentiDto>(
-                        model.page,
-                        model.size,
-                        results,
-                        model.filtro,
-                        await _logicEm.CountEM(model, persona, Convert.ToInt16(CLIENT_MODE)),
-                        Request.RequestUri),
-                    Atto = Mapper.Map<ATTI, AttiDto>(atto),
-                    Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
-                    CurrentUser = persona
-                });
+                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE), Request.RequestUri);
+                results.Atto = Mapper.Map<ATTI, AttiDto>(atto);
+                return Ok(results);
 
             }
             catch (Exception e)

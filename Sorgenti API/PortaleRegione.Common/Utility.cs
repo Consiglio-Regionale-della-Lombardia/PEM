@@ -361,5 +361,68 @@ namespace PortaleRegione.Common
             };
             model.filtro.Add(filtro1);
         }
+
+        /// <summary>
+        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="gruppi"></param>
+        public static void AddFilter_Groups(ref BaseRequest<EmendamentiDto> model, string gruppi)
+        {
+            if (string.IsNullOrEmpty(gruppi)) return;
+            var gruppi_split = gruppi.Split(',');
+            if (gruppi_split.Length <= 0) return;
+            foreach (var groupId in gruppi_split)
+            {
+                var filtro = new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.id_gruppo), Operation = Operation.EqualTo,
+                    Value = groupId, Connector = FilterStatementConnector.Or
+                };
+                model.filtro.Add(filtro);   
+            }
+        }
+        
+        /// <summary>
+        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="proponenti"></param>
+        public static void AddFilter_Proponents(ref BaseRequest<EmendamentiDto> model, string proponenti)
+        {
+            if (string.IsNullOrEmpty(proponenti)) return;
+            var prop_split = proponenti.Split(',');
+            if (prop_split.Length <= 0) return;
+            foreach (var personaUId in prop_split)
+            {
+                var filtro = new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.UIDPersonaProponente), Operation = Operation.EqualTo,
+                    Value = personaUId, Connector = FilterStatementConnector.Or
+                };
+                model.filtro.Add(filtro);   
+            }
+        }
+        
+        /// <summary>
+        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="firmatari"></param>
+        public static void AddFilter_Signers(ref BaseRequest<EmendamentiDto> model, string firmatari)
+        {
+            if (string.IsNullOrEmpty(firmatari)) return;
+            var firma_split = firmatari.Split(',');
+            if (firma_split.Length <= 0) return;
+            foreach (var personaUId in firma_split)
+            {
+                var filtro = new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = "Firmatario", Operation = Operation.EqualTo,
+                    Value = personaUId
+                };
+                model.filtro.Add(filtro);   
+            }
+        }
     }
 }

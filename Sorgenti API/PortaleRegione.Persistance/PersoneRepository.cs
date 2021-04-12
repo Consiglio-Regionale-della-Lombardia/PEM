@@ -131,7 +131,8 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
-                .OrderBy(u => u.cognome)
+                .OrderBy(u=>u.id_gruppo_politico_rif)
+                .ThenBy(u => u.cognome)
                 .ThenBy(u => u.nome);
 
             return await query

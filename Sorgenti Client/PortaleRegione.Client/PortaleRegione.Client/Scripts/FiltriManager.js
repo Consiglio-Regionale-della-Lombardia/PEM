@@ -776,3 +776,12 @@ function filter_em_financials_OnChange() {
     filtri_em.financials = value;
     set_Filtri_EM(filtri_em);
 }
+
+function filter_em_firmatari_OnChange() {
+    var value = $("#filter_em_firmatari").val();
+    var filtri_em = get_Filtri_EM();
+    if (filtri_em.firmatari == null)
+        filtri_em.firmatari = [];
+    filtri_em.firmatari.push(value);
+    set_Filtri_EM(filtri_em);
+}

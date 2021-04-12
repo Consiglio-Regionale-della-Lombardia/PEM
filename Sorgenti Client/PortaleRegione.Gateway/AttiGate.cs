@@ -71,6 +71,29 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public static async Task<BaseResponse<AttiDto>> Get(BaseRequest<AttiDto> model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/view";
+                var body = JsonConvert.SerializeObject(model);
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<AttiDto>>(await Post(requestUrl, body));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAtti", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAtti", ex);
+                throw ex;
+            }
+        }
+
         public static async Task<AttiFormUpdateModel> GetFormUpdate(Guid id)
         {
             try
@@ -88,27 +111,6 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("GetAttoFormUpdate", ex);
-                throw ex;
-            }
-        }
-
-        public static async Task<AttiDto> Get(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/atti?id={id}";
-
-                var lst = JsonConvert.DeserializeObject<AttiDto>(await Get(requestUrl));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("GetAtto", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetAtto", ex);
                 throw ex;
             }
         }

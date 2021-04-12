@@ -27,6 +27,7 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -500,8 +501,6 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        #region GetAtto
-
         public async Task<ATTI> GetAtto(Guid id)
         {
             return await _unitOfWork.Atti.Get(id);
@@ -512,7 +511,5 @@ namespace PortaleRegione.BAL
             var guidId = new Guid(id);
             return await _unitOfWork.Atti.Get(guidId);
         }
-
-        #endregion
     }
 }

@@ -33,14 +33,12 @@ namespace PortaleRegione.Contracts
     public interface IEmendamentiRepository : IRepository<EM>
     {
         Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti, int CLIENT_MODE,
-            Filter<EM> filtro = null);
+            Filter<EM> filtro = null, List<Guid> firmatari = null);
 
         Task<int> Count(string query);
 
-        #region GET
-
         Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
-            int CLIENT_MODE, Filter<EM> filtro = null);
+            int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null);
 
         IEnumerable<EM> GetAll(EmendamentiByQueryModel model);
 
@@ -57,32 +55,26 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<TITOLI_MISSIONI>> GetTitoliMissioneEmendamento();
         Task<IEnumerable<STATI_EM>> GetStatiEmendamento();
 
-        #endregion
-
-        #region CHECK
-
         bool CheckIfEliminabile(EmendamentiDto em, PersonaDto persona);
         bool CheckIfRitirabile(EmendamentiDto em, PersonaDto persona);
         Task<bool> CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
         Task<bool> CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
-        Task<bool> CheckProgressivo(Guid attoUId, string encrypt_progressivo, CounterEmendamentiEnum counter_emendamenti);
 
-        #endregion
-
-        #region SPOSTAMENTI EM IN FASE DI VOTAZIONE
+        Task<bool> CheckProgressivo(Guid attoUId, string encrypt_progressivo,
+            CounterEmendamentiEnum counter_emendamenti);
 
         Task ORDINA_EM_TRATTAZIONE(Guid attoUId);
         Task UP_EM_TRATTAZIONE(Guid emendamentoUId);
         Task DOWN_EM_TRATTAZIONE(Guid emendamentoUId);
         Task SPOSTA_EM_TRATTAZIONE(Guid emendamentoUId, int pos);
 
-        #endregion
-
         Task<EM> GetEMInProiezione(Guid emUidAtto);
         Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine);
         Task<IEnumerable<EM>> GetReport(Guid id, ReportTypeEnum type, int page, int size);
         Task<int> CountReport(Guid reqId);
         Task<int> CountReport(Guid reqId, StatiEnum stato);
-        Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona, OrdinamentoEnum ordine, int page, int size, int mode);
+
+        Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona, OrdinamentoEnum ordine,
+            int page, int size, int mode);
     }
 }

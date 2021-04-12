@@ -51,7 +51,7 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti,
             int CLIENT_MODE,
-            Filter<EM> filtro = null)
+            Filter<EM> filtro = null, List<Guid> firmatari = null)
         {
             var query = PRContext.EM
                 .Where(em =>
@@ -83,6 +83,21 @@ namespace PortaleRegione.Persistance
             }
 
             filtro?.BuildExpression(ref query);
+
+            if (firmatari != null)
+            {
+                if (firmatari.Count > 0)
+                {
+                    //Avvio ricerca firmatari
+                    var firme = await PRContext
+                        .FIRME
+                        .Where(f => firmatari.Contains(f.UID_persona))
+                        .Select(f=>f.UIDEM)
+                        .ToListAsync();
+                    query = query
+                        .Where(em => firme.Contains(em.UIDEM));
+                }
+            }
 
             switch (counter_emendamenti)
             {
@@ -220,9 +235,7 @@ namespace PortaleRegione.Persistance
                 .Where(em => listaEmendamenti.Contains(em.UIDEM))
                 .ToListAsync();
         }
-
-        #region GET
-
+        
         /// <summary>
         ///     Riepilogo emendamenti
         /// </summary>
@@ -233,7 +246,7 @@ namespace PortaleRegione.Persistance
         /// <param name="size"></param>
         /// <returns></returns>
         public async Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
-            int? size, int CLIENT_MODE, Filter<EM> filtro = null)
+            int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null)
         {
             var query = PRContext.EM
                 .Where(em =>
@@ -263,8 +276,23 @@ namespace PortaleRegione.Persistance
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int) RuoliIntEnum.Segreteria_Assemblea);
             }
-
+            
             filtro?.BuildExpression(ref query);
+
+            if (firmatari != null)
+            {
+                if (firmatari.Count > 0)
+                {
+                    //Avvio ricerca firmatari
+                    var firme = await PRContext
+                        .FIRME
+                        .Where(f => firmatari.Contains(f.UID_persona))
+                        .Select(f=>f.UIDEM)
+                        .ToListAsync();
+                    query = query
+                        .Where(em => firme.Contains(em.UIDEM));
+                }
+            }
 
             switch (ordine)
             {
@@ -512,11 +540,7 @@ namespace PortaleRegione.Persistance
                 .STATI_EM
                 .ToListAsync();
         }
-
-        #endregion
-
-        #region CHECK
-
+        
         /// <summary>
         ///     Controlla che l'emendamento sia eliminabile
         /// </summary>
@@ -651,11 +675,7 @@ namespace PortaleRegione.Persistance
                     throw new ArgumentOutOfRangeException(nameof(counter_emendamenti), counter_emendamenti, null);
             }
         }
-
-        #endregion
-
-        #region SPOSTAMENTI EM IN FASE DI VOTAZIONE
-
+        
         public async Task ORDINA_EM_TRATTAZIONE(Guid attoUId)
         {
             await PRContext.Database.ExecuteSqlCommandAsync(
@@ -679,7 +699,5 @@ namespace PortaleRegione.Persistance
             await PRContext.Database.ExecuteSqlCommandAsync(
                 $"exec SPOSTA_EM_TRATTAZIONE @UIDEM='{emendamentoUId}',@Pos={pos}");
         }
-
-        #endregion
     }
 }

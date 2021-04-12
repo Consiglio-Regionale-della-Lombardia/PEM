@@ -120,7 +120,7 @@
 </div>
 
 @{
-    Html.RenderPartial("_PannelloStrumentiRicercheAdmin");
+    Html.RenderPartial("_PannelloStrumentiRicerche");
 }
 
 <div id="modalStampa" class="modal">
@@ -235,17 +235,19 @@
         });
 
         function filtra() {
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
             $('#formFiltraEM').submit();
         }
 
         function filtra(page) {
             $('#inputFilterPage').val(page);
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
             $('#formFiltraEM').submit();
         }
 
@@ -261,9 +263,10 @@
             await Filtri_EM_CaricaStatiEM("filter_em_stato");
             await Filtri_EM_CaricaPartiEM("filter_em_parte");
             await Filtri_EM_CaricaTipiEM("filter_em_tipo");
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
             $('#formFiltraEM').submit();
         }
 
@@ -294,9 +297,10 @@
             $("#modalEmendamentiUguali").modal("open");
             $("#btnConfermaUguali").on("click",
                 function() {
-                    setTimeout(function () {
-                        $('body').removeClass('loaded');
-                    }, 200);
+                    setTimeout(function() {
+                            $('body').removeClass('loaded');
+                        },
+                        200);
                     $("#formRaggruppa").submit();
                 });
         }
@@ -369,9 +373,10 @@
 
             $("#btnConfermaNuovoProponente").on("click",
                 function() {
-                    setTimeout(function () {
-                        $('body').removeClass('loaded');
-                    }, 200);
+                    setTimeout(function() {
+                            $('body').removeClass('loaded');
+                        },
+                        200);
                     $("#formAssegnaA").submit();
                 });
         }
@@ -452,9 +457,10 @@
 
             $("#btnConfermaNotificaA").on("click",
                 function() {
-                    setTimeout(function () {
-                        $('body').removeClass('loaded');
-                    }, 200);
+                    setTimeout(function() {
+                            $('body').removeClass('loaded');
+                        },
+                        200);
                     $("#formNotificaA").submit();
                 });
         }
@@ -515,9 +521,10 @@
             $("#modalStampa").modal("open");
             $("#btnConfermaStampa").on("click",
                 function() {
-                    setTimeout(function () {
-                        $('body').removeClass('loaded');
-                    }, 200);
+                    setTimeout(function() {
+                            $('body').removeClass('loaded');
+                        },
+                        200);
                     $("#formStampa").submit();
                 });
         }

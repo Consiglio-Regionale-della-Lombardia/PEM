@@ -114,9 +114,9 @@ namespace PortaleRegione.BAL
                         ordine = ordine,
                         page = 1,
                         size = 50
-                    }, persona, (int) ClientModeEnum.GRUPPI);
+                    }, persona, (int) ClientModeEnum.GRUPPI, new Uri(""));
 
-                    foreach (var em in emList)
+                    foreach (var em in emList.Data.Results)
                     {
                         var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
 
@@ -329,9 +329,9 @@ namespace PortaleRegione.BAL
                             page = 1,
                             size = 50
                         }, persona,
-                        (int) ClientModeEnum.GRUPPI);
+                        (int) ClientModeEnum.GRUPPI, new Uri(""));
 
-                    foreach (var em in emList)
+                    foreach (var em in emList.Data.Results)
                     {
                         var row = table.CreateRow();
 

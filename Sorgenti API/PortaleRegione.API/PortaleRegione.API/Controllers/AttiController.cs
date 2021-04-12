@@ -25,7 +25,6 @@ using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -45,7 +44,8 @@ namespace PortaleRegione.API.Controllers
         private readonly SeduteLogic _logicSedute;
         private readonly StampeLogic _logicStampe;
 
-        public AttiController(PersoneLogic logicPersone, SeduteLogic logicSedute, AttiLogic logic, StampeLogic logicStampe)
+        public AttiController(PersoneLogic logicPersone, SeduteLogic logicSedute, AttiLogic logic,
+            StampeLogic logicStampe)
         {
             _logicPersone = logicPersone;
             _logicSedute = logicSedute;
@@ -107,35 +107,7 @@ namespace PortaleRegione.API.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-        /// <summary>
-        ///     Endpoint per avere un singolo atto preciso
-        /// </summary>
-        /// <param name="id">Guid atto</param>
-        /// <returns></returns>
-        [Route("")]
-        public async Task<IHttpActionResult> GetAtto(Guid id)
-        {
-            try
-            {
-                var attoInDB = await _logic.GetAtto(id);
-
-                if (attoInDB == null)
-                    return NotFound();
-
-                var result = Mapper.Map<ATTI, AttiDto>(attoInDB);
-                result.Relatori = (await _logicPersone.GetRelatori(result.UIDAtto))
-                    .Select(Mapper.Map<PersonaDto, PersonaLightDto>);
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Log.Error("GetAtto", e);
-                return ErrorHandler(e);
-            }
-        }
-
+        
         /// <summary>
         ///     Endpoint per eliminare virtualmente un atto
         /// </summary>
