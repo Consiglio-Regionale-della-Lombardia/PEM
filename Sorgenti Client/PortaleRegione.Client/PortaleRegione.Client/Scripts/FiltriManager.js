@@ -779,9 +779,25 @@ function filter_em_financials_OnChange() {
 
 function filter_em_firmatari_OnChange() {
     var value = $("#filter_em_firmatari").val();
+    value = value[0];
     var filtri_em = get_Filtri_EM();
     if (filtri_em.firmatari == null)
         filtri_em.firmatari = [];
-    filtri_em.firmatari.push(value);
+    if (value) {
+        var persona = filtri_em.firmatari.filter(function(person) { return person == value });
+        if (persona.length > 0) {
+            var nuovi_firmatari = []
+            for (var i = 0; i < filtri_em.firmatari.length; i++) {
+                if (filtri_em.firmatari[i] == value)
+                    continue;
+                nuovi_firmatari.push(filtri_em.firmatari[i])
+            }
+            filtri_em.firmatari = nuovi_firmatari;
+        }
+        else
+            filtri_em.firmatari.push(value);
+    }
+    else
+        filtri_em.firmatari = [];
     set_Filtri_EM(filtri_em);
 }

@@ -1317,9 +1317,10 @@ namespace PortaleRegione.BAL
                     filterStatement.Value =
                         EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
                 List<Guid> firmatari = new List<Guid>();
+                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
                 if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
                 {
-                    var firmatari_request = new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement => statement.PropertyId == "Firmatario"));
+                    firmatari_request = new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement => statement.PropertyId == "Firmatario"));
                     firmatari.AddRange( firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
                     foreach (var firmatarioStatement in firmatari_request)
                     {
@@ -1380,6 +1381,12 @@ namespace PortaleRegione.BAL
                     result.Add(dto);
                 }
 
+                var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE, firmatari);
+                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
+                {
+                    model.filtro.AddRange(firmatari_request);
+                }   
+
                 return new EmendamentiViewModel
                 {
                     Data = new BaseResponse<EmendamentiDto>(
@@ -1387,7 +1394,7 @@ namespace PortaleRegione.BAL
                         model.size,
                         result,
                         model.filtro,
-                        await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE, firmatari),
+                        total_em,
                         uri),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     CurrentUser = persona

@@ -6,7 +6,6 @@
     <div class="collapsible-body">
 
         @{
-            var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
             var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
 
             var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
@@ -31,7 +30,7 @@
 
             <input id="inputFilterPage" type="hidden" name="page" value=""/>
             <input type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
-            <input type="hidden" name="mode" value="@mode"/>
+            <input type="hidden" id="hdMode" name="mode" value=""/>
             <input type="hidden" name="ordine" value="@((int) ordinePaginaEnum)"/>
             <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto"/>
 
@@ -127,14 +126,11 @@
                         </div>
                     </div>
                 </div>
-                @if (mode == ((int) ClientModeEnum.TRATTAZIONE).ToString())
-                {
-                    <div class="input-field col s12">
-                        <select multiple id="filter_em_gruppi" name="filtro_gruppo" onchange="filter_em_gruppi_OnChange()">
-                        </select>
-                        <label>Gruppi</label>
-                    </div>
-                }
+                <div id="pnlFiltroGruppo" style="display: none;" class="input-field col s12">
+                    <select multiple id="filter_em_gruppi" name="filtro_gruppo" onchange="filter_em_gruppi_OnChange()">
+                    </select>
+                    <label>Gruppi</label>
+                </div>
                 <div class="input-field col s12">
                     <select multiple id="filter_em_proponente" name="filtro_proponente" onchange="filter_em_proponenti_OnChange()"></select>
                     <label>Proponenti</label>
@@ -288,9 +284,13 @@
 </div>
 <script>
     $(document).ready(async function() {
-        @if (mode == ((int) ClientModeEnum.TRATTAZIONE).ToString())
-        {
-            @Html.Raw("await SetupFiltriGruppi();")
+        var mode = getClientMode();
+        $("#hdMode").val(mode);
+        if (mode == 2) {
+            $("#pnlFiltroGruppo").show();
+            await SetupFiltriGruppi();
+        } else {
+            $("#pnlFiltroGruppo").hide();
         }
         await SetupFiltriFirmatari();
         await SetupFiltriProponenti();
@@ -303,7 +303,6 @@
             if (filtri.firmatari)
                 filterSelect = filtri.firmatari;
         }
-        console.log(filtri)
         var persone = await GetPersoneFromDB();
         var select = $("#filter_em_firmatari");
         select.empty();
@@ -311,8 +310,16 @@
         $.each(persone,
             function(index, item) {
                 var template = "";
-                if (filterSelect.includes(item.UID_persona))
+                var find_user = false;
+                for (var i = 0; i < filterSelect.length; i++) {
+                    if (filterSelect[i].toString() == item.UID_persona.toString()) {
+                        find_user = true;
+                        break;
+                    }
+                }
+                if (find_user) {
                     template = "<option selected='selected'></option>";
+                }
                 else
                     template = "<option></option>";
                 select.append($(template).val(item.UID_persona).html(item.DisplayName));
