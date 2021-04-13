@@ -165,7 +165,7 @@
 
     function TestoEmendamento_TipoEM(tipo) {
         $('#hdTipoId').val(tipo);
-        if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce").text().length < 200) {
+        if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200) {
             var parteEMList = $('input[name="Emendamento.IDParte"]');
             $.each(parteEMList,
                 function (index, itemParteEM) {
@@ -221,7 +221,7 @@
                         } else if (tipo == 4) {
                             testo = testo + " è sostituito.";
                         }
-                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce").text(testo);
+                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text(testo);
                     }
                 });
         }

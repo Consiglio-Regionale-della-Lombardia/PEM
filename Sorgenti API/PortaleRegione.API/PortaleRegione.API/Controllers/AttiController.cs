@@ -109,6 +109,28 @@ namespace PortaleRegione.API.Controllers
         }
         
         /// <summary>
+        /// Endpoint per avere un singolo atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("")]
+        public async Task<IHttpActionResult> GetAtto(Guid id)
+        {
+            try
+            {
+                var atto = await _logic.GetAtto(id);
+                var result = Mapper.Map<ATTI, AttiDto>(atto);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetAtto", e);
+                return BadRequest(e.Message);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per eliminare virtualmente un atto
         /// </summary>
         /// <param name="id">Guid atto</param>

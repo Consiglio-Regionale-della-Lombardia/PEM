@@ -73,11 +73,11 @@
                     @Html.Partial("_MetaDatiPanel", Model)
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
-                        @Html.TextAreaFor(model => model.Emendamento.TestoEM_originale, new {@class = "form-control tinymce"})
+                        @Html.TextAreaFor(model => model.Emendamento.TestoEM_originale, new {@class = "form-control trumbowyg"})
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoREL_originale)
-                        @Html.TextAreaFor(model => model.Emendamento.TestoREL_originale, new {@class = "form-control tinymce"})
+                        @Html.TextAreaFor(model => model.Emendamento.TestoREL_originale, new {@class = "form-control trumbowyg"})
                     </div>
 
                     @Html.Partial("_DocsPanel", Model)

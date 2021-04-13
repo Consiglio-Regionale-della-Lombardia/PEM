@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Applicazione ASP.NET</title>
 
@@ -11,10 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
     @Styles.Render("~/Content/css")
-    <script src="https://cdn.tiny.cloud/1/2mqsotaemo0a1w4fsiq3j7vf4901zkryk9pem18pws7m6do9/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
+    <script src="/Content/editor/trumbowyg.min.js"></script>
+    <link rel="stylesheet" href="/Content/editor/ui/trumbowyg.min.css">
 
     <script>
         baseUrl = '@Html.Raw(ConfigurationManager.AppSettings["URL_CLIENT"])';
@@ -70,6 +72,8 @@
 @RenderSection("scripts", false)
 
 <script>
+    $('.trumbowyg').trumbowyg();
+
     $("body").on("keyup",
         function(event) {
             // Cancel the default action, if needed

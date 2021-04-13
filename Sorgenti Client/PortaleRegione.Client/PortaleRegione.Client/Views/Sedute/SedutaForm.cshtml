@@ -64,7 +64,7 @@
             </div>
             <div class="form-group">
                 @Html.LabelFor(s => s.Intervalli)
-                @Html.TextAreaFor(model => model.Intervalli, new { @class = "form-control tinymce" })
+                @Html.TextAreaFor(model => model.Intervalli, new { @class = "form-control trumbowyg" })
             </div>
             <div class="fixed-action-btn">
                 <button class="btn-floating btn-large blue" id="btnSave" type="button">
@@ -80,10 +80,13 @@
 <script>
     $("#btnSave").on("click",
         function () {
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
-            $('#formSedute').submit();
+           
+            console.log(editor.text())
+            console.log(editor.html())
+            //setTimeout(function () {
+            //    $('body').removeClass('loaded');
+            //}, 200);
+            //$('#formSedute').submit();
         });
 
     $("#formSedute").submit(function (e) {
@@ -92,9 +95,11 @@
         submitHandler: function (form) {
             var body = JSON.parse(JSON.stringify($("#formSedute").serializeObject()));
 
-            if ($("#Intervalli_ifr").contents().find("#tinymce").text() != "")
-                body["Intervalli"] =
-                    $("#Intervalli_ifr").contents().find("#tinymce").html();
+            var container = $("#Intervalli").parent();
+            var editor = $(container).find(".trumbowyg-editor");
+
+            if (editor.text() != "")
+                body["Intervalli"] = editor.html();
 
             //submit via ajax
             $.ajax({

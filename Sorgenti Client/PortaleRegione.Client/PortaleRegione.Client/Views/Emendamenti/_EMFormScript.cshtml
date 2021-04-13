@@ -1,12 +1,13 @@
 ﻿<script>
 
     function InitEffettiFinanziari(value) {
-        $('input[id="Emendamento.EffettiFinanziari"]').each(function (index, item) {
+        $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
             if (item.value == value) {
                 $(item).prop("checked", true);
             }
         });
     }
+
     function EffettiFinanziari_OnChange(change) {
         if (change == 1) {
             $('.only-effetti').show();
@@ -17,9 +18,10 @@
 
     $("#btnSave").on("click",
         function() {
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
             $('#formEmendamento').submit();
         });
     $("#formEmendamento").submit(function(e) {
@@ -51,12 +53,18 @@
             var proponente;
             if ($('input[name="Emendamento.UIDPersonaProponente"]').val())
                 proponente = $('input[name="Emendamento.UIDPersonaProponente"]').val();
-            else{
+            else {
                 if ($('#chkProponentiConsiglieri').is(":checked"))
                     proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
                 else if ($('#chkProponentiAssessori').is(":checked"))
                     proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
             }
+
+            var container_testo_originale = $("#Emendamento_TestoEM_originale").parent();
+            var editor_testo_originale = $(container_testo_originale).find(".trumbowyg-editor");
+            var container_relazione = $("#Emendamento_TestoREL_originale").parent();
+            var editor_relazione = $(container_relazione).find(".trumbowyg-editor");
+
             var form_data = new FormData();
             form_data.append("UIDAtto", $('input[name="Emendamento.UIDAtto"]').val());
             form_data.append("UIDEM", $('input[name="Emendamento.UIDEM"]').val());
@@ -72,8 +80,9 @@
             form_data.append("DataModifica", $('input[name="Emendamento.DataModifica"]').val());
             form_data.append("UIDPersonaModifica", $('input[name="Emendamento.UIDPersonaModifica"]').val());
             form_data.append("UID_QRCode", $('input[name="Emendamento.UID_QRCode"]').val());
-            form_data.append("TestoEM_originale", $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce").html());
-            form_data.append("TestoREL_originale", $("#Emendamento_TestoREL_originale_ifr").contents().find("#tinymce").html());
+
+            form_data.append("TestoEM_originale", editor_testo_originale.html());
+            form_data.append("TestoREL_originale", editor_relazione.html());
 
             form_data.append("IDParte", $('#hdParteId').val());
             form_data.append("NTitolo", $('input[name="Emendamento.NTitolo"]').val());
@@ -87,7 +96,7 @@
             form_data.append("IDTipo_EM", $('#hdTipoId').val());
 
             var effettiFinanziari = 0;
-            $('input[id="Emendamento.EffettiFinanziari"]').each(function (index, item) {
+            $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
                 if (item.checked) {
                     effettiFinanziari = item.value;
                 }

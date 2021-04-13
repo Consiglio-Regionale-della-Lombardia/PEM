@@ -75,7 +75,7 @@
             <div id="testoEMTab" class="col s12">
                 <div class="form-group">
                     @Html.LabelFor(s => s.Emendamento.TestoEM_Modificabile)
-                    @Html.TextAreaFor(model => model.Emendamento.TestoEM_Modificabile, new {@class = "form-control tinymce"})
+                    @Html.TextAreaFor(model => model.Emendamento.TestoEM_Modificabile, new {@class = "form-control trumbowyg"})
                 </div>
             </div>
             <div id="noteTab" class="col s12">
@@ -89,7 +89,7 @@
                 {
                     <div class="card-action green lighten-4">
                         <label>Nota pubblica</label>
-                        @Html.TextAreaFor(model => model.Emendamento.NOTE_Griglia, new {@class = "form-control tinymce"})
+                        @Html.TextAreaFor(model => model.Emendamento.NOTE_Griglia, new {@class = "form-control trumbowyg"})
                     </div>
                 }
                 @if (string.IsNullOrEmpty(Model.Emendamento.NOTE_EM))
@@ -102,7 +102,7 @@
                 {
                     <div class="card-action red lighten-4">
                         <label>Nota riservata</label>
-                        @Html.TextAreaFor(model => model.Emendamento.NOTE_EM, new {@class = "form-control tinymce"})
+                        @Html.TextAreaFor(model => model.Emendamento.NOTE_EM, new {@class = "form-control trumbowyg"})
                     </div>
                 }
             </div>
@@ -130,9 +130,9 @@
         submitHandler: function(form) {
             var body = JSON.parse(JSON.stringify($("#formMetaDati").serializeObject()));
 
-            if ($("#Emendamento_TestoEM_modificabile_ifr").contents().find("#tinymce").text() != "")
+            if ($("#Emendamento_TestoEM_modificabile_ifr").contents().find("#trumbowyg").text() != "")
                 body["Emendamento.TestoEM_modificabile"] =
-                    $("#Emendamento_TestoEM_modificabile_ifr").contents().find("#tinymce").html();
+                    $("#Emendamento_TestoEM_modificabile_ifr").contents().find("#trumbowyg").html();
 
             //submit via ajax
             $.ajax({

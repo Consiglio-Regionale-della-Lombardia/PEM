@@ -4,12 +4,7 @@ document.addEventListener("DOMContentLoaded",
     function() {
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
-        // TINYMCE v4
-        // RICHIESTA CHIAVE API GRATUITA - https://www.tiny.cloud/
-        tinymce.init({
-            selector: ".tinymce"
-        });
-
+        
         var mode = getClientMode();
         if (mode == null)
             setClientMode(1);
@@ -331,23 +326,23 @@ function NCapo_OnChange(item) {
 }
 
 function TestoEmendamento_ParteEM(value, text) {
-    if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce").text().length < 200) {
+    if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200) {
         var tipoEMList = $('input[name="Emendamento.IDTipo_EM"]');
         $.each(tipoEMList,
             function(index, itemTipoEM) {
                 if (itemTipoEM.checked) {
                     var testo = text + " " + value;
                     if (itemTipoEM.value == 1) {
-                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce")
+                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg")
                             .text(testo + " è soppresso.");
                     } else if (itemTipoEM.value == 2) {
-                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce")
+                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg")
                             .text(testo + " è modificato come segue: ");
                     } else if (itemTipoEM.value == 3) {
-                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce")
+                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg")
                             .text(testo + " viene emendato aggiungendo: ");
                     } else if (itemTipoEM.value == 4) {
-                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#tinymce")
+                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg")
                             .text(testo + " è sostituito.");
                     }
                 }

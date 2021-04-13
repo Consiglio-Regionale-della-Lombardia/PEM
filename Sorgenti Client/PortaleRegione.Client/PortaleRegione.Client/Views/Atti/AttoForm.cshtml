@@ -155,11 +155,11 @@
                 </div>
                 <div class="form-group">
                     @Html.LabelFor(s => s.Atto.Oggetto)
-                    @Html.TextAreaFor(model => model.Atto.Oggetto, new {@class = "form-control tinymce"})
+                    @Html.TextAreaFor(model => model.Atto.Oggetto, new {@class = "form-control trumbowyg"})
                 </div>
                 <div class="form-group">
                     @Html.LabelFor(s => s.Atto.Note)
-                    @Html.TextAreaFor(model => model.Atto.Note, new {@class = "form-control tinymce"})
+                    @Html.TextAreaFor(model => model.Atto.Note, new {@class = "form-control trumbowyg"})
                 </div>
             </div>
 
@@ -255,15 +255,20 @@
                     doc = inputFileAtto.files[0];
             }
 
+            var container_note = $("#Atto_Note").parent();
+            var editor_note = $(container_note).find(".trumbowyg-editor");
+            var container_oggetto = $("#Atto_Oggetto").parent();
+            var editor_oggetto = $(container_oggetto).find(".trumbowyg-editor");
+
             var form_data = new FormData();
             form_data.append("NAtto", $('input[name="Atto.NAtto"]').val());
             form_data.append("Data_apertura", $('input[name="Atto.Data_apertura"]').val());
             form_data.append("Data_chiusura", $('input[name="Atto.Data_chiusura"]').val());
             form_data.append("DocAtto", doc);
             form_data.append("IDTipoAtto", $('input[name="Atto.IDTipoAtto"]').val());
-            form_data.append("Note", $("#Atto_Note_ifr").contents().find("#tinymce").html());
+            form_data.append("Note", editor_note.html());
             form_data.append("Notifica_deposito_differita", $('input[name="Atto.Notifica_deposito_differita"]').is(":checked"));
-            form_data.append("Oggetto", $("#Atto_Oggetto_ifr").contents().find("#tinymce").html());
+            form_data.append("Oggetto", editor_oggetto.html());
             form_data.append("UIDAssessoreRiferimento", $('select[name="Atto.UIDAssessoreRiferimento"]').children("option:selected").val());
             form_data.append("UIDAtto", $('input[name="Atto.UIDAtto"]').val());
             form_data.append("UIDSeduta", $('input[name="Atto.UIDSeduta"]').val());
