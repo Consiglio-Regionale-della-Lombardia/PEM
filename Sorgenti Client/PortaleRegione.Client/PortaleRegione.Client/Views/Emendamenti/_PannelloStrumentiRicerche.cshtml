@@ -329,25 +329,63 @@
     }
 
     async function SetupFiltriProponenti() {
+        var filterSelect = [];
+        var filtri = get_Filtri_EM();
+        if (filtri != null) {
+            if (filtri.proponenti)
+                filterSelect = filtri.proponenti;
+        }
         var persone = await GetPersoneFromDB();
         var select = $("#filter_em_proponente");
         select.empty();
 
         $.each(persone,
             function(index, item) {
-                select.append($("<option></option>").val(item.UID_persona).html(item.DisplayName));
+                var template = "";
+                var find_user = false;
+                for (var i = 0; i < filterSelect.length; i++) {
+                    if (filterSelect[i].toString() == item.UID_persona.toString()) {
+                        find_user = true;
+                        break;
+                    }
+                }
+                if (find_user) {
+                    template = "<option selected='selected'></option>";
+                }
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.UID_persona).html(item.DisplayName));
             });
         var elems = document.querySelectorAll("#filter_em_proponente");
         M.FormSelect.init(elems, null);
     }
 
     async function SetupFiltriGruppi() {
+        var filterSelect = [];
+        var filtri = get_Filtri_EM();
+        if (filtri != null) {
+            if (filtri.gruppi)
+                filterSelect = filtri.gruppi;
+        }
         var gruppi = await GetGruppi();
         var select = $("#filter_em_gruppi");
         select.empty();
         $.each(gruppi,
             function(index, item) {
-                select.append($("<option></option>").val(item.id).html(item.descr));
+                var template = "";
+                var find_user = false;
+                for (var i = 0; i < filterSelect.length; i++) {
+                    if (filterSelect[i].toString() == item.id.toString()) {
+                        find_user = true;
+                        break;
+                    }
+                }
+                if (find_user) {
+                    template = "<option selected='selected'></option>";
+                }
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.id).html(item.descr));
             });
         var elems = document.querySelectorAll("#filter_em_gruppi");
         M.FormSelect.init(elems, null);

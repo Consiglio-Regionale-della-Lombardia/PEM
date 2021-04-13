@@ -263,6 +263,22 @@
             await Filtri_EM_CaricaStatiEM("filter_em_stato");
             await Filtri_EM_CaricaPartiEM("filter_em_parte");
             await Filtri_EM_CaricaTipiEM("filter_em_tipo");
+
+            $('#filter_em_gruppi option').each(function (index, opt) {
+                if ($(opt).is(":checked")) {
+                    $(opt).attr("selected", false)
+                }
+            });
+            $('#filter_em_proponente option').each(function (index, opt) {
+                if ($(opt).is(":checked")) {
+                    $(opt).attr("selected", false)
+                }
+            });
+            $('#filter_em_firmatari option').each(function (index, opt) {
+                if ($(opt).is(":checked")) {
+                    $(opt).attr("selected", false)
+                }
+            });
             setTimeout(function() {
                     $('body').removeClass('loaded');
                 },

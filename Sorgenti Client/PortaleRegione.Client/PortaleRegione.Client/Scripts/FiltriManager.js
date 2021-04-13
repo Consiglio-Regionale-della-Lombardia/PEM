@@ -777,27 +777,53 @@ function filter_em_financials_OnChange() {
     set_Filtri_EM(filtri_em);
 }
 
+function filter_em_gruppi_OnChange() {
+    var filtri_em = get_Filtri_EM();
+    if (filtri_em.gruppi == null)
+        filtri_em.gruppi = [];
+    var nuovi_gruppi = []
+    if ($("#filter_em_gruppi option").length != 0) {
+        $("#filter_em_gruppi option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("GRUPPO ATTIVO - ", $(opt).val())
+                nuovi_gruppi.push($(opt).val())
+            }
+        });
+        filtri_em.gruppi = nuovi_gruppi;
+    }
+    set_Filtri_EM(filtri_em);
+}
+
+function filter_em_proponenti_OnChange() {
+    var filtri_em = get_Filtri_EM();
+    if (filtri_em.proponenti == null)
+        filtri_em.proponenti = [];
+    var nuovi_proponenti = []
+    if ($("#filter_em_proponente option").length != 0) {
+        $("#filter_em_proponente option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("PROPONENTE ATTIVO - ", $(opt).val())
+                nuovi_proponenti.push($(opt).val())
+            }
+        });
+        filtri_em.proponenti = nuovi_proponenti;
+    }
+    set_Filtri_EM(filtri_em);
+}
+
 function filter_em_firmatari_OnChange() {
-    var value = $("#filter_em_firmatari").val();
-    value = value[0];
     var filtri_em = get_Filtri_EM();
     if (filtri_em.firmatari == null)
         filtri_em.firmatari = [];
-    if (value) {
-        var persona = filtri_em.firmatari.filter(function(person) { return person == value });
-        if (persona.length > 0) {
-            var nuovi_firmatari = []
-            for (var i = 0; i < filtri_em.firmatari.length; i++) {
-                if (filtri_em.firmatari[i] == value)
-                    continue;
-                nuovi_firmatari.push(filtri_em.firmatari[i])
+    var nuovi_firmatari = []
+    if ($("#filter_em_firmatari option").length != 0) {
+        $("#filter_em_firmatari option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("FIRMATARIO ATTIVO - ", $(opt).val())
+                nuovi_firmatari.push($(opt).val())
             }
-            filtri_em.firmatari = nuovi_firmatari;
-        }
-        else
-            filtri_em.firmatari.push(value);
+        });
+        filtri_em.firmatari = nuovi_firmatari;
     }
-    else
-        filtri_em.firmatari = [];
     set_Filtri_EM(filtri_em);
 }
