@@ -175,7 +175,9 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                return Ok(await _logicEm.GetEM_DTO(em, persona));
+
+                var result = await _logicEm.GetEM_DTO(em, persona);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -289,7 +291,7 @@ namespace PortaleRegione.API.Controllers
                 var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente.Value, isGiunta);
 
                 var em = await _logicEm.NuovoEmendamento(model, proponente, isGiunta);
-                return Created(new Uri(Request.RequestUri + "/" + em.UIDEM), em);
+                return Ok(await _logicEm.GetEM_DTO(em.UIDEM, null));
             }
             catch (Exception e)
             {

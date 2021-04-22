@@ -11,8 +11,17 @@ using PortaleRegione.Logger;
 
 namespace PortaleRegione.GestioneStampe
 {
-    public class PdfStamper
+    public sealed class PdfStamper
     {
+        static PdfStamper _instance;  
+   
+        public static PdfStamper Instance => _instance ?? (_instance = new PdfStamper());
+
+        public PdfStamper()
+        {
+            
+        }
+
         public static void CreaPDF(string txtHTML, string path, EmendamentiDto em, string urlPEM)
         {
             try

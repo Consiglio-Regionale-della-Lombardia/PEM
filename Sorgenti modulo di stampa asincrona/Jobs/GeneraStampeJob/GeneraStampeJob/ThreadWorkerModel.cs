@@ -2,11 +2,10 @@
 {
     public class ThreadWorkerModel
     {
-        public string username { get; set; }
-        public string password { get; set; }
-        public string urlAPI { get; set; }
-        public string urlCLIENT { get; set; }
-        public string CartellaStampeLink { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string UrlAPI { get; set; }
+        public string UrlCLIENT { get; set; }
         public string NumMaxTentativi { get; set; }
         public string CartellaLavoroTemporanea { get; set; }
         public string CartellaLavoroStampe { get; set; }

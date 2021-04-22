@@ -19,8 +19,10 @@
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
@@ -62,6 +64,27 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetStampe", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per una singola stampa
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("id/{id:guid}")]
+        public async Task<IHttpActionResult> GetStampa(Guid id)
+        {
+            try
+            {
+                var result = await _logic.GetStampa(id);
+                return Ok(Mapper.Map<STAMPE, StampaDto>(result));
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -137,6 +160,79 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("ResetStampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per aggiungere dei log info alla stampa
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("id/{id:guid}/add-info")]
+        public async Task<IHttpActionResult> AddInfoStampa(Guid id, string message)
+        {
+            try
+            {
+                var stampa = await _logic.GetStampa(id);
+                if (stampa == null)
+                    return NotFound();
+
+                await _logic.AddInfo(stampa, message);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Add info Stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere la lista di informazioni loggate legate alla stampa
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("id/{id:guid}/info")]
+        public async Task<IHttpActionResult> GetInfoStampa(Guid id)
+        {
+            try
+            {
+                var stampa = await _logic.GetStampa(id);
+                if (stampa == null)
+                    return NotFound();
+
+                var result = await _logic.GetInfo(stampa);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get info Stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere la lista di informazioni loggate di tutte le stampe
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("id/info")]
+        public async Task<IHttpActionResult> GetInfoStampe()
+        {
+            try
+            {
+                var result = await _logic.GetInfo();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get info Stampa", e);
                 return ErrorHandler(e);
             }
         }

@@ -50,13 +50,12 @@ namespace PortaleRegione.Persistance
                 query = PRContext.STAMPE.Where(s => s.CurrentRole == (int) persona.CurrentRole
                                                     || s.Da == 0 && s.A == 0);
             else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-            && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
+                     && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
                 query = PRContext.STAMPE.Where(s => s.UIDUtenteRichiesta == persona.UID_persona);
 
             filtro?.BuildExpression(ref query);
 
             return await query
-                .Where(s => !s.UIDEM.HasValue)
                 .OrderByDescending(s => s.DataRichiesta)
                 .Skip((page.Value - 1) * size.Value)
                 .Take(size.Value)
@@ -100,6 +99,45 @@ namespace PortaleRegione.Persistance
         public async Task<STAMPE> Get(Guid stampaUId)
         {
             return await PRContext.STAMPE.FindAsync(stampaUId);
+        }
+
+        public void AddInfo(Guid stampaUId, string messaggio)
+        {
+            PRContext
+                .STAMPE_INFO
+                .Add(new STAMPE_INFO
+                {
+                    Id = Guid.NewGuid(),
+                    UIDStampa = stampaUId,
+                    Message = messaggio
+                });
+        }
+
+        public async Task<IEnumerable<STAMPE_INFO>> GetInfo(Guid stampaUId)
+        {
+            var query = PRContext
+                .STAMPE_INFO
+                .Where(s => s.UIDStampa == stampaUId)
+                .OrderByDescending(i => i.Date);
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<STAMPE_INFO>> GetInfo()
+        {
+            return await PRContext
+                .STAMPE_INFO
+                .OrderByDescending(i => i.Date)
+                .Take(1000)
+                .ToListAsync();
+        }
+
+        public async Task<STAMPE_INFO> GetLastInfo(Guid stampaUId)
+        {
+            var query = PRContext
+                .STAMPE_INFO
+                .Where(s => s.UIDStampa == stampaUId)
+                .OrderByDescending(i => i.Date);
+            return await query.FirstOrDefaultAsync();
         }
     }
 }

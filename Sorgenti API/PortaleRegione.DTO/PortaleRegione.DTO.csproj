@@ -61,6 +61,7 @@
     <Compile Include="Domain\PersonaNoConsDto.cs" />
     <Compile Include="Domain\PinDto.cs" />
     <Compile Include="Domain\StampaDto.cs" />
+    <Compile Include="Domain\Stampa_InfoDto.cs" />
     <Compile Include="Domain\TipoNotificaDto.cs" />
     <Compile Include="Enum\ActionEnum.cs" />
     <Compile Include="Enum\AreaPoliticaEnum.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\StatoPinEnum.cs" />
     <Compile Include="Enum\TemplateTypeEnum.cs" />
+    <Compile Include="Enum\TipiEMEnum.cs" />
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />

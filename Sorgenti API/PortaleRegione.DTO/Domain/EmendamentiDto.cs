@@ -103,10 +103,13 @@ namespace PortaleRegione.DTO.Domain
 
         [StringLength(5)] public string NNumero { get; set; }
 
+        [Display(Name = "Missione")]
         public int? NMissione { get; set; }
 
+        [Display(Name = "Programma")]
         public int? NProgramma { get; set; }
 
+        [Display(Name = "Titolo B")]
         public int? NTitoloB { get; set; }
 
         public int OrdinePresentazione { get; set; }
@@ -175,6 +178,8 @@ namespace PortaleRegione.DTO.Domain
         public HttpPostedFileBase DocEffettiFinanziari { get; set; }
 
         public byte[] DocEffettiFinanziari_Stream { get; set; }
+
+        public bool Eliminato { get; set; }
 
         #region Campi consumabili lato client
 

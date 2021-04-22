@@ -17,7 +17,7 @@
     Html.RenderPartial("_PaginationBar", Model.Paging);
 }
 
-<div id="seduteTable" class="row">
+<div id="stampeTable" class="row">
 
     @if (!Model.Results.Any())
     {
@@ -35,158 +35,159 @@
     {
         <table>
             <thead>
-                <tr>
-                    <th>Utente</th>
-                    <th>Atto</th>
-                    <th>Data stampa</th>
-                    <th>Da</th>
-                    <th>A</th>
-                    <th>Stato</th>
-                    <th>Stato Invio</th>
-                    <th>Scarica</th>
-                </tr>
+            <tr>
+                <th width="20">ID</th>
+                <th>Utente</th>
+                <th>Atto</th>
+                <th>Data stampa</th>
+                <th>Da</th>
+                <th>A</th>
+                <th>Stato</th>
+                <th>Stato Invio</th>
+                <th width="100">Scarica</th>
+            </tr>
             </thead>
 
             <tbody>
-                @foreach (var stampa in Model.Results)
-                {
-                    <tr>
-                        <td>
-                            @if (stampa.Richiedente != null)
+            @foreach (var stampa in Model.Results)
+            {
+                <tr>
+                    <td>
+                        <i class="IDSTAMPA icon material-icons tooltipped" data-position="bottom" data-tooltip="@stampa.UIDStampa" onclick="copy_to_clipboard('@stampa.UIDStampa')">fingerprint</i>
+                        <input id="fingerprint_@stampa.UIDStampa" value="@stampa.UIDStampa" style="opacity: .01; height: 0; z-index: -1"/>
+                    </td>
+                    <td>
+                        @if (stampa.Richiedente != null)
+                        {
+                            <b>@stampa.Richiedente.DisplayName</b>
+                        }
+                    </td>
+                    <td>
+                        @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
+                        <a class="blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = ClientModeEnum.GRUPPI})')" data-position="bottom" data-tooltip="Vai all'atto">
+                            <i class="material-icons">call_made</i>
+                        </a>
+                    </td>
+                    <td>
+                        @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
+                    </td>
+                    @if (stampa.UIDEM.HasValue)
+                    {
+                        <td colspan="2">
+                            <div class="chip center purple lighten-5" style="min-width: unset">
+                                Stampa singola
+                            </div>
+                        </td>
+                    }
+                    else if (stampa.Da == 0 && stampa.A == 0)
+                    {
+                        <td colspan="2">
+                            @switch ((OrdinamentoEnum) stampa.Ordine.Value)
                             {
-                                <b>@stampa.Richiedente.DisplayName</b>
+                                case OrdinamentoEnum.Presentazione:
+                                    <div class="chip center" style="min-width: unset">
+                                        Fascicolo Presentazione
+                                    </div>
+                                    break;
+                                case OrdinamentoEnum.Votazione:
+                                    <div class="chip center" style="min-width: unset">
+                                        Fascicolo Votazione
+                                    </div>
+                                    break;
+                                case OrdinamentoEnum.Default:
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
                             }
                         </td>
+                    }
+                    else
+                    {
                         <td>
-                            @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
-                            <a class="blue-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto})')" title="Vai all'atto">
-                                <i class="material-icons">call_made</i>
-                            </a>
+                            @stampa.Da
                         </td>
                         <td>
-                            @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
+                            @stampa.A
                         </td>
-                        @if (stampa.Da == 0 && stampa.A == 0)
-                        {
-                            <td colspan="2">
-                                @switch ((OrdinamentoEnum) stampa.Ordine.Value)
-                                {
-                                    case OrdinamentoEnum.Presentazione:
-                                        <div class="chip center">
-                                            Fascicolo Presentazione
-                                        </div>
-                                        break;
-                                    case OrdinamentoEnum.Votazione:
-                                        <div class="chip center">
-                                            Fascicolo Votazione
-                                        </div>
-                                        break;
-                                    case OrdinamentoEnum.Default:
-                                        break;
-                                    default:
-                                        throw new ArgumentOutOfRangeException();
-                                }
-                            </td>
+                    }
+                    <td>
+                        @{
+                            var abilitaReset = false;
                         }
-                        else
+                        @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
                         {
-                            <td>
-                                @stampa.Da
-                            </td>
-                            <td>
-                                @stampa.A
-                            </td>
-                        }
-                        <td>
-                            @{
-                                var abilitaReset = false;
-                            }
-                            @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
+                            if (stampa.DataFineEsecuzione.HasValue)
                             {
-                                if (stampa.DataInizioEsecuzione.HasValue)
+                                <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                    Completata
+                                </div>
+                            }
+                            else if (stampa.DataInizioEsecuzione.HasValue)
+                            {
+                                if (stampa.DataFineEsecuzione.HasValue)
                                 {
-                                    if (stampa.DataFineEsecuzione.HasValue)
-                                    {
-                                        <div class="chip center green white-text" title="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")">
-                                            Completata
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        abilitaReset = true;
-
-                                        <div class="chip center amber white-text">
-                                            In lavorazione
-                                        </div>
-                                    }
+                                    <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                        Completata
+                                    </div>
                                 }
                                 else
                                 {
-                                    <div class="chip center grey white-text">
-                                        In attesa
+                                    abilitaReset = true;
+
+                                    <div class="chip center amber white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
+                                        In lavorazione
                                     </div>
                                 }
                             }
                             else
                             {
-                                abilitaReset = true;
-
-                                <div class="chip center red white-text" title="Messaggio di errore: @stampa.MessaggioErrore">
-                                    Errore
+                                <div class="chip center grey white-text" style="min-width: unset">
+                                    In attesa
                                 </div>
                             }
+                        }
+                        else
+                        {
+                            abilitaReset = true;
 
-                            @if (abilitaReset && stampa.Lock)
-                            {
-                                <a class="btn-floating pink" title="Ristampa" onclick="ResetStampa('@stampa.UIDStampa', '@Url.Action("Index")')">
-                                    <i class="material-icons">settings_backup_restore</i>
-                                </a>
-                            }
-                            else
-                            {
-                                if (stampa.Tentativi >= 2)
-                                {
-                                    <span class="new badge" data-badge-caption="tentativi">@stampa.Tentativi</span>
-                                }
-                            }
+                            <div class="chip center red white-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
+                                Errore
+                            </div>
+                        }
 
-                        </td>
-                        <td>
-                            @if (stampa.DataInvio.HasValue)
+                        @if (abilitaReset && stampa.Lock)
+                        {
+                            <a class="btn-floating pink tooltipped" data-position="bottom" data-tooltip="Ristampa" onclick="ResetStampa('@stampa.UIDStampa', '@Url.Action("Index")')">
+                                <i class="material-icons">settings_backup_restore</i>
+                            </a>
+                        }
+                        else
+                        {
+                            if (stampa.Tentativi >= 2)
                             {
-                                <div class="chip center blue white-text" title="Data invio: @stampa.DataInvio.Value.ToString("dd/MM/yyyy HH:mm")">
-                                    Inviato
-                                </div>
+                                <span class="new badge" data-badge-caption="tentativi">@stampa.Tentativi</span>
                             }
-                        </td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(stampa.PathFile))
-                            {
-                                var enable = true;
-                                if (stampa.Scadenza.HasValue)
-                                {
-                                    if (stampa.Scadenza.Value < DateTime.Now)
-                                    {
-                                        enable = false;
-                                    }
-                                }
+                        }
 
-                                if (enable == false)
-                                {
-                                    <a class="btn-floating grey" title="File scaduto il @stampa.Scadenza.Value.ToString("dd/MM/yyyy HH:mm")">
-                                        <i class="material-icons">file_download</i>
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a class="btn-floating pink" onclick="DownloadStampa('@stampa.UIDStampa')" title="Scarica file">
-                                        <i class="material-icons">file_download</i>
-                                    </a>
-                                }
-                            }
-                        </td>
-                    </tr>
-                }
+                    </td>
+                    <td>
+                        @if (stampa.DataInvio.HasValue)
+                        {
+                            <div class="chip center blue white-text tooltipped" data-position="bottom" data-tooltip="Data invio: @stampa.DataInvio.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                Inviato
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(stampa.PathFile))
+                        {
+                            <a class="btn-floating pink tooltipped" href="@Url.Action("DownloadStampa", "Stampe", new {id = stampa.UIDStampa})" data-position="bottom" data-tooltip="Scarica file">
+                                <i class="material-icons">file_download</i>
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     }
@@ -204,3 +205,20 @@
         </li>
     </ul>
 </div>
+
+<script>
+
+    function copy_to_clipboard(id) {
+        /* Get the text field */
+        var copyText = document.getElementById("fingerprint_" + id);
+
+        /* Select the text field */
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+        /* Copy the text inside the text field */
+        document.execCommand("copy");
+        
+        M.toast({ html: 'Id stampa copiato negli appunti', classes: 'rounded' })
+    }
+</script>

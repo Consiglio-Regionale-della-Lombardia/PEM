@@ -48,6 +48,9 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PortaleRegione.DTO">
+      <HintPath>..\..\Sorgenti API\PortaleRegione.DTO\bin\Debug\PortaleRegione.DTO.dll</HintPath>
+    </Reference>
     <Reference Include="Quartz, Version=3.0.7.0, Culture=neutral, PublicKeyToken=f6b8c98a402cc8a4, processorArchitecture=MSIL">
       <HintPath>packages\Quartz.3.0.7\lib\net452\Quartz.dll</HintPath>
     </Reference>
@@ -69,8 +72,10 @@
   <ItemGroup>
     <Compile Include="BusinessLogic\JobLogic.cs" />
     <Compile Include="BusinessLogic\LogicBase.cs" />
+    <Compile Include="BusinessLogic\LogLogic.cs" />
     <Compile Include="BusinessLogic\TriggerLogic.cs" />
     <Compile Include="Enum\ScheduleTypeEnum.cs" />
+    <Compile Include="Enum\ViewTypeEnum.cs" />
     <Compile Include="Exceptions\PathNotFoundException.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -160,6 +165,10 @@
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
       <Project>{1f9eec0b-08cc-481f-820e-c07b8327ac25}</Project>
       <Name>PortaleRegione.Logger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sorgenti Client\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj">
+      <Project>{34C5C26E-50BD-49F3-8500-62A8C209273B}</Project>
+      <Name>PortaleRegione.Gateway</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

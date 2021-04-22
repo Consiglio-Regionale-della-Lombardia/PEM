@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
@@ -122,7 +123,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<BaseResponse<StampaDto>> GetStampe(int page, int size)
+        public static async Task<BaseResponse<StampaDto>> Get(int page, int size)
         {
             try
             {
@@ -147,6 +148,88 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("GetStampe", ex);
+                throw ex;
+            }
+        }
+        
+        public static async Task<StampaDto> Get(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/stampe/id/{id}";
+                var lst = JsonConvert.DeserializeObject<StampaDto>(await Get(requestUrl));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetStampa", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetStampa", ex);
+                throw ex;
+            }
+        }
+
+        public static async Task AddInfo(Guid id, string message)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/stampe/id/{id}/add-info?message={message}";
+                await Get(requestUrl);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("Add info Stampa", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Add info Stampa", ex);
+                throw ex;
+            }
+        }
+
+        public static async Task<IEnumerable<Stampa_InfoDto>> GetInfo(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/stampe/id/{id}/info";
+                var lst = JsonConvert.DeserializeObject<IEnumerable<Stampa_InfoDto>>(await Get(requestUrl));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetInfoStampa", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetInfoStampa", ex);
+                throw ex;
+            }
+        }
+
+        public static async Task<IEnumerable<Stampa_InfoDto>> GetInfo()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/stampe/id/info";
+                var lst = JsonConvert.DeserializeObject<IEnumerable<Stampa_InfoDto>>(await Get(requestUrl));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetInfoStampe", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetInfoStampe", ex);
                 throw ex;
             }
         }

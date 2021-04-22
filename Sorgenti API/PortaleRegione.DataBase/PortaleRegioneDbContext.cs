@@ -59,6 +59,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<RUOLI_UTENTE> RUOLI_UTENTE { get; set; }
         public virtual DbSet<SEDUTE> SEDUTE { get; set; }
         public virtual DbSet<STAMPE> STAMPE { get; set; }
+        public virtual DbSet<STAMPE_INFO> STAMPE_INFO { get; set; }
         public virtual DbSet<STATI_EM> STATI_EM { get; set; }
         public virtual DbSet<tbl_recapiti> tbl_recapiti { get; set; }
         public virtual DbSet<TIPI_ATTO> TIPI_ATTO { get; set; }

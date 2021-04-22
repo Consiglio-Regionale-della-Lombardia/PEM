@@ -26,9 +26,7 @@ namespace Scheduler.BusinessLogic
         {
             appoggio = GetJobConfig();
         }
-
-        #region GetJobConfig
-
+        
         /// <summary>
         ///     Get Jobs json config
         /// </summary>
@@ -37,7 +35,7 @@ namespace Scheduler.BusinessLogic
         {
             try
             {
-                var path = ConfigurationSettings.AppSettings["PathJobsConfig"];
+                var path = ConfigurationManager.AppSettings["PathJobsConfig"];
                 if (!IsValidConfigPath(path)) throw new PathNotFoundException(path);
 
                 var lst = new List<Job>();
@@ -57,11 +55,7 @@ namespace Scheduler.BusinessLogic
                 throw ex;
             }
         }
-
-        #endregion GetJobConfig
-
-        #region SaveJobConfig
-
+        
         /// <summary>
         ///     Save Jobs json config
         /// </summary>
@@ -70,7 +64,7 @@ namespace Scheduler.BusinessLogic
         {
             try
             {
-                var path = ConfigurationSettings.AppSettings["PathJobsConfig"];
+                var path = ConfigurationManager.AppSettings["PathJobsConfig"];
                 if (!IsValidConfigPath(path)) throw new PathNotFoundException(path);
 
                 var result = JsonConvert.SerializeObject(appoggio);
@@ -81,11 +75,7 @@ namespace Scheduler.BusinessLogic
                 throw ex;
             }
         }
-
-        #endregion SaveJobConfig
-
-        #region RemoveJobConfig
-
+        
         /// <summary>
         ///     Remove a Job and save in json config
         /// </summary>
@@ -97,8 +87,22 @@ namespace Scheduler.BusinessLogic
                 appoggio.RemoveAll(x => x.name == jobName);
                 SaveJobConfig();
 
-                var path_to_delete = $"CustomJobs/{jobName}";
-                Directory.Delete(path_to_delete, true);
+                try
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    var path_to_delete = $"CustomJobs/{jobName}";
+                    var dirInfo = new DirectoryInfo(path_to_delete);
+                    if (dirInfo.Exists)
+                    {
+                        dirInfo.Delete(true);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
             catch (Exception ex)
             {
@@ -106,9 +110,14 @@ namespace Scheduler.BusinessLogic
             }
         }
 
-        #endregion RemoveJobConfig
-
-        #region LoadGrid
+        private void setAttributesNormal(DirectoryInfo dir) {
+            foreach (var subDir in dir.GetDirectories())
+                setAttributesNormal(subDir);
+            foreach (var file in dir.GetFiles())
+            {
+                file.Attributes = FileAttributes.Normal;
+            }
+        }
 
         /// <summary>
         ///     Load jobs in grid view
@@ -129,10 +138,6 @@ namespace Scheduler.BusinessLogic
                 MessageBox.Show(ex.Message);
             }
         }
-
-        #endregion LoadGrid
-
-        #region GetJobs
 
         /// <summary>
         ///     Load jobs in a DataTable
@@ -171,10 +176,6 @@ namespace Scheduler.BusinessLogic
             }
         }
 
-        #endregion GetJobs
-
-        #region GetCustomJobs
-
         /// <summary>
         ///     Get files from directory CustomJobs
         /// </summary>
@@ -207,10 +208,6 @@ namespace Scheduler.BusinessLogic
             }
         }
 
-        #endregion GetCustomJobs
-
-        #region ExtractZipJob
-
         /// <summary>
         ///     Extract the zip files for jobs
         /// </summary>
@@ -224,7 +221,5 @@ namespace Scheduler.BusinessLogic
                         ExtractExistingFileAction.OverwriteSilently);
             }
         }
-
-        #endregion ExtractZipJob
     }
 }

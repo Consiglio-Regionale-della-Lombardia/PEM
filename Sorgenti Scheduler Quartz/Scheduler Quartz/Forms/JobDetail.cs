@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Ionic.Zip;
+using Quartz;
 using Scheduler.BusinessLogic;
 using Scheduler.Models;
 
@@ -33,6 +34,9 @@ namespace Scheduler.Forms
                 txtEntryPoint.Text = j.entrypoint;
 
                 btnSave.Text = "Modifica";
+
+                ///TODO: controllare se l'assembly ha gli stessi parametri che abbiamo salvato nel jobs_config.json
+                /// Nel caso in cui i parametri non combaciano, è necessario che venga pulita automaticamente anche la configurazione nel json
 
                 var dictionaryDataMap = new Dictionary<string, string>();
                 foreach (var entry in j.parameters)
@@ -65,7 +69,7 @@ namespace Scheduler.Forms
                 var dictionaryParameters = new Dictionary<string, string>();
 
                 //se in inserimento verifica che il nome sia univoco
-                if (btnSave.Text != "Modifica")
+                if (btnSave.Text.ToLower() == "inserisci")
                 {
                     var duplicate = _jl.appoggio.FirstOrDefault(x => x.name == txtName.Text);
                     if (duplicate != null)
@@ -77,7 +81,6 @@ namespace Scheduler.Forms
 
                     //verifica che nello zip ci sia una cartella plugin
                     //verifica che ci sia un solo file fuori dalla cartella plugin
-                    var trovato = false;
                     var trovatoEntryPoint = 0;
                     using (var zip = ZipFile.Read(txtPath.Text))
                     {
@@ -97,23 +100,30 @@ namespace Scheduler.Forms
                     //estrai tutto
                     _jl.ExtractZipJob(txtPath.Text, txtName.Text);
                     //ricava il nome della classe dall'entrypoint
+                    var pathAssembly = $"CustomJobs/{txtName.Text}/{txtEntryPoint.Text}";
                     var assembly =
-                        Assembly.LoadFrom($"CustomJobs/{txtName.Text}/{txtEntryPoint.Text}");
-                    var type = assembly.GetTypes()[0];
-                    var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                    foreach (var prop in properties)
-                    {
-                        dictionaryParameters.Add(prop.Name, "");
-                    }
-
-                    _jl.appoggio.Add(new Job
+                        Assembly.LoadFrom(pathAssembly);
+                    var types = assembly.GetTypes();
+                    var job = new Job
                     {
                         name = txtName.Text,
-                        path = txtPath.Text,
+                        path = pathAssembly,
                         entrypoint = txtEntryPoint.Text,
-                        scheduleclass = type.FullName,
                         parameters = dictionaryParameters
-                    });
+                    };
+                    foreach (var t in types)
+                    {
+                        var interfaces= t.GetInterfaces();
+                        if (interfaces.All(i => i != typeof(IJob))) continue;
+                        job.scheduleclass = t.FullName;
+                        var properties = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                        foreach (var prop in properties)
+                        {
+                            dictionaryParameters.Add(prop.Name, "");
+                        }
+                    }
+
+                    _jl.appoggio.Add(job);
                 }
                 else
                 {

@@ -40,17 +40,11 @@ namespace PortaleRegione.BAL
     public class StampeLogic : BaseLogic
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        #region ctor
-
+        
         public StampeLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-
-        #endregion
-
-        #region GetStampa
 
         public async Task<STAMPE> GetStampa(Guid id)
         {
@@ -65,30 +59,30 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region InserisciStampa
-
+        
         public async Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model, PersonaDto persona)
         {
             try
             {
-                var queryFilter = new Filter<EM>();
-                queryFilter.ImportStatements(model.filtro);
-
-                var queryEM =
-                    _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, model.ordine, queryFilter);
                 var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
-                stampa.QueryEM = queryEM;
 
+                if (!model.entity.UIDEM.HasValue)
+                {
+                    var queryFilter = new Filter<EM>();
+                    queryFilter.ImportStatements(model.filtro);
+
+                    var queryEM =
+                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, model.ordine, queryFilter);
+                    stampa.QueryEM = queryEM;
+                }
+                
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int) persona.CurrentRole;
                 stampa.UIDStampa = Guid.NewGuid();
                 stampa.UIDUtenteRichiesta = persona.UID_persona;
                 stampa.Lock = false;
                 stampa.Tentativi = 0;
-                if (stampa.A == 0 && stampa.Da == 0)
+                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDEM.HasValue)
                     stampa.Scadenza = null;
                 else
                     stampa.Scadenza =
@@ -103,21 +97,18 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        #endregion
-
-        #region LockStampa
-
+        
         public async Task LockStampa(IEnumerable<StampaDto> listaStampe)
         {
             try
             {
                 foreach (var stampa in listaStampe)
                 {
-                    stampa.Lock = true;
-                    stampa.DataLock = DateTime.Now;
-                    stampa.DataInizioEsecuzione = DateTime.Now;
-                    stampa.Tentativi += 1;
+                    var stampaInDb = await GetStampa(stampa.UIDStampa);
+                    stampaInDb.Lock = true;
+                    stampaInDb.DataLock = DateTime.Now;
+                    stampaInDb.DataInizioEsecuzione = DateTime.Now;
+                    stampaInDb.Tentativi += 1;
 
                     await _unitOfWork.CompleteAsync();
                 }
@@ -128,11 +119,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        #endregion
-
-        #region UnLockStampa
-
+        
         public async Task UnLockStampa(Guid stampaUId)
         {
             try
@@ -148,11 +135,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        #endregion
-
-        #region ResetStampa
-
+        
         public async Task ResetStampa(STAMPE stampa)
         {
             try
@@ -171,11 +154,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region ErroreStampa
-
+        
         public async Task ErroreStampa(StampaRequest model)
         {
             try
@@ -192,11 +171,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        #endregion
-
-        #region UpdateFileStampa
-
+        
         public async Task UpdateFileStampa(StampaDto stampa)
         {
             try
@@ -204,6 +179,7 @@ namespace PortaleRegione.BAL
                 var stampaInDb = await _unitOfWork.Stampe.Get(stampa.UIDStampa);
                 stampaInDb.DataFineEsecuzione = DateTime.Now;
                 stampaInDb.PathFile = stampa.PathFile;
+                stampaInDb.MessaggioErrore = string.Empty;
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -213,11 +189,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        #endregion
-
-        #region SetInvioStampa
-
+        
         public async Task SetInvioStampa(StampaDto stampa)
         {
             try
@@ -234,11 +206,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        #endregion
-
-        #region DownloadStampa
-
+        
         public async Task<HttpResponseMessage> DownloadStampa(STAMPE stampa)
         {
             try
@@ -258,11 +226,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetStampe
-
+        
         public async Task<BaseResponse<StampaDto>> GetStampe(BaseRequest<StampaDto> model, PersonaDto persona, Uri url)
         {
             try
@@ -280,6 +244,8 @@ namespace PortaleRegione.BAL
                     foreach (var stampa in stampe)
                     {
                         var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
+                        var infos = await GetLastInfo(stampa);
+                        stampaDto.Info = infos?.Message;
                         stampaDto.Richiedente =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
                                 await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
@@ -288,7 +254,13 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    result = stampe.Select(Mapper.Map<STAMPE, StampaDto>).ToList();
+                    foreach (var stampa in stampe)
+                    {
+                        var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
+                        var infos = await GetLastInfo(stampa);
+                        stampaDto.Info = infos?.Message;
+                        result.Add(stampaDto);
+                    }
                 }
 
                 return new BaseResponse<StampaDto>(
@@ -332,6 +304,28 @@ namespace PortaleRegione.BAL
             }
         }
 
-        #endregion
+        public async Task AddInfo(STAMPE stampa, string messaggio)
+        {
+            _unitOfWork.Stampe.AddInfo(stampa.UIDStampa, messaggio);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<IEnumerable<Stampa_InfoDto>> GetInfo(STAMPE stampa)
+        {
+            var result = await _unitOfWork.Stampe.GetInfo(stampa.UIDStampa);
+            return result.Select(Mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
+        }
+        
+        public async Task<Stampa_InfoDto> GetLastInfo(STAMPE stampa)
+        {
+            var result = await _unitOfWork.Stampe.GetLastInfo(stampa.UIDStampa);
+            return Mapper.Map<STAMPE_INFO, Stampa_InfoDto>(result);
+        }
+        
+        public async Task<IEnumerable<Stampa_InfoDto>> GetInfo()
+        {
+            var result = await _unitOfWork.Stampe.GetInfo();
+            return result.Select(Mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
+        }
     }
 }

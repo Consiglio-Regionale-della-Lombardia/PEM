@@ -142,13 +142,13 @@
         ClearMetaDati();
         $('#hdParteId').val(item);
         var viewPanel = true;
-        if (item == "2")
+        if (item == @((int)PartiEMEnum.Titolo))
             $("#pnlTitolo").show();
-        else if (item == "3")
+        else if (item == @((int)PartiEMEnum.Capo))
             $("#pnlCapo").show();
-        else if (item == "4")
+        else if (item == @((int)PartiEMEnum.Articolo))
             $("#pnlArticoli").show();
-        else if (item == "5")
+        else if (item == @((int)PartiEMEnum.Missione))
             $("#pnlMissioni").show();
         else
             viewPanel = false;
@@ -171,13 +171,13 @@
                 function (index, itemParteEM) {
                     if (itemParteEM.checked) {
                         var testo = "";
-                        if (itemParteEM.value == 1) {
+                        if (itemParteEM.value == @((int)PartiEMEnum.Titolo_PDL)) {
                             testo = "Il titolo del PDL ";
-                        } else if (itemParteEM.value == 2) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Titolo)) {
                             testo = "Il titolo " + $("#Emendamento_NTitolo").val();
-                        } else if (itemParteEM.value == 3) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Capo)) {
                             testo = "Il capo " + $("#Emendamento_NCapo").val();
-                        } else if (itemParteEM.value == 4) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Articolo)) {
                             if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
                                 testo = "La lettera " + $("#Emendamento_NLettera").val();
                             } else if ($("#pnlLettere").is(":visible") && $("#LettereList option:selected").val() != 0) {
@@ -202,7 +202,7 @@
 
                                 testo = testo + $("#ArticoliList option:selected").text();
                             }
-                        } else if (itemParteEM.value == 5) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Missione)) {
                             testo = "La missione " +
                                 $("#MissioniList option:selected").val() +
                                 " programma " +
@@ -212,13 +212,13 @@
                                 " ";
                         }
 
-                        if (tipo == 1) {
+                        if (tipo == @((int)TipiEMEnum.SOPPRESSIVO)) {
                             testo = testo + " è soppresso.";
-                        } else if (tipo == 2) {
+                        } else if (tipo == @((int)TipiEMEnum.MODIFICATIVO)) {
                             testo = testo + " è modificato come segue: ";
-                        } else if (tipo == 3) {
+                        } else if (tipo == @((int)TipiEMEnum.AGGIUNTIVO)) {
                             testo = testo + " viene emendato aggiungendo: ";
-                        } else if (tipo == 4) {
+                        } else if (tipo == @((int)TipiEMEnum.SOSTITUTIVO)) {
                             testo = testo + " è sostituito.";
                         }
                         $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text(testo);
