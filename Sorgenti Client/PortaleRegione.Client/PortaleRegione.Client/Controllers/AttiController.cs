@@ -333,5 +333,25 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Route("sposta-up")]
+        [HttpGet]
+        public async Task<ActionResult> MoveUp(Guid id)
+        {
+            var atto = await AttiGate.Get(id);
+            await AttiGate.SPOSTA_UP(id);
+            return RedirectToAction("RiepilogoAtti", "Atti", new {id = atto.UIDSeduta});
+        }
+
+        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Route("sposta-down")]
+        [HttpGet]
+        public async Task<ActionResult> MoveDown(Guid id)
+        {
+            var atto = await AttiGate.Get(id);
+            await AttiGate.SPOSTA_DOWN(id);
+            return RedirectToAction("RiepilogoAtti", "Atti", new {id = atto.UIDSeduta});
+        }
     }
 }

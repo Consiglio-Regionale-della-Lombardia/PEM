@@ -85,5 +85,7 @@ namespace PortaleRegione.DTO.Domain
         public int Conteggio_SubEM { get; set; }
         public IEnumerable<PersonaLightDto> Relatori { get; set; }
         public bool Informazioni_Mancanti { get; set; }
+        public bool CanMoveDown { get; set; } = false;
+        public bool CanMoveUp { get; set; } = false;
     }
 }

@@ -150,5 +150,20 @@ namespace PortaleRegione.Persistance
             await PRContext.Database.ExecuteSqlCommandAsync(
                 $"exec UP_ATTO @UIDAtto='{attoUId}'");
         }
+
+        public bool CanMoveUp(int currentPriorita)
+        {
+            return currentPriorita > 1;
+        }
+        
+        public async Task<bool> CanMoveDown(Guid sedutaUId, int currentPriorita)
+        {
+            var max_priorita = await PRContext
+                .ATTI
+                .Where(a => a.UIDSeduta == sedutaUId)
+                .MaxAsync(a => a.Priorita);
+            if (currentPriorita >= max_priorita) return false;
+            return true;
+        }
     }
 }
