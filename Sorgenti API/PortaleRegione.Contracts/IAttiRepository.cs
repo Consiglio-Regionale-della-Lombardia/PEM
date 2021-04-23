@@ -38,5 +38,7 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<ATTI>> GetAll(Guid sedutaUId, int pageIndex, int pageSize, Filter<ATTI> filtro = null);
         Task SalvaRelatori(Guid attoUId, IEnumerable<Guid> persone);
         Task<int> PrioritaAtto(Guid sedutaUId);
+        Task SPOSTA_UP(Guid attoUId);
+        Task SPOSTA_DOWN(Guid attoUId);
     }
 }

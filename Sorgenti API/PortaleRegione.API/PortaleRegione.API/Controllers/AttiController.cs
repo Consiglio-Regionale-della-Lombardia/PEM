@@ -551,5 +551,51 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per spostare avanti un atto
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [HttpGet]
+        [Route("sposta-up")]
+        public async Task<IHttpActionResult> SPOSTA_UP(Guid id)
+        {
+            try
+            {
+                await _logic.SPOSTA_UP(id);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("SPOSTA_UP", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per spostare indietro un atto
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [HttpGet]
+        [Route("sposta-down")]
+        public async Task<IHttpActionResult> SPOSTA_DOWN(Guid id)
+        {
+            try
+            {
+                await _logic.SPOSTA_DOWN(id);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("SPOSTA_DOWN", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }
