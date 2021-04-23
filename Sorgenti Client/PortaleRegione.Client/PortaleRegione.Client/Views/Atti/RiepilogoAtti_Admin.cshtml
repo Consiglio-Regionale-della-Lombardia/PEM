@@ -65,7 +65,12 @@
         }
         else
         {
-            if (atto.Data_apertura.Value < DateTime.Now)
+            if (!atto.Data_apertura.HasValue)
+            {
+                statoAtto = "Chiuso";
+                coloreStatoAtto = "grey";
+            }
+            else if (atto.Data_apertura.Value < DateTime.Now)
             {
                 statoAtto = "Aperto";
                 coloreStatoAtto = "green";
@@ -115,8 +120,21 @@
                             </p>
                         </div>
                         <div class="col s6 right-align">
+                            @if (atto.CanMoveUp)
+                            {
+                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new {id = atto.UIDAtto})')" title="Sposta su">
+                                    <i class="material-icons" style="margin-top: 15px">arrow_drop_up</i>
+                                </a>
+                            }
+                            @if (atto.CanMoveDown)
+                            {
+                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new {id = atto.UIDAtto})')" title="Sposta giù">
+                                    <i class="material-icons" style="margin-top: 15px">arrow_drop_down</i>
+                                </a>
+                            }
+                            
                             <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new {id = atto.UIDAtto})')" title="Modifica">
-                                <i class="material-icons" style="margin-top:15px">edit</i>
+                                <i class="material-icons" style="margin-top: 15px">edit</i>
                             </a>
                             <a class="hoverable center red-text" onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
                                 <i class="material-icons">delete</i>

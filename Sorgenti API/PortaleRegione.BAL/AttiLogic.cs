@@ -64,10 +64,18 @@ namespace PortaleRegione.BAL
                     appoggio.Conteggio_SubEM = await _unitOfWork.Emendamenti.Count(appoggio.UIDAtto,
                         currentUser, CounterEmendamentiEnum.SUB_EM, CLIENT_MODE);
 
-                    var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
-                    var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);
+                    if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                        || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    {
+                        var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
+                        var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);
 
-                    appoggio.Informazioni_Mancanti = listaArticoli.Any() || listaRelatori.Any() ? false : true;
+                        appoggio.Informazioni_Mancanti = listaArticoli.Any() || listaRelatori.Any() ? false : true;
+
+                        appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
+                        appoggio.CanMoveDown = await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
+                    }
+
                     result.Add(appoggio);
                 }
 

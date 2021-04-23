@@ -40,5 +40,7 @@ namespace PortaleRegione.Contracts
         Task<int> PrioritaAtto(Guid sedutaUId);
         Task SPOSTA_UP(Guid attoUId);
         Task SPOSTA_DOWN(Guid attoUId);
+        bool CanMoveUp(int currentPriorita);
+        Task<bool> CanMoveDown(Guid sedutaUId, int currentPriorita);
     }
 }

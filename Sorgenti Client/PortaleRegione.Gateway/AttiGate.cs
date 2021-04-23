@@ -93,6 +93,28 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+        
+        public static async Task<AttiDto> Get(Guid attoUId)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti?id={attoUId}";
+
+                var lst = JsonConvert.DeserializeObject<AttiDto>(await Get(requestUrl));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAtto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAtto", ex);
+                throw ex;
+            }
+        }
 
         public static async Task<AttiFormUpdateModel> GetFormUpdate(Guid id)
         {
