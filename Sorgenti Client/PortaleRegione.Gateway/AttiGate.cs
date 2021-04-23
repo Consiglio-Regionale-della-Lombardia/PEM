@@ -277,5 +277,43 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+        
+        public static async Task SPOSTA_DOWN(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/sposta-down?id={id}";
+                await Get(requestUrl);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SPOSTA_DOWN", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SPOSTA_DOWN", ex);
+                throw ex;
+            }
+        }
+
+        public static async Task SPOSTA_UP(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/sposta-up?id={id}";
+                await Get(requestUrl);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SPOSTA_UP", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SPOSTA_UP", ex);
+                throw ex;
+            }
+        }
     }
 }

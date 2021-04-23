@@ -138,5 +138,17 @@ namespace PortaleRegione.Persistance
 
             return (await query.ToListAsync()).Count;
         }
+
+        public async Task SPOSTA_DOWN(Guid attoUId)
+        {
+            await PRContext.Database.ExecuteSqlCommandAsync(
+                $"exec DOWN_ATTO @UIDAtto='{attoUId}'");
+        }
+        
+        public async Task SPOSTA_UP(Guid attoUId)
+        {
+            await PRContext.Database.ExecuteSqlCommandAsync(
+                $"exec UP_ATTO @UIDAtto='{attoUId}'");
+        }
     }
 }

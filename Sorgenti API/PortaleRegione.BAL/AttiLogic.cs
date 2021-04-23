@@ -511,5 +511,15 @@ namespace PortaleRegione.BAL
             var guidId = new Guid(id);
             return await _unitOfWork.Atti.Get(guidId);
         }
+
+        public async Task SPOSTA_UP(Guid attoUId)
+        {
+            await _unitOfWork.Atti.SPOSTA_UP(attoUId);
+        }
+        
+        public async Task SPOSTA_DOWN(Guid attoUId)
+        {
+            await _unitOfWork.Atti.SPOSTA_DOWN(attoUId);
+        }
     }
 }

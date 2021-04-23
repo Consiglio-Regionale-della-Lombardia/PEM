@@ -766,9 +766,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        #region MODIFICA METADATI - SEGRETERIA
-
+        
         /// <summary>
         ///     Endpoint per avere l'oggetto emendamento da modificare
         /// </summary>
@@ -822,11 +820,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        #endregion
-
-        #region COMANDI SEGRETERIA - GESTIONE STATI
-
+        
         /// <summary>
         ///     Endpoint per modificare lo stato di una lista di emendamenti
         /// </summary>
@@ -926,11 +920,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        #endregion
-
-        #region ORDINAMENTI SEGRETERIA - FASCICOLO VOTAZIONE
-
+        
         /// <summary>
         ///     Endpoint per ordinare gli emendamenti di un atto in votazione
         /// </summary>
@@ -1023,11 +1013,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        #endregion
-
-        #region ### FILTRI ###
-
+        
         /// <summary>
         ///     Endpoint per avere le parti emendabili a DB
         /// </summary>
@@ -1122,7 +1108,5 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        #endregion
     }
 }
