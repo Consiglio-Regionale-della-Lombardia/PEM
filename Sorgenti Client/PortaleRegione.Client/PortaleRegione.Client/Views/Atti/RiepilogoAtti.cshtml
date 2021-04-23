@@ -5,7 +5,7 @@
 }
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>
@@ -58,29 +58,31 @@
         }
         if (string.IsNullOrEmpty(statoAtto))
         {
-            if (atto.Data_apertura.HasValue)
+            if (!atto.Data_apertura.HasValue)
             {
-                if (atto.Data_apertura.Value < DateTime.Now)
+                statoAtto = "Chiuso";
+                coloreStatoAtto = "grey";
+            }
+            else if (atto.Data_apertura.Value < DateTime.Now)
+            {
+                statoAtto = "Aperto";
+                coloreStatoAtto = "green";
+            }
+            else
+            {
+                var span = atto.Data_apertura.Value - DateTime.Now;
+                var totalMinutes = Math.Round(span.TotalMinutes, MidpointRounding.AwayFromZero);
+
+                if (totalMinutes <= 60)
                 {
-                    statoAtto = "Aperto";
-                    coloreStatoAtto = "green";
+                    statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
                 }
                 else
                 {
-                    var span = atto.Data_apertura.Value - DateTime.Now;
-                    var totalMinutes = Math.Round(span.TotalMinutes, MidpointRounding.AwayFromZero);
-
-                    if (totalMinutes <= 60)
-                    {
-                        statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
-                    }
-                    else
-                    {
-                        statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
-                    }
-
-                    coloreStatoAtto = "green";
+                    statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
                 }
+
+                coloreStatoAtto = "green";
             }
         }
 
@@ -112,9 +114,11 @@
                                 }
                             </div>
                         </div>
-                        <div class="row valign-wrapper" style="margin-left: unset !important; margin-right: unset !important; margin-bottom: unset!important">
+                        <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
                             <div class="col s6">
-                                <h6 class="black-text"><b>@atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM</b></h6>
+                                <h6 class="black-text">
+                                    <b>@atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM</b>
+                                </h6>
                             </div>
                             <div class="col s6 right-align">
                                 <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
@@ -132,7 +136,7 @@
 @section scripts
 {
     <script>
-        setListaEmendamenti([])
+        setListaEmendamenti([]);
         setSelezionaTutti(false);
     </script>
 }
