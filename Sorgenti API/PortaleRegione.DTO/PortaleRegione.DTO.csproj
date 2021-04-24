@@ -103,6 +103,7 @@
     <Compile Include="Model\EmendamentiFormModel.cs" />
     <Compile Include="Model\ComandiAzioneModel.cs" />
     <Compile Include="Model\GetBodyEmendamentoModel.cs" />
+    <Compile Include="Model\InvitoPanelModel.cs" />
     <Compile Include="Model\KeyValueDto.cs" />
     <Compile Include="Model\MailModel.cs" />
     <Compile Include="Model\ModificaStatoModel.cs" />

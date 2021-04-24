@@ -373,6 +373,7 @@
     <Content Include="Views\Emendamenti\ViewerProietta.cshtml" />
     <Content Include="Views\Report\Index.cshtml" />
     <Content Include="Views\Emendamenti\_PannelloStrumentiRicerche.cshtml" />
+    <Content Include="Views\Emendamenti\_InvitoPanel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
