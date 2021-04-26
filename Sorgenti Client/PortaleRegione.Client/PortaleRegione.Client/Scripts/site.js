@@ -177,7 +177,7 @@ function ConfirmAction(id, name, action) {
             }).done(function(data) {
                 $("#modalAction").modal("close");
                 $("#btnConfermaAction").off("click");
-
+                console.log(data.message)
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -209,6 +209,7 @@ function RitiraFirma(id) {
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
+                console.log(data)
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -1047,10 +1048,9 @@ function SuccessAlert(message, url) {
 
 function ErrorAlert(message) {
     
-    var body = JSON.parse(message);
     swal({
         title: "Attenzione!",
-        text: body.message,
+        text: message,
         icon: "error",
         button: "Ooops!"
     });

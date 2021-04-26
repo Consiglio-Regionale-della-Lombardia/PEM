@@ -58,6 +58,10 @@ div.chip > i.material-icons {
     top: 3px;
 }
 
+td> div.chip > i.material-icons {
+    top: unset!important;
+}
+
 div.input-field>div.chip > i.material-icons {
     top: unset!important;
 }

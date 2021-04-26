@@ -408,8 +408,12 @@ namespace PortaleRegione.Client.Controllers
                     listaErroriRitiroFirma.Add(
                         $"{listaErroriRitiroFirma.Count + 1} - {itemRitiroFirma.Value.Substring(7)}");
                 if (listaErroriRitiroFirma.Count > 0)
-                    throw new Exception(
-                        $"Errori nella procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}");
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Errori nella procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}"
+                        }, JsonRequestBehavior.AllowGet);
 
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
@@ -438,8 +442,12 @@ namespace PortaleRegione.Client.Controllers
                     listaErroriEliminaFirma.Add(
                         $"{listaErroriEliminaFirma.Count + 1} - {itemEliminaFirma.Value.Substring(7)}");
                 if (listaErroriEliminaFirma.Count > 0)
-                    throw new Exception(
-                        $"Errori nella procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}");
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Errori nella procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}"
+                        }, JsonRequestBehavior.AllowGet);
 
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
