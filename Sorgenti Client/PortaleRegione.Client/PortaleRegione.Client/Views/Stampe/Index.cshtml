@@ -17,7 +17,7 @@
     Html.RenderPartial("_PaginationBar", Model.Paging);
 }
 
-<div id="seduteTable" class="row">
+<div id="stampeTable" class="row">
 
     @if (!Model.Results.Any())
     {
@@ -42,7 +42,7 @@
                 <th>A</th>
                 <th>Stato</th>
                 <th>Stato Invio</th>
-                <th>Scarica</th>
+                <th width="100">Scarica</th>
             </tr>
             </thead>
 
@@ -51,26 +51,34 @@
             {
                 <tr>
                     <td>
-                        @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto 
-                        <a class="blue-text" href="@Url.Action("RiepilogoEmendamenti","Emendamenti", new {id = stampa.UIDAtto})" title="Vai all'atto">
+                        @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
+                        <a class="blue-text tooltipped" href="@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = ClientModeEnum.GRUPPI})" data-position="bottom" data-tooltip="Vai all'atto">
                             <i class="material-icons">call_made</i>
                         </a>
                     </td>
                     <td>
                         @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
                     </td>
-                    @if (stampa.Da == 0 && stampa.A == 0)
+                    @if (stampa.UIDEM.HasValue)
                     {
                         <td colspan="2">
-                            @switch ((OrdinamentoEnum)stampa.Ordine.Value)
+                            <div class="chip center purple lighten-5" style="min-width: unset">
+                                Stampa singola
+                            </div>
+                        </td>
+                    }
+                    else if (stampa.Da == 0 && stampa.A == 0)
+                    {
+                        <td colspan="2">
+                            @switch ((OrdinamentoEnum) stampa.Ordine.Value)
                             {
                                 case OrdinamentoEnum.Presentazione:
-                                    <div class="chip center">
+                                    <div class="chip center" style="min-width: unset">
                                         Fascicolo Presentazione
                                     </div>
                                     break;
                                 case OrdinamentoEnum.Votazione:
-                                    <div class="chip center">
+                                    <div class="chip center" style="min-width: unset">
                                         Fascicolo Votazione
                                     </div>
                                     break;
@@ -93,31 +101,37 @@
                     <td>
                         @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
                         {
-                            if (stampa.DataInizioEsecuzione.HasValue)
+                            if (stampa.DataFineEsecuzione.HasValue)
+                            {
+                                <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                    Completata
+                                </div>
+                            }
+                            else if (stampa.DataInizioEsecuzione.HasValue)
                             {
                                 if (stampa.DataFineEsecuzione.HasValue)
                                 {
-                                    <div class="chip center green white-text" title="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")">
+                                    <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
                                         Completata
                                     </div>
                                 }
                                 else
                                 {
-                                    <div class="chip center amber white-text">
+                                    <div class="chip center amber white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
                                         In lavorazione
                                     </div>
                                 }
                             }
                             else
                             {
-                                <div class="chip center grey white-text">
+                                <div class="chip center grey white-text" style="min-width: unset">
                                     In attesa
                                 </div>
                             }
                         }
                         else
                         {
-                            <div class="chip center red white-text" title="Messaggio di errore: @stampa.MessaggioErrore">
+                            <div class="chip center red white-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
                                 Errore
                             </div>
                         }
@@ -126,7 +140,7 @@
                     <td>
                         @if (stampa.DataInvio.HasValue)
                         {
-                            <div class="chip center blue white-text" title="Data invio: @stampa.DataInvio.Value.ToString("dd/MM/yyyy HH:mm")">
+                            <div class="chip center blue white-text tooltipped" data-position="bottom" data-tooltip="Data invio: @stampa.DataInvio.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
                                 Inviato
                             </div>
                         }
@@ -134,27 +148,9 @@
                     <td>
                         @if (!string.IsNullOrEmpty(stampa.PathFile))
                         {
-                            var enable = true;
-                            if (stampa.Scadenza.HasValue)
-                            {
-                                if (stampa.Scadenza.Value < DateTime.Now)
-                                {
-                                    enable = false;
-                                }
-                            }
-
-                            if (enable == false)
-                            {
-                                <a class="btn-floating grey" title="File scaduto il @stampa.Scadenza.Value.ToString("dd/MM/yyyy HH:mm")">
-                                    <i class="material-icons">file_download</i>
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn-floating pink" onclick="DownloadStampa('@stampa.UIDStampa')" title="Scarica file">
-                                    <i class="material-icons">file_download</i>
-                                </a>
-                            }
+                            <a class="btn-floating pink tooltipped" href="@Url.Action("DownloadStampa", "Stampe", new {id = stampa.UIDStampa})" data-position="bottom" data-tooltip="Scarica file">
+                                <i class="material-icons">file_download</i>
+                            </a>
                         }
                     </td>
                 </tr>

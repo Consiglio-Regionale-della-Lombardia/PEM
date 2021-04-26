@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -50,10 +51,28 @@ namespace SchedulerService
                 foreach (var itemTrigger in Triggers)
                 {
                     var itemJob = Jobs.FirstOrDefault(x => x.name == itemTrigger.jobname);
+                    if (itemJob == null) {
+                        Log.Error($"Configurazione non trovata per il job [{itemTrigger.jobname}]");
+                        continue;
+                    }
+                    var pathAssembly = Path.Combine(ConfigurationSettings.AppSettings["PathCustomJobs"], itemJob.path);
+                    var info = new FileInfo(pathAssembly);
+                    if (!info.Exists)
+                    {
+                        Log.Error($"Assembly non trovato [{itemJob.path}]");
+                        continue;
+                    }
                     var assembly =
-                        Assembly.LoadFrom(
-                            ConfigurationSettings.AppSettings["PathCustomJobs"] + "/" + itemJob.entrypoint);
-                    var type = assembly.GetTypes()[0];
+                        Assembly.LoadFrom(pathAssembly);
+                    var types = assembly.GetTypes();
+                    Type type = null;
+                    foreach (var t in types)
+                    {
+                        var interfaces = t.GetInterfaces();
+                        if (interfaces.All(i => i != typeof(IJob))) continue;
+
+                        type = t;
+                    }
 
                     //carica i parametri del job
                     var dictionaryDataMap = new Dictionary<string, string>();
@@ -81,7 +100,7 @@ namespace SchedulerService
             {
                 Log.Error("SchedulerService", se);
             }
-            catch (System.Reflection.ReflectionTypeLoadException exRef)
+            catch (ReflectionTypeLoadException exRef)
             {
                 Log.Error("SchedulerService", exRef);
             }

@@ -26,5 +26,8 @@
   <appSettings>
     <add key="PathJobsConfig" value="YOUR_PATH\jobs_config.json"/>
     <add key="PathTriggerConfig" value="YOUR_PATH\triggers_config.json"/>
+    <add key="UrlApi" value="YOUR_API_URL"/>
+    <add key="ServicePassword" value="YOUR_SERVICE_USER_PASSWORD"/>
+    <add key="ServiceUsername" value="YOUR_SERVICE_USER_USERNAME"/>
   </appSettings>
 </configuration>

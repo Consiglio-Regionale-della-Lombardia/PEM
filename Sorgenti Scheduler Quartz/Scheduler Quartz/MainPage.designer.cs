@@ -41,6 +41,7 @@
             this.toolStripButtonAdd = new System.Windows.Forms.ToolStripButton();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.toolStripButtonLog = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -70,6 +71,7 @@
             this.toolStripSeparator1,
             this.toolStripButtonTriggers,
             this.toolStripButtonJobs,
+            this.toolStripButtonLog,
             this.toolStripSeparator2,
             this.toolStripButtonAdd});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -152,6 +154,17 @@
             this.imageList1.Images.SetKeyName(0, "stop.png");
             this.imageList1.Images.SetKeyName(1, "play.png");
             // 
+            // toolStripButtonLog
+            // 
+            this.toolStripButtonLog.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonLog.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonLog.Image")));
+            this.toolStripButtonLog.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonLog.Name = "toolStripButtonLog";
+            this.toolStripButtonLog.Size = new System.Drawing.Size(54, 54);
+            this.toolStripButtonLog.Text = "toolStripButton1";
+            this.toolStripButtonLog.ToolTipText = "Log";
+            this.toolStripButtonLog.Click += new System.EventHandler(this.toolStripButtonLog_Click);
+            // 
             // MainPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -188,6 +201,7 @@
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.ToolStripButton toolStripButtonLog;
     }
 }
 

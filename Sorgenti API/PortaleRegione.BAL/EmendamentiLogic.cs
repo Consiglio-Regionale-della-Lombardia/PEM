@@ -45,8 +45,6 @@ namespace PortaleRegione.BAL
         private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
 
-        #region ctor
-
         public EmendamentiLogic(IUnitOfWork unitOfWork, FirmeLogic logicFirme, PersoneLogic logicPersone,
             UtilsLogic logicUtil)
         {
@@ -55,13 +53,9 @@ namespace PortaleRegione.BAL
             _logicPersone = logicPersone;
             _logicUtil = logicUtil;
         }
-
-        #endregion
-
+        
         public bool BloccaDepositi { get; set; }
-
-        #region UP_EM_ORDINA_EM_TRATTAZIONE
-
+        
         public async Task ORDINA_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -74,11 +68,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region UP_EM_TRATTAZIONE
-
+        
         public async Task UP_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -91,11 +81,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region DOWN_EM_TRATTAZIONE
-
+        
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -108,11 +94,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region SPOSTA_EM_TRATTAZIONE
-
+        
         public async Task SPOSTA_EM_TRATTAZIONE(Guid id, int pos)
         {
             try
@@ -125,11 +107,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region ModelloNuovoEM
-
+        
         public async Task<EmendamentiFormModel> ModelloNuovoEM(ATTI atto, Guid? em_riferimentoUId, PersonaDto persona)
         {
             try
@@ -233,11 +211,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region ModelloModificaEM
-
+        
         public async Task<EmendamentiFormModel> ModelloModificaEM(EM emInDb, PersonaDto persona)
         {
             try
@@ -285,11 +259,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region NuovoEmendamento
-
+        
         public async Task<EM> NuovoEmendamento(EmendamentiDto emendamentoDto, PersonaDto persona, bool isGiunta = false)
         {
             try
@@ -335,11 +305,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region ModificaEmendamento
-
+        
         public async Task ModificaEmendamento(EmendamentiDto model, EM em, PersonaDto persona)
         {
             try
@@ -387,11 +353,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region ModificaMetaDatiEmendamento
-
+        
         public async Task ModificaMetaDatiEmendamento(EmendamentiDto model, EM em, PersonaDto persona)
         {
             try
@@ -412,11 +374,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region DeleteEmendamento
-
+        
         public async Task DeleteEmendamento(EM em, PersonaDto persona)
         {
             try
@@ -432,11 +390,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetInvitati
-
+        
         public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(EM em)
         {
             try
@@ -464,11 +418,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetBodyEM
-
+        
         public async Task<string> GetBodyEM(EM em, IEnumerable<FIRME> firme, PersonaDto persona,
             TemplateTypeEnum template, bool isDeposito = false)
         {
@@ -512,11 +462,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetBodyCopertina
-
+        
         public async Task<string> GetCopertina(CopertinaModel model)
         {
             try
@@ -551,11 +497,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region FirmaEmendamento
-
+        
         public async Task<Dictionary<Guid, string>> FirmaEmendamento(ComandiAzioneModel firmaModel, PersonaDto persona,
             PinDto pin, bool firmaUfficio = false)
         {
@@ -682,11 +624,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region RitiroFirmaEmendamento
-
+        
         public async Task<Dictionary<Guid, string>> RitiroFirmaEmendamento(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
@@ -777,11 +715,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region EliminaFirmaEmendamento
-
+        
         public async Task<Dictionary<Guid, string>> EliminaFirmaEmendamento(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
@@ -824,11 +758,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region DepositaEmendamento
-
+        
         public async Task<Dictionary<Guid, string>> DepositaEmendamento(ComandiAzioneModel depositoModel,
             PersonaDto persona)
         {
@@ -905,13 +835,7 @@ namespace PortaleRegione.BAL
                         Ordine = 1,
                         NotificaDepositoEM = true,
                         Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
-                        QueryEM =
-                            $@"SELECT e.*, te.Tipo_EM,se.Stato,se.CssClass,ut.id_persona as IDProponente, ut.nome + ' ' + ut.cognome as Proponente, a.Articolo, c.Comma, pt.Parte, gp.codice_gruppo, gp.nome_gruppo,ap.AreaPolitica as DescrAreaPolitica
-                    FROM EM e LEFT JOIN TIPI_EM te ON e.IDTipo_EM = te.IDTipo_EM LEFT JOIN STATI_EM se ON e.IDStato = se.IDStato LEFT JOIN View_UTENTI ut ON e.UIDPersonaProponente = ut.UID_persona
-                    LEFT JOIN ARTICOLI a ON e.UIDArticolo = a.UIDArticolo LEFT JOIN COMMI c ON e.UIDComma = c.UIDComma LEFT JOIN PARTI_TESTO pt ON e.IDParte = pt.IDParte
-                    LEFT JOIN gruppi_politici gp ON e.id_gruppo = gp.id_gruppo
-                    LEFT JOIN AREAPOLITICA ap ON e.AreaPolitica = ap.Id
-                    WHERE e.UIDEM = '{idGuid}' AND e.DataDeposito IS NOT NULL"
+                        UIDEM = idGuid
                     });
                     await _unitOfWork.CompleteAsync();
                 }
@@ -924,11 +848,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region RitiraEmendamento
-
+        
         public async Task RitiraEmendamento(EM em, PersonaDto persona)
         {
             try
@@ -969,11 +889,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region ModificaStatoEmendamento
-
+        
         public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
         {
             try
@@ -1023,11 +939,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetPartiEM
-
+        
         /// <summary>
         ///     Ritorna la lista delle parti testo emendabili
         /// </summary>
@@ -1036,11 +948,7 @@ namespace PortaleRegione.BAL
         {
             return (await _unitOfWork.Emendamenti.GetPartiEmendabili()).Select(Mapper.Map<PARTI_TESTO, PartiTestoDto>);
         }
-
-        #endregion
-
-        #region GetTipiEM
-
+        
         /// <summary>
         ///     Ritorna la lista dei tipi di emendamento disponibili
         /// </summary>
@@ -1052,11 +960,7 @@ namespace PortaleRegione.BAL
                     .GetTipiEmendamento())
                 .Select(Mapper.Map<TIPI_EM, Tipi_EmendamentiDto>);
         }
-
-        #endregion
-
-        #region GetMissioni
-
+        
         /// <summary>
         ///     Ritorna la lista delle missioni nel db
         /// </summary>
@@ -1068,11 +972,7 @@ namespace PortaleRegione.BAL
                     .GetMissioniEmendamento())
                 .Select(Mapper.Map<MISSIONI, MissioniDto>);
         }
-
-        #endregion
-
-        #region GetTitoliMissioni
-
+        
         /// <summary>
         ///     Ritorna la lista dei titoli missioni nel db
         /// </summary>
@@ -1084,11 +984,7 @@ namespace PortaleRegione.BAL
                     .GetTitoliMissioneEmendamento())
                 .Select(Mapper.Map<TITOLI_MISSIONI, TitoloMissioniDto>);
         }
-
-        #endregion
-
-        #region GetStatiEM
-
+        
         /// <summary>
         ///     Ritorna la lista degli stati disponibili nel db
         /// </summary>
@@ -1100,11 +996,7 @@ namespace PortaleRegione.BAL
                     .GetStatiEmendamento())
                 .Select(Mapper.Map<STATI_EM, StatiDto>);
         }
-
-        #endregion
-
-        #region GetArticoli
-
+        
         /// <summary>
         ///     Ritorna la lista degli articoli emendabili disponibili per l'atto selezionato
         /// </summary>
@@ -1117,9 +1009,7 @@ namespace PortaleRegione.BAL
                     .GetArticoli(atto))
                 .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
         }
-
-        #endregion
-
+        
         public async Task EliminaEmendamento(EM em, Guid currentUId)
         {
             em.Eliminato = true;
@@ -1183,9 +1073,7 @@ namespace PortaleRegione.BAL
 
             return proietta;
         }
-
-        #region GetEM
-
+        
         public async Task<EM> GetEM(Guid id)
         {
             return await _unitOfWork.Emendamenti.Get(id);
@@ -1196,10 +1084,6 @@ namespace PortaleRegione.BAL
             var guidId = new Guid(id);
             return await GetEM(guidId);
         }
-
-        #endregion
-
-        #region GetEM_DTO
 
         public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, PersonaDto persona)
         {
@@ -1212,18 +1096,6 @@ namespace PortaleRegione.BAL
             try
             {
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
-
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                    || persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    && string.IsNullOrEmpty(emendamentoDto.TestoEM_Modificabile))
-                    emendamentoDto.TestoEM_Modificabile = emendamentoDto.TestoEM_originale;
-
-                emendamentoDto.AbilitaSUBEM = emendamentoDto.STATI_EM.IDStato == (int) StatiEnum.Depositato
-                                              && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
-                                              && !emendamentoDto.ATTI.Chiuso ||
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
-                                              persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
                 emendamentoDto.DisplayTitle = GetNomeEM(emendamentoDto,
                     emendamentoDto.Rif_UIDEM.HasValue
                         ? Mapper.Map<EM, EmendamentiDto>(await GetEM(emendamentoDto.Rif_UIDEM.Value))
@@ -1235,7 +1107,38 @@ namespace PortaleRegione.BAL
                     emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
                 emendamentoDto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                emendamentoDto.PersonaProponente =
+                    Mapper.Map<View_UTENTI, PersonaLightDto>(
+                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
+                emendamentoDto.PersonaCreazione =
+                    Mapper.Map<View_UTENTI, PersonaLightDto>(
+                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
+                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
+                    emendamentoDto.PersonaDeposito =
+                        Mapper.Map<View_UTENTI, PersonaLightDto>(
+                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
 
+                if (emendamentoDto.UIDPersonaModifica.HasValue)
+                    emendamentoDto.PersonaModifica =
+                        Mapper.Map<View_UTENTI, PersonaLightDto>(
+                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
+
+                if (persona == null)
+                    return emendamentoDto;
+                
+                //Ulteriori informazioni legate alla persona in sessione
+                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                    || persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                    && string.IsNullOrEmpty(emendamentoDto.TestoEM_Modificabile))
+                    emendamentoDto.TestoEM_Modificabile = emendamentoDto.TestoEM_originale;
+
+                emendamentoDto.AbilitaSUBEM = emendamentoDto.STATI_EM.IDStato == (int) StatiEnum.Depositato
+                                              && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
+                                              && !emendamentoDto.ATTI.Chiuso ||
+                                              persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
+                                              persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
+                                              persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                     persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                     if (emendamentoDto.ConteggioFirme > 1)
@@ -1279,22 +1182,6 @@ namespace PortaleRegione.BAL
                     .CheckIfNotificabile(emendamentoDto,
                         persona);
 
-                emendamentoDto.PersonaProponente =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
-                emendamentoDto.PersonaCreazione =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.PersonaDeposito =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
-
-                if (emendamentoDto.UIDPersonaModifica.HasValue)
-                    emendamentoDto.PersonaModifica =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
-
                 return emendamentoDto;
             }
             catch (Exception e)
@@ -1303,8 +1190,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
+        
 
         public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE, Uri uri)
@@ -1421,6 +1307,9 @@ namespace PortaleRegione.BAL
                         model.size,
                         CLIENT_MODE);
                 var result = new List<EmendamentiDto>();
+                if (em_in_db == null)
+                    return result;
+
                 foreach (var em in em_in_db)
                 {
                     em.N_EM = GetNomeEM(em,

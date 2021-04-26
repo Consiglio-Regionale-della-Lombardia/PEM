@@ -471,7 +471,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task Salva(EmendamentiDto model)
+        public static async Task<EmendamentiDto> Salva(EmendamentiDto model)
         {
             try
             {
@@ -492,7 +492,8 @@ namespace PortaleRegione.Gateway
 
                 var body = JsonConvert.SerializeObject(model);
 
-                await Post(requestUrl, body);
+                var result = JsonConvert.DeserializeObject<EmendamentiDto>(await Post(requestUrl, body));
+                return result;
             }
             catch (UnauthorizedAccessException ex)
             {

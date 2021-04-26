@@ -37,7 +37,7 @@ namespace PortaleRegione.Client.Controllers
         // GET
         public async Task<ActionResult> Index(int page = 1, int size = 50)
         {
-            var model = await StampeGate.GetStampe(page, size);
+            var model = await StampeGate.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
                 return View("Index_Admin", model);
@@ -84,7 +84,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
             }
         }
 

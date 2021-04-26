@@ -160,6 +160,8 @@ namespace PortaleRegione.API
 
             Mapper.CreateMap<STAMPE, StampaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<StampaDto, STAMPE>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<STAMPE_INFO, Stampa_InfoDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<Stampa_InfoDto, STAMPE_INFO>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
 
             #endregion
 

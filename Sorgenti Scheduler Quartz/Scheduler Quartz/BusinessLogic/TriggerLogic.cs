@@ -90,7 +90,7 @@ namespace Scheduler.BusinessLogic
 
             try
             {
-                var path = ConfigurationSettings.AppSettings["PathTriggerConfig"];
+                var path = ConfigurationManager.AppSettings["PathTriggerConfig"];
                 if (!IsValidConfigPath(path))
                     throw new PathNotFoundException(path);
                 try
@@ -117,9 +117,7 @@ namespace Scheduler.BusinessLogic
         {
             box.DataSource = ScheduleTypeItems.scheduleTypeList;
         }
-
-        #region GetCronExpression
-
+        
         /// <summary>
         ///     method for calculate cronexpression
         /// </summary>
@@ -201,11 +199,7 @@ namespace Scheduler.BusinessLogic
 
             return result;
         }
-
-        #endregion GetCronExpression
-
-        #region SaveTriggerConfig
-
+        
         /// <summary>
         ///     Save Trigger json config
         /// </summary>
@@ -214,7 +208,7 @@ namespace Scheduler.BusinessLogic
         {
             try
             {
-                var path = ConfigurationSettings.AppSettings["PathTriggerConfig"];
+                var path = ConfigurationManager.AppSettings["PathTriggerConfig"];
                 if (!IsValidConfigPath(path)) throw new PathNotFoundException(path);
 
                 var result = JsonConvert.SerializeObject(appoggio);
@@ -225,10 +219,6 @@ namespace Scheduler.BusinessLogic
                 throw ex;
             }
         }
-
-        #endregion SaveTriggerConfig
-
-        #region RemoveTriggerConfig
 
         /// <summary>
         ///     Remove a Trigger and save in json config
@@ -246,7 +236,5 @@ namespace Scheduler.BusinessLogic
                 throw ex;
             }
         }
-
-        #endregion RemoveTriggerConfig
     }
 }

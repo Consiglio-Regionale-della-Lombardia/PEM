@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionBuilder", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Gateway", "..\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj", "{34C5C26E-50BD-49F3-8500-62A8C209273B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Test", "..\PortaleRegione.Test\PortaleRegione.Test.csproj", "{C381D39C-10D8-48EC-A203-1AA2ABA52877}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortaleRegione.Test", "..\PortaleRegione.Test\PortaleRegione.Test.csproj", "{C381D39C-10D8-48EC-A203-1AA2ABA52877}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

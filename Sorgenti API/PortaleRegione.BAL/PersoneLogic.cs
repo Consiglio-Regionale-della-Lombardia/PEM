@@ -155,6 +155,8 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetPersona(SessionManager session)
         {
+            if (session._currentUId == Guid.Empty)
+                return null;
             var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
             persona.CurrentRole = session._currentRole;
             persona.Gruppo = await GetGruppo(session._currentGroup);

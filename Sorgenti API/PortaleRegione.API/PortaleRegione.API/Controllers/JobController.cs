@@ -51,6 +51,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model">Modello richiesta generico con paginazione</param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpPost]
         [Route("stampe/view")]
         public async Task<IHttpActionResult> GetStampe(BaseRequest<StampaDto> model)

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Logger", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.GestioneStampe", "..\..\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe.csproj", "{5602B3D8-CB8C-434E-89ED-8A290729EF98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneraStampeJob.Test", "GeneraStampeJob.Test\GeneraStampeJob.Test.csproj", "{D4290510-EEFA-49BB-A16E-EC767420796B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5602B3D8-CB8C-434E-89ED-8A290729EF98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5602B3D8-CB8C-434E-89ED-8A290729EF98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5602B3D8-CB8C-434E-89ED-8A290729EF98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4290510-EEFA-49BB-A16E-EC767420796B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4290510-EEFA-49BB-A16E-EC767420796B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4290510-EEFA-49BB-A16E-EC767420796B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4290510-EEFA-49BB-A16E-EC767420796B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

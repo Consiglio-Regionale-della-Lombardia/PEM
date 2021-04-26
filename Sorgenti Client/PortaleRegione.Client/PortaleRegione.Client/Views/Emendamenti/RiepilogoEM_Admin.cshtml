@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using ExpressionBuilder.Common
+@using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
@@ -566,7 +567,7 @@
                             PropertyId: "UIDEM",
                             Operation: selezionaTutti ? 5 : 1,
                             Value: lstEM[i],
-                            Connector: 1
+                            Connector: @((int)FilterStatementConnector.Or)
                         });
                     }
                 }

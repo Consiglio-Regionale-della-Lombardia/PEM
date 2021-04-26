@@ -68,5 +68,6 @@ namespace PortaleRegione.DTO.Domain
         public virtual EmendamentiDto EM { get; set; }
 
         public PersonaLightDto Richiedente { get; set; }
+        public string Info { get; set; }
     }
 }

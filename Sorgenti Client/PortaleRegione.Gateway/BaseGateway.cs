@@ -246,7 +246,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        protected static async Task<bool> SendMail(MailModel model)
+        public static async Task<bool> SendMail(MailModel model)
         {
             try
             {

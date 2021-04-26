@@ -35,5 +35,9 @@ namespace PortaleRegione.Contracts
         Task<int> Count(PersonaDto persona, Filter<STAMPE> filtro = null);
         Task<int> Count();
         Task<STAMPE> Get(Guid stampaUId);
+        void AddInfo(Guid stampaUId, string messaggio);
+        Task<IEnumerable<STAMPE_INFO>> GetInfo(Guid stampaUId);
+        Task<IEnumerable<STAMPE_INFO>> GetInfo();
+        Task<STAMPE_INFO> GetLastInfo(Guid stampaUId);
     }
 }

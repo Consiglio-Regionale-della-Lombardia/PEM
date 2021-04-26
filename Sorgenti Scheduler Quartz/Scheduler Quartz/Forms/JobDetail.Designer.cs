@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.txtEntryPoint = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.btnSearchFile = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
@@ -39,8 +41,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.btnEscape = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtEntryPoint = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
@@ -58,6 +58,24 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(304, 95);
             this.panel1.TabIndex = 0;
+            // 
+            // txtEntryPoint
+            // 
+            this.txtEntryPoint.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.txtEntryPoint.Enabled = false;
+            this.txtEntryPoint.Location = new System.Drawing.Point(61, 60);
+            this.txtEntryPoint.Name = "txtEntryPoint";
+            this.txtEntryPoint.Size = new System.Drawing.Size(231, 20);
+            this.txtEntryPoint.TabIndex = 6;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 63);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(50, 13);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "Ingresso:";
             // 
             // btnSearchFile
             // 
@@ -105,12 +123,14 @@
             // 
             // btnDelete
             // 
+            this.btnDelete.BackColor = System.Drawing.Color.Red;
+            this.btnDelete.ForeColor = System.Drawing.Color.White;
             this.btnDelete.Location = new System.Drawing.Point(9, 383);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(304, 39);
             this.btnDelete.TabIndex = 4;
             this.btnDelete.Text = "Cancella";
-            this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.UseVisualStyleBackColor = false;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
             // btnSave
@@ -150,24 +170,6 @@
             this.btnEscape.Text = "Annulla";
             this.btnEscape.UseVisualStyleBackColor = true;
             this.btnEscape.Click += new System.EventHandler(this.btnEscape_Click);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 63);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(50, 13);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "Ingresso:";
-            // 
-            // txtEntryPoint
-            // 
-            this.txtEntryPoint.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.txtEntryPoint.Enabled = false;
-            this.txtEntryPoint.Location = new System.Drawing.Point(61, 60);
-            this.txtEntryPoint.Name = "txtEntryPoint";
-            this.txtEntryPoint.Size = new System.Drawing.Size(231, 20);
-            this.txtEntryPoint.TabIndex = 6;
             // 
             // JobDetail
             // 
