@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,6 +25,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
+using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
@@ -38,10 +40,10 @@ namespace PortaleRegione.BAL
 {
     public class EsportaLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
         private readonly PersoneLogic _logicPersone;
+        private readonly IUnitOfWork _unitOfWork;
 
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, FirmeLogic logicFirme,
             PersoneLogic logicPersone)
@@ -51,8 +53,6 @@ namespace PortaleRegione.BAL
             _logicFirme = logicFirme;
             _logicPersone = logicPersone;
         }
-
-        #region EsportaGrigliaExcel
 
         public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, PersonaDto persona)
         {
@@ -175,7 +175,8 @@ namespace PortaleRegione.BAL
                         }
 
                         var proponente =
-                            Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                            Mapper.Map<View_UTENTI, PersonaDto>(
+                                await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                         rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
                             .SetCellValue(persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                                 ? $"{proponente.id_persona}-{proponente.DisplayName}"
@@ -196,10 +197,10 @@ namespace PortaleRegione.BAL
                                 f.Timestamp > Convert.ToDateTime(Decrypt(em.DataDeposito)));
 
                             rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
-                                .SetCellValue(GetFirmatariEM_OPENDATA(firmeAnte,
+                                .SetCellValue(GetFirmatariEM_OPENDATA(firmeAnte.ToList(),
                                     persona.CurrentRole));
                             rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
-                                .SetCellValue(GetFirmatariEM_OPENDATA(firmePost,
+                                .SetCellValue(GetFirmatariEM_OPENDATA(firmePost.ToList(),
                                     persona.CurrentRole));
                         }
                         else
@@ -241,10 +242,6 @@ namespace PortaleRegione.BAL
             }
         }
 
-        #endregion
-
-        #region EsportaGrigliaWord
-
         public async Task<HttpResponseMessage> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, PersonaDto persona)
         {
             try
@@ -261,6 +258,17 @@ namespace PortaleRegione.BAL
                 using (var fs = new FileStream(FilePathComplete, FileMode.Create, FileAccess.Write))
                 {
                     var doc = new XWPFDocument();
+                    var section = new CT_SectPr
+                    {
+                        pgSz =
+                        {
+                            orient = ST_PageOrientation.landscape,
+                            w = (ulong) (842 * 20),
+                            h = (ulong) (595 * 20)
+                        }
+                    };
+                    doc.Document.body.sectPr = section;
+
                     var para = doc.CreateParagraph();
                     para.Alignment = ParagraphAlignment.CENTER;
                     var r0 = para.CreateRun();
@@ -329,7 +337,7 @@ namespace PortaleRegione.BAL
                             page = 1,
                             size = 50
                         }, persona,
-                        (int) ClientModeEnum.GRUPPI, new Uri(""));
+                        (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
 
                     foreach (var em in emList.Data.Results)
                     {
@@ -345,10 +353,7 @@ namespace PortaleRegione.BAL
                         var headerCell1_em = c1_em.AddParagraph();
                         headerCell1_em.Alignment = ParagraphAlignment.CENTER;
                         var headerCell1_Run_em = headerCell1_em.CreateRun();
-                        headerCell1_Run_em.SetText(GetNomeEM(em,
-                            em.Rif_UIDEM.HasValue
-                                ? Mapper.Map<EM, EmendamentiDto>(await _logicEm.GetEM(em.Rif_UIDEM.Value))
-                                : null));
+                        headerCell1_Run_em.SetText(em.N_EM);
 
                         var c2_em = row.GetCell(2);
                         var headerCell2_em = c2_em.AddParagraph();
@@ -374,18 +379,28 @@ namespace PortaleRegione.BAL
                         var headerCell4_Run_em = headerCell4_em.CreateRun();
                         headerCell4_Run_em.SetText(proponente.DisplayName);
 
-                        var firme = await _logicFirme.GetFirme(Mapper.Map<EmendamentiDto, EM>(em), FirmeTipoEnum.TUTTE);
+                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                         var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
 
-                        var firmeAnte = firmeDto.Where(f =>
-                            f.Timestamp < Convert.ToDateTime(Decrypt(em.DataDeposito)));
+                        var firmatari_opendata = "--";
+                        try
+                        {
+                            if (firmeDto.Any(f =>
+                                f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                                firmatari_opendata = GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                        f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
+                                    persona.CurrentRole);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
 
                         var c5_em = row.GetCell(5);
                         var headerCell5_em = c5_em.AddParagraph();
                         headerCell5_em.Alignment = ParagraphAlignment.CENTER;
                         var headerCell5_Run_em = headerCell5_em.CreateRun();
-                        headerCell5_Run_em.SetText(GetFirmatariEM_OPENDATA(firmeAnte,
-                            persona.CurrentRole));
+                        headerCell5_Run_em.SetText(firmatari_opendata);
 
                         var c6_em = row.GetCell(6);
                         var headerCell6_em = c6_em.AddParagraph();
@@ -418,20 +433,14 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EsportaGrigliaXLS", e);
+                Log.Error("Logic - EsportaGrigliaWord", e);
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetColumn
 
         private short GetColumn(short column)
         {
             return column < 0 ? (short) 0 : column;
         }
-
-        #endregion
     }
 }

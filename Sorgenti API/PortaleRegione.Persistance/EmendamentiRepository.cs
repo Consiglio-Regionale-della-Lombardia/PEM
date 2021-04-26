@@ -252,6 +252,8 @@ namespace PortaleRegione.Persistance
                 .Where(em =>
                     em.UIDAtto == attoUId
                     && !em.Eliminato);
+            query = query.Include(em => em.STATI_EM);
+
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
                 query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato);

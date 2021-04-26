@@ -462,8 +462,7 @@ function EsportaDOC(attoUId) {
 
             if (value == null || value == "")
                 return;
-
-            go(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value);
+            window.open(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, '_blank');
         });
 }
 

@@ -24,13 +24,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using AutoMapper;
 using PortaleRegione.Common;
-using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -40,8 +38,6 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
-        #region ByteArrayToFile
-
         internal string ByteArrayToFile(byte[] byteArray, DocTypeEnum type)
         {
             try
@@ -58,6 +54,7 @@ namespace PortaleRegione.BAL
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
+
                 if (!Directory.Exists(root))
                     Directory.CreateDirectory(root);
                 var fileName = DateTime.Now.Ticks + ".pdf";
@@ -73,10 +70,6 @@ namespace PortaleRegione.BAL
                 return string.Empty;
             }
         }
-
-        #endregion
-
-        #region ComposeFileResponse
 
         internal async Task<HttpResponseMessage> ComposeFileResponse(string path)
         {
@@ -99,10 +92,6 @@ namespace PortaleRegione.BAL
 
             return result;
         }
-
-        #endregion
-
-        #region GetNomeEM
 
         internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto emendamento_riferimento)
         {
@@ -138,7 +127,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         internal static string GetNomeEM(EM emendamento, EM emendamento_riferimento)
         {
             try
@@ -152,10 +141,6 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetFirmatariEM
 
         internal static string GetFirmatariEM(IEnumerable<FirmeDto> firme)
         {
@@ -180,10 +165,6 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region EncryptString
 
         internal static string EncryptString(string InString, string Key)
         {
@@ -221,10 +202,6 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetTemplate
 
         internal static string GetTemplate(TemplateTypeEnum templateType)
         {
@@ -264,10 +241,6 @@ namespace PortaleRegione.BAL
             }
         }
 
-        #endregion
-
-        #region GetBodyEM
-
         internal static void GetBodyTemporaneo(EmendamentiDto emendamento, ref string body)
         {
             try
@@ -297,7 +270,8 @@ namespace PortaleRegione.BAL
 
                 //Allegato Tecnico
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
-                    allegato_tecnico = $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
+                    allegato_tecnico =
+                        $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
 
                 #endregion
 
@@ -305,7 +279,8 @@ namespace PortaleRegione.BAL
 
                 //Allegato Generico
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
-                    allegato_generico = $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                    allegato_generico =
+                        $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
 
                 #endregion
 
@@ -424,7 +399,7 @@ namespace PortaleRegione.BAL
                         "{NOTE_PUBBLICHE_COMMENTO_END}",
                         !string.IsNullOrEmpty(emendamento.NOTE_Griglia) ? string.Empty : "-->");
 
-                if ((currentUser != null && currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea) &&
+                if (currentUser != null && currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea &&
                     !string.IsNullOrEmpty(emendamento.NOTE_EM))
                     body = body.Replace("{lblNotePrivateEMView}",
                         $"Note Riservate: {emendamento.NOTE_EM.Replace("{NOTEPRIV_COMMENTO_START}", string.Empty).Replace("{NOTEPRIV_COMMENTO_END}", string.Empty)}");
@@ -442,7 +417,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito, ref string body)
+        internal static void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
+            ref string body)
         {
             try
             {
@@ -460,9 +436,10 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{MESSAGGIOINIZIALE}",
                         AppSettingsConfiguration.MessaggioInizialeInvito.Replace("{br}", "<br/>"));
                     body = body.Replace("{azione}", "firmare");
-                    body = body.Replace("{LINKPEMRIEPILOGO_FIRME}", 
-                        "<a href='" 
-                        + string.Format(AppSettingsConfiguration.urlPEM_RiepilogoEM, emendamento.UIDAtto) + "'>Clicca qui</a> per visualizzare gli em in cui sei indicato come firmatario.");
+                    body = body.Replace("{LINKPEMRIEPILOGO_FIRME}",
+                        "<a href='"
+                        + string.Format(AppSettingsConfiguration.urlPEM_RiepilogoEM, emendamento.UIDAtto) +
+                        "'>Clicca qui</a> per visualizzare gli em in cui sei indicato come firmatario.");
                 }
 
                 body = body.Replace("{lblTitoloEMView}", emendamento.DisplayTitle);
@@ -490,7 +467,10 @@ namespace PortaleRegione.BAL
                                 {firme}
                             </div>
                         </div>";
-                    body = body.Replace("{radGridFirmePostView}", firmePost.Any() ? TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost)) : string.Empty);
+                    body = body.Replace("{radGridFirmePostView}",
+                        firmePost.Any()
+                            ? TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost))
+                            : string.Empty);
                 }
 
                 #endregion
@@ -510,10 +490,6 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region DecryptString
 
         internal static string Decrypt(string strData, string key = "")
         {
@@ -569,12 +545,6 @@ namespace PortaleRegione.BAL
                 return "<font style='color:red'>Valore Corrotto</font>";
             }
         }
-
-        #endregion
-
-        #region OPEN DATA
-
-        #region GetEM_OPENDATA
 
         /// <summary>
         ///     Restituisce la stringa da aggiornare/inserire in OpenData
@@ -669,8 +639,10 @@ namespace PortaleRegione.BAL
                     var firmePost = firme.Where(f =>
                         f.Timestamp > Convert.ToDateTime(Decrypt(em.DataDeposito)));
 
-                    result += $"{GetFirmatariEM_OPENDATA(firmeAnte, RuoliIntEnum.Amministratore_PEM)}{separatore}";
-                    result += $"{GetFirmatariEM_OPENDATA(firmePost, RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                    result +=
+                        $"{GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                    result +=
+                        $"{GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
                 }
                 else
                 {
@@ -690,38 +662,33 @@ namespace PortaleRegione.BAL
             }
         }
 
-        #endregion
-
-        #region GetFirmatariEM_OPENDATA
-
-        internal static string GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firme, RuoliIntEnum ruolo)
+        internal static string GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo)
         {
             try
             {
-                if (firme == null)
+                if (firmeDtos == null)
                     return "--";
-                var firmeDtos = firme.ToList();
                 if (!firmeDtos.Any())
                     return "--";
 
                 var result = "";
-                foreach (var firmeDto in firme)
+                foreach (var firmeDto in firmeDtos)
                     if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                             result +=
-                                $"{firmeDto.UTENTI_NoCons.id_persona}-{DecryptString(firmeDto.FirmaCert, AppSettingsConfiguration.masterKey)}; ";
+                                $"{firmeDto.UTENTI_NoCons.id_persona}-{firmeDto.FirmaCert}; ";
                         else
-                            result += $"{DecryptString(firmeDto.FirmaCert, AppSettingsConfiguration.masterKey)}; ";
+                            result += $"{firmeDto.FirmaCert}; ";
                     }
                     else
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                             result +=
-                                $"{firmeDto.UTENTI_NoCons.id_persona}-{DecryptString(firmeDto.FirmaCert, AppSettingsConfiguration.masterKey)} (ritirata); ";
+                                $"{firmeDto.UTENTI_NoCons.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
                         else
                             result +=
-                                $"{DecryptString(firmeDto.FirmaCert, AppSettingsConfiguration.masterKey)} (ritirata); ";
+                                $"{firmeDto.FirmaCert} (ritirata); ";
                     }
 
                 return result;
@@ -732,9 +699,5 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #endregion
     }
 }
