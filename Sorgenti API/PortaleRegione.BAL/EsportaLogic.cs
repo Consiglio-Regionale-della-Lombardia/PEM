@@ -108,15 +108,9 @@ namespace PortaleRegione.BAL
                     row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue("Firmatari dopo deposito");
                     row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue("LinkEM");
 
-                    var emList = await _logicEm.GetEmendamenti(new BaseRequest<EmendamentiDto>
-                    {
-                        id = id,
-                        ordine = ordine,
-                        page = 1,
-                        size = 50
-                    }, persona, (int) ClientModeEnum.GRUPPI, new Uri(""));
+                    var emList = await _logicEm.ScaricaEmendamenti(id, ordine, persona);
 
-                    foreach (var em in emList.Data.Results)
+                    foreach (var em in emList)
                     {
                         var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
 
@@ -132,15 +126,8 @@ namespace PortaleRegione.BAL
                                     $"{atto.TIPI_ATTO.Tipo_Atto}-{atto.NAtto}-{atto.SEDUTE.legislature.num_legislatura}");
                         }
 
-                        rowEm.CreateCell(GetColumn(rowEm.LastCellNum)).SetCellValue(
-                            GetNomeEM(em,
-                                em.Rif_UIDEM.HasValue
-                                    ? Mapper.Map<EM, EmendamentiDto>(await _logicEm.GetEM(em.Rif_UIDEM.Value))
-                                    : null));
-                        rowEm.CreateCell(GetColumn(rowEm.LastCellNum)).SetCellValue(
-                            !string.IsNullOrEmpty(em.DataDeposito)
-                                ? Decrypt(em.DataDeposito)
-                                : "--");
+                        rowEm.CreateCell(GetColumn(rowEm.LastCellNum)).SetCellValue(em.N_EM);
+                        rowEm.CreateCell(GetColumn(rowEm.LastCellNum)).SetCellValue(em.DataDeposito);
 
                         rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
                             .SetCellValue(persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
@@ -154,7 +141,7 @@ namespace PortaleRegione.BAL
 
                         rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
                             .SetCellValue(persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                                ? $"{em.PARTI_TESTO.IDParte}-{em.PARTI_TESTO.Parte}"
+                                ? $"{em.IDParte}-{em.PARTI_TESTO.Parte}"
                                 : em.PARTI_TESTO.Parte);
 
                         rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
@@ -174,34 +161,50 @@ namespace PortaleRegione.BAL
                             rowEm.CreateCell(GetColumn(rowEm.LastCellNum)).SetCellValue(em.NTitoloB.ToString());
                         }
 
-                        var proponente =
-                            Mapper.Map<View_UTENTI, PersonaDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                         rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
                             .SetCellValue(persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                                ? $"{proponente.id_persona}-{proponente.DisplayName}"
-                                : proponente.DisplayName);
+                                ? $"{em.PersonaProponente.UID_persona}-{em.PersonaProponente.DisplayName}"
+                                : em.PersonaProponente.DisplayName);
 
                         rowEm.CreateCell(GetColumn(rowEm.LastCellNum)).SetCellValue("");
 
                         if (!string.IsNullOrEmpty(em.DataDeposito))
                         {
-                            var firme = await _logicFirme.GetFirme(Mapper.Map<EmendamentiDto, EM>(em),
-                                FirmeTipoEnum.TUTTE);
-                            var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>)
-                                .ToList();
+                            var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                            var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
 
-                            var firmeAnte = firmeDto.Where(f =>
-                                f.Timestamp < Convert.ToDateTime(Decrypt(em.DataDeposito)));
-                            var firmePost = firmeDto.Where(f =>
-                                f.Timestamp > Convert.ToDateTime(Decrypt(em.DataDeposito)));
+                            var firmatari_opendata_ante = "--";
+                            try
+                            {
+                                if (firmeDto.Any(f =>
+                                    f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                                    firmatari_opendata_ante = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                            f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
+                                        persona.CurrentRole);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+
+                            var firmatari_opendata_post = "--";
+                            try
+                            {
+                                if (firmeDto.Any(f =>
+                                    f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
+                                    firmatari_opendata_post = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                            f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
+                                        persona.CurrentRole);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
 
                             rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
-                                .SetCellValue(GetFirmatariEM_OPENDATA(firmeAnte.ToList(),
-                                    persona.CurrentRole));
+                                .SetCellValue(firmatari_opendata_ante);
                             rowEm.CreateCell(GetColumn(rowEm.LastCellNum))
-                                .SetCellValue(GetFirmatariEM_OPENDATA(firmePost.ToList(),
-                                    persona.CurrentRole));
+                                .SetCellValue(firmatari_opendata_post);
                         }
                         else
                         {
@@ -263,8 +266,8 @@ namespace PortaleRegione.BAL
                         pgSz =
                         {
                             orient = ST_PageOrientation.landscape,
-                            w = (ulong) (842 * 20),
-                            h = (ulong) (595 * 20)
+                            w = 842 * 20,
+                            h = 595 * 20
                         }
                     };
                     doc.Document.body.sectPr = section;
@@ -330,16 +333,9 @@ namespace PortaleRegione.BAL
 
                     #endregion
 
-                    var emList = await _logicEm.GetEmendamenti(new BaseRequest<EmendamentiDto>
-                        {
-                            id = id,
-                            ordine = ordine,
-                            page = 1,
-                            size = 50
-                        }, persona,
-                        (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
+                    var emList = await _logicEm.ScaricaEmendamenti(id, ordine, persona);
 
-                    foreach (var em in emList.Data.Results)
+                    foreach (var em in emList)
                     {
                         var row = table.CreateRow();
 
@@ -387,7 +383,7 @@ namespace PortaleRegione.BAL
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
-                                firmatari_opendata = GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                firmatari_opendata = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole);
                         }

@@ -917,7 +917,7 @@ namespace PortaleRegione.BAL
                             var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                             var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
 
-                            var resultOpenData = GetEM_OPENDATA(em,
+                            var resultOpenData = await GetEM_OPENDATA(em,
                                 em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null,
                                 firmeDto,
                                 Mapper.Map<View_UTENTI, PersonaDto>(
@@ -1415,6 +1415,198 @@ namespace PortaleRegione.BAL
             catch (Exception e)
             {
                 Log.Error("Logic - CountEM", e);
+                throw e;
+            }
+        }
+
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(Guid attoUId, OrdinamentoEnum ordine,
+            PersonaDto persona)
+        {
+            var result = new List<EmendamentiDto>();
+
+            var emList = await GetEmendamenti(new BaseRequest<EmendamentiDto>
+            {
+                id = attoUId,
+                ordine = ordine,
+                page = 1,
+                size = 50
+            }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
+
+            result.AddRange(emList.Data.Results);
+            var has_next = emList.Data.Paging.Has_Next;
+            while (has_next)
+            {
+                emList = await GetEmendamenti(new BaseRequest<EmendamentiDto>
+                {
+                    id = attoUId,
+                    ordine = ordine,
+                    page = emList.Data.Paging.Page + 1,
+                    size = 50
+                }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
+
+                has_next = emList.Data.Paging.Has_Next;
+                result.AddRange(emList.Data.Results);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Restituisce la stringa da aggiornare/inserire in OpenData
+        /// </summary>
+        /// <param name="uidEM"></param>
+        /// <returns></returns>
+        public async Task<string> GetEM_OPENDATA(EM em, EM em_riferimento, List<FirmeDto> firme, PersonaDto proponente)
+        {
+            var separatore = AppSettingsConfiguration.OpenData_Separatore;
+            var result = string.Empty;
+            try
+            {
+                var nome_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                    em_riferimento != null ? Mapper.Map<EM, EmendamentiDto>(em) : null);
+
+                //Colonna IDEM
+                result +=
+                    $"{em.ATTI.TIPI_ATTO.Tipo_Atto}-{em.ATTI.NAtto}-{em.ATTI.SEDUTE.legislature.num_legislatura}-{nome_em}{separatore}";
+                //Colonna Atto
+                result +=
+                    $"{em.ATTI.TIPI_ATTO.Tipo_Atto}-{em.ATTI.NAtto}-{em.ATTI.SEDUTE.legislature.num_legislatura}{separatore}";
+                //Colonna Numero EM
+                result += nome_em + separatore;
+                //Colonna Data Deposito
+                if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                {
+                    var dataDeposito =
+                        Convert.ToDateTime(em.DataDeposito);
+                    result += dataDeposito.ToString("yyyy-MM-dd HH:mm") + separatore;
+                }
+                else
+                {
+                    result += "--" + separatore;
+                }
+
+                //Colonna Stato
+                result += $"{em.STATI_EM.IDStato}-{em.STATI_EM.Stato}{separatore}";
+                //Colonna Tipo EM
+                result += $"{em.TIPI_EM.IDTipo_EM}-{em.TIPI_EM.Tipo_EM}{separatore}";
+                //Colonna Parte
+                result += $"{em.PARTI_TESTO.IDParte}-{em.PARTI_TESTO.Parte}{separatore}";
+                //Colonna Articolo
+                var articolo = string.Empty;
+                if (em.UIDArticolo.HasValue)
+                    articolo = em.ARTICOLI.Articolo;
+
+                result += $"{articolo}{separatore}";
+
+                //Colonna Comma
+                var comma = string.Empty;
+                if (em.UIDComma.HasValue)
+                    comma = em.COMMI.Comma;
+
+                result += $"{comma}{separatore}";
+                //Colonna NTitolo
+                result += $"{em.NTitolo}{separatore}";
+                //Colonna NCapo
+                result += $"{em.NCapo}{separatore}";
+                //Colonna NMissione
+                result += $"{em.NMissione}{separatore}";
+                //Colonna NProgramma
+                result += $"{em.NProgramma}{separatore}";
+                //Colonna NTitoloB
+                result += $"{em.NTitoloB}{separatore}";
+                //Colonna Proponente
+                result += $"{proponente.id_persona}-{proponente.DisplayName}{separatore}";
+                //Colonna AreaPolitica
+                switch ((AreaPoliticaIntEnum) em.AreaPolitica.Value)
+                {
+                    case AreaPoliticaIntEnum.Maggioranza:
+                        result += $"{AreaPoliticaEnum.Maggioranza}{separatore}";
+                        break;
+                    case AreaPoliticaIntEnum.Minoranza:
+                        result += $"{AreaPoliticaEnum.Minoranza}{separatore}";
+                        break;
+                    case AreaPoliticaIntEnum.Misto_Maggioranza:
+                        result += $"{AreaPoliticaEnum.Misto_Maggioranza}{separatore}";
+                        break;
+                    case AreaPoliticaIntEnum.Misto_Minoranza:
+                        result += $"{AreaPoliticaEnum.Misto_Minoranza}{separatore}";
+                        break;
+                    default:
+                        result += $"{separatore}";
+                        break;
+                }
+
+                //Colonna Firmatari
+                if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                {
+                    var firmeAnte = firme.Where(f =>
+                        f.Timestamp < Convert.ToDateTime(em.DataDeposito));
+                    var firmePost = firme.Where(f =>
+                        f.Timestamp > Convert.ToDateTime(em.DataDeposito));
+
+                    result +=
+                        $"{await GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                    result +=
+                        $"{await GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                }
+                else
+                {
+                    result += "--" + separatore;
+                    result += "--" + separatore;
+                }
+
+                //Colonna Link
+                result += $"{AppSettingsConfiguration.urlPEM}/{em.UID_QRCode}";
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetEM_OPENDATA", e);
+                throw e;
+            }
+        }
+
+        public async Task<string> GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo)
+        {
+            try
+            {
+                if (firmeDtos == null)
+                    return "--";
+                if (!firmeDtos.Any())
+                    return "--";
+
+                var result = "";
+                foreach (var firmeDto in firmeDtos)
+                    if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                    {
+                        if (ruolo == RuoliIntEnum.Amministratore_PEM)
+                        {
+                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            result +=
+                                $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
+                        }
+                        else
+                            result += $"{firmeDto.FirmaCert}; ";
+                    }
+                    else
+                    {
+                        if (ruolo == RuoliIntEnum.Amministratore_PEM)
+                        {
+                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            result +=
+                                $"{firmatario.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
+                        }
+                        else
+                            result +=
+                                $"{firmeDto.FirmaCert} (ritirata); ";
+                    }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetFirmatariEM_OPENDATA", e);
                 throw e;
             }
         }

@@ -202,21 +202,22 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .EM
-                .Where(em => em.UIDAtto == id && em.IDStato >= (int) StatiEnum.Depositato);
+                .Where(em => em.UIDAtto == id && em.IDStato >= (int) StatiEnum.Depositato)
+                .Include(em=>em.ARTICOLI)
+                .Include(em=>em.COMMI)
+                .Include(em=>em.LETTERE);
 
             switch (type)
             {
                 case ReportTypeEnum.NOI:
                 case ReportTypeEnum.PCR:
                     query = query
-                        .OrderBy(em => em.ARTICOLI.Articolo)
-                        .ThenBy(em => em.COMMI.Comma)
-                        .ThenBy(em => em.NLettera)
-                        .ThenBy(em => em.LETTERE.Lettera);
+                        .OrderBy(em => em.OrdineVotazione);
                     break;
                 case ReportTypeEnum.PROG:
                     query = query
-                        .OrderBy(em => em.OrdinePresentazione);
+                        .OrderBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.OrdinePresentazione);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -299,15 +300,14 @@ namespace PortaleRegione.Persistance
             switch (ordine)
             {
                 case OrdinamentoEnum.Presentazione:
-                    query = query.OrderBy(em => em.SubProgressivo).ThenBy(em => em.Timestamp).ThenBy(em => em.IDStato);
+                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.SubProgressivo).ThenBy(em => em.Timestamp);
                     break;
                 case OrdinamentoEnum.Votazione:
                     query = query.OrderBy(em => em.OrdineVotazione);
                     break;
                 default:
-                    query = query.OrderBy(em => em.Progressivo)
-                        .ThenBy(em => em.SubProgressivo)
-                        .ThenBy(em => em.IDStato);
+                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Progressivo)
+                        .ThenBy(em => em.SubProgressivo);
                     break;
             }
 
