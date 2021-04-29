@@ -202,7 +202,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var persona = await _unitOfWork.Persone.Get(request.persona_UId);
+                var persona = _unitOfWork.Persone.Get(request.persona_UId);
                 string ris;
                 var IntranetADService = new proxyAD();
                 ris = IntranetADService
@@ -259,7 +259,7 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetUtente(Guid id)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(id));
+            var persona = Mapper.Map<View_UTENTI, PersonaDto>(_unitOfWork.Persone.Get(id));
 
             var intranetAdService = new proxyAD();
 
@@ -346,7 +346,7 @@ namespace PortaleRegione.BAL
                 else
                 {
                     //Consigliere/Assessore
-                    var persona = await _unitOfWork.Persone.Get(request.UID_persona);
+                    var persona =  _unitOfWork.Persone.Get(request.UID_persona);
                     persona.cognome = request.cognome;
                     persona.nome = request.nome;
                     persona.foto = request.foto;

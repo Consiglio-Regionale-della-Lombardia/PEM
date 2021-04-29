@@ -909,7 +909,7 @@ namespace PortaleRegione.BAL
                                 em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null,
                                 firmeDto,
                                 Mapper.Map<View_UTENTI, PersonaDto>(
-                                    await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value)));
+                                    _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value)));
                             wsOD.UpsertEM(resultOpenData, AppSettingsConfiguration.OpenData_PrivateToken);
                         }
                     }
@@ -1094,19 +1094,19 @@ namespace PortaleRegione.BAL
                 emendamentoDto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
                 emendamentoDto.PersonaProponente =
                     Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
+                        _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
                 emendamentoDto.PersonaCreazione =
                     Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
+                        _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.PersonaDeposito =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
+                            _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
 
                 if (emendamentoDto.UIDPersonaModifica.HasValue)
                     emendamentoDto.PersonaModifica =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
+                            _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
 
                 if (persona == null)
                     return emendamentoDto;
@@ -1231,19 +1231,19 @@ namespace PortaleRegione.BAL
 
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                             _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                     dto.PersonaCreazione =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
+                            _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         dto.PersonaDeposito =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaDeposito.Value));
+                                _unitOfWork.Persone.Get(em.UIDPersonaDeposito.Value));
 
                     if (em.UIDPersonaModifica.HasValue)
                         dto.PersonaModifica =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
+                                _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
 
                     result.Add(dto);
                 }
@@ -1278,6 +1278,16 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var timeQuery = new TimeSpan();
+                var timeForEach = new TimeSpan();
+                var timeNomeEM = new TimeSpan();
+                var timeDecryptDeposito = new TimeSpan();
+                var timeMap = new TimeSpan();
+                var timeProponente = new TimeSpan();
+                var currentTime = DateTime.Now;
+                var startTime = currentTime;
+                var forEachTime = currentTime;
+
                 var em_in_db = await _unitOfWork
                     .Emendamenti
                     .GetAll(model.id,
@@ -1286,14 +1296,13 @@ namespace PortaleRegione.BAL
                         model.page,
                         model.size,
                         CLIENT_MODE);
+                timeQuery = timeQuery.Add(new TimeSpan((DateTime.Now - currentTime).Ticks));
+
                 var result = new List<EmendamentiDto>();
-                var timeNomeEM = new TimeSpan();
-                var timeDecryptDeposito = new TimeSpan();
-                var timeMap = new TimeSpan();
-                var timeProponente = new TimeSpan();
+                forEachTime=DateTime.Now;
                 foreach (var em in em_in_db)
                 {
-                    var currentTime = DateTime.Now;
+                    currentTime = DateTime.Now;
                     em.N_EM = GetNomeEM(em);
                     timeNomeEM = timeNomeEM.Add(new TimeSpan((DateTime.Now - currentTime).Ticks));
 
@@ -1313,16 +1322,21 @@ namespace PortaleRegione.BAL
                     currentTime = DateTime.Now;
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                            _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                     timeProponente = timeProponente.Add(new TimeSpan((DateTime.Now - currentTime).Ticks));
 
                     result.Add(dto);
                 }
+                timeForEach = timeForEach.Add(new TimeSpan((DateTime.Now - forEachTime).Ticks));
 
-                Log.Debug($"Total time GetNomeEM {timeNomeEM.TotalMinutes}");
-                Log.Debug($"Total time Deposito {timeDecryptDeposito.TotalMinutes}");
-                Log.Debug($"Total time Map {timeMap.TotalMinutes}");
-                Log.Debug($"Total time Proponente {timeProponente.TotalMinutes}");
+                Log.Debug($"Total time Query {timeQuery.TotalSeconds}");
+                Log.Debug($"Total time ForEach {timeForEach.TotalSeconds}");
+                Log.Debug($"Total time GetNomeEM {timeNomeEM.TotalSeconds}");
+                Log.Debug($"Total time Deposito {timeDecryptDeposito.TotalSeconds}");
+                Log.Debug($"Total time Map {timeMap.TotalSeconds}");
+                Log.Debug($"Total time Proponente {timeProponente.TotalSeconds}");
+                Log.Debug($"Start time {startTime.Date:dd/MM/yyyy HH:mm:ss}");
+                Log.Debug($"End time {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
                 Log.Debug($"#####");
 
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE));
@@ -1384,19 +1398,19 @@ namespace PortaleRegione.BAL
 
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                            _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                     dto.PersonaCreazione =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
+                            _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         dto.PersonaDeposito =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaDeposito.Value));
+                                _unitOfWork.Persone.Get(em.UIDPersonaDeposito.Value));
 
                     if (em.UIDPersonaModifica.HasValue)
                         dto.PersonaModifica =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
+                                _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
 
                     result.Add(dto);
                 }
@@ -1629,7 +1643,7 @@ namespace PortaleRegione.BAL
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                         {
-                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            var firmatario =  _unitOfWork.Persone.Get(firmeDto.UID_persona);
                             result +=
                                 $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
                         }
@@ -1642,7 +1656,7 @@ namespace PortaleRegione.BAL
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                         {
-                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            var firmatario =  _unitOfWork.Persone.Get(firmeDto.UID_persona);
                             result +=
                                 $"{firmatario.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
                         }
