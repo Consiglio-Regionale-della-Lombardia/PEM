@@ -462,6 +462,9 @@ namespace PortaleRegione.BAL
                         SetColumnValue(ref rowEm, "--");
                 }
 
+                SetColumnValue(ref rowEm, em.NTitolo);
+                SetColumnValue(ref rowEm, em.NCapo);
+
                 if (atto.VIS_Mis_Prog)
                 {
                     if (em.NMissione.HasValue && em.NMissione.Value != 0)
@@ -483,14 +486,14 @@ namespace PortaleRegione.BAL
 
                 if (reportType != ReportType.PCR)
                 {
-                    SetColumnValue(ref row, em.IDStato == (int) StatiEnum.Ritirato ? "X" : "");
-                    SetColumnValue(ref row, em.IDStato == (int) StatiEnum.Approvato ? "X" : "");
-                    SetColumnValue(ref row, em.IDStato == (int) StatiEnum.Non_Approvato ? "X" : "");
-                    SetColumnValue(ref row, em.IDStato == (int) StatiEnum.Decaduto ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Ritirato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Approvato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Non_Approvato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Decaduto ? "X" : "");
                 }
 
-                SetColumnValue(ref row, em.NOTE_EM);
-                SetColumnValue(ref row, em.NOTE_Griglia);
+                SetColumnValue(ref rowEm, em.NOTE_EM);
+                SetColumnValue(ref rowEm, em.NOTE_Griglia);
             }
 
             return sheet;

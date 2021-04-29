@@ -239,18 +239,18 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null)
         {
-            var query = PRContext.EM
+            var query = PRContext
+                .EM
+                .Where(em =>
+                    em.UIDAtto == attoUId
+                    && !em.Eliminato)
                 .Include(em => em.ATTI)
+                .Include(em => em.PARTI_TESTO)
+                .Include(em => em.TIPI_EM)
                 .Include(em => em.ARTICOLI)
                 .Include(em => em.COMMI)
                 .Include(em => em.LETTERE)
-                .Include(em => em.TITOLI_MISSIONI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.STATI_EM)
-                .Include(em => em.TIPI_EM)
-                .Where(em =>
-                    em.UIDAtto == attoUId
-                    && !em.Eliminato);
+                .Include(em => em.STATI_EM);
 
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {

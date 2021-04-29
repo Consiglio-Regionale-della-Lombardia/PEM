@@ -27,6 +27,7 @@ using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -43,7 +44,9 @@ namespace PortaleRegione.Persistance
 
         public async Task<ATTI> Get(Guid attoUId)
         {
-            return await PRContext.ATTI.FindAsync(attoUId);
+            PRContext.ATTI.FromCache(DateTimeOffset.Now.AddMinutes(5)).ToList();
+            var result = await PRContext.ATTI.SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
+            return result;
         }
 
         public async Task<ATTI> Get(string attoUId)
