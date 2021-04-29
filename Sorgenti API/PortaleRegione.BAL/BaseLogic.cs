@@ -93,7 +93,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto emendamento_riferimento)
+        internal static string GetNomeEM(EmendamentiDto emendamento)
         {
             try
             {
@@ -115,7 +115,7 @@ namespace PortaleRegione.BAL
                     else
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
 
-                    var n_em_riferimento = GetNomeEM(emendamento_riferimento, null);
+                    var n_em_riferimento = GetNomeEM(emendamento.EM2);
                     result = $"{result} all' {n_em_riferimento}";
                 }
 
@@ -128,12 +128,11 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string GetNomeEM(EM emendamento, EM emendamento_riferimento)
+        internal static string GetNomeEM(EM emendamento)
         {
             try
             {
-                return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
-                    Mapper.Map<EM, EmendamentiDto>(emendamento_riferimento));
+                return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento));
             }
             catch (Exception e)
             {
@@ -300,7 +299,7 @@ namespace PortaleRegione.BAL
             {
                 var firmeDtos = firme.ToList();
 
-                body = body.Replace("{lblTitoloEMView}", emendamento.DisplayTitle);
+                body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
 
                 if (string.IsNullOrEmpty(emendamento.EM_Certificato))
                 {
@@ -442,7 +441,7 @@ namespace PortaleRegione.BAL
                         "'>Clicca qui</a> per visualizzare gli em in cui sei indicato come firmatario.");
                 }
 
-                body = body.Replace("{lblTitoloEMView}", emendamento.DisplayTitle);
+                body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
                 body = body.Replace("{ltEMView}", emendamento.EM_Certificato);
 
                 #region Firme

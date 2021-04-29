@@ -29,6 +29,7 @@ namespace PortaleRegione.DataBase
         public PortaleRegioneDbContext()
             : base("name=PortaleRegioneDbContext")
         {
+            base.Configuration.LazyLoadingEnabled = false;
         }
 
         public virtual DbSet<ARTICOLI> ARTICOLI { get; set; }

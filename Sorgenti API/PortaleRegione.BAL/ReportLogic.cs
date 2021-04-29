@@ -52,10 +52,7 @@ namespace PortaleRegione.BAL
             foreach (var em in lista_em)
             {
                 var newItem = Mapper.Map<EM, EmendamentiDto>(em);
-                newItem.DisplayTitle = GetNomeEM(em,
-                    em.Rif_UIDEM.HasValue
-                        ? await _logicEm.GetEM(em.Rif_UIDEM.Value)
-                        : null);
+                newItem.N_EM = GetNomeEM(em);
                 newItem.PersonaProponente = Mapper.Map<View_UTENTI, PersonaLightDto>(
                     await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                 lista_em_dto.Add(newItem);

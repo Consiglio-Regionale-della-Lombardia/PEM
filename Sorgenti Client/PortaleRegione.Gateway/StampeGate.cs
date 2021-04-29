@@ -39,11 +39,11 @@ namespace PortaleRegione.Gateway
             
         }
 
-        public static async Task<FileResponse> EsportaXLS(Guid attoUId, OrdinamentoEnum ordine)
+        public static async Task<FileResponse> EsportaXLS(Guid attoUId, OrdinamentoEnum ordine, bool is_report = false)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/emendamenti/esporta-griglia-xls?id={attoUId}&ordine={ordine}";
+                var requestUrl = $"{apiUrl}/emendamenti/esporta-griglia-xls?id={attoUId}&ordine={ordine}&is_report={is_report}";
 
                 var lst = await GetFile(requestUrl);
 

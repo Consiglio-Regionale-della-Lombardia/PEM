@@ -208,7 +208,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_em = em.DisplayTitle;
+                    var n_em = em.N_EM;
 
                     if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
                         results.Add(idGuid,
