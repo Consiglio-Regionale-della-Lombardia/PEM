@@ -41,15 +41,12 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<NOTIFICHE> Get(Guid notificaUId)
-        {
-            return await PRContext.NOTIFICHE.FindAsync(notificaUId);
-        }
-
         public async Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetDestinatariNotifica(long notificaId)
         {
             var query = PRContext
                 .NOTIFICHE_DESTINATARI
+                .Include(n => n.gruppi_politici)
+                .Include(n => n.NOTIFICHE)
                 .Where(nd => nd.UIDNotifica == notificaId);
 
             return await query
@@ -150,8 +147,17 @@ namespace PortaleRegione.Persistance
             int pageSize,
             Filter<NOTIFICHE> filtro = null)
         {
+            await PRContext.ATTI
+                .Include(a => a.SEDUTE)
+                .Include(a => a.TIPI_ATTO)
+                .Where(a => a.Eliminato == false)
+                .LoadAsync();
+
             var query = PRContext
                 .NOTIFICHE
+                .Include(n => n.ATTI)
+                .Include(n => n.EM)
+                .Include(n => n.TIPI_NOTIFICA)
                 .Where(n => n.ATTI.Eliminato == false);
 
             query = query.Where(n => n.Mittente == currentUser.UID_persona);
@@ -193,7 +199,7 @@ namespace PortaleRegione.Persistance
         {
             var queryDestinatari = PRContext
                 .NOTIFICHE_DESTINATARI
-                .Where(n => n.NOTIFICHE.ATTI.Eliminato == false);
+                .Where(n=>true);
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
@@ -208,8 +214,17 @@ namespace PortaleRegione.Persistance
                 .Select(n => n.UIDNotifica)
                 .ToListAsync();
 
+            await PRContext.ATTI
+                .Include(a => a.SEDUTE)
+                .Include(a => a.TIPI_ATTO)
+                .Where(a => a.Eliminato == false)
+                .LoadAsync();
+
             var query = PRContext
                 .NOTIFICHE
+                .Include(n => n.ATTI)
+                .Include(n => n.EM)
+                .Include(n => n.TIPI_NOTIFICA)
                 .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
             if (Archivio == false)

@@ -45,7 +45,11 @@ namespace PortaleRegione.Persistance
         public async Task<ATTI> Get(Guid attoUId)
         {
             PRContext.ATTI.FromCache(DateTimeOffset.Now.AddMinutes(5)).ToList();
-            var result = await PRContext.ATTI.SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
+            var result = await PRContext
+                .ATTI
+                .Include(a=>a.TIPI_ATTO)
+                .Include(a=>a.SEDUTE)
+                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
             return result;
         }
 
@@ -60,6 +64,8 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .ATTI
+                .Include(a=>a.TIPI_ATTO)
+                .Include(a=>a.SEDUTE)
                 .Where(c => c.Eliminato == false && c.UIDSeduta == sedutaUId);
 
             filtro?.BuildExpression(ref query);

@@ -126,7 +126,6 @@
     <Compile Include="Response\Paging.cs" />
     <Compile Include="Response\ProiettaResponse.cs" />
     <Compile Include="Request\ReportRequest.cs" />
-    <Compile Include="Response\ReportResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -70,9 +70,6 @@ namespace PortaleRegione.Contracts
 
         Task<EM> GetEMInProiezione(Guid emUidAtto);
         Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine);
-        Task<IEnumerable<EM>> GetReport(Guid id, ReportTypeEnum type, int page, int size);
-        Task<int> CountReport(Guid reqId);
-        Task<int> CountReport(Guid reqId, StatiEnum stato);
 
         Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona, OrdinamentoEnum ordine,
             int page, int size, int mode);

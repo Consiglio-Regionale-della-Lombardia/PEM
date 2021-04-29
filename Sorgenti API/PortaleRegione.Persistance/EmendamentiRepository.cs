@@ -145,24 +145,6 @@ namespace PortaleRegione.Persistance
                     em.IDStato >= (int) StatiEnum.Depositato);
         }
 
-        public async Task<int> CountReport(Guid id)
-        {
-            var query = PRContext
-                .EM
-                .Where(em => em.UIDAtto == id && em.IDStato >= (int) StatiEnum.Depositato);
-
-            return await query.CountAsync();
-        }
-
-        public async Task<int> CountReport(Guid id, StatiEnum stato)
-        {
-            var query = PRContext
-                .EM
-                .Where(em => em.UIDAtto == id && em.IDStato == (int) stato);
-
-            return await query.CountAsync();
-        }
-
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
             OrdinamentoEnum ordine, int page, int size, int mode)
         {
@@ -176,6 +158,7 @@ namespace PortaleRegione.Persistance
 
             var my_em_notifiche = await PRContext
                 .NOTIFICHE_DESTINATARI
+                .Include(n=>n.NOTIFICHE)
                 .Where(n => n.UIDPersona == persona.UID_persona && !n.Chiuso && notifiche.Contains(n.UIDNotifica))
                 .ToListAsync();
 
@@ -194,37 +177,6 @@ namespace PortaleRegione.Persistance
             return result
                 .Skip((page - 1) * size)
                 .Take(size);
-        }
-
-        public async Task<IEnumerable<EM>> GetReport(Guid id, ReportTypeEnum type, int page, int size)
-        {
-            var query = PRContext
-                .EM
-                .Where(em => em.UIDAtto == id && em.IDStato >= (int) StatiEnum.Depositato)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE);
-
-            switch (type)
-            {
-                case ReportTypeEnum.NOI:
-                case ReportTypeEnum.PCR:
-                    query = query
-                        .OrderBy(em => em.OrdineVotazione);
-                    break;
-                case ReportTypeEnum.PROG:
-                    query = query
-                        .OrderBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.OrdinePresentazione);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-
-            return await query
-                .Skip((page - 1) * size)
-                .Take(size)
-                .ToListAsync();
         }
 
         /// <summary>
@@ -250,6 +202,8 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.ARTICOLI)
                 .Include(em => em.COMMI)
                 .Include(em => em.LETTERE)
+                .Include(em => em.gruppi_politici)
+                .Include(em => em.EM2)
                 .Include(em => em.STATI_EM);
 
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
@@ -348,7 +302,16 @@ namespace PortaleRegione.Persistance
                     && (em.IDStato != (int) StatiEnum.Bozza
                         || em.IDStato == (int) StatiEnum.Bozza
                         && (em.UIDPersonaCreazione == persona.UID_persona
-                            || em.UIDPersonaProponente == persona.UID_persona)));
+                            || em.UIDPersonaProponente == persona.UID_persona)))
+                .Include(em => em.ATTI)
+                .Include(em => em.PARTI_TESTO)
+                .Include(em => em.TIPI_EM)
+                .Include(em => em.ARTICOLI)
+                .Include(em => em.COMMI)
+                .Include(em => em.LETTERE)
+                .Include(em => em.gruppi_politici)
+                .Include(em => em.EM2)
+                .Include(em => em.STATI_EM);
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                 && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
@@ -391,14 +354,17 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<EM> Get(Guid emendamentoUId)
         {
-            var result = await PRContext.EM.FindAsync(emendamentoUId);
-            if (result.TIPI_EM == null)
-                result.TIPI_EM = await PRContext.TIPI_EM.FindAsync(result.IDTipo_EM);
-            if (result.STATI_EM == null)
-                result.STATI_EM = await PRContext.STATI_EM.FindAsync(result.IDStato);
-            if (result.PARTI_TESTO == null)
-                result.PARTI_TESTO = await PRContext.PARTI_TESTO.FindAsync(result.IDParte);
-
+            var result = await PRContext.EM
+                .Include(em => em.ATTI)
+                .Include(em => em.PARTI_TESTO)
+                .Include(em => em.TIPI_EM)
+                .Include(em => em.ARTICOLI)
+                .Include(em => em.COMMI)
+                .Include(em => em.LETTERE)
+                .Include(em => em.gruppi_politici)
+                .Include(em => em.EM2)
+                .Include(em => em.STATI_EM)
+                .SingleOrDefaultAsync(em=>em.UIDEM == emendamentoUId);
             return result;
         }
 

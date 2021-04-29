@@ -142,21 +142,21 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var destinatari_notifica = (await _unitOfWork
+                var destinatari = await _unitOfWork
                     .Notifiche
-                    .GetDestinatariNotifica(notificaId))
-                    .Select(Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
-                    .ToList();
+                    .GetDestinatariNotifica(notificaId);
+
                 var result = new List<DestinatariNotificaDto>();
-                foreach (var destinatario in destinatari_notifica)
+                foreach (var destinatario in destinatari)
                 {
-                    destinatario.Firmato = await _unitOfWork
+                    var dto = Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
+                    dto.Firmato = await _unitOfWork
                         .Firme
                         .CheckFirmato(destinatario.NOTIFICHE.UIDEM, destinatario.UIDPersona);
-                    result.Add(destinatario);
+                    result.Add(dto);
                 }
 
-                return destinatari_notifica;
+                return result;
             }
             catch (Exception e)
             {

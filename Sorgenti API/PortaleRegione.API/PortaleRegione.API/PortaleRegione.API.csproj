@@ -159,7 +159,6 @@
     <Compile Include="Controllers\JobController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />
-    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\SeduteController.cs" />
     <Compile Include="Controllers\StampeController.cs" />
     <Compile Include="Controllers\UtilsController.cs" />
@@ -278,7 +277,6 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -123,7 +123,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(int id)
+        public static async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(long id)
         {
             try
             {

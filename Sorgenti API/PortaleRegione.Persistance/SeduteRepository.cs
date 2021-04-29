@@ -43,14 +43,16 @@ namespace PortaleRegione.Persistance
         public async Task<SEDUTE> Get(Guid sedutaUId)
         {
             PRContext.SEDUTE.FromCache(DateTimeOffset.Now.AddMinutes(5)).ToList();
-            var result = await PRContext.SEDUTE.SingleOrDefaultAsync(a => a.UIDSeduta == sedutaUId);
+            var result = await PRContext.SEDUTE.Include(s => s.legislature)
+                .SingleOrDefaultAsync(a => a.UIDSeduta == sedutaUId);
             return result;
         }
 
         public async Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize,
             Filter<SEDUTE> filtro = null)
         {
-            var query = PRContext.SEDUTE.Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
+            var query = PRContext.SEDUTE.Include(s => s.legislature)
+                .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
 
             if (filtro == null)
                 query = query.Where(s => s.id_legislatura == legislaturaId);

@@ -114,8 +114,9 @@ namespace PortaleRegione.BAL
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                     {
                         SetColumnValue(ref rowEm, em.UIDEM.ToString());
+                        var legislatura = await _unitOfWork.Legislature.Get(atto.SEDUTE.id_legislatura);
                         SetColumnValue(ref rowEm,
-                            $"{atto.TIPI_ATTO.Tipo_Atto}-{atto.NAtto}-{atto.SEDUTE.legislature.num_legislatura}");
+                            $"{atto.TIPI_ATTO.Tipo_Atto}-{atto.NAtto}-{legislatura.num_legislatura}");
                     }
 
                     SetColumnValue(ref rowEm, em.N_EM);

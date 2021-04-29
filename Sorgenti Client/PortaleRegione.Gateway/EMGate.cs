@@ -872,33 +872,5 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
-
-        public static async Task<ReportResponse> GetReport(Guid id, ReportTypeEnum type, int page, int size)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/report";
-                var body = JsonConvert.SerializeObject(new ReportRequest
-                {
-                    page = page,
-                    size = size,
-                    id = id,
-                    type = type
-                });
-                var lst = JsonConvert.DeserializeObject<ReportResponse>(await Post(requestUrl, body));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("GetReport", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetReport", ex);
-                throw ex;
-            }
-        }
     }
 }

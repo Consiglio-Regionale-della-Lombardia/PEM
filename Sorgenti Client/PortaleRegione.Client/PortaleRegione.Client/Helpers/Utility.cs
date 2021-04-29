@@ -181,7 +181,7 @@ namespace PortaleRegione.Client.Helpers
                         templateOpzionale = templateFirmato;
 
                     var persona = await PersoneGate.Get(destinatario.UIDPersona,
-                        destinatario.NOTIFICHE.EM.id_gruppo >= 10000);
+                        destinatario.IdGruppo >= 10000);
                     result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
                         .Replace("{{DisplayName}}", $"{persona.DisplayName_GruppoCode}")
                         .Replace("{{OPZIONALE}}", templateOpzionale));
