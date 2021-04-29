@@ -70,9 +70,10 @@ namespace PortaleRegione.Persistance
 
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta)
                     query = query
-                        .Where(em => em.id_gruppo >= 10000);
+                        .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                         && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
 
@@ -158,7 +159,7 @@ namespace PortaleRegione.Persistance
 
             var my_em_notifiche = await PRContext
                 .NOTIFICHE_DESTINATARI
-                .Include(n=>n.NOTIFICHE)
+                .Include(n => n.NOTIFICHE)
                 .Where(n => n.UIDPersona == persona.UID_persona && !n.Chiuso && notifiche.Contains(n.UIDNotifica))
                 .ToListAsync();
 
@@ -221,7 +222,8 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(em => em.id_gruppo >= 10000);
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                         && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
 
@@ -254,7 +256,7 @@ namespace PortaleRegione.Persistance
                     break;
                 case OrdinamentoEnum.Votazione:
                     query = query.OrderBy(em => em.OrdineVotazione)
-                        .ThenBy(em=>em.Rif_UIDEM)
+                        .ThenBy(em => em.Rif_UIDEM)
                         .ThenBy(em => em.IDStato);
                     break;
                 default:
@@ -314,7 +316,8 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.STATI_EM);
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+                && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
                 query = query
                     .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
             else if (ordine == OrdinamentoEnum.Default) ordine = OrdinamentoEnum.Presentazione;
@@ -364,7 +367,7 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.gruppi_politici)
                 .Include(em => em.EM2)
                 .Include(em => em.STATI_EM)
-                .SingleOrDefaultAsync(em=>em.UIDEM == emendamentoUId);
+                .SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
             return result;
         }
 
@@ -413,6 +416,22 @@ namespace PortaleRegione.Persistance
                         (n, nd) => nd);
 
                 var result = await query.ToListAsync();
+                if (result.Any())
+                {
+                    var notificaUId = result.First().UIDNotifica;
+                    var notifica = await PRContext
+                        .NOTIFICHE
+                        .SingleAsync(n => n.UIDNotifica == notificaUId);
+                    var new_result = new List<NOTIFICHE_DESTINATARI>();
+                    foreach (var destinatario in result)
+                    {
+                        destinatario.NOTIFICHE = notifica;
+                        new_result.Add(destinatario);
+                    }
+
+                    return new_result;
+                }
+
                 return result;
             }
             catch (Exception e)

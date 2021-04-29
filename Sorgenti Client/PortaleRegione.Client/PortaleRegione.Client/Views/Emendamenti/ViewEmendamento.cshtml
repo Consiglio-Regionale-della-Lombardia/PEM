@@ -85,13 +85,13 @@
                             }
                             @if (Model.Eliminabile)
                             {
-                                <div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.DisplayTitle', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM', @Html.Raw((int) ActionEnum.ELIMINA))">
                                     <i class="icon material-icons">delete</i> Elimina
                                 </div>
                             }
                             @if (Model.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@Model.UIDEM', '@Model.DisplayTitle', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM', @Html.Raw((int) ActionEnum.RITIRA))">
                                     <i class="icon material-icons">settings_backup_restore</i> Ritira
                                 </div>
                             }
@@ -139,7 +139,7 @@
                     <div class="col s12 center">
                         <h4>
                             <b>
-                                <span>@Html.Raw(Model.DisplayTitle)</span>
+                                <span>@Html.Raw(Model.N_EM)</span>
                             </b>
                         </h4>
                     </div>

@@ -120,6 +120,8 @@ namespace PortaleRegione.Client.Controllers
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await EMGate.GetInvitati(id));
 
+            em.ATTI = await AttiGate.Get(em.UIDAtto);
+
             return View(em);
         }
 

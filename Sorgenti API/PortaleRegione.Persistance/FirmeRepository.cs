@@ -47,7 +47,7 @@ namespace PortaleRegione.Persistance
         /// <param name="personaUId"></param>
         /// <param name="firmaCert"></param>
         /// <param name="dataFirmaCert"></param>
-        public void Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert,
+        public async Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert,
             bool ufficio = false)
         {
             PRContext
@@ -61,6 +61,7 @@ namespace PortaleRegione.Persistance
                     Timestamp = DateTime.Now,
                     ufficio = ufficio
                 });
+            await PRContext.SaveChangesAsync();
         }
 
         /// <summary>

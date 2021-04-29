@@ -240,17 +240,17 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyTemporaneo(EmendamentiDto emendamento, ref string body)
+        internal static void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
         {
             try
             {
                 if (!string.IsNullOrEmpty(emendamento.EM_Certificato)) return;
                 //EM TEMPORANEO
                 body = body.Replace("{lblPDLEMView}",
-                    $"{emendamento.ATTI.TIPI_ATTO.Tipo_Atto}/{emendamento.ATTI.NAtto}");
+                    $"{atto.TIPI_ATTO.Tipo_Atto}/{atto.NAtto}");
                 body = body.Replace("{lblTitoloPDLEMView}",
-                    $"PROGETTO DI LEGGE N.{emendamento.ATTI.NAtto}");
-                body = body.Replace("{lblSubTitoloPDLEMView}", emendamento.ATTI.Oggetto);
+                    $"PROGETTO DI LEGGE N.{atto.NAtto}");
+                body = body.Replace("{lblSubTitoloPDLEMView}", atto.Oggetto);
                 body = body.Replace("{lblTipoParteEMView}",
                     $"Tipo: {emendamento.TIPI_EM.Tipo_EM}<br/>{Utility.GetParteEM(emendamento)}");
                 body = body.Replace("{lblEffettiFinanziari}",
@@ -292,7 +292,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyPDF(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, PersonaDto currentUser,
+        internal static void GetBodyPDF(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme, PersonaDto currentUser,
             ref string body)
         {
             try
@@ -305,7 +305,7 @@ namespace PortaleRegione.BAL
                 {
                     //EM TEMPORANEO
                     var bodyEMView = string.Empty;
-                    GetBodyTemporaneo(emendamento, ref bodyEMView);
+                    GetBodyTemporaneo(emendamento, atto, ref bodyEMView);
                     body = body.Replace("{ltEMView}", bodyEMView);
                     body = body.Replace("{ltTestoModificabile}", "").Replace("{TESTOMOD_COMMENTO_START}", "<!--")
                         .Replace("{TESTOMOD_COMMENTO_END}", "-->");

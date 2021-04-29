@@ -271,6 +271,8 @@ namespace PortaleRegione.BAL
                     emendamentoDto.Progressivo = progressivo;
 
                 var em = Mapper.Map<EmendamentiDto, EM>(emendamentoDto);
+                em.N_EM = null;
+                em.ATTI = null;
                 em.UIDEM = Guid.NewGuid();
                 em.UID_QRCode = Guid.NewGuid();
                 em.Eliminato = false;
@@ -422,6 +424,8 @@ namespace PortaleRegione.BAL
             try
             {
                 var emendamentoDto = await GetEM_DTO(em, persona);
+                var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
                 var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>);
 
                 try
@@ -434,10 +438,10 @@ namespace PortaleRegione.BAL
                             GetBodyMail(emendamentoDto, firmeDto, isDeposito, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBodyPDF(emendamentoDto, firmeDto, persona, ref body);
+                            GetBodyPDF(emendamentoDto, attoDto, firmeDto, persona, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBodyTemporaneo(emendamentoDto, ref body);
+                            GetBodyTemporaneo(emendamentoDto, attoDto, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;
@@ -604,8 +608,7 @@ namespace PortaleRegione.BAL
                         em.EM_Certificato = body_encrypt;
                     }
 
-                    _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
-                    await _unitOfWork.CompleteAsync();
+                    await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
 
                     results.Add(idGuid, "OK");
                 }
@@ -1354,7 +1357,7 @@ namespace PortaleRegione.BAL
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
                     dto.ConteggioFirme = await _logicFirme.CountFirme(em.UIDEM);
-                    dto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                    dto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
 
                     if (dto.ConteggioFirme > 1)
                     {

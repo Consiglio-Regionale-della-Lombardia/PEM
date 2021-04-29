@@ -717,8 +717,8 @@ namespace PortaleRegione.API.Controllers
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
                     return NotFound();
-
-                if (DateTime.Now > em.ATTI.SEDUTE.Data_seduta)
+                var atto = await _logicAtti.GetAtto(em.UIDAtto);
+                if (DateTime.Now > atto.SEDUTE.Data_seduta)
                     return BadRequest(
                         "Non è possibile ritirare l'emendamento durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
 
