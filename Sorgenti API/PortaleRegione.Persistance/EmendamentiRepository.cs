@@ -68,7 +68,7 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta)
+                if (persona.IsGiunta())
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
@@ -218,9 +218,9 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta)
+                if (persona.IsGiunta())
                     query = query
-                        .Where(em => em.id_gruppo >= 10000);
+                        .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                          && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
                          && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
