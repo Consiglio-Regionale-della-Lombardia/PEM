@@ -1457,31 +1457,18 @@ namespace PortaleRegione.BAL
             PersonaDto persona)
         {
             var result = new List<EmendamentiDto>();
+            var counter_em = await _unitOfWork.Emendamenti.Count(attoUId,persona,CounterEmendamentiEnum.NONE, (int)ClientModeEnum.GRUPPI);
 
             var emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>
             {
                 id = attoUId,
                 ordine = ordine,
                 page = 1,
-                size = 1
+                size = counter_em
             }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
 
             result.AddRange(emList.Data.Results);
-            var has_next = emList.Data.Paging.Has_Next;
-            while (has_next)
-            {
-                emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>
-                {
-                    id = attoUId,
-                    ordine = ordine,
-                    page = emList.Data.Paging.Page + 1,
-                    size = Convert.ToInt32(emList.Data.Paging.Total / 4)
-                }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
-
-                has_next = emList.Data.Paging.Has_Next;
-                result.AddRange(emList.Data.Results);
-            }
-
+            
             return result;
         }
 

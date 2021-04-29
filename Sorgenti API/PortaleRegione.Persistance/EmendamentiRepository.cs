@@ -102,7 +102,7 @@ namespace PortaleRegione.Persistance
             {
                 case CounterEmendamentiEnum.NONE:
                 {
-                    return (await query.ToListAsync()).Count;
+                    return await query.CountAsync();
                 }
                 case CounterEmendamentiEnum.EM:
                     if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
@@ -203,7 +203,6 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.ARTICOLI)
                 .Include(em => em.COMMI)
                 .Include(em => em.LETTERE)
-                .Include(em => em.gruppi_politici)
                 .Include(em => em.EM2)
                 .Include(em => em.STATI_EM);
 

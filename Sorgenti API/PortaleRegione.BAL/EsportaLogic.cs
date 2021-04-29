@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -52,8 +53,7 @@ namespace PortaleRegione.BAL
             _logicPersone = logicPersone;
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine,
-            PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, PersonaDto persona)
         {
             try
             {
@@ -198,6 +198,7 @@ namespace PortaleRegione.BAL
 
                     SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM}/{em.UID_QRCode}");
                 }
+
                 Console.WriteLine($"Excel row count: {excelSheet.LastRowNum}");
                 return await Response(FilePathComplete, workbook);
             }
@@ -379,12 +380,26 @@ namespace PortaleRegione.BAL
                 var atto = await _unitOfWork.Atti.Get(id);
 
                 IWorkbook workbook = new XSSFWorkbook();
-                var noiSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.NOI)), id, ReportType.NOI,
-                    persona);
-                //var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), id, ReportType.PCR,
-                //    persona);
-                //var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), id, ReportType.PROGRESSIVO,
-                //    persona);
+                var emList = await _logicEm.ScaricaEmendamenti(id, OrdinamentoEnum.Default, persona);
+
+                var noiSheet =
+                    await NewSheet(
+                        workbook.CreateSheet(
+                            nameof(ReportType.NOI)),
+                        id,
+                        ReportType.NOI,
+                        emList
+                            .OrderBy(em => em.OrdineVotazione)
+                            .ThenBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.IDStato),
+                        persona);
+                var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), id, ReportType.PCR, emList
+                    .OrderBy(em => em.OrdineVotazione)
+                    .ThenBy(em => em.Rif_UIDEM)
+                    .ThenBy(em => em.IDStato), persona);
+                var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), id,
+                    ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.OrdinePresentazione), persona);
 
                 return await Response(FilePathComplete, workbook);
             }
@@ -400,7 +415,8 @@ namespace PortaleRegione.BAL
             row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(val);
         }
 
-        private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType, PersonaDto persona)
+        private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
+            IEnumerable<EmendamentiDto> emendamentiDtos, PersonaDto persona)
         {
             var atto = await _unitOfWork.Atti.Get(attoUId);
 
@@ -436,9 +452,8 @@ namespace PortaleRegione.BAL
             var ordine = OrdinamentoEnum.Votazione;
             if (reportType == ReportType.PROGRESSIVO)
                 ordine = OrdinamentoEnum.Presentazione;
-            var emList = await _logicEm.ScaricaEmendamenti(attoUId, ordine, persona);
 
-            foreach (var em in emList)
+            foreach (var em in emendamentiDtos)
             {
                 var rowEm = sheet.CreateRow(sheet.LastRowNum + 1);
                 SetColumnValue(ref rowEm, em.N_EM);
