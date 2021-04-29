@@ -148,7 +148,7 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetPersona(Guid proponenteUId, bool isGiunta)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(_unitOfWork.Persone.Get(proponenteUId));
+            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(proponenteUId));
             persona.Gruppo = await GetGruppoAttualePersona(persona, isGiunta);
             return persona;
         }
@@ -157,7 +157,7 @@ namespace PortaleRegione.BAL
         {
             if (session._currentUId == Guid.Empty)
                 return null;
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(_unitOfWork.Persone.Get(session._currentUId));
+            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
             persona.CurrentRole = session._currentRole;
             persona.Gruppo = await GetGruppo(session._currentGroup);
             return persona;
@@ -172,7 +172,7 @@ namespace PortaleRegione.BAL
 
         public async Task<PersonaDto> GetPersona(Guid personaUId)
         {
-            var persona = Mapper.Map<View_UTENTI, PersonaDto>(_unitOfWork.Persone.Get(personaUId));
+            var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaUId));
             persona.Gruppo = await GetGruppoAttualePersona(persona, persona.IsGiunta());
             return persona;
         }

@@ -43,18 +43,23 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_UTENTI> Get(string login_windows)
         {
-            return await PRContext.View_UTENTI.SingleOrDefaultAsync(a => a.userAD == login_windows);
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(a => a.userAD == login_windows);
+            return result;
         }
 
-        public View_UTENTI Get(Guid personaUId)
+        public async Task<View_UTENTI> Get(Guid personaUId)
         {
-            var result = PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).FirstOrDefault(p=>p.UID_persona == personaUId);
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p=>p.UID_persona == personaUId);
             return result;
         }
 
         public async Task<View_UTENTI> Get(int personaId)
         {
-            return await PRContext.View_UTENTI.FindAsync(personaId);
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p=>p.id_persona == personaId);
+            return result;
         }
 
         public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, Filter<View_UTENTI> filtro = null)
@@ -245,7 +250,7 @@ namespace PortaleRegione.Persistance
 
         public async Task SavePin(Guid personaUId, string nuovo_pin, bool reset)
         {
-            var persona =  Get(personaUId);
+            var persona =  await Get(personaUId);
             var no_cons = Convert.ToBoolean(persona.No_Cons);
             var table = no_cons ? "PINS_NoCons" : "PINS";
             await PRContext.Database.ExecuteSqlCommandAsync(

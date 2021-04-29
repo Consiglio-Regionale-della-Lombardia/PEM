@@ -54,7 +54,7 @@ namespace PortaleRegione.BAL
                 var newItem = Mapper.Map<EM, EmendamentiDto>(em);
                 newItem.N_EM = GetNomeEM(em);
                 newItem.PersonaProponente = Mapper.Map<View_UTENTI, PersonaLightDto>(
-                    _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                    await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                 lista_em_dto.Add(newItem);
             }
 

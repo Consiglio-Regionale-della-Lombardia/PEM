@@ -30,7 +30,7 @@ namespace PortaleRegione.Contracts
     public interface IPersoneRepository : IRepository<View_UTENTI>
     {
         Task<View_UTENTI> Get(string login_windows);
-        View_UTENTI Get(Guid personaUId);
+        Task<View_UTENTI> Get(Guid personaUId);
         Task<View_UTENTI> Get(int personaId);
         Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, Filter<View_UTENTI> filtro = null);
         Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size, Filter<View_UTENTI> filtro = null);

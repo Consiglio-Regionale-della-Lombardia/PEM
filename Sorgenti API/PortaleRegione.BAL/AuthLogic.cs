@@ -122,7 +122,7 @@ namespace PortaleRegione.BAL
                 if (ruoloInDb == null)
                     throw new Exception("Ruolo non trovato");
 
-                var persona = Mapper.Map<View_UTENTI, PersonaDto>(_unitOfWork.Persone.Get(session._currentUId));
+                var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
                 var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
                     persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_",
@@ -164,7 +164,7 @@ namespace PortaleRegione.BAL
                 if (gruppiDto == null)
                     throw new Exception("ListaGruppo non trovato");
 
-                var persona = Mapper.Map<View_UTENTI, PersonaDto>(_unitOfWork.Persone.Get(session._currentUId));
+                var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
                 var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
                     persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_",
