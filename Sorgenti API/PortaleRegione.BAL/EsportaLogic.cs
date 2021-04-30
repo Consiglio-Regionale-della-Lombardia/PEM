@@ -380,6 +380,10 @@ namespace PortaleRegione.BAL
                 var atto = await _unitOfWork.Atti.Get(id);
 
                 IWorkbook workbook = new XSSFWorkbook();
+                var style = workbook.CreateCellStyle();
+                style.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;
+                style.FillPattern = FillPattern.SolidForeground;
+
                 var emList = await _logicEm.ScaricaEmendamenti(id, OrdinamentoEnum.Default, persona);
 
                 var noiSheet =
@@ -392,14 +396,15 @@ namespace PortaleRegione.BAL
                             .OrderBy(em => em.OrdineVotazione)
                             .ThenBy(em => em.Rif_UIDEM)
                             .ThenBy(em => em.IDStato),
+                        style,
                         persona);
                 var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), id, ReportType.PCR, emList
                     .OrderBy(em => em.OrdineVotazione)
                     .ThenBy(em => em.Rif_UIDEM)
-                    .ThenBy(em => em.IDStato), persona);
+                    .ThenBy(em => em.IDStato), style, persona);
                 var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), id,
                     ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.OrdinePresentazione), persona);
+                        .ThenBy(em => em.OrdinePresentazione), style, persona);
 
                 return await Response(FilePathComplete, workbook);
             }
@@ -416,7 +421,7 @@ namespace PortaleRegione.BAL
         }
 
         private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
-            IEnumerable<EmendamentiDto> emendamentiDtos, PersonaDto persona)
+            IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, PersonaDto persona)
         {
             var atto = await _unitOfWork.Atti.Get(attoUId);
 
@@ -449,12 +454,16 @@ namespace PortaleRegione.BAL
             SetColumnValue(ref row, "NOTE");
             SetColumnValue(ref row, "NOTE_RISERVATE");
 
-            var ordine = OrdinamentoEnum.Votazione;
-            if (reportType == ReportType.PROGRESSIVO)
-                ordine = OrdinamentoEnum.Presentazione;
+            var oldParte = emendamentiDtos.First().IDParte;
 
             foreach (var em in emendamentiDtos)
             {
+                if (oldParte != em.IDParte)
+                {
+                    var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
+                    rowSep.RowStyle = style;
+                }
+
                 var rowEm = sheet.CreateRow(sheet.LastRowNum + 1);
                 SetColumnValue(ref rowEm, em.N_EM);
                 SetColumnValue(ref rowEm, em.PersonaProponente.DisplayName);
@@ -510,6 +519,8 @@ namespace PortaleRegione.BAL
 
                 SetColumnValue(ref rowEm, em.NOTE_EM);
                 SetColumnValue(ref rowEm, em.NOTE_Griglia);
+
+                oldParte = em.IDParte;
             }
 
             return sheet;
