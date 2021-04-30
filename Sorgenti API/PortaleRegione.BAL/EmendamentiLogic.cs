@@ -1086,7 +1086,10 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                em.ATTI ??= await _unitOfWork.Atti.Get(em.UIDAtto);
+
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+
                 emendamentoDto.N_EM = GetNomeEM(emendamentoDto);
                 emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
@@ -1094,7 +1097,7 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
                     emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                emendamentoDto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
                 emendamentoDto.PersonaProponente =
                     Mapper.Map<View_UTENTI, PersonaLightDto>(
                         await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
@@ -1120,7 +1123,7 @@ namespace PortaleRegione.BAL
                     && string.IsNullOrEmpty(emendamentoDto.TestoEM_Modificabile))
                     emendamentoDto.TestoEM_Modificabile = emendamentoDto.TestoEM_originale;
 
-                emendamentoDto.AbilitaSUBEM = emendamentoDto.STATI_EM.IDStato == (int) StatiEnum.Depositato
+                emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int) StatiEnum.Depositato
                                               && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
                                               && !emendamentoDto.ATTI.Chiuso ||
                                               persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
@@ -1144,12 +1147,12 @@ namespace PortaleRegione.BAL
                         .CheckIfDepositabile(emendamentoDto,
                             persona);
 
-                if (em.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
+                if (em.IDStato <= (int) StatiEnum.Depositato)
                     emendamentoDto.Firmabile = await _unitOfWork
                         .Firme
                         .CheckIfFirmabile(emendamentoDto,
                             persona);
-                if (!em.DataRitiro.HasValue && em.STATI_EM.IDStato == (int) StatiEnum.Depositato)
+                if (!em.DataRitiro.HasValue && em.IDStato == (int) StatiEnum.Depositato)
                     emendamentoDto.Ritirabile = _unitOfWork
                         .Emendamenti
                         .CheckIfRitirabile(emendamentoDto,

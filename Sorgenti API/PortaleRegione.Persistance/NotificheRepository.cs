@@ -55,7 +55,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato) return false;
+            if (em.IDStato >= (int) StatiEnum.Depositato) return false;
             if (em.ATTI.Chiuso) return false;
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                 persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea) return true;

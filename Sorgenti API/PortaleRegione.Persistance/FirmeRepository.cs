@@ -95,7 +95,7 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.STATI_EM.IDStato > (int) StatiEnum.Depositato) return false;
+            if (em.IDStato > (int) StatiEnum.Depositato) return false;
 
             var firma_personale = await CheckFirmato(em.UIDEM, persona.UID_persona);
             var firma_proponente = await CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);

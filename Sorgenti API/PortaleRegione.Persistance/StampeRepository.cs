@@ -44,6 +44,12 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<STAMPE>> GetAll(PersonaDto persona, int? page, int? size,
             Filter<STAMPE> filtro = null)
         {
+            await PRContext.ATTI
+                .Include(a => a.SEDUTE)
+                .Include(a => a.TIPI_ATTO)
+                .Where(a => a.Eliminato == false)
+                .LoadAsync();
+
             var query = PRContext.STAMPE.Where(s => true);
 
             if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
