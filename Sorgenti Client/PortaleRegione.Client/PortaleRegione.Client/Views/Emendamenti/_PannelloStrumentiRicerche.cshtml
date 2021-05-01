@@ -270,21 +270,21 @@
     <div class="collapsible-header light-blue lighten-4"><i class="material-icons">import_export</i>Esporta</div>
     <div class="collapsible-body">
         <div class="container">
-            <div class="btn chip hoverable green lighten-1 center white-text" onclick="EsportaXLS('@Model.Atto.UIDAtto')" style="width: 100%">
+            <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum, is_report = false})" style="width: 100%">
                 <i class="icon material-icons">
                     grid_on</i> EXCEL
-            </div>
+            </a>
 
             @if (User.IsInRole(RuoliEnum.Segreteria_Assemblea))
             {
-                <div class="btn chip hoverable green lighten-1 center white-text" onclick="EsportaXLS('@Model.Atto.UIDAtto')" style="width: 100%">
+                <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, is_report = true})" style="width: 100%">
                     <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA
-                </div>
+                </a>
             }
 
-            <div class="btn chip hoverable blue lighten-1 center white-text" onclick="EsportaDOC('@Model.Atto.UIDAtto')" style="width: 100%">
+            <a class="btn chip hoverable blue lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum})" style="width: 100%">
                 <i class="icon material-icons">font_download</i> WORD
-            </div>
+            </a>
         </div>
     </div>
 </li>
