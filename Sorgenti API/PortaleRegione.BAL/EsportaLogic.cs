@@ -25,6 +25,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
+using NPOI.HSSF.Util;
 using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -381,7 +382,7 @@ namespace PortaleRegione.BAL
 
                 IWorkbook workbook = new XSSFWorkbook();
                 var style = workbook.CreateCellStyle();
-                style.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;
+                style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
                 style.FillPattern = FillPattern.SolidForeground;
 
                 var emList = await _logicEm.ScaricaEmendamenti(id, OrdinamentoEnum.Default, persona);
@@ -420,6 +421,13 @@ namespace PortaleRegione.BAL
             row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(val);
         }
 
+        private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
+        {
+            if (reportType == ReportType.PROGRESSIVO) return;
+            var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
+            rowSep.RowStyle = style;
+        }
+
         private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
             IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, PersonaDto persona)
         {
@@ -455,13 +463,43 @@ namespace PortaleRegione.BAL
             SetColumnValue(ref row, "NOTE_RISERVATE");
 
             var oldParte = emendamentiDtos.First().IDParte;
+            int currentParte_Missione = default, oldParte_Missione = default;
+            Guid currentParte_Articolo = default, oldParte_Articolo = default;
 
             foreach (var em in emendamentiDtos)
             {
-                if (oldParte != em.IDParte)
+                var currentParte = em.IDParte;
+                if (oldParte != currentParte)
                 {
-                    var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
-                    rowSep.RowStyle = style;
+                    SetSeparator(ref sheet, ref style, ref reportType);
+                    oldParte = em.IDParte;
+                }
+                else
+                {
+                    if (em.IDParte == (int) PartiEMEnum.Missione)
+                    {
+                        if (em.NMissione.HasValue)
+                        {
+                            currentParte_Missione = em.NMissione!.Value;
+                            if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
+                            {
+                                SetSeparator(ref sheet, ref style, ref reportType);
+                            }
+                            oldParte_Missione = currentParte_Missione;
+                        }
+                    }
+                    else
+                    {
+                        if (em.UIDArticolo.HasValue)
+                        {
+                            currentParte_Articolo = em.UIDArticolo!.Value;
+                            if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
+                            {
+                                SetSeparator(ref sheet, ref style, ref reportType);
+                            }
+                            oldParte_Articolo = currentParte_Articolo;
+                        }
+                    }
                 }
 
                 var rowEm = sheet.CreateRow(sheet.LastRowNum + 1);
@@ -519,8 +557,6 @@ namespace PortaleRegione.BAL
 
                 SetColumnValue(ref rowEm, em.NOTE_EM);
                 SetColumnValue(ref rowEm, em.NOTE_Griglia);
-
-                oldParte = em.IDParte;
             }
 
             return sheet;
