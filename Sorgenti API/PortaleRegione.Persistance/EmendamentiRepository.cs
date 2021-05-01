@@ -226,6 +226,15 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null)
         {
+            await PRContext.ATTI
+                .Include(a => a.SEDUTE)
+                .Include(a => a.TIPI_ATTO)
+                .Where(a => a.UIDAtto == attoUId)
+                .LoadAsync();
+            await PRContext.gruppi_politici
+                .Where(a => a.attivo && !a.deleted)
+                .LoadAsync();
+
             var query = PRContext
                 .EM
                 .Where(em =>
