@@ -426,11 +426,11 @@ function EsportaXLS(attoUId) {
                     cancel: "Annulla",
                     presentazione: {
                         text: "Presentazione",
-                        value: "0",
+                        value: "1",
                     },
                     votazione: {
                         text: "Votazione",
-                        value: "1",
+                        value: "2",
                     }
                 }
             })
@@ -441,6 +441,10 @@ function EsportaXLS(attoUId) {
 
             go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
         });
+}
+
+function EsportaXLS_Segreteria(attoUId) {
+    go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
 }
 
 function EsportaDOC(attoUId) {

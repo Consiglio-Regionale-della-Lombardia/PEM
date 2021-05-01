@@ -22,8 +22,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
@@ -495,11 +493,12 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("esportaXLS")]
-        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine)
+        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default,
+            bool is_report = false)
         {
             try
             {
-                var file = await StampeGate.EsportaXLS(id, ordine);
+                var file = await StampeGate.EsportaXLS(id, ordine, is_report);
                 return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     file.FileName);
             }

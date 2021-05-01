@@ -271,8 +271,16 @@
     <div class="collapsible-body">
         <div class="container">
             <div class="btn chip hoverable green lighten-1 center white-text" onclick="EsportaXLS('@Model.Atto.UIDAtto')" style="width: 100%">
-                <i class="icon material-icons">grid_on</i> EXCEL
+                <i class="icon material-icons">
+                    grid_on</i> EXCEL
             </div>
+
+            @if (User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            {
+                <div class="btn chip hoverable green lighten-1 center white-text" onclick="EsportaXLS('@Model.Atto.UIDAtto')" style="width: 100%">
+                    <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA
+                </div>
+            }
 
             <div class="btn chip hoverable blue lighten-1 center white-text" onclick="EsportaDOC('@Model.Atto.UIDAtto')" style="width: 100%">
                 <i class="icon material-icons">font_download</i> WORD
