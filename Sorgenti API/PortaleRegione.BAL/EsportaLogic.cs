@@ -233,20 +233,20 @@ namespace PortaleRegione.BAL
                 section.pgMar.right = 500;
                 section.pgMar.bottom = "500";
                 doc.Document.body.sectPr = section;
-                
+
                 var table = doc.CreateTable();
 
                 table.Width = 5000;
                 var rowHeader = table.CreateRow();
                 rowHeader.RemoveCell(0);
-                
+
                 var cPdl = table.Rows[0].GetCell(0);
                 var headerCellcPdl = cPdl.AddParagraph();
                 headerCellcPdl.Alignment = ParagraphAlignment.CENTER;
                 var headerCellcPdl_Run = headerCellcPdl.CreateRun();
                 headerCellcPdl_Run.IsBold = true;
                 headerCellcPdl_Run.SetText($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}");
-                
+
                 var c0 = rowHeader.CreateCell();
                 var headerCell0 = c0.AddParagraph();
                 headerCell0.Alignment = ParagraphAlignment.CENTER;
@@ -390,6 +390,10 @@ namespace PortaleRegione.BAL
                 var style = workbook.CreateCellStyle();
                 style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
                 style.FillPattern = FillPattern.SolidForeground;
+                var styleReport = workbook.CreateCellStyle();
+                styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
+                styleReport.FillPattern = FillPattern.SolidForeground;
+                styleReport.Alignment = HorizontalAlignment.Center;
 
                 var emList = await _logicEm.ScaricaEmendamenti(id, OrdinamentoEnum.Default, persona);
 
@@ -404,14 +408,21 @@ namespace PortaleRegione.BAL
                             .ThenBy(em => em.Rif_UIDEM)
                             .ThenBy(em => em.IDStato),
                         style,
+                        styleReport,
                         persona);
                 var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), id, ReportType.PCR, emList
-                    .OrderBy(em => em.OrdineVotazione)
-                    .ThenBy(em => em.Rif_UIDEM)
-                    .ThenBy(em => em.IDStato), style, persona);
+                        .OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato),
+                    style,
+                    styleReport,
+                    persona);
                 var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), id,
                     ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.OrdinePresentazione), style, persona);
+                        .ThenBy(em => em.OrdinePresentazione),
+                    style,
+                    styleReport,
+                    persona);
 
                 return await Response(FilePathComplete, workbook);
             }
@@ -422,20 +433,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private void SetColumnValue(ref IRow row, string val)
-        {
-            row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(val);
-        }
-
-        private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
-        {
-            if (reportType == ReportType.PROGRESSIVO) return;
-            var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
-            rowSep.RowStyle = style;
-        }
-
         private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
-            IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, PersonaDto persona)
+            IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, ICellStyle styleR, PersonaDto persona)
         {
             var atto = await _unitOfWork.Atti.Get(attoUId);
 
@@ -488,9 +487,7 @@ namespace PortaleRegione.BAL
                         {
                             currentParte_Missione = em.NMissione!.Value;
                             if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
-                            {
                                 SetSeparator(ref sheet, ref style, ref reportType);
-                            }
                             oldParte_Missione = currentParte_Missione;
                         }
                     }
@@ -500,9 +497,7 @@ namespace PortaleRegione.BAL
                         {
                             currentParte_Articolo = em.UIDArticolo!.Value;
                             if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
-                            {
                                 SetSeparator(ref sheet, ref style, ref reportType);
-                            }
                             oldParte_Articolo = currentParte_Articolo;
                         }
                     }
@@ -565,7 +560,50 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref rowEm, em.NOTE_Griglia);
             }
 
+            var countEM = emendamentiDtos.Count();
+            var approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Approvato);
+            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Non_Approvato);
+            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Ritirato);
+            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Decaduto);
+            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Inammissibile);
+
+            var rowReport = sheet.CreateRow(sheet.LastRowNum + 1);
+            rowReport.RowStyle = styleR;
+            var cellCount = rowReport.CreateCell(0);
+            cellCount.CellStyle = styleR;
+            cellCount.SetCellValue(countEM);
+            var cellInamm = rowReport.CreateCell(11);
+            cellInamm.CellStyle = styleR;
+            cellInamm.SetCellValue(inammissibili);
+
+            if (reportType == ReportType.PCR) return sheet;
+
+            var cellRit = rowReport.CreateCell(12);
+            cellRit.CellStyle = styleR;
+            cellRit.SetCellValue(ritirati);
+            var cellApp = rowReport.CreateCell(13);
+            cellApp.CellStyle = styleR;
+            cellApp.SetCellValue(approvati);
+            var cellNonApp = rowReport.CreateCell(14);
+            cellNonApp.CellStyle = styleR;
+            cellNonApp.SetCellValue(non_approvati);
+            var cellDeca = rowReport.CreateCell(15);
+            cellDeca.CellStyle = styleR;
+            cellDeca.SetCellValue(decaduti);
+
             return sheet;
+        }
+
+        private void SetColumnValue(ref IRow row, string val)
+        {
+            row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(val);
+        }
+
+        private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
+        {
+            if (reportType == ReportType.PROGRESSIVO) return;
+            var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
+            rowSep.RowStyle = style;
         }
 
         private short GetColumn(short column)
