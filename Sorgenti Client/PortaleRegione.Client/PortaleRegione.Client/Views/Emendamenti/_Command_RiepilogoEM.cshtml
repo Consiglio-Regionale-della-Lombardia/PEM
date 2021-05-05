@@ -61,10 +61,13 @@
         </label>
     </div>
     <div class="col s5 left">
-        <label>
-            <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
-            <span for="checkAllMy">Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma</span>
-        </label>
+        @if (User.IsInRole(RuoliEnum.Consigliere_Regionale) || User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta))
+        {
+            <label>
+                <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
+                <span for="checkAllMy">Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma</span>
+            </label>
+        }
     </div>
     <div class="col s6">
         <div class="right">
