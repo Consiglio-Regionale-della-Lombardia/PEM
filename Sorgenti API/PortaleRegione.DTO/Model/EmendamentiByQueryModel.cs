@@ -22,6 +22,5 @@ namespace PortaleRegione.DTO.Model
     {
         public string Query { get; set; }
         public int page { get; set; }
-        public int size { get; set; }
     }
 }
