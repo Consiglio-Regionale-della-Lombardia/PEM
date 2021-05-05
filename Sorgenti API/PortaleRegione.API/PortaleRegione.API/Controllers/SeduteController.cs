@@ -187,9 +187,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
-        #region ### FILTRI ###
-
+        
         /// <summary>
         ///     Endpoint per avere la lista delle legislature disponibili
         /// </summary>
@@ -200,7 +198,5 @@ namespace PortaleRegione.API.Controllers
         {
             return Ok(await _logic.GetLegislature());
         }
-
-        #endregion
     }
 }

@@ -48,17 +48,25 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Route("emendamenti/esporta-griglia-xls")]
         [HttpGet]
-        public async Task<IHttpActionResult> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine)
+        public async Task<IHttpActionResult> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, bool is_report = false)
         {
             try
             {
                 var session = await GetSession();
+
+                if (session._currentRole != RuoliIntEnum.Amministratore_PEM
+                    && session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
+                {
+                    if (is_report == true)
+                        return BadRequest("Operazione non eseguibile per il ruolo assegnato");
+                }
+
                 var persona = await _logicPersone.GetPersona(session);
 
-                var response =
-                    ResponseMessage(await _logicEsporta.EsportaGrigliaExcel(id, ordine, persona));
+                if (is_report)
+                    return ResponseMessage(await _logicEsporta.EsportaGrigliaReportExcel(id, persona));
 
-                return response;
+                return ResponseMessage(await _logicEsporta.EsportaGrigliaExcel(id, ordine, persona));
             }
             catch (Exception e)
             {
@@ -81,7 +89,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-
+                
                 var response =
                     ResponseMessage(await _logicEsporta.EsportaGrigliaWord(id, ordine, persona));
 

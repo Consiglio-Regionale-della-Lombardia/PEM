@@ -47,7 +47,7 @@ namespace PortaleRegione.Persistance
         /// <param name="personaUId"></param>
         /// <param name="firmaCert"></param>
         /// <param name="dataFirmaCert"></param>
-        public void Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert,
+        public async Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert,
             bool ufficio = false)
         {
             PRContext
@@ -61,6 +61,7 @@ namespace PortaleRegione.Persistance
                     Timestamp = DateTime.Now,
                     ufficio = ufficio
                 });
+            await PRContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.STATI_EM.IDStato > (int) StatiEnum.Depositato) return false;
+            if (em.IDStato > (int) StatiEnum.Depositato) return false;
 
             var firma_personale = await CheckFirmato(em.UIDEM, persona.UID_persona);
             var firma_proponente = await CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);

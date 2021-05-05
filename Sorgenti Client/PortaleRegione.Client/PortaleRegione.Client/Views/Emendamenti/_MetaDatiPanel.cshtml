@@ -1,5 +1,4 @@
-﻿@using PortaleRegione.DTO.Domain
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.EmendamentiFormModel
 
 <div class="form-group">
@@ -107,7 +106,7 @@
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NProgramma)
-                            <input type="number" name="Emendamento.NProgramma" value="@Model.Emendamento.NProgramma" />
+                            <input type="number" name="Emendamento.NProgramma" value="@Model.Emendamento.NProgramma"/>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NTitoloB)
@@ -142,13 +141,13 @@
         ClearMetaDati();
         $('#hdParteId').val(item);
         var viewPanel = true;
-        if (item == @((int)PartiEMEnum.Titolo))
+        if (item == @((int) PartiEMEnum.Titolo))
             $("#pnlTitolo").show();
-        else if (item == @((int)PartiEMEnum.Capo))
+        else if (item == @((int) PartiEMEnum.Capo))
             $("#pnlCapo").show();
-        else if (item == @((int)PartiEMEnum.Articolo))
+        else if (item == @((int) PartiEMEnum.Articolo))
             $("#pnlArticoli").show();
-        else if (item == @((int)PartiEMEnum.Missione))
+        else if (item == @((int) PartiEMEnum.Missione))
             $("#pnlMissioni").show();
         else
             viewPanel = false;
@@ -165,19 +164,22 @@
 
     function TestoEmendamento_TipoEM(tipo) {
         $('#hdTipoId').val(tipo);
-        if ($("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text().length < 200) {
+        var container_testo_em = $("#Emendamento_TestoEM_originale").parent();
+        var editor_test_em = $(container_testo_em).find(".trumbowyg-editor");
+
+        if (editor_test_em.html().length < 200) {
             var parteEMList = $('input[name="Emendamento.IDParte"]');
             $.each(parteEMList,
-                function (index, itemParteEM) {
+                function(index, itemParteEM) {
                     if (itemParteEM.checked) {
                         var testo = "";
-                        if (itemParteEM.value == @((int)PartiEMEnum.Titolo_PDL)) {
+                        if (itemParteEM.value == @((int) PartiEMEnum.Titolo_PDL)) {
                             testo = "Il titolo del PDL ";
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Titolo)) {
+                        } else if (itemParteEM.value == @((int) PartiEMEnum.Titolo)) {
                             testo = "Il titolo " + $("#Emendamento_NTitolo").val();
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Capo)) {
+                        } else if (itemParteEM.value == @((int) PartiEMEnum.Capo)) {
                             testo = "Il capo " + $("#Emendamento_NCapo").val();
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Articolo)) {
+                        } else if (itemParteEM.value == @((int) PartiEMEnum.Articolo)) {
                             if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
                                 testo = "La lettera " + $("#Emendamento_NLettera").val();
                             } else if ($("#pnlLettere").is(":visible") && $("#LettereList option:selected").val() != 0) {
@@ -202,7 +204,7 @@
 
                                 testo = testo + $("#ArticoliList option:selected").text();
                             }
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Missione)) {
+                        } else if (itemParteEM.value == @((int) PartiEMEnum.Missione)) {
                             testo = "La missione " +
                                 $("#MissioniList option:selected").val() +
                                 " programma " +
@@ -212,16 +214,16 @@
                                 " ";
                         }
 
-                        if (tipo == @((int)TipiEMEnum.SOPPRESSIVO)) {
+                        if (tipo == @((int) TipiEMEnum.SOPPRESSIVO)) {
                             testo = testo + " è soppresso.";
-                        } else if (tipo == @((int)TipiEMEnum.MODIFICATIVO)) {
+                        } else if (tipo == @((int) TipiEMEnum.MODIFICATIVO)) {
                             testo = testo + " è modificato come segue: ";
-                        } else if (tipo == @((int)TipiEMEnum.AGGIUNTIVO)) {
+                        } else if (tipo == @((int) TipiEMEnum.AGGIUNTIVO)) {
                             testo = testo + " viene emendato aggiungendo: ";
-                        } else if (tipo == @((int)TipiEMEnum.SOSTITUTIVO)) {
+                        } else if (tipo == @((int) TipiEMEnum.SOSTITUTIVO)) {
                             testo = testo + " è sostituito.";
                         }
-                        $("#Emendamento_TestoEM_originale_ifr").contents().find("#trumbowyg").text(testo);
+                        editor_test_em.html(testo);
                     }
                 });
         }
@@ -235,12 +237,6 @@
         $("#pnlCommi").hide();
         $("#pnlLettere").hide();
         $("#pnlLettereOLD").hide();
-
-        //$('input[id="Emendamento_IDTipo_EM"]').each(function (index, item) {
-        //    if (item.checked) {
-        //        item.checked = false;
-        //    }
-        //});
 
         $("#Emendamento_NLettera").val("");
         $("#Emendamento_NCapo").val("");
@@ -264,5 +260,4 @@
         var elemsTitiliMissioni = document.querySelectorAll("#TitoliMissioniList");
         M.FormSelect.init(elemsTitiliMissioni, null);
     }
-
 </script>

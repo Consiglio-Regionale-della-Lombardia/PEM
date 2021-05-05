@@ -248,7 +248,7 @@ namespace PortaleRegione.BAL
                         stampaDto.Info = infos?.Message;
                         stampaDto.Richiedente =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
+                                 await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
                         result.Add(stampaDto);
                     }
                 }

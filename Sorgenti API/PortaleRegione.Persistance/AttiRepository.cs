@@ -27,6 +27,7 @@ using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -43,7 +44,13 @@ namespace PortaleRegione.Persistance
 
         public async Task<ATTI> Get(Guid attoUId)
         {
-            return await PRContext.ATTI.FindAsync(attoUId);
+            PRContext.ATTI.FromCache(DateTimeOffset.Now.AddMinutes(5)).ToList();
+            var result = await PRContext
+                .ATTI
+                .Include(a => a.TIPI_ATTO)
+                .Include(a => a.SEDUTE)
+                .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
+            return result;
         }
 
         public async Task<ATTI> Get(string attoUId)
@@ -57,6 +64,8 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .ATTI
+                .Include(a => a.TIPI_ATTO)
+                .Include(a => a.SEDUTE)
                 .Where(c => c.Eliminato == false && c.UIDSeduta == sedutaUId);
 
             filtro?.BuildExpression(ref query);
@@ -144,7 +153,7 @@ namespace PortaleRegione.Persistance
             await PRContext.Database.ExecuteSqlCommandAsync(
                 $"exec DOWN_ATTO @UIDAtto='{attoUId}'");
         }
-        
+
         public async Task SPOSTA_UP(Guid attoUId)
         {
             await PRContext.Database.ExecuteSqlCommandAsync(
@@ -155,7 +164,7 @@ namespace PortaleRegione.Persistance
         {
             return currentPriorita > 1;
         }
-        
+
         public async Task<bool> CanMoveDown(Guid sedutaUId, int currentPriorita)
         {
             var max_priorita = await PRContext
@@ -164,6 +173,15 @@ namespace PortaleRegione.Persistance
                 .MaxAsync(a => a.Priorita);
             if (currentPriorita >= max_priorita) return false;
             return true;
+        }
+
+        public async Task RimuoviFascicoliObsoleti(Guid attoUId, OrdinamentoEnum ordinamento)
+        {
+            var oldStampe = await PRContext
+                .STAMPE
+                .Where(s => s.UIDAtto == attoUId && s.Da == 0 && s.A == 0 && s.Ordine == (int) ordinamento)
+                .ToListAsync();
+            PRContext.STAMPE.RemoveRange(oldStampe);
         }
     }
 }

@@ -123,6 +123,10 @@
 @{
     Html.RenderPartial("_ComandiMassivi", Model.Atto.Chiuso);
     Html.RenderPartial("_PannelloStrumentiRicerche");
+    Html.RenderPartial("_InvitoPanel", new InvitoPanelModel
+    {
+        UIDAtto = Model.Atto.UIDAtto
+    });
 }
 
 <div id="modalStampa" class="modal">
@@ -318,7 +322,7 @@
             }
         });
 
-        function RevealFirmaDepositoMassivo(action) {
+        async function RevealMassivo(action) {
             var text = "";
             var button = "";
 
@@ -332,12 +336,15 @@
                 return;
             }
 
-            if (action == 3) {
+            if (action == @((int)ActionEnum.FIRMA)) {
                 text = "Inserisci il PIN per firmare ";
                 button = "Firma";
-            } else if (action == 4) {
+            } else if (action == @((int)ActionEnum.DEPOSITA)) {
                 text = "Inserisci il PIN per depositare ";
                 button = "Deposita";
+            } else if (action == @((int)ActionEnum.INVITA)) {
+                await NotificaA('@Model.Atto.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI_ASSESSORI));
+                return;
             }
 
             text = text + totaleDoc + " emendamenti";

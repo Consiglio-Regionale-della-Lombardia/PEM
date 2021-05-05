@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.DTO.Enum
+@using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Domain.EmendamentiDto
 
 @{
@@ -84,19 +85,19 @@
                             }
                             @if (Model.Eliminabile)
                             {
-                                <div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.DisplayTitle', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM', @Html.Raw((int) ActionEnum.ELIMINA))">
                                     <i class="icon material-icons">delete</i> Elimina
                                 </div>
                             }
                             @if (Model.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@Model.UIDEM', '@Model.DisplayTitle', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM', @Html.Raw((int) ActionEnum.RITIRA))">
                                     <i class="icon material-icons">settings_backup_restore</i> Ritira
                                 </div>
                             }
                             @if (Model.Modificabile)
                             {
-                                <div class="btn chip hoverable blue center white-text"onclick="go('@Url.Action("ModificaEmendamento", new {id = Model.UIDEM})')">
+                                <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("ModificaEmendamento", new {id = Model.UIDEM})')">
                                     <i class="icon material-icons">edit</i> Modifica
                                 </div>
                             }
@@ -138,7 +139,7 @@
                     <div class="col s12 center">
                         <h4>
                             <b>
-                                <span>@Html.Raw(Model.DisplayTitle)</span>
+                                <span>@Html.Raw(Model.N_EM)</span>
                             </b>
                         </h4>
                     </div>
@@ -178,7 +179,7 @@
                     <div class="row">
                         <div class="col s12">
                             <h5>Invitati</h5>
-                            <hr />
+                            <hr/>
                             @Html.Raw(Model.Destinatari)
                         </div>
                     </div>
@@ -204,146 +205,16 @@
     </div>
 </div>
 
-<div id="modalEmendamentiNotificaA" class="modal">
-    <div class="modal-content">
-        <h5 id="emProponenteDisplayName"></h5>
-        @using (Html.BeginForm("NotificaEmendamento", "Emendamenti", FormMethod.Post, new {id = "formNotificaA"}))
-        {
-            @Html.AntiForgeryToken()
-
-            var isSegreteria = HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Politica) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Politica) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM);
-
-            var displayPin = isSegreteria ? "none" : "block";
-
-            <div class="form-group" style="display: @displayPin">
-                <label>Pin:</label>
-                <input id="txtPinNotificheInviti" class="password"/>
-            </div>
-            <div class="row">
-                <div class="col s12">
-                    <label class="black-text" style="margin-left: 20px">
-                        <input name="rdDestinatari" type="radio" checked value="1" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI_ASSESSORI))"/>
-                        <span>Consiglieri</span>
-                    </label>
-                    @if (!isSegreteria)
-                    {
-                        <label class="black-text" style="margin-left: 20px">
-                            <input name="rdDestinatari" type="radio" value="2" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.GRUPPI))"/>
-                            <span>Gruppi</span>
-                        </label>
-                        <label class="black-text" style="margin-left: 20px">
-                            <input name="rdDestinatari" type="radio" value="3" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.RELATORI))"/>
-                            <span>Relatori</span>
-                        </label>
-                    }
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Destinatari:</label>
-                <div id="autocompleteInvitati" class="chips chips-autocomplete"></div>
-            </div>
-        }
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaNotificaA" class="btn blue">Invita</a>
-        </div>
-    </div>
-</div>
+@Html.Partial("_InvitoPanel", new InvitoPanelModel
+{
+    UIDAtto = Model.UIDAtto,
+    UIDEM = Model.UIDEM
+})
 
 @section scripts
 {
     <script>
         setListaEmendamenti([]);
         setSelezionaTutti(false);
-
-        var chipInstanceNotificaA = null;
-
-        async function LoadDestinatari(attoUId, tipo) {
-            var personeInDB = await GetPersonePerInviti(attoUId, tipo);
-
-            var persone = [];
-            for (let [key, value] of Object.entries(personeInDB)) {
-                //console.log(`${key}: ${value}`);
-                persone.push({
-                    tag: value,
-                    id: key
-                });
-            }
-
-            var elems = document.querySelector("#autocompleteInvitati");
-
-            var autocompleteDataOptions = {
-                data: persone,
-                limit: 10,
-                minLength: 1
-            };
-            if (chipInstanceNotificaA != null) {
-                chipInstanceNotificaA.destroy();
-            }
-            chipInstanceNotificaA = M.Chips.init(elems,
-                {
-                    autocompleteOptions: autocompleteDataOptions,
-                    data: []
-                });
-        }
-
-        async function NotificaA(attoUId, tipo) {
-            await LoadDestinatari(attoUId, tipo);
-            $("#modalEmendamentiNotificaA").modal("open");
-
-            $("#btnConfermaNotificaA").on("click",
-                function() {
-                    setTimeout(function () {
-                        $('body').removeClass('loaded');
-                    }, 200);
-                    $("#formNotificaA").submit();
-                });
-        }
-
-        $("#formNotificaA").submit(function(e) {
-            e.preventDefault();
-        }).validate({
-            submitHandler: function(form) {
-                var destinatari = chipInstanceNotificaA.getData();
-                if (destinatari.length == 0) {
-                    ErrorAlert("Seleziona almeno un destinatario");
-                    return;
-                }
-
-                var listaDestinatari = [];
-                $.each(destinatari,
-                    function(index, item) {
-                        listaDestinatari.push(item.id);
-                    });
-                var obj = {};
-                obj.Pin = $('#txtPinNotificheInviti').val();
-                obj.Azione = 5;
-                obj.ListaEmendamenti = ['@Html.Raw(Model.UIDEM)'];
-                obj.ListaDestinatari = listaDestinatari;
-
-                $.ajax({
-                    url: baseUrl + "/emendamenti/azioni-massive",
-                    type: "POST",
-                    data: JSON.stringify(obj),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                }).done(function(data) {
-                    if (data.message) {
-                        ErrorAlert(data.message);
-                    } else {
-                        go(data);
-                    }
-                }).fail(function(err) {
-                    console.log("error", err);
-                    ErrorAlert(err.message);
-                });
-
-                return false; //This doesn't prevent the form from submitting.
-            }
-        });
     </script>
 }

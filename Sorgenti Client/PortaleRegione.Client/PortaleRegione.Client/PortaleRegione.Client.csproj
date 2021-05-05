@@ -102,7 +102,6 @@
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
-    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />
@@ -371,8 +370,8 @@
     <Content Include="Views\Emendamenti\_DocsPanel.cshtml" />
     <Content Include="Views\Emendamenti\_CommandSUBEM.cshtml" />
     <Content Include="Views\Emendamenti\ViewerProietta.cshtml" />
-    <Content Include="Views\Report\Index.cshtml" />
     <Content Include="Views\Emendamenti\_PannelloStrumentiRicerche.cshtml" />
+    <Content Include="Views\Emendamenti\_InvitoPanel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

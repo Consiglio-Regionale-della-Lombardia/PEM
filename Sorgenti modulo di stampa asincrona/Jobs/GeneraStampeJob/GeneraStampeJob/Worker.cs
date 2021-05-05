@@ -104,9 +104,10 @@ namespace GeneraStampeJob
         {
             try
             {
+                var atto = await AttiGate.Get(_stampa.UIDAtto);
                 var bodyCopertina = await EMGate.GetCopertina(new CopertinaModel
                 {
-                    Atto = _stampa.ATTI,
+                    Atto = atto,
                     TotaleEM = listaEMendamenti.Count(),
                     Ordinamento = _stampa.Ordine.HasValue
                         ? (OrdinamentoEnum) _stampa.Ordine.Value
@@ -153,10 +154,10 @@ namespace GeneraStampeJob
                     if (_stampa.Ordine.HasValue)
                     {
                         if ((OrdinamentoEnum) _stampa.Ordine.Value == OrdinamentoEnum.Presentazione)
-                            _stampa.ATTI.LinkFascicoloPresentazione = URLDownload;
+                            atto.LinkFascicoloPresentazione = URLDownload;
                         if ((OrdinamentoEnum) _stampa.Ordine.Value == OrdinamentoEnum.Votazione)
-                            _stampa.ATTI.LinkFascicoloVotazione = URLDownload;
-                        await AttiGate.ModificaFiles(_stampa.ATTI);
+                            atto.LinkFascicoloVotazione = URLDownload;
+                        await AttiGate.ModificaFiles(atto);
                     }
                 }
             }
@@ -174,13 +175,14 @@ namespace GeneraStampeJob
             Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Depositato");
 
             var listaPdfEmendamentiGenerati =
-                await GeneraPDFEmendamenti(listaEMendamenti, _stampa.Da, _stampa.A, path);
+                await GeneraPDFEmendamenti(listaEMendamenti, 0, 0, path);
 
             Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva EM nel repository");
 
             var em = listaEMendamenti.First();
-            var dirSeduta = $"Seduta_{_stampa.ATTI.SEDUTE.Data_seduta:yyyyMMdd}";
-            var dirPDL = Regex.Replace($"{_stampa.ATTI.TIPI_ATTO.Tipo_Atto} {_stampa.ATTI.NAtto}", @"[^0-9a-zA-Z]+",
+            var atto = await AttiGate.Get(_stampa.UIDAtto);
+            var dirSeduta = $"Seduta_{atto.SEDUTE.Data_seduta:yyyyMMdd}";
+            var dirPDL = Regex.Replace($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}", @"[^0-9a-zA-Z]+",
                 "_");
             var pathRepository = $"{_model.RootRepository}/{dirSeduta}/{dirPDL}";
 
@@ -197,14 +199,14 @@ namespace GeneraStampeJob
 
             var bodyMail = await EMGate.GetBody(em.UIDEM, TemplateTypeEnum.MAIL, true);
 
-            if (_stampa.ATTI.SEDUTE.Data_effettiva_inizio.HasValue)
+            if (atto.SEDUTE.Data_effettiva_inizio.HasValue)
             {
                 var ruoloSegreteriaAssempblea =
                     await PersoneGate.GetRuolo(RuoliIntEnum.Segreteria_Assemblea);
                 Log.Debug(
                     $"[{_stampa.UIDStampa}] BACKGROUND MODE - EM depositato il {listaEMendamenti.First().DataDeposito}");
                 if (Convert.ToDateTime(listaEMendamenti.First().DataDeposito) >
-                    _stampa.ATTI.SEDUTE.Data_effettiva_inizio.Value)
+                    atto.SEDUTE.Data_effettiva_inizio.Value)
                 {
                     Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta già iniziata");
 
@@ -213,7 +215,7 @@ namespace GeneraStampeJob
                         DA = _model.EmailFrom,
                         A = $"{ruoloSegreteriaAssempblea.ADGroupShort}@consiglio.regione.lombardia.it",
                         OGGETTO =
-                            $"[TRATTAZIONE AULA] {_stampa.ATTI.TIPI_ATTO.Tipo_Atto} {_stampa.ATTI.NAtto}: Depositato {listaEMendamenti.First().DisplayTitle}",
+                            $"[TRATTAZIONE AULA] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
                         MESSAGGIO = bodyMail
                     });
                 }
@@ -264,7 +266,7 @@ namespace GeneraStampeJob
                 DA = _model.EmailFrom,
                 A = email_destinatari,
                 OGGETTO =
-                    $"{_stampa.ATTI.TIPI_ATTO.Tipo_Atto} {_stampa.ATTI.NAtto}: Depositato {listaEMendamenti.First().DisplayTitle}",
+                    $"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
                 MESSAGGIO = bodyMail,
                 pathAttachment = destinazioneDeposito,
                 IsDeposito = true
@@ -343,7 +345,7 @@ namespace GeneraStampeJob
 
                             var bodyPDF = await EMGate.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
                             var nameFilePDF =
-                                $"{item.DisplayTitle.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                                $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                             var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
 
                             var dettagliCreaPDF = new BodyModel
@@ -365,7 +367,7 @@ namespace GeneraStampeJob
                     {
                         var bodyPDF = await EMGate.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
                         var nameFilePDF =
-                            $"{item.DisplayTitle.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                            $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                         var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
 
                         var dettagliCreaPDF = new BodyModel

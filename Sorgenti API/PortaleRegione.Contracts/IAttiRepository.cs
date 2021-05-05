@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts
 {
@@ -42,5 +43,7 @@ namespace PortaleRegione.Contracts
         Task SPOSTA_DOWN(Guid attoUId);
         bool CanMoveUp(int currentPriorita);
         Task<bool> CanMoveDown(Guid sedutaUId, int currentPriorita);
+
+        Task RimuoviFascicoliObsoleti(Guid attoUId, OrdinamentoEnum ordinamento);
     }
 }

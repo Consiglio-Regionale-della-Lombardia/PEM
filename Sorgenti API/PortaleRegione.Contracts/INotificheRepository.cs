@@ -40,7 +40,7 @@ namespace PortaleRegione.Contracts
 
         Task<int> CountInviate(PersonaDto currentUser, int idGruppo, bool Archivio, Filter<NOTIFICHE> filtro = null);
         Task<int> CountRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, Filter<NOTIFICHE> filtro = null);
-        Task<NOTIFICHE> Get(Guid notificaUId);
+        
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetDestinatariNotifica(long notificaId);
 
         bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona);

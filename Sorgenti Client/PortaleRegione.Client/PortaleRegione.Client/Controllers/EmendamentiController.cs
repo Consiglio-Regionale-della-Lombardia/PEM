@@ -22,8 +22,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
@@ -119,6 +117,8 @@ namespace PortaleRegione.Client.Controllers
             if (em.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await EMGate.GetInvitati(id));
+
+            em.ATTI = await AttiGate.Get(em.UIDAtto);
 
             return View(em);
         }
@@ -408,8 +408,12 @@ namespace PortaleRegione.Client.Controllers
                     listaErroriRitiroFirma.Add(
                         $"{listaErroriRitiroFirma.Count + 1} - {itemRitiroFirma.Value.Substring(7)}");
                 if (listaErroriRitiroFirma.Count > 0)
-                    throw new Exception(
-                        $"Errori nella procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}");
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Errori nella procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}"
+                        }, JsonRequestBehavior.AllowGet);
 
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
@@ -438,8 +442,12 @@ namespace PortaleRegione.Client.Controllers
                     listaErroriEliminaFirma.Add(
                         $"{listaErroriEliminaFirma.Count + 1} - {itemEliminaFirma.Value.Substring(7)}");
                 if (listaErroriEliminaFirma.Count > 0)
-                    throw new Exception(
-                        $"Errori nella procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}");
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Errori nella procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}"
+                        }, JsonRequestBehavior.AllowGet);
 
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
@@ -485,11 +493,12 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("esportaXLS")]
-        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine)
+        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default,
+            bool is_report = false)
         {
             try
             {
-                var file = await StampeGate.EsportaXLS(id, ordine);
+                var file = await StampeGate.EsportaXLS(id, ordine, is_report);
                 return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     file.FileName);
             }

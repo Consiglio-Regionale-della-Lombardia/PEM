@@ -138,7 +138,8 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
         {
-            return (await _unitOfWork.Legislature.GetLegislature()).Select(Mapper.Map<legislature, LegislaturaDto>);
+            var result = await _unitOfWork.Legislature.GetLegislature();
+            return (result).Select(Mapper.Map<legislature, LegislaturaDto>);
         }
     }
 }

@@ -13,17 +13,17 @@
         </a>
         <ul>
             <li>
-                <a id="btnFirmaMassivo" class="btn-floating green tooltipped" onclick="RevealFirmaDepositoMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
+                <a id="btnFirmaMassivo" class="btn-floating green tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
                     <i class="material-icons">gavel</i>
                 </a>
             </li>
             <li>
-                <a id="btnDepositaMassivo" class="btn-floating purple darken-1 tooltipped" onclick="RevealFirmaDepositoMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                <a id="btnDepositaMassivo" class="btn-floating purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
                     <i class="material-icons">lock</i>
                 </a>
             </li>
             <li>
-                <a id="btnInvitaMassivo" class="btn-floating amber tooltipped" data-position="left" data-tooltip="Invito massivo">
+                <a id="btnInvitaMassivo" class="btn-floating amber tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.INVITA))" data-position="left" data-tooltip="Invito massivo">
                     <i class="material-icons">send</i>
                 </a>
             </li>

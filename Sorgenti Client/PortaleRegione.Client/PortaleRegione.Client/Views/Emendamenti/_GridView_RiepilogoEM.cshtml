@@ -71,7 +71,7 @@ else
                                     <b>@itemEM.N_EM</b>
                                 </h5>
                                 <h6>@Utility.MetaDatiEM_Label(itemEM)</h6>
-                                @if (itemEM.STATI_EM.IDStato <= (int) StatiEnum.Bozza)
+                                @if (itemEM.IDStato <= (int) StatiEnum.Bozza)
                                 {
                                     <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
                                         Bozza predisposta da:
@@ -174,13 +174,13 @@ else
                             }
                             @if (itemEM.Eliminabile)
                             {
-                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.DisplayTitle', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM', @Html.Raw((int) ActionEnum.ELIMINA))">
                                     <i class="icon material-icons">delete</i> Elimina
                                 </div>
                             }
                             @if (itemEM.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.DisplayTitle', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM', @Html.Raw((int) ActionEnum.RITIRA))">
                                     <i class="icon material-icons">settings_backup_restore</i> Ritira
                                 </div>
                             }

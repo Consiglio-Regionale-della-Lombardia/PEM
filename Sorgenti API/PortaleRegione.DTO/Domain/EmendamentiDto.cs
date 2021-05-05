@@ -182,8 +182,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Eliminato { get; set; }
 
         #region Campi consumabili lato client
-
-        public string DisplayTitle { get; set; }
+        
         public bool Depositabile { get; set; } = false;
         public bool Firmabile { get; set; } = false;
         public bool Ritirabile { get; set; } = false;

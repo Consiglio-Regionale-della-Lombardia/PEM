@@ -29,5 +29,6 @@ namespace PortaleRegione.Contracts
     {
         Task<int> Legislatura_Attiva();
         Task<IEnumerable<legislature>> GetLegislature();
+        Task<legislature> Get(int legislaturaId);
     }
 }

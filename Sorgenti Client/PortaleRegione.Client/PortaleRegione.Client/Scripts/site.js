@@ -177,7 +177,7 @@ function ConfirmAction(id, name, action) {
             }).done(function(data) {
                 $("#modalAction").modal("close");
                 $("#btnConfermaAction").off("click");
-
+                console.log(data.message)
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -209,6 +209,7 @@ function RitiraFirma(id) {
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
+                console.log(data)
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -425,11 +426,11 @@ function EsportaXLS(attoUId) {
                     cancel: "Annulla",
                     presentazione: {
                         text: "Presentazione",
-                        value: "0",
+                        value: "1",
                     },
                     votazione: {
                         text: "Votazione",
-                        value: "1",
+                        value: "2",
                     }
                 }
             })
@@ -440,6 +441,10 @@ function EsportaXLS(attoUId) {
 
             go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
         });
+}
+
+function EsportaXLS_Segreteria(attoUId) {
+    go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
 }
 
 function EsportaDOC(attoUId) {
@@ -461,8 +466,7 @@ function EsportaDOC(attoUId) {
 
             if (value == null || value == "")
                 return;
-
-            go(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value);
+            window.open(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, '_blank');
         });
 }
 
@@ -988,7 +992,11 @@ function PubblicaFascicolo(attoUId, ordine) {
         if (data.message) {
             ErrorAlert(data.message);
         }
-        SuccessAlert("Fascicolo pubblicato", "");
+        if (obj.Abilita == true) {
+            SuccessAlert("Fascicolo pubblicato");
+        } else {
+            SuccessAlert("Fascicolo rimosso dalla pubblicazione");
+        }
     }).fail(function(err) {
         console.log("error", err);
         ErrorAlert(err.message);
@@ -1047,10 +1055,9 @@ function SuccessAlert(message, url) {
 
 function ErrorAlert(message) {
     
-    var body = JSON.parse(message);
     swal({
         title: "Attenzione!",
-        text: body.message,
+        text: message,
         icon: "error",
         button: "Ooops!"
     });

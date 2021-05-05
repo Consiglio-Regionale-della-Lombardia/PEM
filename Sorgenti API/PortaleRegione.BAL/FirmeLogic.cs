@@ -47,19 +47,23 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var result = await _unitOfWork
+                var firmeInDb = await _unitOfWork
                     .Firme
                     .GetFirmatari(em, tipo);
 
-                var firme = result.ToList();
+                var firme = firmeInDb.ToList();
 
                 if (!firme.Any()) return firme;
-
-                firme.ForEach(f => f.FirmaCert = Decrypt(f.FirmaCert));
-                firme.ForEach(f => f.Data_firma = Decrypt(f.Data_firma));
-                firme.ForEach(f => f.Data_ritirofirma = string.IsNullOrEmpty(f.Data_ritirofirma)
-                    ? null
-                    : Decrypt(f.Data_ritirofirma));
+                var result = new List<FIRME>();
+                foreach (var firma in firme)
+                {
+                    firma.FirmaCert = Decrypt(firma.FirmaCert);
+                    firma.Data_firma = Decrypt(firma.Data_firma);
+                    firma.Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
+                        ? null
+                        : Decrypt(firma.Data_ritirofirma);
+                    result.Add(firma);
+                }
 
                 return result;
             }

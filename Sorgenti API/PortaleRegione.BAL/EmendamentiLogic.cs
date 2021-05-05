@@ -53,9 +53,9 @@ namespace PortaleRegione.BAL
             _logicPersone = logicPersone;
             _logicUtil = logicUtil;
         }
-        
+
         public bool BloccaDepositi { get; set; }
-        
+
         public async Task ORDINA_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -68,7 +68,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task UP_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -81,7 +81,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -94,7 +94,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task SPOSTA_EM_TRATTAZIONE(Guid id, int pos)
         {
             try
@@ -107,7 +107,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<EmendamentiFormModel> ModelloNuovoEM(ATTI atto, Guid? em_riferimentoUId, PersonaDto persona)
         {
             try
@@ -134,7 +134,7 @@ namespace PortaleRegione.BAL
                     emendamento.IDTipo_EM = ref_em.IDTipo_EM;
                     emendamento.IDParte = ref_em.IDParte;
                     emendamento.TestoEM_originale =
-                        $"L' {ref_em.DisplayTitle.Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
+                        $"L' {ref_em.N_EM.Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
                     emendamento.TestoREL_originale = ref_em.TestoREL_originale;
                 }
                 else
@@ -150,10 +150,7 @@ namespace PortaleRegione.BAL
                             : (int) StatiEnum.Bozza;
                 }
 
-                emendamento.DisplayTitle = GetNomeEM(emendamento,
-                    emendamento.Rif_UIDEM.HasValue
-                        ? Mapper.Map<EM, EmendamentiDto>(await GetEM(emendamento.Rif_UIDEM.Value))
-                        : null);
+                emendamento.N_EM = GetNomeEM(emendamento);
 
                 if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                     persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
@@ -211,7 +208,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<EmendamentiFormModel> ModelloModificaEM(EM emInDb, PersonaDto persona)
         {
             try
@@ -259,7 +256,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<EM> NuovoEmendamento(EmendamentiDto emendamentoDto, PersonaDto persona, bool isGiunta = false)
         {
             try
@@ -274,6 +271,8 @@ namespace PortaleRegione.BAL
                     emendamentoDto.Progressivo = progressivo;
 
                 var em = Mapper.Map<EmendamentiDto, EM>(emendamentoDto);
+                em.N_EM = null;
+                em.ATTI = null;
                 em.UIDEM = Guid.NewGuid();
                 em.UID_QRCode = Guid.NewGuid();
                 em.Eliminato = false;
@@ -305,7 +304,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task ModificaEmendamento(EmendamentiDto model, EM em, PersonaDto persona)
         {
             try
@@ -353,7 +352,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task ModificaMetaDatiEmendamento(EmendamentiDto model, EM em, PersonaDto persona)
         {
             try
@@ -374,7 +373,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task DeleteEmendamento(EM em, PersonaDto persona)
         {
             try
@@ -390,7 +389,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(EM em)
         {
             try
@@ -418,13 +417,15 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<string> GetBodyEM(EM em, IEnumerable<FIRME> firme, PersonaDto persona,
             TemplateTypeEnum template, bool isDeposito = false)
         {
             try
             {
                 var emendamentoDto = await GetEM_DTO(em, persona);
+                var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
                 var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>);
 
                 try
@@ -437,10 +438,10 @@ namespace PortaleRegione.BAL
                             GetBodyMail(emendamentoDto, firmeDto, isDeposito, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBodyPDF(emendamentoDto, firmeDto, persona, ref body);
+                            GetBodyPDF(emendamentoDto, attoDto, firmeDto, persona, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBodyTemporaneo(emendamentoDto, ref body);
+                            GetBodyTemporaneo(emendamentoDto, attoDto, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;
@@ -462,7 +463,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<string> GetCopertina(CopertinaModel model)
         {
             try
@@ -497,7 +498,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<Guid, string>> FirmaEmendamento(ComandiAzioneModel firmaModel, PersonaDto persona,
             PinDto pin, bool firmaUfficio = false)
         {
@@ -514,10 +515,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                        em.Rif_UIDEM.HasValue
-                            ? Mapper.Map<EM, EmendamentiDto>(await GetEM(em.Rif_UIDEM.Value))
-                            : null);
+                    var n_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em));
 
                     if (em.STATI_EM.IDStato > (int) StatiEnum.Depositato)
                         results.Add(idGuid, $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile");
@@ -610,8 +608,7 @@ namespace PortaleRegione.BAL
                         em.EM_Certificato = body_encrypt;
                     }
 
-                    _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
-                    await _unitOfWork.CompleteAsync();
+                    await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
 
                     results.Add(idGuid, "OK");
                 }
@@ -624,7 +621,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<Guid, string>> RitiroFirmaEmendamento(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
@@ -641,10 +638,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                        em.Rif_UIDEM.HasValue
-                            ? Mapper.Map<EM, EmendamentiDto>(await GetEM(em.Rif_UIDEM.Value))
-                            : null);
+                    var n_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em));
 
                     var seduta = await _unitOfWork.Sedute.Get(em.ATTI.UIDSeduta.Value);
 
@@ -715,7 +709,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<Guid, string>> EliminaFirmaEmendamento(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
@@ -758,7 +752,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<Guid, string>> DepositaEmendamento(ComandiAzioneModel depositoModel,
             PersonaDto persona)
         {
@@ -777,7 +771,7 @@ namespace PortaleRegione.BAL
                     }
 
                     var emDto = await GetEM_DTO(em, persona);
-                    var n_em = emDto.DisplayTitle;
+                    var n_em = emDto.N_EM;
                     if (emDto.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
                     {
                         results.Add(idGuid, $"ERROR: Emendamento {n_em} già depositato");
@@ -848,7 +842,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task RitiraEmendamento(EM em, PersonaDto persona)
         {
             try
@@ -862,10 +856,7 @@ namespace PortaleRegione.BAL
                 {
                     // INVIO MAIL A SEGRETERIA PER AVVISARE DEL RITIRO DELL'EM DOPO IL TERMINE DELL'ATTO
                     var nome_em = GetNomeEM(
-                        Mapper.Map<EM, EmendamentiDto>(em),
-                        em.Rif_UIDEM.HasValue
-                            ? Mapper.Map<EM, EmendamentiDto>(await GetEM(em.Rif_UIDEM.Value))
-                            : null);
+                        Mapper.Map<EM, EmendamentiDto>(em));
                     var ruoloSegreterie = await _unitOfWork.Ruoli.Get(10);
                     await _logicUtil.InvioMail(new MailModel
                     {
@@ -889,7 +880,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
         {
             try
@@ -917,7 +908,7 @@ namespace PortaleRegione.BAL
                             var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                             var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
 
-                            var resultOpenData = GetEM_OPENDATA(em,
+                            var resultOpenData = await GetEM_OPENDATA(em,
                                 em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null,
                                 firmeDto,
                                 Mapper.Map<View_UTENTI, PersonaDto>(
@@ -939,7 +930,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         /// <summary>
         ///     Ritorna la lista delle parti testo emendabili
         /// </summary>
@@ -948,7 +939,7 @@ namespace PortaleRegione.BAL
         {
             return (await _unitOfWork.Emendamenti.GetPartiEmendabili()).Select(Mapper.Map<PARTI_TESTO, PartiTestoDto>);
         }
-        
+
         /// <summary>
         ///     Ritorna la lista dei tipi di emendamento disponibili
         /// </summary>
@@ -960,7 +951,7 @@ namespace PortaleRegione.BAL
                     .GetTipiEmendamento())
                 .Select(Mapper.Map<TIPI_EM, Tipi_EmendamentiDto>);
         }
-        
+
         /// <summary>
         ///     Ritorna la lista delle missioni nel db
         /// </summary>
@@ -972,7 +963,7 @@ namespace PortaleRegione.BAL
                     .GetMissioniEmendamento())
                 .Select(Mapper.Map<MISSIONI, MissioniDto>);
         }
-        
+
         /// <summary>
         ///     Ritorna la lista dei titoli missioni nel db
         /// </summary>
@@ -984,7 +975,7 @@ namespace PortaleRegione.BAL
                     .GetTitoliMissioneEmendamento())
                 .Select(Mapper.Map<TITOLI_MISSIONI, TitoloMissioniDto>);
         }
-        
+
         /// <summary>
         ///     Ritorna la lista degli stati disponibili nel db
         /// </summary>
@@ -996,7 +987,7 @@ namespace PortaleRegione.BAL
                     .GetStatiEmendamento())
                 .Select(Mapper.Map<STATI_EM, StatiDto>);
         }
-        
+
         /// <summary>
         ///     Ritorna la lista degli articoli emendabili disponibili per l'atto selezionato
         /// </summary>
@@ -1009,7 +1000,7 @@ namespace PortaleRegione.BAL
                     .GetArticoli(atto))
                 .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
         }
-        
+
         public async Task EliminaEmendamento(EM em, Guid currentUId)
         {
             em.Eliminato = true;
@@ -1073,7 +1064,7 @@ namespace PortaleRegione.BAL
 
             return proietta;
         }
-        
+
         public async Task<EM> GetEM(Guid id)
         {
             return await _unitOfWork.Emendamenti.Get(id);
@@ -1095,18 +1086,18 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                em.ATTI ??= await _unitOfWork.Atti.Get(em.UIDAtto);
+
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
-                emendamentoDto.DisplayTitle = GetNomeEM(emendamentoDto,
-                    emendamentoDto.Rif_UIDEM.HasValue
-                        ? Mapper.Map<EM, EmendamentiDto>(await GetEM(emendamentoDto.Rif_UIDEM.Value))
-                        : null);
+
+                emendamentoDto.N_EM = GetNomeEM(emendamentoDto);
                 emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
                 if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
                     emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                emendamentoDto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
                 emendamentoDto.PersonaProponente =
                     Mapper.Map<View_UTENTI, PersonaLightDto>(
                         await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
@@ -1125,20 +1116,20 @@ namespace PortaleRegione.BAL
 
                 if (persona == null)
                     return emendamentoDto;
-                
+
                 //Ulteriori informazioni legate alla persona in sessione
                 if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
                     || persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                     && string.IsNullOrEmpty(emendamentoDto.TestoEM_Modificabile))
                     emendamentoDto.TestoEM_Modificabile = emendamentoDto.TestoEM_originale;
 
-                emendamentoDto.AbilitaSUBEM = emendamentoDto.STATI_EM.IDStato == (int) StatiEnum.Depositato
+                emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int) StatiEnum.Depositato
                                               && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
                                               && !emendamentoDto.ATTI.Chiuso ||
                                               persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
                                               persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
                                               persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
-                
+
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                     persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                     if (emendamentoDto.ConteggioFirme > 1)
@@ -1156,12 +1147,12 @@ namespace PortaleRegione.BAL
                         .CheckIfDepositabile(emendamentoDto,
                             persona);
 
-                if (em.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
+                if (em.IDStato <= (int) StatiEnum.Depositato)
                     emendamentoDto.Firmabile = await _unitOfWork
                         .Firme
                         .CheckIfFirmabile(emendamentoDto,
                             persona);
-                if (!em.DataRitiro.HasValue && em.STATI_EM.IDStato == (int) StatiEnum.Depositato)
+                if (!em.DataRitiro.HasValue && em.IDStato == (int) StatiEnum.Depositato)
                     emendamentoDto.Ritirabile = _unitOfWork
                         .Emendamenti
                         .CheckIfRitirabile(emendamentoDto,
@@ -1190,7 +1181,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
 
         public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE, Uri uri)
@@ -1202,18 +1193,17 @@ namespace PortaleRegione.BAL
                     filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
                         EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
-                List<Guid> firmatari = new List<Guid>();
+                var firmatari = new List<Guid>();
                 var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
                 if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
                 {
-                    firmatari_request = new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement => statement.PropertyId == "Firmatario"));
-                    firmatari.AddRange( firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                    foreach (var firmatarioStatement in firmatari_request)
-                    {
-                        model.filtro.Remove(firmatarioStatement);
-                    }
-                }   
-                
+                    firmatari_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "Firmatario"));
+                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
+                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
+                }
+
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
@@ -1229,10 +1219,7 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    em.N_EM = GetNomeEM(em,
-                        em.Rif_UIDEM.HasValue
-                            ? await GetEM(em.Rif_UIDEM.Value)
-                            : null);
+                    em.N_EM = GetNomeEM(em);
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
@@ -1250,7 +1237,7 @@ namespace PortaleRegione.BAL
 
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                             await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                     dto.PersonaCreazione =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
                             await _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
@@ -1267,11 +1254,10 @@ namespace PortaleRegione.BAL
                     result.Add(dto);
                 }
 
-                var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE, firmatari);
+                var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
+                    firmatari);
                 if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
-                {
                     model.filtro.AddRange(firmatari_request);
-                }   
 
                 return new EmendamentiViewModel
                 {
@@ -1282,7 +1268,7 @@ namespace PortaleRegione.BAL
                         model.filtro,
                         total_em,
                         uri),
-                    Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    Mode = (ClientModeEnum) Convert.ToInt16(CLIENT_MODE),
                     CurrentUser = persona
                 };
             }
@@ -1292,7 +1278,64 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
+        public async Task<EmendamentiViewModel> GetEmendamenti_RawChunk(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona, int CLIENT_MODE, Uri uri)
+        {
+            try
+            {
+                var em_in_db = await _unitOfWork
+                    .Emendamenti
+                    .GetAll(model.id,
+                        persona,
+                        model.ordine,
+                        model.page,
+                        model.size,
+                        CLIENT_MODE);
+
+                var result = new List<EmendamentiDto>();
+                foreach (var em in em_in_db)
+                {
+                    em.N_EM = GetNomeEM(em);
+
+                    if (!string.IsNullOrEmpty(em.DataDeposito))
+                    {
+                        em.DataDeposito = Decrypt(em.DataDeposito);
+                    }
+                    
+                    var dto = Mapper.Map<EM, EmendamentiDto>(em);
+
+                    dto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                    
+                    dto.PersonaProponente =
+                        Mapper.Map<View_UTENTI, PersonaLightDto>(
+                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+
+                    result.Add(dto);
+                }
+                
+                var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE));
+
+                return new EmendamentiViewModel
+                {
+                    Data = new BaseResponse<EmendamentiDto>(
+                        model.page,
+                        model.size,
+                        result,
+                        model.filtro,
+                        total_em,
+                        uri),
+                    Mode = (ClientModeEnum) Convert.ToInt16(CLIENT_MODE),
+                    CurrentUser = persona
+                };
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEmendamenti_RawChunk", e);
+                throw e;
+            }
+        }
+
         public async Task<List<EmendamentiDto>> GetEmendamenti_RichiestaPropriaFirma(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE)
         {
@@ -1312,15 +1355,12 @@ namespace PortaleRegione.BAL
 
                 foreach (var em in em_in_db)
                 {
-                    em.N_EM = GetNomeEM(em,
-                        em.Rif_UIDEM.HasValue
-                            ? await GetEM(em.Rif_UIDEM.Value)
-                            : null);
+                    em.N_EM = GetNomeEM(em);
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
                     dto.ConteggioFirme = await _logicFirme.CountFirme(em.UIDEM);
-                    dto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                    dto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
 
                     if (dto.ConteggioFirme > 1)
                     {
@@ -1371,10 +1411,7 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 foreach (var em in emendamenti)
                 {
-                    em.DisplayTitle = GetNomeEM(em,
-                        em.Rif_UIDEM.HasValue
-                            ? Mapper.Map<EM, EmendamentiDto>(await GetEM(em.Rif_UIDEM.Value))
-                            : null);
+                    em.N_EM = GetNomeEM(em);
                     em.DataDeposito = !string.IsNullOrEmpty(em.DataDeposito) ? Decrypt(em.DataDeposito) : "";
                     result.Add(em);
                 }
@@ -1387,7 +1424,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<int> CountEM(BaseRequest<EmendamentiDto> model, PersonaDto persona, int CLIENT_MODE,
             CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null)
         {
@@ -1415,6 +1452,188 @@ namespace PortaleRegione.BAL
             catch (Exception e)
             {
                 Log.Error("Logic - CountEM", e);
+                throw e;
+            }
+        }
+
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(Guid attoUId, OrdinamentoEnum ordine,
+            PersonaDto persona)
+        {
+            var result = new List<EmendamentiDto>();
+            var counter_em = await _unitOfWork.Emendamenti.Count(attoUId,persona,CounterEmendamentiEnum.NONE, (int)ClientModeEnum.GRUPPI);
+
+            var emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>
+            {
+                id = attoUId,
+                ordine = ordine,
+                page = 1,
+                size = counter_em
+            }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
+
+            result.AddRange(emList.Data.Results);
+            
+            return result;
+        }
+
+        /// <summary>
+        ///     Restituisce la stringa da aggiornare/inserire in OpenData
+        /// </summary>
+        /// <param name="uidEM"></param>
+        /// <returns></returns>
+        public async Task<string> GetEM_OPENDATA(EM em, EM em_riferimento, List<FirmeDto> firme, PersonaDto proponente)
+        {
+            var separatore = AppSettingsConfiguration.OpenData_Separatore;
+            var result = string.Empty;
+            try
+            {
+                var nome_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em));
+
+                //Colonna IDEM
+                result +=
+                    $"{em.ATTI.TIPI_ATTO.Tipo_Atto}-{em.ATTI.NAtto}-{em.ATTI.SEDUTE.legislature.num_legislatura}-{nome_em}{separatore}";
+                //Colonna Atto
+                result +=
+                    $"{em.ATTI.TIPI_ATTO.Tipo_Atto}-{em.ATTI.NAtto}-{em.ATTI.SEDUTE.legislature.num_legislatura}{separatore}";
+                //Colonna Numero EM
+                result += nome_em + separatore;
+                //Colonna Data Deposito
+                if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                {
+                    var dataDeposito =
+                        Convert.ToDateTime(em.DataDeposito);
+                    result += dataDeposito.ToString("yyyy-MM-dd HH:mm") + separatore;
+                }
+                else
+                {
+                    result += "--" + separatore;
+                }
+
+                //Colonna Stato
+                result += $"{em.STATI_EM.IDStato}-{em.STATI_EM.Stato}{separatore}";
+                //Colonna Tipo EM
+                result += $"{em.TIPI_EM.IDTipo_EM}-{em.TIPI_EM.Tipo_EM}{separatore}";
+                //Colonna Parte
+                result += $"{em.PARTI_TESTO.IDParte}-{em.PARTI_TESTO.Parte}{separatore}";
+                //Colonna Articolo
+                var articolo = string.Empty;
+                if (em.UIDArticolo.HasValue)
+                    articolo = em.ARTICOLI.Articolo;
+
+                result += $"{articolo}{separatore}";
+
+                //Colonna Comma
+                var comma = string.Empty;
+                if (em.UIDComma.HasValue)
+                    comma = em.COMMI.Comma;
+
+                result += $"{comma}{separatore}";
+                //Colonna NTitolo
+                result += $"{em.NTitolo}{separatore}";
+                //Colonna NCapo
+                result += $"{em.NCapo}{separatore}";
+                //Colonna NMissione
+                result += $"{em.NMissione}{separatore}";
+                //Colonna NProgramma
+                result += $"{em.NProgramma}{separatore}";
+                //Colonna NTitoloB
+                result += $"{em.NTitoloB}{separatore}";
+                //Colonna Proponente
+                result += $"{proponente.id_persona}-{proponente.DisplayName}{separatore}";
+                //Colonna AreaPolitica
+                switch ((AreaPoliticaIntEnum) em.AreaPolitica.Value)
+                {
+                    case AreaPoliticaIntEnum.Maggioranza:
+                        result += $"{AreaPoliticaEnum.Maggioranza}{separatore}";
+                        break;
+                    case AreaPoliticaIntEnum.Minoranza:
+                        result += $"{AreaPoliticaEnum.Minoranza}{separatore}";
+                        break;
+                    case AreaPoliticaIntEnum.Misto_Maggioranza:
+                        result += $"{AreaPoliticaEnum.Misto_Maggioranza}{separatore}";
+                        break;
+                    case AreaPoliticaIntEnum.Misto_Minoranza:
+                        result += $"{AreaPoliticaEnum.Misto_Minoranza}{separatore}";
+                        break;
+                    default:
+                        result += $"{separatore}";
+                        break;
+                }
+
+                //Colonna Firmatari
+                if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                {
+                    var firmeAnte = firme.Where(f =>
+                        f.Timestamp < Convert.ToDateTime(em.DataDeposito));
+                    var firmePost = firme.Where(f =>
+                        f.Timestamp > Convert.ToDateTime(em.DataDeposito));
+
+                    result +=
+                        $"{await GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                    result +=
+                        $"{await GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                }
+                else
+                {
+                    result += "--" + separatore;
+                    result += "--" + separatore;
+                }
+
+                //Colonna Link
+                result += $"{AppSettingsConfiguration.urlPEM}/{em.UID_QRCode}";
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetEM_OPENDATA", e);
+                throw e;
+            }
+        }
+
+        public async Task<string> GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo)
+        {
+            try
+            {
+                if (firmeDtos == null)
+                    return "--";
+                if (!firmeDtos.Any())
+                    return "--";
+
+                var result = "";
+                foreach (var firmeDto in firmeDtos)
+                    if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                    {
+                        if (ruolo == RuoliIntEnum.Amministratore_PEM)
+                        {
+                            var firmatario =  await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            result +=
+                                $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
+                        }
+                        else
+                        {
+                            result += $"{firmeDto.FirmaCert}; ";
+                        }
+                    }
+                    else
+                    {
+                        if (ruolo == RuoliIntEnum.Amministratore_PEM)
+                        {
+                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            result +=
+                                $"{firmatario.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
+                        }
+                        else
+                        {
+                            result +=
+                                $"{firmeDto.FirmaCert} (ritirata); ";
+                        }
+                    }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetFirmatariEM_OPENDATA", e);
                 throw e;
             }
         }

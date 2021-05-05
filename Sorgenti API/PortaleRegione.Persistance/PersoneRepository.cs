@@ -22,9 +22,11 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
+using Microsoft.Extensions.Caching.Memory;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -41,17 +43,23 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_UTENTI> Get(string login_windows)
         {
-            return await PRContext.View_UTENTI.SingleOrDefaultAsync(a => a.userAD == login_windows);
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(a => a.userAD == login_windows);
+            return result;
         }
 
         public async Task<View_UTENTI> Get(Guid personaUId)
         {
-            return await PRContext.View_UTENTI.FindAsync(personaUId);
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p=>p.UID_persona == personaUId);
+            return result;
         }
 
         public async Task<View_UTENTI> Get(int personaId)
         {
-            return await PRContext.View_UTENTI.FindAsync(personaId);
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p=>p.id_persona == personaId);
+            return result;
         }
 
         public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, Filter<View_UTENTI> filtro = null)
@@ -131,7 +139,7 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
-                .OrderBy(u=>u.id_gruppo_politico_rif)
+                .OrderBy(u => u.id_gruppo_politico_rif)
                 .ThenBy(u => u.cognome)
                 .ThenBy(u => u.nome);
 
@@ -242,7 +250,7 @@ namespace PortaleRegione.Persistance
 
         public async Task SavePin(Guid personaUId, string nuovo_pin, bool reset)
         {
-            var persona = await Get(personaUId);
+            var persona =  await Get(personaUId);
             var no_cons = Convert.ToBoolean(persona.No_Cons);
             var table = no_cons ? "PINS_NoCons" : "PINS";
             await PRContext.Database.ExecuteSqlCommandAsync(
@@ -256,10 +264,7 @@ namespace PortaleRegione.Persistance
             var user = await PRContext
                 .UTENTI_NoCons
                 .FirstOrDefaultAsync(u => u.id_persona == id);
-            if (user != null)
-            {
-                user.deleted = true;
-            }
+            if (user != null) user.deleted = true;
         }
 
         public async Task<IEnumerable<View_Composizione_GiuntaRegionale>> GetGiuntaRegionale()
@@ -312,9 +317,12 @@ namespace PortaleRegione.Persistance
 
         public async Task UpdateUtente_NoCons(Guid uid_persona, int id_persona, string userAd)
         {
-            var effrow = await PRContext.Database.ExecuteSqlCommandAsync($"UPDATE join_persona_AD set userAD='{userAd}' where UID_persona='{uid_persona}'");
-            if (effrow<1)
-                await PRContext.Database.ExecuteSqlCommandAsync($"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
+            var effrow =
+                await PRContext.Database.ExecuteSqlCommandAsync(
+                    $"UPDATE join_persona_AD set userAD='{userAd}' where UID_persona='{uid_persona}'");
+            if (effrow < 1)
+                await PRContext.Database.ExecuteSqlCommandAsync(
+                    $"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
         }
     }
 }
