@@ -42,51 +42,87 @@ namespace PortaleRegione.GestioneStampe.Helpers
 
         public override void OnEndPage(PdfWriter writer, Document document)
         {
-            base.OnEndPage(writer, document);
-            var text = EM.IDStato == (int) StatiEnum.Depositato ? string.Empty : EM.STATI_EM.Stato;
-
-            var dtdeposito = "--"; //MAX: cambio il nome della variabile da dtscadenza in dtdeposito
-            if (EM.IDStato >= (int) StatiEnum.Depositato)
-                dtdeposito = EM.DataDeposito;
-
-            //Add paging to header
+            try
             {
-                cb.BeginText();
-                cb.SetFontAndSize(bf, 10);
-                cb.SetTextMatrix(document.PageSize.GetRight(170), document.PageSize.GetTop(20));
-                cb.ShowText(text);
-                cb.EndText();
-                var len = bf.GetWidthPoint(text, 12);
-                cb.AddTemplate(headerTemplate, document.PageSize.GetRight(120) + len, document.PageSize.GetTop(20));
+                base.OnEndPage(writer, document);
+                var text = String.Empty;
+                switch ((StatiEnum)EM.IDStato)
+                {
+                    case StatiEnum.Bozza_Riservata:
+                        text = nameof(StatiEnum.Bozza_Riservata).Replace("_", " ");
+                        break;
+                    case StatiEnum.Bozza:
+                        text = nameof(StatiEnum.Bozza);
+                        break;
+                    case StatiEnum.Depositato:
+                        break;
+                    case StatiEnum.Approvato:
+                        text = nameof(StatiEnum.Approvato);
+                        break;
+                    case StatiEnum.Non_Approvato:
+                        text = nameof(StatiEnum.Non_Approvato).Replace("_", " ");
+                        break;
+                    case StatiEnum.Ritirato:
+                        text = nameof(StatiEnum.Ritirato);
+                        break;
+                    case StatiEnum.Decaduto:
+                        text = nameof(StatiEnum.Decaduto);
+                        break;
+                    case StatiEnum.Inammissibile:
+                        text = nameof(StatiEnum.Inammissibile);
+                        break;
+                    case StatiEnum.Approvato_Con_Modifiche:
+                        text = nameof(StatiEnum.Approvato_Con_Modifiche).Replace("_", " ");
+                        break;
+                }
+
+                var dtdeposito = "--"; //MAX: cambio il nome della variabile da dtscadenza in dtdeposito
+                if (EM.IDStato >= (int) StatiEnum.Depositato)
+                    dtdeposito = EM.DataDeposito;
+
+                //Add paging to header
+                {
+                    cb.BeginText();
+                    cb.SetFontAndSize(bf, 10);
+                    cb.SetTextMatrix(document.PageSize.GetRight(170), document.PageSize.GetTop(20));
+                    cb.ShowText(text);
+                    cb.EndText();
+                    var len = bf.GetWidthPoint(text, 12);
+                    cb.AddTemplate(headerTemplate, document.PageSize.GetRight(120) + len, document.PageSize.GetTop(20));
+                }
+                //Add paging to footer
+                {
+                    cb.BeginText();
+                    cb.SetFontAndSize(bf, 12);
+                    cb.SetTextMatrix(document.PageSize.GetRight(200), document.PageSize.GetBottom(20));
+
+                    cb.EndText();
+                    cb.AddTemplate(footerTemplate, document.PageSize.GetRight(200) + 50, document.PageSize.GetBottom(20));
+                }
+                //Add paging to footer
+                {
+                    cb.BeginText();
+                    cb.SetFontAndSize(bf, 12);
+                    cb.SetTextMatrix(document.PageSize.GetRight(500), document.PageSize.GetBottom(20));
+
+                    if (EM.Firma_da_ufficio)
+                        cb.ShowText($"{EM.N_EM} depositato d'ufficio");
+                    else if (dtdeposito != "--")
+                        cb.ShowText($"{EM.N_EM} depositato il {dtdeposito}");
+
+                    cb.EndText();
+                    var len = bf.GetWidthPoint(text, 12);
+                    cb.AddTemplate(footerTemplate2, document.PageSize.GetRight(500) + 300, document.PageSize.GetBottom(20));
+                }
+
+                cb.MoveTo(40, document.PageSize.GetBottom(50));
+                cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));
+                cb.Stroke();
             }
-            //Add paging to footer
+            catch (Exception e)
             {
-                cb.BeginText();
-                cb.SetFontAndSize(bf, 12);
-                cb.SetTextMatrix(document.PageSize.GetRight(200), document.PageSize.GetBottom(20));
-
-                cb.EndText();
-                cb.AddTemplate(footerTemplate, document.PageSize.GetRight(200) + 50, document.PageSize.GetBottom(20));
+                Console.WriteLine(e);
             }
-            //Add paging to footer
-            {
-                cb.BeginText();
-                cb.SetFontAndSize(bf, 12);
-                cb.SetTextMatrix(document.PageSize.GetRight(500), document.PageSize.GetBottom(20));
-
-                if (EM.Firma_da_ufficio)
-                    cb.ShowText($"{EM.N_EM} depositato d'ufficio");
-                else if (dtdeposito != "--")
-                    cb.ShowText($"{EM.N_EM} depositato il {dtdeposito}");
-
-                cb.EndText();
-                var len = bf.GetWidthPoint(text, 12);
-                cb.AddTemplate(footerTemplate2, document.PageSize.GetRight(500) + 300, document.PageSize.GetBottom(20));
-            }
-
-            cb.MoveTo(40, document.PageSize.GetBottom(50));
-            cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));
-            cb.Stroke();
         }
 
         public override void OnCloseDocument(PdfWriter writer, Document document)
