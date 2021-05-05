@@ -491,6 +491,8 @@ namespace PortaleRegione.BAL
                 attoInDb.UIDPersonaModifica = currentUser.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
 
+                await _unitOfWork.Atti.RimuoviFascicoliObsoleti(attoInDb.UIDAtto, model.Ordinamento);
+
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)

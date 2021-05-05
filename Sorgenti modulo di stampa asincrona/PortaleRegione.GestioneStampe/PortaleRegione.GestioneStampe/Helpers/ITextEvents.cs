@@ -43,10 +43,10 @@ namespace PortaleRegione.GestioneStampe.Helpers
         public override void OnEndPage(PdfWriter writer, Document document)
         {
             base.OnEndPage(writer, document);
-            var text = EM.STATI_EM.IDStato == (int) StatiEnum.Depositato ? string.Empty : EM.STATI_EM.Stato;
+            var text = EM.IDStato == (int) StatiEnum.Depositato ? string.Empty : EM.STATI_EM.Stato;
 
             var dtdeposito = "--"; //MAX: cambio il nome della variabile da dtscadenza in dtdeposito
-            if (EM.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+            if (EM.IDStato >= (int) StatiEnum.Depositato)
                 dtdeposito = EM.DataDeposito;
 
             //Add paging to header
@@ -75,9 +75,9 @@ namespace PortaleRegione.GestioneStampe.Helpers
                 cb.SetTextMatrix(document.PageSize.GetRight(500), document.PageSize.GetBottom(20));
 
                 if (EM.Firma_da_ufficio)
-                    cb.ShowText($"{EM.DisplayTitle} depositato d'ufficio");
+                    cb.ShowText($"{EM.N_EM} depositato d'ufficio");
                 else if (dtdeposito != "--")
-                    cb.ShowText($"{EM.DisplayTitle} depositato il {dtdeposito}");
+                    cb.ShowText($"{EM.N_EM} depositato il {dtdeposito}");
 
                 cb.EndText();
                 var len = bf.GetWidthPoint(text, 12);

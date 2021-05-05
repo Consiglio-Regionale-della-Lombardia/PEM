@@ -43,12 +43,6 @@
     <Reference Include="itextsharp.xmlworker, Version=5.5.13.2, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\itextsharp.xmlworker.5.5.13.2\lib\itextsharp.xmlworker.dll</HintPath>
     </Reference>
-    <Reference Include="PortaleRegione.DTO">
-      <HintPath>..\..\PortaleRegione.DTO\bin\Release\PortaleRegione.DTO.dll</HintPath>
-    </Reference>
-    <Reference Include="PortaleRegione.Logger">
-      <HintPath>..\..\PortaleRegione.Logger\bin\Release\PortaleRegione.Logger.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -66,6 +60,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
+      <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
+      <Name>PortaleRegione.DTO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
+      <Project>{1f9eec0b-08cc-481f-820e-c07b8327ac25}</Project>
+      <Name>PortaleRegione.Logger</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

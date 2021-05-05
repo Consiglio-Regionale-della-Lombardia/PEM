@@ -992,7 +992,11 @@ function PubblicaFascicolo(attoUId, ordine) {
         if (data.message) {
             ErrorAlert(data.message);
         }
-        SuccessAlert("Fascicolo pubblicato", "");
+        if (obj.Abilita == true) {
+            SuccessAlert("Fascicolo pubblicato");
+        } else {
+            SuccessAlert("Fascicolo rimosso dalla pubblicazione");
+        }
     }).fail(function(err) {
         console.log("error", err);
         ErrorAlert(err.message);
