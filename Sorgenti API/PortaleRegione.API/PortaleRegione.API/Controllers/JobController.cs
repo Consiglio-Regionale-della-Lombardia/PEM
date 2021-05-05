@@ -163,8 +163,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(new BaseResponse<EmendamentiDto>(model.page, model.size, await _logicEm.GetEmendamenti(model),
-                    null, await _logicEm.CountEM(model.Query)));
+                var countEM = await _logicEm.CountEM(model.Query);
+                return Ok(
+                    new BaseResponse<EmendamentiDto>(
+                        model.page, 
+                        model.size, 
+                        await _logicEm.GetEmendamenti(model),
+                    null, 
+                        countEM)
+                    );
             }
             catch (Exception e)
             {
