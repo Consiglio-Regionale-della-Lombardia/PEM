@@ -646,10 +646,12 @@ namespace PortaleRegione.Client.Controllers
 
             if (ordine <= 0)
             {
-                 proietta = await EMGate.Proietta_ViewLive(id);
+                proietta = await EMGate.Proietta_ViewLive(id);
             }
-
-            proietta = await EMGate.Proietta_View(id, ordine);
+            else
+            {
+                proietta = await EMGate.Proietta_View(id, ordine);
+            }
             var em = proietta.EM;
             em.BodyEM = em.EM_Certificato;
 
