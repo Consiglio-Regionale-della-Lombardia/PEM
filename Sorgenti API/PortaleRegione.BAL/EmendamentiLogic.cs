@@ -1040,7 +1040,7 @@ namespace PortaleRegione.BAL
 
         public async Task Proietta(EM em, Guid currentUId)
         {
-            var em_in_proiezione = await _unitOfWork.Emendamenti.GetEMInProiezione(em.UIDAtto);
+            var em_in_proiezione = await _unitOfWork.Emendamenti.GetCurrentEMInProiezione(em.UIDAtto);
             if (em_in_proiezione != null)
                 em_in_proiezione.Proietta = false;
             em.Proietta = true;
@@ -1634,6 +1634,24 @@ namespace PortaleRegione.BAL
                 Log.Error("GetFirmatariEM_OPENDATA", e);
                 throw e;
             }
+        }
+
+        public async Task<ProiettaResponse> GetEM_LiveProietta(Guid attoUId, PersonaDto persona)
+        {
+            var em_da_proiettare = await _unitOfWork.Emendamenti.GetCurrentEMInProiezione(attoUId);
+            if (em_da_proiettare == null)
+                return null;
+            var proietta = new ProiettaResponse {EM = await GetEM_DTO(em_da_proiettare, persona)};
+            var em_next =
+                await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione + 1);
+            if (em_next != null)
+                proietta.next = em_next.OrdineVotazione;
+            var em_prev =
+                await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione - 1);
+            if (em_prev != null)
+                proietta.prev = em_prev.OrdineVotazione;
+
+            return proietta;
         }
     }
 }

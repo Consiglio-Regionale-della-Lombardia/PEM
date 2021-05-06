@@ -85,16 +85,6 @@
                 </a>
             }
         </div>
-        @if (HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea)
-             || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
-        {
-            <div class="right" style="margin-right: 20px">
-                <label>Reports</label>
-                <a onclick="go('@Url.Action("Index", "Report", new {id = Model.Atto.UIDAtto, type = (int) ReportTypeEnum.NOI})')">
-                    <i class="icon material-icons" title="Visualizza report segreteria">trending_up</i>
-                </a>
-            </div>
-        }
     </div>
 </div>
 

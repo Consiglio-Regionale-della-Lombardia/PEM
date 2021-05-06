@@ -378,7 +378,7 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per proiettare un emendamento in aula
         /// </summary>
-        /// <param name="id">Guid emendamento</param>
+        /// <param name="id">Guid atto</param>
         /// <param name="ordine">Ordine emendamento in votazione</param>
         /// <returns></returns>
         [HttpGet]
@@ -390,6 +390,30 @@ namespace PortaleRegione.API.Controllers
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 var result = await _logicEm.GetEM_ByProietta(id, ordine, persona);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("ProiettaEmendamento", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per conoscere l' emendamento proiettato in aula
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("proietta-view-live")]
+        public async Task<IHttpActionResult> ViewerEmendamento(Guid id)
+        {
+            try
+            {
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                var result = await _logicEm.GetEM_LiveProietta(id, persona);
 
                 return Ok(result);
             }
