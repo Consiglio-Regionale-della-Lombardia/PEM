@@ -80,13 +80,7 @@
 <script>
     $("#btnSave").on("click",
         function () {
-           
-            console.log(editor.text())
-            console.log(editor.html())
-            //setTimeout(function () {
-            //    $('body').removeClass('loaded');
-            //}, 200);
-            //$('#formSedute').submit();
+            $('#formSedute').submit();
         });
 
     $("#formSedute").submit(function (e) {
