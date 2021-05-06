@@ -67,11 +67,12 @@ namespace PortaleRegione.Contracts
         Task UP_EM_TRATTAZIONE(Guid emendamentoUId);
         Task DOWN_EM_TRATTAZIONE(Guid emendamentoUId);
         Task SPOSTA_EM_TRATTAZIONE(Guid emendamentoUId, int pos);
-
-        Task<EM> GetEMInProiezione(Guid emUidAtto);
+        
         Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine);
 
         Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona, OrdinamentoEnum ordine,
             int page, int size, int mode);
+
+        Task<EM> GetCurrentEMInProiezione(Guid attoUId);
     }
 }

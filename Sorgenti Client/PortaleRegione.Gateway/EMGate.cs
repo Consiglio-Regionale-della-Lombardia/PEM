@@ -712,6 +712,26 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+        
+        public static async Task<ProiettaResponse> Proietta_ViewLive(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/emendamenti/proietta-view-live?id={id}";
+                var result = JsonConvert.DeserializeObject<ProiettaResponse>(await Get(requestUrl));
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("Proietta - Live", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Proietta", ex);
+                throw ex;
+            }
+        }
 
         public static async Task<IEnumerable<StatiDto>> GetStati()
         {

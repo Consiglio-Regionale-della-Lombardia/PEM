@@ -214,6 +214,14 @@ namespace PortaleRegione.Persistance
                 .Take(size);
         }
 
+        public async Task<EM> GetCurrentEMInProiezione(Guid attoUId)
+        {
+            var em = await PRContext
+                .EM
+                .FirstOrDefaultAsync(e => e.UIDAtto == attoUId && e.Proietta.Value == true);
+            return em;
+        }
+
         /// <summary>
         ///     Riepilogo emendamenti
         /// </summary>

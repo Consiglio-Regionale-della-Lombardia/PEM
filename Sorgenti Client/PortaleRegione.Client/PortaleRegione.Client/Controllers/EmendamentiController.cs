@@ -640,9 +640,16 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("viewer")]
-        public async Task<ActionResult> ViewerProietta(Guid id, int ordine = 1)
+        public async Task<ActionResult> ViewerProietta(Guid id, int ordine = 0)
         {
-            var proietta = await EMGate.Proietta_View(id, ordine);
+            ProiettaResponse proietta = default;
+
+            if (ordine <= 0)
+            {
+                 proietta = await EMGate.Proietta_ViewLive(id);
+            }
+
+            proietta = await EMGate.Proietta_View(id, ordine);
             var em = proietta.EM;
             em.BodyEM = em.EM_Certificato;
 
