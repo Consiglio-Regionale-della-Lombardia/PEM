@@ -335,8 +335,10 @@ namespace PortaleRegione.BAL
                     if (item.Membro)
                         intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD, AppSettingsConfiguration.TOKEN_W);
                     else
+                    {
+                        intranetAdService.RemoveUserFromADGroupCompleted += IntranetAdService_RemoveUserFromADGroupCompleted;
                         intranetAdService.RemoveUserFromADGroup(item.GruppoAD, request.userAD,
-                            AppSettingsConfiguration.TOKEN_W);
+                            AppSettingsConfiguration.TOKEN_W);}
 
                 if (request.no_Cons == 1)
                 {
@@ -363,6 +365,11 @@ namespace PortaleRegione.BAL
             {
                 throw e;
             }
+        }
+
+        private void IntranetAdService_RemoveUserFromADGroupCompleted(object sender, RemoveUserFromADGroupCompletedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
