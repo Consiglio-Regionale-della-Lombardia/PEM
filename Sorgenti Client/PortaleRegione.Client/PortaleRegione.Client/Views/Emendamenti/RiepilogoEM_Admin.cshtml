@@ -122,32 +122,8 @@
 
 @{
     Html.RenderPartial("_PannelloStrumentiRicerche");
+    Html.RenderPartial("_StampaModal", Model.Atto.UIDAtto);
 }
-
-<div id="modalStampa" class="modal">
-    <div class="modal-content">
-        <h5 id="emStampaDisplayName"></h5>
-        <p>Stai per generare la stampa degli emendamenti selezionati. Sei sicuro?</p>
-        @using (Html.BeginForm("NuovaStampa", "Stampe", FormMethod.Post, new { id = "formStampa" }))
-        {
-            @Html.AntiForgeryToken()
-            @Html.HiddenFor(m => m.Atto.UIDAtto)
-            <input id="hdOrdine" name="Ordine" type="hidden" value="@((int) OrdinamentoEnum.Presentazione)" />
-            <div class="form-group">
-                <label>Dall' emendamento in posizione:</label>
-                <input id="txtDa" name="Da" type="number" class="form-control" value="1" min="1" />
-            </div>
-            <div class="form-group">
-                <label>All' emendamento in posizione:</label>
-                <input id="txtA" name="A" type="number" class="form-control" />
-            </div>
-        }
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaStampa" class="btn blue">Genera stampa</a>
-        </div>
-    </div>
-</div>
 
 <div id="modalEmendamentiUguali" class="modal">
     <div class="modal-content">
@@ -508,85 +484,6 @@
                     } else {
                         go(data);
                     }
-                }).fail(function(err) {
-                    console.log("error", err);
-                    ErrorAlert(err.message);
-                });
-
-                return false; //This doesn't prevent the form from submitting.
-            }
-        });
-
-        function ConfirmStampa() {
-            $("#emStampaDisplayName").empty();
-
-            var documentiTotali = $("#hdTotaleDocumenti").val();
-            var selezionaTutti = getSelezionaTutti();
-            var listaEM = getListaEmendamenti();
-            var totaleDoc = selezionaTutti || listaEM.length == 0 ? documentiTotali - listaEM.length : listaEM.length;
-
-            if (totaleDoc <= 0) {
-                ErrorAlert("Seleziona almeno un emendamento da stampare");
-                return;
-            }
-
-            $("#txtA").val(totaleDoc);
-            $("#txtA").prop("max", totaleDoc);
-
-            $("#emStampaDisplayName").append("GENERA FASCICOLO EMENDAMENTI (TOTALE EM DA ESPORTARE: " + totaleDoc + ")");
-
-            $("#modalStampa").modal("open");
-            $("#btnConfermaStampa").on("click",
-                function() {
-                    setTimeout(function() {
-                            $('body').removeClass('loaded');
-                        },
-                        200);
-                    $("#formStampa").submit();
-                });
-        }
-
-        $("#formStampa").submit(function(e) {
-            e.preventDefault();
-        }).validate({
-            submitHandler: function(form) {
-                var obj = {};
-
-                obj.param = {
-                    UIDAtto: $("#Atto_UIDAtto").val(),
-                    Da: $("#txtDa").val(),
-                    A: $("#txtA").val(),
-                    Ordine: $("#hdOrdine").val()
-                };
-                var lstEM = getListaEmendamenti();
-                if (lstEM.length > 0) {
-                    obj.filtro = [];
-                    var selezionaTutti = getSelezionaTutti();
-                    for (var i = 0; i < lstEM.length; i++) {
-                        obj.filtro.push({
-                            PropertyId: "UIDEM",
-                            Operation: selezionaTutti ? 5 : 1,
-                            Value: lstEM[i],
-                            Connector: @((int)FilterStatementConnector.Or)
-                        });
-                    }
-                }
-
-                //submit via ajax
-                $.ajax({
-                    url: baseUrl + "/stampe/nuova",
-                    type: "POST",
-                    data: JSON.stringify(obj),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                }).done(function(data) {
-                    if (data.message)
-                        ErrorAlert(data.message);
-                    else
-                        SuccessAlert("Vai alla gestione stampe per controllare se la tua stampa è pronta", data);
-
-                    setListaEmendamenti([]);
-                    setSelezionaTutti(false);
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err.message);
