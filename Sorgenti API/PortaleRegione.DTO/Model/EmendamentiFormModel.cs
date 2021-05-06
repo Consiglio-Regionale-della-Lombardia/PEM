@@ -25,6 +25,7 @@ namespace PortaleRegione.DTO.Model
     {
         public IEnumerable<TitoloMissioniDto> ListaTitoli_Missioni;
         public EmendamentiDto Emendamento { get; set; }
+        public AttiDto Atto { get; set; }
         public IEnumerable<PersonaDto> ListaGruppo { get; set; }
         public IEnumerable<PersonaDto> ListaAssessori { get; set; }
         public IEnumerable<PersonaDto> ListaConsiglieri { get; set; }

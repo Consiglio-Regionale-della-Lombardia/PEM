@@ -199,6 +199,7 @@ namespace PortaleRegione.BAL
                 result.ListaArticoli = await GetArticoli(atto.UIDAtto);
 
                 result.Emendamento = emendamento;
+                result.Atto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 return result;
             }
@@ -214,8 +215,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var em = await GetEM_DTO(emInDb, persona);
-
-                var result = new EmendamentiFormModel {Emendamento = em};
+                var result = new EmendamentiFormModel {Emendamento = em, Atto = em.ATTI};
                 if (persona.CurrentRole != RuoliIntEnum.Consigliere_Regionale &&
                     persona.CurrentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta)
                 {
@@ -1086,7 +1086,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                em.ATTI ??= await _unitOfWork.Atti.Get(em.UIDAtto);
+                em.ATTI = await _unitOfWork.Atti.Get(em.UIDAtto);
 
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
 
@@ -1237,7 +1237,7 @@ namespace PortaleRegione.BAL
 
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
-                             await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
+                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
                     dto.PersonaCreazione =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
                             await _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
@@ -1298,22 +1298,19 @@ namespace PortaleRegione.BAL
                 {
                     em.N_EM = GetNomeEM(em);
 
-                    if (!string.IsNullOrEmpty(em.DataDeposito))
-                    {
-                        em.DataDeposito = Decrypt(em.DataDeposito);
-                    }
-                    
+                    if (!string.IsNullOrEmpty(em.DataDeposito)) em.DataDeposito = Decrypt(em.DataDeposito);
+
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
 
                     dto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
-                    
+
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
                             await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
 
                     result.Add(dto);
                 }
-                
+
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE));
 
                 return new EmendamentiViewModel
@@ -1460,7 +1457,8 @@ namespace PortaleRegione.BAL
             PersonaDto persona)
         {
             var result = new List<EmendamentiDto>();
-            var counter_em = await _unitOfWork.Emendamenti.Count(attoUId,persona,CounterEmendamentiEnum.NONE, (int)ClientModeEnum.GRUPPI);
+            var counter_em = await _unitOfWork.Emendamenti.Count(attoUId, persona, CounterEmendamentiEnum.NONE,
+                (int) ClientModeEnum.GRUPPI);
 
             var emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>
             {
@@ -1471,7 +1469,7 @@ namespace PortaleRegione.BAL
             }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
 
             result.AddRange(emList.Data.Results);
-            
+
             return result;
         }
 
@@ -1605,7 +1603,7 @@ namespace PortaleRegione.BAL
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                         {
-                            var firmatario =  await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
                             result +=
                                 $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
                         }
