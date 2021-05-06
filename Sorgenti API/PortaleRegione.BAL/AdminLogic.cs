@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL.proxyAd;
@@ -32,6 +27,11 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -112,14 +112,14 @@ namespace PortaleRegione.BAL
                             result.Add(group.Translate(typeof(NTAccount)).ToString().Replace(@"CONSIGLIO\", ""));
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
 
                 result.Sort();
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var result_vuoto = new List<string>();
                 result_vuoto.Add("");
@@ -333,12 +333,28 @@ namespace PortaleRegione.BAL
 
                 foreach (var item in request.gruppiAd)
                     if (item.Membro)
-                        intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD, AppSettingsConfiguration.TOKEN_W);
+                    {
+                        try
+                        {
+                            var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD, AppSettingsConfiguration.TOKEN_W);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error($"Add - {item.GruppoAD}", e);
+                        }
+                    }
                     else
                     {
-                        intranetAdService.RemoveUserFromADGroupCompleted += IntranetAdService_RemoveUserFromADGroupCompleted;
-                        intranetAdService.RemoveUserFromADGroup(item.GruppoAD, request.userAD,
-                            AppSettingsConfiguration.TOKEN_W);}
+                        try
+                        {
+                            var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD, request.userAD, 
+                                AppSettingsConfiguration.TOKEN_W);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error($"Remove - {item.GruppoAD}", e);
+                        }
+                    }
 
                 if (request.no_Cons == 1)
                 {
@@ -365,11 +381,6 @@ namespace PortaleRegione.BAL
             {
                 throw e;
             }
-        }
-
-        private void IntranetAdService_RemoveUserFromADGroupCompleted(object sender, RemoveUserFromADGroupCompletedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 }
