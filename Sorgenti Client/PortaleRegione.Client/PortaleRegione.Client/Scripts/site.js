@@ -49,6 +49,7 @@ function openSearch() {
 function go(link, switchMode) {
     var mode = getClientMode();
     if (switchMode == true) {
+        if (!link) return;
         if (link.includes("mode=1")) {
             link = link.replace("mode=1", "mode=2");
         } else if (link.includes("mode=2")) {
@@ -59,6 +60,7 @@ function go(link, switchMode) {
             link = link + "?mode=" + mode;
         }
     } else {
+        if (!link) return;
         if (link.includes("mode")) {
             //esco
         } else if (link.includes("?")) {
