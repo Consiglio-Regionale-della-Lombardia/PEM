@@ -88,7 +88,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -97,7 +97,15 @@ namespace PortaleRegione.Client.Controllers
         [Route("legislature")]
         public async Task<ActionResult> Filtri_GetLegislature()
         {
-            return Json(await SeduteGate.GetLegislature(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(await SeduteGate.GetLegislature(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]

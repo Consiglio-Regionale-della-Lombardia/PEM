@@ -208,7 +208,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -245,7 +245,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -505,7 +505,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -527,7 +527,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -548,7 +548,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -577,7 +577,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -606,7 +606,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -628,7 +628,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -675,7 +675,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -696,7 +696,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -717,7 +717,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -739,7 +739,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(new ErrorResponse {message = e.Message}, JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 

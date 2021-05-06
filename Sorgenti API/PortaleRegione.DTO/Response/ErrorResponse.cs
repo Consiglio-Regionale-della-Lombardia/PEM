@@ -15,10 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Newtonsoft.Json;
+
 namespace PortaleRegione.DTO.Response
 {
     public class ErrorResponse
     {
+        public ErrorResponse()
+        {
+            
+        }
+        public ErrorResponse(string _message)
+        {
+            message = JsonConvert.DeserializeObject<ErrorResponse>(_message).message;
+        }
         public string message { get; set; }
         public string exceptionMessage { get; set; }
         public string exceptionType { get; set; }
