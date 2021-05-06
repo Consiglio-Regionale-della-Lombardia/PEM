@@ -504,7 +504,34 @@ function CambioStato(uidem, stato) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            go(data);
+            var label = $('#tdStato_' + uidem + '>label');
+            var textStato = "";
+            var cssStato = "";
+            if (stato == 1) {
+                textStato = "Depositato";
+                cssStato = "depositatoT";
+            }else if (stato == 2) {
+                textStato = "Approvato";
+                cssStato = "approvatoT";
+            }else if (stato == 3) {
+                textStato = "Non approvato";
+                cssStato = "NOapprovatoT";
+            }else if (stato == 4) {
+                textStato = "Ritirato";
+                cssStato = "ritiratoT";
+            }else if (stato == 5) {
+                textStato = "Decaduto";
+                cssStato = "decadutoT";
+            } else if (stato == 6) {
+                textStato = "Inammissibile";
+                cssStato = "inammissibileT";
+            } else if (stato == 7) {
+                textStato = "Approvato con modifiche";
+                cssStato = "approvatomodT";
+            }
+            $(label).removeClass();
+            $(label).text(textStato);
+            $(label).addClass(cssStato);
         }
     }).fail(function(err) {
         console.log("error", err);
