@@ -187,7 +187,7 @@ else
                         @*COMANDI*@
                         @if (ordinePaginaEnum == OrdinamentoEnum.Votazione && itemEM.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
                         {
-                            <a class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
+                            <a id="cmdProietta_@itemEM.UIDEM" class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
                                 @if (itemEM.Proietta.Value)
                                 {
                                     <i class="material-icons">subscriptions</i>
@@ -231,7 +231,19 @@ else
             url: "/emendamenti/proietta?id=" + uidem,
             type: "GET"
         }).done(function (result) {
-            go(result);
+            var cmdCtrl = $('#cmdProietta_' + uidem).children();
+            var oldVal = $(cmdCtrl).html();
+            var newVal = "";
+            var textMsg = "";
+            if (oldVal == "subscriptions") {
+                newVal = "check_box_outline_blank";
+                textMsg = "Emendamento tolto dalla proiezione in aula";
+            } else {
+                newVal = "subscriptions";
+                textMsg = "Emendamento proiettato in aula";
+            }
+            $(cmdCtrl).html(newVal);
+            M.toast({ html: "<span>" + textMsg + "</span><button onclick='proiettaEM(\"" + uidem + "\")' class='btn-flat toast-action'>Annulla</button>", classes: 'rounded' });
         }).fail(function (err) {
             console.log("Proietta - error", err);
             ErrorAlert(err);
