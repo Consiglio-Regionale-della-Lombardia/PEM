@@ -975,7 +975,6 @@ function PubblicaFascicolo(attoUId, ordine) {
     obj.Id = attoUId;
     obj.Ordinamento = ordine;
 
-
     if (ordine == 1) {
         obj.Abilita = $("#chkAbilitaFascicoloPresentazione_" + attoUId)[0].checked;
     } else {
