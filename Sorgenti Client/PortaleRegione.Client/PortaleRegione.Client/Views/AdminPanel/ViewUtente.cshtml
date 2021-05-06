@@ -159,9 +159,7 @@
 <script>
     $("#btnSalvaUtente").on("click",
         function() {
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
+            waiting(true);
             $('#formPersona').submit();
         });
 
@@ -171,6 +169,7 @@
         submitHandler: function(form) {
 
             var groups = $('input[name="gruppiAD"]');
+           
             var selected_groups = []
             $.each(groups, function(index, item) {
                 selected_groups.push({
@@ -179,29 +178,31 @@
                 });
             });
 
-            var form_data = new FormData();
-            form_data.append("uid_persona", $('input[name="Persona.UID_persona"]').val());
-            form_data.append("id_persona", $('input[name="Persona.id_persona"]').val());
-            form_data.append("nome", $('input[name="Persona.nome"]').val());
-            form_data.append("cognome", $('input[name="Persona.cognome"]').val());
-            form_data.append("email", $('input[name="Persona.email"]').val());
-            form_data.append("foto", $('input[name="Persona.foto"]').val());
-            form_data.append("userAd", $('input[name="Persona.userAD"]').val());
-            form_data.append("notifica_firma", $('input[name="notifica_firma"]').is(":checked"));
-            form_data.append("notifica_deposito", $('input[name="notifica_deposito"]').is(":checked"));
-            form_data.append("attivo", $('input[name="attivo"]').is(":checked"));
-            form_data.append("deleted", $('input[name="deleted"]').is(":checked"));
-            form_data.append("no_cons", $('input[name="No_Cons"]').is(":checked") ? 0 : 1);
-            form_data.append("gruppiAd", selected_groups);
+            var form_data = {
+                uid_persona: $('input[name="Persona.UID_persona"]').val(),
+                id_persona: $('input[name="Persona.id_persona"]').val(),
+                nome: $('input[name="Persona.nome"]').val(),
+                cognome: $('input[name="Persona.cognome"]').val(),
+                email: $('input[name="Persona.email"]').val(),
+                foto: $('input[name="Persona.foto"]').val(),
+                userAd: $('input[name="Persona.userAD"]').val(),
+                notifica_firma: $('input[name="notifica_firma"]').is(":checked"),
+                notifica_deposito: $('input[name="notifica_deposito"]').is(":checked"),
+                attivo: $('input[name="attivo"]').is(":checked"),
+                deleted: $('input[name="deleted"]').is(":checked"),
+                no_cons: $('input[name="No_Cons"]').is(":checked") ? 0 : 1,
+                gruppiAd: selected_groups
+            }
 
             //submit via ajax
             $.ajax({
                     url: '@Url.Action("SalvaPersona", "AdminPanel")',
                     type: "POST",
-                    data: form_data,
-                    processData: false,
-                    contentType: false
+                    data: JSON.stringify(form_data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
                 }).done(function(dataResult) {
+                    waiting(false);
                     if (dataResult.message)
                         ErrorAlert(dataResult.message);
                     else {
