@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -33,6 +34,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using QRCoder;
 
 namespace PortaleRegione.BAL
 {
@@ -93,7 +95,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetNomeEM(EmendamentiDto emendamento)
+        internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
         {
             try
             {
@@ -115,7 +117,8 @@ namespace PortaleRegione.BAL
                     else
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
 
-                    var n_em_riferimento = GetNomeEM(emendamento.EM2);
+                    
+                    var n_em_riferimento = GetNomeEM(riferimento, null);
                     result = $"{result} all' {n_em_riferimento}";
                 }
 
@@ -128,11 +131,12 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string GetNomeEM(EM emendamento)
+        internal static string GetNomeEM(EM emendamento, EM riferimento)
         {
             try
             {
-                return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento));
+                return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
+                    Mapper.Map<EM, EmendamentiDto>(riferimento));
             }
             catch (Exception e)
             {
@@ -292,7 +296,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyPDF(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme, PersonaDto currentUser,
+        internal static void GetBodyPDF(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
+            PersonaDto currentUser,
             ref string body)
         {
             try
@@ -407,13 +412,32 @@ namespace PortaleRegione.BAL
                         .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
                         .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
 
-                body = body.Replace("{QRCode}", string.Empty);
+                var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
+                var qrFilePathComplete = Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
+                var qrLink = string.Format(AppSettingsConfiguration.urlPEM_ViewEM, emendamento.UIDEM);
+                var qrGenerator = new QRCodeGenerator();
+                var urlPayload = new PayloadGenerator.Url(qrLink);
+                var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
+                var qrCode = new QRCode(qrData);
+                using (var qrCodeImage = qrCode.GetGraphic(20))
+                {
+                    qrCodeImage.Save(qrFilePathComplete);
+                }
+
+                body = body.Replace("{QRCode}", $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />");
             }
             catch (Exception e)
             {
                 Log.Error("GetBodyPDF", e);
                 throw e;
             }
+        }
+
+        private static byte[] BitmapToBytes(Bitmap img)
+        {
+            using var stream = new MemoryStream();
+            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            return stream.ToArray();
         }
 
         internal static void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,

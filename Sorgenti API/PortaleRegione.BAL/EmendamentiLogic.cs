@@ -121,36 +121,69 @@ namespace PortaleRegione.BAL
 
                 var progressivo = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                                   || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                                  || persona.CurrentRole == RuoliIntEnum.Presidente_Regione
                     ? 1
                     : await _unitOfWork.Emendamenti.GetProgressivo(atto.UIDAtto,
                         persona.Gruppo.id_gruppo, sub_em);
 
                 if (sub_em)
                 {
-                    var ref_em = await GetEM_DTO(em_riferimentoUId.Value, persona);
+                    var ref_em = await GetEM(em_riferimentoUId.Value);
                     emendamento.SubProgressivo = progressivo;
                     emendamento.Rif_UIDEM = em_riferimentoUId;
                     emendamento.IDStato = (int) StatiEnum.Bozza;
                     emendamento.IDTipo_EM = ref_em.IDTipo_EM;
                     emendamento.IDParte = ref_em.IDParte;
+                    switch ((PartiEMEnum) emendamento.IDParte)
+                    {
+                        case PartiEMEnum.Titolo_PDL:
+                            break;
+                        case PartiEMEnum.Titolo:
+                            emendamento.NTitolo = ref_em.NTitolo;
+                            break;
+                        case PartiEMEnum.Capo:
+                            emendamento.NCapo = ref_em.NCapo;
+                            break;
+                        case PartiEMEnum.Articolo:
+                            if (ref_em.UIDArticolo.HasValue)
+                                emendamento.UIDArticolo = ref_em.UIDArticolo;
+                            if (ref_em.UIDComma.HasValue)
+                                emendamento.UIDComma = ref_em.UIDComma;
+                            if (ref_em.UIDLettera.HasValue)
+                                emendamento.UIDLettera = ref_em.UIDLettera;
+                            break;
+                        case PartiEMEnum.Missione:
+                            if (ref_em.NMissione.HasValue)
+                                emendamento.NMissione = ref_em.NMissione;
+                            if (ref_em.NTitoloB.HasValue)
+                                emendamento.NTitoloB = ref_em.NTitoloB;
+                            if (ref_em.NProgramma.HasValue)
+                                emendamento.NProgramma = ref_em.NProgramma;
+                            break;
+                        case PartiEMEnum.Allegato_Tabella:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                     emendamento.TestoEM_originale =
-                        $"L' {ref_em.N_EM.Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
+                        $"L' {Decrypt(ref_em.N_EM, AppSettingsConfiguration.masterKey).Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
                     emendamento.TestoREL_originale = ref_em.TestoREL_originale;
+                    emendamento.N_EM = GetNomeEM(Mapper.Map<EmendamentiDto, EM>(emendamento), ref_em);
                 }
                 else
                 {
                     emendamento.Progressivo = progressivo;
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                         || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                        || isGiunta)
+                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
                         emendamento.IDStato = (int) StatiEnum.Bozza;
                     else
                         emendamento.IDStato = persona.Gruppo.abilita_em_privati
                             ? (int) StatiEnum.Bozza_Riservata
                             : (int) StatiEnum.Bozza;
-                }
 
-                emendamento.N_EM = GetNomeEM(emendamento);
+                    emendamento.N_EM = GetNomeEM(emendamento, null);
+                }
 
                 if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                     persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
@@ -166,7 +199,9 @@ namespace PortaleRegione.BAL
                 else
                 {
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione
+                        || isGiunta)
                     {
                         result.ListaConsiglieri =
                             await _logicPersone.GetConsiglieri();
@@ -187,7 +222,8 @@ namespace PortaleRegione.BAL
                 emendamento.DataCreazione = DateTime.Now;
                 emendamento.idRuoloCreazione = (int) persona.CurrentRole;
                 if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                    && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
                     emendamento.id_gruppo = persona.Gruppo.id_gruppo;
                 emendamento.UIDAtto = atto.UIDAtto;
                 emendamento.ATTI = Mapper.Map<ATTI, AttiDto>(atto);
@@ -515,7 +551,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em));
+                    var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
 
                     if (em.STATI_EM.IDStato > (int) StatiEnum.Depositato)
                         results.Add(idGuid, $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile");
@@ -638,7 +674,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em));
+                    var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
 
                     var seduta = await _unitOfWork.Sedute.Get(em.ATTI.UIDSeduta.Value);
 
@@ -855,8 +891,7 @@ namespace PortaleRegione.BAL
                     DateTime.Now < em.ATTI.SEDUTE.Data_seduta)
                 {
                     // INVIO MAIL A SEGRETERIA PER AVVISARE DEL RITIRO DELL'EM DOPO IL TERMINE DELL'ATTO
-                    var nome_em = GetNomeEM(
-                        Mapper.Map<EM, EmendamentiDto>(em));
+                    var nome_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
                     var ruoloSegreterie = await _unitOfWork.Ruoli.Get(10);
                     await _logicUtil.InvioMail(new MailModel
                     {
@@ -1090,7 +1125,8 @@ namespace PortaleRegione.BAL
 
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
 
-                emendamentoDto.N_EM = GetNomeEM(emendamentoDto);
+                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                    em.Rif_UIDEM.HasValue ? await GetEM_DTO(em.Rif_UIDEM.Value, persona) : null);
                 emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
@@ -1219,7 +1255,7 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    em.N_EM = GetNomeEM(em);
+                    em.N_EM = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
@@ -1296,7 +1332,7 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    em.N_EM = GetNomeEM(em);
+                    em.N_EM = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
 
                     if (!string.IsNullOrEmpty(em.DataDeposito)) em.DataDeposito = Decrypt(em.DataDeposito);
 
@@ -1352,7 +1388,8 @@ namespace PortaleRegione.BAL
 
                 foreach (var em in em_in_db)
                 {
-                    em.N_EM = GetNomeEM(em);
+                    em.N_EM = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
+                    ;
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
@@ -1402,15 +1439,13 @@ namespace PortaleRegione.BAL
             {
                 var emendamenti = _unitOfWork
                     .Emendamenti
-                    .GetAll(model)
-                    .Select(Mapper.Map<EM, EmendamentiDto>)
-                    .ToList();
+                    .GetAll(model);
                 var result = new List<EmendamentiDto>();
                 foreach (var em in emendamenti)
                 {
-                    em.N_EM = GetNomeEM(em);
+                    em.N_EM = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
                     em.DataDeposito = !string.IsNullOrEmpty(em.DataDeposito) ? Decrypt(em.DataDeposito) : "";
-                    result.Add(em);
+                    result.Add(Mapper.Map<EM, EmendamentiDto>(em));
                 }
 
                 return result;
@@ -1484,7 +1519,7 @@ namespace PortaleRegione.BAL
             var result = string.Empty;
             try
             {
-                var nome_em = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em));
+                var nome_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
 
                 //Colonna IDEM
                 result +=

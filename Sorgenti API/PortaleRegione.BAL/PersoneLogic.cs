@@ -216,6 +216,18 @@ namespace PortaleRegione.BAL
         
         public async Task<GruppiDto> GetGruppo(int id)
         {
+            if (id >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
+            {
+                return new GruppiDto
+                {
+                    id_gruppo = id,
+                    abilita_em_privati = false,
+                    giunta = true,
+                    codice_gruppo = "GIUNTA",
+                    nome_gruppo = "Giunta Regionale"
+                };
+            }
+
             return Mapper.Map<gruppi_politici, GruppiDto>(await _unitOfWork.Gruppi.Get(id));
         }
 
