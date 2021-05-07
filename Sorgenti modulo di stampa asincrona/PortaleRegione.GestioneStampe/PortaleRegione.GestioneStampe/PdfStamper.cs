@@ -103,20 +103,6 @@ namespace PortaleRegione.GestioneStampe
                 //var testFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.pdf");
                 File.WriteAllBytes(path, bytes);
 
-
-                //**********************************************************************************
-                //MAX: ELIMINO LA FUFFA
-                //**********************************************************************************
-                //try
-                //{
-                //    if (File.Exists(path)) File.Delete(path);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Log.Error("[CreaPDF]: Impossibile eliminare il file temporaneo " + path + " -->", ex);
-                //}
-
-                //**********************************************************************************
             }
             catch (Exception ex)
             {
