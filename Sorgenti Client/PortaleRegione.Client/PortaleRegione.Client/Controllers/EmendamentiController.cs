@@ -49,7 +49,7 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{id:guid}")]
-        public async Task<ActionResult> RiepilogoEmendamenti(Guid id, ClientModeEnum mode,
+        public async Task<ActionResult> RiepilogoEmendamenti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, int page = 1, int size = 50)
         {
             var view_grid = Request.QueryString["view"];
