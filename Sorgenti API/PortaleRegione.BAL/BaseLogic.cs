@@ -95,7 +95,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetNomeEM(EmendamentiDto emendamento)
+        internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
         {
             try
             {
@@ -117,7 +117,8 @@ namespace PortaleRegione.BAL
                     else
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
 
-                    var n_em_riferimento = GetNomeEM(emendamento.EM2);
+                    
+                    var n_em_riferimento = GetNomeEM(riferimento, null);
                     result = $"{result} all' {n_em_riferimento}";
                 }
 
@@ -130,11 +131,12 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string GetNomeEM(EM emendamento)
+        internal static string GetNomeEM(EM emendamento, EM riferimento)
         {
             try
             {
-                return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento));
+                return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
+                    Mapper.Map<EM, EmendamentiDto>(riferimento));
             }
             catch (Exception e)
             {
