@@ -14,15 +14,18 @@ namespace PortaleRegione.Client
                 "~/Scripts/modernizr-*",
                 "~/Scripts/materialize.js"));
             bundles.Add(new ScriptBundle("~/bundles/logic")
-                .Include("~/Scripts/loader.js", "~/Scripts/site.js", "~/Scripts/SessionManager.js",
-                    "~/Scripts/FiltriManager.js"));
+                .Include("~/Scripts/loader.js", "~/Scripts/site.js", 
+                    "~/Scripts/SessionManager.js",
+                    "~/Scripts/FiltriManager.js",
+                    "~/Content/editor/trumbowyg.min.js"));
 
             // Utilizzare la versione di sviluppo di Modernizr per eseguire attività di sviluppo e formazione. Successivamente, quando si è
             // pronti per passare alla produzione, usare lo strumento di compilazione disponibile all'indirizzo https://modernizr.com per selezionare solo i test necessari.
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                 "~/Content/site.css",
-                "~/Content/jquery-hex-picker.css"));
+                "~/Content/jquery-hex-picker.css",
+                "~/Content/editor/ui/trumbowyg.min.css"));
         }
     }
 }
