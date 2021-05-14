@@ -393,13 +393,14 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (model.TestoEM_Modificabile == em.TestoEM_originale) model.TestoEM_Modificabile = string.Empty;
-
                 var updateMetaDatiDto = Mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
                 var emAggiornato = Mapper.Map(updateMetaDatiDto, em);
 
                 emAggiornato.UIDPersonaModifica = persona.UID_persona;
                 emAggiornato.DataModifica = DateTime.Now;
+                emAggiornato.IDStato = (int) StatiEnum.Approvato_Con_Modifiche;
+                if (model.TestoEM_Modificabile != em.TestoEM_originale)
+                    emAggiornato.TestoEM_Modificabile = model.TestoEM_Modificabile;
 
                 await _unitOfWork.CompleteAsync();
             }
