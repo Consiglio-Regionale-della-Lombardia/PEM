@@ -657,6 +657,17 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
+
+                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
+                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+
+                if (firmaUfficio)
+                {
+                    if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
+                        return BadRequest("Pin inserito non valido");
+                    return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
+                }
+
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                     return BadRequest("Pin non impostato");
