@@ -9611,7 +9611,7 @@ var $jscomp$this = this;
         container: null,
 
         // Show clear button
-        showClearBtn: false,
+        showClearBtn: true,
 
         // internationalization
         i18n: {
@@ -10602,7 +10602,7 @@ var $jscomp$this = this;
         container: null,
         defaultTime: "now", // default time, 'now' or '13:14' e.g.
         fromNow: 0, // Millisecond offset from the defaultTime
-        showClearBtn: false,
+        showClearBtn: true,
 
         // internationalization
         i18n: {
