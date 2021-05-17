@@ -73,7 +73,7 @@ namespace PortaleRegione.Client.Controllers
 
             if (!string.IsNullOrEmpty(view_grid))
                 foreach (var emendamentiDto in model.Data.Results)
-                    emendamentiDto.BodyEM = await EMGate.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.PDF);
+                    emendamentiDto.BodyEM = await EMGate.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
 
             if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
