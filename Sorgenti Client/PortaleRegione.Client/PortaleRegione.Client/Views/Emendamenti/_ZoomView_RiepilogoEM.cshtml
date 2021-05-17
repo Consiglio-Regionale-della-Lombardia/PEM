@@ -85,25 +85,24 @@ else
                     </div>
                     <div class='col s4'>
                         <div class='card-action right'>
-                            <a class='btn-floating btn-small green lighten-1 white-text' style='margin: 5px' onclick="StampaPDF('@itemEM.UIDEM')">
-                                <i class="icon material-icons" title="Scarica PDF">picture_as_pdf</i>
-                            </a>
-                            <a class='btn-floating btn-small blue lighten-1 white-text' style='margin: 5px' target='_blank' onclick="StampaWORD('@itemEM.UIDEM')">
-                                <i class="icon material-icons" title="Scarica WORD">insert_drive_file</i>
-                            </a>
                             @if (HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
                             {
-                                <a class='btn-floating btn-small blue white-text' style='margin: 5px' onclick="ViewMetaDati('@itemEM.UIDEM')">
-                                    <i class="icon material-icons" title="Modifica dati">edit</i>
+                                <a class='blue-text' style='margin: 5px' onclick="go('@Url.Action("ModificaMetaDatiEmendamento", new {id = itemEM.UIDEM})')">
+                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Modifica dati">edit</i>
                                 </a>
                             }
 
                             @if (abilitaInvitoConsigliere || abilitaInvitoSegreteria)
                             {
-                                <a class='btn-floating btn-small amber white-text' style='margin: 5px' onclick="Invita('@itemEM.UIDEM')">
-                                    <i class="icon material-icons" title="Invita">send</i>
+                                <a class='amber-text' style='margin: 5px' onclick="Invita('@itemEM.UIDEM')">
+                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Invita">send</i>
                                 </a>
                             }
+                            
+                            <a class="green-text tooltipped" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
+                               data-position="left" data-tooltip="Visualizza emendamento">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -116,20 +115,20 @@ else
                         <div class='col s12'>
                             <div class='card-action right'>
                                 @{
-                                    if (itemEM.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
+                                    if (itemEM.IDStato <= (int) StatiEnum.Depositato)
                                     {
                                         if (itemEM.Firmabile)
                                         {
-                                            <a class='btn-floating btn-small green white-text' style='margin: 5px' onclick="Firma('@itemEM.UIDEM')">
+                                            <a class='green-text' style='margin: 5px' onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
                                                 <i class="icon material-icons" title="Firma">gavel</i>
                                             </a>
                                         }
                                     }
-                                    if (itemEM.STATI_EM.IDStato <= (int) StatiEnum.Bozza)
+                                    if (itemEM.IDStato <= (int) StatiEnum.Bozza)
                                     {
                                         if (itemEM.Depositabile)
                                         {
-                                            <a class='btn-floating btn-small purple white-text' style='margin: 5px' onclick="Deposito('@itemEM.UIDEM')">
+                                            <a class='purple-text' style='margin: 5px' onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
                                                 <i class="icon material-icons" title="Deposita">lock</i>
                                             </a>
                                         }

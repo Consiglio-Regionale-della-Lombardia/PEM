@@ -165,6 +165,7 @@ namespace PortaleRegione.BAL
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     emendamento.TestoEM_originale =
                         $"L' {Decrypt(ref_em.N_EM, AppSettingsConfiguration.masterKey).Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
                     emendamento.TestoREL_originale = ref_em.TestoREL_originale;
@@ -393,13 +394,14 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (model.TestoEM_Modificabile == em.TestoEM_originale) model.TestoEM_Modificabile = string.Empty;
-
                 var updateMetaDatiDto = Mapper.Map<EmendamentiDto, MetaDatiEMDto>(model);
                 var emAggiornato = Mapper.Map(updateMetaDatiDto, em);
 
                 emAggiornato.UIDPersonaModifica = persona.UID_persona;
                 emAggiornato.DataModifica = DateTime.Now;
+                emAggiornato.IDStato = (int) StatiEnum.Approvato_Con_Modifiche;
+                if (model.TestoEM_Modificabile != em.TestoEM_originale)
+                    emAggiornato.TestoEM_Modificabile = model.TestoEM_Modificabile;
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -474,9 +476,12 @@ namespace PortaleRegione.BAL
                             GetBodyMail(emendamentoDto, firmeDto, isDeposito, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBodyPDF(emendamentoDto, attoDto, firmeDto, persona, ref body);
+                            GetBody(emendamentoDto, attoDto, firmeDto, persona, true, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
+                            GetBody(emendamentoDto, attoDto, firmeDto, persona, false, ref body);
+                            break;
+                        case TemplateTypeEnum.FIRMA:
                             GetBodyTemporaneo(emendamentoDto, attoDto, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
@@ -553,7 +558,7 @@ namespace PortaleRegione.BAL
 
                     var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
 
-                    if (em.STATI_EM.IDStato > (int) StatiEnum.Depositato)
+                    if (em.IDStato > (int) StatiEnum.Depositato)
                         results.Add(idGuid, $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile");
 
                     var firmaCert = string.Empty;
@@ -637,7 +642,7 @@ namespace PortaleRegione.BAL
                                     ufficio = firmaUfficio
                                 }
                             }, persona,
-                            TemplateTypeEnum.HTML);
+                            TemplateTypeEnum.FIRMA);
                         var body_encrypt = EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 

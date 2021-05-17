@@ -2,7 +2,7 @@
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
-    ViewBag.Title = string.Format("Meta Dati {0}", Model.Emendamento.DisplayTitle);
+    ViewBag.Title = string.Format("Meta Dati {0}", Model.Emendamento.N_EM);
     var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
     object objParams = null;
     if (ordineFromCache != null)
@@ -130,18 +130,21 @@
         submitHandler: function(form) {
             var body = JSON.parse(JSON.stringify($("#formMetaDati").serializeObject()));
 
-            if ($("#Emendamento_TestoEM_modificabile_ifr").contents().find("#trumbowyg").text() != "")
-                body["Emendamento.TestoEM_modificabile"] =
-                    $("#Emendamento_TestoEM_modificabile_ifr").contents().find("#trumbowyg").html();
+            var container = $("#Emendamento_TestoEM_Modificabile").parent();
+            var editor = $(container).find(".trumbowyg-editor");
 
+            if (editor.text() != "")
+                body["Emendamento.TestoEM_Modificabile"] = editor.html();
+            console.log(body)
             //submit via ajax
             $.ajax({
-                url: baseUrl + "/emendamenti/meta-dati",
+                url: "/emendamenti/meta-dati",
                 type: "POST",
                 data: JSON.stringify(body),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+                console.log(data)
                 if (data.message)
                     ErrorAlert(data.message);
                 else

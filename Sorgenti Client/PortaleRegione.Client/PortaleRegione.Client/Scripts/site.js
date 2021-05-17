@@ -354,6 +354,11 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
+    console.log("selectArticolo")
+    $('#ArticoliList').val(value);
+    var elemsArt = document.querySelectorAll("#ArticoliList");
+    M.FormSelect.init(elemsArt, null);
+
     var commi = await GetCommi(value);
     if (commi.length > 0) {
         $("#pnlCommi").show();
@@ -382,7 +387,7 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
             await Commi_OnChange(valueCommaSelected, valueLetteraSelected);
         }
     } else
-        $("#pnlCommi").hide();;
+        $("#pnlCommi").hide();
 }
 
 async function Commi_OnChange(value, valueLetteraSelected) {

@@ -220,10 +220,13 @@ namespace PortaleRegione.BAL
                         path = HttpContext.Current.Server.MapPath("~/templates/template_pdf_copertina.html");
                         break;
                     case TemplateTypeEnum.MAIL:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_mail.html");
+                        path = HttpContext.Current.Server.MapPath("~/templates/template_mail.html"); 
                         break;
                     case TemplateTypeEnum.HTML:
                         path = HttpContext.Current.Server.MapPath("~/templates/template_html.html");
+                        break;
+                    case TemplateTypeEnum.FIRMA:
+                        path = HttpContext.Current.Server.MapPath("~/templates/template_firma.html");
                         break;
                     case TemplateTypeEnum.HTML_MODIFICABILE:
                         path = HttpContext.Current.Server.MapPath(
@@ -250,8 +253,6 @@ namespace PortaleRegione.BAL
             {
                 if (!string.IsNullOrEmpty(emendamento.EM_Certificato)) return;
                 //EM TEMPORANEO
-                body = body.Replace("{lblPDLEMView}",
-                    $"{atto.TIPI_ATTO.Tipo_Atto}/{atto.NAtto}");
                 body = body.Replace("{lblTitoloPDLEMView}",
                     $"PROGETTO DI LEGGE N.{atto.NAtto}");
                 body = body.Replace("{lblSubTitoloPDLEMView}", atto.Oggetto);
@@ -296,8 +297,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyPDF(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
+        internal static void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
             PersonaDto currentUser,
+            bool enableQrCode,
             ref string body)
         {
             try
@@ -309,9 +311,9 @@ namespace PortaleRegione.BAL
                 if (string.IsNullOrEmpty(emendamento.EM_Certificato))
                 {
                     //EM TEMPORANEO
-                    var bodyEMView = string.Empty;
-                    GetBodyTemporaneo(emendamento, atto, ref bodyEMView);
-                    body = body.Replace("{ltEMView}", bodyEMView);
+                    var bodyTemp = GetTemplate(TemplateTypeEnum.FIRMA);
+                    GetBodyTemporaneo(emendamento, atto, ref bodyTemp);
+                    body = body.Replace("{ltEMView}", bodyTemp);
                     body = body.Replace("{ltTestoModificabile}", "").Replace("{TESTOMOD_COMMENTO_START}", "<!--")
                         .Replace("{TESTOMOD_COMMENTO_END}", "-->");
                     body = body.Replace("{lblFattoProprioDa}", "").Replace("{FATTOPROPRIO_COMMENTO_START}", "<!--")
@@ -349,7 +351,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                if (emendamento.IDStato >= (int) StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",
@@ -357,7 +359,7 @@ namespace PortaleRegione.BAL
                             ? "Emendamento Depositato d'ufficio"
                             : $"Emendamento Depositato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
 
-                    var firmeAnte = firmeDtos.Where(f => f.Timestamp < Convert.ToDateTime(emendamento.DataDeposito));
+                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito));
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
 
                     body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))
@@ -412,19 +414,25 @@ namespace PortaleRegione.BAL
                         .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
                         .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
 
-                var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
-                var qrFilePathComplete = Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
-                var qrLink = string.Format(AppSettingsConfiguration.urlPEM_ViewEM, emendamento.UIDEM);
-                var qrGenerator = new QRCodeGenerator();
-                var urlPayload = new PayloadGenerator.Url(qrLink);
-                var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
-                var qrCode = new QRCode(qrData);
-                using (var qrCodeImage = qrCode.GetGraphic(20))
+                var textQr = string.Empty;
+                if (enableQrCode)
                 {
-                    qrCodeImage.Save(qrFilePathComplete);
+                    var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
+                    var qrFilePathComplete = Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
+                    var qrLink = string.Format(AppSettingsConfiguration.urlPEM_ViewEM, emendamento.UIDEM);
+                    var qrGenerator = new QRCodeGenerator();
+                    var urlPayload = new PayloadGenerator.Url(qrLink);
+                    var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
+                    var qrCode = new QRCode(qrData);
+                    using (var qrCodeImage = qrCode.GetGraphic(20))
+                    {
+                        qrCodeImage.Save(qrFilePathComplete);
+                    }
+
+                    textQr = $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />";
                 }
 
-                body = body.Replace("{QRCode}", $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />");
+                body = body.Replace("{QRCode}", textQr);
             }
             catch (Exception e)
             {
