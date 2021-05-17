@@ -225,6 +225,9 @@ namespace PortaleRegione.BAL
                     case TemplateTypeEnum.HTML:
                         path = HttpContext.Current.Server.MapPath("~/templates/template_html.html");
                         break;
+                    case TemplateTypeEnum.FIRMA:
+                        path = HttpContext.Current.Server.MapPath("~/templates/template_firma.html");
+                        break;
                     case TemplateTypeEnum.HTML_MODIFICABILE:
                         path = HttpContext.Current.Server.MapPath(
                             "~/templates/template_html_testomodificabile.html");
@@ -308,9 +311,9 @@ namespace PortaleRegione.BAL
                 if (string.IsNullOrEmpty(emendamento.EM_Certificato))
                 {
                     //EM TEMPORANEO
-                    var bodyEMView = GetTemplate(TemplateTypeEnum.HTML);
-                    GetBodyTemporaneo(emendamento, atto, ref bodyEMView);
-                    body = body.Replace("{ltEMView}", bodyEMView);
+                    var bodyTemp = GetTemplate(TemplateTypeEnum.FIRMA);
+                    GetBodyTemporaneo(emendamento, atto, ref bodyTemp);
+                    body = body.Replace("{ltEMView}", bodyTemp);
                     body = body.Replace("{ltTestoModificabile}", "").Replace("{TESTOMOD_COMMENTO_START}", "<!--")
                         .Replace("{TESTOMOD_COMMENTO_END}", "-->");
                     body = body.Replace("{lblFattoProprioDa}", "").Replace("{FATTOPROPRIO_COMMENTO_START}", "<!--")
@@ -348,7 +351,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                if (emendamento.IDStato >= (int) StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",
@@ -356,7 +359,7 @@ namespace PortaleRegione.BAL
                             ? "Emendamento Depositato d'ufficio"
                             : $"Emendamento Depositato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
 
-                    var firmeAnte = firmeDtos.Where(f => f.Timestamp < Convert.ToDateTime(emendamento.DataDeposito));
+                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito));
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
 
                     body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))

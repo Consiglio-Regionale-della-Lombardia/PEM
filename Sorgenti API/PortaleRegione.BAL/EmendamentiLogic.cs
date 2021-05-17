@@ -165,6 +165,7 @@ namespace PortaleRegione.BAL
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     emendamento.TestoEM_originale =
                         $"L' {Decrypt(ref_em.N_EM, AppSettingsConfiguration.masterKey).Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
                     emendamento.TestoREL_originale = ref_em.TestoREL_originale;
@@ -478,8 +479,10 @@ namespace PortaleRegione.BAL
                             GetBody(emendamentoDto, attoDto, firmeDto, persona, true, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            body = GetTemplate(TemplateTypeEnum.PDF);
                             GetBody(emendamentoDto, attoDto, firmeDto, persona, false, ref body);
+                            break;
+                        case TemplateTypeEnum.FIRMA:
+                            GetBodyTemporaneo(emendamentoDto, attoDto, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;
@@ -639,7 +642,7 @@ namespace PortaleRegione.BAL
                                     ufficio = firmaUfficio
                                 }
                             }, persona,
-                            TemplateTypeEnum.HTML);
+                            TemplateTypeEnum.FIRMA);
                         var body_encrypt = EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
