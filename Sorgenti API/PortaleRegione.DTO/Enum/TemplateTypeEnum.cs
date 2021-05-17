@@ -24,6 +24,7 @@ namespace PortaleRegione.DTO.Enum
         PDF_COPERTINA = 2,
         MAIL = 3,
         HTML = 4,
-        HTML_MODIFICABILE = 5
+        HTML_MODIFICABILE = 5,
+        FIRMA = 6
     }
 }
