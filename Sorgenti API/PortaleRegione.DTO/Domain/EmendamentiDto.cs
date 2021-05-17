@@ -103,14 +103,11 @@ namespace PortaleRegione.DTO.Domain
 
         [StringLength(5)] public string NNumero { get; set; }
 
-        [Display(Name = "Missione")]
-        public int? NMissione { get; set; }
+        [Display(Name = "Missione")] public int? NMissione { get; set; }
 
-        [Display(Name = "Programma")]
-        public int? NProgramma { get; set; }
+        [Display(Name = "Programma")] public int? NProgramma { get; set; }
 
-        [Display(Name = "Titolo B")]
-        public int? NTitoloB { get; set; }
+        [Display(Name = "Titolo B")] public int? NTitoloB { get; set; }
 
         public int OrdinePresentazione { get; set; }
 
@@ -124,8 +121,7 @@ namespace PortaleRegione.DTO.Domain
         [AllowHtml]
         public string TestoREL_originale { get; set; }
 
-        [DisplayName("Allegato generico")]
-        public string PATH_AllegatoGenerico { get; set; }
+        [DisplayName("Allegato generico")] public string PATH_AllegatoGenerico { get; set; }
 
         public string PATH_AllegatoTecnico { get; set; }
 
@@ -169,13 +165,11 @@ namespace PortaleRegione.DTO.Domain
 
         public virtual TitoloMissioniDto TITOLI_MISSIONI { get; set; }
 
-        [JsonIgnore]
-        public HttpPostedFileBase DocAllegatoGenerico { get; set; }
+        [JsonIgnore] public HttpPostedFileBase DocAllegatoGenerico { get; set; }
 
         public byte[] DocAllegatoGenerico_Stream { get; set; }
-        
-        [JsonIgnore]
-        public HttpPostedFileBase DocEffettiFinanziari { get; set; }
+
+        [JsonIgnore] public HttpPostedFileBase DocEffettiFinanziari { get; set; }
 
         public byte[] DocEffettiFinanziari_Stream { get; set; }
 

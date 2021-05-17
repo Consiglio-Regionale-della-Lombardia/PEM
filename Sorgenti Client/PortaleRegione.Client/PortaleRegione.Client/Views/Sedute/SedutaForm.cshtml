@@ -42,26 +42,31 @@
 
             @Html.HiddenFor(m => m.UIDSeduta)
 
-            <div class="form-group">
-                @Html.LabelFor(s => s.Data_seduta)
-                @Html.TextBoxFor(s => s.Data_seduta, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(s => s.Data_apertura)
-                @Html.TextBoxFor(s => s.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(s => s.Scadenza_presentazione)
-                @Html.TextBoxFor(s => s.Scadenza_presentazione, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(s => s.Data_effettiva_inizio)
-                @Html.TextBoxFor(s => s.Data_effettiva_inizio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(s => s.Data_effettiva_fine)
-                @Html.TextBoxFor(s => s.Data_effettiva_fine, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
+        <div class="form-group">
+            @Html.LabelFor(s => s.Data_seduta)
+            @Html.TextBoxFor(s => s.Data_seduta, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+                <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_seduta')">close</i>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(s => s.Data_apertura)
+            @Html.TextBoxFor(s => s.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_apertura')">close</i>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(s => s.Scadenza_presentazione)
+            @Html.TextBoxFor(s => s.Scadenza_presentazione, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Scadenza_presentazione')">close</i>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(s => s.Data_effettiva_inizio)
+            @Html.TextBoxFor(s => s.Data_effettiva_inizio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_effettiva_inizio')">close</i>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(s => s.Data_effettiva_fine)
+            @Html.TextBoxFor(s => s.Data_effettiva_fine, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_effettiva_fine')">close</i>
+        </div>
             <div class="form-group">
                 @Html.LabelFor(s => s.Intervalli)
                 @Html.TextAreaFor(model => model.Intervalli, new { @class = "form-control trumbowyg" })
@@ -78,6 +83,10 @@
 
 
 <script>
+    function clearData(ctrl) {
+        console.log("clear", ctrl)
+        $('#' + ctrl).val("");
+    }
     $("#btnSave").on("click",
         function () {
             $('#formSedute').submit();
