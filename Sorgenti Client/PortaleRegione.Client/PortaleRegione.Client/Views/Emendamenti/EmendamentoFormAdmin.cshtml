@@ -114,6 +114,8 @@
 @Html.Partial("_EMFormScript")
 <script>
     $(document).ready(function() {
+        ClearMetaDati();
+
         EffettiFinanziari_OnChange(@effetti_finanziari_visible);
         PartiTestoEmendamento_OnChange(@Model.Emendamento.IDParte);
         TestoEmendamento_TipoEM(@Model.Emendamento.IDTipo_EM);
