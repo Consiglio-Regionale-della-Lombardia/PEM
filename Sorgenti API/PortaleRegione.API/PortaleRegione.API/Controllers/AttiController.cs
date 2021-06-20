@@ -121,6 +121,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var atto = await _logic.GetAtto(id);
                 var result = Mapper.Map<ATTI, AttiDto>(atto);
+                result.Relatori = await _logic.GetRelatori(atto.UIDAtto);
                 return Ok(result);
             }
             catch (Exception e)

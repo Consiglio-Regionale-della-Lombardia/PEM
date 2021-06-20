@@ -531,5 +531,11 @@ namespace PortaleRegione.BAL
         {
             await _unitOfWork.Atti.SPOSTA_DOWN(attoUId);
         }
+
+        public async Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId)
+        {
+            var result =await _unitOfWork.Atti.GetRelatori(attoUId);
+            return result;
+        }
     }
 }
