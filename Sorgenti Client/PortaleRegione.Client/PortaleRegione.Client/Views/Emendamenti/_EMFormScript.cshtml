@@ -1,5 +1,4 @@
 ﻿<script>
-
     function InitEffettiFinanziari(value) {
         $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
             if (item.value == value) {
@@ -54,6 +53,8 @@
                     proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
                 else if ($('#chkProponentiAssessori').is(":checked"))
                     proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
+                else
+                    proponente = $('select[id="Emendamento_UIDPersonaProponente"]').children("option:selected").val();
             }
 
             var container_testo_originale = $("#Emendamento_TestoEM_originale").parent();
