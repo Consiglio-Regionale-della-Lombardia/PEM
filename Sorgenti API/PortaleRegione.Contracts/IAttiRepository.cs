@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts
@@ -45,5 +46,6 @@ namespace PortaleRegione.Contracts
         Task<bool> CanMoveDown(Guid sedutaUId, int currentPriorita);
 
         Task RimuoviFascicoliObsoleti(Guid attoUId, OrdinamentoEnum ordinamento);
+        Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId);
     }
 }

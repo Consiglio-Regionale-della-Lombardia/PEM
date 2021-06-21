@@ -416,6 +416,7 @@
         var chipInstanceNotificaA = null;
 
         async function NotificaA() {
+            console.log("NOTIFCA")
             var personeInDB = await GetPersoneFromDB();
             var persone = [];
             $.each(personeInDB,

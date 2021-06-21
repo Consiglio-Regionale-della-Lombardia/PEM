@@ -26,6 +26,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using Z.EntityFramework.Plus;
 
@@ -182,6 +183,27 @@ namespace PortaleRegione.Persistance
                 .Where(s => s.UIDAtto == attoUId && s.Da == 0 && s.A == 0 && s.Ordine == (int) ordinamento)
                 .ToListAsync();
             PRContext.STAMPE.RemoveRange(oldStampe);
+        }
+
+        public async Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId)
+        {
+            var atti_relatori = await PRContext
+                .ATTI_RELATORI
+                .Where(ar => ar.UIDAtto == attoUId)
+                .ToListAsync();
+            var result = new List<PersonaLightDto>();
+            foreach (var relatore in atti_relatori)
+            {
+                var persona = await PRContext.View_UTENTI.FindAsync(relatore.UIDPersona);
+                result.Add(new PersonaLightDto
+                {
+                    UID_persona = persona.UID_persona.Value,
+                    cognome = persona.cognome,
+                    nome = persona.nome
+                });
+            }
+
+            return result;
         }
     }
 }

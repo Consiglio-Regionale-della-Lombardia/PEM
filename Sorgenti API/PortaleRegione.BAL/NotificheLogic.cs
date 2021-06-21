@@ -217,6 +217,10 @@ namespace PortaleRegione.BAL
                     var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
                     if (check == false)
                         results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
+                    if (results.Count > 0)
+                    {
+                        return results;
+                    }
 
                     var newNotifica = new NOTIFICHE
                     {
@@ -355,9 +359,13 @@ namespace PortaleRegione.BAL
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                             result = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        else
+                        else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                                 persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
                             result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        else
+                            result = (await _logicPersone.GetConsiglieri())
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
                         break;
                     case TipoDestinatarioNotificaEnum.GRUPPI:
                         result = (await _logicPersone.GetGruppi())
