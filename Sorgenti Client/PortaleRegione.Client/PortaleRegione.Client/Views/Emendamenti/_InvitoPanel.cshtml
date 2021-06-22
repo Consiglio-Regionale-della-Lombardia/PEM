@@ -1,7 +1,7 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.InvitoPanelModel
 
-<div id="modalEmendamentiNotificaA" class="modal">
+<div id="modalEmendamentiNotificaA" class="modal modal-fixed-footer">
     <div class="modal-content">
         <h5 id="emProponenteDisplayName"></h5>
         @using (Html.BeginForm("EseguiAzione", "Emendamenti", FormMethod.Post, new { id = "formNotificaA" }))
@@ -44,10 +44,10 @@
                 <div id="autocompleteInvitati" class="chips chips-autocomplete"></div>
             </div>
         }
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaNotificaA" class="btn blue">Invita</a>
-        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn modal-close grey">Annulla</button>
+        <a id="btnConfermaNotificaA" class="btn blue">Invita</a>
     </div>
 </div>
 

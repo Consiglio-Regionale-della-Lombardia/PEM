@@ -287,7 +287,7 @@ namespace PortaleRegione.API.Controllers
                         !model.NProgramma.HasValue)
                         return BadRequest("I valori Missione - Programma - Titolo sono obbligatori");
 
-                var isGiunta = model.id_gruppo == AppSettingsConfiguration.GIUNTA_REGIONALE_ID;
+                var isGiunta = model.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID;
                 var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente.Value, isGiunta);
 
                 var em = await _logicEm.NuovoEmendamento(model, proponente, isGiunta);

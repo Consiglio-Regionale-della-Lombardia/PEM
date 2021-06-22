@@ -114,7 +114,7 @@ namespace PortaleRegione.Client.Controllers
             em.Firme_dopo_deposito = await Utility.GetFirmatariEM(
                 await EMGate.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                 CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO);
-            if (em.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
+            if (em.IDStato <= (int) StatiEnum.Depositato)
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await EMGate.GetInvitati(id));
 

@@ -153,14 +153,28 @@ namespace PortaleRegione.Persistance
             return await query.ToListAsync();
         }
 
-        public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(PersonaDto persona, bool isGiunta)
+        public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi)
         {
-            var resultViewGruppi = PRContext
+            var join_gruppo = await PRContext
+                .JOIN_GRUPPO_AD
+                .Where(g => lGruppi.Contains(g.GruppoAD))
+                .FirstOrDefaultAsync();
+            if (join_gruppo == null)
+                return null;
+            var gruppo = await PRContext
+                .View_gruppi_politici_con_giunta
+                .SingleOrDefaultAsync(g => g.id_gruppo == join_gruppo.id_gruppo);
+            return gruppo;
+        }
+
+        public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(Guid personaUId, bool isGiunta)
+        {
+            var result = PRContext
                 .View_gruppi_politici_con_giunta
                 .SqlQuery(
-                    $"Select * from View_gruppi_politici_con_giunta where id_gruppo = dbo.get_IDgruppoAttuale_from_persona('{persona.UID_persona}', {(isGiunta ? 1 : 0)})");
-
-            return await resultViewGruppi.AnyAsync() ? await resultViewGruppi.FirstAsync() : null;
+                    $"SELECT * FROM View_gruppi_politici_con_giunta WHERE id_gruppo = dbo.get_IDgruppoAttuale_from_persona('{personaUId}', {(isGiunta ? 1 : 0)}) ");
+            var gruppi = await result.ToListAsync();
+            return gruppi.FirstOrDefault();
         }
 
         public async Task<IEnumerable<JOIN_GRUPPO_AD>> GetGruppiPoliticiAD(int id_legislatura, bool soloRuoliGiunta)

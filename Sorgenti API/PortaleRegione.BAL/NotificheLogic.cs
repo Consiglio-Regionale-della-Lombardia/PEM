@@ -210,18 +210,14 @@ namespace PortaleRegione.BAL
 
                     var n_em = em.N_EM;
 
-                    if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                    if (em.IDStato >= (int) StatiEnum.Depositato)
                         results.Add(idGuid,
                             $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
 
                     var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
                     if (check == false)
                         results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
-                    if (results.Count > 0)
-                    {
-                        return results;
-                    }
-
+                   
                     var newNotifica = new NOTIFICHE
                     {
                         UIDEM = em.UIDEM,
@@ -267,7 +263,7 @@ namespace PortaleRegione.BAL
                         OGGETTO = "Invito a firmare i seguenti emendamenti",
                         DA = currentUser.email,
                         A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
-                        MESSAGGIO = listaEM_TITLE.Remove(listaEM_TITLE.Length - 3)
+                        MESSAGGIO = listaEM_TITLE.Remove(listaEM_TITLE.Length - 2)
                     });
 
                 return results;

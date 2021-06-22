@@ -229,7 +229,7 @@ namespace GeneraStampeJob
             var email_destinatariGruppo = string.Empty;
             var email_destinatariGiunta = string.Empty;
 
-            if (em.id_gruppo > 10000)
+            if (em.id_gruppo < 10000)
             {
                 Log.Debug(
                     $"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Capo Gruppo e Segreteria Politica");

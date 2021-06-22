@@ -588,7 +588,7 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
-                        var firmato_dal_proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato
+                        var firmato_dal_proponente = em.IDStato >= (int) StatiEnum.Depositato
                             ? true
                             : await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
 
@@ -606,12 +606,12 @@ namespace PortaleRegione.BAL
                                 info_codice_carica_gruppo = persona.Gruppo.codice_gruppo;
                                 break;
                             case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
-                                info_codice_carica_gruppo = persona.Carica;
+                                info_codice_carica_gruppo = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
                                 break;
                         }
 
-                        var isRelatore = await _unitOfWork.Persone.IsRelatore(persona.UID_persona, em.ATTI.UIDAtto);
-                        var isAssessore = await _unitOfWork.Persone.IsAssessore(persona.UID_persona, em.ATTI.UIDAtto);
+                        var isRelatore = await _unitOfWork.Persone.IsRelatore(persona.UID_persona, em.UIDAtto);
+                        var isAssessore = await _unitOfWork.Persone.IsAssessore(persona.UID_persona, em.UIDAtto);
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo}){(isRelatore ? " - RELATORE" : string.Empty)}{(isAssessore ? " - Ass. capofila" : string.Empty)}";
@@ -679,10 +679,11 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
+                    ATTI atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                    SEDUTE seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+
                     var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
-
-                    var seduta = await _unitOfWork.Sedute.Get(em.ATTI.UIDSeduta.Value);
-
+                    
                     var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
                     var countFirme = await _unitOfWork.Firme.CountFirme(idGuid);
                     if (countFirme == 1)
@@ -706,7 +707,7 @@ namespace PortaleRegione.BAL
                                 DA = "pem@consiglio.regione.lombardia.it",
                                 A = $"{ruoloSegreterie.ADGroup}@consiglio.regione.lombardia.it",
                                 OGGETTO =
-                                    $"Ritirata ultima firma dall' {n_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
+                                    $"Ritirata ultima firma dall' {n_em} nel {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
                                 MESSAGGIO =
                                     "E' stata ritirata l'ultima firma all'emendamento in oggetto. Verifica lo stato dell'emendamento."
                             });
@@ -852,7 +853,8 @@ namespace PortaleRegione.BAL
                     else
                         em.N_EM = etichetta_encrypt;
 
-                    em.chkf = _unitOfWork.Firme.CountFirme(idGuid).ToString();
+                    var count_firme = await _unitOfWork.Firme.CountFirme(idGuid);
+                    em.chkf = count_firme.ToString();
 
                     await _unitOfWork.CompleteAsync();
 
@@ -1057,7 +1059,7 @@ namespace PortaleRegione.BAL
             em.UIDPersonaProponenteOLD = em.UIDPersonaProponente;
             em.UIDPersonaProponente = model.NuovoProponente;
             em.id_gruppo = (await _logicPersone
-                    .GetGruppoAttualePersona(persona, model.IsAssessore))
+                    .GetGruppoAttualePersona(new List<string>(){ persona.GruppiAD}))
                 .id_gruppo;
 
             await _unitOfWork.CompleteAsync();

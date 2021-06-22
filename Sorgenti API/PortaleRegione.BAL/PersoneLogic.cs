@@ -91,7 +91,7 @@ namespace PortaleRegione.BAL
             var result = new List<PersonaDto>();
             foreach (var persona in persone)
             {
-                persona.Gruppo ??= await GetGruppoAttualePersona(persona, false);
+                persona.Gruppo ??= await GetGruppoAttualePersona(new List<string>(){ persona.GruppiAD});
                 result.Add(persona);
             }
 
@@ -149,7 +149,7 @@ namespace PortaleRegione.BAL
         public async Task<PersonaDto> GetPersona(Guid proponenteUId, bool isGiunta)
         {
             var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(proponenteUId));
-            persona.Gruppo = await GetGruppoAttualePersona(persona, isGiunta);
+            persona.Gruppo = await GetGruppoAttualePersona(persona.UID_persona, isGiunta);
             return persona;
         }
 
@@ -166,14 +166,14 @@ namespace PortaleRegione.BAL
         public async Task<PersonaDto> GetPersona(int personaId)
         {
             var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaId));
-            persona.Gruppo = await GetGruppoAttualePersona(persona, persona.IsGiunta());
+            persona.Gruppo = await GetGruppoAttualePersona(new List<string>(){ persona.GruppiAD});
             return persona;
         }
 
         public async Task<PersonaDto> GetPersona(Guid personaUId)
         {
             var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(personaUId));
-            persona.Gruppo = await GetGruppoAttualePersona(persona, persona.IsGiunta());
+            persona.Gruppo = await GetGruppoAttualePersona(new List<string>(){ persona.GruppiAD});
             return persona;
         }
 
@@ -235,15 +235,16 @@ namespace PortaleRegione.BAL
 
         #region GetGruppoAttualePersona
 
-        public async Task<GruppiDto> GetGruppoAttualePersona(PersonaDto persona, bool isGiunta)
+        public async Task<GruppiDto> GetGruppoAttualePersona(List<string> gruppi)
         {
             return Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                await _unitOfWork.Gruppi.GetGruppoAttuale(persona, isGiunta));
+                await _unitOfWork.Gruppi.GetGruppoAttuale(gruppi));
         }
-
-        public async Task<GruppiDto> GetGruppoAttualePersona(List<string> ruoli, bool isGiunta)
+        
+        public async Task<GruppiDto> GetGruppoAttualePersona(Guid personaUId, bool isGiunta)
         {
-            return await _unitOfWork.Gruppi.GetGruppoPersona(ruoli, isGiunta);
+            return Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                await _unitOfWork.Gruppi.GetGruppoAttuale(personaUId, isGiunta));
         }
 
         #endregion
@@ -296,8 +297,9 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<PersonaDto>> GetSegreteriaGiuntaRegionale(bool notificaFirma, bool notificaDeposito)
         {
-            return (await _unitOfWork.Persone.GetSegreteriaGiuntaRegionale(notificaFirma, notificaDeposito))
-                .Select(Mapper.Map<UTENTI_NoCons, PersonaDto>);
+            var segreteria_giunta =
+                await _unitOfWork.Persone.GetSegreteriaGiuntaRegionale(notificaFirma, notificaDeposito);
+            return segreteria_giunta.Select(Mapper.Map<UTENTI_NoCons, PersonaDto>);
         }
 
         public async Task DeletePersona(int id)

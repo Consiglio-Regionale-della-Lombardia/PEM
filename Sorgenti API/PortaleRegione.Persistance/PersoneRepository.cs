@@ -278,12 +278,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .UTENTI_NoCons
-                .SqlQuery("Select * from UTENTI_NoCons where id_gruppo_politico_rif>=10000");
-
-            if (notifica_firma)
-                return query.Where(u => u.notifica_firma).ToList();
-            if (notifica_deposito)
-                return query.Where(u => u.notifica_deposito).ToList();
+                .SqlQuery($"Select * from UTENTI_NoCons where id_gruppo_politico_rif>=10000 AND notifica_firma={Convert.ToInt16(notifica_firma)} AND notifica_deposito={Convert.ToInt16(notifica_deposito)}");
 
             return await query.ToListAsync();
         }

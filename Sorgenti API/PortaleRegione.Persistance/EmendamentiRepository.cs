@@ -395,16 +395,30 @@ namespace PortaleRegione.Persistance
         public async Task<EM> Get(Guid emendamentoUId)
         {
             var result = await PRContext.EM
-                .Include(em => em.ATTI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.TIPI_EM)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.gruppi_politici)
-                .Include(em => em.EM2)
-                .Include(em => em.STATI_EM)
+                .Include(em=>em.PARTI_TESTO)
+                .Include(em=>em.STATI_EM)
+                .Include(em=>em.TIPI_EM)
                 .SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
+           
+            //if (result.gruppi_politici == null)
+            //{
+            //    try
+            //    {
+            //        var gruppo  =
+            //            await PRContext.View_gruppi_politici_con_giunta.FirstOrDefaultAsync(
+            //                g => g.id_gruppo == result.id_gruppo);
+            //        result.gruppi_politici = new gruppi_politici
+            //        {
+            //            id_gruppo= gruppo.id_gruppo,
+            //            nome_gruppo = gruppo.nome_gruppo,
+            //            codice_gruppo = gruppo.codice_gruppo
+            //        };
+            //    }
+            //    catch (Exception e)
+            //    {
+            //    }
+            //}
+
             return result;
         }
 

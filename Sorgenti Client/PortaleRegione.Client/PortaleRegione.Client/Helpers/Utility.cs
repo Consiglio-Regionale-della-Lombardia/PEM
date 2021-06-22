@@ -123,7 +123,7 @@ namespace PortaleRegione.Client.Helpers
                         body += $"<td>{firmeDto.Data_firma}</td>";
                         if (currentUId == firmeDto.UID_persona)
                         {
-                            if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                            if (em.IDStato >= (int) StatiEnum.Depositato)
                                 body +=
                                     $"<td><div class='chip red center white-text' onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</div></td>";
                             else

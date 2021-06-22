@@ -139,6 +139,11 @@
     function PartiTestoEmendamento_OnChange(item) {
         
         $('#hdParteId').val(item);
+        $("#pnlTitolo").hide();
+        $("#pnlCapo").hide();
+        $("#pnlArticoli").hide();
+        $("#pnlMissioni").hide();
+
         var viewPanel = true;
         if (item == @((int) PartiEMEnum.Titolo))
             $("#pnlTitolo").show();
@@ -175,9 +180,9 @@
                         if (itemParteEM.value == @((int) PartiEMEnum.Titolo_PDL)) {
                             testo = "Il titolo del PDL ";
                         } else if (itemParteEM.value == @((int) PartiEMEnum.Titolo)) {
-                            testo = "Il titolo " + $("#Emendamento_NTitolo").val();
+                            testo = "Il titolo " + $("input[name='Emendamento.NTitolo']").val();
                         } else if (itemParteEM.value == @((int) PartiEMEnum.Capo)) {
-                            testo = "Il capo " + $("#Emendamento_NCapo").val();
+                            testo = "Il capo " + $("input[name='Emendamento.NCapo']").val();
                         } else if (itemParteEM.value == @((int) PartiEMEnum.Articolo)) {
                             if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
                                 testo = "La lettera " + $("#Emendamento_NLettera").val();
@@ -237,10 +242,10 @@
         $("#pnlLettere").hide();
         $("#pnlLettereOLD").hide();
 
-        $("#Emendamento_NLettera").val("");
-        $("#Emendamento_NCapo").val("");
-        $("#Emendamento_NTitolo").val("");
-        $("#Emendamento_NProgramma").val("");
+        $("input[name='Emendamento.NLettera']").val("");
+        $("input[name='Emendamento.NCapo']").val("");
+        $("input[name='Emendamento.NTitolo']").val("");
+        $("input[name='Emendamento.NProgramma']").val("");
 
         $("#ArticoliList").prop("selectedIndex", 0);
         var elemsArticoli = document.querySelectorAll("#ArticoliList");

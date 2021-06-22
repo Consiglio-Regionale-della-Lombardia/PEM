@@ -161,7 +161,7 @@ namespace PortaleRegione.Persistance
                 case FirmeTipoEnum.TUTTE:
                     break;
                 case FirmeTipoEnum.PRIMA_DEPOSITO:
-                    if (em.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                    if (em.IDStato >= (int) StatiEnum.Depositato)
                         query = query.Where(f => f.Timestamp < em.Timestamp);
                     break;
                 case FirmeTipoEnum.DOPO_DEPOSITO:

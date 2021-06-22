@@ -37,6 +37,7 @@ namespace PortaleRegione.Domain
 
         public int? id_AreaPolitica { get; set; }
 
+        
         public DateTime Timestamp { get; set; }
 
         public bool ufficio { get; set; }
