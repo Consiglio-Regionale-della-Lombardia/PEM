@@ -108,10 +108,11 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<ATTI> NuovoAtto(ATTI atto, PersonaDto currentUser)
+        public async Task<ATTI> NuovoAtto(AttiFormUpdateModel attoModel, PersonaDto currentUser)
         {
             try
             {
+                var atto = Mapper.Map<AttiFormUpdateModel, ATTI>(attoModel);
                 atto.UIDAtto = Guid.NewGuid();
                 atto.Eliminato = false;
                 atto.UIDPersonaCreazione = currentUser.UID_persona;
@@ -121,6 +122,13 @@ namespace PortaleRegione.BAL
                 atto.Priorita = await _unitOfWork.Atti.PrioritaAtto(atto.UIDSeduta.Value);
                 _unitOfWork.Atti.Add(atto);
                 await _unitOfWork.CompleteAsync();
+
+                if (attoModel.DocAtto_Stream != null)
+                {
+                    var path = ByteArrayToFile(attoModel.DocAtto_Stream, DocTypeEnum.ATTO);
+                    atto.Path_Testo_Atto = path;
+                    await _unitOfWork.CompleteAsync();
+                }
 
                 return atto;
             }

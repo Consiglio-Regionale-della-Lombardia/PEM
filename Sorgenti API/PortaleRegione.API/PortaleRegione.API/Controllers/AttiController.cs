@@ -183,9 +183,7 @@ namespace PortaleRegione.API.Controllers
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-
-                var atto = Mapper.Map<AttiFormUpdateModel, ATTI>(attoModel);
-                var nuovoAtto = await _logic.NuovoAtto(atto, persona);
+                var nuovoAtto = await _logic.NuovoAtto(attoModel, persona);
                 return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI, AttiDto>(nuovoAtto));
             }
             catch (Exception e)
