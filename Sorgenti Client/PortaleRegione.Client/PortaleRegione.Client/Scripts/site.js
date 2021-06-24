@@ -121,12 +121,10 @@ function AbilitaComandiMassivi(uidEM) {
 
     if (lchk.length > 0 || $("#checkAll")[0].checked) {
         $("#btnComandiMassiviAdmin").show();
-        //$("#btnComandiMassiviOrdinamentoAdmin").show();
         $("#btnComandiMassivi").show();
         $("#btnNuovoEM").hide();
     } else {
         $("#btnComandiMassiviAdmin").hide();
-        //$("#btnComandiMassiviOrdinamentoAdmin").hide();
         $("#btnComandiMassivi").hide();
         $("#btnNuovoEM").show();
     }
