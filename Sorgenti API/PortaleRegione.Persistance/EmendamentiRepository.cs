@@ -395,6 +395,9 @@ namespace PortaleRegione.Persistance
         public async Task<EM> Get(Guid emendamentoUId)
         {
             var result = await PRContext.EM
+                .Include(em=>em.ARTICOLI)
+                .Include(em=>em.COMMI)
+                .Include(em=>em.LETTERE)
                 .Include(em=>em.PARTI_TESTO)
                 .Include(em=>em.STATI_EM)
                 .Include(em=>em.TIPI_EM)
