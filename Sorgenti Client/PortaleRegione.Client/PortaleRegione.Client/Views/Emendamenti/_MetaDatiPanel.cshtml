@@ -124,8 +124,26 @@
         <div class="col s12">
             @foreach (var tipoDto in Model.ListaTipiEmendamento)
             {
-                <label class="black-text" style="margin-left: 20px">
-                    @Html.RadioButtonFor(m => m.Emendamento.IDTipo_EM, tipoDto.IDTipo_EM, new {onchange = "TipoEmendamento_OnChange(this)"})
+                var tooltip_text = "";
+                switch ((TipiEMEnum)tipoDto.IDTipo_EM)
+                {
+                    case TipiEMEnum.SOPPRESSIVO:
+                        tooltip_text = "Utilizzare 'soppressivo' quando si intende sopprimere un intero articolo o comma o lettera";
+                        break;
+                    case TipiEMEnum.MODIFICATIVO:
+                        tooltip_text = "Utilizzare 'modificativo' quando si intende modificare una o più parole della parte selezionata";
+                        break;
+                    case TipiEMEnum.AGGIUNTIVO:
+                        tooltip_text = "Utilizzare 'aggiuntivo' quando si intende aggiungere un nuovo articolo o comma o lettera";
+                        break;
+                    case TipiEMEnum.SOSTITUTIVO:
+                        tooltip_text = "Utilizzare 'sostitutivo' quando si intende sostituire un intero articolo o comma o lettera";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                <label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
+                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" />
                     <span>@tipoDto.Tipo_EM</span>
                 </label>
             }
@@ -135,7 +153,7 @@
 <input type="hidden" id="hdParteId"/>
 <input type="hidden" id="hdTipoId"/>
 <script>
-
+    
     function PartiTestoEmendamento_OnChange(item) {
         
         $('#hdParteId').val(item);
