@@ -64,9 +64,12 @@
     <ul style="margin: 0">
         <li>
             <div class="user-view" style="padding: 10px">
-                <div class="row" style="margin-bottom: unset !important;margin-top: unset !important">
-                    <div class="col s12">
-                        <ul class="dropdown-content" id="ddlSubMenu" style="z-index: 9999">
+                <div class="row valign-wrapper" style="margin-bottom: unset !important;margin-top: unset !important">
+                    <div class="col s1 center">
+                        <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 15px">
+                            <i class="material-icons">more_vert</i>
+                        </a>
+                        <ul class="dropdown-content" id="ddlSubMenu">
                             <li>
                                 <a href="@Url.Action("CambioPin", "Persone")">
                                     <i class="material-icons">settings</i>Impostazioni Pin
@@ -78,22 +81,17 @@
                                 </a>
                             </li>
                         </ul>
-                        <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 4px">
-                            <i class="material-icons">more_vert</i>
-                        </a>
                     </div>
-                </div>
-                <div class="row valign-wrapper" style="margin-bottom: unset !important;margin-top: unset !important">
                     <div class="col s3 center">
                         <img class="responsive-img circle" style="width: 35px;height: 35px" src='http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto'>
                     </div>
-                    <div class="col s9" style="padding-left: 0">
+                    <div class="col s8" style="padding-left: 0">
                         <h6 class="black-text">
                             <b>@displayName</b>
                         </h6>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" style="margin-top: unset !important; margin-bottom: unset !important;">
                     <div class="col s12">
                         @if (ruoli.Any())
                         {
