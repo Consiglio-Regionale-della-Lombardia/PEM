@@ -145,13 +145,16 @@
                         <div class="chip">@Model.Atto.Path_Testo_Atto</div>
                     </div>
                 }
-                <div class="form-group">
-                    @Html.LabelFor(s => s.Atto.Data_apertura)
-                    @Html.TextBoxFor(s => s.Atto.Data_apertura, "{0:s}", new {@class = "form-control", type = "datetime-local"})
-                </div>
+            <div class="form-group">
+                @Html.LabelFor(s => s.Atto.Data_apertura)
+                <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_apertura').val(0)">close</i>
+                @Html.TextBoxFor(s => s.Atto.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+            </div>
                 <div class="form-group">
                     @Html.LabelFor(s => s.Atto.Data_chiusura)
-                    @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_chiusura').val(0)">close</i>
+
+                    @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
                 </div>
                 <div class="form-group">
                     @Html.LabelFor(s => s.Atto.Oggetto)

@@ -138,6 +138,11 @@ namespace PortaleRegione.BAL
                 attoInDb.UIDPersonaModifica = currentUser.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
                 Mapper.Map(attoModel, attoInDb);
+                if (!attoModel.Data_chiusura.HasValue)
+                {
+                    attoInDb.Data_chiusura = null;
+                }
+
                 await _unitOfWork.CompleteAsync();
 
                 if (attoModel.DocAtto_Stream != null)
