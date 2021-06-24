@@ -81,7 +81,7 @@ namespace PortaleRegione.Client.Controllers
 
             if (mode == ClientModeEnum.GRUPPI)
                 foreach (var emendamentiDto in model.Data.Results)
-                    if (emendamentiDto.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
+                    if (emendamentiDto.IDStato <= (int) StatiEnum.Depositato)
                     {
                         if (emendamentiDto.ConteggioFirme > 0)
                             emendamentiDto.Firmatari = await Utility.GetFirmatariEM(

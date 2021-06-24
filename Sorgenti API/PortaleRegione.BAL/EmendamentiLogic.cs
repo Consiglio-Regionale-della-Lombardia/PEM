@@ -1396,7 +1396,6 @@ namespace PortaleRegione.BAL
                 foreach (var em in em_in_db)
                 {
                     em.N_EM = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
-                    ;
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);

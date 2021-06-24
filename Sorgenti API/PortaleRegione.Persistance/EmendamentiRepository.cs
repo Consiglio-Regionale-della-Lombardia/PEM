@@ -158,29 +158,41 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
             OrdinamentoEnum ordine, int page, int size, int mode)
         {
+            var emendamenti_da_firmare = new List<Guid>();
+
             var notifiche = await PRContext
                 .NOTIFICHE
                 .Where(n => n.UIDAtto == id && !n.Chiuso && n.EM.IDStato <= (int) StatiEnum.Depositato)
                 .Select(n => n.UIDNotifica)
                 .ToListAsync();
-            if (!notifiche.Any())
-                return null;
-
-            var my_em_notifiche = await PRContext
-                .NOTIFICHE_DESTINATARI
-                .Include(n => n.NOTIFICHE)
-                .Where(n => n.UIDPersona == persona.UID_persona && !n.Chiuso && notifiche.Contains(n.UIDNotifica))
-                .ToListAsync();
-
-            var emendamenti_da_firmare = new List<Guid>();
-            foreach (var emUid in my_em_notifiche.Select(n => n.NOTIFICHE.UIDEM))
+            if (notifiche.Any())
             {
-                var check_firmato = await PRContext.FIRME.AnyAsync(f =>
-                    f.UIDEM == emUid
-                    && f.UID_persona == persona.UID_persona
-                    && string.IsNullOrEmpty(f.Data_ritirofirma));
-                if (!check_firmato) emendamenti_da_firmare.Add(emUid);
+                var my_em_notifiche = await PRContext
+                    .NOTIFICHE_DESTINATARI
+                    .Include(n => n.NOTIFICHE)
+                    .Where(n => n.UIDPersona == persona.UID_persona && !n.Chiuso && notifiche.Contains(n.UIDNotifica))
+                    .ToListAsync();
+
+                foreach (var emUid in my_em_notifiche.Select(n => n.NOTIFICHE.UIDEM))
+                {
+                    var check_firmato = await PRContext.FIRME.AnyAsync(f =>
+                        f.UIDEM == emUid
+                        && f.UID_persona == persona.UID_persona
+                        && string.IsNullOrEmpty(f.Data_ritirofirma));
+                    if (!check_firmato) emendamenti_da_firmare.Add(emUid);
+                }
             }
+
+            var my_em_proponente = await PRContext
+                .EM
+                .Where(em => em.UIDPersonaProponente == persona.UID_persona
+                             && !em.UIDPersonaPrimaFirma.HasValue
+                             && em.UIDAtto == id
+                             && em.IDStato <= (int) StatiEnum.Bozza
+                             && !em.Eliminato)
+                .Select(em => em.UIDEM)
+                .ToListAsync();
+            foreach (var emUid in my_em_proponente) emendamenti_da_firmare.Add(emUid);
 
             var result = await GetEmendamentiByArray(emendamenti_da_firmare);
 
@@ -217,6 +229,10 @@ namespace PortaleRegione.Persistance
         /// <param name="ordine"></param>
         /// <param name="page"></param>
         /// <param name="size"></param>
+        /// <param name="CLIENT_MODE"></param>
+        /// <param name="filtro"></param>
+        /// <param name="firmatari"></param>
+        /// <param name="requireMySign"></param>
         /// <returns></returns>
         public async Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null)
@@ -395,14 +411,14 @@ namespace PortaleRegione.Persistance
         public async Task<EM> Get(Guid emendamentoUId)
         {
             var result = await PRContext.EM
-                .Include(em=>em.ARTICOLI)
-                .Include(em=>em.COMMI)
-                .Include(em=>em.LETTERE)
-                .Include(em=>em.PARTI_TESTO)
-                .Include(em=>em.STATI_EM)
-                .Include(em=>em.TIPI_EM)
+                .Include(em => em.ARTICOLI)
+                .Include(em => em.COMMI)
+                .Include(em => em.LETTERE)
+                .Include(em => em.PARTI_TESTO)
+                .Include(em => em.STATI_EM)
+                .Include(em => em.TIPI_EM)
                 .SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
-           
+
             //if (result.gruppi_politici == null)
             //{
             //    try
@@ -768,6 +784,14 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .EM
+                .Include(em => em.ATTI)
+                .Include(em => em.PARTI_TESTO)
+                .Include(em => em.TIPI_EM)
+                .Include(em => em.ARTICOLI)
+                .Include(em => em.COMMI)
+                .Include(em => em.LETTERE)
+                .Include(em => em.EM2)
+                .Include(em => em.STATI_EM)
                 .Where(em => listaEmendamenti.Contains(em.UIDEM))
                 .ToListAsync();
         }
