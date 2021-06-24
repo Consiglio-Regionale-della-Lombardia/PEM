@@ -397,12 +397,12 @@ namespace PortaleRegione.BAL
 
                 var emList = await _logicEm.ScaricaEmendamenti(id, OrdinamentoEnum.Default, persona);
 
-                var noiSheet =
+                var uolaSheet =
                     await NewSheet(
                         workbook.CreateSheet(
-                            nameof(ReportType.NOI)),
+                            nameof(ReportType.UOLA)),
                         id,
-                        ReportType.NOI,
+                        ReportType.UOLA,
                         emList
                             .OrderBy(em => em.OrdineVotazione)
                             .ThenBy(em => em.Rif_UIDEM)
@@ -662,7 +662,7 @@ namespace PortaleRegione.BAL
 
         private enum ReportType
         {
-            NOI = 1,
+            UOLA = 1,
             PCR = 2,
             PROGRESSIVO = 3
         }

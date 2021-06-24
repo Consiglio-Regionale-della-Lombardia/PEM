@@ -231,7 +231,6 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetStampe - page[{model.page}], pageSize[{model.size}]");
                 var queryFilter = new Filter<STAMPE>();
                 queryFilter.ImportStatements(model.filtro);
 

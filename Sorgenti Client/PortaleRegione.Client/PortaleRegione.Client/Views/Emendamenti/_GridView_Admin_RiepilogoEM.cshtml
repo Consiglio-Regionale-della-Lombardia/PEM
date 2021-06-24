@@ -4,10 +4,10 @@
 @{
     var data_scadenza = Model.Atto.SEDUTE.Scadenza_presentazione;
     var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-    var ordinePaginaEnum = (OrdinamentoEnum) Convert.ToInt16(ordinePagina);
+    var ordinePaginaEnum = (OrdinamentoEnum)Convert.ToInt16(ordinePagina);
     if (!string.IsNullOrEmpty(ordinePagina))
     {
-        ordinePaginaEnum = (OrdinamentoEnum) Convert.ToInt16(ordinePagina);
+        ordinePaginaEnum = (OrdinamentoEnum)Convert.ToInt16(ordinePagina);
     }
     else
     {
@@ -41,206 +41,215 @@ else
 {
     <table>
         <thead>
-        <tr>
-            <th></th>
-            <th></th>
-            <th>
-                <i class="icon material-icons">low_priority</i>
-            </th>
-            <th id="thNumeroEM">EM</th>
-            <th id="thDataDeposito">Data Deposito</th>
-            <th id="thStato">Stato</th>
-            <th id="thTipo">Tipo</th>
-            <th id="thParte">Parte</th>
-            <th id="thArticolo">Articolo</th>
-            <th id="thComma">Comma</th>
-            <th id="thLettera">Lettera</th>
-            <th id="thTitolo">Titolo</th>
-            <th id="thCapo">Capo</th>
-            <th id="thMissione">Miss.</th>
-            <th id="thProgramma">Prog.</th>
-            <th id="thTitoloM">TitoloM</th>
-            <th id="thAreaPolitica">Area</th>
-            <th id="thFirmatari">Firme</th>
-            <th></th>
-        </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>
+                    <i class="icon material-icons">low_priority</i>
+                </th>
+                <th id="thNumeroEM">EM</th>
+                <th id="thDataDeposito">Data Deposito</th>
+                <th id="thStato">Stato</th>
+                <th id="thTipo">Tipo</th>
+                <th id="thParte">Parte</th>
+                <th id="thArticolo">Articolo</th>
+                <th id="thComma">Comma</th>
+                <th id="thLettera">Lettera</th>
+                <th id="thTitolo">Titolo</th>
+                <th id="thCapo">Capo</th>
+                <th id="thMissione">Miss.</th>
+                <th id="thProgramma">Prog.</th>
+                <th id="thTitoloM">TitoloM</th>
+                <th id="thAreaPolitica">Area</th>
+                <th id="thFirmatari">Firme</th>
+                <th></th>
+            </tr>
         </thead>
 
         <tbody>
 
-        @foreach (var itemEM in Model.Data.Results)
-        {
-            var articolo = itemEM.ARTICOLI != null ? itemEM.ARTICOLI.Articolo : string.Empty;
-            var comma = itemEM.COMMI != null ? itemEM.COMMI.Comma : string.Empty;
-            var backgroundColore_Uguali = !string.IsNullOrEmpty(itemEM.Colore) ? string.Format("background-color: {0}", itemEM.Colore) : "";
-            <tr>
-                <td style="@backgroundColore_Uguali" width="10"></td>
-                <td style="padding-left: 15px">
-                    <label>
-                        <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
-                        <span></span>
-                    </label>
-                </td>
-                <td>
-                    @if (ordinePaginaEnum == OrdinamentoEnum.Presentazione)
-                    {
-                        @itemEM.OrdinePresentazione
-                    }
-                    else
-                    {
-                        @itemEM.OrdineVotazione
-                    }
-                </td>
-                <td id="tdNumeroEM_@itemEM.UIDEM">
-                    @if (Convert.ToBoolean(itemEM.EffettiFinanziari))
-                    {
-                        @Html.Raw("<i class='material-icons' style='font-size: medium;'>euro_symbol</i>")
-                    }
-                    <span class="black-text">@itemEM.N_EM</span>
-                    @*<a onclick="openPreviewEM('@Html.Raw(itemEM.UIDEM)')">
-                                <i class='material-icons tiny'>remove_red_eye</i>
-                            </a>*@
-                    @*<input type="hidden" id="bodyEM_@itemEM.UIDEM" value="@itemEM.BodyEM"/>*@
-                </td>
-                <td class="center" id="tdDataDeposito_@itemEM.UIDEM">
-                    @itemEM.DataDeposito
-                    @{
-                        if (!string.IsNullOrEmpty(itemEM.DataDeposito))
+            @foreach (var itemEM in Model.Data.Results)
+            {
+                var articolo = itemEM.ARTICOLI != null ? itemEM.ARTICOLI.Articolo : string.Empty;
+                var comma = itemEM.COMMI != null ? itemEM.COMMI.Comma : string.Empty;
+                var backgroundColore_Uguali = !string.IsNullOrEmpty(itemEM.Colore) ? string.Format("background-color: {0}", itemEM.Colore) : "";
+                <tr>
+                    <td style="@backgroundColore_Uguali" width="10"></td>
+                    <td style="padding-left: 15px">
+                        <label>
+                            <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');" />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        @if (ordinePaginaEnum == OrdinamentoEnum.Presentazione)
                         {
-                            if (data_scadenza.HasValue)
-                            {
-                                var data_deposito = Convert.ToDateTime(itemEM.DataDeposito);
-
-                                if (data_deposito > data_scadenza.Value)
-                                {
-                                    //presentato oltre i termini
-                                    <i class="material-icons red-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>
-                                }
-                            }
-                        }
-                    }
-                </td>
-                <td id="tdStato_@itemEM.UIDEM">
-                    <label class="@(itemEM.STATI_EM.CssClass)T">@itemEM.STATI_EM.Stato</label>
-                    <a class='dropdown-trigger' href='#' data-target='dropdown_@itemEM.UIDEM'>
-                        <i class="icon material-icons">refresh</i>
-                    </a>
-
-                    <!-- Dropdown Structure -->
-                    <ul id='dropdown_@itemEM.UIDEM' class='dropdown-content' style="max-width: 300px">
-                        <li>
-                            <a class="depositatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Depositato))"><i class="material-icons">lock</i> Depositato</a>
-                        </li>
-                        <li>
-                            <a class="approvatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato))"><i class="material-icons">check</i> Approva</a>
-                        </li>
-                        <li>
-                            <a class="approvatomodT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato_Con_Modifiche))"><i class="material-icons">check</i> Approva con modifiche</a>
-                        </li>
-                        <li>
-                            <a class="NOapprovatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i> Non approva</a>
-                        </li>
-                        <li>
-                            <a class="inammissibileT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Inammissibile))"><i class="material-icons">not_interested</i> Inammissibile</a>
-                        </li>
-                        <li>
-                            <a class="decadutoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Decaduto))"><i class="material-icons">report</i> Decaduto</a>
-                        </li>
-                        <li>
-                            <a class="ritiratoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i> Ritira</a>
-                        </li>
-                    </ul>
-                </td>
-                <td id="tdTipo_@itemEM.UIDEM">@itemEM.TIPI_EM.Tipo_EM</td>
-                <td id="tdParte_@itemEM.UIDEM">@itemEM.PARTI_TESTO.Parte</td>
-                <td id="tdArticolo_@itemEM.UIDEM">@articolo</td>
-                <td id="tdComma_@itemEM.UIDEM">@comma</td>
-                <td id="tdLettera_@itemEM.UIDEM">
-                    @if (itemEM.UIDLettera.HasValue)
-                    {
-                        @itemEM.LETTERE.Lettera
-                    }
-                    else
-                    {
-                        @itemEM.NLettera
-                    }
-                </td>
-                <td id="tdTitolo_@itemEM.UIDEM">@itemEM.NTitolo</td>
-                <td id="tdCapo_@itemEM.UIDEM">@itemEM.NCapo</td>
-                <td id="tdMissione_@itemEM.UIDEM">@itemEM.NMissione</td>
-                <td id="tdProgramma_@itemEM.UIDEM">@itemEM.NProgramma</td>
-                <td id="tdTitoloM_@itemEM.UIDEM">@itemEM.NTitoloB</td>
-                <td id="tdAreaPolitica_@itemEM.UIDEM">
-                    @*Area politica*@
-                    @if (itemEM.AreaPolitica.HasValue)
-                    {
-                        @((AreaPoliticaIntEnum) itemEM.AreaPolitica)
-                    }
-                </td>
-                <td id="tdFirmatari_@itemEM.UIDEM">
-                    @*firmatari*@
-                    @if (itemEM.Firmato_Dal_Proponente)
-                    {
-                        var codice_gruppo = string.Empty;
-                        if (itemEM.id_gruppo > 10000)
-                        {
-                            codice_gruppo = "GIUNTA";
+                            @itemEM.OrdinePresentazione
                         }
                         else
                         {
-                            codice_gruppo = itemEM.gruppi_politici.codice_gruppo;
+                            @itemEM.OrdineVotazione
                         }
-
-                        @Html.Raw(string.Format("{0} ({1})", itemEM.PersonaProponente.DisplayName, codice_gruppo))
-
-                        if (itemEM.ConteggioFirme > 1)
+                    </td>
+                    <td id="tdNumeroEM_@itemEM.UIDEM">
+                        @if (Convert.ToBoolean(itemEM.EffettiFinanziari))
                         {
-                            <a class='tooltipped' data-position='left' data-tooltip='@itemEM.Firme'>
-                                <i class='material-icons'>add</i>
-                            </a>
+                            @Html.Raw("<i class='material-icons' style='font-size: medium;'>euro_symbol</i>")
                         }
-                    }
-
-                </td>
-                <td class="center" style="min-width: 120px">
-                    @*COMANDI*@
-                    @if (ordinePaginaEnum == OrdinamentoEnum.Votazione && itemEM.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
-                    {
-                        <a id="cmdProietta_@itemEM.UIDEM" class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM', '@itemEM.N_EM')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
-                            @if (itemEM.Proietta.Value)
+                        <span class="black-text">@itemEM.N_EM</span>
+                    </td>
+                    <td class="center" id="tdDataDeposito_@itemEM.UIDEM">
+                        @itemEM.DataDeposito
+                        @{
+                            if (!string.IsNullOrEmpty(itemEM.DataDeposito))
                             {
-                                <i class="material-icons">subscriptions</i>
+                                if (data_scadenza.HasValue)
+                                {
+                                    var data_deposito = Convert.ToDateTime(itemEM.DataDeposito);
+
+                                    if (data_deposito > data_scadenza.Value)
+                                    {
+                                        //presentato oltre i termini
+                                        <i class="material-icons red-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>
+                                    }
+                                }
+                            }
+                        }
+                    </td>
+                    <td id="tdStato_@itemEM.UIDEM">
+                        <label class="@(itemEM.STATI_EM.CssClass)T">@itemEM.STATI_EM.Stato</label>
+                        <a class='dropdown-trigger' href='#' data-target='dropdown_@itemEM.UIDEM'>
+                            <i class="icon material-icons">refresh</i>
+                        </a>
+
+                        <!-- Dropdown Structure -->
+                        <ul id='dropdown_@itemEM.UIDEM' class='dropdown-content' style="max-width: 300px">
+                            <li>
+                                <a class="depositatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Depositato))"><i class="material-icons">lock</i> Depositato</a>
+                            </li>
+                            <li>
+                                <a class="approvatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato))"><i class="material-icons">check</i> Approva</a>
+                            </li>
+                            <li>
+                                <a class="approvatomodT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Approvato_Con_Modifiche))"><i class="material-icons">check</i> Approva con modifiche</a>
+                            </li>
+                            <li>
+                                <a class="NOapprovatoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i> Non approva</a>
+                            </li>
+                            <li>
+                                <a class="inammissibileT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Inammissibile))"><i class="material-icons">not_interested</i> Inammissibile</a>
+                            </li>
+                            <li>
+                                <a class="decadutoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Decaduto))"><i class="material-icons">report</i> Decaduto</a>
+                            </li>
+                            <li>
+                                <a class="ritiratoT" onclick="CambioStato('@itemEM.UIDEM', @((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i> Ritira</a>
+                            </li>
+                        </ul>
+                    </td>
+                    <td id="tdTipo_@itemEM.UIDEM">@itemEM.TIPI_EM.Tipo_EM</td>
+                    <td id="tdParte_@itemEM.UIDEM">@itemEM.PARTI_TESTO.Parte</td>
+                    <td id="tdArticolo_@itemEM.UIDEM">@articolo</td>
+                    <td id="tdComma_@itemEM.UIDEM">@comma</td>
+                    <td id="tdLettera_@itemEM.UIDEM">
+                        @if (itemEM.UIDLettera.HasValue)
+                        {
+                            @itemEM.LETTERE.Lettera
+                        }
+                        else
+                        {
+                            @itemEM.NLettera
+                        }
+                    </td>
+                    <td id="tdTitolo_@itemEM.UIDEM">@itemEM.NTitolo</td>
+                    <td id="tdCapo_@itemEM.UIDEM">@itemEM.NCapo</td>
+                    <td id="tdMissione_@itemEM.UIDEM">@itemEM.NMissione</td>
+                    <td id="tdProgramma_@itemEM.UIDEM">@itemEM.NProgramma</td>
+                    <td id="tdTitoloM_@itemEM.UIDEM">@itemEM.NTitoloB</td>
+                    <td id="tdAreaPolitica_@itemEM.UIDEM">
+                        @*Area politica*@
+                        @if (itemEM.AreaPolitica.HasValue)
+                        {
+                            @((AreaPoliticaIntEnum) itemEM.AreaPolitica)
+                        }
+                    </td>
+                    <td id="tdFirmatari_@itemEM.UIDEM">
+                        @*firmatari*@
+                        @if (itemEM.Firmato_Dal_Proponente)
+                        {
+                            var codice_gruppo = string.Empty;
+                            if (itemEM.id_gruppo > 10000)
+                            {
+                                codice_gruppo = "GIUNTA";
                             }
                             else
                             {
-                                <i class="material-icons">check_box_outline_blank</i>
+                                codice_gruppo = itemEM.gruppi_politici.codice_gruppo;
                             }
+
+                            @Html.Raw(string.Format("{0} ({1})", itemEM.PersonaProponente.DisplayName, codice_gruppo))
+
+                            if (itemEM.ConteggioFirme > 1)
+                            {
+                                <a class='tooltipped' data-position='left' data-tooltip='@itemEM.Firme'>
+                                    <i class='material-icons'>add</i>
+                                </a>
+                            }
+                        }
+
+                    </td>
+                    <td class="center" style="min-width: 120px">
+                        @*COMANDI*@
+                        @if (ordinePaginaEnum == OrdinamentoEnum.Votazione && itemEM.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
+                        {
+                            <a id="cmdProietta_@itemEM.UIDEM" class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM', '@itemEM.N_EM')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
+                                @if (itemEM.Proietta.Value)
+                                {
+                                    <i class="material-icons">subscriptions</i>
+                                }
+                                else
+                                {
+                                    <i class="material-icons">check_box_outline_blank</i>
+                                }
+                            </a>
+                        }
+                        <a class="blue-text tooltipped" onclick="go('@Url.Action("ModificaMetaDatiEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                            <i class="material-icons">edit</i>
                         </a>
-                    }
-                    <a class="blue-text tooltipped" onclick="go('@Url.Action("ModificaMetaDatiEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
-                        <i class="material-icons">edit</i>
-                    </a>
-                    <a class="green-text tooltipped" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
-                       data-position="left" data-tooltip="Visualizza emendamento">
-                        <i class="material-icons">chevron_right</i>
-                    </a>
-                </td>
-            </tr>
-        }
+                        <a class="green-text tooltipped" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
+                           data-position="left" data-tooltip="Visualizza emendamento">
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 }
 
-<div id="modalPreviewEM" class="modal">
-    <div class="modal-content" id="bodyPreview">
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-    </div>
-</div>
 
+@if (Model.Atto.VIS_Mis_Prog)
+{
+    <script>
+        $(document).ready(function () {
+            ShowHideTableColumn('Missione', true);
+            ShowHideTableColumn('Programma', true);
+            ShowHideTableColumn('TitoloM', true);
+        });
+    </script>
+}
+else
+{
+    <script>
+        $(document).ready(function () {
+            ShowHideTableColumn('Missione', false);
+            ShowHideTableColumn('Programma', false);
+            ShowHideTableColumn('TitoloM', false);
+        });
+    </script>
+}
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.dropdown-trigger').dropdown({
             hover: true
         });
@@ -250,7 +259,7 @@ else
         $.ajax({
             url: "/emendamenti/proietta?id=" + uidem,
             type: "GET"
-        }).done(function(result) {
+        }).done(function (result) {
             var cmdCtrl = $('#cmdProietta_' + uidem).children();
             var oldVal = $(cmdCtrl).html();
             var newVal = "";
@@ -264,23 +273,15 @@ else
             }
             var cmdCtrls = $('a[id*="cmdProietta"]').children();
             $.each(cmdCtrls,
-                function(index, item) {
+                function (index, item) {
                     $(item).html("check_box_outline_blank");
                 });
             M.toast({ html: "<span>" + displayEM + textMsg + "</span>", classes: 'rounded' });
             $(cmdCtrl).html(newVal);
-        }).fail(function(err) {
+        }).fail(function (err) {
             console.log("Proietta - error", err);
             ErrorAlert(err);
         });
 
-    }
-
-    function openPreviewEM(uidem) {
-        var body = $('#bodyEM_' + uidem).val();
-        var panel = $('#bodyPreview');
-        panel.empty();
-        panel.append(body);
-        $("#modalPreviewEM").modal("open");
     }
 </script>

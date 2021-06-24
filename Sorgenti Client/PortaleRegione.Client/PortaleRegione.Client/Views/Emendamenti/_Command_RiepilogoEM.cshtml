@@ -10,7 +10,7 @@
     var atto = Request.Form["atto"];
     var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
     var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-    int ordinePaginaEnum = 1;
+    var ordinePaginaEnum = 1;
     var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
     if (string.IsNullOrEmpty(mode))
     {
@@ -19,7 +19,7 @@
     var url = string.Format("{0}://{1}{2}{3}", Request.Url.Scheme, Request.Url.Host, port, Request.Url.AbsolutePath);
     if (url.Contains("filtra"))
     {
-        url = Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto, mode = mode, ordine = ordinePaginaEnum});
+        url = Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto, mode, ordine = ordinePaginaEnum});
     }
     else
     {
@@ -49,14 +49,13 @@
     }
 
 
-
     var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
 
 }
 <div class="row valign-wrapper">
     <div class="col s3 left">
         <label>
-            <input type="checkbox" id="checkAll" />
+            <input type="checkbox" id="checkAll"/>
             <span for="checkAll">Seleziona tutti</span>
         </label>
     </div>
@@ -71,19 +70,27 @@
     </div>
     <div class="col s6">
         <div class="right">
-            <label>Cambia vista</label>
-            @if (Model.view == "zoom")
-            {
-                <a onclick="go('@url')">
-                    <i class="icon material-icons" title="Visualizza EM in griglia">developer_board</i>
-                </a>
+            <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+                <i class="material-icons">print</i>
+            </a>
+            @{
+                var text = "";
+                var icon = "";
+
+                if (Model.view == "zoom")
+                {
+                    text = "Visualizza EM in griglia";
+                    icon = "developer_board";
+                }else if (Model.view == "grid")
+                {
+                    text = "Visualizza EM in preview";
+                    icon = "desktop_windows";
+                }
             }
-            @if (Model.view == "grid")
-            {
-                <a onclick="go('@url')">
-                    <i class="icon material-icons" title="Visualizza EM in preview">desktop_windows</i>
-                </a>
-            }
+
+            <a class="blue-text tooltipped" onclick="go('@url')" data-tooltip="@text" data-position="left">
+                <i class="icon material-icons">@icon</i>
+            </a>
         </div>
     </div>
 </div>
@@ -93,11 +100,11 @@
         if (enable) {
             go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {require_my_sign = true})');
         } else {
-            go('@Url.Action("RiepilogoEmendamenti","Emendamenti", new { require_my_sign = false})');
+            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {require_my_sign = false})');
         }
     }
 
-    $("#checkAll").click(function () {
+    $("#checkAll").click(function() {
         setSelezionaTutti(this.checked);
         setListaEmendamenti([]);
         $('input[id^="chk_EM_"]').not(this).prop('checked', this.checked);
