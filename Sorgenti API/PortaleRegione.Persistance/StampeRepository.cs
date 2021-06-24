@@ -52,10 +52,7 @@ namespace PortaleRegione.Persistance
 
             var query = PRContext.STAMPE.Where(s => true);
 
-            if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-                query = PRContext.STAMPE.Where(s => s.CurrentRole == (int) persona.CurrentRole
-                                                    || s.Da == 0 && s.A == 0);
-            else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
+            if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                      && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
                 query = PRContext.STAMPE.Where(s => s.UIDUtenteRichiesta == persona.UID_persona);
 
