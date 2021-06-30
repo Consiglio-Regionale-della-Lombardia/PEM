@@ -78,17 +78,21 @@ namespace PortaleRegione.Persistance
 
         public async Task<int> Count(PersonaDto persona, Filter<STAMPE> filtro = null)
         {
+            await PRContext.ATTI
+                .Include(a => a.SEDUTE)
+                .Include(a => a.TIPI_ATTO)
+                .Where(a => a.Eliminato == false)
+                .LoadAsync();
+
             var query = PRContext.STAMPE.Where(s => true);
 
-            if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-                query = PRContext.STAMPE.Where(s => s.CurrentRole == (int) persona.CurrentRole);
-            else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+            if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
+                && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
                 query = PRContext.STAMPE.Where(s => s.UIDUtenteRichiesta == persona.UID_persona);
 
             filtro?.BuildExpression(ref query);
 
             return await query
-                .Where(s => !s.UIDEM.HasValue)
                 .CountAsync();
         }
 
