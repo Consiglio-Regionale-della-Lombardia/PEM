@@ -572,22 +572,22 @@ namespace PortaleRegione.BAL
             var cellCount = rowReport.CreateCell(0);
             cellCount.CellStyle = styleR;
             cellCount.SetCellValue(countEM);
-            var cellInamm = rowReport.CreateCell(11);
+            var cellInamm = rowReport.CreateCell(8);
             cellInamm.CellStyle = styleR;
             cellInamm.SetCellValue(inammissibili);
 
             if (reportType == ReportType.PCR) return sheet;
 
-            var cellRit = rowReport.CreateCell(12);
+            var cellRit = rowReport.CreateCell(9);
             cellRit.CellStyle = styleR;
             cellRit.SetCellValue(ritirati);
-            var cellApp = rowReport.CreateCell(13);
+            var cellApp = rowReport.CreateCell(10);
             cellApp.CellStyle = styleR;
             cellApp.SetCellValue(approvati);
-            var cellNonApp = rowReport.CreateCell(14);
+            var cellNonApp = rowReport.CreateCell(11);
             cellNonApp.CellStyle = styleR;
             cellNonApp.SetCellValue(non_approvati);
-            var cellDeca = rowReport.CreateCell(15);
+            var cellDeca = rowReport.CreateCell(12);
             cellDeca.CellStyle = styleR;
             cellDeca.SetCellValue(decaduti);
 
