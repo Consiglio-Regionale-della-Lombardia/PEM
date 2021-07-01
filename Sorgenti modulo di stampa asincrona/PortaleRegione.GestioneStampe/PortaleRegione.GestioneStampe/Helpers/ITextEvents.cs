@@ -32,11 +32,13 @@ namespace PortaleRegione.GestioneStampe.Helpers
                 footerTemplate = cb.CreateTemplate(200, 50);
                 footerTemplate2 = cb.CreateTemplate(500, 50);
             }
-            catch (DocumentException)
+            catch (DocumentException docEx)
             {
+                throw docEx;
             }
-            catch (IOException)
+            catch (IOException ioEx)
             {
+                throw ioEx;
             }
         }
 
@@ -121,19 +123,26 @@ namespace PortaleRegione.GestioneStampe.Helpers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                throw e;
             }
         }
 
         public override void OnCloseDocument(PdfWriter writer, Document document)
         {
-            base.OnCloseDocument(writer, document);
+            try
+            {
+                base.OnCloseDocument(writer, document);
 
-            footerTemplate.BeginText();
-            footerTemplate.SetFontAndSize(bf, 12);
-            footerTemplate.SetTextMatrix(0, 15);
-            footerTemplate.ShowText($"Totale pagine: {writer.PageNumber}");
-            footerTemplate.EndText();
+                footerTemplate.BeginText();
+                footerTemplate.SetFontAndSize(bf, 12);
+                footerTemplate.SetTextMatrix(0, 15);
+                footerTemplate.ShowText($"Totale pagine: {writer.PageNumber}");
+                footerTemplate.EndText();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         #region Properties

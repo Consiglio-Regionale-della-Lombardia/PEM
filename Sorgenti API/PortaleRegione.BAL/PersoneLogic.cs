@@ -228,7 +228,7 @@ namespace PortaleRegione.BAL
                 };
             }
 
-            return Mapper.Map<gruppi_politici, GruppiDto>(await _unitOfWork.Gruppi.Get(id));
+            return Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(id));
         }
 
         #endregion

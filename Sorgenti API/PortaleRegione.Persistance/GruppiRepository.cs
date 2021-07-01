@@ -96,11 +96,11 @@ namespace PortaleRegione.Persistance
             return lstGruppi;
         }
 
-        public async Task<gruppi_politici> Get(int gruppoId)
+        public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
         {
             return await PRContext
-                .gruppi_politici
-                .SingleOrDefaultAsync(g => g.attivo && g.id_gruppo == gruppoId);
+                .View_gruppi_politici_con_giunta
+                .SingleOrDefaultAsync(g => g.id_gruppo == gruppoId);
         }
 
         public async Task<View_UTENTI> GetCapoGruppo(int gruppoId)

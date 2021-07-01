@@ -1157,6 +1157,10 @@ namespace PortaleRegione.BAL
                         Mapper.Map<View_UTENTI, PersonaLightDto>(
                             await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
 
+                emendamentoDto.gruppi_politici =
+                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        await _unitOfWork.Gruppi.Get(em.id_gruppo));
+
                 if (persona == null)
                     return emendamentoDto;
 
@@ -1267,7 +1271,10 @@ namespace PortaleRegione.BAL
                         em.DataDeposito = Decrypt(em.DataDeposito);
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
                     dto.ConteggioFirme = await _logicFirme.CountFirme(em.UIDEM);
-                    dto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                    dto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
+                    dto.gruppi_politici =
+                        Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                            await _unitOfWork.Gruppi.Get(em.id_gruppo));
 
                     if (dto.ConteggioFirme > 1)
                     {
