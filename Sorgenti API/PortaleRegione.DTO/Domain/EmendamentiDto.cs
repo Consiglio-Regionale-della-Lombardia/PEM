@@ -189,6 +189,8 @@ namespace PortaleRegione.DTO.Domain
         public string Destinatari { get; set; }
         public string Firmatari { get; set; }
         public string Firme { get; set; }
+        public bool PresentatoOltreITermini { get; set; } = false;
+
         public string BodyEM;
         public string Firme_dopo_deposito;
 

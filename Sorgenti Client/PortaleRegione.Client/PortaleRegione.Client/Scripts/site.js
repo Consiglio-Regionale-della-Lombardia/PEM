@@ -1085,7 +1085,6 @@ function SuccessAlert(message, url) {
 }
 
 function ErrorAlert(message) {
-    
     swal({
         title: "Attenzione!",
         text: message,

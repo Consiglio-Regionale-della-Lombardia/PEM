@@ -276,7 +276,6 @@
                         contentType: "application/json; charset=utf-8",
                         dataType: "json"
                     }).done(function(data) {
-                        alert(JSON.stringify(data));
                         if (data.message) {
                             ErrorAlert(data.message);
                         } else {
