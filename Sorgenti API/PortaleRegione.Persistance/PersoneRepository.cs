@@ -22,7 +22,6 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
-using Microsoft.Extensions.Caching.Memory;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
@@ -51,14 +50,14 @@ namespace PortaleRegione.Persistance
         public async Task<View_UTENTI> Get(Guid personaUId)
         {
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p=>p.UID_persona == personaUId);
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p => p.UID_persona == personaUId);
             return result;
         }
 
         public async Task<View_UTENTI> Get(int personaId)
         {
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p=>p.id_persona == personaId);
+            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p => p.id_persona == personaId);
             return result;
         }
 
@@ -250,7 +249,7 @@ namespace PortaleRegione.Persistance
 
         public async Task SavePin(Guid personaUId, string nuovo_pin, bool reset)
         {
-            var persona =  await Get(personaUId);
+            var persona = await Get(personaUId);
             var no_cons = Convert.ToBoolean(persona.No_Cons);
             var table = no_cons ? "PINS_NoCons" : "PINS";
             await PRContext.Database.ExecuteSqlCommandAsync(
@@ -278,7 +277,8 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .UTENTI_NoCons
-                .SqlQuery($"Select * from UTENTI_NoCons where id_gruppo_politico_rif>=10000 AND notifica_firma={Convert.ToInt16(notifica_firma)} AND notifica_deposito={Convert.ToInt16(notifica_deposito)}");
+                .SqlQuery(
+                    $"Select * from UTENTI_NoCons where id_gruppo_politico_rif>=10000 AND notifica_firma={Convert.ToInt16(notifica_firma)} AND notifica_deposito={Convert.ToInt16(notifica_deposito)}");
 
             return await query.ToListAsync();
         }

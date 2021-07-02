@@ -228,9 +228,9 @@ namespace PortaleRegione.Persistance
                 .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
             if (Archivio == false)
-                query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
+                query = query.Where(n => !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value && (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
             else
-                query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+                query = query.Where(n => !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value && n.ATTI.Data_chiusura <= DateTime.Now);
 
             filtro?.BuildExpression(ref query);
 

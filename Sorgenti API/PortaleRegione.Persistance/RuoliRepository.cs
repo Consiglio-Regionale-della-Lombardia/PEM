@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -23,6 +24,7 @@ using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -39,6 +41,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<RUOLI>> GetAll(bool soloRuoliGiunta)
         {
+            PRContext.RUOLI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             var query = PRContext
                 .RUOLI
                 .Where(r => true);
@@ -50,6 +54,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<RUOLI>> RuoliUtente(List<string> lstRuoli)
         {
+            PRContext.RUOLI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             var query = PRContext.RUOLI
                 .Where(c => lstRuoli.Contains(c.ADGroup))
                 .OrderBy(c => c.Priorita);
@@ -59,6 +65,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<RUOLI> Get(int ruoliId)
         {
+            PRContext.RUOLI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             return await PRContext.RUOLI.FindAsync(ruoliId);
         }
     }

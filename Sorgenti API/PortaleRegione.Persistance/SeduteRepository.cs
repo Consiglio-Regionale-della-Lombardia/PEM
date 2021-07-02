@@ -42,7 +42,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<SEDUTE> Get(Guid sedutaUId)
         {
-            PRContext.SEDUTE.FromCache(DateTimeOffset.Now.AddMinutes(5)).ToList();
+            PRContext.SEDUTE.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var result = await PRContext.SEDUTE.Include(s => s.legislature)
                 .SingleOrDefaultAsync(a => a.UIDSeduta == sedutaUId);
             return result;
@@ -51,6 +51,8 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize,
             Filter<SEDUTE> filtro = null)
         {
+            PRContext.SEDUTE.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             var query = PRContext.SEDUTE.Include(s => s.legislature)
                 .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
 

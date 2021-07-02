@@ -26,6 +26,7 @@ using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -98,6 +99,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
         {
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             return await PRContext
                 .View_gruppi_politici_con_giunta
                 .SingleOrDefaultAsync(g => g.id_gruppo == gruppoId);
