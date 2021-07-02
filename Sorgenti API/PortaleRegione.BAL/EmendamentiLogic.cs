@@ -679,11 +679,11 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    ATTI atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                    SEDUTE seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+                    var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                    var seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
 
                     var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
-                    
+
                     var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
                     var countFirme = await _unitOfWork.Firme.CountFirme(idGuid);
                     if (countFirme == 1)
@@ -1059,7 +1059,7 @@ namespace PortaleRegione.BAL
             em.UIDPersonaProponenteOLD = em.UIDPersonaProponente;
             em.UIDPersonaProponente = model.NuovoProponente;
             em.id_gruppo = (await _logicPersone
-                    .GetGruppoAttualePersona(new List<string>(){ persona.GruppiAD}))
+                    .GetGruppoAttualePersona(new List<string> {persona.GruppiAD}))
                 .id_gruppo;
 
             await _unitOfWork.CompleteAsync();
@@ -1164,11 +1164,6 @@ namespace PortaleRegione.BAL
                 if (persona == null)
                     return emendamentoDto;
                 
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                    || persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    && string.IsNullOrEmpty(emendamentoDto.TestoEM_Modificabile))
-                    emendamentoDto.TestoEM_Modificabile = emendamentoDto.TestoEM_originale;
-
                 emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int) StatiEnum.Depositato
                                               && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
                                               && !emendamentoDto.ATTI.Chiuso ||
@@ -1220,7 +1215,6 @@ namespace PortaleRegione.BAL
                         persona);
 
                 if (!string.IsNullOrEmpty(em.DataDeposito))
-                {
                     if (Convert.ToDateTime(emendamentoDto.DataDeposito) >
                         emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione)
                     {
@@ -1230,8 +1224,7 @@ namespace PortaleRegione.BAL
                         if (deposito_del_relatore == null)
                             emendamentoDto.PresentatoOltreITermini = true;
                     }
-                }
-                
+
                 return emendamentoDto;
             }
             catch (Exception e)
@@ -1314,7 +1307,6 @@ namespace PortaleRegione.BAL
                                 await _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
-                    {
                         if (Convert.ToDateTime(em.DataDeposito) >
                             em.ATTI.SEDUTE.Scadenza_presentazione)
                         {
@@ -1324,7 +1316,6 @@ namespace PortaleRegione.BAL
                             if (deposito_del_relatore == null)
                                 dto.PresentatoOltreITermini = true;
                         }
-                    }
 
                     result.Add(dto);
                 }
@@ -1460,7 +1451,6 @@ namespace PortaleRegione.BAL
                                 await _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
-                    {
                         if (Convert.ToDateTime(em.DataDeposito) >
                             em.ATTI.SEDUTE.Scadenza_presentazione)
                         {
@@ -1470,7 +1460,6 @@ namespace PortaleRegione.BAL
                             if (deposito_del_relatore == null)
                                 dto.PresentatoOltreITermini = true;
                         }
-                    }
 
                     result.Add(dto);
                 }
