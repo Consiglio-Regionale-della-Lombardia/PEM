@@ -405,10 +405,16 @@ namespace PortaleRegione.BAL
                         "{NOTE_PUBBLICHE_COMMENTO_END}",
                         !string.IsNullOrEmpty(emendamento.NOTE_Griglia) ? string.Empty : "-->");
 
-                if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea &&
-                    !string.IsNullOrEmpty(emendamento.NOTE_EM))
-                    body = body.Replace("{lblNotePrivateEMView}",
-                        $"Note Riservate: {emendamento.NOTE_EM}").Replace("{NOTEPRIV_COMMENTO_START}", string.Empty).Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
+                if (currentUser != null)
+                {
+                    if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea && !string.IsNullOrEmpty(emendamento.NOTE_EM))
+                        body = body.Replace("{lblNotePrivateEMView}",
+                            $"Note Riservate: {emendamento.NOTE_EM}").Replace("{NOTEPRIV_COMMENTO_START}", string.Empty).Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
+                    else
+                        body = body.Replace("{lblNotePrivateEMView}", string.Empty)
+                            .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
+                            .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
+                }
                 else
                     body = body.Replace("{lblNotePrivateEMView}", string.Empty)
                         .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")

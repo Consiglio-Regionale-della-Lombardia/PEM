@@ -55,7 +55,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logic.InvioMail(model));
+                await _logic.InvioMail(model);
+                return Ok(true);
             }
             catch (Exception e)
             {
