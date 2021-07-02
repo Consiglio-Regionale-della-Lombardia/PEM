@@ -39,11 +39,11 @@ namespace PortaleRegione.BAL
 
         #region InvioMail
 
-        public async Task<bool> InvioMail(MailModel model)
+        public async Task InvioMail(MailModel model)
         {
             try
             {
-                if (!AppSettingsConfiguration.Invio_Notifiche) return false;
+                if (!AppSettingsConfiguration.Invio_Notifiche) return;
 
                 var msg = new MailMessage
                 {
@@ -62,13 +62,11 @@ namespace PortaleRegione.BAL
                 var smtp = new SmtpClient(AppSettingsConfiguration.SMTP);
 
                 await smtp.SendMailAsync(msg);
-
-                return true;
             }
             catch (Exception e)
             {
                 Log.Error("InvioMail", e);
-                return false;
+                throw e;
             }
         }
 
