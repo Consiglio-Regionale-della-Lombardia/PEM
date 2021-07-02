@@ -32,7 +32,7 @@ namespace PortaleRegione.Contracts
     {
         Task<GruppiDto> GetGruppoPersona(List<string> LGruppi, bool IsGiunta = false);
         Task<IEnumerable<KeyValueDto>> GetAll(int id_legislatura);
-        Task<gruppi_politici> Get(int gruppoId);
+        Task<View_gruppi_politici_con_giunta> Get(int gruppoId);
         Task<View_UTENTI> GetCapoGruppo(int gruppoId);
         Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma, bool notifica_deposito);
         Task<IEnumerable<View_UTENTI>> GetConsiglieriGruppo(int id_legislatura, int id_gruppo);

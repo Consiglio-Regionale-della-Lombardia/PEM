@@ -160,7 +160,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var gruppiDto = Mapper.Map<gruppi_politici, GruppiDto>(await _unitOfWork.Gruppi.Get(gruppo));
+                var gruppiDto = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(gruppo));
                 if (gruppiDto == null)
                     throw new Exception("ListaGruppo non trovato");
 

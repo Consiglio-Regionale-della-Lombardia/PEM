@@ -45,7 +45,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<ATTI> Get(Guid attoUId)
         {
-            PRContext.ATTI.FromCache(DateTimeOffset.Now.AddMinutes(5)).ToList();
+            PRContext.ATTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var result = await PRContext
                 .ATTI
                 .Include(a => a.TIPI_ATTO)
@@ -63,6 +63,8 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<ATTI>> GetAll(Guid sedutaUId, int pageIndex, int pageSize,
             Filter<ATTI> filtro = null)
         {
+            PRContext.ATTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             var query = PRContext
                 .ATTI
                 .Include(a => a.TIPI_ATTO)
@@ -187,6 +189,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId)
         {
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            PRContext.ATTI_RELATORI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var atti_relatori = await PRContext
                 .ATTI_RELATORI
                 .Where(ar => ar.UIDAtto == attoUId)

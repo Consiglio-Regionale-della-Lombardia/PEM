@@ -60,7 +60,7 @@
         </label>
     </div>
     <div class="col s5 left">
-        @if (User.IsInRole(RuoliEnum.Consigliere_Regionale) || User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta))
+        @if ((User.IsInRole(RuoliEnum.Consigliere_Regionale) || User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)) && mode == ((int)ClientModeEnum.GRUPPI).ToString())
         {
             <label>
                 <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>

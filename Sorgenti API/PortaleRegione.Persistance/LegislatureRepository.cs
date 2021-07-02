@@ -41,12 +41,15 @@ namespace PortaleRegione.Persistance
 
         public async Task<int> Legislatura_Attiva()
         {
+            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
             var result = await PRContext.legislature.SingleOrDefaultAsync(l => l.attiva);
             return result?.id_legislatura ?? 0;
         }
 
         public async Task<IEnumerable<legislature>> GetLegislature()
         {
+            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
             var query = PRContext
                 .legislature
                 .OrderByDescending(l => l.durata_legislatura_da);

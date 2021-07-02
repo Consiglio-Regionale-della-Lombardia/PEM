@@ -143,7 +143,7 @@
                         throw new ArgumentOutOfRangeException();
                 }
                 <label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
-                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" />
+                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM"/>
                     <span>@tipoDto.Tipo_EM</span>
                 </label>
             }
@@ -153,7 +153,6 @@
 <input type="hidden" id="hdParteId"/>
 <input type="hidden" id="hdTipoId"/>
 <script>
-    
     function PartiTestoEmendamento_OnChange(item) {
         
         $('#hdParteId').val(item);

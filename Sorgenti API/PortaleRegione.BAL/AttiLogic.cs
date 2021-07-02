@@ -68,7 +68,8 @@ namespace PortaleRegione.BAL
                         || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                     {
                         appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
-                        appoggio.CanMoveDown = await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
+                        appoggio.CanMoveDown =
+                            await _unitOfWork.Atti.CanMoveDown(appoggio.UIDSeduta.Value, appoggio.Priorita.Value);
 
                         var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
                         var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);
@@ -146,10 +147,7 @@ namespace PortaleRegione.BAL
                 attoInDb.UIDPersonaModifica = currentUser.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
                 Mapper.Map(attoModel, attoInDb);
-                if (!attoModel.Data_chiusura.HasValue)
-                {
-                    attoInDb.Data_chiusura = null;
-                }
+                if (!attoModel.Data_chiusura.HasValue) attoInDb.Data_chiusura = null;
 
                 await _unitOfWork.CompleteAsync();
 
@@ -539,7 +537,7 @@ namespace PortaleRegione.BAL
         {
             await _unitOfWork.Atti.SPOSTA_UP(attoUId);
         }
-        
+
         public async Task SPOSTA_DOWN(Guid attoUId)
         {
             await _unitOfWork.Atti.SPOSTA_DOWN(attoUId);
@@ -547,7 +545,7 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<PersonaLightDto>> GetRelatori(Guid attoUId)
         {
-            var result =await _unitOfWork.Atti.GetRelatori(attoUId);
+            var result = await _unitOfWork.Atti.GetRelatori(attoUId);
             return result;
         }
     }

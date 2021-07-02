@@ -30,6 +30,7 @@ using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -319,7 +320,7 @@ namespace PortaleRegione.BAL
                     var headerCell2_em = c2_em.AddParagraph();
                     headerCell2_em.Alignment = ParagraphAlignment.CENTER;
                     var headerCell2_Run_em = headerCell2_em.CreateRun();
-                    headerCell2_Run_em.SetText(em.TestoEM_originale);
+                    headerCell2_Run_em.SetText(Utility.StripHTML(em.TestoEM_originale));
 
                     var c3_em = row.CreateCell();
                     var headerCell3_em = c3_em.AddParagraph();
@@ -327,7 +328,7 @@ namespace PortaleRegione.BAL
                     var headerCell3_Run_em = headerCell3_em.CreateRun();
                     headerCell3_Run_em.SetText(string.IsNullOrEmpty(em.TestoREL_originale)
                         ? ""
-                        : em.TestoREL_originale);
+                        : Utility.StripHTML(em.TestoREL_originale));
 
                     var proponente =
                         await _logicPersone.GetPersona(em.UIDPersonaProponente.Value,
@@ -572,22 +573,22 @@ namespace PortaleRegione.BAL
             var cellCount = rowReport.CreateCell(0);
             cellCount.CellStyle = styleR;
             cellCount.SetCellValue(countEM);
-            var cellInamm = rowReport.CreateCell(11);
+            var cellInamm = rowReport.CreateCell(8);
             cellInamm.CellStyle = styleR;
             cellInamm.SetCellValue(inammissibili);
 
             if (reportType == ReportType.PCR) return sheet;
 
-            var cellRit = rowReport.CreateCell(12);
+            var cellRit = rowReport.CreateCell(9);
             cellRit.CellStyle = styleR;
             cellRit.SetCellValue(ritirati);
-            var cellApp = rowReport.CreateCell(13);
+            var cellApp = rowReport.CreateCell(10);
             cellApp.CellStyle = styleR;
             cellApp.SetCellValue(approvati);
-            var cellNonApp = rowReport.CreateCell(14);
+            var cellNonApp = rowReport.CreateCell(11);
             cellNonApp.CellStyle = styleR;
             cellNonApp.SetCellValue(non_approvati);
-            var cellDeca = rowReport.CreateCell(15);
+            var cellDeca = rowReport.CreateCell(12);
             cellDeca.CellStyle = styleR;
             cellDeca.SetCellValue(decaduti);
 

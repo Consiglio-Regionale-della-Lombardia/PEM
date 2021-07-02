@@ -123,9 +123,12 @@
                         }
                         @if (!string.IsNullOrEmpty(Model.NOTE_Griglia))
                         {
-                            <p class="green-text" style="padding-top: 10px">
-                                <b>Nota ufficio dei lavori assembleari: @Model.NOTE_Griglia</b>
-                            </p>
+                            <div class="green-text">
+                                <p style="padding-top: 10px">
+                                    <b>Nota ufficio dei lavori assembleari: </b>
+                                    @Html.Raw(Model.NOTE_Griglia)
+                                </p>
+                            </div>
                         }
                     </div>
                     <div class="col s6 right-align">
@@ -175,6 +178,16 @@
                         }
                     </div>
                 </div>
+                @if (!string.IsNullOrEmpty(Model.TestoEM_Modificabile))
+                {
+                    <div class="row">
+                        <div class="col s12">
+                            <h5>Durante la discussione in aula il testo è stato così modificato:</h5>
+                            <hr />
+                            @Html.Raw(Model.TestoEM_Modificabile)
+                        </div>
+                    </div>
+                }
 
                 @* INVITI *@
                 @if (!string.IsNullOrEmpty(Model.Destinatari))
@@ -195,9 +208,10 @@
                 @if (!string.IsNullOrEmpty(Model.NOTE_EM))
                 {
                     <div class="row">
-                        <div class="col s12">
-                            <p class="red-text">
-                                <b>Nota riservata: @Model.NOTE_EM</b>
+                        <div class="col s12 red-text">
+                            <p>
+                                <b>Nota riservata:</b>
+                                @Html.Raw(Model.NOTE_EM)
                             </p>
                         </div>
                     </div>

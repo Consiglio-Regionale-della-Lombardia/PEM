@@ -121,9 +121,12 @@
                                 </h6>
                             </div>
                             <div class="col s6 right-align">
-                                <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
-                                    <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                </a>
+                                @if (atto.Data_apertura.HasValue)
+                                {
+                                    <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                        <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                    </a>
+                                }
                             </div>
                         </div>
                     </div>

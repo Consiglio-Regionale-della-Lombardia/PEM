@@ -1,7 +1,5 @@
-﻿@using System.Threading.Tasks
-@using PortaleRegione.Common
+﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
-@using PortaleRegione.Gateway
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @if (!Model.Data.Results.Any())
@@ -16,7 +14,8 @@
                         {
                             <p>Non ci sono emendamenti dove è richiesta la tua firma</p>
                         }
-    else{
+                        else
+                        {
                             <p>Non ci sono emendamenti al momento</p>
                         }
                     }
@@ -27,7 +26,6 @@
 }
 else
 {
-    var data_scadenza = Model.Atto.SEDUTE.Scadenza_presentazione;
     var countRow = 0;
     var lastRow = 0;
     foreach (var itemEM in Model.Data.Results)
@@ -86,15 +84,10 @@ else
                                     {
                                         <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
                                             @{
-                                                if (data_scadenza.HasValue)
+                                                if (itemEM.PresentatoOltreITermini)
                                                 {
-                                                    var data_deposito = Convert.ToDateTime(itemEM.DataDeposito);
-
-                                                    if (data_deposito > data_scadenza.Value)
-                                                    {
-                                                        //presentato oltre i termini
-                                                        <i class="material-icons red-text left" title="Presentato oltre i termini">warning</i>
-                                                    }
+                                                    //presentato oltre i termini
+                                                    <i class="material-icons red-text left" title="Presentato oltre i termini">warning</i>
                                                 }
                                             }
 

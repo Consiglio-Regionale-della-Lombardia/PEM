@@ -242,9 +242,6 @@ namespace PortaleRegione.Persistance
                 .Include(a => a.TIPI_ATTO)
                 .Where(a => a.UIDAtto == attoUId)
                 .LoadAsync();
-            await PRContext.gruppi_politici
-                .Where(a => a.attivo && !a.deleted)
-                .LoadAsync();
 
             var query = PRContext
                 .EM
@@ -262,6 +259,14 @@ namespace PortaleRegione.Persistance
 
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
+                var atto = await PRContext
+                    .ATTI
+                    .SingleAsync(a => a.UIDAtto == attoUId);
+                if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
+                    return new List<EM>();
+                if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione)
+                    return new List<EM>();
+
                 query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
             }
             else

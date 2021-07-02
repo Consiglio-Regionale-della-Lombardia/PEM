@@ -687,6 +687,28 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Controller per comunicare l'effettiva conclusione dell'operazione di ordinamento emendamenti nell'atto
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [HttpGet]
+        [Route("ordinamento-concluso")]
+        public async Task<ActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
+        {
+            try
+            {
+                await EMGate.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id);
+                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         /// <summary>
         ///     Controller per ordinare un emendamento di un atto in votazione in posizione superiore
