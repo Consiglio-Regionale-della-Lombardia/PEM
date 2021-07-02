@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
@@ -65,6 +66,27 @@ namespace PortaleRegione.BAL
             catch (Exception e)
             {
                 Log.Error("Logic - ORDINA_EM_TRATTAZIONE", e);
+                throw e;
+            }
+        }
+        
+        public async Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid attoUId, PersonaDto persona)
+        {
+            try
+            {
+                var atto = await _unitOfWork.Atti.Get(attoUId);
+                var ruolo_segreteria = await _unitOfWork.Ruoli.Get(10);
+                await _logicUtil.InvioMail(new MailModel
+                {
+                    DA = persona.email,
+                    A = $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                    OGGETTO = $"[ORDINAMENTO CONCLUSO] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
+                    MESSAGGIO = $"Ordinamento atto concluso da {persona.DisplayName}"
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", e);
                 throw e;
             }
         }

@@ -892,5 +892,24 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public static async Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/emendamenti/ordinamento-concluso?id={id}";
+                await Get(requestUrl);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", ex);
+                throw ex;
+            }
+        }
     }
 }

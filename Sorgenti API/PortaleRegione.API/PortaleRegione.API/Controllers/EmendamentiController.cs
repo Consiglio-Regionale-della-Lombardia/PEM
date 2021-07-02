@@ -978,6 +978,33 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per ordinare gli emendamenti di un atto in votazione
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [HttpGet]
+        [Route("ordinamento-concluso")]
+        public async Task<IHttpActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
+        {
+            try
+            {
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+
+                await _logicEm.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id, persona);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("ORDINA_EM_TRATTAZIONE", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per spostare un emendamento di un atto in votazione in posizione superiore

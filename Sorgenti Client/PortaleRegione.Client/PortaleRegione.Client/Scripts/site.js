@@ -730,6 +730,26 @@ function Sposta_EMTrattazione() {
         });
 }
 
+function OrdinamentoConcluso(attoUId) {
+    $.ajax({
+        url: baseUrl + "/emendamenti/ordinamento-concluso?id=" + attoUId,
+        type: "GET",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            ErrorAlert(data.message);
+        } else {
+            swal("Email inviata con successo!").then((val) => {
+                go(data);
+            });
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        ErrorAlert(err.message);
+    });
+}
+
 function Proponenti_OnChange(tipo) {
     var pnlConsiglieri = $("#pnlProponentiConsiglieri");
     var pnlAssessori = $("#pnlProponentiAssessori");
