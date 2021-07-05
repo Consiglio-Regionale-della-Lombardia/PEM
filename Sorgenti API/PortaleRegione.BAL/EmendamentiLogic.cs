@@ -421,9 +421,11 @@ namespace PortaleRegione.BAL
 
                 emAggiornato.UIDPersonaModifica = persona.UID_persona;
                 emAggiornato.DataModifica = DateTime.Now;
-                emAggiornato.IDStato = (int) StatiEnum.Approvato_Con_Modifiche;
                 if (model.TestoEM_Modificabile != em.TestoEM_originale)
+                {
                     emAggiornato.TestoEM_Modificabile = model.TestoEM_Modificabile;
+                    emAggiornato.IDStato = (int) StatiEnum.Approvato_Con_Modifiche;
+                }
 
                 await _unitOfWork.CompleteAsync();
             }

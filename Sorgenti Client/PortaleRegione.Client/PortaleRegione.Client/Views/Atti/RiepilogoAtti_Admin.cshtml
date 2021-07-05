@@ -123,13 +123,13 @@
                             @if (atto.CanMoveUp)
                             {
                                 <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new {id = atto.UIDAtto})')" title="Sposta su">
-                                    <i class="material-icons" style="margin-top: 15px">arrow_drop_up</i>
+                                    <i class="material-icons" style="margin-top: 15px">arrow_upward</i>
                                 </a>
                             }
                             @if (atto.CanMoveDown)
                             {
                                 <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new {id = atto.UIDAtto})')" title="Sposta giù">
-                                    <i class="material-icons" style="margin-top: 15px">arrow_drop_down</i>
+                                    <i class="material-icons" style="margin-top: 15px">arrow_downward</i>
                                 </a>
                             }
                             
