@@ -428,7 +428,7 @@ namespace PortaleRegione.Common
 
         public static string StripHTML(string input)
         {
-            return Regex.Replace(input, "<.*?>", String.Empty);
+            return Regex.Replace(input, "<.*?>", String.Empty).Replace("&nbsp;", " ");
         }
     }
 }

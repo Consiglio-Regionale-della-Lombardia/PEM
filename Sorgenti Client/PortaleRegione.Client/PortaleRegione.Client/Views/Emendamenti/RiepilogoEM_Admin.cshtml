@@ -51,13 +51,13 @@
     <div class="col l1 s2">
         @if (!filtri_attivi)
         {
-            <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})" style="top: 5px !important;">
+            <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})" style="top: 0px !important;">
                 <i class="material-icons">arrow_back</i>
             </a>
         }
         else
         {
-            <a class="btn-floating waves-effect waves-light grey header-back" onclick="reset()" style="top: 5px !important;">
+            <a class="btn-floating waves-effect waves-light grey header-back" onclick="reset()" style="top: 0px !important;">
                 <i class="material-icons">arrow_back</i>
             </a>
         }
@@ -68,8 +68,8 @@
         </h5>
         @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
         {
-            <a href="@Url.Action("Download", "Atti", new {path = Model.Atto.Path_Testo_Atto})">
-                <i class="material-icons pink-text">cloud_download</i>
+            <a href="@Url.Action("Download", "Atti", new {path = Model.Atto.Path_Testo_Atto})" class="hoverable">
+                <i class="material-icons pink-text medium tooltipped" data-tooltip="Scarica documento atto" style="padding-left:20px">cloud_download</i>
             </a>
         }
         @if (Model.Mode == ClientModeEnum.TRATTAZIONE)

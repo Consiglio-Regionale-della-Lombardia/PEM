@@ -190,6 +190,7 @@ namespace PortaleRegione.DTO.Domain
         public string Firmatari { get; set; }
         public string Firme { get; set; }
         public bool PresentatoOltreITermini { get; set; } = false;
+        public bool Proponente_Relatore { get; set; } = false;
 
         public string BodyEM;
         public string Firme_dopo_deposito;

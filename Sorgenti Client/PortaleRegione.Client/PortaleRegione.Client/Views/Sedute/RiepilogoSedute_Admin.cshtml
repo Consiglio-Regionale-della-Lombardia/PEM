@@ -78,7 +78,14 @@
                     <div class="row valign-wrapper">
                         <div class="col s10">
                             <p>
-                                Scadenza presentazione: @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                                @{
+                                    var scadenza_text = "Non impostata";
+                                    if (seduta.Scadenza_presentazione.HasValue)
+                                    {
+                                        scadenza_text = @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm");
+                                    }
+                                }
+                                Scadenza presentazione: @scadenza_text
                             </p>
                         </div>
                         <div class="col s2">

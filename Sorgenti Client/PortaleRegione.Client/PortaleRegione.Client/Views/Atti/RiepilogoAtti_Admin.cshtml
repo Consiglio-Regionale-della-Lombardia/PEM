@@ -2,7 +2,12 @@
 @model PortaleRegione.Client.Models.AttiViewModel
 
 @{
-    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
+    var scadenza_text = "Non impostata";
+    if (Model.Seduta.Scadenza_presentazione.HasValue)
+    {
+        scadenza_text = @Convert.ToDateTime(Model.Seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm");
+    }
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), scadenza_text);
 }
 
 <script>
@@ -123,13 +128,13 @@
                             @if (atto.CanMoveUp)
                             {
                                 <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new {id = atto.UIDAtto})')" title="Sposta su">
-                                    <i class="material-icons" style="margin-top: 15px">arrow_drop_up</i>
+                                    <i class="material-icons" style="margin-top: 15px">arrow_upward</i>
                                 </a>
                             }
                             @if (atto.CanMoveDown)
                             {
                                 <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new {id = atto.UIDAtto})')" title="Sposta giù">
-                                    <i class="material-icons" style="margin-top: 15px">arrow_drop_down</i>
+                                    <i class="material-icons" style="margin-top: 15px">arrow_downward</i>
                                 </a>
                             }
                             
