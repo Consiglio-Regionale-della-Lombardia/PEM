@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
@@ -69,7 +68,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid attoUId, PersonaDto persona)
         {
             try
@@ -79,7 +78,8 @@ namespace PortaleRegione.BAL
                 await _logicUtil.InvioMail(new MailModel
                 {
                     DA = persona.email,
-                    A = $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                    A =
+                        $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                     OGGETTO = $"[ORDINAMENTO CONCLUSO] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
                     MESSAGGIO = $"Ordinamento atto concluso da {persona.DisplayName}"
                 });
@@ -307,10 +307,7 @@ namespace PortaleRegione.BAL
                         .GetArticoli(em.UIDAtto))
                     .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
 
-                if (string.IsNullOrEmpty(em.TestoEM_Modificabile))
-                {
-                    em.TestoEM_Modificabile = em.TestoEM_originale;
-                }
+                if (string.IsNullOrEmpty(em.TestoEM_Modificabile)) em.TestoEM_Modificabile = em.TestoEM_originale;
 
                 return result;
             }
@@ -1192,7 +1189,7 @@ namespace PortaleRegione.BAL
 
                 if (persona == null)
                     return emendamentoDto;
-                
+
                 emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int) StatiEnum.Depositato
                                               && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
                                               && !emendamentoDto.ATTI.Chiuso ||
@@ -1335,16 +1332,23 @@ namespace PortaleRegione.BAL
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
                                 await _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
 
+                    var relatori = await _unitOfWork.Atti.GetRelatori(em.UIDAtto);
                     if (!string.IsNullOrEmpty(em.DataDeposito))
+                    {
                         if (Convert.ToDateTime(em.DataDeposito) >
                             em.ATTI.SEDUTE.Scadenza_presentazione)
                         {
-                            var relatori = await _unitOfWork.Atti.GetRelatori(em.UIDAtto);
                             var deposito_del_relatore =
                                 relatori.FirstOrDefault(r => r.UID_persona == em.UIDPersonaDeposito.Value);
                             if (deposito_del_relatore == null)
                                 dto.PresentatoOltreITermini = true;
                         }
+                    }
+                    if (dto.Firmato_Dal_Proponente &&
+                              relatori.Any(r => r.UID_persona == dto.UIDPersonaProponente))
+                    {
+                        dto.Proponente_Relatore = true;
+                    }
 
                     result.Add(dto);
                 }
