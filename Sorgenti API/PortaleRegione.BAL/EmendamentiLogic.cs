@@ -731,7 +731,7 @@ namespace PortaleRegione.BAL
                             await _logicUtil.InvioMail(new MailModel
                             {
                                 DA = "pem@consiglio.regione.lombardia.it",
-                                A = $"{ruoloSegreterie.ADGroup}@consiglio.regione.lombardia.it",
+                                A = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                                 OGGETTO =
                                     $"Ritirata ultima firma dall' {n_em} nel {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
                                 MESSAGGIO =
@@ -758,7 +758,7 @@ namespace PortaleRegione.BAL
                         await _logicUtil.InvioMail(new MailModel
                         {
                             DA = "pem@consiglio.regione.lombardia.it",
-                            A = $"{ruoloSegreterie.ADGroup}@consiglio.regione.lombardia.it",
+                            A = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                             OGGETTO =
                                 $"Ritirata una firma dall' {n_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
                             MESSAGGIO = "E' stata ritirata una firma all'emendamento in oggetto."
@@ -929,7 +929,7 @@ namespace PortaleRegione.BAL
                     await _logicUtil.InvioMail(new MailModel
                     {
                         DA = "pem@consiglio.regione.lombardia.it",
-                        A = $"{ruoloSegreterie.ADGroup}@consiglio.regione.lombardia.it",
+                        A = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                         OGGETTO = $"Ritirato {nome_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
                         MESSAGGIO = "ATTENZIONE: E' stato appena ritirato l'emendamento in oggetto"
                     });
