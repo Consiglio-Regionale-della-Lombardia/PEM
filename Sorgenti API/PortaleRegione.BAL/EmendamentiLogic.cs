@@ -307,6 +307,11 @@ namespace PortaleRegione.BAL
                         .GetArticoli(em.UIDAtto))
                     .Select(Mapper.Map<ARTICOLI, ArticoliDto>);
 
+                if (string.IsNullOrEmpty(em.TestoEM_Modificabile))
+                {
+                    em.TestoEM_Modificabile = em.TestoEM_originale;
+                }
+
                 return result;
             }
             catch (Exception e)
