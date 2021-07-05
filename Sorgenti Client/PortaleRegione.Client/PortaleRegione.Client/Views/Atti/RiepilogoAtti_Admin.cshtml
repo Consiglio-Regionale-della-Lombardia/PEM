@@ -2,7 +2,12 @@
 @model PortaleRegione.Client.Models.AttiViewModel
 
 @{
-    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
+    var scadenza_text = "Non impostata";
+    if (Model.Seduta.Scadenza_presentazione.HasValue)
+    {
+        scadenza_text = @Convert.ToDateTime(Model.Seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm");
+    }
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), scadenza_text);
 }
 
 <script>

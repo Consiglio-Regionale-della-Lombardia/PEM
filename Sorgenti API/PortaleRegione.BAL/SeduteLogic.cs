@@ -125,6 +125,7 @@ namespace PortaleRegione.BAL
             {
                 var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
                 Mapper.Map(sedutaDto, sedutaInDb);
+                sedutaInDb.Scadenza_presentazione = sedutaDto.Scadenza_presentazione;
                 sedutaInDb.UIDPersonaModifica = persona.UID_persona;
                 sedutaInDb.DataModifica = DateTime.Now;
                 sedutaInDb.Data_apertura = sedutaDto.Data_apertura;
