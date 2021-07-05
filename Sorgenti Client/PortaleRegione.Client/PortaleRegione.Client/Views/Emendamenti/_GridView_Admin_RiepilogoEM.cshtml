@@ -264,7 +264,7 @@ else
 
     function proiettaEM(uidem, displayEM) {
         $.ajax({
-            url: "/emendamenti/proietta?id=" + uidem,
+            url: '@Url.Action("ProiettaEmendamento")?id=' + uidem,
             type: "GET"
         }).done(function(result) {
             var cmdCtrl = $('#cmdProietta_' + uidem).children();
