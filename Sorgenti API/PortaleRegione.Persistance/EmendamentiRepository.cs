@@ -325,6 +325,9 @@ namespace PortaleRegione.Persistance
                             .ThenBy(em => em.Rif_UIDEM)
                             .ThenBy(em => em.IDStato);
                         break;
+                    default:
+                        query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                        break;
                 }
             }
             else

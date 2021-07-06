@@ -285,7 +285,7 @@ namespace PortaleRegione.Gateway
             try
             {
                 var requestUrl =
-                    $"{apiUrl}/persone/gruppo/{id:int}/segreteria-politica?notifica_firma={notifica_firma}&notifica_deposito={notifica_deposito}";
+                    $"{apiUrl}/persone/gruppo/{id}/segreteria-politica?notifica_firma={notifica_firma}&notifica_deposito={notifica_deposito}";
 
                 var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl));
 
@@ -307,7 +307,7 @@ namespace PortaleRegione.Gateway
         {
             try
             {
-                var requestUrl = $"{apiUrl}/persone/gruppo/{id:int}/capo-gruppo";
+                var requestUrl = $"{apiUrl}/persone/gruppo/{id}/capo-gruppo";
 
                 var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl));
 
