@@ -131,16 +131,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine)
         {
-            await PRContext.ATTI
-                .Include(a => a.SEDUTE)
-                .Include(a => a.TIPI_ATTO)
-                .Where(a => a.UIDAtto == emUidAtto)
-                .LoadAsync();
-            await PRContext.gruppi_politici
-                .Where(a => a.attivo && !a.deleted)
-                .LoadAsync();
-
-            return await PRContext
+            var result = await PRContext
                 .EM
                 .Include(em => em.ATTI)
                 .Include(em => em.PARTI_TESTO)
@@ -150,9 +141,17 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.LETTERE)
                 .Include(em => em.EM2)
                 .Include(em => em.STATI_EM)
-                .FirstOrDefaultAsync(em =>
-                    em.OrdineVotazione == ordine && em.UIDAtto == emUidAtto &&
-                    em.IDStato >= (int) StatiEnum.Depositato);
+                .Where(em =>
+                    em.UIDAtto == emUidAtto &&
+                    em.IDStato >= (int) StatiEnum.Depositato)
+                .ToListAsync();
+            
+            if (result.Any(em => em.OrdineVotazione == ordine))
+            {
+                return result.First(em => em.OrdineVotazione == ordine);
+            }
+
+            return result.First();
         }
 
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
@@ -759,32 +758,7 @@ namespace PortaleRegione.Persistance
             await PRContext.Database.ExecuteSqlCommandAsync(
                 $"exec SPOSTA_EM_TRATTAZIONE @UIDEM='{emendamentoUId}',@Pos={pos}");
         }
-
-        public async Task<EM> GetEMInProiezione(Guid emUidAtto)
-        {
-            await PRContext.ATTI
-                .Include(a => a.SEDUTE)
-                .Include(a => a.TIPI_ATTO)
-                .Where(a => a.UIDAtto == emUidAtto)
-                .LoadAsync();
-            await PRContext.gruppi_politici
-                .Where(a => a.attivo && !a.deleted)
-                .LoadAsync();
-
-            return await PRContext
-                .EM
-                .Include(em => em.ATTI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.TIPI_EM)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.EM2)
-                .Include(em => em.STATI_EM)
-                .FirstOrDefaultAsync(em =>
-                    em.Proietta.Value && em.UIDAtto == emUidAtto && em.IDStato >= (int) StatiEnum.Depositato);
-        }
-
+        
         private async Task<IEnumerable<EM>> GetEmendamentiByArray(List<Guid> listaEmendamenti)
         {
             return await PRContext
