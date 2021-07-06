@@ -48,6 +48,7 @@
     <Compile Include="BaseGateway.cs" />
     <Compile Include="CommiGate.cs" />
     <Compile Include="EMGate.cs" />
+    <Compile Include="EMPublicGate.cs" />
     <Compile Include="LettereGate.cs" />
     <Compile Include="NotificheGate.cs" />
     <Compile Include="PersoneGate.cs" />

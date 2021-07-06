@@ -425,7 +425,7 @@ namespace PortaleRegione.BAL
                 {
                     var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
                     var qrFilePathComplete = Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
-                    var qrLink = string.Format(AppSettingsConfiguration.urlPEM_ViewEM, emendamento.UIDEM);
+                    var qrLink = $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}";
                     var qrGenerator = new QRCodeGenerator();
                     var urlPayload = new PayloadGenerator.Url(qrLink);
                     var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
@@ -517,7 +517,7 @@ namespace PortaleRegione.BAL
                     " style='120px;'/>");
 
                 body = body.Replace("{LINKPEM}",
-                    $"{string.Format(AppSettingsConfiguration.urlPEM_ViewEM, emendamento.UIDEM)}");
+                    $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}");
 
                 body = body.Replace("{LINKPEMRIEPILOGO}", string.Empty);
             }

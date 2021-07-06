@@ -1762,5 +1762,12 @@ namespace PortaleRegione.BAL
 
             return proietta;
         }
+
+        public async Task<EM> GetEM_ByQR(Guid id)
+        {
+            return await _unitOfWork
+                .Emendamenti
+                .GetByQR(id);
+        }
     }
 }
