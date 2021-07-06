@@ -234,7 +234,8 @@ namespace GeneraStampeJob
                 Log.Debug(
                     $"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Capo Gruppo e Segreteria Politica");
                 var capoGruppo = await PersoneGate.GetCapoGruppo(em.id_gruppo);
-                var segreteriaPolitica = await PersoneGate.GetSegreteriaPolitica(em.id_gruppo, false, true);
+                var segreteriaPolitica = await PersoneGate
+                    .GetSegreteriaPolitica(em.id_gruppo, false, true);
 
                 if (segreteriaPolitica.Any())
                     email_destinatariGruppo = segreteriaPolitica.Select(u => u.email)
@@ -246,7 +247,8 @@ namespace GeneraStampeJob
             {
                 Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Giunta Regionale");
                 var giuntaRegionale = await PersoneGate.GetGiuntaRegionale();
-                var segreteriaGiuntaRegionale = await PersoneGate.GetSegreteriaGiuntaRegionale(false, true);
+                var segreteriaGiuntaRegionale = await PersoneGate
+                    .GetSegreteriaGiuntaRegionale(false, true);
 
                 if (segreteriaGiuntaRegionale.Any())
                     email_destinatariGiunta += segreteriaGiuntaRegionale.Select(u => u.email)
