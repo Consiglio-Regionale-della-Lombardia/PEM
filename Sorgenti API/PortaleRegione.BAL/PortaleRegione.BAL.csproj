@@ -108,6 +108,7 @@
     <Compile Include="AttiLogic.cs" />
     <Compile Include="AuthLogic.cs" />
     <Compile Include="EmendamentiLogic.cs" />
+    <Compile Include="EMPublicLogic.cs" />
     <Compile Include="EsportaLogic.cs" />
     <Compile Include="FirmeLogic.cs" />
     <Compile Include="BaseLogic.cs" />

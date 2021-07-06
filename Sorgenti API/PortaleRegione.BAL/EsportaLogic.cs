@@ -198,7 +198,7 @@ namespace PortaleRegione.BAL
                         SetColumnValue(ref rowEm, "--");
                     }
 
-                    SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM}/{em.UID_QRCode}");
+                    SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}");
                 }
 
                 Console.WriteLine($"Excel row count: {excelSheet.LastRowNum}");
@@ -409,21 +409,18 @@ namespace PortaleRegione.BAL
                             .ThenBy(em => em.Rif_UIDEM)
                             .ThenBy(em => em.IDStato),
                         style,
-                        styleReport,
-                        persona);
+                        styleReport);
                 var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), id, ReportType.PCR, emList
                         .OrderBy(em => em.OrdineVotazione)
                         .ThenBy(em => em.Rif_UIDEM)
                         .ThenBy(em => em.IDStato),
                     style,
-                    styleReport,
-                    persona);
+                    styleReport);
                 var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), id,
                     ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
                         .ThenBy(em => em.OrdinePresentazione),
                     style,
-                    styleReport,
-                    persona);
+                    styleReport);
 
                 return await Response(FilePathComplete, workbook);
             }
@@ -435,7 +432,7 @@ namespace PortaleRegione.BAL
         }
 
         private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
-            IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, ICellStyle styleR, PersonaDto persona)
+            IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, ICellStyle styleR)
         {
             var atto = await _unitOfWork.Atti.Get(attoUId);
 

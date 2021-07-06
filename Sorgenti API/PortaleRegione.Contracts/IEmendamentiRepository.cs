@@ -74,5 +74,6 @@ namespace PortaleRegione.Contracts
             int page, int size, int mode);
 
         Task<EM> GetCurrentEMInProiezione(Guid attoUId);
+        Task<EM> GetByQR(Guid id);
     }
 }

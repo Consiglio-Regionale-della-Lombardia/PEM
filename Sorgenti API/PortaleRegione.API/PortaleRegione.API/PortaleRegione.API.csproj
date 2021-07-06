@@ -155,6 +155,7 @@
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\AttiController.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
+    <Compile Include="Controllers\EMPublicController.cs" />
     <Compile Include="Controllers\EsportaController.cs" />
     <Compile Include="Controllers\JobController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />

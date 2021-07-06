@@ -101,6 +101,7 @@
     <Compile Include="Controllers\AttiController.cs" />
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\EMPublicController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
@@ -373,6 +374,7 @@
     <Content Include="Views\Emendamenti\_PannelloStrumentiRicerche.cshtml" />
     <Content Include="Views\Emendamenti\_InvitoPanel.cshtml" />
     <Content Include="Views\Emendamenti\_StampaModal.cshtml" />
+    <Content Include="Views\EMPublic\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

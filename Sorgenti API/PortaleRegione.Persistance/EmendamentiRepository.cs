@@ -220,6 +220,13 @@ namespace PortaleRegione.Persistance
             return result.FirstOrDefault();
         }
 
+        public async Task<EM> GetByQR(Guid id)
+        {
+            return await PRContext
+                .EM
+                .FirstOrDefaultAsync(em => em.UID_QRCode == id);
+        }
+
         /// <summary>
         ///     Riepilogo emendamenti
         /// </summary>
