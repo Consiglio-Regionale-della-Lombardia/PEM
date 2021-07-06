@@ -153,7 +153,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("DownloadStampa", e);
+                Log.Error("Download Allegato EM", e);
                 return ErrorHandler(e);
             }
         }

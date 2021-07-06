@@ -77,7 +77,7 @@ namespace PortaleRegione.GestioneStampe
                                 }
                                 catch (Exception ex2)
                                 {
-                                    var linkPemError = $"{urlPEM}/{em.UIDEM}";
+                                    var linkPemError = $"{urlPEM}{em.UID_QRCode}";
                                     using (var srHtml_ERR = new StringReader(
                                         $"<html><body>ATTENZIONE, Si è verificato un problema durante la generazione del pdf di questo EM/SUBEM: {ex2.Message} <br/> L'emendamento/subemendamento è stato comunque correttamente acquisito dal sistema ed è visualizzabile attraverso la piattaforma PEM all'indirizzo <a href='{linkPemError}'>{linkPemError}</a></body></html>")
                                     )
