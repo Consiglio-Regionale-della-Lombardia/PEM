@@ -312,21 +312,24 @@ namespace PortaleRegione.Persistance
                         .Where(em => firme.Contains(em.UIDEM));
                 }
 
-            switch (ordine)
+            if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
-                case OrdinamentoEnum.Presentazione:
-                    query = query.OrderBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.OrdinePresentazione);
-                    break;
-                case OrdinamentoEnum.Votazione:
-                    query = query.OrderBy(em => em.OrdineVotazione)
-                        .ThenBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.IDStato);
-                    break;
-                default:
-                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Progressivo)
-                        .ThenBy(em => em.SubProgressivo);
-                    break;
+                switch (ordine)
+                {
+                    case OrdinamentoEnum.Presentazione:
+                        query = query.OrderBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.OrdinePresentazione);
+                        break;
+                    case OrdinamentoEnum.Votazione:
+                        query = query.OrderBy(em => em.OrdineVotazione)
+                            .ThenBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.IDStato);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
             }
 
             return await query
