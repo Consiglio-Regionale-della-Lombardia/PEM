@@ -1401,7 +1401,26 @@ namespace PortaleRegione.BAL
 
                     var dto = Mapper.Map<EM, EmendamentiDto>(em);
 
-                    dto.Firmato_Dal_Proponente = em.STATI_EM.IDStato >= (int) StatiEnum.Depositato;
+                    dto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
+
+                    var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                    var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
+
+                    var firmatari_opendata = "--";
+                    try
+                    {
+                        if (firmeDto.Any(f =>
+                            f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                            firmatari_opendata = await GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                    f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
+                                persona.CurrentRole);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
+                    dto.Firme_OPENDATA = firmatari_opendata;
 
                     dto.PersonaProponente =
                         Mapper.Map<View_UTENTI, PersonaLightDto>(

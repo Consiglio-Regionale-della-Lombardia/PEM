@@ -194,6 +194,7 @@ namespace PortaleRegione.DTO.Domain
 
         public string BodyEM;
         public string Firme_dopo_deposito;
+        public string Firme_OPENDATA;
 
         #endregion
     }
