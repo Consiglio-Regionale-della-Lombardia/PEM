@@ -148,10 +148,10 @@ namespace PortaleRegione.Persistance
             
             if (result.Any(em => em.OrdineVotazione == ordine))
             {
-                return result.First(em => em.OrdineVotazione == ordine);
+                return result.FirstOrDefault(em => em.OrdineVotazione == ordine);
             }
 
-            return result.First();
+            return result.FirstOrDefault();
         }
 
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
@@ -202,12 +202,9 @@ namespace PortaleRegione.Persistance
 
         public async Task<EM> GetCurrentEMInProiezione(Guid attoUId)
         {
-            await PRContext.gruppi_politici
-                .Where(a => a.attivo && !a.deleted)
-                .LoadAsync();
             var result = await PRContext
                 .EM
-                .Where(e => e.UIDAtto == attoUId && e.Proietta.Value)
+                .Where(e => e.UIDAtto == attoUId && e.Proietta)
                 .Include(em => em.ATTI)
                 .Include(em => em.PARTI_TESTO)
                 .Include(em => em.TIPI_EM)
