@@ -150,7 +150,7 @@ namespace PortaleRegione.BAL
 
                 if (sub_em)
                 {
-                    var ref_em = await GetEM(em_riferimentoUId.Value);
+                    var ref_em = await GetEM_DTO(em_riferimentoUId.Value, persona);
                     emendamento.SubProgressivo = progressivo;
                     emendamento.Rif_UIDEM = em_riferimentoUId;
                     emendamento.IDStato = (int) StatiEnum.Bozza;
@@ -189,9 +189,9 @@ namespace PortaleRegione.BAL
                     }
 
                     emendamento.TestoEM_originale =
-                        $"L' {Decrypt(ref_em.N_EM, AppSettingsConfiguration.masterKey).Replace("EM", "emendamento")} - '{ref_em.TestoEM_originale}' <br/><b>è così modificato:</b><br/>";
+                        $"L' {ref_em.N_EM.Replace("EM", "emendamento")} - {ref_em.TestoEM_originale}<br><strong>è così modificato:</strong><br>";
                     emendamento.TestoREL_originale = ref_em.TestoREL_originale;
-                    emendamento.N_EM = GetNomeEM(Mapper.Map<EmendamentiDto, EM>(emendamento), ref_em);
+                    emendamento.N_EM = GetNomeEM(emendamento, ref_em);
                 }
                 else
                 {
@@ -731,7 +731,8 @@ namespace PortaleRegione.BAL
                             await _logicUtil.InvioMail(new MailModel
                             {
                                 DA = "pem@consiglio.regione.lombardia.it",
-                                A = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                                A =
+                                    $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                                 OGGETTO =
                                     $"Ritirata ultima firma dall' {n_em} nel {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
                                 MESSAGGIO =
@@ -758,7 +759,8 @@ namespace PortaleRegione.BAL
                         await _logicUtil.InvioMail(new MailModel
                         {
                             DA = "pem@consiglio.regione.lombardia.it",
-                            A = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                            A =
+                                $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                             OGGETTO =
                                 $"Ritirata una firma dall' {n_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
                             MESSAGGIO = "E' stata ritirata una firma all'emendamento in oggetto."
@@ -929,7 +931,8 @@ namespace PortaleRegione.BAL
                     await _logicUtil.InvioMail(new MailModel
                     {
                         DA = "pem@consiglio.regione.lombardia.it",
-                        A = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                        A =
+                            $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                         OGGETTO = $"Ritirato {nome_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
                         MESSAGGIO = "ATTENZIONE: E' stato appena ritirato l'emendamento in oggetto"
                     });
@@ -1334,19 +1337,16 @@ namespace PortaleRegione.BAL
 
                     var relatori = await _unitOfWork.Atti.GetRelatori(em.UIDAtto);
                     if (!string.IsNullOrEmpty(em.DataDeposito))
-                    {
                         if (Convert.ToDateTime(em.DataDeposito) >
                             em.ATTI.SEDUTE.Scadenza_presentazione)
-                        {
                             dto.PresentatoOltreITermini = true;
-                        }
-                    }
                     if (dto.Firmato_Dal_Proponente &&
-                              relatori.Any(r => r.UID_persona == dto.UIDPersonaProponente))
+                        relatori.Any(r => r.UID_persona == dto.UIDPersonaProponente))
                     {
                         dto.Proponente_Relatore = true;
                         dto.PresentatoOltreITermini = false;
-                    }else if (dto.ATTI.UIDAssessoreRiferimento == dto.UIDPersonaProponente)
+                    }
+                    else if (dto.ATTI.UIDAssessoreRiferimento == dto.UIDPersonaProponente)
                     {
                         dto.PresentatoOltreITermini = false;
                     }

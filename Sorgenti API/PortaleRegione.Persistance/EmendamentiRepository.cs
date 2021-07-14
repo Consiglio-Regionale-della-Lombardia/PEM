@@ -555,7 +555,7 @@ namespace PortaleRegione.Persistance
             if (sub)
             {
                 if (list[0].SubProgressivo.HasValue)
-                    return list[0].Progressivo.Value + 1;
+                    return list[0].SubProgressivo.Value + 1;
             }
             else
             {
