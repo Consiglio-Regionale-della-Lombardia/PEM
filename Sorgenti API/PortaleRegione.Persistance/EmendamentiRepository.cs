@@ -59,7 +59,7 @@ namespace PortaleRegione.Persistance
                     && !em.Eliminato);
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
-                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
+                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else
             {
@@ -270,7 +270,7 @@ namespace PortaleRegione.Persistance
                 if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione)
                     return new List<EM>();
 
-                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
+                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else
             {
@@ -309,13 +309,18 @@ namespace PortaleRegione.Persistance
                         .Where(em => firme.Contains(em.UIDEM));
                 }
 
-            if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
+            if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE ||
+                (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                 || persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
             {
                 switch (ordine)
                 {
+                    case OrdinamentoEnum.Default:
                     case OrdinamentoEnum.Presentazione:
                         query = query.OrderBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.OrdinePresentazione);
+                            .ThenBy(em => em.OrdinePresentazione)
+                            .ThenBy(em=>em.IDStato);
                         break;
                     case OrdinamentoEnum.Votazione:
                         query = query.OrderBy(em => em.OrdineVotazione)
@@ -329,7 +334,7 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                query = query.OrderBy(em => em.DataCreazione).ThenBy(em => em.IDStato);
             }
 
             return await query
