@@ -334,7 +334,7 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.OrderBy(em => em.DataCreazione).ThenBy(em => em.IDStato);
+                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp);
             }
 
             return await query
