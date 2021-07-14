@@ -44,7 +44,7 @@ label {
 }
 
 .chip {
-    cursor: pointer;
+    cursor: pointer;    
     min-width: 180px;
 }
 
