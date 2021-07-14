@@ -59,7 +59,7 @@ else
                             <div class="col s12 m12 l8 right-align">
                                 <label style="font-size: small !important">Proponente: </label>
                                 <h6 id="lblProponente_@itemEM.UIDEM" style="font-size: small; margin-top: 0">
-                                    @itemEM.PersonaProponente.DisplayName
+                                   @itemEM.PersonaProponente.DisplayName
                                 </h6>
                             </div>
                         </div>
@@ -104,7 +104,7 @@ else
                             </div>
                             <div id="pnlAzioniEM_@itemEM.UIDEM" class="col s12 m6 l6 center" style="padding-top: 20px">
 
-                                @if (itemEM.STATI_EM.IDStato < (int) StatiEnum.Depositato)
+                                @if (itemEM.IDStato < (int) StatiEnum.Depositato)
                                 {
                                     if (!string.IsNullOrEmpty(itemEM.Firmatari))
                                     {
@@ -133,16 +133,22 @@ else
                                 }
                                 else
                                 {
-                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')">
-                                        Firmatari: @itemEM.PersonaProponente.DisplayName
+                            <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')">
+                                Firmatari:
 
-                                        @if (itemEM.ConteggioFirme > 1)
-                                        {
-                                            <span class="chip hoverable grey darken-1 white-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                                                + @(itemEM.ConteggioFirme - 1)
-                                            </span>
-                                        }
-                                    </div>
+                                @itemEM.PersonaProponente.DisplayName
+                                @if (itemEM.Proponente_Relatore)
+                                {
+                                    <b>(RELATORE)</b>
+                                }
+
+                                @if (itemEM.ConteggioFirme > 1)
+                                {
+                                    <span class="chip hoverable grey darken-1 white-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                                        + @(itemEM.ConteggioFirme - 1)
+                                    </span>
+                                }
+                            </div>
                                 }
                             </div>
                         </div>

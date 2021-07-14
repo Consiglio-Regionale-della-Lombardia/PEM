@@ -187,21 +187,20 @@ else
                             @Html.Raw(proponente)
                         </div>
                     }
-                    else if(itemEM.Proponente_Relatore)
-                    {
-                        <div class="chip green white-text" style="min-width: unset;">
-                            <i class="icon material-icons left tooltipped" data-tooltip="RELATORE">record_voice_over</i>
-                            @Html.Raw(proponente)
-                        </div>
-                    }
                     else
                     {
+                        if (itemEM.Proponente_Relatore)
+                        {
+                            <b>RELATORE</b>
+                            <br/>
+                        }
                         @Html.Raw(proponente)
                     }
                     @if (itemEM.ConteggioFirme > 1)
                     {
+                        <br/>
                         <a class='tooltipped' data-position='left' data-tooltip='@itemEM.Firme'>
-                            <i class='material-icons'>add</i>
+                            <i class='material-icons'>group</i>
                         </a>
                     }
                 </td>
