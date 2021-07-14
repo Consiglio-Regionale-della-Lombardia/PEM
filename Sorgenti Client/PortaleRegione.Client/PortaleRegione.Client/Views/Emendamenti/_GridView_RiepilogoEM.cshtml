@@ -59,7 +59,7 @@ else
                             <div class="col s12 m12 l8 right-align">
                                 <label style="font-size: small !important">Proponente: </label>
                                 <h6 id="lblProponente_@itemEM.UIDEM" style="font-size: small; margin-top: 0">
-                                    @itemEM.PersonaProponente.DisplayName
+                                   @itemEM.PersonaProponente.DisplayName
                                 </h6>
                             </div>
                         </div>
@@ -104,7 +104,7 @@ else
                             </div>
                             <div id="pnlAzioniEM_@itemEM.UIDEM" class="col s12 m6 l6 center" style="padding-top: 20px">
 
-                                @if (itemEM.STATI_EM.IDStato < (int) StatiEnum.Depositato)
+                                @if (itemEM.IDStato < (int) StatiEnum.Depositato)
                                 {
                                     if (!string.IsNullOrEmpty(itemEM.Firmatari))
                                     {
@@ -133,16 +133,22 @@ else
                                 }
                                 else
                                 {
-                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')">
-                                        Firmatari: @itemEM.PersonaProponente.DisplayName
+                            <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')">
+                                Firmatari:
 
-                                        @if (itemEM.ConteggioFirme > 1)
-                                        {
-                                            <span class="chip hoverable grey darken-1 white-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                                                + @(itemEM.ConteggioFirme - 1)
-                                            </span>
-                                        }
-                                    </div>
+                                @itemEM.PersonaProponente.DisplayName
+                                @if (itemEM.Proponente_Relatore)
+                                {
+                                    <b>(RELATORE)</b>
+                                }
+
+                                @if (itemEM.ConteggioFirme > 1)
+                                {
+                                    <span class="chip hoverable grey darken-1 white-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                                        + @(itemEM.ConteggioFirme - 1)
+                                    </span>
+                                }
+                            </div>
                                 }
                             </div>
                         </div>
@@ -167,13 +173,13 @@ else
                             }
                             @if (itemEM.Eliminabile)
                             {
-                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.ELIMINA))">
                                     <i class="icon material-icons">delete</i> Elimina
                                 </div>
                             }
                             @if (itemEM.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.RITIRA))">
                                     <i class="icon material-icons">settings_backup_restore</i> Ritira
                                 </div>
                             }

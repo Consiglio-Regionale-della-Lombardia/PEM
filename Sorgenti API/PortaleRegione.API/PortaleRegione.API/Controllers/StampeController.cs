@@ -118,6 +118,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid stampa</param>
         /// <returns></returns>
         [HttpGet]
+        [AllowAnonymous]
         [Route("")]
         public async Task<IHttpActionResult> DownloadStampa(Guid id)
         {

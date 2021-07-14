@@ -67,9 +67,9 @@
             @Html.TextBoxFor(s => s.Data_effettiva_fine, "{0:s}", new { @class = "form-control", type = "datetime-local" })
             <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_effettiva_fine')">close</i>
         </div>
-            <div class="form-group">
+            <div class="input-field">
                 @Html.LabelFor(s => s.Intervalli)
-                @Html.TextAreaFor(model => model.Intervalli, new { @class = "form-control trumbowyg" })
+                @Html.TextAreaFor(model => model.Intervalli, new { @class = "materialize-textarea" })
             </div>
             <div class="fixed-action-btn">
                 <button class="btn-floating btn-large blue" id="btnSave" type="button">
@@ -97,13 +97,7 @@
     }).validate({
         submitHandler: function (form) {
             var body = JSON.parse(JSON.stringify($("#formSedute").serializeObject()));
-
-            var container = $("#Intervalli").parent();
-            var editor = $(container).find(".trumbowyg-editor");
-
-            if (editor.text() != "")
-                body["Intervalli"] = editor.html();
-
+            
             //submit via ajax
             $.ajax({
                 url: baseUrl + "/sedute/salva",

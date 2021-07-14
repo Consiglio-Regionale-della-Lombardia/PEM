@@ -90,7 +90,7 @@ namespace PortaleRegione.API.Controllers
                 var persona = await _logicPersone.GetPersona(session);
 
                 var response =
-                    ResponseMessage(await _logicEsporta.EsportaGrigliaWord(id, ordine, persona));
+                    ResponseMessage(await _logicEsporta.HTMLtoWORD(id, persona));
 
                 return response;
             }

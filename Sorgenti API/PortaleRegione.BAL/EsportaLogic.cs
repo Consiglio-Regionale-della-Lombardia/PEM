@@ -25,6 +25,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using HtmlToOpenXml;
 using NPOI.HSSF.Util;
 using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.SS.UserModel;
@@ -36,6 +40,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace PortaleRegione.BAL
 {
@@ -377,6 +382,105 @@ namespace PortaleRegione.BAL
                 Log.Error("Logic - EsportaGrigliaWord", e);
                 throw e;
             }
+        }
+
+        public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, PersonaDto persona)
+        {
+            try
+            {
+                var FilePathComplete = GetLocalPath("docx");
+
+                using (var generatedDocument = new MemoryStream())
+                {
+                    using (var package =
+                        WordprocessingDocument.Create(generatedDocument, WordprocessingDocumentType.Document))
+                    {
+                        var mainPart = package.MainDocumentPart;
+                        if (mainPart == null)
+                        {
+                            mainPart = package.AddMainDocumentPart();
+                            new Document(new Body()).Save(mainPart);
+                        }
+
+                        var converter = new HtmlConverter(mainPart);
+                        converter.ParseHtml(await ComposeWordTable(attoUId, persona));
+
+                        mainPart.Document.Save();
+                    }
+
+                    File.WriteAllBytes(FilePathComplete, generatedDocument.ToArray());
+                    var result = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(generatedDocument.ToArray())
+                    };
+                    result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = Path.GetFileName(FilePathComplete)
+                    };
+                    result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private async Task<string> ComposeWordTable(Guid attoUID, PersonaDto persona)
+        {
+            var emList = await _logicEm.ScaricaEmendamenti(attoUID, OrdinamentoEnum.Votazione, persona);
+
+            var body = "<html>";
+            body += "<body style='page-orientation: landscape'>";
+            body += "<table>";
+            
+            body += "<thead>";
+            body += "<tr>";
+            body += ComposeHeaderColumn("Ordine");
+            body += ComposeHeaderColumn("EM/SUB");
+            body += ComposeHeaderColumn("Testo");
+            body += ComposeHeaderColumn("Relazione");
+            body += ComposeHeaderColumn("Proponente");
+            body += ComposeHeaderColumn("Firme");
+            body += ComposeHeaderColumn("Stato");
+            body += "</tr>";
+            body += "</thead>";
+            
+            body += "<tbody>";
+            body = emList.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
+            body += "</tbody>";
+            
+            body += "</table>";
+            body += "</body>";
+            body += "</html>";
+            return body;
+        }
+
+        private string ComposeHeaderColumn(string column_title)
+        {
+            return $"<th style='text-align:center;'>{column_title}</th>";
+        }
+        private string ComposeBodyRow(EmendamentiDto em)
+        {
+            var row = string.Empty;
+            row += "<tr>";
+            row += ComposeBodyColumn(em.OrdineVotazione.ToString());
+            row += ComposeBodyColumn(em.N_EM);
+            row += ComposeBodyColumn(em.TestoEM_originale);
+            row += ComposeBodyColumn(em.TestoREL_originale);
+            row += ComposeBodyColumn(em.PersonaProponente.DisplayName);
+            row += ComposeBodyColumn(em.Firme_OPENDATA);
+            row += ComposeBodyColumn(em.STATI_EM.Stato);
+
+            row += "</tr>";
+            return row;
+        }
+        private string ComposeBodyColumn(string column_body)
+        {
+            return $"<td>{column_body}</td>";
         }
 
         public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(Guid id, PersonaDto persona)

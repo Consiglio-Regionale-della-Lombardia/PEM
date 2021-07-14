@@ -116,10 +116,8 @@ namespace PortaleRegione.BAL
                         result = "SUBEM " + DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
                     else
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
-
                     
-                    var n_em_riferimento = GetNomeEM(riferimento, null);
-                    result = $"{result} all' {n_em_riferimento}";
+                    result = $"{result} all' {riferimento.N_EM}";
                 }
 
                 return result;

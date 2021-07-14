@@ -71,7 +71,7 @@ namespace PortaleRegione.Domain
 
         public Guid? UIDPersonaDeposito { get; set; }
 
-        public bool? Proietta { get; set; } = false;
+        public bool Proietta { get; set; } = false;
 
         public DateTime? DataProietta { get; set; }
 

@@ -59,7 +59,7 @@ namespace PortaleRegione.Persistance
                     && !em.Eliminato);
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
-                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
+                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else
             {
@@ -148,10 +148,10 @@ namespace PortaleRegione.Persistance
             
             if (result.Any(em => em.OrdineVotazione == ordine))
             {
-                return result.First(em => em.OrdineVotazione == ordine);
+                return result.FirstOrDefault(em => em.OrdineVotazione == ordine);
             }
 
-            return result.First();
+            return result.FirstOrDefault();
         }
 
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
@@ -202,12 +202,9 @@ namespace PortaleRegione.Persistance
 
         public async Task<EM> GetCurrentEMInProiezione(Guid attoUId)
         {
-            await PRContext.gruppi_politici
-                .Where(a => a.attivo && !a.deleted)
-                .LoadAsync();
             var result = await PRContext
                 .EM
-                .Where(e => e.UIDAtto == attoUId && e.Proietta.Value)
+                .Where(e => e.UIDAtto == attoUId && e.Proietta)
                 .Include(em => em.ATTI)
                 .Include(em => em.PARTI_TESTO)
                 .Include(em => em.TIPI_EM)
@@ -240,28 +237,14 @@ namespace PortaleRegione.Persistance
         /// <param name="firmatari"></param>
         /// <param name="requireMySign"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
+        public async Task<IEnumerable<Guid>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null)
         {
-            await PRContext.ATTI
-                .Include(a => a.SEDUTE)
-                .Include(a => a.TIPI_ATTO)
-                .Where(a => a.UIDAtto == attoUId)
-                .LoadAsync();
-
             var query = PRContext
                 .EM
                 .Where(em =>
                     em.UIDAtto == attoUId
-                    && !em.Eliminato)
-                .Include(em => em.ATTI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.TIPI_EM)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.EM2)
-                .Include(em => em.STATI_EM);
+                    && !em.Eliminato);
 
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
@@ -269,11 +252,11 @@ namespace PortaleRegione.Persistance
                     .ATTI
                     .SingleAsync(a => a.UIDAtto == attoUId);
                 if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
-                    return new List<EM>();
+                    return new List<Guid>();
                 if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione)
-                    return new List<EM>();
+                    return new List<Guid>();
 
-                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
+                query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else
             {
@@ -312,13 +295,18 @@ namespace PortaleRegione.Persistance
                         .Where(em => firme.Contains(em.UIDEM));
                 }
 
-            if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
+            if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE ||
+                (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                 || persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
             {
                 switch (ordine)
                 {
+                    case OrdinamentoEnum.Default:
                     case OrdinamentoEnum.Presentazione:
                         query = query.OrderBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.OrdinePresentazione);
+                            .ThenBy(em => em.OrdinePresentazione)
+                            .ThenBy(em=>em.IDStato);
                         break;
                     case OrdinamentoEnum.Votazione:
                         query = query.OrderBy(em => em.OrdineVotazione)
@@ -332,10 +320,11 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp);
             }
 
             return await query
+                .Select(em=>em.UIDEM)
                 .Skip((page.Value - 1) * size.Value)
                 .Take(size.Value)
                 .ToListAsync();
@@ -374,16 +363,7 @@ namespace PortaleRegione.Persistance
                     && (em.IDStato != (int) StatiEnum.Bozza
                         || em.IDStato == (int) StatiEnum.Bozza
                         && (em.UIDPersonaCreazione == persona.UID_persona
-                            || em.UIDPersonaProponente == persona.UID_persona)))
-                .Include(em => em.ATTI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.TIPI_EM)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.gruppi_politici)
-                .Include(em => em.EM2)
-                .Include(em => em.STATI_EM);
+                            || em.UIDPersonaProponente == persona.UID_persona)));
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                 && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
@@ -401,19 +381,20 @@ namespace PortaleRegione.Persistance
 
             switch (ordine)
             {
+                case OrdinamentoEnum.Default:
                 case OrdinamentoEnum.Presentazione:
-                    query = query.OrderBy(em => em.SubProgressivo).ThenBy(em => em.Timestamp);
+                    query = query.OrderBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.OrdinePresentazione)
+                        .ThenBy(em=>em.IDStato);
                     break;
                 case OrdinamentoEnum.Votazione:
-                    query = query.OrderBy(em => em.OrdineVotazione);
-                    break;
-                case OrdinamentoEnum.Default:
-                    query = query.OrderBy(em => em.IDStato)
-                        .ThenBy(em => em.Progressivo)
-                        .ThenBy(em => em.Timestamp);
+                    query = query.OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(ordine), ordine, null);
+                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                    break;
             }
 
             var sql = query.ToTraceQuery();
@@ -553,7 +534,7 @@ namespace PortaleRegione.Persistance
             if (sub)
             {
                 if (list[0].SubProgressivo.HasValue)
-                    return list[0].Progressivo.Value + 1;
+                    return list[0].SubProgressivo.Value + 1;
             }
             else
             {

@@ -526,13 +526,7 @@ namespace PortaleRegione.BAL
         {
             return await _unitOfWork.Atti.Get(id);
         }
-
-        public async Task<ATTI> GetAtto(string id)
-        {
-            var guidId = new Guid(id);
-            return await _unitOfWork.Atti.Get(guidId);
-        }
-
+        
         public async Task SPOSTA_UP(Guid attoUId)
         {
             await _unitOfWork.Atti.SPOSTA_UP(attoUId);
