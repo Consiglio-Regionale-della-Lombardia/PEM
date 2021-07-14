@@ -173,13 +173,13 @@ else
                             }
                             @if (itemEM.Eliminabile)
                             {
-                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <div class="btn chip hoverable red lighten-1 center white-text" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.ELIMINA))">
                                     <i class="icon material-icons">delete</i> Elimina
                                 </div>
                             }
                             @if (itemEM.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@itemEM.UIDEM', '@itemEM.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.RITIRA))">
                                     <i class="icon material-icons">settings_backup_restore</i> Ritira
                                 </div>
                             }

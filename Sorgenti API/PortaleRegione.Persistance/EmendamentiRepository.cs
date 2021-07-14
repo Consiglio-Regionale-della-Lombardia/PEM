@@ -237,28 +237,14 @@ namespace PortaleRegione.Persistance
         /// <param name="firmatari"></param>
         /// <param name="requireMySign"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
+        public async Task<IEnumerable<Guid>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page,
             int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null)
         {
-            await PRContext.ATTI
-                .Include(a => a.SEDUTE)
-                .Include(a => a.TIPI_ATTO)
-                .Where(a => a.UIDAtto == attoUId)
-                .LoadAsync();
-
             var query = PRContext
                 .EM
                 .Where(em =>
                     em.UIDAtto == attoUId
-                    && !em.Eliminato)
-                .Include(em => em.ATTI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.TIPI_EM)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.EM2)
-                .Include(em => em.STATI_EM);
+                    && !em.Eliminato);
 
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE)
             {
@@ -266,9 +252,9 @@ namespace PortaleRegione.Persistance
                     .ATTI
                     .SingleAsync(a => a.UIDAtto == attoUId);
                 if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
-                    return new List<EM>();
+                    return new List<Guid>();
                 if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione)
-                    return new List<EM>();
+                    return new List<Guid>();
 
                 query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
@@ -338,6 +324,7 @@ namespace PortaleRegione.Persistance
             }
 
             return await query
+                .Select(em=>em.UIDEM)
                 .Skip((page.Value - 1) * size.Value)
                 .Take(size.Value)
                 .ToListAsync();

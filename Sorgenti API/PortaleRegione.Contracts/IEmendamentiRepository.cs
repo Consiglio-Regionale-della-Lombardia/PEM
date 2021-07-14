@@ -37,7 +37,7 @@ namespace PortaleRegione.Contracts
 
         Task<int> Count(string query);
 
-        Task<IEnumerable<EM>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
+        Task<IEnumerable<Guid>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
             int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null);
 
         IEnumerable<EM> GetAll(EmendamentiByQueryModel model);

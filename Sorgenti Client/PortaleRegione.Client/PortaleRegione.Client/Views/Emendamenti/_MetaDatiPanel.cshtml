@@ -183,12 +183,12 @@
         TestoEmendamento_TipoEM(item.value);
     }
 
-    function TestoEmendamento_TipoEM(tipo) {
+    function TestoEmendamento_TipoEM(tipo, block_edit_text_auto) {
         $('#hdTipoId').val(tipo);
         var container_testo_em = $("#Emendamento_TestoEM_originale").parent();
         var editor_test_em = $(container_testo_em).find(".trumbowyg-editor");
 
-        if (editor_test_em.html().length < 200) {
+        if (editor_test_em.html().length < 200 && !block_edit_text_auto) {
             var parteEMList = $('input[name="Emendamento.IDParte"]');
             $.each(parteEMList,
                 function(index, itemParteEM) {

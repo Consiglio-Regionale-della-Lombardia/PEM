@@ -208,7 +208,7 @@ else
                     @*COMANDI*@
                     @if (ordinePaginaEnum == OrdinamentoEnum.Votazione && itemEM.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
                     {
-                        <a id="cmdProietta_@itemEM.UIDEM" class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM', '@itemEM.N_EM')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
+                        <a id="cmdProietta_@itemEM.UIDEM" class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM', '@itemEM.N_EM.Replace(" all\'", " -")')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
                             @if (itemEM.Proietta.Value)
                             {
                                 <i class="material-icons">subscriptions</i>

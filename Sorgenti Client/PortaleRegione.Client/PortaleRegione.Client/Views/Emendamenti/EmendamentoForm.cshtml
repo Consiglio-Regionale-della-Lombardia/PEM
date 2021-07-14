@@ -107,12 +107,23 @@
     $(document).ready(function() {
         EffettiFinanziari_OnChange(@effetti_finanziari_visible);
         PartiTestoEmendamento_OnChange(@Model.Emendamento.IDParte);
-        TestoEmendamento_TipoEM(@Model.Emendamento.IDTipo_EM);
         InitEffettiFinanziari(@Model.Emendamento.EffettiFinanziari);
     });
 </script>
 
 @if (isNew && (!Model.Emendamento.Rif_UIDEM.HasValue || Model.Emendamento.Rif_UIDEM == Guid.Empty))
 {
-    
+    <script>
+        $(document).ready(function() {
+            TestoEmendamento_TipoEM(@Model.Emendamento.IDTipo_EM, false);
+        });
+    </script>
+}
+else
+{
+    <script>
+        $(document).ready(function() {
+            TestoEmendamento_TipoEM(@Model.Emendamento.IDTipo_EM, true);
+        });
+    </script>
 }
