@@ -87,5 +87,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Informazioni_Mancanti { get; set; }
         public bool CanMoveDown { get; set; } = false;
         public bool CanMoveUp { get; set; } = false;
+
+
     }
 }

@@ -70,6 +70,18 @@
     </div>
     <div class="col s6">
         <div class="right">
+            @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+            {
+                <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloPresentazione" data-position="bottom" data-tooltip="Scarica fascicolo presentazione" target="">
+                    <i class="material-icons">file_download</i>
+                </a>
+            }
+        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+        {
+            <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloVotazione" data-position="bottom" data-tooltip="Scarica fascicolo votazione" target="">
+                <i class="material-icons">file_download</i>
+            </a>
+        }
             <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
                 <i class="material-icons">print</i>
             </a>
@@ -81,7 +93,8 @@
                 {
                     text = "Visualizza EM in griglia";
                     icon = "developer_board";
-                }else if (Model.view == "grid")
+                }
+                else if (Model.view == "grid")
                 {
                     text = "Visualizza EM in preview";
                     icon = "desktop_windows";
