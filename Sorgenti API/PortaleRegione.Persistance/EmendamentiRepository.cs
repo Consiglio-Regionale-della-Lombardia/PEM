@@ -363,16 +363,7 @@ namespace PortaleRegione.Persistance
                     && (em.IDStato != (int) StatiEnum.Bozza
                         || em.IDStato == (int) StatiEnum.Bozza
                         && (em.UIDPersonaCreazione == persona.UID_persona
-                            || em.UIDPersonaProponente == persona.UID_persona)))
-                .Include(em => em.ATTI)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.TIPI_EM)
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.gruppi_politici)
-                .Include(em => em.EM2)
-                .Include(em => em.STATI_EM);
+                            || em.UIDPersonaProponente == persona.UID_persona)));
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                 && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
@@ -390,19 +381,20 @@ namespace PortaleRegione.Persistance
 
             switch (ordine)
             {
+                case OrdinamentoEnum.Default:
                 case OrdinamentoEnum.Presentazione:
-                    query = query.OrderBy(em => em.SubProgressivo).ThenBy(em => em.Timestamp);
+                    query = query.OrderBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.OrdinePresentazione)
+                        .ThenBy(em=>em.IDStato);
                     break;
                 case OrdinamentoEnum.Votazione:
-                    query = query.OrderBy(em => em.OrdineVotazione);
-                    break;
-                case OrdinamentoEnum.Default:
-                    query = query.OrderBy(em => em.IDStato)
-                        .ThenBy(em => em.Progressivo)
-                        .ThenBy(em => em.Timestamp);
+                    query = query.OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(ordine), ordine, null);
+                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                    break;
             }
 
             var sql = query.ToTraceQuery();

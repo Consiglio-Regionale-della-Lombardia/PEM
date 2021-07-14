@@ -539,7 +539,8 @@ namespace PortaleRegione.API.Controllers
                             Da = 0,
                             A = 0,
                             Ordine = (int) model.Ordinamento
-                        }
+                        },
+                        ordine = model.Ordinamento
                     }, persona);
 
                 return Ok();
