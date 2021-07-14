@@ -1338,16 +1338,17 @@ namespace PortaleRegione.BAL
                         if (Convert.ToDateTime(em.DataDeposito) >
                             em.ATTI.SEDUTE.Scadenza_presentazione)
                         {
-                            var deposito_del_relatore =
-                                relatori.FirstOrDefault(r => r.UID_persona == em.UIDPersonaDeposito.Value);
-                            if (deposito_del_relatore == null)
-                                dto.PresentatoOltreITermini = true;
+                            dto.PresentatoOltreITermini = true;
                         }
                     }
                     if (dto.Firmato_Dal_Proponente &&
                               relatori.Any(r => r.UID_persona == dto.UIDPersonaProponente))
                     {
                         dto.Proponente_Relatore = true;
+                        dto.PresentatoOltreITermini = false;
+                    }else if (dto.ATTI.UIDAssessoreRiferimento == dto.UIDPersonaProponente)
+                    {
+                        dto.PresentatoOltreITermini = false;
                     }
 
                     result.Add(dto);
