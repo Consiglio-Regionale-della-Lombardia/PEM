@@ -131,6 +131,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine)
         {
+            if (ordine < 0)
+                return null;
             var result = await PRContext
                 .EM
                 .Include(em => em.ATTI)
@@ -151,7 +153,7 @@ namespace PortaleRegione.Persistance
                 return result.FirstOrDefault(em => em.OrdineVotazione == ordine);
             }
 
-            return result.FirstOrDefault();
+            return null;
         }
 
         public async Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona,
@@ -214,6 +216,26 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.EM2)
                 .Include(em => em.STATI_EM)
                 .ToListAsync();
+            if (!result.Any())
+            {
+                try
+                {
+                    var allEM = await GetAll(attoUId, null, OrdinamentoEnum.Votazione, 1, 1,
+                        (int) ClientModeEnum.TRATTAZIONE);
+                    if (allEM.Any())
+                    {
+                        var em = allEM.First();
+                        var emdto = await Get(em);
+                        emdto.Proietta = true;
+                        await Context.SaveChangesAsync();
+                        return emdto;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
             return result.FirstOrDefault();
         }
 

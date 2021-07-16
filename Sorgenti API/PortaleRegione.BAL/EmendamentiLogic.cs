@@ -1772,7 +1772,10 @@ namespace PortaleRegione.BAL
         {
             var em_da_proiettare = await _unitOfWork.Emendamenti.GetCurrentEMInProiezione(attoUId);
             if (em_da_proiettare == null)
+            {
                 return null;
+            }
+
             var proietta = new ProiettaResponse {EM = await GetEM_DTO(em_da_proiettare, persona)};
             var em_next =
                 await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione + 1);
