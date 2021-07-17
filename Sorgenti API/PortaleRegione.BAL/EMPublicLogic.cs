@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -22,7 +22,7 @@ namespace PortaleRegione.BAL
             _logicEm = logicEm;
         }
 
-        public async Task<string> GetBody(EM em, IEnumerable<FIRME> firme)
+        public async Task<string> GetBody(EM em, IEnumerable<FirmeDto> firme)
         {
             try
             {
@@ -31,12 +31,11 @@ namespace PortaleRegione.BAL
                 var emendamentoDto = await _logicEm.GetEM_DTO(em, personaDto);
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
-                var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>);
 
                 try
                 {
                     var body = GetTemplate(TemplateTypeEnum.PDF);
-                    GetBody(emendamentoDto, attoDto, firmeDto, personaDto, false, ref body);
+                    GetBody(emendamentoDto, attoDto, firme, personaDto, false, ref body);
                     return body;
                 }
                 catch (Exception e)

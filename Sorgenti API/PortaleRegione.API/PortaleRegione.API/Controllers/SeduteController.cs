@@ -16,9 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -27,6 +24,9 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -80,7 +80,9 @@ namespace PortaleRegione.API.Controllers
                 var result = await _logic.GetSeduta(id);
 
                 if (result == null)
+                {
                     return NotFound();
+                }
 
                 return Ok(Mapper.Map<SEDUTE, SeduteDto>(result));
             }
@@ -104,12 +106,16 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (id == Guid.Empty)
+                {
                     return BadRequest();
+                }
 
                 var sedutaInDb = await _logic.GetSeduta(id);
 
                 if (sedutaInDb == null)
+                {
                     return NotFound();
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -138,7 +144,9 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (!sedutaDto.Data_seduta.HasValue)
+                {
                     return BadRequest("Manca la data seduta");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -168,12 +176,16 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (!sedutaDto.Data_seduta.HasValue)
+                {
                     return BadRequest("Manca la data seduta");
+                }
 
                 var sedutaInDb = await _logic.GetSeduta(sedutaDto.UIDSeduta);
 
                 if (sedutaInDb == null)
+                {
                     return NotFound();
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);

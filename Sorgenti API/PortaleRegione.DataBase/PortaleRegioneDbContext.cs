@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Data.Entity;
 using PortaleRegione.Domain;
+using System.Data.Entity;
 
 namespace PortaleRegione.DataBase
 {

@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Helpers;
+using ExpressionBuilder.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,9 +26,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Helpers;
-using ExpressionBuilder.Interfaces;
 
 namespace ExpressionBuilder.Builders
 {
@@ -98,9 +98,13 @@ namespace ExpressionBuilder.Builders
             {
                 Expression expr = null;
                 if (IsList(statement))
+                {
                     expr = ProcessListStatement(param, statement);
+                }
                 else
+                {
                     expr = GetExpression(param, statement);
+                }
 
                 expression = expression == null ? expr : CombineExpressions(expression, expr, connector);
                 connector = statement.Connector;
@@ -159,15 +163,20 @@ namespace ExpressionBuilder.Builders
 
             if ((statement.Operation == Operation.IsNull || statement.Operation == Operation.IsNullOrWhiteSpace) &&
                 memberName.Contains("."))
+            {
                 resultExpr = Expression.OrElse(CheckIfParentIsNull(param, member, memberName), resultExpr);
-            
+            }
+
             return resultExpr;
         }
 
         private Expression GetSafeStringExpression(Expression member, Operation operation, Expression constant,
             Expression constant2)
         {
-            if (member.Type != typeof(string)) return Expressions[operation].Invoke(member, constant, constant2);
+            if (member.Type != typeof(string))
+            {
+                return Expressions[operation].Invoke(member, constant, constant2);
+            }
 
             var newMember = member;
 
@@ -182,18 +191,23 @@ namespace ExpressionBuilder.Builders
                 : Expressions[operation].Invoke(member, constant, constant2);
 
             if (member.Type == typeof(string) && operation != Operation.IsNull)
+            {
                 if (operation != Operation.IsNullOrWhiteSpace && operation != Operation.IsNotNullNorWhiteSpace)
                 {
                     Expression memberIsNotNull = Expression.NotEqual(member, Expression.Constant(null));
                     resultExpr = Expression.AndAlso(memberIsNotNull, resultExpr);
                 }
+            }
 
             return resultExpr;
         }
 
         public Expression GetSafePropertyMember(ParameterExpression param, string memberName, Expression expr)
         {
-            if (!memberName.Contains(".")) return expr;
+            if (!memberName.Contains("."))
+            {
+                return expr;
+            }
 
             var parentName = memberName.Substring(0, memberName.IndexOf("."));
             var parentMember = helper.GetMemberExpression(param, parentName);
@@ -209,12 +223,17 @@ namespace ExpressionBuilder.Builders
 
         private Expression GetConstantExpression(Expression member, object value)
         {
-            if (value == null) return null;
+            if (value == null)
+            {
+                return null;
+            }
 
             var converter = TypeDescriptor.GetConverter(member.Type);
 
             if (!converter.CanConvertFrom(typeof(string)))
+            {
                 throw new NotSupportedException();
+            }
 
             var propertyValue = converter.ConvertFromInvariantString(value.ToString());
             var constantVal = Expression.Constant(propertyValue);

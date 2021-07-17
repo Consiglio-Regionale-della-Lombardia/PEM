@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
-using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.DTO.Model
 {

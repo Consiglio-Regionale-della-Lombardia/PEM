@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel.DataAnnotations;
 using PortaleRegione.DTO.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace PortaleRegione.DTO.Domain
 {

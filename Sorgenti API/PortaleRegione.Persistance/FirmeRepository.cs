@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -95,7 +95,10 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.IDStato > (int) StatiEnum.Depositato) return false;
+            if (em.IDStato > (int) StatiEnum.Depositato)
+            {
+                return false;
+            }
 
             var firma_personale = await CheckFirmato(em.UIDEM, persona.UID_persona);
             var firma_proponente = await CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
@@ -105,10 +108,15 @@ namespace PortaleRegione.Persistance
                 && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                     persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
                     persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
+            {
                 return true;
+            }
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM &&
-                persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea) return false;
+                persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+            {
+                return false;
+            }
 
             var firmatoUfficio = await CheckFirmatoDaUfficio(em.UIDEM);
             return !firmatoUfficio;
@@ -162,7 +170,10 @@ namespace PortaleRegione.Persistance
                     break;
                 case FirmeTipoEnum.PRIMA_DEPOSITO:
                     if (em.IDStato >= (int) StatiEnum.Depositato)
+                    {
                         query = query.Where(f => f.Timestamp < em.Timestamp);
+                    }
+
                     break;
                 case FirmeTipoEnum.DOPO_DEPOSITO:
                     query = query.Where(f => f.Timestamp > em.Timestamp);
@@ -179,9 +190,20 @@ namespace PortaleRegione.Persistance
             var lst = await query
                 .ToListAsync();
 
-            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
+            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO)
+            {
+                lst.Insert(0, firmaProponente);
+            }
 
             return lst;
+        }
+
+        public async Task<FIRME> Get(Guid emendamentoUId, Guid personaUId)
+        {
+            return await PRContext
+                .FIRME
+                .FindAsync(emendamentoUId, personaUId);
+                
         }
     }
 }

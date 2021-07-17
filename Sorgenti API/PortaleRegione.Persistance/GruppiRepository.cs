@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -65,7 +65,9 @@ namespace PortaleRegione.Persistance
             if (lstGruppi.Count == 2)
             {
                 if (!lstGruppi.Any(g => g.giunta))
+                {
                     throw new Exception("Contatta SUBITO l'amministratore del sistema PEM.");
+                }
             }
             else if (lstGruppi.Count > 1)
             {
@@ -149,9 +151,14 @@ namespace PortaleRegione.Persistance
                 .SqlQuery($"Select * from UTENTI_NoCons where id_gruppo_politico_rif={id}");
 
             if (notifica_firma)
+            {
                 return query.Where(u => u.notifica_firma).ToList();
+            }
+
             if (notifica_deposito)
+            {
                 return query.Where(u => u.notifica_deposito).ToList();
+            }
 
             return await query.ToListAsync();
         }
@@ -163,7 +170,10 @@ namespace PortaleRegione.Persistance
                 .Where(g => lGruppi.Contains(g.GruppoAD))
                 .FirstOrDefaultAsync();
             if (join_gruppo == null)
+            {
                 return null;
+            }
+
             var gruppo = await PRContext
                 .View_gruppi_politici_con_giunta
                 .SingleOrDefaultAsync(g => g.id_gruppo == join_gruppo.id_gruppo);
@@ -187,7 +197,9 @@ namespace PortaleRegione.Persistance
                 .Where(j => j.id_legislatura == id_legislatura);
 
             if (soloRuoliGiunta)
+            {
                 query = query.Where(j => j.GiuntaRegionale);
+            }
 
             return await query.ToListAsync();
         }

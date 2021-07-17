@@ -16,6 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
+using PortaleRegione.Common;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Logger;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -28,13 +35,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using AutoMapper;
-using PortaleRegione.Common;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
-using QRCoder;
 
 namespace PortaleRegione.BAL
 {
@@ -58,7 +58,10 @@ namespace PortaleRegione.BAL
                 }
 
                 if (!Directory.Exists(root))
+                {
                     Directory.CreateDirectory(root);
+                }
+
                 var fileName = DateTime.Now.Ticks + ".pdf";
                 var path = Path.Combine(root, fileName);
 
@@ -104,19 +107,27 @@ namespace PortaleRegione.BAL
                 {
                     //EMENDAMENTO
                     if (!string.IsNullOrEmpty(emendamento.N_EM))
+                    {
                         result = "EM " + DecryptString(emendamento.N_EM, AppSettingsConfiguration.masterKey);
+                    }
                     else
+                    {
                         result = "TEMP " + emendamento.Progressivo;
+                    }
                 }
                 else
                 {
                     //SUB EMENDAMENTO
 
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
+                    {
                         result = "SUBEM " + DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
+                    }
                     else
+                    {
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
-                    
+                    }
+
                     result = $"{result} all' {riferimento.N_EM}";
                 }
 
@@ -148,10 +159,15 @@ namespace PortaleRegione.BAL
             try
             {
                 if (firme == null)
+                {
                     return string.Empty;
+                }
+
                 var firmeDtos = firme.ToList();
                 if (!firmeDtos.Any())
+                {
                     return string.Empty;
+                }
 
                 var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
                         ? $"<label style='font-size:12px'>{item.FirmaCert}, {item.Data_firma}</label><br/>"
@@ -249,7 +265,10 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (!string.IsNullOrEmpty(emendamento.EM_Certificato)) return;
+                if (!string.IsNullOrEmpty(emendamento.EM_Certificato))
+                {
+                    return;
+                }
                 //EM TEMPORANEO
                 body = body.Replace("{lblTitoloPDLEMView}",
                     $"PROGETTO DI LEGGE N.{atto.NAtto}");
@@ -272,8 +291,10 @@ namespace PortaleRegione.BAL
 
                 //Allegato Tecnico
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
+                {
                     allegato_tecnico =
                         $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
+                }
 
                 #endregion
 
@@ -281,8 +302,10 @@ namespace PortaleRegione.BAL
 
                 //Allegato Generico
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
+                {
                     allegato_generico =
                         $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                }
 
                 #endregion
 
@@ -372,13 +395,17 @@ namespace PortaleRegione.BAL
                             </div>
                         </div>";
                     if (firmePost.Any())
+                    {
                         body = body.Replace("{radGridFirmePostView}",
                                 TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost)))
                             .Replace("{FIRME_COMMENTO_START}", string.Empty)
                             .Replace("{FIRME_COMMENTO_END}", string.Empty);
+                    }
                     else
+                    {
                         body = body.Replace("{radGridFirmePostView}", string.Empty)
                             .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+                    }
                 }
                 else
                 {
@@ -406,17 +433,23 @@ namespace PortaleRegione.BAL
                 if (currentUser != null)
                 {
                     if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea && !string.IsNullOrEmpty(emendamento.NOTE_EM))
+                    {
                         body = body.Replace("{lblNotePrivateEMView}",
                             $"Note Riservate: {emendamento.NOTE_EM}").Replace("{NOTEPRIV_COMMENTO_START}", string.Empty).Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
+                    }
                     else
+                    {
                         body = body.Replace("{lblNotePrivateEMView}", string.Empty)
                             .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
                             .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
+                    }
                 }
                 else
+                {
                     body = body.Replace("{lblNotePrivateEMView}", string.Empty)
                         .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
                         .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
+                }
 
                 var textQr = string.Empty;
                 if (enableQrCode)
@@ -575,7 +608,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("DecryptString", e);
+                Log.Error($"DecryptString {EncryptedString}", e);
                 Console.WriteLine("EM CORROTTO");
                 return "<font style='color:red'>Valore Corrotto</font>";
             }

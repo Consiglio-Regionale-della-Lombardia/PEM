@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Contracts
 {
@@ -37,5 +37,6 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckFirmato(Guid emendamentoUId, Guid personaUId);
         Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona);
         Task<bool> CheckFirmatoDaUfficio(Guid emedamentoUId);
+        Task<FIRME> Get(Guid emendamentoUId, Guid personaUId);
     }
 }

@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Generics;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpressionBuilder.Generics;
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -263,7 +263,10 @@ namespace PortaleRegione.Persistance
             var user = await PRContext
                 .UTENTI_NoCons
                 .FirstOrDefaultAsync(u => u.id_persona == id);
-            if (user != null) user.deleted = true;
+            if (user != null)
+            {
+                user.deleted = true;
+            }
         }
 
         public async Task<IEnumerable<View_Composizione_GiuntaRegionale>> GetGiuntaRegionale()
@@ -316,8 +319,10 @@ namespace PortaleRegione.Persistance
                 await PRContext.Database.ExecuteSqlCommandAsync(
                     $"UPDATE join_persona_AD set userAD='{userAd}' where UID_persona='{uid_persona}'");
             if (effrow < 1)
+            {
                 await PRContext.Database.ExecuteSqlCommandAsync(
                     $"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
+            }
         }
     }
 }

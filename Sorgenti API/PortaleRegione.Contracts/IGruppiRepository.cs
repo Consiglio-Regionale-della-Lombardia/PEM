@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Contracts
 {

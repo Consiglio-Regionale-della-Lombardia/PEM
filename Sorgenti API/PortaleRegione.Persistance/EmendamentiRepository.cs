@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -29,6 +24,11 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -69,23 +69,30 @@ namespace PortaleRegione.Persistance
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
                 if (persona.IsGiunta())
+                {
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                }
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                          && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
                          && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                {
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
+                }
 
                 if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                {
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int) RuoliIntEnum.Segreteria_Assemblea);
+                }
             }
 
             filtro?.BuildExpression(ref query);
 
             if (firmatari != null)
+            {
                 if (firmatari.Count > 0)
                 {
                     //Avvio ricerca firmatari
@@ -97,6 +104,7 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(em => firme.Contains(em.UIDEM));
                 }
+            }
 
             switch (counter_emendamenti)
             {
@@ -106,16 +114,26 @@ namespace PortaleRegione.Persistance
                 }
                 case CounterEmendamentiEnum.EM:
                     if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    {
                         return await query.CountAsync(e =>
                             !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM));
+                    }
                     else
+                    {
                         return await query.CountAsync(e => string.IsNullOrEmpty(e.N_SUBEM));
+                    }
+
                 case CounterEmendamentiEnum.SUB_EM:
                     if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    {
                         return await query.CountAsync(e => string.IsNullOrEmpty(e.N_EM));
+                    }
                     else
+                    {
                         return await query.CountAsync(e =>
                             string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
+                    }
+
                 default:
                     return 0;
             }
@@ -132,7 +150,10 @@ namespace PortaleRegione.Persistance
         public async Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine)
         {
             if (ordine < 0)
+            {
                 return null;
+            }
+
             var result = await PRContext
                 .EM
                 .Include(em => em.ATTI)
@@ -180,7 +201,10 @@ namespace PortaleRegione.Persistance
                         f.UIDEM == emUid
                         && f.UID_persona == persona.UID_persona
                         && string.IsNullOrEmpty(f.Data_ritirofirma));
-                    if (!check_firmato) emendamenti_da_firmare.Add(emUid);
+                    if (!check_firmato)
+                    {
+                        emendamenti_da_firmare.Add(emUid);
+                    }
                 }
             }
 
@@ -193,7 +217,10 @@ namespace PortaleRegione.Persistance
                              && !em.Eliminato)
                 .Select(em => em.UIDEM)
                 .ToListAsync();
-            foreach (var emUid in my_em_proponente) emendamenti_da_firmare.Add(emUid);
+            foreach (var emUid in my_em_proponente)
+            {
+                emendamenti_da_firmare.Add(emUid);
+            }
 
             var result = await GetEmendamentiByArray(emendamenti_da_firmare);
 
@@ -274,9 +301,14 @@ namespace PortaleRegione.Persistance
                     .ATTI
                     .SingleAsync(a => a.UIDAtto == attoUId);
                 if (atto.OrdinePresentazione == false && ordine == OrdinamentoEnum.Presentazione)
+                {
                     return new List<Guid>();
+                }
+
                 if (atto.OrdineVotazione == false && ordine == OrdinamentoEnum.Votazione)
+                {
                     return new List<Guid>();
+                }
 
                 query = query.Where(em => em.IDStato >= (int) StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
@@ -288,23 +320,30 @@ namespace PortaleRegione.Persistance
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
                 if (persona.IsGiunta())
+                {
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                }
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                          && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
                          && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                {
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
+                }
 
                 if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                {
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int) RuoliIntEnum.Segreteria_Assemblea);
+                }
             }
 
             filtro?.BuildExpression(ref query);
 
             if (firmatari != null)
+            {
                 if (firmatari.Count > 0)
                 {
                     //Avvio ricerca firmatari
@@ -316,6 +355,7 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(em => firme.Contains(em.UIDEM));
                 }
+            }
 
             if (CLIENT_MODE == (int) ClientModeEnum.TRATTAZIONE ||
                 (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
@@ -390,14 +430,21 @@ namespace PortaleRegione.Persistance
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                 && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
                 && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+            {
                 query = query
                     .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
-            else if (ordine == OrdinamentoEnum.Default) ordine = OrdinamentoEnum.Presentazione;
+            }
+            else if (ordine == OrdinamentoEnum.Default)
+            {
+                ordine = OrdinamentoEnum.Presentazione;
+            }
 
             if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            {
                 query = query.Where(em =>
                     !string.IsNullOrEmpty(em.DataDeposito) ||
                     em.idRuoloCreazione == (int) RuoliIntEnum.Segreteria_Assemblea);
+            }
 
             filtro?.BuildExpression(ref query);
 
@@ -545,23 +592,35 @@ namespace PortaleRegione.Persistance
                              && em.id_gruppo == gruppo
                              && em.Eliminato == false);
             if (sub)
+            {
                 query = query.OrderByDescending(em => em.SubProgressivo)
                     .Take(1);
+            }
             else
+            {
                 query = query.OrderByDescending(em => em.Progressivo)
                     .Take(1);
+            }
+
             var list = await query.ToListAsync();
             if (list.Count == 0)
+            {
                 return 1;
+            }
+
             if (sub)
             {
                 if (list[0].SubProgressivo.HasValue)
+                {
                     return list[0].SubProgressivo.Value + 1;
+                }
             }
             else
             {
                 if (list[0].Progressivo.HasValue)
+                {
                     return list[0].Progressivo.Value + 1;
+                }
             }
 
             return 1;
@@ -624,12 +683,20 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public bool CheckIfEliminabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (persona.Gruppo == null) return false;
-            if (em.id_gruppo != persona.Gruppo.id_gruppo)
+            if (persona.Gruppo == null)
+            {
                 return false;
+            }
+
+            if (em.id_gruppo != persona.Gruppo.id_gruppo)
+            {
+                return false;
+            }
 
             if (!string.IsNullOrEmpty(em.DataDeposito))
+            {
                 return false;
+            }
 
             return persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                    || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
@@ -645,14 +712,24 @@ namespace PortaleRegione.Persistance
         public bool CheckIfRitirabile(EmendamentiDto em, PersonaDto persona)
         {
             if (persona.Gruppo == null)
+            {
                 return false;
+            }
 
             if (em.id_gruppo != persona.Gruppo.id_gruppo)
+            {
                 return false;
+            }
+
             if (em.DataRitiro.HasValue)
+            {
                 return false;
+            }
+
             if (em.STATI_EM.IDStato != (int) StatiEnum.Depositato)
+            {
                 return false;
+            }
 
             return persona.UID_persona == em.UIDPersonaProponente
                    || em.ATTI.UIDAssessoreRiferimento == persona.UID_persona
@@ -669,12 +746,18 @@ namespace PortaleRegione.Persistance
         public async Task<bool> CheckIfDepositabile(EmendamentiDto em, PersonaDto persona)
         {
             if (!string.IsNullOrEmpty(em.DataDeposito))
+            {
                 return false;
+            }
 
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            {
                 if (em.Firma_da_ufficio)
+                {
                     return true;
+                }
+            }
 
             var firmaProponente = await PRContext
                 .FIRME
@@ -682,10 +765,14 @@ namespace PortaleRegione.Persistance
 
             // Se proponente non ha firmato non è possibile depositare
             if (firmaProponente == null)
+            {
                 return false;
+            }
             // Se proponente ha ritirato la firma non è possibile depositare
             if (!string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
+            {
                 return false;
+            }
 
             switch (persona.CurrentRole)
             {
@@ -699,7 +786,10 @@ namespace PortaleRegione.Persistance
             }
 
             if (persona.Gruppo != null)
+            {
                 return em.id_gruppo == persona.Gruppo.id_gruppo;
+            }
+
             return false;
         }
 
@@ -712,10 +802,12 @@ namespace PortaleRegione.Persistance
         public async Task<bool> CheckIfModificabile(EmendamentiDto em, PersonaDto persona)
         {
             if (string.IsNullOrEmpty(em.EM_Certificato))
+            {
                 return em.UIDPersonaProponente == persona.UID_persona
                        || em.UIDPersonaCreazione == persona.UID_persona
                        || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                        || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
+            }
 
             var counter =
                 await PRContext.FIRME.CountAsync(f => f.UIDEM == em.UIDEM && string.IsNullOrEmpty(f.Data_ritirofirma));

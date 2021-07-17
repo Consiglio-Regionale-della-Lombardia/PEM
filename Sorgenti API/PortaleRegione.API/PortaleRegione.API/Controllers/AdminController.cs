@@ -16,18 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -193,7 +190,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var persona = await _logic.GetPersona(id);
                 if (persona == null)
+                {
                     return NotFound();
+                }
 
                 await _logicPersone.DeletePersona(persona.id_persona);
 

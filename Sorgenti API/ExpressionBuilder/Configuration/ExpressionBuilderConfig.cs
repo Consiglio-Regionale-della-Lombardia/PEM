@@ -64,7 +64,9 @@ namespace ExpressionBuilder.Configuration
             protected override object GetElementKey(ConfigurationElement element)
             {
                 if (element == null)
+                {
                     throw new ArgumentNullException("element");
+                }
 
                 return ((SupportedTypeElement)element).Type;
             }

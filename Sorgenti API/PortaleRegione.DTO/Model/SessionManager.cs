@@ -1,5 +1,5 @@
-﻿using System;
-using PortaleRegione.DTO.Enum;
+﻿using PortaleRegione.DTO.Enum;
+using System;
 
 namespace PortaleRegione.DTO.Model
 {

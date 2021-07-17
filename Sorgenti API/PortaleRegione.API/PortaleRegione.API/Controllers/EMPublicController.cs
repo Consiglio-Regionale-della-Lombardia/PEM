@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -57,7 +57,9 @@ namespace PortaleRegione.API.Controllers
                 {
                     var em = await _logicEm.GetEM_ByQR(id);
                     if (em == null)
+                    {
                         return NotFound();
+                    }
 
                     var body = await _logicPublic.GetBody(em
                         , await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE));

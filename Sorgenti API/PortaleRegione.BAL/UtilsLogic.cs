@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Contracts;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.Logger;
 using System;
 using System.IO;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
-using PortaleRegione.Contracts;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.BAL
 {
@@ -43,7 +43,10 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (!AppSettingsConfiguration.Invio_Notifiche) return;
+                if (!AppSettingsConfiguration.Invio_Notifiche)
+                {
+                    return;
+                }
 
                 var msg = new MailMessage
                 {
@@ -53,11 +56,17 @@ namespace PortaleRegione.BAL
 
                 var destinatari = model.A.Split(";".ToCharArray());
                 foreach (var destinatario in destinatari)
+                {
                     if (!string.IsNullOrEmpty(destinatario))
+                    {
                         msg.To.Add(new MailAddress(destinatario));
+                    }
+                }
 
                 if (!string.IsNullOrEmpty(model.pathAttachment))
+                {
                     msg.Attachments.Add(new Attachment(model.pathAttachment));
+                }
 
                 var smtp = new SmtpClient(AppSettingsConfiguration.SMTP);
 
