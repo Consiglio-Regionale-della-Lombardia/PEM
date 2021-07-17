@@ -100,10 +100,10 @@ namespace PortaleRegione.Persistance
                 return false;
             }
 
-            var firma_personale = await CheckFirmato(em.UIDEM, persona.UID_persona);
+            var firma_personale = await Get(em.UIDEM, persona.UID_persona);
             var firma_proponente = await CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
 
-            if (firma_personale == false
+            if (firma_personale == null
                 && (firma_proponente || em.UIDPersonaProponente == persona.UID_persona)
                 && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                     persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
