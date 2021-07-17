@@ -989,7 +989,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.ModificaStatoEmendamento(model));
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+                return Ok(await _logicEm.ModificaStatoEmendamento(model, persona));
             }
             catch (Exception e)
             {

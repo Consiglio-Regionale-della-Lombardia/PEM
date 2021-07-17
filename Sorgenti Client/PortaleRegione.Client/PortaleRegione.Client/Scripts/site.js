@@ -547,7 +547,16 @@ function CambioStato(uidem, stato) {
 function CambioStatoMassivo(stato, descr) {
     var text = "";
     var listaEM = getListaEmendamenti();
-    text = "Cambia stato di " + listaEM.length + " emendamenti in " + descr;
+    var selezionaTutti = getSelezionaTutti();
+    var text_counter = "";
+    if (selezionaTutti && listaEM.length == 0) {
+        text_counter = $("#hdTotaleDocumenti").val();
+    } else if (selezionaTutti && listaEM.length > 0) {
+        text_counter = $("#hdTotaleDocumenti").val() - listaEM.length;
+    } else {
+        text_counter = listaEM.length;
+    }
+    text = "Cambia stato di " + text_counter + " emendamenti in " + descr;
 
     swal(text,
             {
@@ -560,6 +569,8 @@ function CambioStatoMassivo(stato, descr) {
             var obj = {};
             obj.Stato = stato;
             obj.ListaEmendamenti = listaEM;
+            obj.All = selezionaTutti;
+            obj.AttoUId = $('#hdUIdAtto').val();
 
             $.ajax({
                 url: baseUrl + "/emendamenti/modifica-stato",

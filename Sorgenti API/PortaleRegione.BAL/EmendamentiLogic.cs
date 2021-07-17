@@ -537,7 +537,7 @@ namespace PortaleRegione.BAL
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBodyMail(emendamentoDto, firme, isDeposito, ref body);
+                            GetBody(emendamentoDto, attoDto, firme, persona, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
                             GetBody(emendamentoDto, attoDto, firme, persona, true, ref body);
@@ -1004,11 +1004,23 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
+        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model,
+            PersonaDto personaDto)
         {
             try
             {
                 var results = new Dictionary<Guid, string>();
+                if (model.All && !model.ListaEmendamenti.Any())
+                {
+                    model.ListaEmendamenti = (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
+                        .Select(em=>em.UIDEM).ToList();
+                }else if (model.All && model.ListaEmendamenti.Any())
+                {
+                    var emendamentiInDb = (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
+                        .Select(em=>em.UIDEM).ToList();
+                    emendamentiInDb.RemoveAll(em => model.ListaEmendamenti.Contains(em));
+                    model.ListaEmendamenti = emendamentiInDb;
+                }
 
                 foreach (var idGuid in model.ListaEmendamenti)
                 {
@@ -1019,6 +1031,9 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
+                    if (string.IsNullOrEmpty(em.DataDeposito))
+                        continue;
+                 
                     em.IDStato = (int) model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
@@ -1712,12 +1727,12 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(Guid attoUId, OrdinamentoEnum ordine,
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)
         {
             var result = new List<EmendamentiDto>();
             var counter_em = await _unitOfWork.Emendamenti.Count(attoUId, persona, CounterEmendamentiEnum.NONE,
-                (int) ClientModeEnum.GRUPPI);
+                (int)mode);
 
             var emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>
             {
@@ -1725,7 +1740,7 @@ namespace PortaleRegione.BAL
                 ordine = ordine,
                 page = 1,
                 size = counter_em
-            }, persona, (int) ClientModeEnum.GRUPPI, new Uri(AppSettingsConfiguration.urlPEM));
+            }, persona, (int)mode, new Uri(AppSettingsConfiguration.urlPEM));
 
             result.AddRange(emList.Data.Results);
 

@@ -60,7 +60,7 @@ namespace PortaleRegione.BAL
             _logicPersone = logicPersone;
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, "Firmatari dopo deposito");
                 SetColumnValue(ref row, "LinkEM");
 
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, persona);
+                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona);
 
                 foreach (var em in emList)
                 {
@@ -228,7 +228,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
             try
             {
@@ -314,7 +314,7 @@ namespace PortaleRegione.BAL
                 headerCell6_Run.IsBold = true;
                 headerCell6_Run.SetText("Stato");
 
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, persona);
+                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona);
 
                 foreach (var em in emList)
                 {
@@ -398,7 +398,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, PersonaDto persona)
+        public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
             try
             {
@@ -417,7 +417,7 @@ namespace PortaleRegione.BAL
                         }
 
                         var converter = new HtmlConverter(mainPart);
-                        converter.ParseHtml(await ComposeWordTable(attoUId, persona));
+                        converter.ParseHtml(await ComposeWordTable(attoUId, ordine, mode, persona));
 
                         mainPart.Document.Save();
                     }
@@ -443,9 +443,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task<string> ComposeWordTable(Guid attoUID, PersonaDto persona)
+        private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
-            var emList = await _logicEm.ScaricaEmendamenti(attoUID, OrdinamentoEnum.Votazione, persona);
+            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -497,7 +497,7 @@ namespace PortaleRegione.BAL
             return $"<td>{column_body}</td>";
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(Guid id, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
             try
             {
@@ -514,7 +514,7 @@ namespace PortaleRegione.BAL
                 styleReport.FillPattern = FillPattern.SolidForeground;
                 styleReport.Alignment = HorizontalAlignment.Center;
 
-                var emList = await _logicEm.ScaricaEmendamenti(id, OrdinamentoEnum.Default, persona);
+                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona);
 
                 var uolaSheet =
                     await NewSheet(

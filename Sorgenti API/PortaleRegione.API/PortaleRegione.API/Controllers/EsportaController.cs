@@ -48,7 +48,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Route("emendamenti/esporta-griglia-xls")]
         [HttpGet]
-        public async Task<IHttpActionResult> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine,
+        public async Task<IHttpActionResult> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode,
             bool is_report = false)
         {
             try
@@ -68,10 +68,10 @@ namespace PortaleRegione.API.Controllers
 
                 if (is_report)
                 {
-                    return ResponseMessage(await _logicEsporta.EsportaGrigliaReportExcel(id, persona));
+                    return ResponseMessage(await _logicEsporta.EsportaGrigliaReportExcel(id, ordine, mode, persona));
                 }
 
-                return ResponseMessage(await _logicEsporta.EsportaGrigliaExcel(id, ordine, persona));
+                return ResponseMessage(await _logicEsporta.EsportaGrigliaExcel(id, ordine, mode, persona));
             }
             catch (Exception e)
             {
@@ -88,7 +88,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Route("emendamenti/esporta-griglia-doc")]
         [HttpGet]
-        public async Task<IHttpActionResult> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine)
+        public async Task<IHttpActionResult> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace PortaleRegione.API.Controllers
                 var persona = await _logicPersone.GetPersona(session);
 
                 var response =
-                    ResponseMessage(await _logicEsporta.HTMLtoWORD(id, persona));
+                    ResponseMessage(await _logicEsporta.HTMLtoWORD(id, ordine, mode, persona));
 
                 return response;
             }
