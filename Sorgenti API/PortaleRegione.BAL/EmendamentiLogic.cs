@@ -24,6 +24,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using NPOI.SS.Formula.Functions;
 using PortaleRegione.BAL.OpenData;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -34,7 +35,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+using Log = PortaleRegione.Logger.Log;
 
 namespace PortaleRegione.BAL
 {
@@ -387,8 +388,11 @@ namespace PortaleRegione.BAL
                     ///TODO: Cancellare notifiche
                 }
 
-                em.UIDPersonaModifica = persona.UID_persona;
-                em.DataModifica = DateTime.Now;
+                if(em.IDStato < (int) StatiEnum.Depositato)
+                {
+                    em.UIDPersonaModifica = persona.UID_persona;
+                    em.DataModifica = DateTime.Now;
+                }
 
                 await _unitOfWork.CompleteAsync();
 
