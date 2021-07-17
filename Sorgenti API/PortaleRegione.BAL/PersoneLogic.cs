@@ -94,7 +94,7 @@ namespace PortaleRegione.BAL
             var result = new List<PersonaDto>();
             foreach (var persona in persone)
             {
-                persona.Gruppo ??= await GetGruppoAttualePersona(new List<string>(){ persona.GruppiAD});
+                persona.Gruppo = await GetGruppoAttualePersona(persona.UID_persona, persona.IsGiunta());
                 result.Add(persona);
             }
 
