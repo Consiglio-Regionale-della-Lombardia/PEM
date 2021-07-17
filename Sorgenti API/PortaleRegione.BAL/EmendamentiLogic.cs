@@ -537,7 +537,7 @@ namespace PortaleRegione.BAL
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBodyMail(emendamentoDto, firme, isDeposito, ref body);
+                            GetBody(emendamentoDto, attoDto, firme, persona, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
                             GetBody(emendamentoDto, attoDto, firme, persona, true, ref body);
