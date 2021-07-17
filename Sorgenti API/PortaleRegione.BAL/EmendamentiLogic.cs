@@ -1004,11 +1004,17 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
+        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model,
+            PersonaDto personaDto)
         {
             try
             {
                 var results = new Dictionary<Guid, string>();
+                if (model.All)
+                {
+                    model.ListaEmendamenti = (await ScaricaEmendamenti(model.AttoUId, OrdinamentoEnum.Default, personaDto))
+                        .Select(em=>em.UIDEM).ToList();
+                }
 
                 foreach (var idGuid in model.ListaEmendamenti)
                 {
@@ -1019,6 +1025,9 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
+                    if (string.IsNullOrEmpty(em.DataDeposito))
+                        continue;
+                 
                     em.IDStato = (int) model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");

@@ -272,7 +272,7 @@ namespace PortaleRegione.Persistance
                 .EM
                 .FirstOrDefaultAsync(em => em.UID_QRCode == id);
         }
-
+        
         /// <summary>
         ///     Riepilogo emendamenti
         /// </summary>
