@@ -27,6 +27,8 @@ namespace PortaleRegione.DTO.Model
         public ICollection<Guid> ListaEmendamenti { get; set; }
         public StatiEnum Stato { get; set; }
         public bool All { get; set; } = false;
-        public Guid AttoUId { get; set; } 
+        public Guid AttoUId { get; set; }
+        public OrdinamentoEnum Ordine { get; set; }
+        public ClientModeEnum Mode { get; set; }
     }
 }

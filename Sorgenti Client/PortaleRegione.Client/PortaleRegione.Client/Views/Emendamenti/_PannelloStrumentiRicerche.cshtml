@@ -9,6 +9,11 @@
             var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
 
             var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
+            var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
+            if (string.IsNullOrEmpty(mode))
+            {
+                mode = "1";
+            }
             OrdinamentoEnum ordinePaginaEnum;
             if (!string.IsNullOrEmpty(ordinePagina))
             {
@@ -30,7 +35,7 @@
 
             <input id="inputFilterPage" type="hidden" name="page" value=""/>
             <input type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
-            <input type="hidden" id="hdMode" name="mode" value=""/>
+            <input type="hidden" id="hdMode" name="mode" value="@Html.Raw(Convert.ToInt16(mode))"/>
             <input type="hidden" name="ordine" value="@((int) ordinePaginaEnum)"/>
             <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto"/>
 
@@ -270,19 +275,19 @@
     <div class="collapsible-header light-blue lighten-4"><i class="material-icons">import_export</i>Esporta</div>
     <div class="collapsible-body">
         <div class="container">
-            <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum, is_report = false})" style="width: 100%">
+            <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum, mode=Convert.ToInt16(mode), is_report = false})" style="width: 100%">
                 <i class="icon material-icons">
                     grid_on</i> EXCEL
             </a>
 
             @if (User.IsInRole(RuoliEnum.Segreteria_Assemblea))
             {
-                <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, is_report = true})" style="width: 100%">
+                <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum,mode=Convert.ToInt16(mode), is_report = true})" style="width: 100%">
                     <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA
                 </a>
             }
 
-            <a class="btn chip hoverable blue lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum})" style="width: 100%">
+            <a class="btn chip hoverable blue lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum,mode=Convert.ToInt16(mode)})" style="width: 100%">
                 <i class="icon material-icons">font_download</i> WORD
             </a>
         </div>

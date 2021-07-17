@@ -493,12 +493,12 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("esportaXLS")]
-        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default,
+        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default,ClientModeEnum mode = ClientModeEnum.GRUPPI,
             bool is_report = false)
         {
             try
             {
-                var file = await StampeGate.EsportaXLS(id, ordine, is_report);
+                var file = await EsportaGate.EsportaXLS(id, ordine, mode, is_report);
                 return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     file.FileName);
             }
@@ -517,11 +517,11 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("esportaDOC")]
-        public async Task<ActionResult> EsportaDOC(Guid id, OrdinamentoEnum ordine)
+        public async Task<ActionResult> EsportaDOC(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode)
         {
             try
             {
-                var file = await StampeGate.EsportaWORD(id, ordine);
+                var file = await EsportaGate.EsportaWORD(id, ordine, mode);
                 return File(file.Content, "application/doc", file.FileName);
             }
             catch (Exception e)
