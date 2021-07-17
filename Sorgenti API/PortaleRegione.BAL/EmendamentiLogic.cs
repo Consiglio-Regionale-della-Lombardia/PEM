@@ -1010,10 +1010,16 @@ namespace PortaleRegione.BAL
             try
             {
                 var results = new Dictionary<Guid, string>();
-                if (model.All)
+                if (model.All && !model.ListaEmendamenti.Any())
                 {
                     model.ListaEmendamenti = (await ScaricaEmendamenti(model.AttoUId, OrdinamentoEnum.Default, personaDto))
                         .Select(em=>em.UIDEM).ToList();
+                }else if (model.All && model.ListaEmendamenti.Any())
+                {
+                    var emendamentiInDb = (await ScaricaEmendamenti(model.AttoUId, OrdinamentoEnum.Default, personaDto))
+                        .Select(em=>em.UIDEM).ToList();
+                    emendamentiInDb.RemoveAll(em => model.ListaEmendamenti.Contains(em));
+                    model.ListaEmendamenti = emendamentiInDb;
                 }
 
                 foreach (var idGuid in model.ListaEmendamenti)

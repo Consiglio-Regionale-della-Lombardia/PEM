@@ -549,8 +549,10 @@ function CambioStatoMassivo(stato, descr) {
     var listaEM = getListaEmendamenti();
     var selezionaTutti = getSelezionaTutti();
     var text_counter = "";
-    if (selezionaTutti) {
+    if (selezionaTutti && listaEM.length == 0) {
         text_counter = $("#hdTotaleDocumenti").val();
+    } else if (selezionaTutti && listaEM.length > 0) {
+        text_counter = $("#hdTotaleDocumenti").val() - listaEM.length;
     } else {
         text_counter = listaEM.length;
     }
