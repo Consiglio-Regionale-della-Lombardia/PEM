@@ -1179,7 +1179,7 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
                     emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
+                emendamentoDto.Firmato_Dal_Proponente = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
                 emendamentoDto.PersonaProponente =
                     Mapper.Map<View_UTENTI, PersonaLightDto>(
                         await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
@@ -1302,7 +1302,7 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
                     emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente = em.IDStato >= (int) StatiEnum.Depositato;
+                emendamentoDto.Firmato_Dal_Proponente = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
                 emendamentoDto.PersonaProponente =
                     Mapper.Map<View_UTENTI, PersonaLightDto>(
                         await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
