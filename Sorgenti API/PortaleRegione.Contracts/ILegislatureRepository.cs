@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Domain;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using PortaleRegione.Domain;
 
 namespace PortaleRegione.Contracts
 {

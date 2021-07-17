@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -48,7 +48,10 @@ namespace PortaleRegione.BAL
         {
             var pinInDb = await _unitOfWork.Persone.GetPin(persona.UID_persona);
             if (pinInDb == null)
+            {
                 return null;
+            }
+
             var pin = Mapper.Map<View_PINS, PinDto>(pinInDb);
             pin.PIN_Decrypt = Decrypt(pin.PIN);
             return pin;
@@ -156,7 +159,10 @@ namespace PortaleRegione.BAL
         public async Task<PersonaDto> GetPersona(SessionManager session)
         {
             if (session._currentUId == Guid.Empty)
+            {
                 return null;
+            }
+
             var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
             persona.CurrentRole = session._currentRole;
             persona.Gruppo = await GetGruppo(session._currentGroup);

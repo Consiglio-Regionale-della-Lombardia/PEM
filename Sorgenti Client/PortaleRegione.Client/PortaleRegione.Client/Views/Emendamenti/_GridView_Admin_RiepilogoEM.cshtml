@@ -43,6 +43,7 @@ else
         <tr>
             <th></th>
             <th></th>
+            <th></th>
             <th>
                 <i class="icon material-icons">low_priority</i>
             </th>
@@ -79,6 +80,19 @@ else
                         <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
                         <span></span>
                     </label>
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
+                    {
+                    <i class="icon material-icons tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)">chat</i>
+                    }
+                    @if (!string.IsNullOrEmpty(itemEM.NOTE_EM) && 
+                         (User.IsInRole(RuoliEnum.Amministratore_PEM)
+                          || User.IsInRole(RuoliEnum.Segreteria_Assemblea)))
+                    {
+                        <br/>
+                <i class="icon material-icons tooltipped red-text" data-tooltip="@Html.Raw(itemEM.NOTE_EM)">comment</i>
+                    }
                 </td>
                 <td>
                     @if (ordinePaginaEnum == OrdinamentoEnum.Presentazione)

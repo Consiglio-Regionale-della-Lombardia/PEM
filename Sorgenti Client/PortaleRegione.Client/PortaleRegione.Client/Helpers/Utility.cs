@@ -70,9 +70,16 @@ namespace PortaleRegione.Client.Helpers
 
                     var firmaProponente = firmeDtos.First();
                     var proponente = await PersoneGate.Get(firmaProponente.UID_persona);
-                    result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
+                    if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
+                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
                         .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
                         .Replace("{{OPZIONALE}}", ""));
+                    else
+                    {
+                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
+                            .Replace("{{DisplayName}}", $"<span style='text-decoration:line-through;color:grey'>{firmaProponente.FirmaCert}</span>")
+                            .Replace("{{OPZIONALE}}", ""));
+                    }
                     firmeDtos.Remove(firmaProponente);
 
                     foreach (var firmeDto in firmeDtos)

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using PortaleRegione.BAL.proxyAd;
 using PortaleRegione.Contracts;
@@ -15,6 +8,13 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -31,10 +31,15 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (string.IsNullOrEmpty(loginModel.Username)) throw new Exception("Username non può essere nullo");
+                if (string.IsNullOrEmpty(loginModel.Username))
+                {
+                    throw new Exception("Username non può essere nullo");
+                }
 
                 if (string.IsNullOrEmpty(loginModel.Password))
+                {
                     throw new Exception("Password non può essere nulla");
+                }
 
                 if (loginModel.Username == AppSettingsConfiguration.Service_Username &&
                     loginModel.Password == AppSettingsConfiguration.Service_Password)
@@ -76,26 +81,34 @@ namespace PortaleRegione.BAL
                         AppSettingsConfiguration.TOKEN_R);
                     //var authResult = true;
                     if (!authResult)
+                    {
                         throw new Exception( 
                             "Nome Utente o Password non validi! Utilizza le credenziali di accesso al pc ([nome.cognome] - [propriapassword])");
+                    }
 #if DEBUG == true
                 }
 #endif
                 var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(@"CONSIGLIO\" + loginModel.Username));
 
                 if (persona == null)
+                {
                     throw new Exception(
                         "Autenticazione corretta, ma l'utente non risulta presente nel sistema. Contattare l'amministratore di sistema.");
+                }
 
                 var lRuoli = new List<string>();
                 var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
                     loginModel.Username.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
 
                 if (Gruppi_Utente.Count == 0)
+                {
                     throw new Exception( "Utente non configurato correttamente.");
+                }
 
                 foreach (var group in Gruppi_Utente)
+                {
                     lRuoli.Add($"CONSIGLIO\\{group}");
+                }
 
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 
@@ -120,7 +133,9 @@ namespace PortaleRegione.BAL
             {
                 var ruoloInDb = await _unitOfWork.Ruoli.Get((int) ruolo);
                 if (ruoloInDb == null)
+                {
                     throw new Exception("Ruolo non trovato");
+                }
 
                 var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
@@ -134,7 +149,9 @@ namespace PortaleRegione.BAL
 
                 var ruoloAccessibile = ruoli_utente.SingleOrDefault(r => r.IDruolo == (int) ruolo);
                 if (ruoloAccessibile == null)
+                {
                     throw new Exception("Ruolo non accessibile");
+                }
 
                 persona.CurrentRole = ruolo;
                 persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli, persona.IsGiunta());
@@ -162,7 +179,9 @@ namespace PortaleRegione.BAL
             {
                 var gruppiDto = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(gruppo));
                 if (gruppiDto == null)
+                {
                     throw new Exception("ListaGruppo non trovato");
+                }
 
                 var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
@@ -220,7 +239,9 @@ namespace PortaleRegione.BAL
                 };
 
                 if (personaDto.Gruppo != null)
+                {
                     claims.Add(new Claim("gruppo", personaDto.Gruppo.id_gruppo.ToString()));
+                }
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
@@ -261,7 +282,9 @@ namespace PortaleRegione.BAL
                 };
 
                 if (personaDto.Gruppo != null)
+                {
                     claims.Add(new Claim("gruppo", personaDto.Gruppo.id_gruppo.ToString()));
+                }
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {

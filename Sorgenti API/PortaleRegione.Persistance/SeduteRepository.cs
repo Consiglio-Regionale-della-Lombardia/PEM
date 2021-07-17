@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Generics;
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpressionBuilder.Generics;
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -57,9 +57,13 @@ namespace PortaleRegione.Persistance
                 .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
 
             if (filtro == null)
+            {
                 query = query.Where(s => s.id_legislatura == legislaturaId);
+            }
             else
+            {
                 filtro.BuildExpression(ref query);
+            }
 
             return await query.OrderByDescending(c => c.Data_seduta)
                 .Skip((pageIndex - 1) * pageSize)
@@ -73,9 +77,13 @@ namespace PortaleRegione.Persistance
                 .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
 
             if (filtro == null)
+            {
                 query = query.Where(s => s.id_legislatura == legislaturaId);
+            }
             else
+            {
                 filtro.BuildExpression(ref query);
+            }
 
             return await query.CountAsync();
         }

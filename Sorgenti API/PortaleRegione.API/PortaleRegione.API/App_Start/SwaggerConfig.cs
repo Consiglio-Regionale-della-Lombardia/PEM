@@ -1,7 +1,7 @@
-using System.Web.Http;
-using WebActivatorEx;
 using PortaleRegione.API;
 using Swashbuckle.Application;
+using System.Web.Http;
+using WebActivatorEx;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 

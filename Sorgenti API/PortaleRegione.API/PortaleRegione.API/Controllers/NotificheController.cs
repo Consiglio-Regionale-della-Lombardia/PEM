@@ -16,9 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Domain;
@@ -27,6 +24,9 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -175,15 +175,25 @@ namespace PortaleRegione.API.Controllers
                     persona.CurrentRole == RuoliIntEnum.Amministratore_PEM;
 
                 if (invitoDaSegreteria)
+                {
                     return Ok(await _logic.InvitaAFirmareEmendamento(model, persona));
+                }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
+                {
                     return BadRequest("Pin non impostato");
+                }
+
                 if (pinInDb.RichiediModificaPIN)
+                {
                     return BadRequest("E' richiesto il reset del pin");
+                }
+
                 if (model.Pin != pinInDb.PIN_Decrypt)
+                {
                     return BadRequest("Pin inserito non valido");
+                }
 
                 return Ok(await _logic.InvitaAFirmareEmendamento(model, persona));
             }

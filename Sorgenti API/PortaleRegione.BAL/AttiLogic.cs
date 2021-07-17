@@ -16,12 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -33,6 +27,12 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -147,7 +147,10 @@ namespace PortaleRegione.BAL
                 attoInDb.UIDPersonaModifica = currentUser.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
                 Mapper.Map(attoModel, attoInDb);
-                if (!attoModel.Data_chiusura.HasValue) attoInDb.Data_chiusura = null;
+                if (!attoModel.Data_chiusura.HasValue)
+                {
+                    attoInDb.Data_chiusura = null;
+                }
 
                 await _unitOfWork.CompleteAsync();
 
@@ -203,6 +206,7 @@ namespace PortaleRegione.BAL
             {
                 var appo = articoli.Split(',');
                 foreach (var s in appo)
+                {
                     if (s.Contains("-"))
                     {
                         //INSERIMENTO RANGE
@@ -213,7 +217,9 @@ namespace PortaleRegione.BAL
                         for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
                         {
                             if (await _unitOfWork.Articoli.CheckIfArticoloExists(id, i.ToString()))
+                            {
                                 continue;
+                            }
 
                             _unitOfWork.Articoli.Add(new ARTICOLI
                             {
@@ -228,7 +234,10 @@ namespace PortaleRegione.BAL
                     else
                     {
                         if (await _unitOfWork.Articoli.CheckIfArticoloExists(id, s))
+                        {
                             continue;
+                        }
+
                         _unitOfWork.Articoli.Add(new ARTICOLI
                         {
                             Articolo = s,
@@ -238,6 +247,7 @@ namespace PortaleRegione.BAL
                         });
                         await _unitOfWork.CompleteAsync();
                     }
+                }
             }
             catch (Exception e)
             {
@@ -347,6 +357,7 @@ namespace PortaleRegione.BAL
             {
                 var appo = commi.Split(',');
                 foreach (var s in appo)
+                {
                     if (s.Contains("-"))
                     {
                         //INSERIMENTO RANGE
@@ -357,7 +368,9 @@ namespace PortaleRegione.BAL
                         for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
                         {
                             if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, i.ToString()))
+                            {
                                 continue;
+                            }
 
                             _unitOfWork.Commi.Add(new COMMI
                             {
@@ -372,7 +385,11 @@ namespace PortaleRegione.BAL
                     }
                     else
                     {
-                        if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, s)) continue;
+                        if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, s))
+                        {
+                            continue;
+                        }
+
                         _unitOfWork.Commi.Add(new COMMI
                         {
                             Comma = s,
@@ -383,6 +400,7 @@ namespace PortaleRegione.BAL
                         });
                         await _unitOfWork.CompleteAsync();
                     }
+                }
             }
             catch (Exception e)
             {
@@ -424,6 +442,7 @@ namespace PortaleRegione.BAL
         {
             var appo = lettere.Split(',');
             foreach (var s in appo)
+            {
                 if (s.Contains("-"))
                 {
                     //INSERIMENTO RANGE
@@ -433,7 +452,10 @@ namespace PortaleRegione.BAL
 
                     for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
                     {
-                        if (await _unitOfWork.Lettere.CheckIfLetteraExists(comma.UIDComma, i.ToString())) continue;
+                        if (await _unitOfWork.Lettere.CheckIfLetteraExists(comma.UIDComma, i.ToString()))
+                        {
+                            continue;
+                        }
 
                         _unitOfWork.Lettere.Add(new LETTERE
                         {
@@ -447,7 +469,11 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    if (await _unitOfWork.Commi.CheckIfCommiExists(comma.UIDComma, s)) continue;
+                    if (await _unitOfWork.Commi.CheckIfCommiExists(comma.UIDComma, s))
+                    {
+                        continue;
+                    }
+
                     _unitOfWork.Lettere.Add(new LETTERE
                     {
                         Lettera = s,
@@ -457,6 +483,7 @@ namespace PortaleRegione.BAL
                     });
                     await _unitOfWork.CompleteAsync();
                 }
+            }
 
             await _unitOfWork.CompleteAsync();
         }

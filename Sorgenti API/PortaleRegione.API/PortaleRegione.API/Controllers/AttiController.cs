@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -29,6 +25,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -86,11 +86,16 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (model.id == Guid.Empty) return BadRequest();
+                if (model.id == Guid.Empty)
+                {
+                    return BadRequest();
+                }
 
                 var sedutaInDb = await _logicSedute.GetSeduta(model.id);
                 if (sedutaInDb == null)
+                {
                     return BadRequest("Seduta non valida");
+                }
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
@@ -144,12 +149,16 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (id == Guid.Empty)
+                {
                     return BadRequest();
+                }
 
                 var attoInDb = await _logic.GetAtto(id);
 
                 if (attoInDb == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.DeleteAtto(attoInDb);
 
@@ -175,11 +184,19 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (string.IsNullOrEmpty(attoModel.NAtto))
+                {
                     return BadRequest("Imposta il numero di atto");
+                }
+
                 if (string.IsNullOrEmpty(attoModel.Oggetto))
+                {
                     return BadRequest("Imposta l'oggetto");
+                }
+
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
+                {
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -208,10 +225,14 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _logic.GetAtto(attoModel.UIDAtto);
 
                 if (attoInDb == null)
+                {
                     return NotFound();
+                }
 
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
+                {
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -240,7 +261,9 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _logic.GetAtto(atto.UIDAtto);
 
                 if (attoInDb == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.ModificaFascicoli(attoInDb, atto);
 
@@ -310,7 +333,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var articolo = await _logic.GetArticolo(id);
                 if (articolo == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.DeleteArticolo(articolo);
 
@@ -367,7 +392,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var articolo = await _logic.GetArticolo(id);
                 if (articolo == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.CreaCommi(articolo, commi);
                 return Ok("OK");
@@ -392,7 +419,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var comma = await _logic.GetComma(id);
                 if (comma == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.DeleteComma(comma);
 
@@ -443,7 +472,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var comma = await _logic.GetComma(id);
                 if (comma == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.CreaLettere(comma, lettere);
 
@@ -469,7 +500,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var lettera = await _logic.GetLettera(id);
                 if (lettera == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.DeleteLettere(lettera);
 
@@ -497,7 +530,9 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _logic.GetAtto(model.Id);
 
                 if (attoInDb == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.SalvaRelatori(model.Id, model.Persone);
 
@@ -525,12 +560,16 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _logic.GetAtto(model.Id);
 
                 if (attoInDb == null)
+                {
                     return NotFound();
+                }
+
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.PubblicaFascicolo(attoInDb, model, persona);
 
                 if (model.Abilita)
+                {
                     await _logicStampe.InserisciStampa(new BaseRequest<EmendamentiDto, StampaDto>
                     {
                         entity = new StampaDto
@@ -542,6 +581,7 @@ namespace PortaleRegione.API.Controllers
                         },
                         ordine = model.Ordinamento
                     }, persona);
+                }
 
                 return Ok();
             }

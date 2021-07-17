@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using log4net;
 using log4net.Config;
+using System;
 
 namespace PortaleRegione.Logger
 {

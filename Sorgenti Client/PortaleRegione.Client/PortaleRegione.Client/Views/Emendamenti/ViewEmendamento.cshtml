@@ -115,7 +115,7 @@
                 @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
                 <div class="row">
                     <div class="col s6 left">
-                        @if (Model.UIDPersonaModifica.HasValue)
+                        @if (Model.UIDPersonaModifica.HasValue && Model.IDStato < (int)StatiEnum.Depositato)
                         {
                             <label style="font-size: small !important">Ultima modifica: </label>
                             <br/>
@@ -205,7 +205,9 @@
                 @Html.Partial("_CommandSUBEM", Model)
 
                 @* NOTE RISERVATE *@
-                @if (!string.IsNullOrEmpty(Model.NOTE_EM))
+                @if (!string.IsNullOrEmpty(Model.NOTE_EM) && 
+                     (User.IsInRole(RuoliEnum.Amministratore_PEM)
+                    || User.IsInRole(RuoliEnum.Segreteria_Assemblea)))
                 {
                     <div class="row">
                         <div class="col s12 red-text">

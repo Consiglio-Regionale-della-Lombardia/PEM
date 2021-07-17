@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Builders;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Helpers;
+using ExpressionBuilder.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +27,6 @@ using System.Linq.Expressions;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using ExpressionBuilder.Builders;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Helpers;
-using ExpressionBuilder.Interfaces;
 
 namespace ExpressionBuilder.Generics
 {
@@ -94,8 +94,15 @@ namespace ExpressionBuilder.Generics
 
         public void ImportStatements<TPropertyType>(ICollection<FilterStatement<TPropertyType>> filters)
         {
-            if (filters == null) return;
-            foreach (var filterStatement in filters) By(filterStatement);
+            if (filters == null)
+            {
+                return;
+            }
+
+            foreach (var filterStatement in filters)
+            {
+                By(filterStatement);
+            }
         }
 
         /// <summary>
@@ -121,6 +128,7 @@ namespace ExpressionBuilder.Generics
         public void ReadXml(XmlReader reader)
         {
             while (reader.Read())
+            {
                 if (reader.Name.StartsWith("FilterStatementOf"))
                 {
                     var type = reader.GetAttribute("Type");
@@ -129,6 +137,7 @@ namespace ExpressionBuilder.Generics
                     var statement = (IFilterStatement) serializer.Deserialize(reader);
                     _statements.Add(statement);
                 }
+            }
         }
 
         /// <summary>
@@ -168,7 +177,11 @@ namespace ExpressionBuilder.Generics
             var lastConector = FilterStatementConnector.And;
             foreach (var statement in _statements)
             {
-                if (!string.IsNullOrWhiteSpace(result)) result += " " + lastConector + " ";
+                if (!string.IsNullOrWhiteSpace(result))
+                {
+                    result += " " + lastConector + " ";
+                }
+
                 result += statement.ToString();
                 lastConector = statement.Connector;
             }

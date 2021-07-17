@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Contracts;
+using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using PortaleRegione.Contracts;
-using PortaleRegione.DataBase;
-using PortaleRegione.Domain;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -47,7 +47,9 @@ namespace PortaleRegione.Persistance
                 .RUOLI
                 .Where(r => true);
             if (soloRuoliGiunta)
+            {
                 query = query.Where(r => r.Ruolo_di_Giunta);
+            }
 
             return await query.ToListAsync();
         }

@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Generics;
+using PortaleRegione.Domain;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ExpressionBuilder.Generics;
-using PortaleRegione.Domain;
 
 namespace PortaleRegione.Contracts
 {

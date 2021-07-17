@@ -16,9 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -26,6 +23,9 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -126,7 +126,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var stampa = await _logic.GetStampa(id);
                 if (stampa == null)
+                {
                     return NotFound();
+                }
 
                 var response = ResponseMessage(await _logic.DownloadStampa(stampa));
 
@@ -152,7 +154,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var stampa = await _logic.GetStampa(id);
                 if (stampa == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.ResetStampa(stampa);
 
@@ -178,7 +182,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var stampa = await _logic.GetStampa(id);
                 if (stampa == null)
+                {
                     return NotFound();
+                }
 
                 await _logic.AddInfo(stampa, message);
 
@@ -204,7 +210,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var stampa = await _logic.GetStampa(id);
                 if (stampa == null)
+                {
                     return NotFound();
+                }
 
                 var result = await _logic.GetInfo(stampa);
 

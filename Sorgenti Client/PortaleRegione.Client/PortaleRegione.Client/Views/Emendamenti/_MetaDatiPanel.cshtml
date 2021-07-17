@@ -1,6 +1,13 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.EmendamentiFormModel
+@{
+    var _disabled = false;
 
+    if (Model.Emendamento.Rif_UIDEM.HasValue && Model.Emendamento.Rif_UIDEM != Guid.Empty)
+    {
+        _disabled = true;
+    }
+}
 <div class="form-group">
     @Html.LabelFor(s => s.Emendamento.IDParte)
     <div class="row">
@@ -15,14 +22,14 @@
                     }
                 }
                 <label class="black-text" style="margin-left: 20px">
-                    @Html.RadioButtonFor(m => m.Emendamento.IDParte, (int) partiTestoDto.IDParte, new {onchange = string.Format("PartiTestoEmendamento_OnChange({0})", (int) partiTestoDto.IDParte)})
+                    <input type="radio" onchange="PartiTestoEmendamento_OnChange(@((int)partiTestoDto.IDParte))" value="@((int)partiTestoDto.IDParte)" @Html.Raw(Model.Emendamento.IDParte == (int)partiTestoDto.IDParte ? "checked='checked'" : "") name="Emendamento.IDParte" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                     <span>@partiTestoDto.Parte</span>
                 </label>
             }
         </div>
     </div>
     @{
-        var detailPanelVisible = Model.Emendamento.IDParte == (int) PartiEMEnum.Titolo_PDL ? "none" : "block";
+        var detailPanelVisible = Model.Emendamento.IDParte == (int)PartiEMEnum.Titolo_PDL ? "none" : "block";
     }
     <div class="row" id="detailsPanel" style="display: @detailPanelVisible">
         <div class="col s12">
@@ -34,7 +41,7 @@
                     }
                     <div id="pnlTitolo" style="display: @pnlTitoloVisible">
                         @Html.LabelFor(m => m.Emendamento.NTitolo)
-                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)"/>
+                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
 
                     </div>
                     @{
@@ -42,7 +49,7 @@
                     }
                     <div id="pnlCapo" style="display: @pnlCapoVisible">
                         @Html.LabelFor(m => m.Emendamento.NCapo)
-                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)"/>
+                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                     </div>
                     @{
                         var pnlArticoliVisible = Model.Emendamento.UIDArticolo.HasValue ? "block" : "none";
@@ -74,19 +81,43 @@
                     <div id="pnlArticoli" style="display: @pnlArticoliVisible">
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.UIDArticolo)
-                            @Html.DropDownListFor(m => m.Emendamento.UIDArticolo, new SelectList(Model.ListaArticoli, "UIDArticolo", "Articolo"), "Seleziona articolo", new {@class = "form-control", onchange = "Articoli_OnChange(this.value, null, null)", id = "ArticoliList"})
+                            @if (_disabled)
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.UIDArticolo, new SelectList(Model.ListaArticoli, "UIDArticolo", "Articolo"), "Seleziona articolo", new { @class = "form-control", onchange = "Articoli_OnChange(this.value, null, null)", id = "ArticoliList", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.UIDArticolo, new SelectList(Model.ListaArticoli, "UIDArticolo", "Articolo"), "Seleziona articolo", new { @class = "form-control", onchange = "Articoli_OnChange(this.value, null, null)", id = "ArticoliList" })
+                            }
+
                         </div>
 
                         <div id="pnlCommi" style="display: none">
                             <div class="form-group">
                                 @Html.LabelFor(m => m.Emendamento.UIDComma)
-                                @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new {@class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList"})
+                                @if (_disabled)
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList", disabled = true})
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList"})
+                                }
+
                             </div>
                         </div>
                         <div id="pnlLettere" style="display: none">
                             <div class="form-group">
                                 @Html.LabelFor(m => m.Emendamento.UIDLettera)
-                                @Html.DropDownListFor(m => m.Emendamento.UIDLettera, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona lettera", new {@class = "form-control", id = "LettereList"})
+                                @if (_disabled)
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDLettera, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona lettera", new { @class = "form-control", id = "LettereList", disabled = true })
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDLettera, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona lettera", new { @class = "form-control", id = "LettereList" })
+                                }
+
                             </div>
                         </div>
                         @{
@@ -95,22 +126,45 @@
                         <div id="pnlLettereOLD" style="display: @pnlLettereOLDVisible">
                             <div class="form-group">
                                 @Html.LabelFor(m => m.Emendamento.NLettera)
-                                @Html.TextBoxFor(m => m.Emendamento.NLettera, new {id = "txtLetteraOLD"})
+                                @if (_disabled)
+                                {
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD", disabled = true })
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD"})
+                                }
+
                             </div>
                         </div>
                     </div>
                     <div id="pnlMissioni" style="display: none">
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NMissione)
-                            @Html.DropDownListFor(m => m.Emendamento.NMissione, new SelectList(Model.ListaMissioni, "NMissione", "Display"), "Seleziona elemento", new {@class = "form-control", id = "MissioniList"})
+                            @if (_disabled)
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NMissione, new SelectList(Model.ListaMissioni, "NMissione", "Display"), "Seleziona elemento", new { @class = "form-control", id = "MissioniList", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NMissione, new SelectList(Model.ListaMissioni, "NMissione", "Display"), "Seleziona elemento", new { @class = "form-control", id = "MissioniList" })
+                            }
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NProgramma)
-                            <input type="number" name="Emendamento.NProgramma" value="@Model.Emendamento.NProgramma"/>
+                            <input type="number" name="Emendamento.NProgramma" value="@Model.Emendamento.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NTitoloB)
-                            @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new {@class = "form-control", id = "TitoliMissioniList"})
+                            @if (_disabled)
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList"})
+                            }
+
                         </div>
                     </div>
                 </div>
@@ -143,18 +197,18 @@
                         throw new ArgumentOutOfRangeException();
                 }
                 <label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
-                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM"/>
+                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                     <span>@tipoDto.Tipo_EM</span>
                 </label>
             }
         </div>
     </div>
 </div>
-<input type="hidden" id="hdParteId"/>
-<input type="hidden" id="hdTipoId"/>
+<input type="hidden" id="hdParteId" />
+<input type="hidden" id="hdTipoId" />
 <script>
     function PartiTestoEmendamento_OnChange(item) {
-        
+
         $('#hdParteId').val(item);
         $("#pnlTitolo").hide();
         $("#pnlCapo").hide();

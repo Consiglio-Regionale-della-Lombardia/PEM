@@ -16,15 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using System;
 using System.Data.Entity.Validation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
-using PortaleRegione.BAL;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.API.Helpers
 {
@@ -57,8 +55,12 @@ namespace PortaleRegione.API.Helpers
             }
 
             if (e.InnerException != null)
+            {
                 if (e.InnerException.Source == "EntityFramework")
+                {
                     message = e.InnerException.InnerException.Message;
+                }
+            }
 
             Console.WriteLine(message);
             return BadRequest(message);
@@ -73,6 +75,7 @@ namespace PortaleRegione.API.Helpers
             var identity = RequestContext.Principal.Identity as ClaimsIdentity;
             var session = new SessionManager();
             foreach (var identityClaim in identity.Claims)
+            {
                 switch (identityClaim.Type)
                 {
                     case ClaimTypes.Role:
@@ -87,6 +90,7 @@ namespace PortaleRegione.API.Helpers
                         break;
                     }
                 }
+            }
 
             return session;
         }

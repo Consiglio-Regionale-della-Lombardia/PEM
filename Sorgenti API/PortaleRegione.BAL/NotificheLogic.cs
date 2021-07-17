@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -29,6 +25,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -67,7 +67,9 @@ namespace PortaleRegione.BAL
                 var idGruppo = 0;
                 if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                     || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
+                {
                     idGruppo = currentUser.Gruppo.id_gruppo;
+                }
 
                 var notifiche = (await _unitOfWork.Notifiche
                         .GetNotificheInviate(currentUser, idGruppo, Archivio, model.page, model.size, queryFilter))
@@ -109,7 +111,9 @@ namespace PortaleRegione.BAL
                 var idGruppo = 0;
                 if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                     || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
+                {
                     idGruppo = currentUser.Gruppo.id_gruppo;
+                }
 
                 var notifiche = (await _unitOfWork.Notifiche
                         .GetNotificheRicevute(currentUser, idGruppo, Archivio, model.page, model.size, queryFilter))
@@ -189,8 +193,12 @@ namespace PortaleRegione.BAL
                 {
                     var sonoGruppi = int.TryParse(model.ListaDestinatari.First(), out var _);
                     if (sonoGruppi)
+                    {
                         foreach (var gruppoId in model.ListaDestinatari.Select(g => Convert.ToInt32(g)))
+                        {
                             listaDestinatari.AddRange(await _logicPersone.GetConsiglieriGruppo(gruppoId));
+                        }
+                    }
                 }
 
                 if (!listaDestinatari.Any())
@@ -211,13 +219,17 @@ namespace PortaleRegione.BAL
                     var n_em = em.N_EM;
 
                     if (em.IDStato >= (int) StatiEnum.Depositato)
+                    {
                         results.Add(idGuid,
                             $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
+                    }
 
                     var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
                     if (check == false)
+                    {
                         results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
-                   
+                    }
+
                     var newNotifica = new NOTIFICHE
                     {
                         UIDEM = em.UIDEM,
@@ -240,6 +252,7 @@ namespace PortaleRegione.BAL
                                 destinatario.UID_persona);
 
                         if (!existDestinatario)
+                        {
                             destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                             {
                                 NOTIFICHE = newNotifica,
@@ -247,9 +260,13 @@ namespace PortaleRegione.BAL
                                 IdGruppo = em.id_gruppo,
                                 UID = Guid.NewGuid()
                             });
+                        }
                     }
 
-                    if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+                    if (destinatariNotifica.Any())
+                    {
+                        _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+                    }
 
                     await _unitOfWork.CompleteAsync();
 
@@ -258,6 +275,7 @@ namespace PortaleRegione.BAL
                 }
 
                 if (!string.IsNullOrEmpty(listaEM_TITLE))
+                {
                     await _logicUtil.InvioMail(new MailModel
                     {
                         OGGETTO = "Invito a firmare i seguenti emendamenti",
@@ -265,6 +283,7 @@ namespace PortaleRegione.BAL
                         A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
                         MESSAGGIO = listaEM_TITLE.Remove(listaEM_TITLE.Length - 2)
                     });
+                }
 
                 return results;
             }
@@ -286,7 +305,10 @@ namespace PortaleRegione.BAL
             var idGruppo = 0;
             if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                 || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
+            {
                 idGruppo = currentUser.Gruppo.id_gruppo;
+            }
+
             return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, queryFilter);
         }
 
@@ -301,7 +323,10 @@ namespace PortaleRegione.BAL
             var idGruppo = 0;
             if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                 || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
+            {
                 idGruppo = currentUser.Gruppo.id_gruppo;
+            }
+
             return await _unitOfWork.Notifiche.CountInviate(currentUser, idGruppo, Archivio, queryFilter);
         }
 
@@ -316,7 +341,9 @@ namespace PortaleRegione.BAL
                 var destinatario = await _unitOfWork
                     .Notifiche_Destinatari.Get(notificaId, personaUId);
                 if (destinatario == null)
+                {
                     return;
+                }
 
                 destinatario.Visto = true;
                 destinatario.DataVisto = DateTime.Now;
@@ -341,7 +368,9 @@ namespace PortaleRegione.BAL
                 var result = new Dictionary<string, string>();
 
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
+                {
                     tipo = TipoDestinatarioNotificaEnum.TUTTI;
+                }
 
                 switch (tipo)
                 {
@@ -353,15 +382,22 @@ namespace PortaleRegione.BAL
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                        {
                             result = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                        {
                             result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else
+                        {
                             result = (await _logicPersone.GetConsiglieri())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
+                        }
+
                         break;
                     case TipoDestinatarioNotificaEnum.GRUPPI:
                         result = (await _logicPersone.GetGruppi())

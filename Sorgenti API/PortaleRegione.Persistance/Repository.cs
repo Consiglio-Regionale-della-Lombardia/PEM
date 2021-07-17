@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Contracts;
 using System.Collections.Generic;
 using System.Data.Entity;
-using PortaleRegione.Contracts;
 
 namespace PortaleRegione.Persistance
 {

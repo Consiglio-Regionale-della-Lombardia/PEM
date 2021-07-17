@@ -16,14 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -34,6 +26,12 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -83,10 +81,14 @@ namespace PortaleRegione.BAL
                 stampa.Lock = false;
                 stampa.Tentativi = 0;
                 if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDEM.HasValue)
+                {
                     stampa.Scadenza = null;
+                }
                 else
+                {
                     stampa.Scadenza =
                         DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+                }
 
                 _unitOfWork.Stampe.Add(stampa);
                 await _unitOfWork.CompleteAsync();

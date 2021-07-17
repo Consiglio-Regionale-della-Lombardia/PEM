@@ -100,12 +100,15 @@ namespace PortaleRegione.BAL
                 var wi = new WindowsIdentity(userName);
 
                 foreach (var group in wi.Groups)
+                {
                     try
                     {
                         if (simplefilter != "")
                         {
                             if (group.Translate(typeof(NTAccount)).ToString().Contains(simplefilter))
+                            {
                                 result.Add(group.Translate(typeof(NTAccount)).ToString().Replace(@"CONSIGLIO\", ""));
+                            }
                         }
                         else
                         {
@@ -115,6 +118,7 @@ namespace PortaleRegione.BAL
                     catch (Exception)
                     {
                     }
+                }
 
                 result.Sort();
                 return result;
@@ -171,7 +175,9 @@ namespace PortaleRegione.BAL
         {
             var pinInDb = await _logicPersona.GetPin(persona);
             if (pinInDb == null)
+            {
                 return StatoPinEnum.NESSUNO;
+            }
 
             return pinInDb.RichiediModificaPIN ? StatoPinEnum.RESET : StatoPinEnum.VALIDO;
         }
@@ -211,7 +217,10 @@ namespace PortaleRegione.BAL
                         string.Empty,
                         request.new_value,
                         AppSettingsConfiguration.TOKEN_W);
-                if (!ris.Contains("0:")) throw new Exception("Reset password non riuscito. Motivo: " + ris);
+                if (!ris.Contains("0:"))
+                {
+                    throw new Exception("Reset password non riuscito. Motivo: " + ris);
+                }
             }
             catch (Exception e)
             {
@@ -250,7 +259,9 @@ namespace PortaleRegione.BAL
 
             var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
             if (gruppiUtente_AD.Any())
+            {
                 persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
+            }
 
             persona.Stato_Pin = await CheckPin(persona);
 
@@ -268,7 +279,9 @@ namespace PortaleRegione.BAL
                 persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
 
             foreach (var group in Gruppi_Utente)
+            {
                 lRuoli.Add($"CONSIGLIO\\{group}");
+            }
 
             var personaResult = await GetPersona(persona, lRuoli);
 
@@ -300,11 +313,15 @@ namespace PortaleRegione.BAL
                     var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
                         persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
                     if (gruppiUtente_PEM.Any())
+                    {
                         persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
+                    }
 
                     var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
                     if (gruppiUtente_AD.Any())
+                    {
                         persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
+                    }
 
                     persona.Stato_Pin = await CheckPin(persona);
                     results.Add(persona);
@@ -332,6 +349,7 @@ namespace PortaleRegione.BAL
                 var intranetAdService = new proxyAD();
 
                 foreach (var item in request.gruppiAd)
+                {
                     if (item.Membro)
                     {
                         try
@@ -355,6 +373,7 @@ namespace PortaleRegione.BAL
                             Log.Error($"Remove - {item.GruppoAD}", e);
                         }
                     }
+                }
 
                 if (request.no_Cons == 1)
                 {

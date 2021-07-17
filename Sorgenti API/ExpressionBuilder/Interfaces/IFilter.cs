@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using System.Collections.Generic;
 
 namespace ExpressionBuilder.Interfaces
 {
-	/// <summary>
-	/// Defines a filter from which a expression will be built.
-	/// </summary>
-	public interface IFilter
+    /// <summary>
+    /// Defines a filter from which a expression will be built.
+    /// </summary>
+    public interface IFilter
 	{
 		/// <summary>
 		/// Group of statements that compose this filter.

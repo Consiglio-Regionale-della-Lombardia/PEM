@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+using PortaleRegione.DTO.Domain.Essentials;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.DTO.Domain
 {

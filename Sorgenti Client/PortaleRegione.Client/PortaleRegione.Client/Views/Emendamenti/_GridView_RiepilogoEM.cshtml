@@ -54,6 +54,10 @@ else
                                         <i class="icon material-icons left" title="EM depositabile">gavel</i>
                                     }
                                     @itemEM.STATI_EM.Stato
+                                    @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
+                                    {
+                                        <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)">chat</i>
+                                    }
                                 </div>
                             </div>
                             <div class="col s12 m12 l8 right-align">
@@ -135,8 +139,16 @@ else
                                 {
                             <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')">
                                 Firmatari:
-
-                                @itemEM.PersonaProponente.DisplayName
+                                @if (itemEM.Firmato_Dal_Proponente)
+                                {
+                                    @itemEM.PersonaProponente.DisplayName
+                                }
+                                else
+                                {
+                                    <span style="text-decoration: line-through; color: grey">
+                                        @itemEM.PersonaProponente.DisplayName
+                                    </span>
+                                }
                                 @if (itemEM.Proponente_Relatore)
                                 {
                                     <b>(RELATORE)</b>
@@ -144,7 +156,7 @@ else
 
                                 @if (itemEM.ConteggioFirme > 1)
                                 {
-                                    <span class="chip hoverable grey darken-1 white-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                                    <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
                                         + @(itemEM.ConteggioFirme - 1)
                                     </span>
                                 }

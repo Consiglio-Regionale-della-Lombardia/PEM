@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using PortaleRegione.DTO.Domain;
+using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Model
 {

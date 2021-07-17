@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -31,6 +26,11 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -71,7 +71,9 @@ namespace PortaleRegione.API.Controllers
                 var atto = await _logicAtti.GetAtto(model.id);
 
                 if (atto == null)
+                {
                     return NotFound();
+                }
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
@@ -104,7 +106,9 @@ namespace PortaleRegione.API.Controllers
                 var atto = await _logicAtti.GetAtto(model.id);
 
                 if (atto == null)
+                {
                     return NotFound();
+                }
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
@@ -172,7 +176,10 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
+
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
@@ -204,7 +211,10 @@ namespace PortaleRegione.API.Controllers
             {
                 var atti = await _logicAtti.GetAtto(id);
                 if (atti == null)
+                {
                     return NotFound();
+                }
+
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var result = await _logicEm.ModelloNuovoEM(atti, em_riferimentoUId, persona);
@@ -234,8 +244,10 @@ namespace PortaleRegione.API.Controllers
             {
                 var countFirme = await _logicFirme.CountFirme(id);
                 if (countFirme > 1)
+                {
                     return BadRequest(
                         $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} firme attive.");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -266,26 +278,57 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (!model.UIDPersonaProponente.HasValue)
+                {
                     return BadRequest("L'emendamento deve avere un proponente");
+                }
+
                 if (model.IDParte == 0)
+                {
                     return BadRequest("E' obbligatorio indicare l'elemento da emendare");
+                }
+
                 if (model.IDTipo_EM == 0)
+                {
                     return BadRequest("E' obbligatorio indicare il modo");
+                }
+
                 if (string.IsNullOrEmpty(model.TestoEM_originale))
+                {
                     return BadRequest("Il testo dell'emendamento non può essere vuoto");
+                }
+
                 if (model.IDParte == (int) PartiEMEnum.Articolo)
+                {
                     if (!model.UIDArticolo.HasValue)
+                    {
                         return BadRequest("Manca il valore dell'articolo");
+                    }
+                }
+
                 if (model.IDParte == (int) PartiEMEnum.Capo)
+                {
                     if (string.IsNullOrEmpty(model.NCapo))
+                    {
                         return BadRequest("Manca il valore del capo");
+                    }
+                }
+
                 if (model.IDParte == (int) PartiEMEnum.Titolo)
+                {
                     if (string.IsNullOrEmpty(model.NTitolo))
+                    {
                         return BadRequest("Manca il valore del titolo");
+                    }
+                }
+
                 if (model.IDParte == (int) PartiEMEnum.Missione)
+                {
                     if (!model.NTitoloB.HasValue || !model.NMissione.HasValue ||
                         !model.NProgramma.HasValue)
+                    {
                         return BadRequest("I valori Missione - Programma - Titolo sono obbligatori");
+                    }
+                }
 
                 var isGiunta = model.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID;
                 var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente.Value, isGiunta);
@@ -319,7 +362,10 @@ namespace PortaleRegione.API.Controllers
                 var em = await _logicEm.GetEM(model.UIDEM);
 
                 if (em == null)
+                {
                     return NotFound();
+                }
+
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
@@ -327,8 +373,10 @@ namespace PortaleRegione.API.Controllers
                 {
                     var countFirme = await _logicFirme.CountFirme(model.UIDEM);
                     if (countFirme > 1)
+                    {
                         return BadRequest(
                             $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} attive.");
+                    }
                 }
 
                 await _logicEm.ModificaEmendamento(model, em, persona);
@@ -355,11 +403,15 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
 
                 var countFirme = await _logicFirme.CountFirme(id);
                 if (countFirme > 0)
+                {
                     return BadRequest("L'emendamento ha delle firme attive e non può essere eliminato");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -438,7 +490,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
 
                 var session = await GetSession();
                 await _logicEm.Proietta(em, session._currentUId);
@@ -465,12 +519,12 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
 
                 var result = await _logicFirme.GetFirme(em, tipo);
-                var resultDto = result.Select(Mapper.Map<FIRME, FirmeDto>);
-
-                return Ok(resultDto);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -491,7 +545,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
 
                 var result = await _logicEm.GetInvitati(em);
                 return Ok(result);
@@ -516,7 +572,9 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(model.Id);
                 if (em == null)
+                {
                     return NotFound();
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -573,8 +631,11 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (firmaModel.ListaEmendamenti.Count > Convert.ToInt16(AppSettingsConfiguration.LimiteFirmaMassivo))
+                {
                     return BadRequest(
                         $"Non è possibile firmare contemporaneamente più di {AppSettingsConfiguration.LimiteFirmaMassivo} emendamenti");
+                }
+
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
@@ -583,17 +644,28 @@ namespace PortaleRegione.API.Controllers
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
+                    {
                         return BadRequest("Pin inserito non valido");
+                    }
+
                     return Ok(await _logicEm.FirmaEmendamento(firmaModel, persona, null, true));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
+                {
                     return BadRequest("Pin non impostato");
+                }
+
                 if (pinInDb.RichiediModificaPIN)
+                {
                     return BadRequest("E' richiesto il reset del pin");
+                }
+
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
+                {
                     return BadRequest("Pin inserito non valido");
+                }
 
                 return Ok(await _logicEm.FirmaEmendamento(firmaModel, persona, pinInDb));
             }
@@ -623,17 +695,28 @@ namespace PortaleRegione.API.Controllers
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
+                    {
                         return BadRequest("Pin inserito non valido");
+                    }
+
                     return Ok(await _logicEm.RitiroFirmaEmendamento(firmaModel, persona));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
+                {
                     return BadRequest("Pin non impostato");
+                }
+
                 if (pinInDb.RichiediModificaPIN)
+                {
                     return BadRequest("E' richiesto il reset del pin");
+                }
+
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
+                {
                     return BadRequest("Pin inserito non valido");
+                }
 
                 return Ok(await _logicEm.RitiroFirmaEmendamento(firmaModel, persona));
             }
@@ -664,17 +747,28 @@ namespace PortaleRegione.API.Controllers
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
+                    {
                         return BadRequest("Pin inserito non valido");
+                    }
+
                     return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
+                {
                     return BadRequest("Pin non impostato");
+                }
+
                 if (pinInDb.RichiediModificaPIN)
+                {
                     return BadRequest("E' richiesto il reset del pin");
+                }
+
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
+                {
                     return BadRequest("Pin inserito non valido");
+                }
 
                 return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
             }
@@ -697,13 +791,17 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (_logicEm.BloccaDepositi)
+                {
                     return BadRequest(
                         "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
+                }
 
                 if (depositoModel.ListaEmendamenti.Count >
                     Convert.ToInt16(AppSettingsConfiguration.LimiteDepositoMassivo))
+                {
                     return BadRequest(
                         $"Non è possibile depositare contemporaneamente più di {AppSettingsConfiguration.LimiteDepositoMassivo} emendamenti");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -713,17 +811,28 @@ namespace PortaleRegione.API.Controllers
                 if (depositoUfficio)
                 {
                     if (depositoModel.Pin != AppSettingsConfiguration.MasterPIN)
+                    {
                         return BadRequest("Pin inserito non valido");
+                    }
+
                     return Ok(await _logicEm.DepositaEmendamento(depositoModel, persona));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
+                {
                     return BadRequest("Pin non impostato");
+                }
+
                 if (pinInDb.RichiediModificaPIN)
+                {
                     return BadRequest("E' richiesto il reset del pin");
+                }
+
                 if (depositoModel.Pin != pinInDb.PIN_Decrypt)
+                {
                     return BadRequest("Pin inserito non valido");
+                }
 
                 return Ok(await _logicEm.DepositaEmendamento(depositoModel, persona));
             }
@@ -751,11 +860,16 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
+
                 var atto = await _logicAtti.GetAtto(em.UIDAtto);
                 if (DateTime.Now > atto.SEDUTE.Data_seduta)
+                {
                     return BadRequest(
                         "Non è possibile ritirare l'emendamento durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -784,11 +898,16 @@ namespace PortaleRegione.API.Controllers
             {
                 var em = await _logicEm.GetEM(id);
                 if (em == null)
+                {
                     return NotFound();
+                }
+
                 var firmatari = await _logicFirme.GetFirme(em, FirmeTipoEnum.ATTIVI);
                 var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                 if (firmatari_attivi.Any())
+                {
                     return BadRequest("L'emendamento ha delle firme attive e non può essere eliminato");
+                }
 
                 var session = await GetSession();
                 await _logicEm.EliminaEmendamento(em, session._currentUId);
@@ -839,7 +958,9 @@ namespace PortaleRegione.API.Controllers
                 var em = await _logicEm.GetEM(model.UIDEM);
 
                 if (em == null)
+                {
                     return NotFound();
+                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);

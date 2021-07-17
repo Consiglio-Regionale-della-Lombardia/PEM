@@ -65,8 +65,10 @@ namespace PortaleRegione.Persistance
             traceString.AppendLine();
 
             foreach (var parameter in objectQuery.Parameters)
+            {
                 traceString.AppendLine(parameter.Name + " [" + parameter.ParameterType.FullName + "] = " +
                                        parameter.Value);
+            }
 
             return traceString.ToString();
         }

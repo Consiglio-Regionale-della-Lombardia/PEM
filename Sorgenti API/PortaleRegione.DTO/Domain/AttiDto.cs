@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Domain.Essentials;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
-using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.DTO.Domain
 {

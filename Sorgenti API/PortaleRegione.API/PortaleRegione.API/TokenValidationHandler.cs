@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Microsoft.IdentityModel.Tokens;
+using PortaleRegione.BAL;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -26,8 +28,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.IdentityModel.Tokens;
-using PortaleRegione.BAL;
 
 namespace PortaleRegione.API
 {
@@ -47,7 +47,10 @@ namespace PortaleRegione.API
             token = null;
             IEnumerable<string> authzHeaders;
             if (!request.Headers.TryGetValues("Authorization", out authzHeaders) || authzHeaders.Count() > 1)
+            {
                 return false;
+            }
+
             var bearerToken = authzHeaders.ElementAt(0);
             token = bearerToken.StartsWith("Bearer ") ? bearerToken.Substring(7) : null;
             return !string.IsNullOrEmpty(token);
@@ -98,11 +101,11 @@ namespace PortaleRegione.API
 
                 return await base.SendAsync(request, cancellationToken);
             }
-            catch (SecurityTokenValidationException ex)
+            catch (SecurityTokenValidationException)
             {
                 statusCode = HttpStatusCode.Unauthorized;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 statusCode = HttpStatusCode.InternalServerError;
             }
@@ -125,7 +128,11 @@ namespace PortaleRegione.API
             SecurityToken securityToken,
             TokenValidationParameters validationParameters)
         {
-            if (expires == null) return false;
+            if (expires == null)
+            {
+                return false;
+            }
+
             return DateTime.UtcNow < expires;
         }
     }

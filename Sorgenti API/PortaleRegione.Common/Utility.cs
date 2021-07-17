@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PortaleRegione.Common
 {
@@ -64,17 +64,26 @@ namespace PortaleRegione.Common
                 {
                     var strArticolo = string.Empty;
                     if (em.UIDArticolo.HasValue)
-                        strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
-                    if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
-                        strArticolo += $", Comma: {em.COMMI.Comma}";
-                    if (!string.IsNullOrEmpty(em.NLettera))
+                        {
+                            strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
+                        }
+
+                        if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
+                        {
+                            strArticolo += $", Comma: {em.COMMI.Comma}";
+                        }
+
+                        if (!string.IsNullOrEmpty(em.NLettera))
                     {
                         strArticolo += $", Lettera: {em.NLettera}";
                     }
                     else
                     {
-                        if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
-                    }
+                        if (em.UIDLettera.HasValue)
+                            {
+                                strArticolo += $", Lettera: {em.LETTERE.Lettera}";
+                            }
+                        }
 
                     return strArticolo;
                 }
@@ -134,12 +143,14 @@ namespace PortaleRegione.Common
         public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em)
         {
             if (!string.IsNullOrEmpty(numero_em))
+            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.N_EM),
                     Operation = Operation.EqualTo,
                     Value = numero_em
                 });
+            }
         }
         /// <summary>
         /// Aggiunge il filtro alla request di ricerca degli emendamenti
@@ -159,7 +170,10 @@ namespace PortaleRegione.Common
                     Value = stringa1
                 };
                 if (connettore > 0)
+                {
                     filtro1.Connector = (FilterStatementConnector) connettore;
+                }
+
                 model.filtro.Add(filtro1);
             }
 
@@ -172,7 +186,10 @@ namespace PortaleRegione.Common
                     Value = stringa2
                 };
                 if (connettore > 0)
+                {
                     filtro2.Connector = (FilterStatementConnector) connettore;
+                }
+
                 model.filtro.Add(filtro2);
             }
         }
@@ -209,71 +226,91 @@ namespace PortaleRegione.Common
                         break;
                     case PartiEMEnum.Titolo:
                         if (!string.IsNullOrEmpty(q_parte_titolo))
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NTitolo),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_titolo
                             });
+                        }
+
                         break;
                     case PartiEMEnum.Capo:
                         if (!string.IsNullOrEmpty(q_parte_capo))
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NCapo),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_capo
                             });
+                        }
+
                         break;
                     case PartiEMEnum.Articolo:
                         if (!string.IsNullOrEmpty(q_parte_articolo) && q_parte_articolo != "0")
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDArticolo),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_articolo
                             });
+                        }
 
                         if (!string.IsNullOrEmpty(q_parte_comma) && q_parte_comma != "0")
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDComma),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_comma
                             });
+                        }
 
                         if (!string.IsNullOrEmpty(q_parte_lettera) && q_parte_lettera != "0")
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDLettera),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_lettera
                             });
+                        }
 
                         if (!string.IsNullOrEmpty(q_parte_letteraOLD))
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NLettera),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_letteraOLD
                             });
+                        }
+
                         break;
                     case PartiEMEnum.Missione:
                         if (!string.IsNullOrEmpty(q_parte_missione) && q_parte_missione != "0")
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NMissione),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_missione
                             });
+                        }
 
                         if (!string.IsNullOrEmpty(q_parte_programma))
+                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NProgramma),
                                 Operation = Operation.EqualTo,
                                 Value = q_parte_programma
                             });
+                        }
+
                         break;
                     case PartiEMEnum.Allegato_Tabella:
                         break;
@@ -290,12 +327,14 @@ namespace PortaleRegione.Common
         public static void AddFilter_ByState(ref BaseRequest<EmendamentiDto> model, string statoId)
         {
             if (!string.IsNullOrEmpty(statoId) && statoId != "0")
+            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.IDStato),
                     Operation = Operation.EqualTo,
                     Value = statoId
                 });
+            }
         }
         /// <summary>
         /// Aggiunge il filtro alla request di ricerca degli emendamenti
@@ -305,12 +344,14 @@ namespace PortaleRegione.Common
         public static void AddFilter_ByType(ref BaseRequest<EmendamentiDto> model, string tipoId)
         {
             if (!string.IsNullOrEmpty(tipoId) && tipoId != "0")
+            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.IDTipo_EM),
                     Operation = Operation.EqualTo,
                     Value = tipoId
                 });
+            }
         }
         /// <summary>
         /// Aggiunge il filtro alla request di ricerca degli emendamenti
@@ -320,7 +361,10 @@ namespace PortaleRegione.Common
         /// <param name="solo_miei"></param>
         public static void AddFilter_My(ref BaseRequest<EmendamentiDto> model, Guid personaUID, string solo_miei)
         {
-            if (solo_miei != "on") return;
+            if (solo_miei != "on")
+            {
+                return;
+            }
 
             var filtro1 = new FilterStatement<EmendamentiDto>
             {
@@ -354,7 +398,11 @@ namespace PortaleRegione.Common
         /// <param name="solo_effetti_finanziari"></param>
         public static void AddFilter_Financials(ref BaseRequest<EmendamentiDto> model, string solo_effetti_finanziari)
         {
-            if (solo_effetti_finanziari != "on") return;
+            if (solo_effetti_finanziari != "on")
+            {
+                return;
+            }
+
             var filtro1 = new FilterStatement<EmendamentiDto>
             {
                 PropertyId = nameof(EmendamentiDto.EffettiFinanziari), Operation = Operation.EqualTo,
@@ -370,9 +418,17 @@ namespace PortaleRegione.Common
         /// <param name="gruppi"></param>
         public static void AddFilter_Groups(ref BaseRequest<EmendamentiDto> model, string gruppi)
         {
-            if (string.IsNullOrEmpty(gruppi)) return;
+            if (string.IsNullOrEmpty(gruppi))
+            {
+                return;
+            }
+
             var gruppi_split = gruppi.Split(',');
-            if (gruppi_split.Length <= 0) return;
+            if (gruppi_split.Length <= 0)
+            {
+                return;
+            }
+
             foreach (var groupId in gruppi_split)
             {
                 var filtro = new FilterStatement<EmendamentiDto>
@@ -391,9 +447,17 @@ namespace PortaleRegione.Common
         /// <param name="proponenti"></param>
         public static void AddFilter_Proponents(ref BaseRequest<EmendamentiDto> model, string proponenti)
         {
-            if (string.IsNullOrEmpty(proponenti)) return;
+            if (string.IsNullOrEmpty(proponenti))
+            {
+                return;
+            }
+
             var prop_split = proponenti.Split(',');
-            if (prop_split.Length <= 0) return;
+            if (prop_split.Length <= 0)
+            {
+                return;
+            }
+
             foreach (var personaUId in prop_split)
             {
                 var filtro = new FilterStatement<EmendamentiDto>
@@ -412,9 +476,17 @@ namespace PortaleRegione.Common
         /// <param name="firmatari"></param>
         public static void AddFilter_Signers(ref BaseRequest<EmendamentiDto> model, string firmatari)
         {
-            if (string.IsNullOrEmpty(firmatari)) return;
+            if (string.IsNullOrEmpty(firmatari))
+            {
+                return;
+            }
+
             var firma_split = firmatari.Split(',');
-            if (firma_split.Length <= 0) return;
+            if (firma_split.Length <= 0)
+            {
+                return;
+            }
+
             foreach (var personaUId in firma_split)
             {
                 var filtro = new FilterStatement<EmendamentiDto>

@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
+using PortaleRegione.Logger;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
-using AutoMapper;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.API
 {

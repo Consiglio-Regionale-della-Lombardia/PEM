@@ -1,6 +1,6 @@
-﻿using System;
+﻿using PortaleRegione.DTO.Model;
+using System;
 using System.Collections.Generic;
-using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.DTO.Request
 {

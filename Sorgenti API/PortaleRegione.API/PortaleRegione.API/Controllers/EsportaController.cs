@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -57,13 +57,19 @@ namespace PortaleRegione.API.Controllers
 
                 if (session._currentRole != RuoliIntEnum.Amministratore_PEM
                     && session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
+                {
                     if (is_report)
+                    {
                         return BadRequest("Operazione non eseguibile per il ruolo assegnato");
+                    }
+                }
 
                 var persona = await _logicPersone.GetPersona(session);
 
                 if (is_report)
+                {
                     return ResponseMessage(await _logicEsporta.EsportaGrigliaReportExcel(id, persona));
+                }
 
                 return ResponseMessage(await _logicEsporta.EsportaGrigliaExcel(id, ordine, persona));
             }

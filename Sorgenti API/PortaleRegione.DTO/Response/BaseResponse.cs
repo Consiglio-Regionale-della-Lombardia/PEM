@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Generics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExpressionBuilder.Generics;
 
 namespace PortaleRegione.DTO.Response
 {
@@ -44,7 +44,10 @@ namespace PortaleRegione.DTO.Response
             if (original_path != null)
             {
                 if (original_path.Port > 0)
+                {
                     port = $":{original_path.Port}";
+                }
+
                 path = $"{original_path.Scheme}://{original_path.Host}{port}{original_path.AbsolutePath}";
             }
 
@@ -60,7 +63,11 @@ namespace PortaleRegione.DTO.Response
                 Has_Next = current_page < max_page
             };
 
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
             Paging.Next_Url = new Uri(path + $"?page={current_page + 1}&size={page_size}");
             Paging.Prev_Url = new Uri(path + $"?page={current_page - 1}&size={page_size}");
         }

@@ -16,14 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -40,6 +32,14 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace PortaleRegione.BAL
@@ -75,8 +75,12 @@ namespace PortaleRegione.BAL
                 var row = excelSheet.CreateRow(0);
 
                 if (atto.OrdineVotazione.HasValue)
+                {
                     if (atto.OrdineVotazione.Value)
+                    {
                         SetColumnValue(ref row, "OrdineVotazione");
+                    }
+                }
 
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                 {
@@ -115,8 +119,12 @@ namespace PortaleRegione.BAL
                     var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
 
                     if (atto.OrdineVotazione.HasValue)
+                    {
                         if (atto.OrdineVotazione.Value)
+                        {
                             SetColumnValue(ref rowEm, em.OrdineVotazione.ToString());
+                        }
+                    }
 
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                     {
@@ -164,16 +172,18 @@ namespace PortaleRegione.BAL
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
                         var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                        var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
+                        var firmeDto = firme.ToList();
 
                         var firmatari_opendata_ante = "--";
                         try
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                            {
                                 firmatari_opendata_ante = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -185,9 +195,11 @@ namespace PortaleRegione.BAL
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
+                            {
                                 firmatari_opendata_post = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -346,16 +358,18 @@ namespace PortaleRegione.BAL
                     headerCell4_Run_em.SetText(proponente.DisplayName);
 
                     var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                    var firmeDto = firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList();
+                    var firmeDto = firme.ToList();
 
                     var firmatari_opendata = "--";
                     try
                     {
                         if (firmeDto.Any(f =>
                             f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                        {
                             firmatari_opendata = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                     f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
                                 persona.CurrentRole);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -589,7 +603,10 @@ namespace PortaleRegione.BAL
                         {
                             currentParte_Missione = em.NMissione!.Value;
                             if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
+                            {
                                 SetSeparator(ref sheet, ref style, ref reportType);
+                            }
+
                             oldParte_Missione = currentParte_Missione;
                         }
                     }
@@ -599,7 +616,10 @@ namespace PortaleRegione.BAL
                         {
                             currentParte_Articolo = em.UIDArticolo!.Value;
                             if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
+                            {
                                 SetSeparator(ref sheet, ref style, ref reportType);
+                            }
+
                             oldParte_Articolo = currentParte_Articolo;
                         }
                     }
@@ -609,13 +629,23 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref rowEm, em.N_EM);
                 SetColumnValue(ref rowEm, em.PersonaProponente.DisplayName);
                 if (em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty)
+                {
                     SetColumnValue(ref rowEm, em.ARTICOLI.Articolo);
+                }
                 else
+                {
                     SetColumnValue(ref rowEm, "--");
+                }
+
                 if (em.UIDComma.HasValue && em.UIDComma.Value != Guid.Empty)
+                {
                     SetColumnValue(ref rowEm, em.COMMI.Comma);
+                }
                 else
+                {
                     SetColumnValue(ref rowEm, "--");
+                }
+
                 if (em.UIDLettera.HasValue && em.UIDLettera.Value != Guid.Empty)
                 {
                     SetColumnValue(ref rowEm, em.LETTERE.Lettera);
@@ -623,9 +653,13 @@ namespace PortaleRegione.BAL
                 else
                 {
                     if (!string.IsNullOrEmpty(em.NLettera))
+                    {
                         SetColumnValue(ref rowEm, em.NLettera);
+                    }
                     else
+                    {
                         SetColumnValue(ref rowEm, "--");
+                    }
                 }
 
                 SetColumnValue(ref rowEm, em.NTitolo);
@@ -634,17 +668,31 @@ namespace PortaleRegione.BAL
                 if (atto.VIS_Mis_Prog)
                 {
                     if (em.NMissione.HasValue && em.NMissione.Value != 0)
+                    {
                         SetColumnValue(ref rowEm, em.NMissione.Value.ToString());
+                    }
                     else
+                    {
                         SetColumnValue(ref rowEm, "--");
+                    }
+
                     if (em.NProgramma.HasValue && em.NProgramma.Value != 0)
+                    {
                         SetColumnValue(ref rowEm, em.NProgramma.Value.ToString());
+                    }
                     else
+                    {
                         SetColumnValue(ref rowEm, "--");
+                    }
+
                     if (em.NTitoloB.HasValue && em.NTitoloB.Value != 0)
+                    {
                         SetColumnValue(ref rowEm, em.NTitoloB.Value.ToString());
+                    }
                     else
+                    {
                         SetColumnValue(ref rowEm, "--");
+                    }
                 }
 
                 SetColumnValue(ref rowEm, em.TIPI_EM.Tipo_EM);
@@ -678,7 +726,10 @@ namespace PortaleRegione.BAL
             cellInamm.CellStyle = styleR;
             cellInamm.SetCellValue(inammissibili);
 
-            if (reportType == ReportType.PCR) return sheet;
+            if (reportType == ReportType.PCR)
+            {
+                return sheet;
+            }
 
             var cellRit = rowReport.CreateCell(9);
             cellRit.CellStyle = styleR;
@@ -703,7 +754,11 @@ namespace PortaleRegione.BAL
 
         private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
         {
-            if (reportType == ReportType.PROGRESSIVO) return;
+            if (reportType == ReportType.PROGRESSIVO)
+            {
+                return;
+            }
+
             var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
             rowSep.RowStyle = style;
         }
@@ -717,7 +772,10 @@ namespace PortaleRegione.BAL
         {
             var _pathTemp = AppSettingsConfiguration.CartellaTemp;
             if (!Directory.Exists(_pathTemp))
+            {
                 Directory.CreateDirectory(_pathTemp);
+            }
+
             var nameFile = $"PEM_{DateTime.Now:ddMMyyyy_hhmmss}.{extension}";
             var FilePathComplete = Path.Combine(_pathTemp, nameFile);
 

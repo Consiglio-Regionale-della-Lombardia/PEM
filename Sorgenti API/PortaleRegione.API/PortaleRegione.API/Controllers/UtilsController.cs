@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.API.Helpers;
+using PortaleRegione.BAL;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.Logger;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using PortaleRegione.API.Helpers;
-using PortaleRegione.BAL;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -82,7 +82,9 @@ namespace PortaleRegione.API.Controllers
                 var ownerId = httpRequest.Form.Get("ownerUId");
                 var docType = int.Parse(httpRequest.Form.Get("docType"));
                 if (string.IsNullOrEmpty(ownerId) || docType < 1 || docType > 3)
+                {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
 
                 var postedFile = httpRequest.Files[0];
                 var pathFile = _logic.ArchiviaDocumento(postedFile);

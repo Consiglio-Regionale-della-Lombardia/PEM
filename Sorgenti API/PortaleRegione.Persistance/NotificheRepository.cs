@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -55,19 +55,46 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.IDStato >= (int) StatiEnum.Depositato) return false;
-            if (em.ATTI.Chiuso) return false;
+            if (em.IDStato >= (int) StatiEnum.Depositato)
+            {
+                return false;
+            }
+
+            if (em.ATTI.Chiuso)
+            {
+                return false;
+            }
+
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea) return true;
-            if (em.id_gruppo != persona.Gruppo.id_gruppo) return false;
+                persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            {
+                return true;
+            }
+
+            if (em.id_gruppo != persona.Gruppo.id_gruppo)
+            {
+                return false;
+            }
+
             if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                 persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
                 persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
             {
-                if (em.UIDPersonaProponente.Value != persona.UID_persona) return false;
+                if (em.UIDPersonaProponente.Value != persona.UID_persona)
+                {
+                    return false;
+                }
+
                 var firma = PRContext.FIRME.Find(em.UIDEM, persona.UID_persona);
-                if (firma == null) return false;
-                if (!string.IsNullOrEmpty(firma.Data_ritirofirma)) return false;
+                if (firma == null)
+                {
+                    return false;
+                }
+
+                if (!string.IsNullOrEmpty(firma.Data_ritirofirma))
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -82,12 +109,18 @@ namespace PortaleRegione.Persistance
             query = query.Where(n => n.Mittente == currentUser.UID_persona);
 
             if (idGruppo > 0)
+            {
                 query = query.Where(nd => nd.IdGruppo == idGruppo);
+            }
 
             if (Archivio == false)
+            {
                 query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
+            }
             else
+            {
                 query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            }
 
             if (currentUser.CurrentRole == RuoliIntEnum.Consigliere_Regionale
                 || currentUser.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta
@@ -118,10 +151,14 @@ namespace PortaleRegione.Persistance
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+            {
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
+            }
 
             if (idGruppo > 0)
+            {
                 queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
+            }
 
             var resultDestinatari = await queryDestinatari
                 .Select(n => n.UIDNotifica)
@@ -132,9 +169,13 @@ namespace PortaleRegione.Persistance
                 .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
             if (Archivio == false)
+            {
                 query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
+            }
             else
+            {
                 query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            }
 
             filtro?.BuildExpression(ref query);
 
@@ -163,12 +204,18 @@ namespace PortaleRegione.Persistance
             query = query.Where(n => n.Mittente == currentUser.UID_persona);
 
             if (idGruppo > 0)
+            {
                 query = query.Where(nd => nd.IdGruppo == idGruppo);
+            }
 
             if (Archivio == false)
+            {
                 query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
+            }
             else
+            {
                 query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            }
 
             if (currentUser.CurrentRole == RuoliIntEnum.Consigliere_Regionale
                 || currentUser.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta
@@ -205,10 +252,14 @@ namespace PortaleRegione.Persistance
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+            {
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
+            }
 
             if (idGruppo > 0)
+            {
                 queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
+            }
 
             var resultDestinatari = await queryDestinatari
                 .Select(n => n.UIDNotifica)
@@ -228,9 +279,13 @@ namespace PortaleRegione.Persistance
                 .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
             if (Archivio == false)
+            {
                 query = query.Where(n => !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value && (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
+            }
             else
+            {
                 query = query.Where(n => !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value && n.ATTI.Data_chiusura <= DateTime.Now);
+            }
 
             filtro?.BuildExpression(ref query);
 

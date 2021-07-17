@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
@@ -28,6 +23,11 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -91,8 +91,16 @@ namespace PortaleRegione.Persistance
                 .ATTI_RELATORI
                 .RemoveRange(oldRelatori);
 
-            if (persone == null) return;
-            if (!persone.Any()) return;
+            if (persone == null)
+            {
+                return;
+            }
+
+            if (!persone.Any())
+            {
+                return;
+            }
+
             var newRelatori = persone.Select(persona => new ATTI_RELATORI
                 {UIDAtto = attoUId, UIDPersona = persona, sycReplica = Guid.NewGuid()}).ToList();
             PRContext
@@ -126,18 +134,25 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
                 if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                {
                     //Solo segreteria
                     query = query.Where(e => !string.IsNullOrEmpty(e.DataDeposito));
+                }
                 else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                {
                     //Tutti gli altri utenti visualizzano gli emendamenti del proprio gruppo
                     query = query.Where(e => e.id_gruppo == gruppo);
+                }
             }
             else
             {
                 query = query.Where(em => em.IDStato != (int) StatiEnum.Bozza);
             }
 
-            if (sub_em) query = query.Where(e => e.Rif_UIDEM != null);
+            if (sub_em)
+            {
+                query = query.Where(e => e.Rif_UIDEM != null);
+            }
 
             return (await query.ToListAsync()).Count;
         }
@@ -174,7 +189,11 @@ namespace PortaleRegione.Persistance
                 .ATTI
                 .Where(a => a.UIDSeduta == sedutaUId)
                 .MaxAsync(a => a.Priorita);
-            if (currentPriorita >= max_priorita) return false;
+            if (currentPriorita >= max_priorita)
+            {
+                return false;
+            }
+
             return true;
         }
 

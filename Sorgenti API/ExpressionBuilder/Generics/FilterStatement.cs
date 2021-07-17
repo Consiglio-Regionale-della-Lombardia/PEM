@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Exceptions;
+using ExpressionBuilder.Helpers;
 using ExpressionBuilder.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Schema;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Helpers;
-using ExpressionBuilder.Exceptions;
+using System.Xml.Serialization;
 
 namespace ExpressionBuilder.Generics
 {
@@ -70,9 +70,12 @@ namespace ExpressionBuilder.Generics
 			Operation = operation;
 			if (typeof(TPropertyType).IsArray)
 			{
-				if (operation != Operation.Contains && operation != Operation.In) throw new ArgumentException("Only 'Operacao.Contains' and 'Operacao.In' support arrays as parameters.");
+				if (operation != Operation.Contains && operation != Operation.In)
+                {
+                    throw new ArgumentException("Only 'Operacao.Contains' and 'Operacao.In' support arrays as parameters.");
+                }
 
-				var listType = typeof(List<>);
+                var listType = typeof(List<>);
                 var constructedListType = listType.MakeGenericType(typeof(TPropertyType).GetElementType());
                 Value = value != null ? Activator.CreateInstance(constructedListType, value) : null;
                 Value2 = value2 != null ? Activator.CreateInstance(constructedListType, value2) : null;

@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -54,7 +54,9 @@ namespace PortaleRegione.Persistance
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                      && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
+            {
                 query = PRContext.STAMPE.Where(s => s.UIDUtenteRichiesta == persona.UID_persona);
+            }
 
             filtro?.BuildExpression(ref query);
 
@@ -88,7 +90,9 @@ namespace PortaleRegione.Persistance
 
             if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                 && persona.CurrentRole != RuoliIntEnum.Amministratore_Giunta)
+            {
                 query = PRContext.STAMPE.Where(s => s.UIDUtenteRichiesta == persona.UID_persona);
+            }
 
             filtro?.BuildExpression(ref query);
 

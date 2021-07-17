@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -37,13 +37,13 @@ namespace PortaleRegione.BAL
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<FIRME>> GetFirme(EmendamentiDto emDto, FirmeTipoEnum tipo)
+        public async Task<IEnumerable<FirmeDto>> GetFirme(EmendamentiDto emDto, FirmeTipoEnum tipo)
         {
             var em = await _unitOfWork.Emendamenti.Get(emDto.UIDEM);
             return await GetFirme(em, tipo);
         }
 
-        public async Task<IEnumerable<FIRME>> GetFirme(EM em, FirmeTipoEnum tipo)
+        public async Task<IEnumerable<FirmeDto>> GetFirme(EM em, FirmeTipoEnum tipo)
         {
             try
             {
@@ -53,16 +53,26 @@ namespace PortaleRegione.BAL
 
                 var firme = firmeInDb.ToList();
 
-                if (!firme.Any()) return firme;
-                var result = new List<FIRME>();
+                if (!firme.Any())
+                {
+                    return new List<FirmeDto>();
+                }
+
+                var result = new List<FirmeDto>();
                 foreach (var firma in firme)
                 {
-                    firma.FirmaCert = Decrypt(firma.FirmaCert);
-                    firma.Data_firma = Decrypt(firma.Data_firma);
-                    firma.Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
+                    var firmaDto = new FirmeDto
+                    {
+                        UIDEM = firma.UIDEM,
+                        UID_persona = firma.UID_persona,
+                        FirmaCert = Decrypt(firma.FirmaCert),
+                        Data_firma = Decrypt(firma.Data_firma),
+                        Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                         ? null
-                        : Decrypt(firma.Data_ritirofirma);
-                    result.Add(firma);
+                        : Decrypt(firma.Data_ritirofirma)
+                    };
+
+                    result.Add(firmaDto);
                 }
 
                 return result;
