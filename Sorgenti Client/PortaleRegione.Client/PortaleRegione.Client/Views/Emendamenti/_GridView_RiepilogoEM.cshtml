@@ -54,6 +54,10 @@ else
                                         <i class="icon material-icons left" title="EM depositabile">gavel</i>
                                     }
                                     @itemEM.STATI_EM.Stato
+                                    @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
+                                    {
+                                        <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)">chat</i>
+                                    }
                                 </div>
                             </div>
                             <div class="col s12 m12 l8 right-align">
