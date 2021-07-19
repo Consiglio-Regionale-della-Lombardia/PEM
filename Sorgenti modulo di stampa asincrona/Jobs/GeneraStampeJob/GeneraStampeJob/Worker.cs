@@ -197,7 +197,7 @@ namespace GeneraStampeJob
             _stampa.UIDEM = em.UIDEM;
             await StampeGate.JobUpdateFileStampa(_stampa);
 
-            var bodyMail = await EMGate.GetBody(em.UIDEM, TemplateTypeEnum.HTML, true);
+            var bodyMail = await EMGate.GetBody(em.UIDEM, TemplateTypeEnum.FIRMA, true);
 
             if (atto.SEDUTE.Data_effettiva_inizio.HasValue)
             {
