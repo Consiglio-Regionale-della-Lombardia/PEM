@@ -653,7 +653,6 @@ namespace PortaleRegione.BAL
                             results.Add(idGuid, $"ERROR: Emendamento {n_em} già firmato");
                             continue;
                         }
-
                         var firmato_dal_proponente = em.IDStato >= (int) StatiEnum.Depositato
                             ? true
                             : await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
@@ -1354,12 +1353,14 @@ namespace PortaleRegione.BAL
                             persona);
                 }
 
+                var relatori = await _unitOfWork.Atti.GetRelatori(emendamentoDto.UIDAtto);
+                if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
+                    emendamentoDto.Proponente_Relatore = true;
                 if (!string.IsNullOrEmpty(em.DataDeposito))
                 {
                     if (Convert.ToDateTime(emendamentoDto.DataDeposito) >
                         emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione)
                     {
-                        var relatori = await _unitOfWork.Atti.GetRelatori(emendamentoDto.UIDAtto);
                         if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                         {
                             if (Convert.ToDateTime(emendamentoDto.DataDeposito) >
@@ -1369,10 +1370,8 @@ namespace PortaleRegione.BAL
                             }
                         }
 
-                        if (emendamentoDto.Firmato_Dal_Proponente &&
-                            relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
+                        if (emendamentoDto.Firmato_Dal_Proponente)
                         {
-                            emendamentoDto.Proponente_Relatore = true;
                             emendamentoDto.PresentatoOltreITermini = false;
                         }
                         else if (emendamentoDto.ATTI.UIDAssessoreRiferimento == emendamentoDto.UIDPersonaProponente)

@@ -142,8 +142,7 @@ namespace PortaleRegione.Persistance
         {
             var firme = PRContext
                 .FIRME
-                .Where(f => f.UIDEM == emendamentoUId && f.UID_persona == personaUId &&
-                            string.IsNullOrEmpty(f.Data_ritirofirma));
+                .Where(f => f.UIDEM == emendamentoUId && f.UID_persona == personaUId);
             return await firme.AnyAsync();
         }
 
