@@ -70,13 +70,13 @@
     </div>
     <div class="col s6">
         <div class="right">
-            @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+            @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione) && Model.Atto.OrdinePresentazione == true)
             {
                 <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloPresentazione" data-position="bottom" data-tooltip="Scarica fascicolo presentazione" target="">
                     <i class="material-icons">file_download</i>
                 </a>
             }
-        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione))
+        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione) && Model.Atto.OrdineVotazione == true)
         {
             <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloVotazione" data-position="bottom" data-tooltip="Scarica fascicolo votazione" target="">
                 <i class="material-icons">file_download</i>
