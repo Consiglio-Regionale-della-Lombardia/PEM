@@ -293,7 +293,7 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
                 {
                     allegato_tecnico =
-                        $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
+                        $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
                 }
 
                 #endregion
@@ -304,7 +304,7 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
                 {
                     allegato_generico =
-                        $"<tr><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                        $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
                 }
 
                 #endregion

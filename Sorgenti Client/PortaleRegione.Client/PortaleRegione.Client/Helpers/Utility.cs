@@ -99,51 +99,35 @@ namespace PortaleRegione.Client.Helpers
                 var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
                     ? "Firme aggiunte dopo il deposito"
                     : "Firmatari dell'emendamento";
-                var table = @"
-                    <table class='highlight'>
-                        <thead>
-                          <tr>
-                              <th>{{titoloColonna}}</th>
-                              <th>Data Firma</th>
-                              <th>Data Ritiro Firma</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                        {{BODY_FIRME}}
-                        </tbody>
-                    </table>";
-                var body = string.Empty;
+                var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
+                var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
                 var em = await EMGate.Get(firmeDtos.Select(f => f.UIDEM).First());
                 foreach (var firmeDto in firmeDtos)
                 {
-                    body += "<tr>";
+                    body += "<li class=\"collection-item with-header\">";
 
                     if (!string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
                     {
-                        body += $"<td><del>{firmeDto.FirmaCert}</del></td>";
-                        body += $"<td><del>{firmeDto.Data_firma}</del></td>";
-                        body += $"<td>{firmeDto.Data_ritirofirma}</td>";
+                        body += $"<div><del>{firmeDto.FirmaCert}</del>";
+                        body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
+                        body += $"<br/><label>ritirato il </label>{firmeDto.Data_ritirofirma}</div>";
                     }
                     else
                     {
-                        body += $"<td>{firmeDto.FirmaCert}</td>";
-                        body += $"<td>{firmeDto.Data_firma}</td>";
+                        body += $"<div>{firmeDto.FirmaCert}";
+                        body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                         if (currentUId == firmeDto.UID_persona)
                         {
                             if (em.IDStato >= (int) StatiEnum.Depositato)
                                 body +=
-                                    $"<td><div class='chip red center white-text' onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</div></td>";
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                             else
                                 body +=
-                                    $"<td><div class='chip red center white-text' onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Elimina</div></td>";
-                        }
-                        else
-                        {
-                            body += "<td></td>";
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
                         }
                     }
 
-                    body += "</tr>";
+                    body += "</li>";
                 }
 
                 return table.Replace("{{titoloColonna}}", titoloColonna).Replace("{{BODY_FIRME}}", body);
