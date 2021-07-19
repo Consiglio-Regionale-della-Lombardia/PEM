@@ -37,17 +37,19 @@ namespace PortaleRegione.BAL
         private readonly EmendamentiLogic _logicEm;
         private readonly PersoneLogic _logicPersone;
         private readonly UtilsLogic _logicUtil;
+        private readonly FirmeLogic _logicFirme;
         private readonly IUnitOfWork _unitOfWork;
 
         #region ctor
 
         public NotificheLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM, PersoneLogic logicPersone,
-            UtilsLogic logicUtil)
+            UtilsLogic logicUtil, FirmeLogic logicFirme)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
             _logicPersone = logicPersone;
             _logicUtil = logicUtil;
+            _logicFirme = logicFirme;
         }
 
         #endregion
@@ -249,9 +251,8 @@ namespace PortaleRegione.BAL
                     if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
                     await _unitOfWork.CompleteAsync();
-                    var firme = await _unitOfWork.Firme.GetFirmatari(Mapper.Map<EmendamentiDto, EM>(em),
-                        FirmeTipoEnum.TUTTE);
-                    GetBody(em, em.ATTI, firme.Select(Mapper.Map<FIRME, FirmeDto>).ToList(), null, false, ref bodyMail);
+                    var firme = await _logicFirme.GetFirme(em,FirmeTipoEnum.TUTTE);
+                    GetBody(em, em.ATTI, firme, null, false, ref bodyMail);
                     results.Add(idGuid, "OK");
                 }
 
