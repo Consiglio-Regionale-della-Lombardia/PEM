@@ -24,16 +24,13 @@ namespace PortaleRegione.DTO.Model
     public class CambioPinModel
     {
         public Guid PersonaUId { get; set; }
-
-        [Required]
+        
         [Display(Name = "Vecchio PIN")]
         public string vecchio_pin { get; set; }
         
-        [Required]
         [Display(Name = "Nuovo PIN")]
         public string nuovo_pin { get; set; }
         
-        [Required]
         [Display(Name = "Conferma PIN")]
         public string conferma_pin { get; set; }
     }

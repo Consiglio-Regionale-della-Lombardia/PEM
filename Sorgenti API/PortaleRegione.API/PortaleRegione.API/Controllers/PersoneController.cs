@@ -234,6 +234,44 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint richiesta check cambio pin
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("check-pin")]
+        public async Task<IHttpActionResult> CheckPin(CambioPinModel model)
+        {
+            try
+            {
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var currentPin = await _logicPersone.GetPin(persona);
+                if (currentPin == null)
+                {
+                    return BadRequest("Pin non impostato");
+                }
+
+                if (currentPin.RichiediModificaPIN)
+                {
+                    return BadRequest("E' richiesto il reset del pin");
+                }
+
+                if (currentPin.PIN_Decrypt != model.vecchio_pin)
+                {
+                    return BadRequest("Il vecchio PIN non è corretto!!!");
+                }
+                
+                return Ok("OK");
+            }
+            catch (Exception e)
+            {
+                Log.Error("CheckPin", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint richiesta cambio pin
         /// </summary>
         /// <param name="model"></param>

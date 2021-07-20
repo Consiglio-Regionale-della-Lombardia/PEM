@@ -236,6 +236,26 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public static async Task CheckPin(CambioPinModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/persone/check-pin";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("CheckPin", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CheckPin", ex);
+                throw ex;
+            }
+        }
         public static async Task SalvaPin(CambioPinModel model)
         {
             try
