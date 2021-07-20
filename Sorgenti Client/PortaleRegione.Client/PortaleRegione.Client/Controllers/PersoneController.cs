@@ -59,7 +59,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 await PersoneGate.CheckPin(model);
-                return Json("");
+                return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -76,7 +76,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 await PersoneGate.SalvaPin(model);
-                return Json("");
+                return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

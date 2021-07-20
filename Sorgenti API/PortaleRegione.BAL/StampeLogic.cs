@@ -328,5 +328,11 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Stampe.GetInfo();
             return result.Select(Mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
         }
+
+        public async Task EliminaStampa(STAMPE stampa)
+        {
+            _unitOfWork.Stampe.Remove(stampa);
+            await _unitOfWork.CompleteAsync();
+        }
     }
 }

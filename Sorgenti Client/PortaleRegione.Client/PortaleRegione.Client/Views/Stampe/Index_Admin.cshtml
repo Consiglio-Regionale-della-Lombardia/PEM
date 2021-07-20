@@ -57,6 +57,7 @@
                 <th>Stato</th>
                 <th>Stato Invio</th>
                 <th width="100">Scarica</th>
+                <th></th>
             </tr>
             </thead>
 
@@ -198,6 +199,9 @@
                             </a>
                         }
                     </td>
+                    <td>
+                        <i class="icon material-icons red-text tooltipped" data-tooltip="Elimina stampa" onclick="EliminaStampa(this, '@Html.Raw(stampa.UIDStampa)')">close</i>
+                    </td>
                 </tr>
             }
             </tbody>
@@ -240,6 +244,24 @@
         }, 1000);
     }
 
+    function EliminaStampa(ctrl, stampaUId) {
+        $(ctrl).parent().parent().attr("style", "opacity: .3");
+        $(ctrl).hide();
+        var url = '@Url.Action("EliminaStampa", "Stampe")?id=' + stampaUId;
+        console.log(url)
+        $.ajax({
+            url: url,
+            type: "GET"
+        }).done(function(result) {
+            
+            M.toast({ html: 'Stampa eliminata <i class="icon material-icons yellow-text" onclick="location.reload()" style="margin-left:20px">sync</i>', classes: 'rounded', displayLength: 5000});
+
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    }
+
     function copy_to_clipboard(id) {
         /* Get the text field */
         var copyText = document.getElementById("fingerprint_" + id);
@@ -250,7 +272,7 @@
 
         /* Copy the text inside the text field */
         document.execCommand("copy");
-        
+
         M.toast({ html: 'Id stampa copiato negli appunti', classes: 'rounded' })
     }
 </script>
