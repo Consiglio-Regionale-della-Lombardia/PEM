@@ -35,9 +35,9 @@ namespace PortaleRegione.BAL
     public class NotificheLogic : BaseLogic
     {
         private readonly EmendamentiLogic _logicEm;
+        private readonly FirmeLogic _logicFirme;
         private readonly PersoneLogic _logicPersone;
         private readonly UtilsLogic _logicUtil;
-        private readonly FirmeLogic _logicFirme;
         private readonly IUnitOfWork _unitOfWork;
 
         #region ctor
@@ -251,8 +251,8 @@ namespace PortaleRegione.BAL
                     if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
                     await _unitOfWork.CompleteAsync();
-                    var firme = await _logicFirme.GetFirme(em,FirmeTipoEnum.TUTTE);
-                    GetBody(em, em.ATTI, firme, null, false, ref bodyMail);
+                    var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                    bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
                     results.Add(idGuid, "OK");
                 }
 
