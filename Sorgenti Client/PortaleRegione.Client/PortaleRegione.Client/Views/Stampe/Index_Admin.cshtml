@@ -12,10 +12,16 @@
 </script>
 
 <div class="row">
-    <div class="col s12">
+    <div class="col s8">
         <h5>
             <b>@ViewBag.Title</b>
         </h5>
+    </div>
+    <div class="col s4">
+        <div class="progress">
+            <div class="determinate" style="width: 100%"></div>
+        </div>
+        <p>Ricarica automatica in <strong id="seconds_trigger">10</strong> sec <i class="icon material-icons red-text tooltipped" data-tooltip="Spegni ricarica automatica" onclick="stopRicaricaAuto()">close</i><i class="icon material-icons blue-text tooltipped" data-tooltip="Start ricarica automatica" onclick="playRicaricaAuto()">play_arrow</i></p>
     </div>
 </div>
 
@@ -213,6 +219,34 @@
 </div>
 
 <script>
+    var interval = null;
+    var initial_start = 10;
+    $(document).ready(function() {
+        playRicaricaAuto();
+    });
+
+    function stopRicaricaAuto() {
+        $($(".progress").parent().find("i.red-text")).hide();
+        $($(".progress").parent().find("i.blue-text")).show();
+        clearInterval(interval);
+    }
+
+    function playRicaricaAuto() {
+        $("#seconds_trigger").html(initial_start);
+        $($(".progress").parent().find("i.red-text")).show();
+        $($(".progress").parent().find("i.blue-text")).hide();
+        interval = setInterval(function () {
+            var seconds = $("#seconds_trigger").html();
+            var percentage = (parseInt(seconds - 1) / parseInt(initial_start)) * 100;
+            $(".progress>.determinate").attr("style", "width: " + percentage + "%;");
+            $("#seconds_trigger").html(parseInt(seconds) - 1);
+
+            if (parseInt(seconds) - 1 == 0) {
+                clearInterval(interval);
+                location.reload();
+            }
+        }, 1000);
+    }
 
     function copy_to_clipboard(id) {
         /* Get the text field */
