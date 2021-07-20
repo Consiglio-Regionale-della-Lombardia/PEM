@@ -64,15 +64,15 @@
     <ul style="margin: 0">
         <li>
             <div class="user-view" style="padding: 10px">
-                <div class="row valign-wrapper" style="margin-bottom: unset !important;margin-top: unset !important">
+                <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
                     <div class="col s1 center">
                         <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 15px">
                             <i class="material-icons">more_vert</i>
                         </a>
                         <ul class="dropdown-content" id="ddlSubMenu">
                             <li>
-                                <a href="@Url.Action("CambioPin", "Persone")">
-                                    <i class="material-icons">settings</i>Impostazioni Pin
+                                <a onclick="CambioPin()">
+                                    <i class="material-icons">settings</i>Cambio Pin
                                 </a>
                             </li>
                             <li>
@@ -83,7 +83,7 @@
                         </ul>
                     </div>
                     <div class="col s3 center">
-                        <img class="responsive-img circle" style="width: 35px;height: 35px" src='http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto'>
+                        <img class="responsive-img circle" style="height: 35px; width: 35px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto">
                     </div>
                     <div class="col s8" style="padding-left: 0">
                         <h6 class="black-text">
@@ -91,7 +91,7 @@
                         </h6>
                     </div>
                 </div>
-                <div class="row" style="margin-top: unset !important; margin-bottom: unset !important;">
+                <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
                     <div class="col s12">
                         @if (ruoli.Any())
                         {
@@ -127,12 +127,12 @@
                                 </ul>
                             }
 
-                            <a class='@triggerClass truncate chip black-text' style="min-width: unset; background-color: unset" href='#' data-target='ddlCambioRuolo'>
+                            <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
                                 @testo @Html.Raw(iconClassSwapRuoli)
                             </a>
                         }
                     </div>
-                    <div class="col s12" style="margin-top:-15px">
+                    <div class="col s12" style="margin-top: -15px">
                         @{
                             var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
                             if (HttpContext.Current.User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)
@@ -163,7 +163,7 @@
 
                             if (!HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
                             {
-                                <a class='@triggerClassGruppi chip truncate black-text' style="min-width: unset; background-color: unset" href='#' data-target='ddlCambioGruppo'>
+                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
                                     @testoGruppo @Html.Raw(iconClassSwapGruppi)
                                 </a>
                             }
@@ -218,20 +218,98 @@
 <script>
     $(document).ready(function() {
         var url = '@Request.Url';
-         if (url.includes("notifiche")) {
+        if (url.includes("notifiche")) {
             $('.menuItem_Notifiche').addClass("active");
         } else if (url.includes("stampe")) {
             $('.menuItem_Stampe').addClass("active");
         } else if (url.includes("adminpanel")) {
-             $('.menuItem_Amministrazione').addClass("active");
-         } else {
-             $('.menuItem_Sedute').addClass("active");
-         }
+            $('.menuItem_Amministrazione').addClass("active");
+        } else {
+            $('.menuItem_Sedute').addClass("active");
+        }
         var mode = getClientMode();
         if (mode == 2) {
             $('#switchTrattazione').prop("checked", true);
         }
     });
+
+    function CambioPin() {
+        swal("Inserisci vecchio pin",
+                {
+                    content: {
+                        element: "input",
+                        attributes: { placeholder: "******", className: "password" }
+                    },
+                    buttons: { cancel: "Annulla", confirm: "Verifica" }
+                })
+            .then((value) => {
+                if (value == null || value == "")
+                    return;
+                var url_check = '@Html.Raw(Url.Action("CheckPin", "Persone"))';
+                var check_request = {
+                    vecchio_pin: value
+                };
+                $.ajax({
+                    url: url_check,
+                    type: "POST",
+                    data: check_request
+                }).done(function(result) {
+                    if (result.message) {
+                        ErrorAlert(result.message);
+                        return;
+                    }
+                    swal("Inserisci nuovo pin",
+                            {
+                                content: {
+                                    element: "input",
+                                    attributes: { placeholder: "******", className: "password" }
+                                },
+                                buttons: { cancel: "Annulla", confirm: "Inserisci" }
+                            })
+                        .then((pin) => {
+                            if (pin == null || pin == "")
+                                return;
+                            swal("Conferma nuovo pin",
+                                    {
+                                        content: {
+                                            element: "input",
+                                            attributes: { placeholder: "******", className: "password" }
+                                        },
+                                        buttons: { cancel: "Annulla", confirm: "Conferma" }
+                                    })
+                                .then((pin2) => {
+                                    if (pin2 == null || pin2 == "")
+                                        return;
+                                    if (pin != pin2) {
+                                        ErrorAlert("I pin sono diversi, ripetere la procedura");
+                                        return;
+                                    } else {
+                                        var url = '@Html.Raw(Url.Action("SalvaPin", "Persone"))';
+                                        var request = {
+                                            vecchio_pin: value,
+                                            nuovo_pin: pin2,
+                                            conferma_pin: pin
+                                        };
+                                        $.ajax({
+                                            url: url,
+                                            type: "POST",
+                                            data: request
+                                        }).done(function(result2) {
+                                            M.toast({html: 'Il Pin è stato cambiato', classes: 'rounded'});
+                                        }).fail(function(err) {
+                                            console.log("error", err);
+                                            ErrorAlert(err.message);
+                                        });
+                                    }
+                                });
+                        });
+                    
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err);
+                });
+            });
+    }
 
     function logout() {
         $('#formLogout').submit();

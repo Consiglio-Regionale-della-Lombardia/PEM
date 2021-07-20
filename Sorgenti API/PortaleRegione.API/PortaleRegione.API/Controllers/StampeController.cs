@@ -142,6 +142,34 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per eliminare una stampa
+        /// </summary>
+        /// <param name="id">Guid stampa</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("")]
+        public async Task<IHttpActionResult> EliminaStampa(Guid id)
+        {
+            try
+            {
+                var stampa = await _logic.GetStampa(id);
+                if (stampa == null)
+                {
+                    return NotFound();
+                }
+
+                await _logic.EliminaStampa(stampa);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("EliminaStampa", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per resettare la stampa in caso sia andata in errore
         /// </summary>
         /// <param name="id">Guid stampa</param>

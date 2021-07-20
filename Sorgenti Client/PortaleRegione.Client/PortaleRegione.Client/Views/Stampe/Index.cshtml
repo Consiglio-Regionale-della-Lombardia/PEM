@@ -6,15 +6,21 @@
 }
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>
 <div class="row">
-    <div class="col s12">
+    <div class="col s8">
         <h5>
             <b>@ViewBag.Title</b>
         </h5>
+    </div>
+    <div class="col s4">
+        <div class="progress">
+            <div class="determinate" style="width: 100%"></div>
+        </div>
+        <p>Ricarica automatica in <strong id="seconds_trigger">10</strong> sec <i class="icon material-icons red-text tooltipped" data-tooltip="Spegni ricarica automatica" onclick="stopRicaricaAuto()">close</i><i class="icon material-icons blue-text tooltipped" data-tooltip="Start ricarica automatica" onclick="playRicaricaAuto()">play_arrow</i></p>
     </div>
 </div>
 
@@ -48,6 +54,7 @@
                 <th>Stato</th>
                 <th>Stato Invio</th>
                 <th width="100">Scarica</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -102,16 +109,8 @@
                             @stampa.A
                         </td>
                     }
-                <td>
-                    @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
-                    {
-                        if (stampa.DataFineEsecuzione.HasValue)
-                        {
-                            <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
-                                Completata
-                            </div>
-                        }
-                        else if (stampa.DataInizioEsecuzione.HasValue)
+                    <td>
+                        @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
                         {
                             if (stampa.DataFineEsecuzione.HasValue)
                             {
@@ -119,28 +118,36 @@
                                     Completata
                                 </div>
                             }
+                            else if (stampa.DataInizioEsecuzione.HasValue)
+                            {
+                                if (stampa.DataFineEsecuzione.HasValue)
+                                {
+                                    <div class="chip center green white-text tooltipped" data-position="bottom" data-tooltip="Fine esecuzione: @stampa.DataFineEsecuzione.Value.ToString("dd/MM/yyyy HH:mm")" style="min-width: unset">
+                                        Completata
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="chip center amber white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
+                                        In lavorazione
+                                    </div>
+                                }
+                            }
                             else
                             {
-                                <div class="chip center amber white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
-                                    In lavorazione
+                                <div class="chip center grey white-text" style="min-width: unset">
+                                    In attesa
                                 </div>
                             }
                         }
                         else
                         {
-                            <div class="chip center grey white-text" style="min-width: unset">
-                                In attesa
+                            <div class="chip center red white-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
+                                Errore
                             </div>
                         }
-                    }
-                    else
-                    {
-                        <div class="chip center red white-text tooltipped" data-position="bottom" data-tooltip="Messaggio di errore: @stampa.MessaggioErrore" style="min-width: unset">
-                            Errore
-                        </div>
-                    }
 
-                </td>
+                    </td>
                     <td>
                         @if (stampa.DataInvio.HasValue)
                         {
@@ -157,6 +164,9 @@
                             </a>
                         }
                     </td>
+                    <td>
+                        <i class="icon material-icons red-text tooltipped" data-tooltip="Elimina stampa" onclick="EliminaStampa(this, '@Html.Raw(stampa.UIDStampa)')">close</i>
+                    </td>
                 </tr>
             }
             </tbody>
@@ -169,10 +179,66 @@
     Html.RenderPartial("_PaginationBar", Model.Paging);
 }
 
-<div id="slide-out-DX" class="sidenav">
-    <ul style="margin: 0">
-        <li>
-            <a class="subheader">Ricerca</a>
-        </li>
-    </ul>
-</div>
+<script>
+    var interval = null;
+    var initial_start = 10;
+    $(document).ready(function() {
+        playRicaricaAuto();
+    });
+
+    function stopRicaricaAuto() {
+        $($(".progress").parent().find("i.red-text")).hide();
+        $($(".progress").parent().find("i.blue-text")).show();
+        clearInterval(interval);
+    }
+
+    function playRicaricaAuto() {
+        $("#seconds_trigger").html(initial_start);
+        $($(".progress").parent().find("i.red-text")).show();
+        $($(".progress").parent().find("i.blue-text")).hide();
+        interval = setInterval(function() {
+                var seconds = $("#seconds_trigger").html();
+                var percentage = (parseInt(seconds - 1) / parseInt(initial_start)) * 100;
+                $(".progress>.determinate").attr("style", "width: " + percentage + "%;");
+                $("#seconds_trigger").html(parseInt(seconds) - 1);
+
+                if (parseInt(seconds) - 1 == 0) {
+                    clearInterval(interval);
+                    location.reload();
+                }
+            },
+            1000);
+    }
+
+    function EliminaStampa(ctrl, stampaUId) {
+        swal("Sei sicuro di voler eliminare la stampa?",
+            {
+                buttons: {
+                    cancel: "Annulla",
+                    confirm: {
+                        className: "red white-text",
+                        title: "Elimina",
+                        value: true
+                    }
+                }
+            }).then((value) => {
+            if (value == true) {
+                $(ctrl).parent().parent().attr("style", "opacity: .3");
+                $(ctrl).hide();
+                var url = '@Url.Action("EliminaStampa", "Stampe")?id=' + stampaUId;
+                console.log(url);
+                $.ajax({
+                    url: url,
+                    type: "GET"
+                }).done(function(result) {
+
+                    M.toast({ html: 'Stampa eliminata <i class="icon material-icons yellow-text" onclick="location.reload()" style="margin-left:20px">sync</i>', classes: 'rounded', displayLength: 5000 });
+
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            }
+        });
+    }
+</script>

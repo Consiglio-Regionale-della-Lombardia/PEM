@@ -52,6 +52,23 @@ namespace PortaleRegione.Client.Controllers
             return View("CambioPinForm", new CambioPinModel());
         }
 
+        [Route("check-cambio-pin")]
+        [HttpPost]
+        public async Task<ActionResult> CheckPin(CambioPinModel model)
+        {
+            try
+            {
+                await PersoneGate.CheckPin(model);
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         [Route("conferma-cambio-pin")]
         [HttpPost]
         public async Task<ActionResult> SalvaPin(CambioPinModel model)
@@ -59,7 +76,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 await PersoneGate.SalvaPin(model);
-                return Json(Url.Action("RiepilogoSedute", "Sedute"), JsonRequestBehavior.AllowGet);
+                return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

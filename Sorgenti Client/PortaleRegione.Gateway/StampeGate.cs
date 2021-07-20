@@ -60,6 +60,24 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public static async Task EliminaStampa(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/stampe?id={id}";
+                await Delete(requestUrl);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("EliminaStampa", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("EliminaStampa", ex);
+                throw ex;
+            }
+        }
         public static async Task ResetStampa(Guid id)
         {
             try

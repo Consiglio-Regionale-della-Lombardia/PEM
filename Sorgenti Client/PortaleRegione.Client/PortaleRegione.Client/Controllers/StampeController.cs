@@ -22,7 +22,6 @@ using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
@@ -94,6 +93,22 @@ namespace PortaleRegione.Client.Controllers
         {
             await StampeGate.ResetStampa(id);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpGet]
+        [Route("elimina")]
+        public async Task<ActionResult> EliminaStampa(Guid id)
+        {
+            try
+            {
+                await StampeGate.EliminaStampa(id);
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }
