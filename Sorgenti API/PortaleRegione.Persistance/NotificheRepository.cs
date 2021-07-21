@@ -148,6 +148,10 @@ namespace PortaleRegione.Persistance
                 return await query.CountAsync();
             }
 
+            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM || 
+                currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                return 0;
+
             var resultNotificheNonViste = await queryDestinatari
                 .Where(nd => nd.Visto == false)
                 .Select(nd => nd.UIDNotifica)
@@ -264,6 +268,9 @@ namespace PortaleRegione.Persistance
                     .ToListAsync();
             }
 
+            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM || 
+                currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                return new List<NOTIFICHE>();
             queryDestinatari = queryDestinatari
                 .Where(nd => nd.Visto == false);
             var resultNotificheNonViste = await queryDestinatari.Select(nd => nd.UIDNotifica).ToListAsync();
