@@ -83,7 +83,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<BaseResponse<NotificaDto>> GetNotificheRicevute(int page, int size, bool Archivio)
+        public static async Task<BaseResponse<NotificaDto>> GetNotificheRicevute(int page, int size, bool Archivio, bool Solo_Non_Viste = false)
         {
             try
             {
@@ -105,6 +105,7 @@ namespace PortaleRegione.Gateway
                     }
                 };
                 model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
+                model.param.Add(new KeyValuePair<string, object>("Solo_Non_Viste", Solo_Non_Viste));
                 var body = JsonConvert.SerializeObject(model);
 
                 var lst = JsonConvert.DeserializeObject<BaseResponse<NotificaDto>>(await Post(requestUrl, body));

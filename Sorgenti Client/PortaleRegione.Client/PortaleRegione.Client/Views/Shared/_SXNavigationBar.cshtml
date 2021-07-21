@@ -176,7 +176,9 @@
             <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "Sedute")"><i class="material-icons">event</i>Riepilogo sedute</a>
         </li>
         <li class="menuItem_Notifiche">
-            <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})"><i class="material-icons">email</i>Notifiche</a>
+            <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
+                <i class="material-icons">email</i>Notifiche <div id="counterNotifiche" class="chip pink white-text right" style="min-width: unset; margin-top: 8px;">5 nuove</div>
+            </a>
         </li>
         <li class="menuItem_Stampe">
             <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
@@ -231,7 +233,25 @@
         if (mode == 2) {
             $('#switchTrattazione').prop("checked", true);
         }
+        LoadCounterNotifiche();
     });
+
+    function LoadCounterNotifiche(){
+        $.ajax({
+            url: '@Url.Action("CounterRiepilogoNotifiche", "Notifiche")',
+            type: "GET"
+        }).done(function(result) {
+            console.log(result)
+            if (result == 0) {
+                $('#counterNotifiche').hide();
+            } else if(result > 0){
+                $('#counterNotifiche').html(result + " nuove");
+                $('#counterNotifiche').show();
+            }
+        }).fail(function(err) {
+            console.log("error", err);
+        });
+    }
 
     function CambioPin() {
         swal("Inserisci vecchio pin",
