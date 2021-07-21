@@ -23,27 +23,21 @@
             <div class="row">
                 <div class="col s12">
                     <label class="black-text" style="margin-left: 20px">
-                        <input name="rdDestinatari" type="radio" checked value="1" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI_ASSESSORI))" />
-                        @if (HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta)
-                             || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_Giunta)
-                             || HttpContext.Current.User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)
-                             || HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale))
-                        {
-                            <span>Assessori</span>
-                        }
-                        else
-                        {
-                            <span>Consiglieri</span>
-                        }
+                        <input name="rdDestinatari" type="radio" checked value="@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))"/>
+                        <span>Consiglieri</span>
+                    </label>
+                    <label class="black-text" style="margin-left: 20px">
+                        <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.ASSESSORI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.ASSESSORI))"/>
+                        <span>Assessori</span>
                     </label>
                     @if (!isSegreteria)
                     {
                         <label class="black-text" style="margin-left: 20px">
-                            <input name="rdDestinatari" type="radio" value="2" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.GRUPPI))" />
+                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.GRUPPI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.GRUPPI))"/>
                             <span>Gruppi</span>
                         </label>
                         <label class="black-text" style="margin-left: 20px">
-                            <input name="rdDestinatari" type="radio" value="3" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.RELATORI))" />
+                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.RELATORI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.RELATORI))"/>
                             <span>Relatori</span>
                         </label>
                     }
