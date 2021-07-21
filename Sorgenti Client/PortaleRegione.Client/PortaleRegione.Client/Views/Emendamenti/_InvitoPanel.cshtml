@@ -70,11 +70,15 @@
 
         var persone = [];
         for (let [key, value] of Object.entries(personeInDB)) {
-            //console.log(`${key}: ${value}`);
             persone.push({
                 tag: value,
                 id: key
             });
+        }
+
+        var data_preload = [];
+        if (@((int) TipoDestinatarioNotificaEnum.RELATORI) == tipo) {
+            data_preload = persone;
         }
 
         var elems = document.querySelector("#autocompleteInvitati");
@@ -90,12 +94,11 @@
         chipInstanceNotificaA = M.Chips.init(elems,
             {
                 autocompleteOptions: autocompleteDataOptions,
-                data: []
+                data: data_preload
             });
     }
 
     async function NotificaA(attoUId, tipo) {
-        console.log("NOTIFCA _invitopanel")
 
         var documentiTotali = $("#hdTotaleDocumenti").val();
         var selezionaTutti = getSelezionaTutti();
