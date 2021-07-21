@@ -245,7 +245,7 @@
                 text = "Inserisci il PIN per depositare ";
                 button = "Deposita";
             } else if (action == @((int)ActionEnum.INVITA)) {
-                await NotificaA('@Model.Atto.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI_ASSESSORI));
+                await NotificaA('@Model.Atto.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI));
                 return;
             }
 

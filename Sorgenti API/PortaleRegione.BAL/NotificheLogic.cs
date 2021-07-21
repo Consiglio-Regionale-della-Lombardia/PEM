@@ -100,7 +100,8 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<NotificaDto>> GetNotificheRicevute(BaseRequest<NotificaDto> model,
             PersonaDto currentUser,
-            bool Archivio)
+            bool Archivio,
+            bool Solo_Non_Viste)
         {
             try
             {
@@ -114,7 +115,7 @@ namespace PortaleRegione.BAL
                     idGruppo = currentUser.Gruppo.id_gruppo;
 
                 var notifiche = (await _unitOfWork.Notifiche
-                        .GetNotificheRicevute(currentUser, idGruppo, Archivio, model.page, model.size, queryFilter))
+                        .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size, queryFilter))
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
@@ -278,7 +279,7 @@ namespace PortaleRegione.BAL
 
         #region CountRicevute
 
-        public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio)
+        public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio, bool Solo_Non_Viste)
         {
             var queryFilter = new Filter<NOTIFICHE>();
             queryFilter.ImportStatements(model.filtro);
@@ -287,7 +288,7 @@ namespace PortaleRegione.BAL
                 || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
                 idGruppo = currentUser.Gruppo.id_gruppo;
 
-            return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, queryFilter);
+            return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, queryFilter);
         }
 
         #endregion
@@ -348,9 +349,8 @@ namespace PortaleRegione.BAL
                         result = (await _logicPersone.GetPersone_DA_CANCELLARE())
                             .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         break;
-                    case TipoDestinatarioNotificaEnum.CONSIGLIERI_ASSESSORI:
+                    case TipoDestinatarioNotificaEnum.CONSIGLIERI:
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
-                            persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                             result = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
@@ -359,8 +359,34 @@ namespace PortaleRegione.BAL
                             result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         else
-                            result = (await _logicPersone.GetConsiglieri())
+                        {
+                            var consiglieri_In_Db = (await _logicPersone.GetConsiglieri())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
+                            foreach (var consigliere in consiglieri_In_Db)
+                            {
+                                result.Add(consigliere.Key, consigliere.Value);
+                            }
+                        }
+
+                        break;
+                    case TipoDestinatarioNotificaEnum.ASSESSORI:
+                        if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                            persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                            result = (await _logicPersone.GetAssessoriRiferimento())
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                                 persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                            result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        else
+                        {
+                            var assessori_In_Db = (await _logicPersone.GetAssessoriRiferimento())
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                            foreach (var assessori in assessori_In_Db)
+                            {
+                                result.Add(assessori.Key, assessori.Value);
+                            }
+                        }
 
                         break;
                     case TipoDestinatarioNotificaEnum.GRUPPI:

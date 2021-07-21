@@ -152,7 +152,7 @@
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NProgramma)
-                            <input type="number" name="Emendamento.NProgramma" value="@Model.Emendamento.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                            <input type="number" name="Emendamento.NProgramma" min="0" value="@Model.Emendamento.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NTitoloB)

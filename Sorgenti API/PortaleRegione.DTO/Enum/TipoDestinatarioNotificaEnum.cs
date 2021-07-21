@@ -21,7 +21,8 @@ namespace PortaleRegione.DTO.Enum
     public enum TipoDestinatarioNotificaEnum
     {
         TUTTI,
-        CONSIGLIERI_ASSESSORI,
+        CONSIGLIERI,
+        ASSESSORI,
         GRUPPI,
         RELATORI
     }

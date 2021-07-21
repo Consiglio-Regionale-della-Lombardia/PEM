@@ -114,16 +114,18 @@ namespace PortaleRegione.API.Controllers
             {
                 object Archivio;
                 model.param.TryGetValue("Archivio", out Archivio);
+                object Solo_Non_Viste;
+                model.param.TryGetValue("Solo_Non_Viste", out Solo_Non_Viste);
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.GetNotificheRicevute(model, persona, Convert.ToBoolean(Archivio));
+                var result = await _logic.GetNotificheRicevute(model, persona, Convert.ToBoolean(Archivio),Convert.ToBoolean(Solo_Non_Viste));
 
                 return Ok(new BaseResponse<NotificaDto>(
                     model.page,
                     model.size,
                     result,
                     model.filtro,
-                    await _logic.CountRicevute(model, persona, Convert.ToBoolean(Archivio)),
+                    await _logic.CountRicevute(model, persona, Convert.ToBoolean(Archivio),Convert.ToBoolean(Solo_Non_Viste)),
                     Request.RequestUri));
             }
             catch (Exception e)

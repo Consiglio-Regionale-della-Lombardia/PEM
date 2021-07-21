@@ -29,5 +29,6 @@ namespace PortaleRegione.Contracts
     {
         Task<NOTIFICHE_DESTINATARI> Get(long notificaId, Guid personaUId);
         Task<bool> ExistDestinatarioNotifica(Guid emendamentoUId, Guid personaUId);
+        Task SetSeen_DestinatarioNotifica(Guid emendamentoUId, Guid personaUId);
     }
 }

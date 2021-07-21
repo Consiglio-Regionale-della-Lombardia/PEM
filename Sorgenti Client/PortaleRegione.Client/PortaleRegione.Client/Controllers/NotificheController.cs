@@ -59,6 +59,24 @@ namespace PortaleRegione.Client.Controllers
                 throw;
             }
         }
+        
+        [HttpGet]
+        [Route("counter-notifiche-ricevute")]
+        public async Task<ActionResult> CounterRiepilogoNotifiche()
+        {
+            try
+            {
+                BaseResponse<NotificaDto> model;
+                model = await NotificheGate.GetNotificheRicevute(1, 1,false, true);
+
+                return Json(model.Paging.Total, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpGet]
         [Route("{id:int}/destinatari")]

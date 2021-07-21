@@ -32,16 +32,13 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<NOTIFICHE>> GetNotificheInviate(PersonaDto currentUser, int idGruppo, bool Archivio, int pageIndex,
             int pageSize,
             Filter<NOTIFICHE> filtro = null);
-
-        Task<IEnumerable<NOTIFICHE>> GetNotificheRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, int pageIndex,
-            int pageSize,
-            Filter<NOTIFICHE> filtro = null);
-
+        
         Task<int> CountInviate(PersonaDto currentUser, int idGruppo, bool Archivio, Filter<NOTIFICHE> filtro = null);
-        Task<int> CountRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, Filter<NOTIFICHE> filtro = null);
+        Task<int> CountRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, bool Solo_Non_Viste, Filter<NOTIFICHE> filtro = null);
         
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetDestinatariNotifica(long notificaId);
 
         bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona);
+        Task<IEnumerable<NOTIFICHE>> GetNotificheRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, bool Solo_Non_Viste, int pageIndex, int pageSize, Filter<NOTIFICHE> filtro = null);
     }
 }
