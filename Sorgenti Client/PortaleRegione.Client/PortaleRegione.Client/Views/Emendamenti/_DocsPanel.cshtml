@@ -25,11 +25,11 @@
 <div class="form-group">
     @Html.Label("Ci sono effetti finanziari?")
     <label class="black-text" style="margin-left: 20px">
-        @Html.RadioButtonFor(model => model.Emendamento.EffettiFinanziari, 1, new {onchange = "EffettiFinanziari_OnChange(1)"})
+        <input type="radio" name="Emendamento.EffettiFinanziari" value="1" onchange="EffettiFinanziari_OnChange(1)" @Html.Raw(Model.Emendamento.EffettiFinanziari == 1 ? "checked=\"checked\"" : "") />
         <span>Si</span>
     </label>
     <label class="black-text" style="margin-left: 20px">
-        @Html.RadioButtonFor(model => model.Emendamento.EffettiFinanziari, 0, new {onchange = "EffettiFinanziari_OnChange(0)"})
+        <input type="radio" name="Emendamento.EffettiFinanziari" value="0" onchange="EffettiFinanziari_OnChange(0)" @Html.Raw(Model.Emendamento.EffettiFinanziari == 0 ? "checked=\"checked\"" : "") />
         <span>No</span>
     </label>
 </div>

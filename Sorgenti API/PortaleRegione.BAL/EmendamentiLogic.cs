@@ -348,16 +348,17 @@ namespace PortaleRegione.BAL
                 {
                     var path = ByteArrayToFile(emendamentoDto.DocAllegatoGenerico_Stream, DocTypeEnum.EM);
                     em.PATH_AllegatoGenerico = path;
-                    await _unitOfWork.CompleteAsync();
+                    em.EffettiFinanziari = 0;
                 }
 
                 if (emendamentoDto.DocEffettiFinanziari_Stream != null)
                 {
                     var path = ByteArrayToFile(emendamentoDto.DocEffettiFinanziari_Stream, DocTypeEnum.EM);
                     em.PATH_AllegatoTecnico = path;
-                    await _unitOfWork.CompleteAsync();
+                    em.EffettiFinanziari = 1;
                 }
 
+                await _unitOfWork.CompleteAsync();
                 return em;
             }
             catch (Exception e)
@@ -400,7 +401,7 @@ namespace PortaleRegione.BAL
                 {
                     var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream, DocTypeEnum.EM);
                     em.PATH_AllegatoGenerico = path;
-                    await _unitOfWork.CompleteAsync();
+                    em.EffettiFinanziari = 0;
                 }
 
                 if (model.DocEffettiFinanziari_Stream != null)
@@ -408,8 +409,9 @@ namespace PortaleRegione.BAL
                     var path = ByteArrayToFile(model.DocEffettiFinanziari_Stream, DocTypeEnum.EM);
                     em.PATH_AllegatoTecnico = path;
                     em.EffettiFinanziari = 1;
-                    await _unitOfWork.CompleteAsync();
                 }
+
+                await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
             {
