@@ -192,9 +192,11 @@ namespace PortaleRegione.DTO.Domain
         public bool PresentatoOltreITermini { get; set; } = false;
         public bool Proponente_Relatore { get; set; } = false;
 
-        public string BodyEM;
-        public string Firme_dopo_deposito;
-        public string Firme_OPENDATA;
+        public string BodyEM { get; set; }
+        public string Firme_dopo_deposito{ get; set; }
+        public string Firme_OPENDATA{ get; set; }
+
+        public bool Firmato_Da_Me { get; set; } = false;
 
         #endregion
     }

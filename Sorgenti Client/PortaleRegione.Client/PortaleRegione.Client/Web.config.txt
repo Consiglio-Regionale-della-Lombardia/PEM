@@ -36,8 +36,16 @@
       <forms loginUrl="~/Login" timeout="2880" />
     </authentication>
     <compilation debug="true" targetFramework="4.7.2" />
-    <httpRuntime targetFramework="4.7.2" />
+    <httpRuntime targetFramework="4.7.2" maxRequestLength="500000"/>
   </system.web>
+  <system.webServer>
+    <security>
+      <requestFiltering>
+        <!-- maxAllowedContentLength, for IIS, 2GB in bytes -->
+        <requestLimits maxAllowedContentLength="2147483648"></requestLimits>
+      </requestFiltering>
+    </security>
+  </system.webServer>
   <runtime>
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
       <dependentAssembly>

@@ -73,14 +73,19 @@
     <add key="CartellaLavoroStampe" value="C:\YOUR_PATH\Stampe" />
     <add key="LimiteGeneraStampaImmediata" value="20" />
 
-    <add key="MessaggioInizialeDeposito" value="Salve, {br}è stato depositato il seguente emendamento:" />
+    <add key="MessaggioInizialeDeposito" value="Salve, {br}ï¿½ stato depositato il seguente emendamento:" />
     <add key="MessaggioInizialeInvito" value="Gentile Consigliere/Assessore, {br}la invito a firmare il seguente emendamento:" />
   </appSettings>
-  <system.web>
+   <system.web>
     <compilation debug="true" targetFramework="4.7.2" />
-    <httpRuntime targetFramework="4.7.2" />
-  </system.web>
+    <httpRuntime targetFramework="4.7.2" maxRequestLength="500000"/>
+    </system.web>
   <system.webServer>
+    <security>
+      <requestFiltering>
+        <requestLimits maxAllowedContentLength="2147483648" />
+      </requestFiltering>
+    </security>
     <handlers>
       <remove name="ExtensionlessUrlHandler-Integrated-4.0" />
       <remove name="OPTIONSVerbHandler" />
