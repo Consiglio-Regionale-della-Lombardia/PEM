@@ -605,7 +605,10 @@ namespace PortaleRegione.BAL
                     var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
 
                     if (em.IDStato > (int) StatiEnum.Depositato)
+                    {
                         results.Add(idGuid, $"ERROR: Emendamento {n_em} già votato e non è più sottoscrivibile");
+                        continue;
+                    }
 
                     var firmaCert = string.Empty;
 
