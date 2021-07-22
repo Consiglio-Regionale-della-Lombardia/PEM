@@ -20,7 +20,28 @@
 }
 
 <div class="collapsible-header" onclick="GetDestinatariNotifica(@Model.UIDNotifica)">
-    <label><b>@titoloSeduta</b> - @Model.ATTI.TIPI_ATTO.Tipo_Atto @Model.ATTI.NAtto - <b>@Model.EM.N_EM @displayRiferimentoTemporaneo</b></label>
+    <table>
+        <tr style="border: unset">
+            <td style="border: unset">
+                <label><b>@titoloSeduta</b> - @Model.ATTI.TIPI_ATTO.Tipo_Atto @Model.ATTI.NAtto - <b>@Model.EM.N_EM @displayRiferimentoTemporaneo</b></label>
+            </td>
+            <td style="border: unset; text-align: right; width: 10px">
+               @if (User.IsInRole(RuoliEnum.Consigliere_Regionale) ||
+                    User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta))
+               {
+                   if (Model.EM.Firmato_Da_Me)
+                   {
+                       <i class="icon material-icons green-text tooltipped" data-tooltip="Firmato">check</i>
+                   }
+                   else
+                   {
+                       <i class="icon material-icons blue-text tooltipped" data-tooltip="Richiesta firma">query_builder</i>
+                   }
+               }
+            </td>
+        </tr>
+    </table>
+
 </div>
 <div class="collapsible-body">
     <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
@@ -38,7 +59,9 @@
                 <div class="col s12">
                     <label>Invito a firmare</label>
                     <div class="form-group">
-                        <p><b>@Model.EM.N_EM</b></p>
+                        <p>
+                            <b>@Model.EM.N_EM</b>
+                        </p>
                         <h6>@Utility.MetaDatiEM_Label(Model.EM)</h6>
                         <label>
                             <b>Scadenza Presentazione EM:</b> @Model.ATTI.SEDUTE.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")
