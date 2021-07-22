@@ -70,7 +70,7 @@ else
                         <div class="row">
                             <div class="col s12 m6 l5 center">
                                 <h5 style="margin-top: 7px">
-                                    <b>@itemEM.N_EM</b>
+                                    <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;": "") @itemEM.N_EM</b>
                                 </h5>
                                 <h6>@Utility.MetaDatiEM_Label(itemEM)</h6>
                                 @if (itemEM.IDStato <= (int) StatiEnum.Bozza)
