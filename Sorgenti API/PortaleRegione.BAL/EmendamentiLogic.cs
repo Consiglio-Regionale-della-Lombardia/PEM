@@ -1219,8 +1219,8 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
                     emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
 
-                if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
+                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
                     emendamentoDto.Firmato_Da_Me = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, persona.UID_persona);
 
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
