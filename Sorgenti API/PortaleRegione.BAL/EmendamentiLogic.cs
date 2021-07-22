@@ -694,14 +694,14 @@ namespace PortaleRegione.BAL
 
                         em.EM_Certificato = body_encrypt;
                     }
-                    
+
+                    await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
+
                     var is_destinatario_notifica = await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(idGuid, persona.UID_persona);
                     if (is_destinatario_notifica)
                     {
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(idGuid, persona.UID_persona);
                     }
-
-                    await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
 
                     results.Add(idGuid, "OK");
                 }
