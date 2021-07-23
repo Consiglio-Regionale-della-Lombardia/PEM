@@ -21,7 +21,7 @@
         <div class="progress">
             <div class="determinate" style="width: 100%"></div>
         </div>
-        <p>Ricarica automatica in <strong id="seconds_trigger">10</strong> sec <i class="icon material-icons red-text tooltipped" data-tooltip="Spegni ricarica automatica" onclick="stopRicaricaAuto()">close</i><i class="icon material-icons blue-text tooltipped" data-tooltip="Start ricarica automatica" onclick="playRicaricaAuto()">play_arrow</i></p>
+        <p>Ricarica automatica in <strong id="seconds_trigger"></strong> sec <i class="icon material-icons red-text tooltipped" data-tooltip="Spegni ricarica automatica" onclick="stopRicaricaAuto()">pause</i><i class="icon material-icons blue-text tooltipped" data-tooltip="Start ricarica automatica" onclick="playRicaricaAuto()">play_arrow</i></p>
     </div>
 </div>
 
@@ -200,7 +200,7 @@
                         }
                     </td>
                     <td>
-                        <i class="icon material-icons red-text tooltipped" data-tooltip="Elimina stampa" onclick="EliminaStampa(this, '@Html.Raw(stampa.UIDStampa)')">close</i>
+                        <i class="icon material-icons red-text tooltipped" data-tooltip="Elimina stampa" style="cursor: pointer" onclick="EliminaStampa(this, '@Html.Raw(stampa.UIDStampa)')">close</i>
                     </td>
                 </tr>
             }
@@ -216,7 +216,7 @@
 
 <script>
     var interval = null;
-    var initial_start = 10;
+    var initial_start = 30;
     $(document).ready(function() {
         playRicaricaAuto();
     });

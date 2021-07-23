@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Enum;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -169,6 +170,35 @@ namespace PortaleRegione.Persistance
                 .JOIN_GRUPPO_AD
                 .Where(g => lGruppi.Contains(g.GruppoAD))
                 .FirstOrDefaultAsync();
+
+            if (join_gruppo == null)
+            {
+                return null;
+            }
+
+            var gruppo = await PRContext
+                .View_gruppi_politici_con_giunta
+                .SingleOrDefaultAsync(g => g.id_gruppo == join_gruppo.id_gruppo);
+            return gruppo;
+        }
+        
+        public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,
+            RuoliIntEnum role)
+        {
+            var query = PRContext
+                .JOIN_GRUPPO_AD
+                .Where(g => lGruppi.Contains(g.GruppoAD));
+
+            if (role == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
+                role == RuoliIntEnum.Amministratore_Giunta ||
+                role == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                role == RuoliIntEnum.Segreteria_Giunta_Regionale)
+            {
+                query = query.Where(g => g.GiuntaRegionale);
+            }
+
+            var join_gruppo = await query.FirstOrDefaultAsync();
+
             if (join_gruppo == null)
             {
                 return null;

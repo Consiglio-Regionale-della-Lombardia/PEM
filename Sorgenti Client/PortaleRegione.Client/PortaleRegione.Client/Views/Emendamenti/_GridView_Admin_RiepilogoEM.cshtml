@@ -213,8 +213,8 @@ else
                     @if (itemEM.ConteggioFirme > 1)
                     {
                         <br/>
-                        <a class='tooltipped' data-position='left' data-tooltip='@itemEM.Firme'>
-                            <i class='material-icons'>group</i>
+                        <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@itemEM.Firme' style="min-width: unset">
+                            + @Html.Raw(itemEM.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
                         </a>
                     }
                 </td>

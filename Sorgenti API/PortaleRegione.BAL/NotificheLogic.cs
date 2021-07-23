@@ -212,11 +212,18 @@ namespace PortaleRegione.BAL
                     var n_em = em.N_EM;
 
                     if (em.IDStato >= (int) StatiEnum.Depositato)
+                    {
                         results.Add(idGuid,
                             $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
+                        continue;
+                    }
 
                     var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
-                    if (check == false) results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
+                    if (check == false)
+                    {
+                        results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
+                        continue;
+                    }
 
                     var newNotifica = new NOTIFICHE
                     {
@@ -254,6 +261,7 @@ namespace PortaleRegione.BAL
                     await _unitOfWork.CompleteAsync();
                     var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                     bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
+                    bodyMail += $"<br/> <a href='{$"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}"}'>Vedi online</a>";
                     results.Add(idGuid, "OK");
                 }
 

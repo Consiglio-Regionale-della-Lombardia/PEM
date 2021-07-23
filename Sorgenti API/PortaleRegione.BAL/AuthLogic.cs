@@ -230,7 +230,7 @@ namespace PortaleRegione.BAL
                 personaDto.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
                 personaDto.CurrentRole = (RuoliIntEnum) ruoli_utente.First().IDruolo;
                 personaDto.Gruppo = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                    await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi));
+                    await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi, personaDto.CurrentRole));
 
                 var claims = new List<Claim>
                 {
