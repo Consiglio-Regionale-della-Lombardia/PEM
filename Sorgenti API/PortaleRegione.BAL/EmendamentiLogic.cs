@@ -146,7 +146,7 @@ namespace PortaleRegione.BAL
                                   || persona.CurrentRole == RuoliIntEnum.Presidente_Regione
                     ? 1
                     : await _unitOfWork.Emendamenti.GetProgressivo(atto.UIDAtto,
-                        persona.Gruppo.id_gruppo, sub_em);
+                       persona.Gruppo.id_gruppo, sub_em);
 
                 if (sub_em)
                 {
