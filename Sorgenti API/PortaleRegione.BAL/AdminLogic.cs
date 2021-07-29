@@ -310,20 +310,24 @@ namespace PortaleRegione.BAL
                 var intranetAdService = new proxyAD();
                 foreach (var persona in persone_In_Db)
                 {
-                    var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
-                        persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
-                    if (gruppiUtente_PEM.Any())
+                    if(!string.IsNullOrEmpty(persona.userAD))
                     {
-                        persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
+                        var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
+                            persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
+                        if (gruppiUtente_PEM.Any())
+                        {
+                            persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
+                        }
+
+                        var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
+                        if (gruppiUtente_AD.Any())
+                        {
+                            persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
+                        }
+
+                        persona.Stato_Pin = await CheckPin(persona);
                     }
 
-                    var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
-                    if (gruppiUtente_AD.Any())
-                    {
-                        persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
-                    }
-
-                    persona.Stato_Pin = await CheckPin(persona);
                     results.Add(persona);
                 }
 
