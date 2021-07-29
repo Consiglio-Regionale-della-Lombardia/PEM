@@ -5,6 +5,18 @@
     ViewBag.Title = "Amministrazione";
 }
 
+@{
+    string q = "";
+    foreach (var key in Context.Request.QueryString.AllKeys)
+    {
+        if (Equals(key, "q"))
+        {
+            q = Context.Request.QueryString.Get("q");
+            break;
+        }
+    }
+}
+
 <div class="row">
     <div class="col s12">
         <h5>
@@ -39,11 +51,11 @@
         switch (persona.Stato_Pin)
         {
             case StatoPinEnum.VALIDO:
-            {
-                messaggio = "Pin valido";
-                colorPin = "green";
-                break;
-            }
+                {
+                    messaggio = "Pin valido";
+                    colorPin = "green";
+                    break;
+                }
             case StatoPinEnum.RESET:
                 {
                     messaggio = "Pin da resettare";
@@ -119,11 +131,60 @@
 </div>
 
 <div id="slide-out-DX" class="sidenav">
-    <ul style="margin: 0">
-        <li>
-            <a class="subheader">Ricerca</a>
-        </li>
-    </ul>
+    <div class="row">
+        <div class="col s12">
+            <div class="form-group">
+                <label>Ricerca per persona</label>
+                <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@q" />
+            </div>
+            <div class="form-group col s6">
+                <label>Ricerca per mese</label>
+                <input id="txtMonth" type="number" step="1" max="12" min="1" name="month" class="form-control" value="@month" />
+            </div>
+            <div class="form-group col s6">
+                <label>Ricerca per anno</label>
+                <input id="txtYear" type="number" step="1" max="@Html.Raw(DateTime.Now.Year)" min="1970" name="year" class="form-control" value="@year" />
+            </div>
+            <div class="form-group">
+                <label>Progetto</label>
+                <select id="filterVaucherProject" onchange="VaucherFilterProject()">
+                    <option value="0" selected="selected">Tutti</option>
+                    @if (Model != null)
+                    {
+                        foreach (var project in Model)
+                        {
+                            <option value="@project.Id">@project.Title</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Stato</label>
+                <select id="filterVaucherStatus" multiple="multiple">
+                    <option value="@((int) VaucherStatusEnum.ALL)" selected="selected">Tutti</option>
+                    <option value="@((int) VaucherStatusEnum.ACTIVE)">Attivo</option>
+                    <option value="@((int) VaucherStatusEnum.PENDING)">In attesa</option>
+                    <option value="@((int) VaucherStatusEnum.INTEGRATION)">Richiesta integrazione</option>
+                    <option value="@((int) VaucherStatusEnum.PAYMENT)">In pagamento</option>
+                    <option value="@((int) VaucherStatusEnum.PAY)">Pagato</option>
+                    <option value="@((int) VaucherStatusEnum.REJECTED)">Rifiutato</option>
+                    <option value="@((int) VaucherStatusEnum.CANCELED)">Annullato</option>
+                </select>
+            </div>
+            <div class="form-group only-project-is-selected" style="display: none">
+                <label>Tipologia</label>
+                <select id="filterVaucherTypology" onchange="VaucherFilterProjectTypology()">
+                    <option value="0" selected="selected">Tutti</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12 center">
+            <a href="#!" class="btn chip blue white-text" style="min-width: unset" onclick="SearchVaucher()">Cerca</a>
+            <a href="@Url.Action("View")" class="btn chip grey white-text" style="min-width: unset">Reset</a>
+        </div>
+    </div>
 </div>
 
 <input type="hidden" id="hdPersonaUID" />
@@ -146,14 +207,14 @@
 <div id="modalResetPassword" class="modal">
     <div class="modal-content">
         <h5>Attenzione</h5>
-        <p>Sei sicuro di voler resettare la password di <b id="txtDisplayNamePersonaPassword"></b>?</p> 
+        <p>Sei sicuro di voler resettare la password di <b id="txtDisplayNamePersonaPassword"></b>?</p>
         <div class="form-group">
             <label>Inserisci nuova password</label>
-            <input type="text" id="txtResetPassword"/>
+            <input type="text" id="txtResetPassword" />
         </div>
         <div class="form-group">
             <label>Conferma password</label>
-            <input type="text" id="txtResetPassword_Confirm"/>
+            <input type="text" id="txtResetPassword_Confirm" />
         </div>
         <div class="modal-footer">
             <button type="button" class="btn modal-close grey">Annulla</button>
