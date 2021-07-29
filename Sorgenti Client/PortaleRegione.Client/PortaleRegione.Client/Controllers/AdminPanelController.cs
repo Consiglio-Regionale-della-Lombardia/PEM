@@ -20,6 +20,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using PortaleRegione.Client.Models;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -44,9 +46,49 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="size">Paginazione</param>
         /// <returns></returns>
         [HttpGet]
+        [Route("users/view")]
         public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 50)
         {
-            return View("RiepilogoUtenti", await AdminGate.GetPersone(page, size));
+            return View("RiepilogoUtenti", await AdminGate.GetPersone(new BaseRequest<PersonaDto>
+            {
+                page = page,
+                size = size
+            }));
+        }
+
+        /// <summary>
+        ///     Controller per ricercare gli utenti
+        /// </summary>
+        /// <param name="id">Guid utente</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("users/view")]
+        public async Task<ActionResult> SearchUsers()
+        {
+            int.TryParse(Request.Form["page"], out var filtro_page);
+            int.TryParse(Request.Form["size"], out var filtro_size);
+            var filtro_q = Request.Form["q"];
+            var request = new BaseRequest<PersonaDto> {page = filtro_page, size = filtro_size};
+            if (!string.IsNullOrEmpty(filtro_q))
+            {
+                request.filtro.Add(new FilterStatement<PersonaDto>
+                {
+                    PropertyId = nameof(PersonaDto.nome),
+                    Operation = Operation.Contains,
+                    Value = filtro_q,
+                    Connector = FilterStatementConnector.Or
+                });
+                request.filtro.Add(new FilterStatement<PersonaDto>
+                {
+                    PropertyId = nameof(PersonaDto.cognome),
+                    Operation = Operation.Contains,
+                    Value = filtro_q,
+                    Connector = FilterStatementConnector.Or
+                });
+            }
+
+            var result = await AdminGate.GetPersone(request);
+            return View("RiepilogoUtenti", result);
         }
 
         /// <summary>

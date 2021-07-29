@@ -57,7 +57,7 @@ namespace PortaleRegione.DTO.Request
         ///     Usato per ordinare gli emendamenti in presentazione o votazione
         /// </summary>
         public OrdinamentoEnum ordine { get; set; } = OrdinamentoEnum.Default;
-
+        
         public IDictionary<string, object> param { get; set; }
     }
 }

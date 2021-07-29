@@ -92,7 +92,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
+        [Route("users/view")]
         public async Task<IHttpActionResult> GetUtenti(BaseRequest<PersonaDto> model)
         {
             try

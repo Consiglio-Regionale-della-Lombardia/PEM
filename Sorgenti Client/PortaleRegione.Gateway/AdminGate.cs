@@ -59,18 +59,12 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<BaseResponse<PersonaDto>> GetPersone(int page, int size)
+        public static async Task<BaseResponse<PersonaDto>> GetPersone(BaseRequest<PersonaDto> request)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/admin";
-
-                var model = new BaseRequest<PersonaDto>
-                {
-                    page = page,
-                    size = size
-                };
-                var body = JsonConvert.SerializeObject(model);
+                var requestUrl = $"{apiUrl}/admin/users/view";
+                var body = JsonConvert.SerializeObject(request);
 
                 var lst = JsonConvert.DeserializeObject<BaseResponse<PersonaDto>>(await Post(requestUrl, body));
 
