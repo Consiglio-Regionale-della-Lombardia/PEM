@@ -49,6 +49,16 @@ namespace PortaleRegione.Client.Controllers
         [Route("users/view")]
         public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 50)
         {
+            var request = new BaseRequest<PersonaDto> { page = page, size = size };
+
+            request.filtro.Add(new FilterStatement<PersonaDto>
+            {
+                PropertyId = nameof(PersonaDto.No_Cons),
+                Operation = Operation.EqualTo,
+                Value = 1,
+                Connector = FilterStatementConnector.And
+            });
+
             return View("RiepilogoUtenti", await AdminGate.GetPersone(new BaseRequest<PersonaDto>
             {
                 page = page,
@@ -70,7 +80,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_q = Request.Form["q"];
             var filtro_no_cons = Request.Form["no_cons"];
             var filtro_legislatura = Request.Form["legislatura"];
-            var request = new BaseRequest<PersonaDto> {page = filtro_page, size = filtro_size};
+            var request = new BaseRequest<PersonaDto> { page = filtro_page, size = filtro_size };
             if (!string.IsNullOrEmpty(filtro_q))
             {
                 request.filtro.Add(new FilterStatement<PersonaDto>
@@ -162,7 +172,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 await AdminGate.ModificaPersona(request);
 
-                return Json(Url.Action("ViewUtente", "AdminPanel", new {id = request.UID_persona})
+                return Json(Url.Action("ViewUtente", "AdminPanel", new { id = request.UID_persona })
                     , JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
