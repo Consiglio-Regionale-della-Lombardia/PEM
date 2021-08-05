@@ -140,11 +140,5 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
-        {
-            var result = await _unitOfWork.Legislature.GetLegislature();
-            return (result).Select(Mapper.Map<legislature, LegislaturaDto>);
-        }
     }
 }

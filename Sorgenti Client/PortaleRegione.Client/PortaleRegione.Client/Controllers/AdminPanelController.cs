@@ -68,8 +68,8 @@ namespace PortaleRegione.Client.Controllers
             int.TryParse(Request.Form["page"], out var filtro_page);
             int.TryParse(Request.Form["size"], out var filtro_size);
             var filtro_q = Request.Form["q"];
-            //bool.TryParse(Request.Form["no_cons"], out var filtro_no_cons);
             var filtro_no_cons = Request.Form["no_cons"];
+            var filtro_legislatura = Request.Form["legislatura"];
             var request = new BaseRequest<PersonaDto> {page = filtro_page, size = filtro_size};
             if (!string.IsNullOrEmpty(filtro_q))
             {
@@ -85,7 +85,7 @@ namespace PortaleRegione.Client.Controllers
                     PropertyId = nameof(PersonaDto.cognome),
                     Operation = Operation.Contains,
                     Value = filtro_q,
-                    Connector = FilterStatementConnector.Or
+                    Connector = FilterStatementConnector.And
                 });
             }
 
@@ -96,7 +96,23 @@ namespace PortaleRegione.Client.Controllers
                     PropertyId = nameof(PersonaDto.No_Cons),
                     Operation = Operation.EqualTo,
                     Value = 1,
+                    Connector = FilterStatementConnector.And
                 });
+            }
+
+            if (!string.IsNullOrEmpty(filtro_legislatura))
+            {
+                var split_filter = filtro_legislatura.Split(',');
+                foreach (var s in split_filter)
+                {
+                    request.filtro.Add(new FilterStatement<PersonaDto>
+                    {
+                        PropertyId = nameof(PersonaDto.legislature),
+                        Operation = Operation.Contains,
+                        Value = $"-{s}-",
+                        Connector = FilterStatementConnector.And
+                    });
+                }
             }
 
             var result = await AdminGate.GetPersone(request);

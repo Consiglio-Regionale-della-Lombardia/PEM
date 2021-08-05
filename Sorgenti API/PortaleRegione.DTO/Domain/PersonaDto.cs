@@ -57,6 +57,8 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Notifica al deposito")]
         public bool? notifica_deposito { get; set; }
 
+        public string legislature { get; set; }
+
         [Display(Name = "Eliminato")] public bool? deleted { get; set; }
 
         public string Carica { get; set; }

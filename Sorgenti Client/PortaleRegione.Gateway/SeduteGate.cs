@@ -171,26 +171,5 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
-
-        public static async Task<IEnumerable<LegislaturaDto>> GetLegislature()
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute/legislature";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<LegislaturaDto>>(await Get(requestUrl));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("GetLegislature", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetLegislature", ex);
-                throw ex;
-            }
-        }
     }
 }

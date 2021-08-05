@@ -99,7 +99,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                return Json(await SeduteGate.GetLegislature(), JsonRequestBehavior.AllowGet);
+                return Json(await LegislatureGate.GetLegislature(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

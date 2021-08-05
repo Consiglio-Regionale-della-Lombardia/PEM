@@ -1,6 +1,7 @@
 ﻿@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using System.Linq
+@using Newtonsoft.Json
 @model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.PersonaDto>
 
 @{
@@ -39,7 +40,7 @@
             <div class="col s12">
                 <div class="card-panel panel-warning center">
                     <span class="center">
-                        Non ci sono sedute al momento
+                        Non ci sono persone. Controlla i filtri di ricerca.
                     </span>
                 </div>
             </div>
@@ -135,23 +136,27 @@
 <div id="slide-out-DX" class="sidenav">
     <div class="row">
         <div class="col s12">
-            @using (Html.BeginForm("SearchUsers", "AdminPanel", FormMethod.Post, new {id = "formSearchUsers"}))
+            @using (Html.BeginForm("SearchUsers", "AdminPanel", FormMethod.Post, new { id = "formSearchUsers" }))
             {
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="page" value="@Model.Paging.Page"/>
-                <input type="hidden" name="size" value="@Model.Paging.Limit"/>
+                <input type="hidden" name="page" value="@Model.Paging.Page" />
+                <input type="hidden" name="size" value="@Model.Paging.Limit" />
 
                 <div class="form-group">
                     <label>Ricerca per persona</label>
-                    <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.cognome)) ? Model.Filters.First(f => f.PropertyId == nameof(PersonaDto.cognome)).Value : "")"/>
+                    <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.cognome)) ? Model.Filters.First(f => f.PropertyId == nameof(PersonaDto.cognome)).Value : "")" />
                 </div>
                 <div class="form-group">
                     <p>
                         <label>
-                            <input type="checkbox" name="no_cons" @Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.No_Cons)) ? "checked='checked'" : "")/>
+                            <input type="checkbox" name="no_cons" @Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.No_Cons)) ? "checked='checked'" : "") />
                             <span>Solo non consiglieri</span>
                         </label>
                     </p>
+                </div>
+                <div class="form-group">
+                    <label>Legislatura</label>
+                    <select id="filter_legislature" name="legislatura" class="form-control" multiple="multiple"></select>
                 </div>
             }
         </div>
@@ -201,6 +206,34 @@
 </div>
 
 <script>
+
+    async function loadLegislature() {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f=> f.PropertyId == nameof(PersonaDto.legislature))));
+        var legislature = await GetLegislature();
+        if (legislature.length > 0) {
+            var select = $("#filter_legislature");
+            select.empty();
+            select.append('<option value="0">Seleziona</option>');
+
+            $.each(legislature,
+                function(index, item) {
+                    var template = "<option></option>";
+                    select.append($(template).val(item.num_legislatura).html(item.num_legislatura));
+                });
+
+            var elems = document.querySelectorAll("#filter_legislature");
+            M.FormSelect.init(elems, null);
+            
+            if(currentFilter.length > 0) {
+                var selected_filter = [];
+                $.each(currentFilter, function(index, item) {
+                    selected_filter.push(item.Value.replace(/-/g, ""));
+                });
+                $('#filter_legislature').val(selected_filter);
+                $('#filter_legislature').formSelect();
+            }
+        }
+    }
 
     $('#btnResetPin').click(function() {
         $('#btnResetPin').attr("disabled", true);
@@ -282,7 +315,7 @@
         $('#modalResetPassword').modal('open');
     }
 
-    $(document).ready(function() {
-        //Reset_ClientMode();
+    $(document).ready(async function() {
+        await loadLegislature();
     });
 </script>

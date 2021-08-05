@@ -199,16 +199,5 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
-        /// <summary>
-        ///     Endpoint per avere la lista delle legislature disponibili
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("legislature")]
-        public async Task<IHttpActionResult> GetLegislature()
-        {
-            return Ok(await _logic.GetLegislature());
-        }
     }
 }
