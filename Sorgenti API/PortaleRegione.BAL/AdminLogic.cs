@@ -388,13 +388,7 @@ namespace PortaleRegione.BAL
                 {
                     //Consigliere/Assessore
                     var persona = await _unitOfWork.Persone.Get(request.UID_persona);
-                    persona.cognome = request.cognome;
-                    persona.nome = request.nome;
-                    persona.foto = request.foto;
                     persona.userAD = request.userAD;
-                    persona.email = request.email;
-                    persona.attivo = request.attivo;
-                    persona.deleted = request.deleted;
                     persona.notifica_firma = request.notifica_firma;
                     persona.notifica_deposito = request.notifica_deposito;
                     await _unitOfWork.CompleteAsync();
