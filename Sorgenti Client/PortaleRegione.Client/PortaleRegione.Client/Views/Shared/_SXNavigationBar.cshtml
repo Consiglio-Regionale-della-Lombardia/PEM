@@ -189,6 +189,12 @@
                 <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">build</i>Amministrazione</a>
             </li>
         }
+        @if (currentRole == RuoliIntEnum.Amministratore_PEM)
+        {
+            <li class="menuItem_Amministrazione_Gruppi">
+                <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Amministrazione Gruppi</a>
+            </li>
+        }
     </ul>
     <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
         <div class="row valign-wrapper">

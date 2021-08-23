@@ -186,5 +186,27 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public static async Task<BaseResponse<GruppiDto>> GetGruppiAdmin(BaseRequest<GruppiDto> request)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/groups/view";
+                var body = JsonConvert.SerializeObject(request);
+                var lst = JsonConvert.DeserializeObject<BaseResponse<GruppiDto>>(await Post(requestUrl, body));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGruppiAdmin", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGruppiAdmin", ex);
+                throw ex;
+            }
+        }
     }
 }

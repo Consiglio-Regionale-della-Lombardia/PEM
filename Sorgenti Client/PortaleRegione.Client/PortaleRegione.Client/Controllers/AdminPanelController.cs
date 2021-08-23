@@ -215,5 +215,19 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>
+        ///     Controller per visualizzare i dati degli utenti
+        /// </summary>
+        /// <param name="page">Pagina corrente</param>
+        /// <param name="size">Paginazione</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("groups/view")]
+        public async Task<ActionResult> RiepilogoGruppi()
+        {
+            var request = new BaseRequest<GruppiDto>();
+            return View("RiepilogoGruppi", await AdminGate.GetGruppiAdmin(request));
+        }
     }
 }

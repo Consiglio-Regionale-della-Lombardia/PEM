@@ -345,6 +345,25 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task<BaseResponse<GruppiDto>> GetGruppi(BaseRequest<GruppiDto> model, Uri url)
+        {
+            try
+            {
+                var results = await _logicPersona.GetGruppi(model);
+
+                return new BaseResponse<GruppiDto>(
+                    model.page,
+                    model.size,
+                    results,
+                    model.filtro,
+                    results.Count(),
+                    url);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         public async Task UpdateUtente(PersonaUpdateRequest request)
         {

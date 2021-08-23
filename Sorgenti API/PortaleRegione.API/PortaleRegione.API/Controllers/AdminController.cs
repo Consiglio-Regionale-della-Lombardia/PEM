@@ -225,5 +225,27 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per avere i gruppi nel db
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("groups/view")]
+        public async Task<IHttpActionResult> GetGruppi(BaseRequest<GruppiDto> model)
+        {
+            try
+            {
+                var session = await GetSession();
+                var results = await _logic.GetGruppi(model, Request.RequestUri);
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetGruppi", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Enum;
 using Z.EntityFramework.Plus;
 
@@ -181,7 +182,24 @@ namespace PortaleRegione.Persistance
                 .SingleOrDefaultAsync(g => g.id_gruppo == join_gruppo.id_gruppo);
             return gruppo;
         }
-        
+
+        public async Task<List<gruppi_politici>> GetGruppiAdmin(Filter<gruppi_politici> filtro = null)
+        {
+            return await PRContext
+                .gruppi_politici
+                .Where(g => g.attivo
+                            && !g.deleted)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<JOIN_GRUPPO_AD>> GetJoinGruppiAdmin(int legislaturaAttiva)
+        {
+            return await PRContext
+                .JOIN_GRUPPO_AD
+                .Where(g => g.id_legislatura == legislaturaAttiva)
+                .ToListAsync();
+        }
+
         public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,
             RuoliIntEnum role)
         {

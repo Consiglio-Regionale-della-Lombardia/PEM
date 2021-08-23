@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+
 namespace PortaleRegione.DTO.Domain
 {
     public class GruppiDto
@@ -23,8 +25,11 @@ namespace PortaleRegione.DTO.Domain
         public int id_gruppo { get; set; }
         public string nome_gruppo { get; set; }
         public string codice_gruppo { get; set; }
+        public DateTime data_inizio { get; set; }
         public bool giunta { get; set; }
         public bool abilita_em_privati { get; set; }
         public int id_legislatura { get; set; }
+        public string GruppoAD { get; set; }
+        public Guid UID_Gruppo { get; set; }
     }
 }
