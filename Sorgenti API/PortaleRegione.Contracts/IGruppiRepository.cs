@@ -46,5 +46,6 @@ namespace PortaleRegione.Contracts
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi);
         Task<List<gruppi_politici>> GetGruppiAdmin(Filter<gruppi_politici> filtro = null);
         Task<IEnumerable<JOIN_GRUPPO_AD>> GetJoinGruppiAdmin(int legislaturaAttiva);
+        Task<JOIN_GRUPPO_AD> GetGiunta(int legislaturaAttiva);
     }
 }

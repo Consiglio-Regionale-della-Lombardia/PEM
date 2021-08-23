@@ -327,6 +327,7 @@ namespace PortaleRegione.BAL
             var legislatura_attiva = await _unitOfWork.Legislature.Legislatura_Attiva();
             var gruppi_politici = await _unitOfWork.Gruppi.GetGruppiAdmin(queryFilter);
             var join_gruppi_ad = await _unitOfWork.Gruppi.GetJoinGruppiAdmin(legislatura_attiva);
+            var giunta = await _unitOfWork.Gruppi.GetGiunta(legislatura_attiva);
             foreach (var join_gruppo in join_gruppi_ad)
             {
                 var gruppo = gruppi_politici.FirstOrDefault(g => g.id_gruppo == join_gruppo.id_gruppo);
@@ -346,8 +347,22 @@ namespace PortaleRegione.BAL
                     result.Add(tmpG);
                 }
             }
-            
-            return result;
+
+            if (giunta != null)
+            {
+                result.Add(new GruppiDto
+                {
+                    id_gruppo = giunta.id_gruppo,
+                    codice_gruppo = "GR",
+                    nome_gruppo = "GIUNTA REGIONALE",
+                    abilita_em_privati = giunta.AbilitaEMPrivati,
+                    giunta = giunta.GiuntaRegionale,
+                    GruppoAD = giunta.GruppoAD,
+                    UID_Gruppo = giunta.UID_Gruppo
+                });
+            }
+
+            return result.OrderBy(g => g.nome_gruppo);
         }
     }
 }

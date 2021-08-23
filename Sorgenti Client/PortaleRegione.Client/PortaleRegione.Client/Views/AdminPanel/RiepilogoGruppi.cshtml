@@ -29,12 +29,44 @@
 
     @foreach (var gruppo in Model.Results)
     {
-        
         <div class="col l6 m6 s12">
             <div class="card hoverable">
+                <div class="card-action right">
+                    <i class="icon material-icons blue-text activator" style="cursor: pointer">edit</i>
+                </div>
                 <div class="card-content" onclick="">
-                    <div class="row valign-wrapper" style="margin: unset !important">
-                        <h4>@gruppo.nome_gruppo</h4>
+                    <div class="row" style="margin: unset !important">
+                        <h5>@gruppo.nome_gruppo</h5>
+                        <hr />
+                        <b>ID Gruppo (GeCo):</b> @gruppo.id_gruppo <br>
+                        <b>UID Gruppo:</b> @gruppo.UID_Gruppo <br>
+                        <b>Sigla:</b> @gruppo.codice_gruppo <br>
+                        @if (gruppo.data_inizio != DateTime.MinValue)
+                        {
+                            <b>Data inizio:</b> @gruppo.data_inizio.ToString("dd/MM/yyyy") <br>
+                        }
+                        else
+                        {
+                            <b>Data inizio:</b><br>
+                        }
+
+                        <b>Active Directory:</b> @gruppo.GruppoAD <br>
+                        <div style="display: flex; padding-top: 10px">
+                            <p>
+                                <label>
+                                    <input type="checkbox" disabled="disabled"
+                                           @Html.Raw(gruppo.abilita_em_privati == false ? "" : "checked=\"checked\"") />
+                                    <span>EM Privati</span>
+                                </label>
+                            </p>
+                            <p style="padding-left: 20px">
+                                <label>
+                                    <input type="checkbox" disabled="disabled"
+                                           @Html.Raw(gruppo.giunta == false ? "" : "checked=\"checked\"") />
+                                    <span>Giunta</span>
+                                </label>
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div class="card-reveal">
@@ -49,7 +81,7 @@
 </div>
 
 <script>
-    
+
     $(document).ready(async function() {
     });
 </script>

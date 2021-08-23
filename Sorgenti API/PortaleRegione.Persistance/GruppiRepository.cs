@@ -200,6 +200,13 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<JOIN_GRUPPO_AD> GetGiunta(int legislaturaAttiva)
+        {
+            return await PRContext
+                .JOIN_GRUPPO_AD
+                .FirstOrDefaultAsync(g => g.id_legislatura == legislaturaAttiva && g.GiuntaRegionale);
+        }
+
         public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,
             RuoliIntEnum role)
         {
