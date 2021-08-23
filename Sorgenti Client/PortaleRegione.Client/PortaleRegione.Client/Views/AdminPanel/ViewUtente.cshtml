@@ -34,27 +34,27 @@
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.UID_persona)
-                @Html.TextBoxFor(s => s.Persona.UID_persona, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.UID_persona, new {@class = "form-control", @readonly = true})
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.cognome)
-                @Html.TextBoxFor(s => s.Persona.cognome, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.cognome, new {@class = "form-control", @readonly = true })
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.nome)
-                @Html.TextBoxFor(s => s.Persona.nome, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.nome, new {@class = "form-control", @readonly = true })
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.email)
-                @Html.TextBoxFor(s => s.Persona.email, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.email, new {@class = "form-control", @readonly = true })
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.foto)
-                @Html.TextBoxFor(s => s.Persona.foto, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.foto, new {@class = "form-control", @readonly = true })
             </div>
 
             <div class="form-group">
@@ -65,7 +65,7 @@
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="No_Cons" name="No_Cons" type="checkbox" value="true"
+                        <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
                                @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "" : "checked=\"checked\"")>
                         <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
                     </label>
@@ -109,7 +109,7 @@
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="attivo" name="attivo" type="checkbox" value="true"
+                        <input id="attivo" name="attivo" type="checkbox" value="true" disabled="disabled"
                                @Html.Raw(attivo ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.attivo)</span>
                     </label>
@@ -121,7 +121,7 @@
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="deleted" name="deleted" type="checkbox" value="true"
+                        <input id="deleted" name="deleted" type="checkbox" value="true" disabled="disabled"
                                @Html.Raw(eliminato ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.deleted)</span>
                     </label>
