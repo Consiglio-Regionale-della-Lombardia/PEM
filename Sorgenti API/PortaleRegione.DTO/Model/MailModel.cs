@@ -22,6 +22,7 @@ namespace PortaleRegione.DTO.Model
     {
         public string DA { get; set; }
         public string A { get; set; }
+        public string CC { get; set; }
         public string OGGETTO { get; set; }
         public string MESSAGGIO { get; set; }
         public string pathAttachment { get; set; } = string.Empty;

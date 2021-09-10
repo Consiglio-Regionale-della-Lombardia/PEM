@@ -61,7 +61,7 @@
             </div>
         </div>
     }
-    <ul style="margin: 0">
+    <ul class="collapsible collapsible-accordion" style="margin: 0">
         <li>
             <div class="user-view" style="padding: 10px">
                 <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
@@ -172,29 +172,30 @@
                 </div>
             </div>
         </li>
-        <li class="menuItem_Sedute">
+        <li class="menuItem_Sedute bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "Sedute")"><i class="material-icons">event</i>Riepilogo sedute</a>
         </li>
-        <li class="menuItem_Notifiche">
+        <li class="menuItem_Notifiche bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
                 <i class="material-icons">email</i>Notifiche <div id="counterNotifiche" class="chip pink white-text right" style="min-width: unset; margin-top: 8px;"></div>
             </a>
         </li>
-        <li class="menuItem_Stampe">
+        <li class="menuItem_Stampe bold">
             <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
         </li>
         @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
         {
-            <li class="menuItem_Amministrazione">
-                <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">build</i>Amministrazione</a>
+            <li class="menuItem_Amministrazione_Utenti bold">
+                <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">person</i>Utenti</a>
             </li>
         }
         @if (currentRole == RuoliIntEnum.Amministratore_PEM)
         {
-            <li class="menuItem_Amministrazione_Gruppi">
-                <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Amministrazione Gruppi</a>
+            <li class="menuItem_Amministrazione_Gruppi bold">
+                <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Gruppi</a>
             </li>
         }
+        
     </ul>
     <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
         <div class="row valign-wrapper">

@@ -42,8 +42,8 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "GUID")] public Guid UID_persona { get; set; }
         public int id_persona { get; set; }
 
-        [Display(Name = "Cognome")] public string cognome { get; set; }
-        [Display(Name = "Nome")] public string nome { get; set; }
+        [Display(Name = "Cognome")] public string cognome { get; set; } = "";
+        [Display(Name = "Nome")] public string nome { get; set; } = "";
         [Display(Name = "Email")] public string email { get; set; }
         [Display(Name = "Foto")] public string foto { get; set; }
         [Display(Name = "Login di rete")] public string userAD { get; set; }
