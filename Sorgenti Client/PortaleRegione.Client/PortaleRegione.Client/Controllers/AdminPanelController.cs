@@ -158,6 +158,35 @@ namespace PortaleRegione.Client.Controllers
                 GruppiAD = listaGruppiRuoliAD
             });
         }
+        
+        /// <summary>
+        ///     Controller per creare un nuovo utente
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("new")]
+        public async Task<ActionResult> NuovoUtente()
+        {
+            var persona = new PersonaDto();
+            var ruoli = await AdminGate.GetRuoliAD();
+            var gruppiAD = await AdminGate.GetGruppiPoliticiAD();
+            var listaGruppiRuoliAD = ruoli.Select(ruolo => new AD_ObjectModel
+            {
+                GruppoAD = ruolo.ADGroup, Membro = false,
+                IsRuolo = true
+            }).ToList();
+            listaGruppiRuoliAD.AddRange(gruppiAD.Select(gruppo => new AD_ObjectModel
+            {
+                GruppoAD = gruppo.GruppoAD,
+                Membro = false, IsRuolo = false
+            }));
+
+            return View("ViewUtente", new ViewUtenteModel
+            {
+                Persona = persona,
+                GruppiAD = listaGruppiRuoliAD
+            });
+        }
 
         /// <summary>
         ///     Controller per modificare l' utente

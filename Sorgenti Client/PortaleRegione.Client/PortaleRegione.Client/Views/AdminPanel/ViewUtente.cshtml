@@ -1,7 +1,17 @@
 ﻿@model PortaleRegione.Client.Models.ViewUtenteModel
 
 @{
-    ViewBag.Title = Model.Persona.DisplayName;
+    var disable_fields = true;
+    if (Model.Persona.UID_persona == Guid.Empty)
+    {
+        ViewBag.Title = "Nuovo utente";
+        disable_fields = false;
+    }
+    else
+    {
+        ViewBag.Title = Model.Persona.DisplayName;
+        disable_fields = true;
+    }
     var backUrl = Url.Action("RiepilogoUtenti");
 }
 
@@ -27,39 +37,74 @@
 </div>
 <div class="row">
     <div class="col s12">
-        @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new {id = "formPersona"}))
+        @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new { id = "formPersona" }))
         {
             @Html.AntiForgeryToken()
             <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona"/>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.UID_persona)
-                @Html.TextBoxFor(s => s.Persona.UID_persona, new {@class = "form-control", @readonly = true})
+                @Html.TextBoxFor(s => s.Persona.UID_persona, new
+                {
+                    @class = "form-control", @readonly = true
+
+                })
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.cognome)
-                @Html.TextBoxFor(s => s.Persona.cognome, new {@class = "form-control", @readonly = true })
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.cognome, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.cognome, new { @class = "form-control" })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.nome)
-                @Html.TextBoxFor(s => s.Persona.nome, new {@class = "form-control", @readonly = true })
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.nome, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.nome, new { @class = "form-control" })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.email)
-                @Html.TextBoxFor(s => s.Persona.email, new {@class = "form-control", @readonly = true })
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.email, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.email, new { @class = "form-control" })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.foto)
-                @Html.TextBoxFor(s => s.Persona.foto, new {@class = "form-control", @readonly = true })
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.foto, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.foto, new
+                    {
+                        @class = "form-control"
+                    })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.userAD)
-                @Html.TextBoxFor(s => s.Persona.userAD, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.userAD, new { @class = "form-control" })
             </div>
 
             <div class="form-group">
@@ -71,7 +116,7 @@
                     </label>
                 </p>
             </div>
-            
+
             @*if (Model.Persona.Gruppo != null)
             {
                 <div class="form-group">
@@ -109,7 +154,7 @@
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="attivo" name="attivo" type="checkbox" value="true" disabled="disabled"
+                        <input id="attivo" name="attivo" type="checkbox" value="true" 
                                @Html.Raw(attivo ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.attivo)</span>
                     </label>
@@ -169,14 +214,15 @@
         submitHandler: function(form) {
 
             var groups = $('input[name="gruppiAD"]');
-           
+
             var selected_groups = []
-            $.each(groups, function(index, item) {
-                selected_groups.push({
-                    gruppoAd: $(item).data('name'),
-                    membro: $(item).is(":checked")
+            $.each(groups,
+                function(index, item) {
+                    selected_groups.push({
+                        gruppoAd: $(item).data('name'),
+                        membro: $(item).is(":checked")
+                    });
                 });
-            });
 
             var form_data = {
                 uid_persona: $('input[name="Persona.UID_persona"]').val(),

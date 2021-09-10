@@ -212,16 +212,17 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("salva")]
-        public async Task<IHttpActionResult> UpdateUtente(PersonaUpdateRequest request)
+        public async Task<IHttpActionResult> SalvaUtente(PersonaUpdateRequest request)
         {
             try
             {
-                await _logic.UpdateUtente(request);
+                var session = await GetSession();
+                await _logic.SalvaUtente(request, session._currentRole);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("UpdateUtente", e);
+                Log.Error("SalvaUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -237,7 +238,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
                 var results = await _logic.GetGruppi(model, Request.RequestUri);
                 return Ok(results);
             }

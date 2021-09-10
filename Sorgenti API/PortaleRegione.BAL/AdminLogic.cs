@@ -38,12 +38,14 @@ namespace PortaleRegione.BAL
     public class AdminLogic : BaseLogic
     {
         private readonly PersoneLogic _logicPersona;
+        private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona)
+        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
+            _logicUtil = logicUtil;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model)
@@ -244,7 +246,7 @@ namespace PortaleRegione.BAL
             if (ruoli_utente.Any())
             {
                 persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
-                persona.CurrentRole = (RuoliIntEnum) ruoli_utente[0].IDruolo;
+                persona.CurrentRole = (RuoliIntEnum)ruoli_utente[0].IDruolo;
             }
             else
             {
@@ -310,7 +312,7 @@ namespace PortaleRegione.BAL
                 var intranetAdService = new proxyAD();
                 foreach (var persona in persone_In_Db)
                 {
-                    if(!string.IsNullOrEmpty(persona.userAD))
+                    if (!string.IsNullOrEmpty(persona.userAD))
                     {
                         var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
                             persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
@@ -365,52 +367,82 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task UpdateUtente(PersonaUpdateRequest request)
+        public async Task SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo)
         {
             try
             {
                 var intranetAdService = new proxyAD();
 
-                foreach (var item in request.gruppiAd)
+                if (request.UID_persona == Guid.Empty)
                 {
-                    if (item.Membro)
-                    {
-                        try
-                        {
-                            var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD, AppSettingsConfiguration.TOKEN_W);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error($"Add - {item.GruppoAD}", e);
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD, request.userAD, 
-                                AppSettingsConfiguration.TOKEN_W);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error($"Remove - {item.GruppoAD}", e);
-                        }
-                    }
-                }
+                    //NUOVO
 
-                if (request.no_Cons == 1)
-                {
-                    //No CONS
-                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona, request.userAD);
+                    string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
+                    string autoPassword = _logicUtil.GenerateRandomCode();
+                    intranetAdService.CreatePEMADUser(
+                        request.userAD,
+                        autoPassword,
+                        ruolo == RuoliIntEnum.Amministratore_Giunta,
+                        AppSettingsConfiguration.TOKEN_W
+                    );
+
+
+
+                    await _logicUtil.InvioMail(new MailModel
+                    {
+                        DA = "pem@consiglio.regione.lombardia.it",
+                        A = request.email,
+                        CC = "max.pagliaro@consiglio.regione.lombardia.it",
+                        OGGETTO = "PEM - Utenza aperta",
+                        MESSAGGIO = $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                    });
                 }
                 else
                 {
-                    //Consigliere/Assessore
-                    var persona = await _unitOfWork.Persone.Get(request.UID_persona);
-                    persona.userAD = request.userAD;
-                    persona.notifica_firma = request.notifica_firma;
-                    persona.notifica_deposito = request.notifica_deposito;
-                    await _unitOfWork.CompleteAsync();
+                    foreach (var item in request.gruppiAd)
+                    {
+                        if (item.Membro)
+                        {
+                            try
+                            {
+                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
+                                    AppSettingsConfiguration.TOKEN_W);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Add - {item.GruppoAD}", e);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
+                                    request.userAD,
+                                    AppSettingsConfiguration.TOKEN_W);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Remove - {item.GruppoAD}", e);
+                            }
+                        }
+                    }
+
+                    if (request.no_Cons == 1)
+                    {
+                        //No CONS
+                        await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
+                            request.userAD);
+                    }
+                    else
+                    {
+                        //Consigliere/Assessore
+                        var persona = await _unitOfWork.Persone.Get(request.UID_persona);
+                        persona.userAD = request.userAD;
+                        persona.notifica_firma = request.notifica_firma;
+                        persona.notifica_deposito = request.notifica_deposito;
+                        await _unitOfWork.CompleteAsync();
+                    }
                 }
             }
             catch (Exception e)
