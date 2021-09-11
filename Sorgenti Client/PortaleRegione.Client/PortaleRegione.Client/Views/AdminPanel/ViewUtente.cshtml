@@ -40,13 +40,14 @@
         @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new { id = "formPersona" }))
         {
             @Html.AntiForgeryToken()
-            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona"/>
+            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona" />
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.UID_persona)
                 @Html.TextBoxFor(s => s.Persona.UID_persona, new
                 {
-                    @class = "form-control", @readonly = true
+                    @class = "form-control",
+                    @readonly = true
 
                 })
             </div>
@@ -108,22 +109,32 @@
             </div>
 
             <div class="form-group">
+                @Html.LabelFor(s => s.Persona.id_gruppo_politico_rif)
+                <select id="ddlRiferimentoGruppo">
+                    <option value="0">--</option>
+                    @foreach (var gruppo in Model.GruppiInDB)
+                    {
+                        if (Model.Persona.id_gruppo_politico_rif == gruppo.id)
+                        {
+                            <option value="@gruppo.id" selected="selected">@gruppo.descr</option>
+                        }
+                        else
+                        {
+                            <option value="@gruppo.id">@gruppo.descr</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
                 <p>
                     <label>
                         <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
-                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"" :  "")>
+                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
                     </label>
                 </p>
             </div>
-
-            @*if (Model.Persona.Gruppo != null)
-            {
-                <div class="form-group">
-                    @Html.LabelFor(s => s.Persona.Gruppo)
-                    @Html.TextBoxFor(s => s.Persona.Gruppo.nome_gruppo, new {@class = "form-control"})
-                </div>
-            }*@
 
             var notifica_Firma = Model.Persona.notifica_firma.HasValue ? Model.Persona.notifica_firma.Value : false;
 
@@ -154,7 +165,7 @@
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="attivo" name="attivo" type="checkbox" value="true" 
+                        <input id="attivo" name="attivo" type="checkbox" value="true"
                                @Html.Raw(attivo ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.attivo)</span>
                     </label>
@@ -223,7 +234,12 @@
                         membro: $(item).is(":checked")
                     });
                 });
-
+            var gruppo_riferimento = $("#ddlRiferimentoGruppo").children("option:selected");
+            var id_gruppo_politico_rif = 0;
+            $.each(gruppo_riferimento,
+                function (index, item) {
+                    id_gruppo_politico_rif = $(item).val();
+                });
             var form_data = {
                 uid_persona: $('input[name="Persona.UID_persona"]').val(),
                 id_persona: $('input[name="Persona.id_persona"]').val(),
@@ -237,7 +253,8 @@
                 attivo: $('input[name="attivo"]').is(":checked"),
                 deleted: $('input[name="deleted"]').is(":checked"),
                 no_cons: $('input[name="No_Cons"]').is(":checked") ? 0 : 1,
-                gruppiAd: selected_groups
+                gruppiAd: selected_groups,
+                id_gruppo_politico_rif: id_gruppo_politico_rif
             }
 
             //submit via ajax

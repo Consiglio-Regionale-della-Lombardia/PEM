@@ -151,11 +151,13 @@ namespace PortaleRegione.Client.Controllers
                 GruppoAD = gruppo.GruppoAD,
                 Membro = persona.Gruppi.Contains(gruppo.GruppoAD.Replace(@"CONSIGLIO\", "")), IsRuolo = false
             }));
+            var gruppiInDb = await PersoneGate.GetGruppi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
                 Persona = persona,
-                GruppiAD = listaGruppiRuoliAD
+                GruppiAD = listaGruppiRuoliAD,
+                GruppiInDB = gruppiInDb.ToList()
             });
         }
         
@@ -180,11 +182,13 @@ namespace PortaleRegione.Client.Controllers
                 GruppoAD = gruppo.GruppoAD,
                 Membro = false, IsRuolo = false
             }));
+            var gruppiInDb = await PersoneGate.GetGruppi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
                 Persona = persona,
-                GruppiAD = listaGruppiRuoliAD
+                GruppiAD = listaGruppiRuoliAD,
+                GruppiInDB = gruppiInDb.ToList()
             });
         }
 

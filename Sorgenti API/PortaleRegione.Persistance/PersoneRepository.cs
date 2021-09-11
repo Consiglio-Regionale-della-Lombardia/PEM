@@ -54,6 +54,12 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<UTENTI_NoCons> Get_NoCons(Guid personaUId)
+        {
+            var result = await PRContext.UTENTI_NoCons.SingleOrDefaultAsync(p => p.UID_persona == personaUId);
+            return result;
+        }
+
         public async Task<View_UTENTI> Get(int personaId)
         {
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();

@@ -12,5 +12,6 @@ namespace PortaleRegione.Client.Models
         }
         public PersonaDto Persona { get; set; }
         public ICollection<AD_ObjectModel> GruppiAD { get; set; }
+        public ICollection<KeyValueDto> GruppiInDB { get; set; }
     }
 }

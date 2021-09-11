@@ -66,6 +66,10 @@ namespace PortaleRegione.DTO.Domain
         public IEnumerable<RuoliDto> Ruoli { get; set; }
 
         [Display(Name = "Gruppo di riferimento")]
+
+        public int id_gruppo_politico_rif { get; set; }
+
+
         public GruppiDto Gruppo { get; set; }
 
         public RuoliIntEnum CurrentRole { get; set; }
