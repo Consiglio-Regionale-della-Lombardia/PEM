@@ -82,23 +82,24 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task ModificaPersona(PersonaUpdateRequest request)
+        public static async Task<Guid> SalvaPersona(PersonaUpdateRequest request)
         {
             try
             {
                 var requestUrl = $"{apiUrl}/admin/salva";
                 var body = JsonConvert.SerializeObject(request);
 
-                await Post(requestUrl, body);
+                var result = JsonConvert.DeserializeObject<Guid>(await Post(requestUrl, body));
+                return result;
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ModificaPersona", ex);
+                Log.Error("SalvaPersona", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ModificaPersona", ex);
+                Log.Error("SalvaPersona", ex);
                 throw ex;
             }
         }

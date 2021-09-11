@@ -199,9 +199,9 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                await AdminGate.ModificaPersona(request);
+                var result = await AdminGate.SalvaPersona(request);
 
-                return Json(Url.Action("ViewUtente", "AdminPanel", new { id = request.UID_persona })
+                return Json(Url.Action("ViewUtente", "AdminPanel", new { id = result })
                     , JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

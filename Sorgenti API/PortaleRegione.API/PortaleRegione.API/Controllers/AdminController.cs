@@ -217,8 +217,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var session = await GetSession();
-                await _logic.SalvaUtente(request, session._currentRole);
-                return Ok();
+                var uid_persona = await _logic.SalvaUtente(request, session._currentRole);
+                return Ok(uid_persona);
             }
             catch (Exception e)
             {

@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Domain
 {
@@ -100,5 +101,24 @@ namespace PortaleRegione.Domain
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FIRME> FIRME { get; set; }
+
+
+        public static implicit operator UTENTI_NoCons(PersonaUpdateRequest persona)
+        {
+            return new UTENTI_NoCons
+            {
+                UID_persona = persona.UID_persona,
+                cognome = persona.cognome,
+                nome = persona.nome,
+                email = persona.email,
+                RichiediModificaPWD = false,
+                UserAD = persona.userAD,
+                notifica_deposito = persona.notifica_deposito,
+                notifica_firma = persona.notifica_firma,
+                id_gruppo_politico_rif = persona.id_gruppo_politico_rif,
+                deleted = false,
+                attivo = true
+            };
+        }
     }
 }

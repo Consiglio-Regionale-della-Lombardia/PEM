@@ -18,6 +18,7 @@ namespace PortaleRegione.DTO.Request
         public bool notifica_deposito { get; set; } = false;
         public bool deleted { get; set; } = false;
         public bool attivo { get; set; } = false;
+        public int id_gruppo_politico_rif { get; set; }
 
         public List<AD_ObjectModel> gruppiAd { get; set; }
     }

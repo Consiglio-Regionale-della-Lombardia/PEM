@@ -41,7 +41,7 @@ namespace PortaleRegione.BAL
         public string GenerateRandomCode()
         {
             var _random = new Random();
-            return _random.Next(1101, 9999).ToString();
+            return _random.Next(11010001, 99999999).ToString();
         }
         
         public async Task InvioMail(MailModel model)

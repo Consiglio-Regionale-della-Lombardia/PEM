@@ -55,5 +55,6 @@ namespace PortaleRegione.Contracts
         Task SavePin(Guid personaUId, string nuovo_pin, bool reset);
         Task DeletePersona(int id);
         Task UpdateUtente_NoCons(Guid uid_persona, int id_persona, string userAd);
+        void Add(UTENTI_NoCons newUser);
     }
 }

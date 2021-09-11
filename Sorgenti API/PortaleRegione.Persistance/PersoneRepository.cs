@@ -324,5 +324,10 @@ namespace PortaleRegione.Persistance
                     $"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
             }
         }
+
+        public void Add(UTENTI_NoCons newUser)
+        {
+            PRContext.UTENTI_NoCons.Add(newUser);
+        }
     }
 }

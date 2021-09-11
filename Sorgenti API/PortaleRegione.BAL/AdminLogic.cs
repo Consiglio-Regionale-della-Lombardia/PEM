@@ -367,7 +367,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo)
+        public async Task<Guid> SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo)
         {
             try
             {
@@ -377,6 +377,7 @@ namespace PortaleRegione.BAL
                 {
                     //NUOVO
 
+#if DEBUG == false
                     string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
                     string autoPassword = _logicUtil.GenerateRandomCode();
                     intranetAdService.CreatePEMADUser(
@@ -385,20 +386,29 @@ namespace PortaleRegione.BAL
                         ruolo == RuoliIntEnum.Amministratore_Giunta,
                         AppSettingsConfiguration.TOKEN_W
                     );
+#endif
 
+                    request.UID_persona = Guid.NewGuid();
+                    request.no_Cons = 0;
+                    UTENTI_NoCons newUser = request;
+                    _unitOfWork.Persone.Add(newUser);
+                    await _unitOfWork.CompleteAsync();
 
-
+#if DEBUG == false
                     await _logicUtil.InvioMail(new MailModel
                     {
                         DA = "pem@consiglio.regione.lombardia.it",
                         A = request.email,
                         CC = "max.pagliaro@consiglio.regione.lombardia.it",
                         OGGETTO = "PEM - Utenza aperta",
-                        MESSAGGIO = $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                        MESSAGGIO =
+ $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
                     });
+#endif
                 }
                 else
                 {
+#if DEBUG == false
                     foreach (var item in request.gruppiAd)
                     {
                         if (item.Membro)
@@ -427,6 +437,7 @@ namespace PortaleRegione.BAL
                             }
                         }
                     }
+#endif
 
                     if (request.no_Cons == 1)
                     {
@@ -444,6 +455,8 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.CompleteAsync();
                     }
                 }
+
+                return request.UID_persona;
             }
             catch (Exception e)
             {

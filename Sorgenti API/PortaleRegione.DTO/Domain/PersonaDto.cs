@@ -49,7 +49,7 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Login di rete")] public string userAD { get; set; }
 
         [Display(Name = "Consigliere/Assessore")]
-        public int No_Cons { get; set; }
+        public int No_Cons { get; set; } = 0;
 
         [Display(Name = "Notifica alla firma")]
         public bool? notifica_firma { get; set; }

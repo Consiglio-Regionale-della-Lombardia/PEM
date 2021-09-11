@@ -111,7 +111,7 @@
                 <p>
                     <label>
                         <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
-                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "" : "checked=\"checked\"")>
+                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"" :  "")>
                         <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
                     </label>
                 </p>
@@ -131,7 +131,7 @@
                 <p>
                     <label>
                         <input id="notifica_firma" name="notifica_firma" type="checkbox" value="true"
-                               @Html.Raw(notifica_Firma ? "" : "checked=\"checked\"")>
+                               @Html.Raw(notifica_Firma ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.notifica_firma)</span>
                     </label>
                 </p>
@@ -252,7 +252,11 @@
                     if (dataResult.message)
                         ErrorAlert(dataResult.message);
                     else {
-                        SuccessAlert("Profilo salvato correttamente");
+                        if ($('input[name="Persona.UID_persona"]').val() == "@Html.Raw(Guid.Empty)") {
+                            go(dataResult);
+                        } else {
+                            SuccessAlert("Profilo salvato correttamente");
+                        }
                     }
                 })
                 .fail(function(err) {
