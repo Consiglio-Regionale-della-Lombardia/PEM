@@ -77,6 +77,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_PINS> View_PINS { get; set; }
         public virtual DbSet<View_UTENTI> View_UTENTI { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }
+        public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

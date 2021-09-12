@@ -212,13 +212,13 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<BaseResponse<GruppiDto>> GetGruppiAdmin(BaseRequest<GruppiDto> request)
+        public static async Task<List<AdminGruppiModel>> GetGruppiAdmin(BaseRequest<GruppiDto> request)
         {
             try
             {
                 var requestUrl = $"{apiUrl}/admin/groups/view";
                 var body = JsonConvert.SerializeObject(request);
-                var lst = JsonConvert.DeserializeObject<BaseResponse<GruppiDto>>(await Post(requestUrl, body));
+                var lst = JsonConvert.DeserializeObject<List<AdminGruppiModel>>(await Post(requestUrl, body));
 
                 return lst;
             }

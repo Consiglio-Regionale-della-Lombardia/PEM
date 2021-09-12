@@ -77,6 +77,7 @@
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
+    <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AssegnaProponenteModel.cs" />
     <Compile Include="Model\AttiFormUpdateModel.cs" />

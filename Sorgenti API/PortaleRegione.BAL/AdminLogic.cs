@@ -476,19 +476,53 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<BaseResponse<GruppiDto>> GetGruppi(BaseRequest<GruppiDto> model, Uri url)
+        public async Task<List<AdminGruppiModel>> GetGruppi(BaseRequest<GruppiDto> model, Uri url)
         {
             try
             {
-                var results = await _logicPersona.GetGruppi(model);
+                var gruppi = await _logicPersona.GetGruppi(model);
+                var result = new List<AdminGruppiModel>();
+                var intranetAdService = new proxyAD();
 
-                return new BaseResponse<GruppiDto>(
-                    model.page,
-                    model.size,
-                    results,
-                    model.filtro,
-                    results.Count(),
-                    url);
+                foreach (var gruppiDto in gruppi)
+                {
+                    var gruppoModel = new AdminGruppiModel
+                    {
+                        Gruppo = gruppiDto,
+                    };
+
+                    var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""), AppSettingsConfiguration.TOKEN_R);
+
+                    if (gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
+                    {
+                        var assessori = await _unitOfWork.Gruppi.GetAssessoriInCarica();
+                        foreach (var assessore in assessori)
+                        {
+                            if (!users_ad.Contains(assessore.Replace(@"CONSIGLIO\", "")))
+                            {
+                                gruppoModel.Error_AD_Message += $"{assessore};";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(gruppiDto.id_gruppo);
+                        foreach (var consigliere in consiglieri)
+                        {
+                            if (!users_ad.Contains(consigliere.Replace(@"CONSIGLIO\", "")))
+                            {
+                                gruppoModel.Error_AD_Message += $"{consigliere};";
+                            }
+                        }
+                    }
+
+                    gruppoModel.Error_AD = !string.IsNullOrEmpty(gruppoModel.Error_AD_Message);
+                    if (gruppoModel.Error_AD_Message.Length > 0)
+                        gruppoModel.Error_AD_Message = gruppoModel.Error_AD_Message.Substring(0, gruppoModel.Error_AD_Message.Length - 1);
+                    result.Add(gruppoModel);
+                }
+
+                return result;
             }
             catch (Exception e)
             {
@@ -608,8 +642,18 @@ namespace PortaleRegione.BAL
                 //CREO IL GRUPPO IN ACTIVE DIRECTORY
                 try
                 {
-                    var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(request.Id_Gruppo);
-                    var user_list = consiglieri.Aggregate((i, j) => i + ";" + j);
+                    var user_list = "";
+                    if (request.Id_Gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
+                    {
+                        var assessori = await _unitOfWork.Gruppi.GetAssessoriInCarica();
+                        user_list = assessori.Aggregate((i, j) => i + ";" + j);
+                    }
+                    else
+                    {
+                        var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(request.Id_Gruppo);
+                        user_list = consiglieri.Aggregate((i, j) => i + ";" + j);
+                    }
+                    
                     user_list = user_list.Replace(@"CONSIGLIO\", "");
 
                     var intranetAdService = new proxyAD();

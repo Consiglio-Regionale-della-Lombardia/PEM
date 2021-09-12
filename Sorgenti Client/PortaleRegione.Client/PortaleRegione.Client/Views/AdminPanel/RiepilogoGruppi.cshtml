@@ -1,4 +1,4 @@
-﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.GruppiDto>
+﻿@model List<PortaleRegione.DTO.Model.AdminGruppiModel>
 
 @{
     ViewBag.Title = "Amministrazione Gruppi";
@@ -14,7 +14,7 @@
 
 <div id="gruppiTable" class="row">
 
-    @if (!Model.Results.Any())
+    @if (!Model.Any())
     {
         <div class="row">
             <div class="col s12">
@@ -27,11 +27,19 @@
         </div>
     }
 
-    @foreach (var gruppo in Model.Results)
+    @foreach (var gruppoDto in Model)
     {
+        var gruppo = gruppoDto.Gruppo;
+        var css_error = "";
+        if (gruppoDto.Error_AD)
+        {
+            css_error = "red white-text";
+        }
+
         <div class="col l6 m6 s12">
-            <div class="card hoverable">
+            <div class="card hoverable @css_error">
                 <div class="card-action right">
+                    <i class="icon material-icons white-text tooltipped" style="cursor: pointer" data-tooltip="@gruppoDto.Error_AD_Message">info</i>
                     <i class="icon material-icons blue-text activator" style="cursor: pointer">edit</i>
                 </div>
                 <div class="card-content" onclick="">

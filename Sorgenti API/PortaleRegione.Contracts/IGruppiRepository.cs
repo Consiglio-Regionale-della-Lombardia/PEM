@@ -41,6 +41,8 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma, bool notifica_deposito);
         Task<IEnumerable<View_UTENTI>> GetConsiglieriGruppo(int id_legislatura, int id_gruppo);
         Task<IEnumerable<string>> GetConsiglieriInCarica(int id_gruppo);
+        Task<IEnumerable<string>> GetAssessoriInCarica();
+
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi, RuoliIntEnum personaDtoCurrentRole);
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(Guid personaUId, bool IsGiunta);
 

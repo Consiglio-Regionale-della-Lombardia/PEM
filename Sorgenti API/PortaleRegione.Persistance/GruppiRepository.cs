@@ -199,6 +199,22 @@ namespace PortaleRegione.Persistance
             return join_persona_ad;
         }
 
+        public async Task<IEnumerable<string>> GetAssessoriInCarica()
+        {
+            var assessori_in_carica = await PRContext
+                .View_assessori_in_carica
+                .Select(c => c.UID_persona)
+                .ToListAsync();
+
+            var join_persona_ad = await PRContext
+                .join_persona_AD
+                .Where(p => assessori_in_carica.Contains(p.UID_persona))
+                .Select(p => p.UserAD)
+                .ToListAsync();
+
+            return join_persona_ad;
+        }
+
         public async Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma,
             bool notifica_deposito)
         {
