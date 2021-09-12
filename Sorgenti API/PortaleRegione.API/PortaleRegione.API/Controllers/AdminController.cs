@@ -245,6 +245,27 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        /// Endpoint per aggiornare i dati del gruppo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-gruppo")]
+        public async Task<IHttpActionResult> SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                await _logic.SalvaGruppo(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("SalvaGruppo", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per avere i gruppi nel db

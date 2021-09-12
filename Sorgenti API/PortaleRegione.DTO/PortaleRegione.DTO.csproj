@@ -115,6 +115,7 @@
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
+    <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

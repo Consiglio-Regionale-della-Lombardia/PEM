@@ -233,5 +233,27 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public static async Task SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/salva-gruppo";
+                var body = JsonConvert.SerializeObject(request);
+
+                await Post(requestUrl, body);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SalvaGruppo", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SalvaGruppo", ex);
+                throw ex;
+            }
+
+        }
     }
 }

@@ -301,5 +301,26 @@ namespace PortaleRegione.Client.Controllers
             var request = new BaseRequest<GruppiDto>();
             return View("RiepilogoGruppi", await AdminGate.GetGruppiAdmin(request));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                await AdminGate.SalvaGruppo(request);
+
+                return Json(Url.Action("RiepilogoGruppi", "AdminPanel")
+                    , JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

@@ -593,5 +593,22 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                var gruppo = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(request.Id_Gruppo);
+                gruppo.GruppoAD = request.GruppoAD;
+                gruppo.AbilitaEMPrivati = request.abilita_em_privati;
+                gruppo.GiuntaRegionale = request.giunta;
+                await _unitOfWork.CompleteAsync();
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }
