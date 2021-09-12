@@ -80,7 +80,7 @@ namespace PortaleRegione.Persistance
             return lstGruppi.Any() ? lstGruppi[0] : null;
         }
 
-        public async Task<IEnumerable<KeyValueDto>> GetAll(int id_legislatura)
+        public async Task<IEnumerable<KeyValueDto>> GetAllAttivi(int id_legislatura)
         {
             var query = PRContext
                 .JOIN_GRUPPO_AD
@@ -99,6 +99,36 @@ namespace PortaleRegione.Persistance
                 })
                 .ToListAsync();
             return lstGruppi;
+        }
+
+        public async Task<IEnumerable<KeyValueDto>> GetAll()
+        {
+            var query = PRContext
+                .JOIN_GRUPPO_AD
+                .Join(PRContext
+                        .gruppi_politici,
+                    p => p.id_gruppo,
+                    g => g.id_gruppo,
+                    (p, g) => g);
+            var lstGruppi = await query.ToListAsync();
+            var result = new List<KeyValueDto>();
+
+            foreach (var gruppiPolitici in lstGruppi)
+            {
+                var join_gp_legislature = await PRContext
+                    .join_gruppi_politici_legislature
+                    .FirstAsync(g => g.id_gruppo == gruppiPolitici.id_gruppo);
+                var legislatura_gruppo = await PRContext.legislature.FindAsync(join_gp_legislature.id_legislatura);
+                result.Add(new KeyValueDto
+                {
+                    id = gruppiPolitici.id_gruppo,
+                    descr = gruppiPolitici.nome_gruppo,
+                    sigla = gruppiPolitici.codice_gruppo,
+                    descr_con_legislatura = $"{gruppiPolitici.nome_gruppo} ({legislatura_gruppo.num_legislatura} leg.)"
+                });
+            }
+
+            return result;
         }
 
         public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
@@ -205,6 +235,13 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .JOIN_GRUPPO_AD
                 .FirstOrDefaultAsync(g => g.id_legislatura == legislaturaAttiva && g.GiuntaRegionale);
+        }
+
+        public async Task<JOIN_GRUPPO_AD> GetJoinGruppoAdmin(int gruppo)
+        {
+            return await PRContext
+                .JOIN_GRUPPO_AD
+                .FirstOrDefaultAsync(g => g.id_gruppo == gruppo);
         }
 
         public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,

@@ -33,7 +33,7 @@ namespace PortaleRegione.API.Controllers
     /// <summary>
     ///     Controller per la gestione dei servizi esterni
     /// </summary>
-    [Authorize(Roles = RuoliEnum.SERVIZIO_JOB)]
+    [Authorize(Roles = RuoliExt.SERVIZIO_JOB)]
     [RoutePrefix("job")]
     public class JobController : BaseApiController
     {

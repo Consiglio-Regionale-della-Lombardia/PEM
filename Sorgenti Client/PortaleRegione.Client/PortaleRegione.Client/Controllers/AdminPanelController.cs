@@ -35,7 +35,7 @@ namespace PortaleRegione.Client.Controllers
     /// <summary>
     ///     Controller amministrazione
     /// </summary>
-    [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Amministratore_Giunta)]
+    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
     [RoutePrefix("adminpanel")]
     public class AdminPanelController : BaseController
     {
@@ -51,13 +51,13 @@ namespace PortaleRegione.Client.Controllers
         {
             var request = new BaseRequest<PersonaDto> { page = page, size = size };
 
-            request.filtro.Add(new FilterStatement<PersonaDto>
-            {
-                PropertyId = nameof(PersonaDto.No_Cons),
-                Operation = Operation.EqualTo,
-                Value = 1,
-                Connector = FilterStatementConnector.And
-            });
+            //request.filtro.Add(new FilterStatement<PersonaDto>
+            //{
+            //    PropertyId = nameof(PersonaDto.No_Cons),
+            //    Operation = Operation.EqualTo,
+            //    Value = 1,
+            //    Connector = FilterStatementConnector.And
+            //});
 
             return View("RiepilogoUtenti", await AdminGate.GetPersone(new BaseRequest<PersonaDto>
             {
@@ -80,6 +80,8 @@ namespace PortaleRegione.Client.Controllers
             var filtro_q = Request.Form["q"];
             var filtro_no_cons = Request.Form["no_cons"];
             var filtro_legislatura = Request.Form["legislatura"];
+            var filtro_ruoli = Request.Form["ruoli"];
+            var filtro_gruppi = Request.Form["gruppi"];
             var request = new BaseRequest<PersonaDto> { page = filtro_page, size = filtro_size };
             if (!string.IsNullOrEmpty(filtro_q))
             {
@@ -125,6 +127,36 @@ namespace PortaleRegione.Client.Controllers
                 }
             }
 
+            if (!string.IsNullOrEmpty(filtro_ruoli))
+            {
+                var split_filter = filtro_ruoli.Split(',');
+                foreach (var s in split_filter)
+                {
+                    request.filtro.Add(new FilterStatement<PersonaDto>
+                    {
+                        PropertyId = nameof(PersonaDto.Ruoli),
+                        Operation = Operation.EqualTo,
+                        Value = s,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(filtro_gruppi))
+            {
+                var split_filter = filtro_gruppi.Split(',');
+                foreach (var s in split_filter)
+                {
+                    request.filtro.Add(new FilterStatement<PersonaDto>
+                    {
+                        PropertyId = nameof(PersonaDto.id_gruppo_politico_rif),
+                        Operation = Operation.EqualTo,
+                        Value = s,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+
             var result = await AdminGate.GetPersone(request);
             return View("RiepilogoUtenti", result);
         }
@@ -151,7 +183,7 @@ namespace PortaleRegione.Client.Controllers
                 GruppoAD = gruppo.GruppoAD,
                 Membro = persona.Gruppi.Contains(gruppo.GruppoAD.Replace(@"CONSIGLIO\", "")), IsRuolo = false
             }));
-            var gruppiInDb = await PersoneGate.GetGruppi();
+            var gruppiInDb = await PersoneGate.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
@@ -182,7 +214,7 @@ namespace PortaleRegione.Client.Controllers
                 GruppoAD = gruppo.GruppoAD,
                 Membro = false, IsRuolo = false
             }));
-            var gruppiInDb = await PersoneGate.GetGruppi();
+            var gruppiInDb = await PersoneGate.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
@@ -247,6 +279,13 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpGet]
+        [Route("gruppi-in-db")]
+        public async Task<ActionResult> GetGruppiInDb()
+        {
+            return Json(await AdminGate.GetGruppiInDb(), JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

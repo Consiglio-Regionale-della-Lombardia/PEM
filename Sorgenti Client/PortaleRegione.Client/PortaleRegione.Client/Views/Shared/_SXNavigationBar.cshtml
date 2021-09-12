@@ -31,7 +31,7 @@
                 foto = data.foto;
                 gruppo = data.Gruppo;
                 carica = data.IsGiunta() ? data.Carica : string.Empty;
-                if (HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
+                if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                 {
                     var gCookie = Request.Cookies["GCookies"];
                     if (gCookie != null)
@@ -135,10 +135,10 @@
                     <div class="col s12" style="margin-top: -15px">
                         @{
                             var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
-                            if (HttpContext.Current.User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale)
-                                || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_Giunta))
+                            if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
                             {
                                 testoGruppo = "Giunta";
                             }
@@ -161,7 +161,7 @@
                                 </ul>
                             }
 
-                            if (!HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+                            if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                             {
                                 <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
                                     @testoGruppo @Html.Raw(iconClassSwapGruppi)

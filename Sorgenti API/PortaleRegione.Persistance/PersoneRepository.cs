@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
@@ -84,8 +85,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size,
-            Filter<View_UTENTI> filtro = null)
+        public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size, Filter<View_UTENTI> filtro = null)
         {
             var gruppi_giunta = await PRContext
                 .JOIN_GRUPPO_AD

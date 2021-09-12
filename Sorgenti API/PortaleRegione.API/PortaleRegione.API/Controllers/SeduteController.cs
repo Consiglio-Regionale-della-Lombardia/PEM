@@ -98,7 +98,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid seduta</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpDelete]
         [Route("")]
         public async Task<IHttpActionResult> DeleteSeduta(Guid id)
@@ -136,7 +136,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="sedutaDto">Modello seduta da inserire</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route("")]
         public async Task<IHttpActionResult> NuovaSeduta(SeduteDto sedutaDto)
@@ -168,7 +168,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="sedutaDto">Modello seduta da modificare</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
         [Route("")]
         public async Task<IHttpActionResult> ModificaSeduta(SeduteFormUpdateDto sedutaDto)

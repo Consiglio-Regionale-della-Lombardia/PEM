@@ -199,11 +199,11 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <param name="em_riferimentoUId"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea + "," +
-                           RuoliEnum.Consigliere_Regionale + "," + RuoliEnum.Assessore_Sottosegretario_Giunta + "," +
-                           RuoliEnum.Responsabile_Segreteria_Politica + "," + RuoliEnum.Segreteria_Politica + "," +
-                           RuoliEnum.Responsabile_Segreteria_Giunta + "," + RuoliEnum.Segreteria_Giunta_Regionale +
-                           "," + RuoliEnum.Presidente_Regione)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
+                           RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
+                           RuoliExt.Responsabile_Segreteria_Politica + "," + RuoliExt.Segreteria_Politica + "," +
+                           RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
+                           "," + RuoliExt.Presidente_Regione)]
         [Route("new")]
         public async Task<IHttpActionResult> GetNuovoEmendamento(Guid id, Guid? em_riferimentoUId)
         {
@@ -232,11 +232,11 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea + "," +
-                           RuoliEnum.Consigliere_Regionale + "," + RuoliEnum.Assessore_Sottosegretario_Giunta + "," +
-                           RuoliEnum.Responsabile_Segreteria_Politica + "," + RuoliEnum.Segreteria_Politica + "," +
-                           RuoliEnum.Responsabile_Segreteria_Giunta + "," + RuoliEnum.Segreteria_Giunta_Regionale +
-                           "," + RuoliEnum.Presidente_Regione)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
+                           RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
+                           RuoliExt.Responsabile_Segreteria_Politica + "," + RuoliExt.Segreteria_Politica + "," +
+                           RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
+                           "," + RuoliExt.Presidente_Regione)]
         [Route("edit")]
         public async Task<IHttpActionResult> GetModificaEmendamento(Guid id)
         {
@@ -266,11 +266,11 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model">Modello emendamento da inserire</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea + "," +
-                           RuoliEnum.Consigliere_Regionale + "," + RuoliEnum.Assessore_Sottosegretario_Giunta + "," +
-                           RuoliEnum.Responsabile_Segreteria_Politica + "," + RuoliEnum.Segreteria_Politica + "," +
-                           RuoliEnum.Responsabile_Segreteria_Giunta + "," + RuoliEnum.Segreteria_Giunta_Regionale +
-                           "," + RuoliEnum.Presidente_Regione)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
+                           RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
+                           RuoliExt.Responsabile_Segreteria_Politica + "," + RuoliExt.Segreteria_Politica + "," +
+                           RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
+                           "," + RuoliExt.Presidente_Regione)]
         [HttpPost]
         [Route("")]
         public async Task<IHttpActionResult> NuovoEmendamento(EmendamentiDto model)
@@ -348,11 +348,11 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea + "," +
-                           RuoliEnum.Consigliere_Regionale + "," + RuoliEnum.Assessore_Sottosegretario_Giunta + "," +
-                           RuoliEnum.Responsabile_Segreteria_Politica + "," + RuoliEnum.Segreteria_Politica + "," +
-                           RuoliEnum.Responsabile_Segreteria_Giunta + "," + RuoliEnum.Segreteria_Giunta_Regionale +
-                           "," + RuoliEnum.Presidente_Regione)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
+                           RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
+                           RuoliExt.Responsabile_Segreteria_Politica + "," + RuoliExt.Segreteria_Politica + "," +
+                           RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
+                           "," + RuoliExt.Presidente_Regione)]
         [HttpPut]
         [Route("")]
         public async Task<IHttpActionResult> ModificaEmendamento(EmendamentiDto model)
@@ -481,7 +481,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("proietta")]
         public async Task<IHttpActionResult> ProiettaEmendamento(Guid id)
@@ -621,9 +621,9 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="firmaModel"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea + "," +
-                           RuoliEnum.Consigliere_Regionale + "," + RuoliEnum.Assessore_Sottosegretario_Giunta + "," +
-                           RuoliEnum.Presidente_Regione)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
+                           RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
+                           RuoliExt.Presidente_Regione)]
         [HttpPost]
         [Route("firma")]
         public async Task<IHttpActionResult> FirmaEmendamento(ComandiAzioneModel firmaModel)
@@ -926,7 +926,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("edit-meta-dati")]
         public async Task<IHttpActionResult> GetModificaMetaDatiEmendamento(Guid id)
         {
@@ -948,7 +948,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("meta-dati")]
         [HttpPut]
         public async Task<IHttpActionResult> ModificaMetaDatiEmendamento(EmendamentiDto model)
@@ -982,7 +982,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
         [Route("modifica-stato")]
         public async Task<IHttpActionResult> ModificaStatoEmendamento(ModificaStatoModel model)
@@ -1006,7 +1006,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
         [Route("assegna-nuovo-proponente")]
         public async Task<IHttpActionResult> AssegnaNuovoPorponente(AssegnaProponenteModel model)
@@ -1049,7 +1049,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
         [Route("raggruppa")]
         public async Task<IHttpActionResult> RaggruppaEmendamenti(RaggruppaEmendamentiModel model)
@@ -1085,7 +1085,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("ordina")]
         public async Task<IHttpActionResult> ORDINA_EM_TRATTAZIONE(Guid id)
@@ -1108,7 +1108,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("ordinamento-concluso")]
         public async Task<IHttpActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
@@ -1135,7 +1135,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("ordina-up")]
         public async Task<IHttpActionResult> UP_EM_TRATTAZIONE(Guid id)
@@ -1158,7 +1158,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("ordina-down")]
         public async Task<IHttpActionResult> DOWN_EM_TRATTAZIONE(Guid id)
@@ -1182,7 +1182,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <param name="pos">Int posizione dove spostare l'emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("sposta")]
         public async Task<IHttpActionResult> SPOSTA_EM_TRATTAZIONE(Guid id, int pos)

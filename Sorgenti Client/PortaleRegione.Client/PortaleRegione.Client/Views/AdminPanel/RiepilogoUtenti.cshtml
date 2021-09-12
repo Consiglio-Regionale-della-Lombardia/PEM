@@ -133,7 +133,7 @@
     }
 </div>
 
-<div id="slide-out-DX" class="sidenav">
+<div id="slide-out-DX" class="sidenav sidenav-search" style="overflow: auto !important">
     <div class="row">
         <div class="col s12">
             @using (Html.BeginForm("SearchUsers", "AdminPanel", FormMethod.Post, new { id = "formSearchUsers" }))
@@ -145,6 +145,29 @@
                 <div class="form-group">
                     <label>Ricerca per persona</label>
                     <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.cognome)) ? Model.Filters.First(f => f.PropertyId == nameof(PersonaDto.cognome)).Value : "")" />
+                </div>
+                <div class="form-group">
+                    <label>Ruoli</label>
+                    <select id="filter_ruoli" name="ruoli" class="form-control" multiple="multiple">
+                        <option value="">--</option>
+                        <option value="@((int)RuoliIntEnum.Amministratore_PEM)">Amministratore PEM</option>
+                        <option value="@((int)RuoliIntEnum.Presidente_Regione)">Presidente della Regione Lombardia</option>
+                        <option value="@((int)RuoliIntEnum.Amministratore_Giunta)">Amministratore Giunta</option>
+                        <option value="@((int)RuoliIntEnum.Assessore_Sottosegretario_Giunta)">Assessore/Sottosegretario Giunta</option>
+                        <option value="@((int)RuoliIntEnum.Segreteria_Assemblea)">Segreteria dell'Assemblea</option>
+                        <option value="@((int)RuoliIntEnum.Consigliere_Regionale)">Consigliere</option>
+                        <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Politica)">Responsabile di segreteria Politica</option>
+                        <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Giunta)">Responsabile di segreteria Giunta</option>
+                        <option value="@((int)RuoliIntEnum.Segreteria_Giunta_Regionale)">Segreteria Giunta</option>
+                        <option value="@((int)RuoliIntEnum.Segreteria_Politica)">Segreteria Politica</option>
+                        <option value="@((int)RuoliIntEnum.Utente)">Utente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Gruppi</label>
+                    <select id="filter_gruppi" name="gruppi" class="form-control" multiple="multiple">
+                        <option value="">--</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <p>
@@ -230,7 +253,7 @@
 
             var elems = document.querySelectorAll("#filter_legislature");
             M.FormSelect.init(elems, null);
-            
+
             if(currentFilter.length > 0) {
                 var selected_filter = [];
                 $.each(currentFilter, function(index, item) {
@@ -239,6 +262,46 @@
                 $('#filter_legislature').val(selected_filter);
                 $('#filter_legislature').formSelect();
             }
+        }
+    }
+
+    async function loadGruppi() {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f=> f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif))));
+        var gruppi = await GetGruppiInDb();
+        if (gruppi.length > 0) {
+            var select = $("#filter_gruppi");
+            select.empty();
+            select.append('<option value="0">Seleziona</option>');
+
+            $.each(gruppi,
+                function(index, item) {
+                    var template = "<option></option>";
+                    select.append($(template).val(item.id).html(item.descr_con_legislatura));
+                });
+
+            var elems = document.querySelectorAll("#filter_gruppi");
+            M.FormSelect.init(elems, null);
+
+            if(currentFilter.length > 0) {
+                var selected_filter = [];
+                $.each(currentFilter, function(index, item) {
+                    selected_filter.push(item.Value.replace(/-/g, ""));
+                });
+                $('#filter_gruppi').val(selected_filter);
+                $('#filter_gruppi').formSelect();
+            }
+        }
+    }
+    
+    function loadRuoli() {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f=> f.PropertyId == nameof(PersonaDto.Ruoli))));
+        if(currentFilter.length > 0) {
+            var selected_filter = [];
+            $.each(currentFilter, function(index, item) {
+                selected_filter.push(item.Value.replace(/-/g, ""));
+            });
+            $('#filter_ruoli').val(selected_filter);
+            $('#filter_ruoli').formSelect();
         }
     }
 
@@ -307,7 +370,6 @@
         });
     });
 
-
     function openResetPin(id, displayName) {
         $('#btnResetPin').attr("disabled", false);
         $('#hdPersonaUID').val(id);
@@ -324,5 +386,7 @@
 
     $(document).ready(async function() {
         await loadLegislature();
+        await loadGruppi();
+        loadRuoli();
     });
 </script>

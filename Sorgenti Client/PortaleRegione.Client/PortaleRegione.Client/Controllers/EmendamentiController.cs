@@ -75,8 +75,8 @@ namespace PortaleRegione.Client.Controllers
                 foreach (var emendamentiDto in model.Data.Results)
                     emendamentiDto.BodyEM = await EMGate.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
 
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoEM_Admin", model);
 
             if (mode == ClientModeEnum.GRUPPI)
@@ -133,13 +133,13 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> NuovoEmendamento(Guid id)
         {
             var emModel = await EMGate.GetNuovoModel(id, Guid.Empty);
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("EmendamentoFormAdmin", emModel);
-            if (HttpContext.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Politica) ||
-                HttpContext.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta) ||
-                HttpContext.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Politica))
+            if (HttpContext.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Politica) ||
+                HttpContext.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta) ||
+                HttpContext.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica))
                 return View("EmendamentoFormSegreteria", emModel);
             return View("EmendamentoForm", emModel);
         }
@@ -168,13 +168,13 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> ModificaEmendamento(Guid id)
         {
             var emModel = await EMGate.GetModificaModel(id);
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("EmendamentoFormAdmin", emModel);
-            if (HttpContext.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Politica) ||
-                HttpContext.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta) ||
-                HttpContext.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Politica))
+            if (HttpContext.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Politica) ||
+                HttpContext.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta) ||
+                HttpContext.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica))
                 return View("EmendamentoFormSegreteria", emModel);
             return View("EmendamentoForm", emModel);
         }
@@ -615,7 +615,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("proietta")]
         public async Task<ActionResult> ProiettaEmendamento(Guid id)
@@ -671,7 +671,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("ordina")]
         public async Task<ActionResult> ORDINA_EM_TRATTAZIONE(Guid id)
@@ -693,7 +693,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("ordinamento-concluso")]
         public async Task<ActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
@@ -715,7 +715,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("ordina-up")]
         public async Task<ActionResult> UP_EM_TRATTAZIONE(Guid id)
         {
@@ -736,7 +736,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("ordina-down")]
         public async Task<ActionResult> DOWN_EM_TRATTAZIONE(Guid id)
         {
@@ -758,7 +758,7 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <param name="pos">Int posizione</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("sposta")]
         public async Task<ActionResult> SPOSTA_EM_TRATTAZIONE(Guid id, int pos)
         {
@@ -821,8 +821,8 @@ namespace PortaleRegione.Client.Controllers
 
             var modelResult = await EMGate.Get(model);
 
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoEM_Admin", modelResult);
 
             if (Convert.ToInt16(mode) == (int) ClientModeEnum.GRUPPI)

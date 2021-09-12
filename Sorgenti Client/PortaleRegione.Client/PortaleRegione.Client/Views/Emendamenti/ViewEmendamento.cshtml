@@ -207,8 +207,8 @@
 
                 @* NOTE RISERVATE *@
                 @if (!string.IsNullOrEmpty(Model.NOTE_EM) && 
-                     (User.IsInRole(RuoliEnum.Amministratore_PEM)
-                    || User.IsInRole(RuoliEnum.Segreteria_Assemblea)))
+                     (User.IsInRole(RuoliExt.Amministratore_PEM)
+                    || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
                 {
                     <div class="row">
                         <div class="col s12 red-text">

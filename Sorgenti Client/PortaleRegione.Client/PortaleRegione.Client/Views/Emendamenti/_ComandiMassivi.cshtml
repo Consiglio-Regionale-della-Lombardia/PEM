@@ -7,11 +7,11 @@
             <i class="large material-icons">playlist_add</i>
         </a>
         <ul>
-            @if (!User.IsInRole(RuoliEnum.Segreteria_Assemblea)
-                && !User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale)
-                && !User.IsInRole(RuoliEnum.Segreteria_Politica)
-                && !User.IsInRole(RuoliEnum.Responsabile_Segreteria_Politica)
-                && !User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta))
+            @if (!User.IsInRole(RuoliExt.Segreteria_Assemblea)
+                && !User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
+                && !User.IsInRole(RuoliExt.Segreteria_Politica)
+                && !User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica)
+                && !User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta))
             {
                 <li>
                     <a id="btnFirmaMassivo" class="btn-floating green tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">

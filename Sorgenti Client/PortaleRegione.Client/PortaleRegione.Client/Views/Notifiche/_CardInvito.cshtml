@@ -26,8 +26,8 @@
                 <label><b>@titoloSeduta</b> - @Model.ATTI.TIPI_ATTO.Tipo_Atto @Model.ATTI.NAtto - <b>@Model.EM.N_EM @displayRiferimentoTemporaneo</b></label>
             </td>
             <td style="border: unset; text-align: right; width: 10px">
-               @if (User.IsInRole(RuoliEnum.Consigliere_Regionale) ||
-                    User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta))
+               @if (User.IsInRole(RuoliExt.Consigliere_Regionale) ||
+                    User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta))
                {
                    if (Model.EM.Firmato_Da_Me)
                    {

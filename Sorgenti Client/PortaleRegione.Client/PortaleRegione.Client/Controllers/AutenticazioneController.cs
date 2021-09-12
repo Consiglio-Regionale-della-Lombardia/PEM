@@ -179,7 +179,7 @@ namespace PortaleRegione.Client.Controllers
             BaseGateway.access_token = jwt;
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
             {
-                var gruppi = await PersoneGate.GetGruppi();
+                var gruppi = await PersoneGate.GetGruppiAttivi();
                 var groupsTicket = new FormsAuthenticationTicket
                 (
                     1, "gruppi", DateTime.Now, DateTime.Now.AddHours(2), false, JsonConvert.SerializeObject(gruppi)

@@ -170,8 +170,8 @@
         </div>
     </div>
 </li>
-@if (User.IsInRole(RuoliEnum.Amministratore_PEM)
-     || User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+@if (User.IsInRole(RuoliExt.Amministratore_PEM)
+     || User.IsInRole(RuoliExt.Segreteria_Assemblea))
 {
     <li>
         <div class="collapsible-header purple white-text"><i class="material-icons">filter_list</i>Colonne</div>
@@ -280,7 +280,7 @@
                     grid_on</i> EXCEL
             </a>
 
-            @if (User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            @if (User.IsInRole(RuoliExt.Segreteria_Assemblea))
             {
                 <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum,mode=Convert.ToInt16(mode), is_report = true})" style="width: 100%">
                     <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA

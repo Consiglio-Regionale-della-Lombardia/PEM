@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
 
 namespace PortaleRegione.BAL
 {
@@ -52,8 +53,32 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                var filtro_ruoli = new List<int>();
+                var filtro_gruppi = new List<int>();
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli_da_rimuovere = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli_da_rimuovere)
+                    {
+                        filtro_ruoli.Add(Convert.ToInt16(ruolo.Value));
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi_da_rimuovere =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi_da_rimuovere)
+                    {
+                        filtro_gruppi.Add(Convert.ToInt32(gruppo.Value));
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 var listaPersone = (await _unitOfWork
                         .Persone
@@ -75,8 +100,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli)
+                    {
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi)
+                    {
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 var listaPersone = (await _unitOfWork
                         .Persone
@@ -137,8 +182,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli)
+                    {
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi)
+                    {
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 return await _unitOfWork
                     .Persone
@@ -155,8 +220,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli)
+                    {
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi)
+                    {
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 return await _unitOfWork
                     .Persone
@@ -295,9 +380,50 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var intranetAdService = new proxyAD();
+
+                var filtri_ruoli_gruppi = new List<string>();
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli_da_applicare = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli_da_applicare)
+                    {
+                        var integer_role_value = Convert.ToInt32(ruolo.Value);
+                        filtri_ruoli_gruppi.Add(RuoliExt.ConvertToAD((RuoliIntEnum)integer_role_value));
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi_da_applicare =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi_da_applicare)
+                    {
+                        var integer_group_value = Convert.ToInt32(gruppo.Value);
+                        var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(integer_group_value);
+                        filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                    }
+                }
+
+                if (filtri_ruoli_gruppi.Any())
+                {
+                    var user_filtered = intranetAdService.GetUser_in_Group(
+                        filtri_ruoli_gruppi.Aggregate((i, j) => i + "," + j), AppSettingsConfiguration.TOKEN_R);
+                    foreach (var user in user_filtered)
+                    {
+                        model.filtro.Add(new FilterStatement<PersonaDto>
+                        {
+                            PropertyId = nameof(PersonaDto.userAD),
+                            Operation = Operation.Contains,
+                            Value = user,
+                            Connector = FilterStatementConnector.Or
+                        });
+                    }
+                }
+
                 var results = new List<PersonaDto>();
-                var counter = 0;
                 var persone_In_Db = new List<PersonaDto>();
+                var counter = 0;
                 if (session._currentRole == RuoliIntEnum.Amministratore_PEM)
                 {
                     persone_In_Db.AddRange(await GetPersoneIn_DB(model));
@@ -309,13 +435,13 @@ namespace PortaleRegione.BAL
                     counter = await CountByGiunta(model);
                 }
 
-                var intranetAdService = new proxyAD();
                 foreach (var persona in persone_In_Db)
                 {
                     if (!string.IsNullOrEmpty(persona.userAD))
                     {
                         var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
                             persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
+
                         if (gruppiUtente_PEM.Any())
                         {
                             persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
@@ -332,6 +458,9 @@ namespace PortaleRegione.BAL
 
                     results.Add(persona);
                 }
+
+                results.Skip((model.page - 1) * model.size)
+                    .Take(model.size);
 
                 return new BaseResponse<PersonaDto>(
                     model.page,

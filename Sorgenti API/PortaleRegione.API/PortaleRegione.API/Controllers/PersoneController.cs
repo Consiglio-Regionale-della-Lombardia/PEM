@@ -224,7 +224,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicPersone.GetGruppi());
+                return Ok(await _logicPersone.GetGruppiAttivi());
             }
             catch (Exception e)
             {
@@ -352,7 +352,7 @@ namespace PortaleRegione.API.Controllers
         }
 
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM)]
         [HttpPost]
         [Route("reset-pin")]
         public async Task<IHttpActionResult> ResetPin(ResetPinModel model)

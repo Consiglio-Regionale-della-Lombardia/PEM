@@ -102,6 +102,20 @@ function GetLegislature() {
     });
 }
 
+function GetGruppiInDb() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/adminpanel/gruppi-in-db",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 function filter_sedute_legislature_OnChange() {
     var value = $("#filter_sedute_legislature").children("option:selected").val();
     var filtri_sedute = get_Filtri_Sedute();

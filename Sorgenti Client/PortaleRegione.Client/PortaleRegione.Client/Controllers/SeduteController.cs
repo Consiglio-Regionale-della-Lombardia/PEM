@@ -40,14 +40,14 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
         {
             var model = await SeduteGate.Get(page, size);
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", model);
 
             return View("RiepilogoSedute", model);
         }
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("delete")]
         public async Task<ActionResult> EliminaSeduta(Guid id)
         {
@@ -55,14 +55,14 @@ namespace PortaleRegione.Client.Controllers
             return RedirectToAction("RiepilogoSedute", "Sedute");
         }
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("new")]
         public ActionResult NuovaSeduta()
         {
             return View("SedutaForm", new SeduteFormUpdateDto());
         }
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("edit/{id:guid}")]
         public async Task<ActionResult> ModificaSeduta(Guid id)
         {
@@ -70,7 +70,7 @@ namespace PortaleRegione.Client.Controllers
             return View("SedutaForm", seduta);
         }
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route("salva")]
         public async Task<ActionResult> SalvaSeduta(SeduteFormUpdateDto seduta)
@@ -162,8 +162,8 @@ namespace PortaleRegione.Client.Controllers
                 return RedirectToAction("RiepilogoSedute");
 
             var results = await SeduteGate.Get(model);
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", results);
 
             return View("RiepilogoSedute", results);

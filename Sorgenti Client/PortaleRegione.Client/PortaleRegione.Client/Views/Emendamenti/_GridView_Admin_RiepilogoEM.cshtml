@@ -87,8 +87,8 @@ else
                     <i class="icon material-icons tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)">chat</i>
                     }
                     @if (!string.IsNullOrEmpty(itemEM.NOTE_EM) && 
-                         (User.IsInRole(RuoliEnum.Amministratore_PEM)
-                          || User.IsInRole(RuoliEnum.Segreteria_Assemblea)))
+                         (User.IsInRole(RuoliExt.Amministratore_PEM)
+                          || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
                     {
                         <br/>
                 <i class="icon material-icons tooltipped red-text" data-tooltip="@Html.Raw(itemEM.NOTE_EM)">comment</i>

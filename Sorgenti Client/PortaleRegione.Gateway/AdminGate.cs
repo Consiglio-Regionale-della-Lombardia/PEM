@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
@@ -81,6 +82,29 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public static async Task<IEnumerable<KeyValueDto>> GetGruppiInDb()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/gruppi-in-db";
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(await Get(requestUrl));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGruppiInDb", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGruppiInDb", ex);
+                throw ex;
+            }
+        }
+
 
         public static async Task<Guid> SalvaPersona(PersonaUpdateRequest request)
         {

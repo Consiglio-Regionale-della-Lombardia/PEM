@@ -31,7 +31,7 @@ namespace PortaleRegione.API.Controllers
     /// <summary>
     ///     Controller per endpoint di amministrazione
     /// </summary>
-    [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Amministratore_Giunta)]
+    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
     [RoutePrefix("admin")]
     public class AdminController : BaseApiController
     {
@@ -173,6 +173,25 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetGruppiPoliticiAD", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere tutti i gruppi per la legislatura attuale
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("gruppi-in-db")]
+        public async Task<IHttpActionResult> GetGruppiInDb()
+        {
+            try
+            {
+                return Ok(await _logicPersone.GetGruppiInDb());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetGruppiInDb", e);
                 return ErrorHandler(e);
             }
         }
