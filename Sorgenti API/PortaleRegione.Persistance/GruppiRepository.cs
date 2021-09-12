@@ -175,6 +175,30 @@ namespace PortaleRegione.Persistance
                 .ToList();
         }
 
+        public async Task<IEnumerable<string>> GetConsiglieriInCarica(int id_gruppo)
+        {
+            var join_persona_gruppo = await PRContext
+                .join_persona_gruppi_politici
+                .Where(g => g.id_gruppo == id_gruppo 
+                && !g.deleted
+                && !g.data_fine.HasValue)
+                .Select(j => j.id_persona)
+                .ToListAsync();
+            var consiglieri_in_carica = await PRContext
+                .View_consiglieri_in_carica
+                .Select(c => c.UID_persona)
+                .ToListAsync();
+
+            var join_persona_ad = await PRContext
+                .join_persona_AD
+                .Where(p => consiglieri_in_carica.Contains(p.UID_persona) 
+                            && join_persona_gruppo.Contains(p.id_persona))
+                .Select(p => p.UserAD)
+                .ToListAsync();
+
+            return join_persona_ad;
+        }
+
         public async Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma,
             bool notifica_deposito)
         {

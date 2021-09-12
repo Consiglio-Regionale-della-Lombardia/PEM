@@ -604,6 +604,25 @@ namespace PortaleRegione.BAL
                 gruppo.GiuntaRegionale = request.giunta;
                 await _unitOfWork.CompleteAsync();
 
+#if DEBUG == false
+                //CREO IL GRUPPO IN ACTIVE DIRECTORY
+                try
+                {
+                    var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(request.Id_Gruppo);
+                    var user_list = consiglieri.Aggregate((i, j) => i + ";" + j);
+                    user_list = user_list.Replace(@"CONSIGLIO\", "");
+
+                    var intranetAdService = new proxyAD();
+
+                    intranetAdService.CreatePEMADGroup(request.GruppoAD.Replace(@"CONSIGLIO\", ""), user_list,
+                        AppSettingsConfiguration.TOKEN_W);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+#endif
+
             }
             catch (Exception e)
             {

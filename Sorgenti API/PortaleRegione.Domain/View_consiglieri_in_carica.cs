@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace PortaleRegione.Domain
 {
     public class View_consiglieri_in_carica
     {
-        
+        [Key] public Guid UID_persona { get; set; }
     }
 }
