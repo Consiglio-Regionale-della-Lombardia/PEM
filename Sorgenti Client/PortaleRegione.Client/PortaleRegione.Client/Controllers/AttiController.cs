@@ -51,8 +51,8 @@ namespace PortaleRegione.Client.Controllers
             var model = new AttiViewModel
                 {Data = await AttiGate.Get(id, mode, page, size), Seduta = sedutaInDb};
 
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoAtti_Admin", model);
 
             return View("RiepilogoAtti", model);
@@ -63,7 +63,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("{sedutaUId:guid}/delete")]
         public async Task<ActionResult> EliminaAtto(Guid sedutaUId, Guid id)
         {
@@ -79,7 +79,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid seduta di riferimento</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("{id:guid}/new")]
         public async Task<ActionResult> NuovoAtto(Guid id)
         {
@@ -103,7 +103,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("edit/{id:guid}")]
         public async Task<ActionResult> ModificaAtto(Guid id)
         {
@@ -122,7 +122,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="atto">Modello atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("salva")]
         [HttpPost]
         public async Task<ActionResult> SalvaAtto(AttiFormUpdateModel atto)
@@ -293,7 +293,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="atto">Modello atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("relatori")]
         [HttpPost]
         public async Task<ActionResult> SalvaRelatoriAtto(AttoRelatoriModel model)
@@ -316,7 +316,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="atto">Modello atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("abilita-fascicolazione")]
         [HttpPost]
         public async Task<ActionResult> PubblicaFascicolo(PubblicaFascicoloModel model)
@@ -334,7 +334,7 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("sposta-up")]
         [HttpGet]
         public async Task<ActionResult> MoveUp(Guid id)
@@ -344,7 +344,7 @@ namespace PortaleRegione.Client.Controllers
             return RedirectToAction("RiepilogoAtti", "Atti", new {id = atto.UIDSeduta});
         }
 
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("sposta-down")]
         [HttpGet]
         public async Task<ActionResult> MoveDown(Guid id)

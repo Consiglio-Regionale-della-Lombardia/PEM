@@ -16,9 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+
 namespace PortaleRegione.DTO.Enum
 {
-    public static class RuoliEnum
+    public static class RuoliExt
     {
         public const string Amministratore_PEM = "1";
         public const string Amministratore_Giunta = "2";
@@ -32,6 +34,39 @@ namespace PortaleRegione.DTO.Enum
         public const string Segreteria_Assemblea = "10";
         public const string Utente = "11";
         public const string SERVIZIO_JOB = "12";
+
+        public static string ConvertToAD(RuoliIntEnum ruolo)
+        {
+            switch (ruolo)
+            {
+                case RuoliIntEnum.Amministratore_PEM:
+                    return "PEM_Admin";
+                case RuoliIntEnum.Amministratore_Giunta:
+                    return "PEM_Admin_Giunta";
+                case RuoliIntEnum.Consigliere_Regionale:
+                    return "PEM_Consiglieri";
+                case RuoliIntEnum.Responsabile_Segreteria_Politica:
+                    return "PEM_Resp_Segreteria";
+                case RuoliIntEnum.Segreteria_Politica:
+                    return "PEM_Segreteria_politica";
+                case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
+                    return "PEM_Assessori";
+                case RuoliIntEnum.Responsabile_Segreteria_Giunta:
+                    return "PEM_Resp_Segreteria_Giunta";
+                case RuoliIntEnum.Segreteria_Giunta_Regionale:
+                    return "PEM_Segreteria_Giunta";
+                case RuoliIntEnum.Presidente_Regione:
+                    return "PEM_Presidente";
+                case RuoliIntEnum.Segreteria_Assemblea:
+                    return "PEM_Segr_Assemblea";
+                case RuoliIntEnum.Utente:
+                    return "PEM_Generic";
+                case RuoliIntEnum.SERVIZIO_JOB:
+                    return default;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(ruolo), ruolo, null);
+            }
+        }
     }
 
     public enum RuoliIntEnum

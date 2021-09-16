@@ -50,6 +50,7 @@
     <Compile Include="EMGate.cs" />
     <Compile Include="EMPublicGate.cs" />
     <Compile Include="EsportaGate.cs" />
+    <Compile Include="LegislatureGate.cs" />
     <Compile Include="LettereGate.cs" />
     <Compile Include="NotificheGate.cs" />
     <Compile Include="PersoneGate.cs" />

@@ -44,9 +44,9 @@ else
         var abilitaFirma = false;
         var abilitaDeposito = false;
 
-        if ((HttpContext.Current.User.IsInRole(RuoliEnum.Consigliere_Regionale)
-             || HttpContext.Current.User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)
-             || HttpContext.Current.User.IsInRole(RuoliEnum.Presidente_Regione))
+        if ((HttpContext.Current.User.IsInRole(RuoliExt.Consigliere_Regionale)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Presidente_Regione))
             && itemEM.UIDPersonaProponente == Model.CurrentUser.UID_persona
             && itemEM.Firmato_Dal_Proponente
             && itemEM.Depositabile
@@ -55,10 +55,10 @@ else
             abilitaInvitoConsigliere = true;
         }
 
-        if ((HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Politica)
-             || HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Politica)
-             || HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta)
-             || HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale))
+        if ((HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Politica)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale))
             && itemEM.STATI_EM.IDStato <= (int) StatiEnum.Bozza
             && attoChiuso)
         {
@@ -85,7 +85,7 @@ else
                     </div>
                     <div class='col s4'>
                         <div class='card-action right'>
-                            @if (HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
+                            @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
                                 <a class='blue-text' style='margin: 5px' onclick="go('@Url.Action("ModificaMetaDatiEmendamento", new {id = itemEM.UIDEM})')">
                                     <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Modifica dati">edit</i>

@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
@@ -59,18 +60,12 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<BaseResponse<PersonaDto>> GetPersone(int page, int size)
+        public static async Task<BaseResponse<PersonaDto>> GetPersone(BaseRequest<PersonaDto> request)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/admin";
-
-                var model = new BaseRequest<PersonaDto>
-                {
-                    page = page,
-                    size = size
-                };
-                var body = JsonConvert.SerializeObject(model);
+                var requestUrl = $"{apiUrl}/admin/users/view";
+                var body = JsonConvert.SerializeObject(request);
 
                 var lst = JsonConvert.DeserializeObject<BaseResponse<PersonaDto>>(await Post(requestUrl, body));
 
@@ -88,23 +83,47 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task ModificaPersona(PersonaUpdateRequest request)
+        public static async Task<IEnumerable<KeyValueDto>> GetGruppiInDb()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/gruppi-in-db";
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(await Get(requestUrl));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGruppiInDb", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGruppiInDb", ex);
+                throw ex;
+            }
+        }
+
+
+        public static async Task<Guid> SalvaPersona(PersonaUpdateRequest request)
         {
             try
             {
                 var requestUrl = $"{apiUrl}/admin/salva";
                 var body = JsonConvert.SerializeObject(request);
 
-                await Post(requestUrl, body);
+                var result = JsonConvert.DeserializeObject<Guid>(await Post(requestUrl, body));
+                return result;
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ModificaPersona", ex);
+                Log.Error("SalvaPersona", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ModificaPersona", ex);
+                Log.Error("SalvaPersona", ex);
                 throw ex;
             }
         }
@@ -191,6 +210,50 @@ namespace PortaleRegione.Gateway
                 Log.Error("GetGruppiPoliticiAD", ex);
                 throw ex;
             }
+        }
+
+        public static async Task<List<AdminGruppiModel>> GetGruppiAdmin(BaseRequest<GruppiDto> request)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/groups/view";
+                var body = JsonConvert.SerializeObject(request);
+                var lst = JsonConvert.DeserializeObject<List<AdminGruppiModel>>(await Post(requestUrl, body));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGruppiAdmin", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGruppiAdmin", ex);
+                throw ex;
+            }
+        }
+
+        public static async Task SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/salva-gruppo";
+                var body = JsonConvert.SerializeObject(request);
+
+                await Post(requestUrl, body);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SalvaGruppo", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SalvaGruppo", ex);
+                throw ex;
+            }
+
         }
     }
 }

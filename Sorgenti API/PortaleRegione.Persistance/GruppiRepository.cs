@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Enum;
 using Z.EntityFramework.Plus;
 
@@ -79,7 +80,7 @@ namespace PortaleRegione.Persistance
             return lstGruppi.Any() ? lstGruppi[0] : null;
         }
 
-        public async Task<IEnumerable<KeyValueDto>> GetAll(int id_legislatura)
+        public async Task<IEnumerable<KeyValueDto>> GetAllAttivi(int id_legislatura)
         {
             var query = PRContext
                 .JOIN_GRUPPO_AD
@@ -98,6 +99,36 @@ namespace PortaleRegione.Persistance
                 })
                 .ToListAsync();
             return lstGruppi;
+        }
+
+        public async Task<IEnumerable<KeyValueDto>> GetAll()
+        {
+            var query = PRContext
+                .JOIN_GRUPPO_AD
+                .Join(PRContext
+                        .gruppi_politici,
+                    p => p.id_gruppo,
+                    g => g.id_gruppo,
+                    (p, g) => g);
+            var lstGruppi = await query.ToListAsync();
+            var result = new List<KeyValueDto>();
+
+            foreach (var gruppiPolitici in lstGruppi)
+            {
+                var join_gp_legislature = await PRContext
+                    .join_gruppi_politici_legislature
+                    .FirstAsync(g => g.id_gruppo == gruppiPolitici.id_gruppo);
+                var legislatura_gruppo = await PRContext.legislature.FindAsync(join_gp_legislature.id_legislatura);
+                result.Add(new KeyValueDto
+                {
+                    id = gruppiPolitici.id_gruppo,
+                    descr = gruppiPolitici.nome_gruppo,
+                    sigla = gruppiPolitici.codice_gruppo,
+                    descr_con_legislatura = $"{gruppiPolitici.nome_gruppo} ({legislatura_gruppo.num_legislatura} leg.)"
+                });
+            }
+
+            return result;
         }
 
         public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
@@ -144,6 +175,46 @@ namespace PortaleRegione.Persistance
                 .ToList();
         }
 
+        public async Task<IEnumerable<string>> GetConsiglieriInCarica(int id_gruppo)
+        {
+            var join_persona_gruppo = await PRContext
+                .join_persona_gruppi_politici
+                .Where(g => g.id_gruppo == id_gruppo 
+                && !g.deleted
+                && !g.data_fine.HasValue)
+                .Select(j => j.id_persona)
+                .ToListAsync();
+            var consiglieri_in_carica = await PRContext
+                .View_consiglieri_in_carica
+                .Select(c => c.UID_persona)
+                .ToListAsync();
+
+            var join_persona_ad = await PRContext
+                .join_persona_AD
+                .Where(p => consiglieri_in_carica.Contains(p.UID_persona) 
+                            && join_persona_gruppo.Contains(p.id_persona))
+                .Select(p => p.UserAD)
+                .ToListAsync();
+
+            return join_persona_ad;
+        }
+
+        public async Task<IEnumerable<string>> GetAssessoriInCarica()
+        {
+            var assessori_in_carica = await PRContext
+                .View_assessori_in_carica
+                .Select(c => c.UID_persona)
+                .ToListAsync();
+
+            var join_persona_ad = await PRContext
+                .join_persona_AD
+                .Where(p => assessori_in_carica.Contains(p.UID_persona))
+                .Select(p => p.UserAD)
+                .ToListAsync();
+
+            return join_persona_ad;
+        }
+
         public async Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma,
             bool notifica_deposito)
         {
@@ -181,7 +252,38 @@ namespace PortaleRegione.Persistance
                 .SingleOrDefaultAsync(g => g.id_gruppo == join_gruppo.id_gruppo);
             return gruppo;
         }
-        
+
+        public async Task<List<gruppi_politici>> GetGruppiAdmin(Filter<gruppi_politici> filtro = null)
+        {
+            return await PRContext
+                .gruppi_politici
+                .Where(g => g.attivo
+                            && !g.deleted)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<JOIN_GRUPPO_AD>> GetJoinGruppiAdmin(int legislaturaAttiva)
+        {
+            return await PRContext
+                .JOIN_GRUPPO_AD
+                .Where(g => g.id_legislatura == legislaturaAttiva)
+                .ToListAsync();
+        }
+
+        public async Task<JOIN_GRUPPO_AD> GetGiunta(int legislaturaAttiva)
+        {
+            return await PRContext
+                .JOIN_GRUPPO_AD
+                .FirstOrDefaultAsync(g => g.id_legislatura == legislaturaAttiva && g.GiuntaRegionale);
+        }
+
+        public async Task<JOIN_GRUPPO_AD> GetJoinGruppoAdmin(int gruppo)
+        {
+            return await PRContext
+                .JOIN_GRUPPO_AD
+                .FirstOrDefaultAsync(g => g.id_gruppo == gruppo);
+        }
+
         public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,
             RuoliIntEnum role)
         {

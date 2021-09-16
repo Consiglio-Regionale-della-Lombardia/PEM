@@ -77,6 +77,7 @@
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
+    <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AssegnaProponenteModel.cs" />
     <Compile Include="Model\AttiFormUpdateModel.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="Domain\Tipi_EmendamentiDto.cs" />
     <Compile Include="Domain\TitoloMissioniDto.cs" />
     <Compile Include="Enum\OrdinamentoEnum.cs" />
-    <Compile Include="Enum\RuoliEnum.cs" />
+    <Compile Include="Enum\RuoliExt.cs" />
     <Compile Include="Enum\StatiEnum.cs" />
     <Compile Include="Enum\TipoAttoEnum.cs" />
     <Compile Include="Model\AttoRelatoriModel.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
+    <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

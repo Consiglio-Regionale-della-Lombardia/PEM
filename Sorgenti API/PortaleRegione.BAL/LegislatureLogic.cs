@@ -16,20 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using PortaleRegione.Contracts;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 
-namespace PortaleRegione.DTO.Domain
+namespace PortaleRegione.BAL
 {
-    public class GruppiDto
+    public class LegislatureLogic:BaseLogic
     {
-        public int id_gruppo { get; set; }
-        public string nome_gruppo { get; set; }
-        public string codice_gruppo { get; set; }
-        public DateTime data_inizio { get; set; }
-        public bool giunta { get; set; }
-        public bool abilita_em_privati { get; set; }
-        public int id_legislatura { get; set; }
-        public string GruppoAD { get; set; }
-        public Guid UID_Gruppo { get; set; }
+        private readonly IUnitOfWork _unitOfWork;
+
+        public LegislatureLogic(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }     
+
+        public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
+        {
+            var result = await _unitOfWork.Legislature.GetLegislature();
+            return (result).Select(Mapper.Map<legislature, LegislaturaDto>);
+        }
     }
 }

@@ -31,7 +31,7 @@
                 foto = data.foto;
                 gruppo = data.Gruppo;
                 carica = data.IsGiunta() ? data.Carica : string.Empty;
-                if (HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM))
+                if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                 {
                     var gCookie = Request.Cookies["GCookies"];
                     if (gCookie != null)
@@ -61,7 +61,7 @@
             </div>
         </div>
     }
-    <ul style="margin: 0">
+    <ul class="collapsible collapsible-accordion" style="margin: 0">
         <li>
             <div class="user-view" style="padding: 10px">
                 <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
@@ -135,10 +135,10 @@
                     <div class="col s12" style="margin-top: -15px">
                         @{
                             var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
-                            if (HttpContext.Current.User.IsInRole(RuoliEnum.Assessore_Sottosegretario_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale)
-                                || HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_Giunta))
+                            if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
                             {
                                 testoGruppo = "Giunta";
                             }
@@ -161,7 +161,7 @@
                                 </ul>
                             }
 
-                            if (!HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+                            if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                             {
                                 <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
                                     @testoGruppo @Html.Raw(iconClassSwapGruppi)
@@ -172,23 +172,30 @@
                 </div>
             </div>
         </li>
-        <li class="menuItem_Sedute">
+        <li class="menuItem_Sedute bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "Sedute")"><i class="material-icons">event</i>Riepilogo sedute</a>
         </li>
-        <li class="menuItem_Notifiche">
+        <li class="menuItem_Notifiche bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
                 <i class="material-icons">email</i>Notifiche <div id="counterNotifiche" class="chip pink white-text right" style="min-width: unset; margin-top: 8px;"></div>
             </a>
         </li>
-        <li class="menuItem_Stampe">
+        <li class="menuItem_Stampe bold">
             <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
         </li>
         @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
         {
-            <li class="menuItem_Amministrazione">
-                <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">build</i>Amministrazione</a>
+            <li class="menuItem_Amministrazione_Utenti bold">
+                <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">person</i>Utenti</a>
             </li>
         }
+        @if (currentRole == RuoliIntEnum.Amministratore_PEM)
+        {
+            <li class="menuItem_Amministrazione_Gruppi bold">
+                <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Gruppi</a>
+            </li>
+        }
+        
     </ul>
     <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
         <div class="row valign-wrapper">
@@ -206,7 +213,7 @@
         </div>
     </div>
 
-    <div class="fixed-action-btn" style="bottom: 150px !important; left: 23px; right: unset !important;">
+    <div class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
         @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
         {
             @Html.AntiForgeryToken()
@@ -214,6 +221,10 @@
                 <i class="icon material-icons">lock_outline</i> Esci
             </a>
         }
+        
+        <a class="grey-text" href="https://pem2.consiglio.regione.lombardia.it/" target="_blank" style="cursor: pointer; text-decoration: underline;font-size: smaller">
+            Vai alla vecchia versione
+        </a>
     </div>
 </div>
 

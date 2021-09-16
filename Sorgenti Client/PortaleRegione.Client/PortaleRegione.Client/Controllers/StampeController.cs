@@ -37,8 +37,8 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> Index(int page = 1, int size = 50)
         {
             var model = await StampeGate.Get(page, size);
-            if (HttpContext.User.IsInRole(RuoliEnum.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliEnum.Segreteria_Assemblea))
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("Index_Admin", model);
 
             return View(model);

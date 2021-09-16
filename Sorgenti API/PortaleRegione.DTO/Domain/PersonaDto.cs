@@ -42,20 +42,22 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "GUID")] public Guid UID_persona { get; set; }
         public int id_persona { get; set; }
 
-        [Display(Name = "Cognome")] public string cognome { get; set; }
-        [Display(Name = "Nome")] public string nome { get; set; }
+        [Display(Name = "Cognome")] public string cognome { get; set; } = "";
+        [Display(Name = "Nome")] public string nome { get; set; } = "";
         [Display(Name = "Email")] public string email { get; set; }
         [Display(Name = "Foto")] public string foto { get; set; }
         [Display(Name = "Login di rete")] public string userAD { get; set; }
 
         [Display(Name = "Consigliere/Assessore")]
-        public int No_Cons { get; set; }
+        public int No_Cons { get; set; } = 0;
 
         [Display(Name = "Notifica alla firma")]
         public bool? notifica_firma { get; set; }
 
         [Display(Name = "Notifica al deposito")]
         public bool? notifica_deposito { get; set; }
+
+        public string legislature { get; set; }
 
         [Display(Name = "Eliminato")] public bool? deleted { get; set; }
 
@@ -64,6 +66,10 @@ namespace PortaleRegione.DTO.Domain
         public IEnumerable<RuoliDto> Ruoli { get; set; }
 
         [Display(Name = "Gruppo di riferimento")]
+
+        public int id_gruppo_politico_rif { get; set; }
+
+
         public GruppiDto Gruppo { get; set; }
 
         public RuoliIntEnum CurrentRole { get; set; }

@@ -8,11 +8,11 @@
         {
             @Html.AntiForgeryToken()
 
-            var isSegreteria = HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Politica) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Politica) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Responsabile_Segreteria_Giunta) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Segreteria_Giunta_Regionale) ||
-                               HttpContext.Current.User.IsInRole(RuoliEnum.Amministratore_PEM);
+            var isSegreteria = HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Politica) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM);
 
             var displayPin = isSegreteria ? "none" : "block";
 

@@ -30,6 +30,7 @@ namespace PortaleRegione.BAL
 {
     public class UtilsLogic : BaseLogic
     {
+        //private const string maddy = "xjuy i                                                          mamma  pap fà";
         private readonly IUnitOfWork _unitOfWork;
 
         public UtilsLogic(IUnitOfWork unitOfWork)
@@ -37,8 +38,12 @@ namespace PortaleRegione.BAL
             _unitOfWork = unitOfWork;
         }
 
-        #region InvioMail
-
+        public string GenerateRandomCode()
+        {
+            var _random = new Random();
+            return _random.Next(11010001, 99999999).ToString();
+        }
+        
         public async Task InvioMail(MailModel model)
         {
             try
@@ -53,6 +58,18 @@ namespace PortaleRegione.BAL
                     From = new MailAddress(model.DA), Subject = model.OGGETTO, Body = model.MESSAGGIO,
                     IsBodyHtml = true
                 };
+
+                if (!string.IsNullOrEmpty(model.CC))
+                {
+                    var destinatariCC = model.CC.Split(";".ToCharArray());
+                    foreach (var destinatario in destinatariCC)
+                    {
+                        if (!string.IsNullOrEmpty(destinatario))
+                        {
+                            msg.CC.Add(new MailAddress(destinatario));
+                        }
+                    }
+                }
 
                 var destinatari = model.A.Split(";".ToCharArray());
                 foreach (var destinatario in destinatari)
@@ -78,11 +95,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region Salva Documento
-
+        
         public async Task SalvaDocumento(string proprietarioId, TipoAllegatoEnum tipoDoc, string pathFile)
         {
             try
@@ -122,11 +135,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region Archivia Documento
-
+        
         public string ArchiviaDocumento(HttpPostedFile postedFile)
         {
             try
@@ -146,7 +155,5 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
     }
 }

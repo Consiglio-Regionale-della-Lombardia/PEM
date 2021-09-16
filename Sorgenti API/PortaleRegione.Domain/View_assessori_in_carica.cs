@@ -17,19 +17,12 @@
  */
 
 using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace PortaleRegione.DTO.Domain
+namespace PortaleRegione.Domain
 {
-    public class GruppiDto
+    public class View_assessori_in_carica
     {
-        public int id_gruppo { get; set; }
-        public string nome_gruppo { get; set; }
-        public string codice_gruppo { get; set; }
-        public DateTime data_inizio { get; set; }
-        public bool giunta { get; set; }
-        public bool abilita_em_privati { get; set; }
-        public int id_legislatura { get; set; }
-        public string GruppoAD { get; set; }
-        public Guid UID_Gruppo { get; set; }
+        [Key] public Guid UID_persona { get; set; }
     }
 }

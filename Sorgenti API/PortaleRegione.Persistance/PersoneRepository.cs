@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
@@ -54,6 +55,12 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<UTENTI_NoCons> Get_NoCons(Guid personaUId)
+        {
+            var result = await PRContext.UTENTI_NoCons.SingleOrDefaultAsync(p => p.UID_persona == personaUId);
+            return result;
+        }
+
         public async Task<View_UTENTI> Get(int personaId)
         {
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
@@ -78,8 +85,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size,
-            Filter<View_UTENTI> filtro = null)
+        public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size, Filter<View_UTENTI> filtro = null)
         {
             var gruppi_giunta = await PRContext
                 .JOIN_GRUPPO_AD
@@ -323,6 +329,11 @@ namespace PortaleRegione.Persistance
                 await PRContext.Database.ExecuteSqlCommandAsync(
                     $"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
             }
+        }
+
+        public void Add(UTENTI_NoCons newUser)
+        {
+            PRContext.UTENTI_NoCons.Add(newUser);
         }
     }
 }

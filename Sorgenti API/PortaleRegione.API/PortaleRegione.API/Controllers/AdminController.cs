@@ -31,7 +31,7 @@ namespace PortaleRegione.API.Controllers
     /// <summary>
     ///     Controller per endpoint di amministrazione
     /// </summary>
-    [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Amministratore_Giunta)]
+    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
     [RoutePrefix("admin")]
     public class AdminController : BaseApiController
     {
@@ -92,7 +92,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
+        [Route("users/view")]
         public async Task<IHttpActionResult> GetUtenti(BaseRequest<PersonaDto> model)
         {
             try
@@ -178,6 +178,25 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere tutti i gruppi per la legislatura attuale
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("gruppi-in-db")]
+        public async Task<IHttpActionResult> GetGruppiInDb()
+        {
+            try
+            {
+                return Ok(await _logicPersone.GetGruppiInDb());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetGruppiInDb", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per eliminare un utente nel db (deleted = 1)
         /// </summary>
         /// <param name="id"></param>
@@ -212,16 +231,59 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("salva")]
-        public async Task<IHttpActionResult> UpdateUtente(PersonaUpdateRequest request)
+        public async Task<IHttpActionResult> SalvaUtente(PersonaUpdateRequest request)
         {
             try
             {
-                await _logic.UpdateUtente(request);
+                var session = await GetSession();
+                var uid_persona = await _logic.SalvaUtente(request, session._currentRole);
+                return Ok(uid_persona);
+            }
+            catch (Exception e)
+            {
+                Log.Error("SalvaUtente", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        /// Endpoint per aggiornare i dati del gruppo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("salva-gruppo")]
+        public async Task<IHttpActionResult> SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                await _logic.SalvaGruppo(request);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("UpdateUtente", e);
+                Log.Error("SalvaGruppo", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere i gruppi nel db
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("groups/view")]
+        public async Task<IHttpActionResult> GetGruppi(BaseRequest<GruppiDto> model)
+        {
+            try
+            {
+                var results = await _logic.GetGruppi(model, Request.RequestUri);
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetGruppi", e);
                 return ErrorHandler(e);
             }
         }

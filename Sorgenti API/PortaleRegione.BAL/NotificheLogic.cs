@@ -398,7 +398,7 @@ namespace PortaleRegione.BAL
 
                         break;
                     case TipoDestinatarioNotificaEnum.GRUPPI:
-                        result = (await _logicPersone.GetGruppi())
+                        result = (await _logicPersone.GetGruppiAttivi())
                             .ToDictionary(k => k.id.ToString(), z => z.descr);
                         break;
                     case TipoDestinatarioNotificaEnum.RELATORI:

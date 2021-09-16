@@ -119,6 +119,7 @@
     <Compile Include="EsportaLogic.cs" />
     <Compile Include="FirmeLogic.cs" />
     <Compile Include="BaseLogic.cs" />
+    <Compile Include="LegislatureLogic.cs" />
     <Compile Include="NotificheLogic.cs" />
     <Compile Include="PersoneLogic.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

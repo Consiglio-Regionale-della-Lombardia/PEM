@@ -32,26 +32,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
 
 namespace PortaleRegione.BAL
 {
     public class AdminLogic : BaseLogic
     {
         private readonly PersoneLogic _logicPersona;
+        private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona)
+        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
+            _logicUtil = logicUtil;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model)
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                var filtro_ruoli = new List<int>();
+                var filtro_gruppi = new List<int>();
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli_da_rimuovere = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli_da_rimuovere)
+                    {
+                        filtro_ruoli.Add(Convert.ToInt16(ruolo.Value));
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi_da_rimuovere =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi_da_rimuovere)
+                    {
+                        filtro_gruppi.Add(Convert.ToInt32(gruppo.Value));
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 var listaPersone = (await _unitOfWork
                         .Persone
@@ -73,8 +100,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli)
+                    {
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi)
+                    {
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 var listaPersone = (await _unitOfWork
                         .Persone
@@ -135,8 +182,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli)
+                    {
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi)
+                    {
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 return await _unitOfWork
                     .Persone
@@ -153,8 +220,28 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli)
+                    {
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi)
+                    {
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
-                queryFilter.ImportStatements(model.filtro);
+                queryFilter.ImportStatements(result_filtro);
 
                 return await _unitOfWork
                     .Persone
@@ -244,7 +331,7 @@ namespace PortaleRegione.BAL
             if (ruoli_utente.Any())
             {
                 persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
-                persona.CurrentRole = (RuoliIntEnum) ruoli_utente[0].IDruolo;
+                persona.CurrentRole = (RuoliIntEnum)ruoli_utente[0].IDruolo;
             }
             else
             {
@@ -293,9 +380,50 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var intranetAdService = new proxyAD();
+
+                var filtri_ruoli_gruppi = new List<string>();
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli_da_applicare = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli_da_applicare)
+                    {
+                        var integer_role_value = Convert.ToInt32(ruolo.Value);
+                        filtri_ruoli_gruppi.Add(RuoliExt.ConvertToAD((RuoliIntEnum)integer_role_value));
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi_da_applicare =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi_da_applicare)
+                    {
+                        var integer_group_value = Convert.ToInt32(gruppo.Value);
+                        var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(integer_group_value);
+                        filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                    }
+                }
+
+                if (filtri_ruoli_gruppi.Any())
+                {
+                    var user_filtered = intranetAdService.GetUser_in_Group(
+                        filtri_ruoli_gruppi.Aggregate((i, j) => i + "," + j), AppSettingsConfiguration.TOKEN_R);
+                    foreach (var user in user_filtered)
+                    {
+                        model.filtro.Add(new FilterStatement<PersonaDto>
+                        {
+                            PropertyId = nameof(PersonaDto.userAD),
+                            Operation = Operation.Contains,
+                            Value = user,
+                            Connector = FilterStatementConnector.Or
+                        });
+                    }
+                }
+
                 var results = new List<PersonaDto>();
-                var counter = 0;
                 var persone_In_Db = new List<PersonaDto>();
+                var counter = 0;
                 if (session._currentRole == RuoliIntEnum.Amministratore_PEM)
                 {
                     persone_In_Db.AddRange(await GetPersoneIn_DB(model));
@@ -307,25 +435,32 @@ namespace PortaleRegione.BAL
                     counter = await CountByGiunta(model);
                 }
 
-                var intranetAdService = new proxyAD();
                 foreach (var persona in persone_In_Db)
                 {
-                    var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
-                        persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
-                    if (gruppiUtente_PEM.Any())
+                    if (!string.IsNullOrEmpty(persona.userAD))
                     {
-                        persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
+                        var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
+                            persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
+
+                        if (gruppiUtente_PEM.Any())
+                        {
+                            persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
+                        }
+
+                        var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
+                        if (gruppiUtente_AD.Any())
+                        {
+                            persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
+                        }
+
+                        persona.Stato_Pin = await CheckPin(persona);
                     }
 
-                    var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
-                    if (gruppiUtente_AD.Any())
-                    {
-                        persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
-                    }
-
-                    persona.Stato_Pin = await CheckPin(persona);
                     results.Add(persona);
                 }
+
+                results.Skip((model.page - 1) * model.size)
+                    .Take(model.size);
 
                 return new BaseResponse<PersonaDto>(
                     model.page,
@@ -341,60 +476,197 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task<List<AdminGruppiModel>> GetGruppi(BaseRequest<GruppiDto> model, Uri url)
+        {
+            try
+            {
+                var gruppi = await _logicPersona.GetGruppi(model);
+                var result = new List<AdminGruppiModel>();
+                var intranetAdService = new proxyAD();
 
-        public async Task UpdateUtente(PersonaUpdateRequest request)
+                foreach (var gruppiDto in gruppi)
+                {
+                    var gruppoModel = new AdminGruppiModel
+                    {
+                        Gruppo = gruppiDto,
+                    };
+
+                    var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""), AppSettingsConfiguration.TOKEN_R);
+
+                    if (gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
+                    {
+                        var assessori = await _unitOfWork.Gruppi.GetAssessoriInCarica();
+                        foreach (var assessore in assessori)
+                        {
+                            if (!users_ad.Contains(assessore.Replace(@"CONSIGLIO\", "")))
+                            {
+                                gruppoModel.Error_AD_Message += $"{assessore};";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(gruppiDto.id_gruppo);
+                        foreach (var consigliere in consiglieri)
+                        {
+                            if (!users_ad.Contains(consigliere.Replace(@"CONSIGLIO\", "")))
+                            {
+                                gruppoModel.Error_AD_Message += $"{consigliere};";
+                            }
+                        }
+                    }
+
+                    gruppoModel.Error_AD = !string.IsNullOrEmpty(gruppoModel.Error_AD_Message);
+                    if (gruppoModel.Error_AD_Message.Length > 0)
+                        gruppoModel.Error_AD_Message = gruppoModel.Error_AD_Message.Substring(0, gruppoModel.Error_AD_Message.Length - 1);
+                    result.Add(gruppoModel);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<Guid> SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo)
         {
             try
             {
                 var intranetAdService = new proxyAD();
 
-                foreach (var item in request.gruppiAd)
+                if (request.UID_persona == Guid.Empty)
                 {
-                    if (item.Membro)
-                    {
-                        try
-                        {
-                            var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD, AppSettingsConfiguration.TOKEN_W);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error($"Add - {item.GruppoAD}", e);
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD, request.userAD, 
-                                AppSettingsConfiguration.TOKEN_W);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error($"Remove - {item.GruppoAD}", e);
-                        }
-                    }
-                }
+                    //NUOVO
 
-                if (request.no_Cons == 1)
-                {
-                    //No CONS
-                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona, request.userAD);
+#if DEBUG == false
+                    string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
+                    string autoPassword = _logicUtil.GenerateRandomCode();
+                    intranetAdService.CreatePEMADUser(
+                        request.userAD,
+                        autoPassword,
+                        ruolo == RuoliIntEnum.Amministratore_Giunta,
+                        AppSettingsConfiguration.TOKEN_W
+                    );
+#endif
+
+                    request.UID_persona = Guid.NewGuid();
+                    request.no_Cons = 0;
+                    UTENTI_NoCons newUser = request;
+                    _unitOfWork.Persone.Add(newUser);
+                    await _unitOfWork.CompleteAsync();
+
+#if DEBUG == false
+                    await _logicUtil.InvioMail(new MailModel
+                    {
+                        DA = "pem@consiglio.regione.lombardia.it",
+                        A = request.email,
+                        CC = "max.pagliaro@consiglio.regione.lombardia.it",
+                        OGGETTO = "PEM - Utenza aperta",
+                        MESSAGGIO =
+ $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                    });
+#endif
                 }
                 else
                 {
-                    //Consigliere/Assessore
-                    var persona = await _unitOfWork.Persone.Get(request.UID_persona);
-                    persona.cognome = request.cognome;
-                    persona.nome = request.nome;
-                    persona.foto = request.foto;
-                    persona.userAD = request.userAD;
-                    persona.email = request.email;
-                    persona.attivo = request.attivo;
-                    persona.deleted = request.deleted;
-                    persona.notifica_firma = request.notifica_firma;
-                    persona.notifica_deposito = request.notifica_deposito;
-                    await _unitOfWork.CompleteAsync();
+#if DEBUG == false
+                    foreach (var item in request.gruppiAd)
+                    {
+                        if (item.Membro)
+                        {
+                            try
+                            {
+                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
+                                    AppSettingsConfiguration.TOKEN_W);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Add - {item.GruppoAD}", e);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
+                                    request.userAD,
+                                    AppSettingsConfiguration.TOKEN_W);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Remove - {item.GruppoAD}", e);
+                            }
+                        }
+                    }
+#endif
+
+                    if (request.no_Cons == 1)
+                    {
+                        //No CONS
+                        await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
+                            request.userAD);
+                    }
+                    else
+                    {
+                        //Consigliere/Assessore
+                        UTENTI_NoCons persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
+                        persona.id_gruppo_politico_rif = request.id_gruppo_politico_rif;
+                        persona.UserAD = request.userAD;
+                        persona.notifica_firma = request.notifica_firma;
+                        persona.notifica_deposito = request.notifica_deposito;
+                        await _unitOfWork.CompleteAsync();
+                    }
                 }
+
+                return request.UID_persona;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                var gruppo = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(request.Id_Gruppo);
+                gruppo.GruppoAD = request.GruppoAD;
+                gruppo.AbilitaEMPrivati = request.abilita_em_privati;
+                gruppo.GiuntaRegionale = request.giunta;
+                await _unitOfWork.CompleteAsync();
+
+#if DEBUG == false
+                //CREO IL GRUPPO IN ACTIVE DIRECTORY
+                try
+                {
+                    var user_list = "";
+                    if (request.Id_Gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
+                    {
+                        var assessori = await _unitOfWork.Gruppi.GetAssessoriInCarica();
+                        user_list = assessori.Aggregate((i, j) => i + ";" + j);
+                    }
+                    else
+                    {
+                        var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(request.Id_Gruppo);
+                        user_list = consiglieri.Aggregate((i, j) => i + ";" + j);
+                    }
+                    
+                    user_list = user_list.Replace(@"CONSIGLIO\", "");
+
+                    var intranetAdService = new proxyAD();
+
+                    intranetAdService.CreatePEMADGroup(request.GruppoAD.Replace(@"CONSIGLIO\", ""), user_list,
+                        AppSettingsConfiguration.TOKEN_W);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+#endif
+
             }
             catch (Exception e)
             {

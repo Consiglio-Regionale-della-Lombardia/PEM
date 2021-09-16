@@ -1,7 +1,17 @@
 ﻿@model PortaleRegione.Client.Models.ViewUtenteModel
 
 @{
-    ViewBag.Title = Model.Persona.DisplayName;
+    var disable_fields = true;
+    if (Model.Persona.UID_persona == Guid.Empty)
+    {
+        ViewBag.Title = "Nuovo utente";
+        disable_fields = false;
+    }
+    else
+    {
+        ViewBag.Title = Model.Persona.DisplayName;
+        disable_fields = true;
+    }
     var backUrl = Url.Action("RiepilogoUtenti");
 }
 
@@ -27,58 +37,104 @@
 </div>
 <div class="row">
     <div class="col s12">
-        @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new {id = "formPersona"}))
+        @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new { id = "formPersona" }))
         {
             @Html.AntiForgeryToken()
-            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona"/>
+            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona" />
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.UID_persona)
-                @Html.TextBoxFor(s => s.Persona.UID_persona, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.UID_persona, new
+                {
+                    @class = "form-control",
+                    @readonly = true
+
+                })
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.cognome)
-                @Html.TextBoxFor(s => s.Persona.cognome, new {@class = "form-control"})
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.cognome, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.cognome, new { @class = "form-control" })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.nome)
-                @Html.TextBoxFor(s => s.Persona.nome, new {@class = "form-control"})
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.nome, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.nome, new { @class = "form-control" })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.email)
-                @Html.TextBoxFor(s => s.Persona.email, new {@class = "form-control"})
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.email, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.email, new { @class = "form-control" })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.foto)
-                @Html.TextBoxFor(s => s.Persona.foto, new {@class = "form-control"})
+                @if (disable_fields)
+                {
+                    @Html.TextBoxFor(s => s.Persona.foto, new { @class = "form-control", @readonly = true })
+                }
+                else
+                {
+                    @Html.TextBoxFor(s => s.Persona.foto, new
+                    {
+                        @class = "form-control"
+                    })
+                }
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.userAD)
-                @Html.TextBoxFor(s => s.Persona.userAD, new {@class = "form-control"})
+                @Html.TextBoxFor(s => s.Persona.userAD, new { @class = "form-control" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(s => s.Persona.id_gruppo_politico_rif)
+                <select id="ddlRiferimentoGruppo">
+                    <option value="0">--</option>
+                    @foreach (var gruppo in Model.GruppiInDB)
+                    {
+                        if (Model.Persona.id_gruppo_politico_rif == gruppo.id)
+                        {
+                            <option value="@gruppo.id" selected="selected">@gruppo.descr</option>
+                        }
+                        else
+                        {
+                            <option value="@gruppo.id">@gruppo.descr</option>
+                        }
+                    }
+                </select>
             </div>
 
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="No_Cons" name="No_Cons" type="checkbox" value="true"
-                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "" : "checked=\"checked\"")>
+                        <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
+                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
                     </label>
                 </p>
             </div>
-            
-            @*if (Model.Persona.Gruppo != null)
-            {
-                <div class="form-group">
-                    @Html.LabelFor(s => s.Persona.Gruppo)
-                    @Html.TextBoxFor(s => s.Persona.Gruppo.nome_gruppo, new {@class = "form-control"})
-                </div>
-            }*@
 
             var notifica_Firma = Model.Persona.notifica_firma.HasValue ? Model.Persona.notifica_firma.Value : false;
 
@@ -86,7 +142,7 @@
                 <p>
                     <label>
                         <input id="notifica_firma" name="notifica_firma" type="checkbox" value="true"
-                               @Html.Raw(notifica_Firma ? "" : "checked=\"checked\"")>
+                               @Html.Raw(notifica_Firma ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.notifica_firma)</span>
                     </label>
                 </p>
@@ -121,7 +177,7 @@
             <div class="form-group">
                 <p>
                     <label>
-                        <input id="deleted" name="deleted" type="checkbox" value="true"
+                        <input id="deleted" name="deleted" type="checkbox" value="true" disabled="disabled"
                                @Html.Raw(eliminato ? "checked=\"checked\"" : "")>
                         <span>@Html.LabelFor(s => s.Persona.deleted)</span>
                     </label>
@@ -169,15 +225,21 @@
         submitHandler: function(form) {
 
             var groups = $('input[name="gruppiAD"]');
-           
-            var selected_groups = []
-            $.each(groups, function(index, item) {
-                selected_groups.push({
-                    gruppoAd: $(item).data('name'),
-                    membro: $(item).is(":checked")
-                });
-            });
 
+            var selected_groups = []
+            $.each(groups,
+                function(index, item) {
+                    selected_groups.push({
+                        gruppoAd: $(item).data('name'),
+                        membro: $(item).is(":checked")
+                    });
+                });
+            var gruppo_riferimento = $("#ddlRiferimentoGruppo").children("option:selected");
+            var id_gruppo_politico_rif = 0;
+            $.each(gruppo_riferimento,
+                function (index, item) {
+                    id_gruppo_politico_rif = $(item).val();
+                });
             var form_data = {
                 uid_persona: $('input[name="Persona.UID_persona"]').val(),
                 id_persona: $('input[name="Persona.id_persona"]').val(),
@@ -191,7 +253,8 @@
                 attivo: $('input[name="attivo"]').is(":checked"),
                 deleted: $('input[name="deleted"]').is(":checked"),
                 no_cons: $('input[name="No_Cons"]').is(":checked") ? 0 : 1,
-                gruppiAd: selected_groups
+                gruppiAd: selected_groups,
+                id_gruppo_politico_rif: id_gruppo_politico_rif
             }
 
             //submit via ajax
@@ -206,7 +269,11 @@
                     if (dataResult.message)
                         ErrorAlert(dataResult.message);
                     else {
-                        SuccessAlert("Profilo salvato correttamente");
+                        if ($('input[name="Persona.UID_persona"]').val() == "@Html.Raw(Guid.Empty)") {
+                            go(dataResult);
+                        } else {
+                            SuccessAlert("Profilo salvato correttamente");
+                        }
                     }
                 })
                 .fail(function(err) {

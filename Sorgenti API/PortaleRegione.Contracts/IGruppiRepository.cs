@@ -22,7 +22,9 @@ using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Contracts
 {
@@ -32,15 +34,23 @@ namespace PortaleRegione.Contracts
     public interface IGruppiRepository : IRepository<gruppi_politici>
     {
         Task<GruppiDto> GetGruppoPersona(List<string> LGruppi, bool IsGiunta = false);
-        Task<IEnumerable<KeyValueDto>> GetAll(int id_legislatura);
+        Task<IEnumerable<KeyValueDto>> GetAllAttivi(int id_legislatura);
+        Task<IEnumerable<KeyValueDto>> GetAll();
         Task<View_gruppi_politici_con_giunta> Get(int gruppoId);
         Task<View_UTENTI> GetCapoGruppo(int gruppoId);
         Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma, bool notifica_deposito);
         Task<IEnumerable<View_UTENTI>> GetConsiglieriGruppo(int id_legislatura, int id_gruppo);
+        Task<IEnumerable<string>> GetConsiglieriInCarica(int id_gruppo);
+        Task<IEnumerable<string>> GetAssessoriInCarica();
+
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi, RuoliIntEnum personaDtoCurrentRole);
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(Guid personaUId, bool IsGiunta);
 
         Task<IEnumerable<JOIN_GRUPPO_AD>> GetGruppiPoliticiAD(int id_legislatura, bool soloRuoliGiunta);
         Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi);
+        Task<List<gruppi_politici>> GetGruppiAdmin(Filter<gruppi_politici> filtro = null);
+        Task<IEnumerable<JOIN_GRUPPO_AD>> GetJoinGruppiAdmin(int legislaturaAttiva);
+        Task<JOIN_GRUPPO_AD> GetGiunta(int legislaturaAttiva);
+        Task<JOIN_GRUPPO_AD> GetJoinGruppoAdmin(int gruppo);
     }
 }

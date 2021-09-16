@@ -20,6 +20,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using PortaleRegione.Client.Models;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -33,7 +35,7 @@ namespace PortaleRegione.Client.Controllers
     /// <summary>
     ///     Controller amministrazione
     /// </summary>
-    [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Amministratore_Giunta)]
+    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
     [RoutePrefix("adminpanel")]
     public class AdminPanelController : BaseController
     {
@@ -44,9 +46,119 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="size">Paginazione</param>
         /// <returns></returns>
         [HttpGet]
+        [Route("users/view")]
         public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 50)
         {
-            return View("RiepilogoUtenti", await AdminGate.GetPersone(page, size));
+            var request = new BaseRequest<PersonaDto> { page = page, size = size };
+
+            //request.filtro.Add(new FilterStatement<PersonaDto>
+            //{
+            //    PropertyId = nameof(PersonaDto.No_Cons),
+            //    Operation = Operation.EqualTo,
+            //    Value = 1,
+            //    Connector = FilterStatementConnector.And
+            //});
+
+            return View("RiepilogoUtenti", await AdminGate.GetPersone(new BaseRequest<PersonaDto>
+            {
+                page = page,
+                size = size
+            }));
+        }
+
+        /// <summary>
+        ///     Controller per ricercare gli utenti
+        /// </summary>
+        /// <param name="id">Guid utente</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("users/view")]
+        public async Task<ActionResult> SearchUsers()
+        {
+            int.TryParse(Request.Form["page"], out var filtro_page);
+            int.TryParse(Request.Form["size"], out var filtro_size);
+            var filtro_q = Request.Form["q"];
+            var filtro_no_cons = Request.Form["no_cons"];
+            var filtro_legislatura = Request.Form["legislatura"];
+            var filtro_ruoli = Request.Form["ruoli"];
+            var filtro_gruppi = Request.Form["gruppi"];
+            var request = new BaseRequest<PersonaDto> { page = filtro_page, size = filtro_size };
+            if (!string.IsNullOrEmpty(filtro_q))
+            {
+                request.filtro.Add(new FilterStatement<PersonaDto>
+                {
+                    PropertyId = nameof(PersonaDto.nome),
+                    Operation = Operation.Contains,
+                    Value = filtro_q,
+                    Connector = FilterStatementConnector.Or
+                });
+                request.filtro.Add(new FilterStatement<PersonaDto>
+                {
+                    PropertyId = nameof(PersonaDto.cognome),
+                    Operation = Operation.Contains,
+                    Value = filtro_q,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (filtro_no_cons == "on")
+            {
+                request.filtro.Add(new FilterStatement<PersonaDto>
+                {
+                    PropertyId = nameof(PersonaDto.No_Cons),
+                    Operation = Operation.EqualTo,
+                    Value = 1,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (!string.IsNullOrEmpty(filtro_legislatura))
+            {
+                var split_filter = filtro_legislatura.Split(',');
+                foreach (var s in split_filter)
+                {
+                    request.filtro.Add(new FilterStatement<PersonaDto>
+                    {
+                        PropertyId = nameof(PersonaDto.legislature),
+                        Operation = Operation.Contains,
+                        Value = $"-{s}-",
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+
+            if (!string.IsNullOrEmpty(filtro_ruoli))
+            {
+                var split_filter = filtro_ruoli.Split(',');
+                foreach (var s in split_filter)
+                {
+                    request.filtro.Add(new FilterStatement<PersonaDto>
+                    {
+                        PropertyId = nameof(PersonaDto.Ruoli),
+                        Operation = Operation.EqualTo,
+                        Value = s,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(filtro_gruppi))
+            {
+                var split_filter = filtro_gruppi.Split(',');
+                foreach (var s in split_filter)
+                {
+                    request.filtro.Add(new FilterStatement<PersonaDto>
+                    {
+                        PropertyId = nameof(PersonaDto.id_gruppo_politico_rif),
+                        Operation = Operation.EqualTo,
+                        Value = s,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+
+            var result = await AdminGate.GetPersone(request);
+            return View("RiepilogoUtenti", result);
         }
 
         /// <summary>
@@ -71,11 +183,44 @@ namespace PortaleRegione.Client.Controllers
                 GruppoAD = gruppo.GruppoAD,
                 Membro = persona.Gruppi.Contains(gruppo.GruppoAD.Replace(@"CONSIGLIO\", "")), IsRuolo = false
             }));
+            var gruppiInDb = await PersoneGate.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
                 Persona = persona,
-                GruppiAD = listaGruppiRuoliAD
+                GruppiAD = listaGruppiRuoliAD,
+                GruppiInDB = gruppiInDb.ToList()
+            });
+        }
+        
+        /// <summary>
+        ///     Controller per creare un nuovo utente
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("new")]
+        public async Task<ActionResult> NuovoUtente()
+        {
+            var persona = new PersonaDto();
+            var ruoli = await AdminGate.GetRuoliAD();
+            var gruppiAD = await AdminGate.GetGruppiPoliticiAD();
+            var listaGruppiRuoliAD = ruoli.Select(ruolo => new AD_ObjectModel
+            {
+                GruppoAD = ruolo.ADGroup, Membro = false,
+                IsRuolo = true
+            }).ToList();
+            listaGruppiRuoliAD.AddRange(gruppiAD.Select(gruppo => new AD_ObjectModel
+            {
+                GruppoAD = gruppo.GruppoAD,
+                Membro = false, IsRuolo = false
+            }));
+            var gruppiInDb = await PersoneGate.GetGruppiAttivi();
+
+            return View("ViewUtente", new ViewUtenteModel
+            {
+                Persona = persona,
+                GruppiAD = listaGruppiRuoliAD,
+                GruppiInDB = gruppiInDb.ToList()
             });
         }
 
@@ -90,9 +235,9 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                await AdminGate.ModificaPersona(request);
+                var result = await AdminGate.SalvaPersona(request);
 
-                return Json(Url.Action("ViewUtente", "AdminPanel", new {id = request.UID_persona})
+                return Json(Url.Action("ViewUtente", "AdminPanel", new { id = result })
                     , JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -128,6 +273,48 @@ namespace PortaleRegione.Client.Controllers
             {
                 await AdminGate.ResetPassword(request);
                 return Json("ok", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("gruppi-in-db")]
+        public async Task<ActionResult> GetGruppiInDb()
+        {
+            return Json(await AdminGate.GetGruppiInDb(), JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        ///     Controller per visualizzare i dati degli utenti
+        /// </summary>
+        /// <param name="page">Pagina corrente</param>
+        /// <param name="size">Paginazione</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("groups/view")]
+        public async Task<ActionResult> RiepilogoGruppi()
+        {
+            var request = new BaseRequest<GruppiDto>();
+            return View("RiepilogoGruppi", await AdminGate.GetGruppiAdmin(request));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> SalvaGruppo(SalvaGruppoRequest request)
+        {
+            try
+            {
+                await AdminGate.SalvaGruppo(request);
+
+                return Json(Url.Action("RiepilogoGruppi", "AdminPanel")
+                    , JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

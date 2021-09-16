@@ -126,15 +126,15 @@ namespace PortaleRegione.Client.Controllers
 
             var authTicket1 = new FormsAuthenticationTicket
             (
-                1, $"{username}1", DateTime.Now, DateTime.Now.AddMinutes(30), true, p1
+                1, $"{username}1", DateTime.Now, DateTime.Now.AddHours(2), false, p1
             );
             var authTicket2 = new FormsAuthenticationTicket
             (
-                1, $"{username}2", DateTime.Now, DateTime.Now.AddMinutes(30), true, p2
+                1, $"{username}2", DateTime.Now, DateTime.Now.AddHours(2), false, p2
             );
             var authTicket3 = new FormsAuthenticationTicket
             (
-                1, $"{username}3", DateTime.Now, DateTime.Now.AddMinutes(30), true, p3
+                1, $"{username}3", DateTime.Now, DateTime.Now.AddHours(2), false, p3
             );
 
             var enTicket1 = FormsAuthentication.Encrypt(authTicket1);
@@ -153,15 +153,15 @@ namespace PortaleRegione.Client.Controllers
 
             var securetyTicket1 = new FormsAuthenticationTicket
             (
-                1, "token_jwt1", DateTime.Now, DateTime.Now.AddMinutes(30), true, jwt1
+                1, "token_jwt1", DateTime.Now, DateTime.Now.AddHours(2), false, jwt1
             );
             var securetyTicket2 = new FormsAuthenticationTicket
             (
-                1, "token_jwt2", DateTime.Now, DateTime.Now.AddMinutes(30), true, jwt2
+                1, "token_jwt2", DateTime.Now, DateTime.Now.AddHours(2), false, jwt2
             );
             var securetyTicket3 = new FormsAuthenticationTicket
             (
-                1, "token_jwt3", DateTime.Now, DateTime.Now.AddMinutes(30), true, jwt3
+                1, "token_jwt3", DateTime.Now, DateTime.Now.AddHours(2), false, jwt3
             );
 
             var sTicket1 = FormsAuthentication.Encrypt(securetyTicket1);
@@ -179,17 +179,17 @@ namespace PortaleRegione.Client.Controllers
             BaseGateway.access_token = jwt;
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
             {
-                var gruppi = await PersoneGate.GetGruppi();
+                var gruppi = await PersoneGate.GetGruppiAttivi();
                 var groupsTicket = new FormsAuthenticationTicket
                 (
-                    1, "gruppi", DateTime.Now, DateTime.Now.AddMinutes(30), true, JsonConvert.SerializeObject(gruppi)
+                    1, "gruppi", DateTime.Now, DateTime.Now.AddHours(2), false, JsonConvert.SerializeObject(gruppi)
                 );
                 var gTicket = FormsAuthentication.Encrypt(groupsTicket);
                 var gCookie = new HttpCookie("GCookies", gTicket) {HttpOnly = true};
                 Response.Cookies.Add(gCookie);
             }
 
-            FormsAuthentication.SetAuthCookie(username, true);
+            FormsAuthentication.SetAuthCookie(username, false);
         }
 
         [HttpPost]

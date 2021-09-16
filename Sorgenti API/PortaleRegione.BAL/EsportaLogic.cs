@@ -227,177 +227,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        public async Task<HttpResponseMessage> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
-        {
-            try
-            {
-                var FilePathComplete = GetLocalPath("docx");
-
-                var atto = await _unitOfWork.Atti.Get(id);
-
-                var doc = new XWPFDocument();
-                var section = new CT_SectPr
-                {
-                    pgSz =
-                    {
-                        orient = ST_PageOrientation.landscape,
-                        w = 1680 * 20,
-                        h = 1188 * 20
-                    }
-                };
-                section.pgMar.top = "500";
-                section.pgMar.left = 500;
-                section.pgMar.right = 500;
-                section.pgMar.bottom = "500";
-                doc.Document.body.sectPr = section;
-
-                var table = doc.CreateTable();
-
-                table.Width = 5000;
-                var rowHeader = table.CreateRow();
-                rowHeader.RemoveCell(0);
-
-                var cPdl = table.Rows[0].GetCell(0);
-                var headerCellcPdl = cPdl.AddParagraph();
-                headerCellcPdl.Alignment = ParagraphAlignment.CENTER;
-                var headerCellcPdl_Run = headerCellcPdl.CreateRun();
-                headerCellcPdl_Run.IsBold = true;
-                headerCellcPdl_Run.SetText($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}");
-
-                var c0 = rowHeader.CreateCell();
-                var headerCell0 = c0.AddParagraph();
-                headerCell0.Alignment = ParagraphAlignment.CENTER;
-                var headerCell0_Run = headerCell0.CreateRun();
-                headerCell0_Run.IsBold = true;
-                headerCell0_Run.SetText("Ordine di Votazione");
-
-                var c1 = rowHeader.CreateCell();
-                var headerCell1 = c1.AddParagraph();
-                headerCell1.Alignment = ParagraphAlignment.CENTER;
-                var headerCell1_Run = headerCell1.CreateRun();
-                headerCell1_Run.IsBold = true;
-                headerCell1_Run.SetText("N.EM/SUBEM");
-
-                var c2 = rowHeader.CreateCell();
-                var headerCell2 = c2.AddParagraph();
-                headerCell2.Alignment = ParagraphAlignment.CENTER;
-                var headerCell2_Run = headerCell2.CreateRun();
-                headerCell2_Run.IsBold = true;
-                headerCell2_Run.SetText("Testo EM/SUBEM");
-
-                var c3 = rowHeader.CreateCell();
-                var headerCell3 = c3.AddParagraph();
-                headerCell3.Alignment = ParagraphAlignment.CENTER;
-                var headerCell3_Run = headerCell3.CreateRun();
-                headerCell3_Run.IsBold = true;
-                headerCell3_Run.SetText("Relazione Illustrativa");
-
-                var c4 = rowHeader.CreateCell();
-                var headerCell4 = c4.AddParagraph();
-                headerCell4.Alignment = ParagraphAlignment.CENTER;
-                var headerCell4_Run = headerCell4.CreateRun();
-                headerCell4_Run.IsBold = true;
-                headerCell4_Run.SetText("Proponente");
-
-                var c5 = rowHeader.CreateCell();
-                var headerCell5 = c5.AddParagraph();
-                headerCell5.Alignment = ParagraphAlignment.CENTER;
-                var headerCell5_Run = headerCell5.CreateRun();
-                headerCell5_Run.IsBold = true;
-                headerCell5_Run.SetText("Firme prima del deposito");
-
-                var c6 = rowHeader.CreateCell();
-                var headerCell6 = c6.AddParagraph();
-                headerCell6.Alignment = ParagraphAlignment.CENTER;
-                var headerCell6_Run = headerCell6.CreateRun();
-                headerCell6_Run.IsBold = true;
-                headerCell6_Run.SetText("Stato");
-
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona);
-
-                foreach (var em in emList)
-                {
-                    var row = table.CreateRow();
-                    row.RemoveCell(0);
-
-                    var c0_em = row.CreateCell();
-                    var headerCell0_em = c0_em.AddParagraph();
-                    headerCell0_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell0_Run_em = headerCell0_em.CreateRun();
-                    headerCell0_Run_em.SetText(em.OrdineVotazione.ToString());
-
-                    var c1_em = row.CreateCell();
-                    var headerCell1_em = c1_em.AddParagraph();
-                    headerCell1_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell1_Run_em = headerCell1_em.CreateRun();
-                    headerCell1_Run_em.SetText(em.N_EM);
-
-                    var c2_em = row.CreateCell();
-                    var headerCell2_em = c2_em.AddParagraph();
-                    headerCell2_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell2_Run_em = headerCell2_em.CreateRun();
-                    headerCell2_Run_em.SetText(Utility.StripHTML(em.TestoEM_originale));
-
-                    var c3_em = row.CreateCell();
-                    var headerCell3_em = c3_em.AddParagraph();
-                    headerCell3_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell3_Run_em = headerCell3_em.CreateRun();
-                    headerCell3_Run_em.SetText(string.IsNullOrEmpty(em.TestoREL_originale)
-                        ? ""
-                        : Utility.StripHTML(em.TestoREL_originale));
-
-                    var proponente =
-                        await _logicPersone.GetPersona(em.UIDPersonaProponente.Value,
-                            em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-
-                    var c4_em = row.CreateCell();
-                    var headerCell4_em = c4_em.AddParagraph();
-                    headerCell4_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell4_Run_em = headerCell4_em.CreateRun();
-                    headerCell4_Run_em.SetText(proponente.DisplayName);
-
-                    var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                    var firmeDto = firme.ToList();
-
-                    var firmatari_opendata = "--";
-                    try
-                    {
-                        if (firmeDto.Any(f =>
-                            f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
-                        {
-                            firmatari_opendata = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
-                                    f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
-                                persona.CurrentRole);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-
-                    var c5_em = row.CreateCell();
-                    var headerCell5_em = c5_em.AddParagraph();
-                    headerCell5_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell5_Run_em = headerCell5_em.CreateRun();
-                    headerCell5_Run_em.SetText(firmatari_opendata);
-
-                    var c6_em = row.CreateCell();
-                    var headerCell6_em = c6_em.AddParagraph();
-                    headerCell6_em.Alignment = ParagraphAlignment.CENTER;
-                    var headerCell6_Run_em = headerCell6_em.CreateRun();
-                    headerCell6_Run_em.SetText(em.STATI_EM.Stato);
-                }
-
-                return await Response(FilePathComplete, doc);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - EsportaGrigliaWord", e);
-                throw e;
-            }
-        }
-
+        
         public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
             try
@@ -701,7 +531,7 @@ namespace PortaleRegione.BAL
                 if (reportType != ReportType.PCR)
                 {
                     SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Ritirato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Approvato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche ? "X" : "");
                     SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Non_Approvato ? "X" : "");
                     SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Decaduto ? "X" : "");
                 }
@@ -711,7 +541,7 @@ namespace PortaleRegione.BAL
             }
 
             var countEM = emendamentiDtos.Count();
-            var approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Approvato);
+            var approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche);
             var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Non_Approvato);
             var ritirati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Ritirato);
             var decaduti = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Decaduto);

@@ -89,7 +89,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("gruppi-politici")]
         public async Task<ActionResult> GetGruppi()
         {
-            return Json(await PersoneGate.GetGruppi(), JsonRequestBehavior.AllowGet);
+            return Json(await PersoneGate.GetGruppiAttivi(), JsonRequestBehavior.AllowGet);
         }
     }
 }

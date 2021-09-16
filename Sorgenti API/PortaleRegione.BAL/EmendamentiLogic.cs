@@ -74,7 +74,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(attoUId);
-                var ruolo_segreteria = await _unitOfWork.Ruoli.Get(10);
+                var ruolo_segreteria = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                 await _logicUtil.InvioMail(new MailModel
                 {
                     DA = persona.email,

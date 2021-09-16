@@ -147,7 +147,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public static async Task<IEnumerable<KeyValueDto>> GetGruppi()
+        public static async Task<IEnumerable<KeyValueDto>> GetGruppiAttivi()
         {
             try
             {

@@ -166,6 +166,7 @@
     <Compile Include="Controllers\EMPublicController.cs" />
     <Compile Include="Controllers\EsportaController.cs" />
     <Compile Include="Controllers\JobController.cs" />
+    <Compile Include="Controllers\LegislatureController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />
     <Compile Include="Controllers\SeduteController.cs" />

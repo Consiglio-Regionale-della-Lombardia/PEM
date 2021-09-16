@@ -141,7 +141,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpDelete]
         [Route("")]
         public async Task<IHttpActionResult> DeleteAtto(Guid id)
@@ -176,7 +176,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="attoModel">Modello atto da inserire</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route("")]
         public async Task<IHttpActionResult> NuovaAtto(AttiFormUpdateModel attoModel)
@@ -215,7 +215,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="attoModel">Modello atto da modificare</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("modifica")]
         [HttpPut]
         public async Task<IHttpActionResult> ModificaAtto(AttiFormUpdateModel attoModel)
@@ -520,7 +520,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model">Modello richiesta salvataggio relatori</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("relatori")]
         [HttpPost]
         public async Task<IHttpActionResult> SalvaRelatoriAtto(AttoRelatoriModel model)
@@ -550,7 +550,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("abilita-fascicolazione")]
         [HttpPost]
         public async Task<IHttpActionResult> PubblicaFascicolo(PubblicaFascicoloModel model)
@@ -597,7 +597,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("sposta-up")]
         public async Task<IHttpActionResult> SPOSTA_UP(Guid id)
@@ -620,7 +620,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliEnum.Amministratore_PEM + "," + RuoliEnum.Segreteria_Assemblea)]
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
         [Route("sposta-down")]
         public async Task<IHttpActionResult> SPOSTA_DOWN(Guid id)
