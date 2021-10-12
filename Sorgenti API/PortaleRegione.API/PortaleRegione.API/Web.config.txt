@@ -58,8 +58,10 @@
     <add key="AbilitaOpenData" value="0 (spento) oppure 1 (attivo)" />
     <add key="OpenData_PrivateToken" value="YOUR_OPENDATA_PRIVATEKEY" />
     <add key="OpenData_Separatore" value="|" />
-    <add key="CartellaDocumentiAtti" value="C:\YOUR_PATH\DocumentiPEM" />
-    <add key="CartellaAllegatiEM" value="C:\YOUR_PATH\Allegati" />
+    
+    <!--COMPATIBILITA' PEM1-->
+    <add key="PrefissoCompatibilitaDocumenti" value="~/DocumentiPEM" />
+    <add key="PercorsoCompatibilitaDocumenti" value="C:\Git\2CSolution\Regione Lombardia\GestioneEmendamenti\DocumentiPEM" />
 
     <!-- TestoEMCartaceo -->
     <add key="TestoEMCartaceo" value="Emendamento presentarto in forma cartacea da {0}" />
