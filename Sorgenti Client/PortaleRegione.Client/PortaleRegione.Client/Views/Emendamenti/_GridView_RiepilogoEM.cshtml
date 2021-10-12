@@ -52,12 +52,17 @@ else
                                     <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip white-text @itemEM.STATI_EM.CssClass" style="width: 100%">
                                         @if (itemEM.Depositabile)
                                         {
-                                            <i class="icon material-icons left" title="EM depositabile">gavel</i>
+                                            <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top:-2px">gavel</i>
                                         }
                                         @itemEM.STATI_EM.Stato
+                                        @if (itemEM.PresentatoOltreITermini)
+                                        {
+                                            //presentato oltre i termini
+                                            <i class="icon material-icons white-text right tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" style="margin-top:-3px">warning</i>
+                                        }
                                         @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
                                         {
-                                            <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)">chat</i>
+                                            <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)" style="margin-top:-2px">chat</i>
                                         }
                                     </div>
                                 </div>
@@ -81,20 +86,11 @@ else
                                             if (!string.IsNullOrEmpty(itemEM.DataDeposito))
                                             {
                                                 <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
-                                                    @{
-                                                        if (itemEM.PresentatoOltreITermini)
-                                                        {
-                                                            //presentato oltre i termini
-                                                            <i class="material-icons red-text left" title="Presentato oltre i termini">warning</i>
-                                                        }
-                                                    }
-
-                                                    Depositato da
+                                                   Depositato da
                                                     <span id="lblPersonaDeposito_@itemEM.UIDEM">
                                                         @itemEM.PersonaDeposito.DisplayName
                                                     </span>
                                                     il @itemEM.DataDeposito
-
 
                                                 </h6>
                                             }
@@ -174,7 +170,7 @@ else
                             </h6>
                         </div>
                         <div class="col s5 right-align" style="margin-top: 9px">
-                            <a class="btn-floating green" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')">
+                            <a class="btn-floating green tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
