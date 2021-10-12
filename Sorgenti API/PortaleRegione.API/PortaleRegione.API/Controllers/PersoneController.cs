@@ -76,7 +76,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var ruolo = await _logicPersone.GetRuolo((RuoliIntEnum) id);
+                var ruolo = await _logicPersone.GetRuolo((RuoliIntEnum)id);
                 return Ok(Mapper.Map<RUOLI, RuoliDto>(ruolo));
             }
             catch (Exception e)
@@ -261,7 +261,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     return BadRequest("Il vecchio PIN non è corretto!!!");
                 }
-                
+
                 return Ok("OK");
             }
             catch (Exception e)
@@ -293,11 +293,6 @@ namespace PortaleRegione.API.Controllers
                 if (currentPin == null)
                 {
                     return BadRequest("Pin non impostato");
-                }
-
-                if (currentPin.RichiediModificaPIN)
-                {
-                    return BadRequest("E' richiesto il reset del pin");
                 }
 
                 if (currentPin.PIN_Decrypt != model.vecchio_pin)
