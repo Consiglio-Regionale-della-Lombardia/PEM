@@ -17,6 +17,8 @@
  */
 
 using AutoMapper;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Domain;
@@ -44,17 +46,20 @@ namespace PortaleRegione.API.Controllers
         private readonly AttiLogic _logicAtti;
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
+        private readonly AdminLogic _logicAdmin;
         private readonly PersoneLogic _logicPersone;
 
         public EmendamentiController(PersoneLogic logicPersone,
             AttiLogic logicAtti,
             EmendamentiLogic logicEm,
-            FirmeLogic logicFirme)
+            FirmeLogic logicFirme,
+            AdminLogic logicAdmin)
         {
             _logicPersone = logicPersone;
             _logicAtti = logicAtti;
             _logicEm = logicEm;
             _logicFirme = logicFirme;
+            _logicAdmin = logicAdmin;
         }
 
         /// <summary>
@@ -79,8 +84,25 @@ namespace PortaleRegione.API.Controllers
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
+                var ricerca_presidente_regione = await _logicAdmin.GetUtenti(new BaseRequest<PersonaDto>
+                {
+                    page = 1,
+                    size = 1,
+                    filtro = new List<FilterStatement<PersonaDto>>
+                    {
+                        new FilterStatement<PersonaDto>
+                        {
+                            PropertyId = nameof(PersonaDto.Ruoli),
+                            Operation = Operation.EqualTo,
+                            Value = (int)RuoliIntEnum.Presidente_Regione,
+                            Connector = FilterStatementConnector.And
+                        }
+                    }
+                }, session
+                    , Request.RequestUri);
+                var presidente = ricerca_presidente_regione.Results.First();
                 var results =
-                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE), Request.RequestUri);
+                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE), presidente, Request.RequestUri);
                 results.Atto = Mapper.Map<ATTI, AttiDto>(atto);
                 return Ok(results);
 
@@ -91,7 +113,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere solo gli emendamenti appartenenti ad un atto dove è richiesta la firma dell'utente corrente
         /// </summary>
@@ -297,7 +319,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("Il testo dell'emendamento non può essere vuoto");
                 }
 
-                if (model.IDParte == (int) PartiEMEnum.Articolo)
+                if (model.IDParte == (int)PartiEMEnum.Articolo)
                 {
                     if (!model.UIDArticolo.HasValue)
                     {
@@ -305,7 +327,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                if (model.IDParte == (int) PartiEMEnum.Capo)
+                if (model.IDParte == (int)PartiEMEnum.Capo)
                 {
                     if (string.IsNullOrEmpty(model.NCapo))
                     {
@@ -313,7 +335,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                if (model.IDParte == (int) PartiEMEnum.Titolo)
+                if (model.IDParte == (int)PartiEMEnum.Titolo)
                 {
                     if (string.IsNullOrEmpty(model.NTitolo))
                     {
@@ -321,7 +343,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                if (model.IDParte == (int) PartiEMEnum.Missione)
+                if (model.IDParte == (int)PartiEMEnum.Missione)
                 {
                     if (!model.NTitoloB.HasValue || !model.NMissione.HasValue ||
                         !model.NProgramma.HasValue)
@@ -451,7 +473,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per conoscere l' emendamento proiettato in aula
         /// </summary>
@@ -920,7 +942,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere l'oggetto emendamento da modificare
         /// </summary>
@@ -976,7 +998,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per modificare lo stato di una lista di emendamenti
         /// </summary>
@@ -1024,7 +1046,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    if (em.STATI_EM.IDStato != (int) StatiEnum.Ritirato)
+                    if (em.STATI_EM.IDStato != (int)StatiEnum.Ritirato)
                     {
                         results.Add(idGuid,
                             $"ERROR: l'emendamento è {em.STATI_EM.Stato}, è possibile assegnare un nuovo proponente solo se lo stato è RITIRATO.");
@@ -1079,7 +1101,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per ordinare gli emendamenti di un atto in votazione
         /// </summary>
@@ -1102,7 +1124,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per ordinare gli emendamenti di un atto in votazione
         /// </summary>
@@ -1199,7 +1221,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere le parti emendabili a DB
         /// </summary>

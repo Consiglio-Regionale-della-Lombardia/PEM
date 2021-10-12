@@ -17,6 +17,7 @@
  */
 
 using AutoMapper;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL.proxyAd;
 using PortaleRegione.Contracts;
@@ -32,7 +33,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using ExpressionBuilder.Common;
 
 namespace PortaleRegione.BAL
 {
@@ -287,7 +287,9 @@ namespace PortaleRegione.BAL
 
         public async Task ResetPin(ResetRequest request)
         {
-            await _unitOfWork.Persone.SavePin(request.persona_UId, request.new_value, false);
+            await _unitOfWork.Persone.SavePin(request.persona_UId
+                , EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
+                , true);
             await _unitOfWork.CompleteAsync();
         }
 
@@ -424,16 +426,8 @@ namespace PortaleRegione.BAL
                 var results = new List<PersonaDto>();
                 var persone_In_Db = new List<PersonaDto>();
                 var counter = 0;
-                if (session._currentRole == RuoliIntEnum.Amministratore_PEM)
-                {
-                    persone_In_Db.AddRange(await GetPersoneIn_DB(model));
-                    counter = await Count(model);
-                }
-                else
-                {
-                    persone_In_Db.AddRange(await GetPersoneIn_DB_ByGiunta(model));
-                    counter = await CountByGiunta(model);
-                }
+                persone_In_Db.AddRange(await GetPersoneIn_DB(model));
+                counter = await Count(model);
 
                 foreach (var persona in persone_In_Db)
                 {
