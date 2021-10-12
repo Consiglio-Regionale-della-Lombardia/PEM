@@ -126,7 +126,7 @@ namespace PortaleRegione.BAL
 
                 if (attoModel.DocAtto_Stream != null)
                 {
-                    var path = ByteArrayToFile(attoModel.DocAtto_Stream, DocTypeEnum.ATTO);
+                    var path = ByteArrayToFile(attoModel.DocAtto_Stream);
                     atto.Path_Testo_Atto = path;
                     await _unitOfWork.CompleteAsync();
                 }
@@ -156,8 +156,8 @@ namespace PortaleRegione.BAL
 
                 if (attoModel.DocAtto_Stream != null)
                 {
-                    var path = ByteArrayToFile(attoModel.DocAtto_Stream, DocTypeEnum.ATTO);
-                    attoInDb.Path_Testo_Atto = path;
+                    var path = ByteArrayToFile(attoModel.DocAtto_Stream);
+                    attoInDb.Path_Testo_Atto = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     await _unitOfWork.CompleteAsync();
                 }
 
@@ -543,8 +543,8 @@ namespace PortaleRegione.BAL
         public async Task<HttpResponseMessage> Download(string path)
         {
             var complete_path = Path.Combine(
-                AppSettingsConfiguration.CartellaDocumentiAtti,
-                path.Replace("~/", ""));
+                AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                Path.GetFileName(path));
             var result = await ComposeFileResponse(complete_path);
             return result;
         }
@@ -553,7 +553,7 @@ namespace PortaleRegione.BAL
         {
             return await _unitOfWork.Atti.Get(id);
         }
-        
+
         public async Task SPOSTA_UP(Guid attoUId)
         {
             await _unitOfWork.Atti.SPOSTA_UP(attoUId);

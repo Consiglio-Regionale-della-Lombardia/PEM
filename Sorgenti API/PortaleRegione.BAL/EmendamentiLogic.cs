@@ -346,15 +346,15 @@ namespace PortaleRegione.BAL
 
                 if (emendamentoDto.DocAllegatoGenerico_Stream != null)
                 {
-                    var path = ByteArrayToFile(emendamentoDto.DocAllegatoGenerico_Stream, DocTypeEnum.EM);
-                    em.PATH_AllegatoGenerico = path;
+                    var path = ByteArrayToFile(emendamentoDto.DocAllegatoGenerico_Stream);
+                    em.PATH_AllegatoGenerico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     em.EffettiFinanziari = 0;
                 }
 
                 if (emendamentoDto.DocEffettiFinanziari_Stream != null)
                 {
-                    var path = ByteArrayToFile(emendamentoDto.DocEffettiFinanziari_Stream, DocTypeEnum.EM);
-                    em.PATH_AllegatoTecnico = path;
+                    var path = ByteArrayToFile(emendamentoDto.DocEffettiFinanziari_Stream);
+                    em.PATH_AllegatoTecnico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     em.EffettiFinanziari = 1;
                 }
 
@@ -399,15 +399,15 @@ namespace PortaleRegione.BAL
 
                 if (model.DocAllegatoGenerico_Stream != null)
                 {
-                    var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream, DocTypeEnum.EM);
-                    em.PATH_AllegatoGenerico = path;
+                    var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream);
+                    em.PATH_AllegatoGenerico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     em.EffettiFinanziari = 0;
                 }
 
                 if (model.DocEffettiFinanziari_Stream != null)
                 {
-                    var path = ByteArrayToFile(model.DocEffettiFinanziari_Stream, DocTypeEnum.EM);
-                    em.PATH_AllegatoTecnico = path;
+                    var path = ByteArrayToFile(model.DocEffettiFinanziari_Stream);
+                    em.PATH_AllegatoTecnico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     em.EffettiFinanziari = 1;
                 }
 
@@ -1150,8 +1150,8 @@ namespace PortaleRegione.BAL
         public async Task<HttpResponseMessage> Download(string path)
         {
             var complete_path = Path.Combine(
-                AppSettingsConfiguration.CartellaAllegatiEM,
-                path);
+                AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                Path.GetFileName(path));
             var result = await ComposeFileResponse(complete_path);
             return result;
         }

@@ -43,7 +43,7 @@ namespace PortaleRegione.BAL
             var _random = new Random();
             return _random.Next(11010001, 99999999).ToString();
         }
-        
+
         public async Task InvioMail(MailModel model)
         {
             try
@@ -55,7 +55,9 @@ namespace PortaleRegione.BAL
 
                 var msg = new MailMessage
                 {
-                    From = new MailAddress(model.DA), Subject = model.OGGETTO, Body = model.MESSAGGIO,
+                    From = new MailAddress(model.DA),
+                    Subject = model.OGGETTO,
+                    Body = model.MESSAGGIO,
                     IsBodyHtml = true
                 };
 
@@ -95,7 +97,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task SalvaDocumento(string proprietarioId, TipoAllegatoEnum tipoDoc, string pathFile)
         {
             try
@@ -135,12 +137,12 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public string ArchiviaDocumento(HttpPostedFile postedFile)
         {
             try
             {
-                var path = HttpContext.Current.Server.MapPath(AppSettingsConfiguration.CartellaDocumentiAtti);
+                var path = HttpContext.Current.Server.MapPath(AppSettingsConfiguration.PercorsoCompatibilitaDocumenti);
                 var nomefile = DateTime.Now.ToString("yyyy") + DateTime.Now.ToString("MM") +
                                DateTime.Now.ToString("dd") + DateTime.Now.ToString("HH")
                                + DateTime.Now.ToString("mm") + DateTime.Now.ToString("ss") + "_" + Guid.NewGuid() +
