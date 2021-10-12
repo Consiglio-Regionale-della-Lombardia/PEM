@@ -40,23 +40,11 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
-        internal string ByteArrayToFile(byte[] byteArray, DocTypeEnum type)
+        internal string ByteArrayToFile(byte[] byteArray)
         {
             try
             {
-                var root = string.Empty;
-                switch (type)
-                {
-                    case DocTypeEnum.ATTO:
-                        root = AppSettingsConfiguration.CartellaDocumentiAtti;
-                        break;
-                    case DocTypeEnum.EM:
-                        root = AppSettingsConfiguration.CartellaAllegatiEM;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(type), type, null);
-                }
-
+                var root = AppSettingsConfiguration.PercorsoCompatibilitaDocumenti;
                 if (!Directory.Exists(root))
                 {
                     Directory.CreateDirectory(root);
@@ -195,7 +183,9 @@ namespace PortaleRegione.BAL
 
                 var TDESAlgorithm = new TripleDESCryptoServiceProvider
                 {
-                    Key = TDESKey, Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7
+                    Key = TDESKey,
+                    Mode = CipherMode.ECB,
+                    Padding = PaddingMode.PKCS7
                 };
 
                 var DataToEncrypt = UTF8.GetBytes(InString);
@@ -234,7 +224,7 @@ namespace PortaleRegione.BAL
                         path = HttpContext.Current.Server.MapPath("~/templates/template_pdf_copertina.html");
                         break;
                     case TemplateTypeEnum.MAIL:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_mail.html"); 
+                        path = HttpContext.Current.Server.MapPath("~/templates/template_mail.html");
                         break;
                     case TemplateTypeEnum.HTML:
                         path = HttpContext.Current.Server.MapPath("~/templates/template_html.html");
@@ -372,7 +362,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.IDStato >= (int) StatiEnum.Depositato)
+                if (emendamento.IDStato >= (int)StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",
@@ -515,7 +505,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                if (emendamento.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",
@@ -588,7 +578,9 @@ namespace PortaleRegione.BAL
 
                 var TDESAlgorithm = new TripleDESCryptoServiceProvider
                 {
-                    Key = TDESKey, Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7
+                    Key = TDESKey,
+                    Mode = CipherMode.ECB,
+                    Padding = PaddingMode.PKCS7
                 };
 
                 var DataToDecrypt = Convert.FromBase64String(EncryptedString);

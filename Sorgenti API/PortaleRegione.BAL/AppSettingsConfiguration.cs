@@ -44,7 +44,7 @@ namespace PortaleRegione.BAL
         public static string AbilitaOpenData => ConfigurationManager.AppSettings["AbilitaOpenData"];
         public static string OpenData_PrivateToken => ConfigurationManager.AppSettings["OpenData_PrivateToken"];
         public static string OpenData_Separatore => ConfigurationManager.AppSettings["OpenData_Separatore"];
-        
+
         public static string TestoEMCartaceo => ConfigurationManager.AppSettings["TestoEMCartaceo"];
 
         //Service JOBBER
@@ -58,11 +58,11 @@ namespace PortaleRegione.BAL
         public static string MessaggioInizialeInvito => ConfigurationManager.AppSettings["MessaggioInizialeInvito"];
         public static string urlPEM_ViewEM => ConfigurationManager.AppSettings["urlPEM_ViewEM"];
         public static string urlPEM_RiepilogoEM => ConfigurationManager.AppSettings["urlPEM_RiepilogoEM"];
-       
+
         //FILE
         public static string RootRepository => ConfigurationManager.AppSettings["RootRepository"];
-        public static string CartellaDocumentiAtti => ConfigurationManager.AppSettings["CartellaDocumentiAtti"];
-        public static string CartellaAllegatiEM => ConfigurationManager.AppSettings["CartellaAllegatiEM"];
+        public static string PrefissoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PrefissoCompatibilitaDocumenti"];
+        public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
 
     }
 }
