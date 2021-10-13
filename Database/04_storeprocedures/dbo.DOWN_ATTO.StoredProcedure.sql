@@ -1,4 +1,4 @@
-USE [dbEmendamenti_test]
+USE [dbEmendamenti]
 GO
 
 /****** Object:  StoredProcedure [dbo].[DOWN_ATTO]    Script Date: 04/20/2021 14:32:00 ******/
