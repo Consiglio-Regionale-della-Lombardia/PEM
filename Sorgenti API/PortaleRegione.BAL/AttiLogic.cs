@@ -545,6 +545,8 @@ namespace PortaleRegione.BAL
             var complete_path = Path.Combine(
                 AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                 Path.GetFileName(path));
+
+            Log.Debug($"Download file atto: {complete_path} [originale: {path}]");
             var result = await ComposeFileResponse(complete_path);
             return result;
         }
