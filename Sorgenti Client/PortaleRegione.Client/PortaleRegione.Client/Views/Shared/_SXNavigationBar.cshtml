@@ -33,17 +33,19 @@
                 carica = data.IsGiunta() ? data.Carica : string.Empty;
                 if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                 {
-                    var gCookie = Request.Cookies["GCookies"];
-                    if (gCookie != null)
+                    var gCookie1 = Request.Cookies["GCookies1"];
+                    var gCookie2 = Request.Cookies["GCookies2"];
+                    var gCookie3 = Request.Cookies["GCookies3"];
+
+                    if (!string.IsNullOrEmpty(gCookie1.Value) && !string.IsNullOrEmpty(gCookie2.Value) && !string.IsNullOrEmpty(gCookie3.Value))
                     {
-                        if (!string.IsNullOrEmpty(gCookie.Value))
+                        var gTicket1 = FormsAuthentication.Decrypt(gCookie1.Value);
+                        var gTicket2 = FormsAuthentication.Decrypt(gCookie2.Value);
+                        var gTicket3 = FormsAuthentication.Decrypt(gCookie3.Value);
+                        var gData = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>($"{gTicket1.UserData}{gTicket2.UserData}{gTicket3.UserData}");
+                        if (gData != null)
                         {
-                            var gTicket = FormsAuthentication.Decrypt(gCookie.Value);
-                            var gData = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(gTicket.UserData);
-                            if (gData != null)
-                            {
-                                gruppiAdmin = gData;
-                            }
+                            gruppiAdmin = gData;
                         }
                     }
                 }

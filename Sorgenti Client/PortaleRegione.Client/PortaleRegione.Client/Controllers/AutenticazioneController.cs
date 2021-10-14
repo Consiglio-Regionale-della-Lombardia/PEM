@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Security;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Security;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -114,6 +114,8 @@ namespace PortaleRegione.Client.Controllers
 
         private async Task SalvaDatiInCookies(PersonaDto persona, string jwt, string username)
         {
+            BaseGateway.access_token = jwt;
+
             string jwt1 = string.Empty, jwt2 = string.Empty, jwt3 = string.Empty;
             SliceBy3(jwt, ref jwt1, ref jwt2, ref jwt3);
 
@@ -138,13 +140,13 @@ namespace PortaleRegione.Client.Controllers
             );
 
             var enTicket1 = FormsAuthentication.Encrypt(authTicket1);
-            var faCookie1 = new HttpCookie("PRCookies1", enTicket1) {HttpOnly = true};
+            var faCookie1 = new HttpCookie("PRCookies1", enTicket1) { HttpOnly = true };
             Response.Cookies.Add(faCookie1);
             var enTicket2 = FormsAuthentication.Encrypt(authTicket2);
-            var faCookie2 = new HttpCookie("PRCookies2", enTicket2) {HttpOnly = true};
+            var faCookie2 = new HttpCookie("PRCookies2", enTicket2) { HttpOnly = true };
             Response.Cookies.Add(faCookie2);
             var enTicket3 = FormsAuthentication.Encrypt(authTicket3);
-            var faCookie3 = new HttpCookie("PRCookies3", enTicket3) {HttpOnly = true};
+            var faCookie3 = new HttpCookie("PRCookies3", enTicket3) { HttpOnly = true };
             Response.Cookies.Add(faCookie3);
 
             #endregion
@@ -165,29 +167,50 @@ namespace PortaleRegione.Client.Controllers
             );
 
             var sTicket1 = FormsAuthentication.Encrypt(securetyTicket1);
-            var sCookie1 = new HttpCookie("SCookies1", sTicket1) {HttpOnly = true};
+            var sCookie1 = new HttpCookie("SCookies1", sTicket1) { HttpOnly = true };
             Response.Cookies.Add(sCookie1);
             var sTicket2 = FormsAuthentication.Encrypt(securetyTicket2);
-            var sCookie2 = new HttpCookie("SCookies2", sTicket2) {HttpOnly = true};
+            var sCookie2 = new HttpCookie("SCookies2", sTicket2) { HttpOnly = true };
             Response.Cookies.Add(sCookie2);
             var sTicket3 = FormsAuthentication.Encrypt(securetyTicket3);
-            var sCookie3 = new HttpCookie("SCookies3", sTicket3) {HttpOnly = true};
+            var sCookie3 = new HttpCookie("SCookies3", sTicket3) { HttpOnly = true };
             Response.Cookies.Add(sCookie3);
 
             #endregion
 
-            BaseGateway.access_token = jwt;
+            #region GRUPPI DATA
+
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
             {
                 var gruppi = await PersoneGate.GetGruppiAttivi();
-                var groupsTicket = new FormsAuthenticationTicket
+                string g1 = string.Empty, g2 = string.Empty, g3 = string.Empty;
+
+                SliceBy3(JsonConvert.SerializeObject(gruppi), ref g1, ref g2, ref g3);
+
+                var groupsTicket1 = new FormsAuthenticationTicket
                 (
-                    1, "gruppi", DateTime.Now, DateTime.Now.AddHours(2), false, JsonConvert.SerializeObject(gruppi)
+                    1, "gruppi1", DateTime.Now, DateTime.Now.AddHours(2), false, g1
                 );
-                var gTicket = FormsAuthentication.Encrypt(groupsTicket);
-                var gCookie = new HttpCookie("GCookies", gTicket) {HttpOnly = true};
-                Response.Cookies.Add(gCookie);
+                var groupsTicket2 = new FormsAuthenticationTicket
+                (
+                    1, "gruppi2", DateTime.Now, DateTime.Now.AddHours(2), false, g2
+                );
+                var groupsTicket3 = new FormsAuthenticationTicket
+                (
+                    1, "gruppi3", DateTime.Now, DateTime.Now.AddHours(2), false, g3
+                );
+                var gTicket1 = FormsAuthentication.Encrypt(groupsTicket1);
+                var gCookie1 = new HttpCookie("GCookies1", gTicket1) { HttpOnly = true };
+                Response.Cookies.Add(gCookie1);
+                var gTicket2 = FormsAuthentication.Encrypt(groupsTicket2);
+                var gCookie2 = new HttpCookie("GCookies2", gTicket2) { HttpOnly = true };
+                Response.Cookies.Add(gCookie2);
+                var gTicket3 = FormsAuthentication.Encrypt(groupsTicket3);
+                var gCookie3 = new HttpCookie("GCookies3", gTicket3) { HttpOnly = true };
+                Response.Cookies.Add(gCookie3);
             }
+
+            #endregion
 
             FormsAuthentication.SetAuthCookie(username, false);
         }
