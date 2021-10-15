@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Gateway;
+using System;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -36,7 +36,8 @@ namespace PortaleRegione.Client.Controllers
         // GET
         public async Task<ActionResult> Index(int page = 1, int size = 50)
         {
-            var model = await StampeGate.Get(page, size);
+            var _stampeGateway = new StampeGateway(_Token);
+            var model = await _stampeGateway.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("Index_Admin", model);
@@ -60,8 +61,8 @@ namespace PortaleRegione.Client.Controllers
                 Da = Convert.ToInt16(DA),
                 A = Convert.ToInt16(A)
             };
-
-            await StampeGate.InserisciStampa(model);
+            var _stampeGateway = new StampeGateway(_Token);
+            await _stampeGateway.InserisciStampa(model);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
 
@@ -76,7 +77,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var file = await StampeGate.DownloadStampa(id);
+                var _stampeGateway = new StampeGateway(_Token);
+                var file = await _stampeGateway.DownloadStampa(id);
                 return File(file.Content, "application/pdf",
                     file.FileName);
             }
@@ -91,17 +93,19 @@ namespace PortaleRegione.Client.Controllers
         [Route("reset")]
         public async Task<ActionResult> ResetStampa(Guid id)
         {
-            await StampeGate.ResetStampa(id);
+            var _stampeGateway = new StampeGateway(_Token);
+            await _stampeGateway.ResetStampa(id);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpGet]
         [Route("elimina")]
         public async Task<ActionResult> EliminaStampa(Guid id)
         {
             try
             {
-                await StampeGate.EliminaStampa(id);
+                var _stampeGateway = new StampeGateway(_Token);
+                await _stampeGateway.EliminaStampa(id);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

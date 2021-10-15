@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
@@ -27,6 +23,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -39,7 +39,8 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
         {
-            var model = await SeduteGate.Get(page, size);
+            var _seduteGateway = new SeduteGateway(_Token);
+            var model = await _seduteGateway.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", model);
@@ -51,7 +52,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("delete")]
         public async Task<ActionResult> EliminaSeduta(Guid id)
         {
-            await SeduteGate.Elimina(id);
+            var _seduteGateway = new SeduteGateway(_Token);
+            await _seduteGateway.Elimina(id);
             return RedirectToAction("RiepilogoSedute", "Sedute");
         }
 
@@ -66,7 +68,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("edit/{id:guid}")]
         public async Task<ActionResult> ModificaSeduta(Guid id)
         {
-            var seduta = await SeduteGate.Get(id);
+            var _seduteGateway = new SeduteGateway(_Token);
+            var seduta = await _seduteGateway.Get(id);
             return View("SedutaForm", seduta);
         }
 
@@ -77,10 +80,11 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                var _seduteGateway = new SeduteGateway(_Token);
                 if (seduta.UIDSeduta == Guid.Empty)
-                    await SeduteGate.Salva(seduta);
+                    await _seduteGateway.Salva(seduta);
                 else
-                    await SeduteGate.Modifica(seduta);
+                    await _seduteGateway.Modifica(seduta);
 
                 return Json(Url.Action("RiepilogoSedute", "Sedute")
                     , JsonRequestBehavior.AllowGet);
@@ -99,7 +103,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                return Json(await LegislatureGate.GetLegislature(), JsonRequestBehavior.AllowGet);
+                var _seduteGateway = new SeduteGateway(_Token);
+                return Json(await _seduteGateway.GetLegislature(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -160,8 +165,8 @@ namespace PortaleRegione.Client.Controllers
 
             if (!model.filtro.Any())
                 return RedirectToAction("RiepilogoSedute");
-
-            var results = await SeduteGate.Get(model);
+            var _seduteGateway = new SeduteGateway(_Token);
+            var results = await _seduteGateway.Get(model);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", results);

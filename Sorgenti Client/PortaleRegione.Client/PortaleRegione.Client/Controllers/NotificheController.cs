@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -34,22 +34,18 @@ namespace PortaleRegione.Client.Controllers
     [RoutePrefix("notifiche")]
     public class NotificheController : BaseController
     {
-        public ActionResult RiepilogoNotifiche(bool is_inviate)
-        {
-            throw new NotImplementedException();
-        }
-
         [HttpGet]
         [Route("view")]
         public async Task<ActionResult> RiepilogoNotifiche(bool is_inviate, bool archivio, int page = 1, int size = 50)
         {
             try
             {
+                var _notificheGateway = new NotificheGateway(_Token);
                 BaseResponse<NotificaDto> model;
                 if (!is_inviate)
-                    model = await NotificheGate.GetNotificheRicevute(page, size, archivio);
+                    model = await _notificheGateway.GetNotificheRicevute(page, size, archivio);
                 else
-                    model = await NotificheGate.GetNotificheInviate(page, size, archivio);
+                    model = await _notificheGateway.GetNotificheInviate(page, size, archivio);
 
                 return View("RiepilogoNotifiche", model);
             }
@@ -59,15 +55,16 @@ namespace PortaleRegione.Client.Controllers
                 throw;
             }
         }
-        
+
         [HttpGet]
         [Route("counter-notifiche-ricevute")]
         public async Task<ActionResult> CounterRiepilogoNotifiche()
         {
             try
             {
+                var _notificheGateway = new NotificheGateway(_Token);
                 BaseResponse<NotificaDto> model;
-                model = await NotificheGate.GetNotificheRicevute(1, 1,false, true);
+                model = await _notificheGateway.GetNotificheRicevute(1, 1, false, true);
 
                 return Json(model.Paging.Total, JsonRequestBehavior.AllowGet);
             }
@@ -82,8 +79,9 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:int}/destinatari")]
         public async Task<ActionResult> GetDestinatariNotifica(int id)
         {
-            var destinatari = await NotificheGate.GetDestinatariNotifica(id);
-            var result = await Utility.GetDestinatariNotifica(destinatari);
+            var _notificheGateway = new NotificheGateway(_Token);
+            var destinatari = await _notificheGateway.GetDestinatariNotifica(id);
+            var result = await Utility.GetDestinatariNotifica(destinatari, _Token);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -91,7 +89,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("destinatari")]
         public async Task<ActionResult> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo)
         {
-            var destinatari = await NotificheGate.GetListaDestinatari(atto, tipo);
+            var _notificheGateway = new NotificheGateway(_Token);
+            var destinatari = await _notificheGateway.GetListaDestinatari(atto, tipo);
             return Json(destinatari, JsonRequestBehavior.AllowGet);
         }
     }

@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.Gateway;
 using System.Configuration;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -31,7 +31,7 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     public class BaseController : Controller
     {
-        public PersonaDto CurrentUser
+        public PersonaDto _CurrentUser
         {
             get
             {
@@ -49,6 +49,23 @@ namespace PortaleRegione.Client.Controllers
                     $"{authenticationTicket1.UserData}{authenticationTicket2.UserData}{authenticationTicket3.UserData}");
 
                 return data;
+            }
+        }
+
+        public string _Token
+        {
+            get
+            {
+                if (!HttpContext.User.Identity.IsAuthenticated) return default;
+                var jwtCookie1 = Request.Cookies["SCookies1"];
+                var jwtCookie2 = Request.Cookies["SCookies2"];
+                var jwtCookie3 = Request.Cookies["SCookies3"];
+                var jwtTicket1 = FormsAuthentication.Decrypt(jwtCookie1.Value);
+                var jwtTicket2 = FormsAuthentication.Decrypt(jwtCookie2.Value);
+                var jwtTicket3 = FormsAuthentication.Decrypt(jwtCookie3.Value);
+                var current_jwt = string.Join("", jwtTicket1.UserData, jwtTicket2.UserData, jwtTicket3.UserData);
+
+                return current_jwt;
             }
         }
 

@@ -16,13 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -36,14 +35,16 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}")]
         public async Task<ActionResult> GetPersona(Guid id)
         {
-            return Json(await PersoneGate.Get(id), JsonRequestBehavior.AllowGet);
+            var _personeGateway = new PersoneGateway(_Token);
+            return Json(await _personeGateway.Get(id), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         [Route("all")]
         public async Task<ActionResult> GetPersone()
         {
-            return Json(await PersoneGate.Get(), JsonRequestBehavior.AllowGet);
+            var _personeGateway = new PersoneGateway(_Token);
+            return Json(await _personeGateway.Get(), JsonRequestBehavior.AllowGet);
         }
 
         [Route("cambio-pin")]
@@ -58,7 +59,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                await PersoneGate.CheckPin(model);
+                var _personeGateway = new PersoneGateway(_Token);
+                await _personeGateway.CheckPin(model);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -75,7 +77,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                await PersoneGate.SalvaPin(model);
+                var _personeGateway = new PersoneGateway(_Token);
+                await _personeGateway.SalvaPin(model);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -89,7 +92,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("gruppi-politici")]
         public async Task<ActionResult> GetGruppi()
         {
-            return Json(await PersoneGate.GetGruppiAttivi(), JsonRequestBehavior.AllowGet);
+            var _personeGateway = new PersoneGateway(_Token);
+            return Json(await _personeGateway.GetGruppiAttivi(), JsonRequestBehavior.AllowGet);
         }
     }
 }

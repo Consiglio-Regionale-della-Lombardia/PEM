@@ -42,21 +42,17 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdminGate.cs" />
-    <Compile Include="ArticoliGate.cs" />
-    <Compile Include="AttiGate.cs" />
+    <Compile Include="AdminGateway.cs" />
+    <Compile Include="AttiGateway.cs" />
     <Compile Include="BaseGateway.cs" />
-    <Compile Include="CommiGate.cs" />
-    <Compile Include="EMGate.cs" />
-    <Compile Include="EMPublicGate.cs" />
-    <Compile Include="EsportaGate.cs" />
-    <Compile Include="LegislatureGate.cs" />
-    <Compile Include="LettereGate.cs" />
-    <Compile Include="NotificheGate.cs" />
-    <Compile Include="PersoneGate.cs" />
+    <Compile Include="EMGateway.cs" />
+    <Compile Include="EMGateway_Pubblico.cs" />
+    <Compile Include="EsportaGateway.cs" />
+    <Compile Include="NotificheGateway.cs" />
+    <Compile Include="PersoneGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SeduteGate.cs" />
-    <Compile Include="StampeGate.cs" />
+    <Compile Include="SeduteGateway.cs" />
+    <Compile Include="StampeGateway.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj">

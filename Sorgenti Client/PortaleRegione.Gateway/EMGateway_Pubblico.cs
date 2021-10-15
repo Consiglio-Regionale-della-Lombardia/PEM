@@ -16,31 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Gateway;
+using Newtonsoft.Json;
+using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
-using System.Web.Mvc;
 
-namespace PortaleRegione.Client.Controllers
+namespace PortaleRegione.Gateway
 {
-    [AllowAnonymous]
-    [RoutePrefix("public")]
-    public class EMPublicController : BaseController
+    public class EMGateway_Pubblico : BaseGateway
     {
-        [HttpGet]
-        [Route("em")]
-        public async Task<ActionResult> Index(Guid id)
+        public EMGateway_Pubblico()
+        {
+
+        }
+
+        public async Task<string> GetBody(Guid id)
         {
             try
             {
-                var _emGateway = new EMGateway_Pubblico();
-                var em = await _emGateway.GetBody(id);
-                return View("Index", (object)em);
+                var requestUrl = $"{apiUrl}/public/em?id={id}";
+                var result = await Get(requestUrl, string.Empty);
+                var lst = JsonConvert.DeserializeObject<string>(result);
+
+                return lst;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                Log.Error("GetBody - Pubblico", ex);
+                throw ex;
             }
         }
     }

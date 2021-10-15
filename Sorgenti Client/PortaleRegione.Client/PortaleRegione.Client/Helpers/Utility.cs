@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Gateway;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Client.Helpers
 {
@@ -54,6 +54,7 @@ namespace PortaleRegione.Client.Helpers
         /// <returns></returns>
         public static async Task<string> GetFirmatariEM(IEnumerable<FirmeDto> firme, Guid currentUId,
             FirmeTipoEnum tipo,
+            string token,
             bool tag = false)
         {
             try
@@ -69,7 +70,8 @@ namespace PortaleRegione.Client.Helpers
                     var result = new List<string>();
 
                     var firmaProponente = firmeDtos.First();
-                    var proponente = await PersoneGate.Get(firmaProponente.UID_persona);
+                    var _personeGateway = new PersoneGateway(token);
+                    var proponente = await _personeGateway.Get(firmaProponente.UID_persona);
                     if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
                         result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
                         .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
@@ -84,7 +86,7 @@ namespace PortaleRegione.Client.Helpers
 
                     foreach (var firmeDto in firmeDtos)
                     {
-                        var persona = await PersoneGate.Get(firmeDto.UID_persona);
+                        var persona = await _personeGateway.Get(firmeDto.UID_persona);
                         if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
                             result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
                                 .Replace("{{DisplayName}}", $"{firmeDto.FirmaCert}").Replace("{{OPZIONALE}}", ""));
@@ -101,7 +103,8 @@ namespace PortaleRegione.Client.Helpers
                     : "Firmatari dell'emendamento";
                 var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
                 var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
-                var em = await EMGate.Get(firmeDtos.Select(f => f.UIDEM).First());
+                var _emGateway = new EMGateway(token);
+                var em = await _emGateway.Get(firmeDtos.Select(f => f.UIDEM).First());
                 foreach (var firmeDto in firmeDtos)
                 {
                     body += "<li class=\"collection-item with-header\">";
@@ -118,7 +121,7 @@ namespace PortaleRegione.Client.Helpers
                         body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                         if (currentUId == firmeDto.UID_persona)
                         {
-                            if (em.IDStato >= (int) StatiEnum.Depositato)
+                            if (em.IDStato >= (int)StatiEnum.Depositato)
                                 body +=
                                     $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                             else
@@ -148,7 +151,7 @@ namespace PortaleRegione.Client.Helpers
         /// </summary>
         /// <param name="destinatari"></param>
         /// <returns></returns>
-        public static async Task<string> GetDestinatariNotifica(IEnumerable<DestinatariNotificaDto> destinatari)
+        public static async Task<string> GetDestinatariNotifica(IEnumerable<DestinatariNotificaDto> destinatari, string token)
         {
             try
             {
@@ -161,7 +164,7 @@ namespace PortaleRegione.Client.Helpers
                 var result = new List<string>();
                 var templateAttesa = "<div title='Non ancora visualizzato' class='notifica-check amber'></div>";
                 var templateFirmato = "<div title='Firmato' class='notifica-check green'></div>";
-
+                var _personeGateway = new PersoneGateway(token);
                 foreach (var destinatario in destinatariList)
                 {
                     var templateOpzionale = templateAttesa;
@@ -171,7 +174,7 @@ namespace PortaleRegione.Client.Helpers
                     if (destinatario.Firmato)
                         templateOpzionale = templateFirmato;
 
-                    var persona = await PersoneGate.Get(destinatario.UIDPersona,
+                    var persona = await _personeGateway.Get(destinatario.UIDPersona,
                         destinatario.IdGruppo >= 10000);
                     result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
                         .Replace("{{DisplayName}}", $"{persona.DisplayName_GruppoCode}")

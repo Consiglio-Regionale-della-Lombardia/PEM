@@ -52,7 +52,8 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                response = await PersoneGate.Login(model.Username, model.Password);
+                var _personeGateway = new PersoneGateway(_Token);
+                response = await _personeGateway.Login(model.Username, model.Password);
             }
             catch (Exception e)
             {
@@ -76,7 +77,8 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                response = await PersoneGate.CambioRuolo(ruolo);
+                var _personeGateway = new PersoneGateway(_Token);
+                response = await _personeGateway.CambioRuolo(ruolo);
             }
             catch (Exception e)
             {
@@ -99,7 +101,8 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                response = await PersoneGate.CambioGruppo(gruppo);
+                var _personeGateway = new PersoneGateway(_Token);
+                response = await _personeGateway.CambioGruppo(gruppo);
             }
             catch (Exception e)
             {
@@ -114,8 +117,6 @@ namespace PortaleRegione.Client.Controllers
 
         private async Task SalvaDatiInCookies(PersonaDto persona, string jwt, string username)
         {
-            BaseGateway.access_token = jwt;
-
             string jwt1 = string.Empty, jwt2 = string.Empty, jwt3 = string.Empty;
             SliceBy3(jwt, ref jwt1, ref jwt2, ref jwt3);
 
@@ -182,7 +183,8 @@ namespace PortaleRegione.Client.Controllers
 
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
             {
-                var gruppi = await PersoneGate.GetGruppiAttivi();
+                var _personeGateway = new PersoneGateway(_Token);
+                var gruppi = await _personeGateway.GetGruppiAttivi();
                 string g1 = string.Empty, g2 = string.Empty, g3 = string.Empty;
 
                 SliceBy3(JsonConvert.SerializeObject(gruppi), ref g1, ref g2, ref g3);
@@ -235,7 +237,6 @@ namespace PortaleRegione.Client.Controllers
             }
 
             FormsAuthentication.SignOut();
-            BaseGateway.access_token = string.Empty;
             return RedirectToAction("FormAutenticazione", "Autenticazione");
         }
     }

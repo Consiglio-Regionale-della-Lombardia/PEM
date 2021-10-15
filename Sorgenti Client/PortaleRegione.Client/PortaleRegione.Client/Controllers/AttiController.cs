@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using PortaleRegione.Client.Models;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -46,10 +46,12 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoAtti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
             int page = 1, int size = 50)
         {
-            var sedutaInDb = await SeduteGate.Get(id);
+            var _seduteGateway = new SeduteGateway(_Token);
+            var sedutaInDb = await _seduteGateway.Get(id);
 
+            var _attiGateway = new AttiGateway(_Token);
             var model = new AttiViewModel
-                {Data = await AttiGate.Get(id, mode, page, size), Seduta = sedutaInDb};
+            { Data = await _attiGateway.Get(id, mode, page, size), Seduta = sedutaInDb };
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
@@ -67,7 +69,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("{sedutaUId:guid}/delete")]
         public async Task<ActionResult> EliminaAtto(Guid sedutaUId, Guid id)
         {
-            await AttiGate.Elimina(id);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.Elimina(id);
             return RedirectToAction("RiepilogoAtti", new
             {
                 id = sedutaUId
@@ -83,14 +86,15 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/new")]
         public async Task<ActionResult> NuovoAtto(Guid id)
         {
+            var _personeGateway = new PersoneGateway(_Token);
             var model = new AttiViewModel
             {
-                Assessori = await PersoneGate.GetAssessoriRiferimento(),
-                Relatori = await PersoneGate.GetRelatori(null),
+                Assessori = await _personeGateway.GetAssessoriRiferimento(),
+                Relatori = await _personeGateway.GetRelatori(null),
                 Atto = new AttiFormUpdateModel
                 {
                     UIDSeduta = id,
-                    IDTipoAtto = (int) TipoAttoEnum.PDL,
+                    IDTipoAtto = (int)TipoAttoEnum.PDL,
                     Notifica_deposito_differita = true
                 }
             };
@@ -107,11 +111,13 @@ namespace PortaleRegione.Client.Controllers
         [Route("edit/{id:guid}")]
         public async Task<ActionResult> ModificaAtto(Guid id)
         {
+            var _attiGateway = new AttiGateway(_Token);
+            var _personeGateway = new PersoneGateway(_Token);
             var model = new AttiViewModel
             {
-                Assessori = await PersoneGate.GetAssessoriRiferimento(),
-                Relatori = await PersoneGate.GetRelatori(null),
-                Atto = await AttiGate.GetFormUpdate(id)
+                Assessori = await _personeGateway.GetAssessoriRiferimento(),
+                Relatori = await _personeGateway.GetRelatori(null),
+                Atto = await _attiGateway.GetFormUpdate(id)
             };
 
             return View("AttoForm", model);
@@ -132,12 +138,12 @@ namespace PortaleRegione.Client.Controllers
                 if (atto.DocAtto != null)
                     if (atto.DocAtto.ContentType != "application/pdf")
                         throw new InvalidOperationException("I file devono essere in formato PDF");
-
+                var _attiGateway = new AttiGateway(_Token);
                 AttiDto attoSalvato = null;
                 if (atto.UIDAtto == Guid.Empty)
-                    attoSalvato = await AttiGate.Salva(atto);
+                    attoSalvato = await _attiGateway.Salva(atto);
                 else
-                    attoSalvato = await AttiGate.Modifica(atto);
+                    attoSalvato = await _attiGateway.Modifica(atto);
 
                 return Json(new ClientJsonResponse<AttiDto>
                 {
@@ -166,7 +172,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var file = await AttiGate.Download(path);
+                var _attiGateway = new AttiGateway(_Token);
+                var file = await _attiGateway.Download(path);
                 return File(file.Content, "application/pdf",
                     file.FileName);
             }
@@ -185,7 +192,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("articoli")]
         public async Task<ActionResult> GetArticoli(Guid id)
         {
-            var articoli = await ArticoliGate.Get(id);
+            var _attiGateway = new AttiGateway(_Token);
+            var articoli = await _attiGateway.GetArticoli(id);
             return Json(articoli, JsonRequestBehavior.AllowGet);
         }
 
@@ -198,7 +206,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("crea-articoli")]
         public async Task<ActionResult> CreaArticoli(Guid id, string articoli)
         {
-            await ArticoliGate.Crea(id, articoli);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.CreaArticolo(id, articoli);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
@@ -210,7 +219,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("elimina-articolo")]
         public async Task<ActionResult> EliminaArticolo(Guid id)
         {
-            await ArticoliGate.Elimina(id);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.EliminaArticolo(id);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
@@ -223,7 +233,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("crea-commi")]
         public async Task<ActionResult> CreaCommi(Guid id, string commi)
         {
-            await CommiGate.Crea(id, commi);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.CreaComma(id, commi);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
@@ -235,7 +246,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("commi")]
         public async Task<ActionResult> GetCommi(Guid id)
         {
-            var commi = await CommiGate.Get(id);
+            var _attiGateway = new AttiGateway(_Token);
+            var commi = await _attiGateway.GetComma(id);
             return Json(commi, JsonRequestBehavior.AllowGet);
         }
 
@@ -247,7 +259,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("elimina-comma")]
         public async Task<ActionResult> EliminaComma(Guid id)
         {
-            await CommiGate.Elimina(id);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.EliminaComma(id);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
@@ -259,7 +272,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("lettere")]
         public async Task<ActionResult> GetLettere(Guid id)
         {
-            var lettere = await LettereGate.Get(id);
+            var _attiGateway = new AttiGateway(_Token);
+            var lettere = await _attiGateway.GetLettere(id);
             return Json(lettere, JsonRequestBehavior.AllowGet);
         }
 
@@ -272,7 +286,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("crea-lettere")]
         public async Task<ActionResult> CreaLettere(Guid id, string lettere)
         {
-            await LettereGate.Crea(id, lettere);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.CreaLettera(id, lettere);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
@@ -284,7 +299,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("elimina-lettera")]
         public async Task<ActionResult> EliminaLettere(Guid id)
         {
-            await LettereGate.Elimina(id);
+            var _attiGateway = new AttiGateway(_Token);
+            await _attiGateway.EliminaLettera(id);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
@@ -300,7 +316,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                await AttiGate.SalvaRelatori(model);
+                var _attiGateway = new AttiGateway(_Token);
+                await _attiGateway.SalvaRelatori(model);
 
                 return Json("", JsonRequestBehavior.AllowGet);
             }
@@ -323,7 +340,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                await AttiGate.PubblicaFascicolo(model);
+                var _attiGateway = new AttiGateway(_Token);
+                await _attiGateway.PubblicaFascicolo(model);
 
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }
@@ -339,9 +357,10 @@ namespace PortaleRegione.Client.Controllers
         [HttpGet]
         public async Task<ActionResult> MoveUp(Guid id)
         {
-            var atto = await AttiGate.Get(id);
-            await AttiGate.SPOSTA_UP(id);
-            return RedirectToAction("RiepilogoAtti", "Atti", new {id = atto.UIDSeduta});
+            var _attiGateway = new AttiGateway(_Token);
+            var atto = await _attiGateway.Get(id);
+            await _attiGateway.SPOSTA_UP(id);
+            return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
 
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
@@ -349,9 +368,10 @@ namespace PortaleRegione.Client.Controllers
         [HttpGet]
         public async Task<ActionResult> MoveDown(Guid id)
         {
-            var atto = await AttiGate.Get(id);
-            await AttiGate.SPOSTA_DOWN(id);
-            return RedirectToAction("RiepilogoAtti", "Atti", new {id = atto.UIDSeduta});
+            var _attiGateway = new AttiGateway(_Token);
+            var atto = await _attiGateway.Get(id);
+            await _attiGateway.SPOSTA_DOWN(id);
+            return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
     }
 }

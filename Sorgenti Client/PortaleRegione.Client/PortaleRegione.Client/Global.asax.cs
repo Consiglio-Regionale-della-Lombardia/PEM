@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+using PortaleRegione.Client.Controllers;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.Logger;
 using System;
 using System.Security.Claims;
 using System.Web;
@@ -24,11 +28,6 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
-using Newtonsoft.Json;
-using PortaleRegione.Client.Controllers;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.Gateway;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client
 {
@@ -63,18 +62,6 @@ namespace PortaleRegione.Client
 
             if (authCookie != null)
             {
-                var sCookie1 = Request.Cookies["SCookies1"];
-                var sCookie2 = Request.Cookies["SCookies2"];
-                var sCookie3 = Request.Cookies["SCookies3"];
-                if (sCookie1 != null && sCookie2 != null)
-                {
-                    var sCookieTicket1 = FormsAuthentication.Decrypt($"{sCookie1.Value}");
-                    var sCookieTicket2 = FormsAuthentication.Decrypt($"{sCookie2.Value}");
-                    var sCookieTicket3 = FormsAuthentication.Decrypt($"{sCookie3.Value}");
-                    BaseGateway.access_token =
-                        $"{sCookieTicket1.UserData}{sCookieTicket2.UserData}{sCookieTicket3.UserData}";
-                }
-
                 var prCookie1 = Request.Cookies["PRCookies1"];
                 var prCookie2 = Request.Cookies["PRCookies2"];
                 var prCookie3 = Request.Cookies["PRCookies3"];
@@ -90,7 +77,7 @@ namespace PortaleRegione.Client
                     var formsIdentity = new FormsIdentity(authTicket);
                     var claimsIdentity = new ClaimsIdentity(formsIdentity);
                     claimsIdentity.AddClaim(
-                        new Claim(ClaimTypes.Role, Convert.ToString((int) data.CurrentRole)));
+                        new Claim(ClaimTypes.Role, Convert.ToString((int)data.CurrentRole)));
 
                     var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
