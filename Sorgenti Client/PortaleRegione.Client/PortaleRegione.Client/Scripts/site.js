@@ -592,15 +592,11 @@ function CambioStatoMassivo(stato, descr) {
 }
 
 function GetPersoneFromDB() {
-    var personeInSession = getListaPersone();
-    if (personeInSession.length > 0)
-        return personeInSession;
     return new Promise(function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/persone/all",
             type: "GET"
         }).done(function(result) {
-            setListaPersone(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);

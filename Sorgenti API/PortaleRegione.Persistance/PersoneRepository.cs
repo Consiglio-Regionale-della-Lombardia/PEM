@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
@@ -154,37 +153,15 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetAssessoriRiferimento(int id_legislatura)
         {
-            var organi = (await PRContext.organi
-                .Where(o =>
-                    o.deleted == false
-                    && o.id_tipo_organo == 4
-                    && o.id_legislatura == id_legislatura)
-                .ToListAsync()).Select(o => o.id_organo);
-
-            var query = PRContext
-                .join_persona_organo_carica
-                .Where(jpoc =>
-                    jpoc.deleted == false
-                    && jpoc.id_legislatura == id_legislatura
-                    && organi.Contains(jpoc.id_organo)
-                    && jpoc.data_inizio <= DateTime.Now
-                    && (jpoc.data_fine >= DateTime.Now || jpoc.data_fine == null))
-                .Join(PRContext.join_persona_AD,
-                    p => p.id_persona,
-                    a => a.id_persona,
-                    (p, a) => a.UID_persona)
-                .Join(PRContext.View_UTENTI,
-                    u => u,
-                    p => p.UID_persona,
-                    (u, p) => p);
-
-            var result = (await query
-                    .ToListAsync())
-                .Distinct()
-                .OrderBy(p => p.cognome)
-                .ThenBy(p => p.nome)
-                .ToList();
-
+            var assessori = await PRContext
+                .View_assessori_in_carica
+                .ToListAsync();
+            var result = new List<View_UTENTI>();
+            foreach (var assessoriInCarica in assessori.Distinct())
+            {
+                var persona = await PRContext.View_UTENTI.FindAsync(assessoriInCarica.UID_persona);
+                result.Add(persona);
+            }
             return result;
         }
 
@@ -220,36 +197,15 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetConsiglieri(int id_legislatura)
         {
-            var organi = (await PRContext.organi
-                .Where(o =>
-                    o.deleted == false
-                    && o.id_tipo_organo != 4
-                    && o.id_legislatura == id_legislatura)
-                .ToListAsync()).Select(o => o.id_organo);
-
-            var query = PRContext
-                .join_persona_organo_carica
-                .Where(jpoc =>
-                    jpoc.deleted == false
-                    && jpoc.id_legislatura == id_legislatura
-                    && organi.Contains(jpoc.id_organo)
-                    && jpoc.data_inizio <= DateTime.Now
-                    && (jpoc.data_fine >= DateTime.Now || jpoc.data_fine == null))
-                .Join(PRContext.join_persona_AD,
-                    p => p.id_persona,
-                    a => a.id_persona,
-                    (p, a) => a.UID_persona)
-                .Join(PRContext.View_UTENTI,
-                    u => u,
-                    p => p.UID_persona,
-                    (u, p) => p);
-            var result = (await query
-                    .ToListAsync())
-                .Distinct()
-                .OrderBy(p => p.cognome)
-                .ThenBy(p => p.nome)
-                .ToList();
-
+            var consiglieri = await PRContext
+                .View_consiglieri_in_carica
+                .ToListAsync();
+            var result = new List<View_UTENTI>();
+            foreach (var consigliere in consiglieri.Distinct())
+            {
+                var persona = await PRContext.View_UTENTI.FindAsync(consigliere.UID_persona);
+                result.Add(persona);
+            }
             return result;
         }
 

@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -29,6 +25,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -211,7 +211,7 @@ namespace PortaleRegione.BAL
 
                     var n_em = em.N_EM;
 
-                    if (em.IDStato >= (int) StatiEnum.Depositato)
+                    if (em.IDStato >= (int)StatiEnum.Depositato)
                     {
                         results.Add(idGuid,
                             $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
@@ -230,7 +230,7 @@ namespace PortaleRegione.BAL
                         UIDEM = em.UIDEM,
                         UIDAtto = em.UIDAtto,
                         Mittente = currentUser.UID_persona,
-                        RuoloMittente = (int) currentUser.CurrentRole,
+                        RuoloMittente = (int)currentUser.CurrentRole,
                         IDTipo = 1,
                         Messaggio = string.Empty,
                         DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
@@ -354,7 +354,7 @@ namespace PortaleRegione.BAL
                 switch (tipo)
                 {
                     case TipoDestinatarioNotificaEnum.TUTTI:
-                        result = (await _logicPersone.GetPersone_DA_CANCELLARE())
+                        result = (await _logicPersone.GetProponenti())
                             .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         break;
                     case TipoDestinatarioNotificaEnum.CONSIGLIERI:

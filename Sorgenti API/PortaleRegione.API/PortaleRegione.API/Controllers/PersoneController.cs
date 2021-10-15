@@ -335,7 +335,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var persone = await _logicPersone.GetPersone();
+                var persone = await _logicPersone.GetProponenti();
 
                 return Ok(persone);
             }

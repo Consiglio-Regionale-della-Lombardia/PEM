@@ -17,6 +17,7 @@
  */
 
 using AutoMapper;
+using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -27,7 +28,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpressionBuilder.Generics;
 
 namespace PortaleRegione.BAL
 {
@@ -94,9 +94,18 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        protected internal async Task<IEnumerable<PersonaDto>> GetPersone_DA_CANCELLARE()
+        public async Task<IEnumerable<PersonaDto>> GetProponenti()
         {
-            return (await _unitOfWork.Persone.GetAll()).Select(Mapper.Map<View_UTENTI, PersonaDto>);
+            var legislatura_corrente = await _unitOfWork.Legislature.Legislatura_Attiva();
+            var consiglieri =
+                await _unitOfWork.Persone.GetConsiglieri(legislatura_corrente);
+            var assessori = await _unitOfWork.Persone.GetAssessoriRiferimento(legislatura_corrente);
+            var persone = new List<PersonaDto>();
+            persone.AddRange(consiglieri.Select(Mapper.Map<View_UTENTI, PersonaDto>));
+            persone.AddRange(assessori.Select(Mapper.Map<View_UTENTI, PersonaDto>));
+            var test = persone.FirstOrDefault(u => u.DisplayName.Contains("Casati"));
+
+            return persone;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetRelatori(Guid? id)
