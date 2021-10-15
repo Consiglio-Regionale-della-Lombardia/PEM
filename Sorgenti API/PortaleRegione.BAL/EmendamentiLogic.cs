@@ -358,6 +358,12 @@ namespace PortaleRegione.BAL
                     em.EffettiFinanziari = 1;
                 }
 
+                if (em.UIDLettera.HasValue && string.IsNullOrEmpty(em.NLettera))
+                {
+                    var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
+                    em.NLettera = lettera.Lettera;
+                }
+
                 await _unitOfWork.CompleteAsync();
                 return em;
             }
@@ -411,6 +417,12 @@ namespace PortaleRegione.BAL
                     em.EffettiFinanziari = 1;
                 }
 
+                if (em.UIDLettera.HasValue && string.IsNullOrEmpty(em.NLettera))
+                {
+                    var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
+                    em.NLettera = lettera.Lettera;
+                }
+
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -433,6 +445,12 @@ namespace PortaleRegione.BAL
                 {
                     emAggiornato.TestoEM_Modificabile = model.TestoEM_Modificabile;
                     emAggiornato.IDStato = (int)StatiEnum.Approvato_Con_Modifiche;
+                }
+
+                if (em.UIDLettera.HasValue && string.IsNullOrEmpty(em.NLettera))
+                {
+                    var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
+                    em.NLettera = lettera.Lettera;
                 }
 
                 await _unitOfWork.CompleteAsync();
