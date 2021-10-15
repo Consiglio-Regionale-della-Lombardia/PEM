@@ -39,8 +39,8 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
         {
-            var _seduteGateway = new SeduteGateway(_Token);
-            var model = await _seduteGateway.Get(page, size);
+            var apiGateway = new ApiGateway(_Token);
+            var model = await apiGateway.Sedute.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", model);
@@ -52,8 +52,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("delete")]
         public async Task<ActionResult> EliminaSeduta(Guid id)
         {
-            var _seduteGateway = new SeduteGateway(_Token);
-            await _seduteGateway.Elimina(id);
+            var apiGateway = new ApiGateway(_Token);
+            await apiGateway.Sedute.Elimina(id);
             return RedirectToAction("RiepilogoSedute", "Sedute");
         }
 
@@ -68,8 +68,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("edit/{id:guid}")]
         public async Task<ActionResult> ModificaSeduta(Guid id)
         {
-            var _seduteGateway = new SeduteGateway(_Token);
-            var seduta = await _seduteGateway.Get(id);
+            var apiGateway = new ApiGateway(_Token);
+            var seduta = await apiGateway.Sedute.Get(id);
             return View("SedutaForm", seduta);
         }
 
@@ -80,11 +80,11 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _seduteGateway = new SeduteGateway(_Token);
+                var apiGateway = new ApiGateway(_Token);
                 if (seduta.UIDSeduta == Guid.Empty)
-                    await _seduteGateway.Salva(seduta);
+                    await apiGateway.Sedute.Salva(seduta);
                 else
-                    await _seduteGateway.Modifica(seduta);
+                    await apiGateway.Sedute.Modifica(seduta);
 
                 return Json(Url.Action("RiepilogoSedute", "Sedute")
                     , JsonRequestBehavior.AllowGet);
@@ -103,8 +103,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _seduteGateway = new SeduteGateway(_Token);
-                return Json(await _seduteGateway.GetLegislature(), JsonRequestBehavior.AllowGet);
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Sedute.GetLegislature(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -165,8 +165,8 @@ namespace PortaleRegione.Client.Controllers
 
             if (!model.filtro.Any())
                 return RedirectToAction("RiepilogoSedute");
-            var _seduteGateway = new SeduteGateway(_Token);
-            var results = await _seduteGateway.Get(model);
+            var apiGateway = new ApiGateway(_Token);
+            var results = await apiGateway.Sedute.Get(model);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", results);

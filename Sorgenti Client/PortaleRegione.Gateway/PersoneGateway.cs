@@ -28,16 +28,16 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class PersoneGateway : BaseGateway
+    public class PersoneGateway : BaseGateway, IPersoneGateway
     {
         private readonly string _token;
 
-        public PersoneGateway()
+        protected internal PersoneGateway()
         {
 
         }
 
-        public PersoneGateway(string token)
+        protected internal PersoneGateway(string token)
         {
             _token = token;
         }

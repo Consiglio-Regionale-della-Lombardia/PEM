@@ -35,16 +35,16 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}")]
         public async Task<ActionResult> GetPersona(Guid id)
         {
-            var _personeGateway = new PersoneGateway(_Token);
-            return Json(await _personeGateway.Get(id), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Persone.Get(id), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         [Route("all")]
         public async Task<ActionResult> GetPersone()
         {
-            var _personeGateway = new PersoneGateway(_Token);
-            return Json(await _personeGateway.Get(), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Persone.Get(), JsonRequestBehavior.AllowGet);
         }
 
         [Route("cambio-pin")]
@@ -59,8 +59,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _personeGateway = new PersoneGateway(_Token);
-                await _personeGateway.CheckPin(model);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Persone.CheckPin(model);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -77,8 +77,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _personeGateway = new PersoneGateway(_Token);
-                await _personeGateway.SalvaPin(model);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Persone.SalvaPin(model);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -92,8 +92,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("gruppi-politici")]
         public async Task<ActionResult> GetGruppi()
         {
-            var _personeGateway = new PersoneGateway(_Token);
-            return Json(await _personeGateway.GetGruppiAttivi(), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Persone.GetGruppiAttivi(), JsonRequestBehavior.AllowGet);
         }
     }
 }

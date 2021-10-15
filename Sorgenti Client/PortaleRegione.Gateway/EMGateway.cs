@@ -30,11 +30,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class EMGateway : BaseGateway
+    public class EMGateway : BaseGateway, IEMGateway
     {
         private readonly string _token;
 
-        public EMGateway(string token)
+        protected internal EMGateway(string token)
         {
             _token = token;
         }

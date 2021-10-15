@@ -15,33 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-using PortaleRegione.Gateway;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Mvc;
 
-namespace PortaleRegione.Client.Controllers
+namespace PortaleRegione.Gateway
 {
-    [AllowAnonymous]
-    [RoutePrefix("public")]
-    public class EMPublicController : BaseController
+    public interface ISeduteGateway
     {
-        [HttpGet]
-        [Route("em")]
-        public async Task<ActionResult> Index(Guid id)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(_Token);
-                var em = await apiGateway.Emendamento_Pubblico.GetBody(id);
-                return View("Index", (object)em);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
+        Task Elimina(Guid id);
+        Task<BaseResponse<SeduteDto>> Get(BaseRequest<SeduteDto> model);
+        Task<SeduteFormUpdateDto> Get(Guid id);
+        Task<BaseResponse<SeduteDto>> Get(int page, int size);
+        Task<IEnumerable<LegislaturaDto>> GetLegislature();
+        Task Modifica(SeduteFormUpdateDto seduta);
+        Task Salva(SeduteFormUpdateDto seduta);
     }
 }

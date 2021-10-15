@@ -40,12 +40,12 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _notificheGateway = new NotificheGateway(_Token);
+                var apiGateway = new ApiGateway(_Token);
                 BaseResponse<NotificaDto> model;
                 if (!is_inviate)
-                    model = await _notificheGateway.GetNotificheRicevute(page, size, archivio);
+                    model = await apiGateway.Notifiche.GetNotificheRicevute(page, size, archivio);
                 else
-                    model = await _notificheGateway.GetNotificheInviate(page, size, archivio);
+                    model = await apiGateway.Notifiche.GetNotificheInviate(page, size, archivio);
 
                 return View("RiepilogoNotifiche", model);
             }
@@ -62,9 +62,9 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _notificheGateway = new NotificheGateway(_Token);
+                var apiGateway = new ApiGateway(_Token);
                 BaseResponse<NotificaDto> model;
-                model = await _notificheGateway.GetNotificheRicevute(1, 1, false, true);
+                model = await apiGateway.Notifiche.GetNotificheRicevute(1, 1, false, true);
 
                 return Json(model.Paging.Total, JsonRequestBehavior.AllowGet);
             }
@@ -79,8 +79,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:int}/destinatari")]
         public async Task<ActionResult> GetDestinatariNotifica(int id)
         {
-            var _notificheGateway = new NotificheGateway(_Token);
-            var destinatari = await _notificheGateway.GetDestinatariNotifica(id);
+            var apiGateway = new ApiGateway(_Token);
+            var destinatari = await apiGateway.Notifiche.GetDestinatariNotifica(id);
             var result = await Utility.GetDestinatariNotifica(destinatari, _Token);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -89,8 +89,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("destinatari")]
         public async Task<ActionResult> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo)
         {
-            var _notificheGateway = new NotificheGateway(_Token);
-            var destinatari = await _notificheGateway.GetListaDestinatari(atto, tipo);
+            var apiGateway = new ApiGateway(_Token);
+            var destinatari = await apiGateway.Notifiche.GetListaDestinatari(atto, tipo);
             return Json(destinatari, JsonRequestBehavior.AllowGet);
         }
     }

@@ -65,13 +65,14 @@ namespace PortaleRegione.Client.Helpers
                 if (!firmeDtos.Any())
                     return string.Empty;
 
+                var apiGateway = new ApiGateway(token);
+
                 if (tag)
                 {
                     var result = new List<string>();
 
                     var firmaProponente = firmeDtos.First();
-                    var _personeGateway = new PersoneGateway(token);
-                    var proponente = await _personeGateway.Get(firmaProponente.UID_persona);
+                    var proponente = await apiGateway.Persone.Get(firmaProponente.UID_persona);
                     if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
                         result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
                         .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
@@ -86,7 +87,7 @@ namespace PortaleRegione.Client.Helpers
 
                     foreach (var firmeDto in firmeDtos)
                     {
-                        var persona = await _personeGateway.Get(firmeDto.UID_persona);
+                        var persona = await apiGateway.Persone.Get(firmeDto.UID_persona);
                         if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
                             result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
                                 .Replace("{{DisplayName}}", $"{firmeDto.FirmaCert}").Replace("{{OPZIONALE}}", ""));
@@ -103,8 +104,7 @@ namespace PortaleRegione.Client.Helpers
                     : "Firmatari dell'emendamento";
                 var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
                 var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
-                var _emGateway = new EMGateway(token);
-                var em = await _emGateway.Get(firmeDtos.Select(f => f.UIDEM).First());
+                var em = await apiGateway.Emendamento.Get(firmeDtos.Select(f => f.UIDEM).First());
                 foreach (var firmeDto in firmeDtos)
                 {
                     body += "<li class=\"collection-item with-header\">";
@@ -164,7 +164,7 @@ namespace PortaleRegione.Client.Helpers
                 var result = new List<string>();
                 var templateAttesa = "<div title='Non ancora visualizzato' class='notifica-check amber'></div>";
                 var templateFirmato = "<div title='Firmato' class='notifica-check green'></div>";
-                var _personeGateway = new PersoneGateway(token);
+                var apiGateway = new ApiGateway(token);
                 foreach (var destinatario in destinatariList)
                 {
                     var templateOpzionale = templateAttesa;
@@ -174,7 +174,7 @@ namespace PortaleRegione.Client.Helpers
                     if (destinatario.Firmato)
                         templateOpzionale = templateFirmato;
 
-                    var persona = await _personeGateway.Get(destinatario.UIDPersona,
+                    var persona = await apiGateway.Persone.Get(destinatario.UIDPersona,
                         destinatario.IdGruppo >= 10000);
                     result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
                         .Replace("{{DisplayName}}", $"{persona.DisplayName_GruppoCode}")

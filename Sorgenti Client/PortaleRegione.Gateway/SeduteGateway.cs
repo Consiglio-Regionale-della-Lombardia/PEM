@@ -26,11 +26,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class SeduteGateway : BaseGateway
+    public class SeduteGateway : BaseGateway, ISeduteGateway
     {
         private readonly string _token;
 
-        public SeduteGateway(string token)
+        protected internal SeduteGateway(string token)
         {
             _token = token;
         }

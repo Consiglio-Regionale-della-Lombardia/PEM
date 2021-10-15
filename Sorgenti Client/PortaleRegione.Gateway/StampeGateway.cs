@@ -28,11 +28,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class StampeGateway : BaseGateway
+    public class StampeGateway : BaseGateway, IStampeGateway
     {
         private readonly string _token;
 
-        public StampeGateway(string token)
+        protected internal StampeGateway(string token)
         {
             _token = token;
         }

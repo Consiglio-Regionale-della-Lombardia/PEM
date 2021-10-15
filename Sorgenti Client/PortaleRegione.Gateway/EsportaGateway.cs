@@ -24,11 +24,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class EsportaGateway : BaseGateway
+    public class EsportaGateway : BaseGateway, IEsportaGateway
     {
         private readonly string _token;
 
-        public EsportaGateway(string token)
+        protected internal EsportaGateway(string token)
         {
             _token = token;
         }

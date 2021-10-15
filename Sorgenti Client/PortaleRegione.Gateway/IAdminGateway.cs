@@ -16,35 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
-using PortaleRegione.Logger;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class EMGateway_Pubblico : BaseGateway, IEMGateway_Pubblico
+    public interface IAdminGateway
     {
-        protected internal EMGateway_Pubblico()
-        {
-
-        }
-
-        public async Task<string> GetBody(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/public/em?id={id}";
-                var result = await Get(requestUrl, string.Empty);
-                var lst = JsonConvert.DeserializeObject<string>(result);
-
-                return lst;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetBody - Pubblico", ex);
-                throw ex;
-            }
-        }
+        Task<List<AdminGruppiModel>> GetGruppiAdmin(BaseRequest<GruppiDto> request);
+        Task<IEnumerable<KeyValueDto>> GetGruppiInDb();
+        Task<IEnumerable<GruppoAD_Dto>> GetGruppiPoliticiAD();
+        Task<PersonaDto> GetPersona(Guid id);
+        Task<BaseResponse<PersonaDto>> GetPersone(BaseRequest<PersonaDto> request);
+        Task<IEnumerable<RuoliDto>> GetRuoliAD();
+        Task ResetPassword(ResetRequest request);
+        Task ResetPin(ResetRequest request);
+        Task SalvaGruppo(SalvaGruppoRequest request);
+        Task<Guid> SalvaPersona(PersonaUpdateRequest request);
     }
 }

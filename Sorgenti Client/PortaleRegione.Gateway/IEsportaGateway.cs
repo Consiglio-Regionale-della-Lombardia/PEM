@@ -16,32 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Gateway;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Response;
 using System;
 using System.Threading.Tasks;
-using System.Web.Mvc;
 
-namespace PortaleRegione.Client.Controllers
+namespace PortaleRegione.Gateway
 {
-    [AllowAnonymous]
-    [RoutePrefix("public")]
-    public class EMPublicController : BaseController
+    public interface IEsportaGateway
     {
-        [HttpGet]
-        [Route("em")]
-        public async Task<ActionResult> Index(Guid id)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(_Token);
-                var em = await apiGateway.Emendamento_Pubblico.GetBody(id);
-                return View("Index", (object)em);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
+        Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode);
+        Task<FileResponse> EsportaXLS(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, bool is_report = false);
     }
 }

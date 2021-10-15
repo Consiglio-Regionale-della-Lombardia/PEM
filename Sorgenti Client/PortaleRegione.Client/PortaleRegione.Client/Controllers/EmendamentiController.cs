@@ -65,16 +65,16 @@ namespace PortaleRegione.Client.Controllers
                 (key, value, reason) => { Console.WriteLine("Cache removed"); }
             );
 
-            var _emGateway = new EMGateway(_Token);
+            var apiGateway = new ApiGateway(_Token);
             EmendamentiViewModel model;
             if (view_require_my_sign == false)
-                model = await _emGateway.Get(id, mode, ordine, page, size);
+                model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
             else
-                model = await _emGateway.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
+                model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
 
             if (!string.IsNullOrEmpty(view_grid))
                 foreach (var emendamentiDto in model.Data.Results)
-                    emendamentiDto.BodyEM = await _emGateway.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
+                    emendamentiDto.BodyEM = await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
@@ -86,11 +86,11 @@ namespace PortaleRegione.Client.Controllers
                     {
                         if (emendamentiDto.ConteggioFirme > 0)
                             emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
-                                await _emGateway.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
+                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
                                 _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
 
                         emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(await _emGateway.GetInvitati(emendamentiDto.UIDEM), _Token);
+                            await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
 
             return View("RiepilogoEM", model);
@@ -100,27 +100,25 @@ namespace PortaleRegione.Client.Controllers
         [Route("view/{id:guid}")]
         public async Task<ActionResult> ViewEmendamento(Guid id, long notificaId = 0)
         {
-            var _notificheGateway = new NotificheGateway(_Token);
-            if (notificaId > 0) await _notificheGateway.NotificaVista(notificaId);
-            var _emGateway = new EMGateway(_Token);
-            var em = await _emGateway.Get(id);
+            var apiGateway = new ApiGateway(_Token);
+            if (notificaId > 0) await apiGateway.Notifiche.NotificaVista(notificaId);
+            var em = await apiGateway.Emendamento.Get(id);
 
             if (string.IsNullOrEmpty(em.EM_Certificato))
-                em.BodyEM = await _emGateway.GetBody(id, TemplateTypeEnum.HTML);
+                em.BodyEM = await apiGateway.Emendamento.GetBody(id, TemplateTypeEnum.HTML);
             else
                 em.BodyEM = em.EM_Certificato;
 
             em.Firme = await Utility.GetFirmatariEM(
-                await _emGateway.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
+                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
             em.Firme_dopo_deposito = await Utility.GetFirmatariEM(
-                await _emGateway.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
+                await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
             if (em.IDStato <= (int)StatiEnum.Depositato)
                 em.Destinatari =
-                    await Utility.GetDestinatariNotifica(await _emGateway.GetInvitati(id), _Token);
-            var _attiGateway = new AttiGateway(_Token);
-            em.ATTI = await _attiGateway.Get(em.UIDAtto);
+                    await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(id), _Token);
+            em.ATTI = await apiGateway.Atti.Get(em.UIDAtto);
 
             return View(em);
         }
@@ -134,8 +132,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/new")]
         public async Task<ActionResult> NuovoEmendamento(Guid id)
         {
-            var _emGateway = new EMGateway(_Token);
-            var emModel = await _emGateway.GetNuovoModel(id, Guid.Empty);
+            var apiGateway = new ApiGateway(_Token);
+            var emModel = await apiGateway.Emendamento.GetNuovoModel(id, Guid.Empty);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("EmendamentoFormAdmin", emModel);
@@ -157,8 +155,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/new/{ref_em:guid}")]
         public async Task<ActionResult> NuovoSUBEmendamento(Guid id, Guid ref_em)
         {
-            var _emGateway = new EMGateway(_Token);
-            var emModel = await _emGateway.GetNuovoModel(id, ref_em);
+            var apiGateway = new ApiGateway(_Token);
+            var emModel = await apiGateway.Emendamento.GetNuovoModel(id, ref_em);
             return View("EmendamentoForm", emModel);
         }
 
@@ -171,8 +169,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/edit")]
         public async Task<ActionResult> ModificaEmendamento(Guid id)
         {
-            var _emGateway = new EMGateway(_Token);
-            var emModel = await _emGateway.GetModificaModel(id);
+            var apiGateway = new ApiGateway(_Token);
+            var emModel = await apiGateway.Emendamento.GetModificaModel(id);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("EmendamentoFormAdmin", emModel);
@@ -195,17 +193,17 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
+                var apiGateway = new ApiGateway(_Token);
                 if (model.UIDEM == Guid.Empty)
                 {
-                    await _emGateway.Salva(model);
+                    await apiGateway.Emendamento.Salva(model);
                     return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                     {
                         id = model.UIDAtto
                     }), JsonRequestBehavior.AllowGet);
                 }
 
-                await _emGateway.Modifica(model);
+                await apiGateway.Emendamento.Modifica(model);
                 return Json(Url.Action("ViewEmendamento", "Emendamenti", new
                 {
                     id = model.UIDEM
@@ -227,8 +225,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/edit-meta-dati")]
         public async Task<ActionResult> ModificaMetaDatiEmendamento(Guid id)
         {
-            var _emGateway = new EMGateway(_Token);
-            var emModel = await _emGateway.GetModificaMetaDatiModel(id);
+            var apiGateway = new ApiGateway(_Token);
+            var emModel = await apiGateway.Emendamento.GetModificaMetaDatiModel(id);
             return View("MetaDatiForm", emModel);
         }
 
@@ -243,8 +241,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.ModificaMetaDati(model.Emendamento);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.ModificaMetaDati(model.Emendamento);
                 return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     id = model.Emendamento.UIDAtto
@@ -268,21 +266,21 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
+                var apiGateway = new ApiGateway(_Token);
                 switch ((ActionEnum)azione)
                 {
                     case ActionEnum.ELIMINA:
-                        var em = await _emGateway.Get(id);
-                        await _emGateway.Elimina(id);
+                        var em = await apiGateway.Emendamento.Get(id);
+                        await apiGateway.Emendamento.Elimina(id);
                         return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                         {
                             id = em.UIDAtto
                         }), JsonRequestBehavior.AllowGet);
                     case ActionEnum.RITIRA:
-                        await _emGateway.Ritira(id);
+                        await apiGateway.Emendamento.Ritira(id);
                         break;
                     case ActionEnum.FIRMA:
-                        var resultFirma = await _emGateway.Firma(id, pin);
+                        var resultFirma = await apiGateway.Emendamento.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma.Where(itemFirma => itemFirma.Value.Contains("ERROR")))
                             listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value.Substring(7)}");
@@ -295,7 +293,7 @@ namespace PortaleRegione.Client.Controllers
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
-                        var resultDeposita = await _emGateway.Deposita(id, pin);
+                        var resultDeposita = await apiGateway.Emendamento.Deposita(id, pin);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita.Where(itemDeposito =>
                             itemDeposito.Value.Contains("ERROR")))
@@ -333,10 +331,10 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
+                var apiGateway = new ApiGateway(_Token);
                 if (model.ListaEmendamenti == null || !model.ListaEmendamenti.Any())
                 {
-                    var listaEM = await _emGateway.Get(model.AttoUId, (ClientModeEnum)model.ClientMode,
+                    var listaEM = await apiGateway.Emendamento.Get(model.AttoUId, (ClientModeEnum)model.ClientMode,
                         OrdinamentoEnum.Default, 1, 50);
                     model.ListaEmendamenti = listaEM.Data.Results.Select(em => em.UIDEM).ToList();
                 }
@@ -344,7 +342,7 @@ namespace PortaleRegione.Client.Controllers
                 switch (model.Azione)
                 {
                     case ActionEnum.FIRMA:
-                        var resultFirma = await _emGateway.Firma(model);
+                        var resultFirma = await apiGateway.Emendamento.Firma(model);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma.Where(itemFirma => itemFirma.Value.Contains("ERROR")))
                             listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value.Substring(7)}");
@@ -357,7 +355,7 @@ namespace PortaleRegione.Client.Controllers
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
-                        var resultDeposita = await _emGateway.Deposita(model);
+                        var resultDeposita = await apiGateway.Emendamento.Deposita(model);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita.Where(itemDeposito =>
                             itemDeposito.Value.Contains("ERROR")))
@@ -372,8 +370,7 @@ namespace PortaleRegione.Client.Controllers
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.INVITA:
-                        var _notificheGateway = new NotificheGateway(_Token);
-                        var resultInvita = await _notificheGateway.NotificaEM(model);
+                        var resultInvita = await apiGateway.Notifiche.NotificaEM(model);
                         var listaErroriInvita = new List<string>();
                         foreach (var itemInvito in resultInvita.Where(itemInvita =>
                             itemInvita.Value.Contains("ERROR")))
@@ -412,8 +409,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                var resultRitiro = await _emGateway.RitiraFirma(id, pin);
+                var apiGateway = new ApiGateway(_Token);
+                var resultRitiro = await apiGateway.Emendamento.RitiraFirma(id, pin);
                 var listaErroriRitiroFirma = new List<string>();
                 foreach (var itemRitiroFirma in resultRitiro.Where(itemRitiroFirma =>
                     itemRitiroFirma.Value.Contains("ERROR")))
@@ -447,8 +444,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                var resultEliminaFirma = await _emGateway.EliminaFirma(id, pin);
+                var apiGateway = new ApiGateway(_Token);
+                var resultEliminaFirma = await apiGateway.Emendamento.EliminaFirma(id, pin);
                 var listaErroriEliminaFirma = new List<string>();
                 foreach (var itemEliminaFirma in resultEliminaFirma.Where(itemRitiroFirma =>
                     itemRitiroFirma.Value.Contains("ERROR")))
@@ -480,8 +477,9 @@ namespace PortaleRegione.Client.Controllers
         [Route("firmatari")]
         public async Task<ActionResult> GetFirmatariEmendamento(Guid id, FirmeTipoEnum tipo, bool tag = false)
         {
-            var _emGateway = new EMGateway(_Token);
-            var firme = await _emGateway.GetFirmatari(id, tipo);
+            var apiGateway = new ApiGateway(_Token);
+
+            var firme = await apiGateway.Emendamento.GetFirmatari(id, tipo);
             var result = await Utility.GetFirmatariEM(firme, _CurrentUser.UID_persona, tipo, _Token, tag);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -495,8 +493,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("preview")]
         public async Task<ActionResult> GetBody_Anteprima(Guid id, TemplateTypeEnum type)
         {
-            var _emGateway = new EMGateway(_Token);
-            var result = await _emGateway.GetBody(id, type);
+            var apiGateway = new ApiGateway(_Token);
+            var result = await apiGateway.Emendamento.GetBody(id, type);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -513,8 +511,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _esportaGateway = new EsportaGateway(_Token);
-                var file = await _esportaGateway.EsportaXLS(id, ordine, mode, is_report);
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.Esporta.EsportaXLS(id, ordine, mode, is_report);
                 return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     file.FileName);
             }
@@ -537,8 +535,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _esportaGateway = new EsportaGateway(_Token);
-                var file = await _esportaGateway.EsportaWORD(id, ordine, mode);
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
                 return File(file.Content, "application/doc", file.FileName);
             }
             catch (Exception e)
@@ -559,8 +557,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.CambioStato(model);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.CambioStato(model);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -581,8 +579,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                var resultRaggruppamento = await _emGateway.Raggruppa(model);
+                var apiGateway = new ApiGateway(_Token);
+                var resultRaggruppamento = await apiGateway.Emendamento.Raggruppa(model);
                 var listaErroriRaggruppamento = new List<string>();
                 foreach (var item in resultRaggruppamento.Where(item =>
                     item.Value.Contains("ERROR")))
@@ -611,8 +609,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                var resultNuovoProponente = await _emGateway.AssegnaNuovoPorponente(model);
+                var apiGateway = new ApiGateway(_Token);
+                var resultNuovoProponente = await apiGateway.Emendamento.AssegnaNuovoPorponente(model);
                 var listaErroriNuovoProponente = new List<string>();
                 foreach (var item in resultNuovoProponente.Where(item =>
                     item.Value.Contains("ERROR")))
@@ -642,8 +640,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.Proietta(id);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.Proietta(id);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -664,23 +662,23 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> ViewerProietta(Guid id, int ordine = 0)
         {
             ProiettaResponse proietta = default;
-            var _emGateway = new EMGateway(_Token);
+            var apiGateway = new ApiGateway(_Token);
             if (ordine <= 0)
             {
-                proietta = await _emGateway.Proietta_ViewLive(id);
+                proietta = await apiGateway.Emendamento.Proietta_ViewLive(id);
             }
             else
             {
-                proietta = await _emGateway.Proietta_View(id, ordine);
+                proietta = await apiGateway.Emendamento.Proietta_View(id, ordine);
             }
             var em = proietta.EM;
             em.BodyEM = em.EM_Certificato;
 
             em.Firme = await Utility.GetFirmatariEM(
-                await _emGateway.GetFirmatari(em.UIDEM, FirmeTipoEnum.PRIMA_DEPOSITO),
+                await apiGateway.Emendamento.GetFirmatari(em.UIDEM, FirmeTipoEnum.PRIMA_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
             em.Firme_dopo_deposito = await Utility.GetFirmatariEM(
-                await _emGateway.GetFirmatari(em.UIDEM, FirmeTipoEnum.DOPO_DEPOSITO),
+                await apiGateway.Emendamento.GetFirmatari(em.UIDEM, FirmeTipoEnum.DOPO_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
 
             proietta.EM = em;
@@ -699,8 +697,9 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.ORDINA_EM_TRATTAZIONE(id);
+                var apiGateway = new ApiGateway(_Token);
+
+                await apiGateway.Emendamento.ORDINA_EM_TRATTAZIONE(id);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -722,8 +721,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -744,8 +743,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.UP_EM_TRATTAZIONE(id);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.UP_EM_TRATTAZIONE(id);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -766,8 +765,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.DOWN_EM_TRATTAZIONE(id);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.DOWN_EM_TRATTAZIONE(id);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -789,8 +788,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _emGateway = new EMGateway(_Token);
-                await _emGateway.SPOSTA_EM_TRATTAZIONE(id, pos);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.SPOSTA_EM_TRATTAZIONE(id, pos);
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -806,32 +805,32 @@ namespace PortaleRegione.Client.Controllers
         [Route("stati-em")]
         public async Task<ActionResult> Filtri_GetStatiEM()
         {
-            var _emGateway = new EMGateway(_Token);
-            return Json(await _emGateway.GetStati(), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Emendamento.GetStati(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         [Route("tipi-em")]
         public async Task<ActionResult> Filtri_GetTipiEM()
         {
-            var _emGateway = new EMGateway(_Token);
-            return Json(await _emGateway.GetTipi(), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Emendamento.GetTipi(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         [Route("parti-em")]
         public async Task<ActionResult> Filtri_GetPartiEM()
         {
-            var _emGateway = new EMGateway(_Token);
-            return Json(await _emGateway.GetParti(), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Emendamento.GetParti(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         [Route("missioni-em")]
         public async Task<ActionResult> Filtri_GetMissioniEM()
         {
-            var _emGateway = new EMGateway(_Token);
-            return Json(await _emGateway.GetMissioni(), JsonRequestBehavior.AllowGet);
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Emendamento.GetMissioni(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -848,8 +847,8 @@ namespace PortaleRegione.Client.Controllers
                     mode,
                     ordine = (int)model.ordine
                 });
-            var _emGateway = new EMGateway(_Token);
-            var modelResult = await _emGateway.Get(model);
+            var apiGateway = new ApiGateway(_Token);
+            var modelResult = await apiGateway.Emendamento.Get(model);
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
@@ -861,11 +860,11 @@ namespace PortaleRegione.Client.Controllers
                     {
                         if (emendamentiDto.ConteggioFirme > 0)
                             emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
-                                await _emGateway.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
+                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
                                 _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
 
                         emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(await _emGateway.GetInvitati(emendamentiDto.UIDEM), _Token);
+                            await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
 
             return View("RiepilogoEM", modelResult);

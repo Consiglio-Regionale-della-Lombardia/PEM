@@ -36,8 +36,8 @@ namespace PortaleRegione.Client.Controllers
         // GET
         public async Task<ActionResult> Index(int page = 1, int size = 50)
         {
-            var _stampeGateway = new StampeGateway(_Token);
-            var model = await _stampeGateway.Get(page, size);
+            var apiGateway = new ApiGateway(_Token);
+            var model = await apiGateway.Stampe.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("Index_Admin", model);
@@ -61,8 +61,8 @@ namespace PortaleRegione.Client.Controllers
                 Da = Convert.ToInt16(DA),
                 A = Convert.ToInt16(A)
             };
-            var _stampeGateway = new StampeGateway(_Token);
-            await _stampeGateway.InserisciStampa(model);
+            var apiGateway = new ApiGateway(_Token);
+            await apiGateway.Stampe.InserisciStampa(model);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
 
@@ -77,8 +77,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _stampeGateway = new StampeGateway(_Token);
-                var file = await _stampeGateway.DownloadStampa(id);
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.Stampe.DownloadStampa(id);
                 return File(file.Content, "application/pdf",
                     file.FileName);
             }
@@ -93,8 +93,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("reset")]
         public async Task<ActionResult> ResetStampa(Guid id)
         {
-            var _stampeGateway = new StampeGateway(_Token);
-            await _stampeGateway.ResetStampa(id);
+            var apiGateway = new ApiGateway(_Token);
+            await apiGateway.Stampe.ResetStampa(id);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
 
@@ -104,8 +104,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _stampeGateway = new StampeGateway(_Token);
-                await _stampeGateway.EliminaStampa(id);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Stampe.EliminaStampa(id);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

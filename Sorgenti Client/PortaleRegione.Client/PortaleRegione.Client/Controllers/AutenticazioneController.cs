@@ -52,8 +52,8 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                var _personeGateway = new PersoneGateway(_Token);
-                response = await _personeGateway.Login(model.Username, model.Password);
+                var apiGateway = new ApiGateway(_Token);
+                response = await apiGateway.Persone.Login(model.Username, model.Password);
             }
             catch (Exception e)
             {
@@ -77,8 +77,8 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                var _personeGateway = new PersoneGateway(_Token);
-                response = await _personeGateway.CambioRuolo(ruolo);
+                var apiGateway = new ApiGateway(_Token);
+                response = await apiGateway.Persone.CambioRuolo(ruolo);
             }
             catch (Exception e)
             {
@@ -101,8 +101,8 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                var _personeGateway = new PersoneGateway(_Token);
-                response = await _personeGateway.CambioGruppo(gruppo);
+                var apiGateway = new ApiGateway(_Token);
+                response = await apiGateway.Persone.CambioGruppo(gruppo);
             }
             catch (Exception e)
             {
@@ -183,8 +183,8 @@ namespace PortaleRegione.Client.Controllers
 
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
             {
-                var _personeGateway = new PersoneGateway(_Token);
-                var gruppi = await _personeGateway.GetGruppiAttivi();
+                var apiGateway = new ApiGateway(jwt);
+                var gruppi = await apiGateway.Persone.GetGruppiAttivi();
                 string g1 = string.Empty, g2 = string.Empty, g3 = string.Empty;
 
                 SliceBy3(JsonConvert.SerializeObject(gruppi), ref g1, ref g2, ref g3);

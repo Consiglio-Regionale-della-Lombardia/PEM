@@ -31,11 +31,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class NotificheGateway : BaseGateway
+    public class NotificheGateway : BaseGateway, INotificheGateway
     {
         private readonly string _token;
 
-        public NotificheGateway(string token)
+        protected internal NotificheGateway(string token)
         {
             _token = token;
         }

@@ -30,11 +30,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class AttiGateway : BaseGateway
+    public class AttiGateway : BaseGateway, IAttiGateway
     {
         private readonly string _token;
 
-        public AttiGateway(string token)
+        protected internal AttiGateway(string token)
         {
             _token = token;
         }

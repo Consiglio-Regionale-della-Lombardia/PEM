@@ -28,11 +28,11 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
-    public class AdminGateway : BaseGateway
+    public class AdminGateway : BaseGateway, IAdminGateway
     {
         private readonly string _token;
 
-        public AdminGateway(string token)
+        protected internal AdminGateway(string token)
         {
             _token = token;
         }

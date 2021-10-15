@@ -50,8 +50,8 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoUtenti(int page = 1, int size = 50)
         {
             var request = new BaseRequest<PersonaDto> { page = page, size = size };
-            var _adminGateway = new AdminGateway(_Token);
-            return View("RiepilogoUtenti", await _adminGateway.GetPersone(request));
+            var apiGateway = new ApiGateway(_Token);
+            return View("RiepilogoUtenti", await apiGateway.Admin.GetPersone(request));
         }
 
         /// <summary>
@@ -145,8 +145,8 @@ namespace PortaleRegione.Client.Controllers
                 }
             }
 
-            var _adminGateway = new AdminGateway(_Token);
-            var result = await _adminGateway.GetPersone(request);
+            var apiGateway = new ApiGateway(_Token);
+            var result = await apiGateway.Admin.GetPersone(request);
             return View("RiepilogoUtenti", result);
         }
 
@@ -159,10 +159,10 @@ namespace PortaleRegione.Client.Controllers
         [Route("view/{id:guid}")]
         public async Task<ActionResult> ViewUtente(Guid id)
         {
-            var _adminGateway = new AdminGateway(_Token);
-            var persona = await _adminGateway.GetPersona(id);
-            var ruoli = await _adminGateway.GetRuoliAD();
-            var gruppiAD = await _adminGateway.GetGruppiPoliticiAD();
+            var apiGateway = new ApiGateway(_Token);
+            var persona = await apiGateway.Admin.GetPersona(id);
+            var ruoli = await apiGateway.Admin.GetRuoliAD();
+            var gruppiAD = await apiGateway.Admin.GetGruppiPoliticiAD();
             var listaGruppiRuoliAD = ruoli.Select(ruolo => new AD_ObjectModel
             {
                 GruppoAD = ruolo.ADGroup,
@@ -175,8 +175,7 @@ namespace PortaleRegione.Client.Controllers
                 Membro = persona.Gruppi.Contains(gruppo.GruppoAD.Replace(@"CONSIGLIO\", "")),
                 IsRuolo = false
             }));
-            var _personeGateway = new PersoneGateway(_Token);
-            var gruppiInDb = await _personeGateway.GetGruppiAttivi();
+            var gruppiInDb = await apiGateway.Persone.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
@@ -194,10 +193,10 @@ namespace PortaleRegione.Client.Controllers
         [Route("new")]
         public async Task<ActionResult> NuovoUtente()
         {
-            var _adminGateway = new AdminGateway(_Token);
+            var apiGateway = new ApiGateway(_Token);
             var persona = new PersonaDto();
-            var ruoli = await _adminGateway.GetRuoliAD();
-            var gruppiAD = await _adminGateway.GetGruppiPoliticiAD();
+            var ruoli = await apiGateway.Admin.GetRuoliAD();
+            var gruppiAD = await apiGateway.Admin.GetGruppiPoliticiAD();
             var listaGruppiRuoliAD = ruoli.Select(ruolo => new AD_ObjectModel
             {
                 GruppoAD = ruolo.ADGroup,
@@ -210,8 +209,7 @@ namespace PortaleRegione.Client.Controllers
                 Membro = false,
                 IsRuolo = false
             }));
-            var _personeGateway = new PersoneGateway(_Token);
-            var gruppiInDb = await _personeGateway.GetGruppiAttivi();
+            var gruppiInDb = await apiGateway.Persone.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
@@ -232,8 +230,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _adminGateway = new AdminGateway(_Token);
-                var result = await _adminGateway.SalvaPersona(request);
+                var apiGateway = new ApiGateway(_Token);
+                var result = await apiGateway.Admin.SalvaPersona(request);
 
                 return Json(Url.Action("ViewUtente", "AdminPanel", new { id = result })
                     , JsonRequestBehavior.AllowGet);
@@ -256,8 +254,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _adminGateway = new AdminGateway(_Token);
-                await _adminGateway.ResetPin(request);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Admin.ResetPin(request);
                 return Json("ok", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -278,8 +276,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _adminGateway = new AdminGateway(_Token);
-                await _adminGateway.ResetPassword(request);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Admin.ResetPassword(request);
                 return Json("ok", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -295,8 +293,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _adminGateway = new AdminGateway(_Token);
-                return Json(await _adminGateway.GetGruppiInDb(), JsonRequestBehavior.AllowGet);
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Admin.GetGruppiInDb(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -315,9 +313,9 @@ namespace PortaleRegione.Client.Controllers
         [Route("groups/view")]
         public async Task<ActionResult> RiepilogoGruppi()
         {
-            var _adminGateway = new AdminGateway(_Token);
+            var apiGateway = new ApiGateway(_Token);
             var request = new BaseRequest<GruppiDto>();
-            return View("RiepilogoGruppi", await _adminGateway.GetGruppiAdmin(request));
+            return View("RiepilogoGruppi", await apiGateway.Admin.GetGruppiAdmin(request));
         }
 
         /// <summary>
@@ -329,8 +327,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var _adminGateway = new AdminGateway(_Token);
-                await _adminGateway.SalvaGruppo(request);
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Admin.SalvaGruppo(request);
 
                 return Json(Url.Action("RiepilogoGruppi", "AdminPanel")
                     , JsonRequestBehavior.AllowGet);

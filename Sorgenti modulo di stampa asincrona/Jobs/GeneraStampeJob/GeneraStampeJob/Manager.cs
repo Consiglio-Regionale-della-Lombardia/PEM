@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using PortaleRegione.Gateway;
+using PortaleRegione.Logger;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.Gateway;
-using PortaleRegione.Logger;
 
 namespace GeneraStampeJob
 {
@@ -24,12 +22,13 @@ namespace GeneraStampeJob
         {
             try
             {
-                var auth = await PersoneGate.Login(_model.Username, _model.Password);
-
-                var stampe = await StampeGate.JobGetStampe(1, 1);
+                var apiGateway = new ApiGateway();
+                var auth = await apiGateway.Persone.Login(_model.Username, _model.Password);
+                apiGateway.SetToken(auth.jwt);
+                var stampe = await apiGateway.Stampe.JobGetStampe(1, 1);
                 Log.Debug($"Stampe da elaborare [{stampe.Results.Count()}]");
-                
-                var work = new Worker(ref auth, ref _model);
+
+                var work = new Worker(auth, ref _model);
                 foreach (var stampa in stampe.Results)
                 {
                     await work.ExecuteAsync(stampa);
