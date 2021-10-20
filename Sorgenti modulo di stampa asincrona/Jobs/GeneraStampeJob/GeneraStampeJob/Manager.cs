@@ -24,8 +24,8 @@ namespace GeneraStampeJob
             {
                 var apiGateway = new ApiGateway();
                 var auth = await apiGateway.Persone.Login(_model.Username, _model.Password);
-                apiGateway.SetToken(auth.jwt);
-                var stampe = await apiGateway.Stampe.JobGetStampe(1, 1);
+                var apiGateway2 = new ApiGateway(auth.jwt);
+                var stampe = await apiGateway2.Stampe.JobGetStampe(1, 1);
                 Log.Debug($"Stampe da elaborare [{stampe.Results.Count()}]");
 
                 var work = new Worker(auth, ref _model);

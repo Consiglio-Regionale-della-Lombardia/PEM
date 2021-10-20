@@ -6,7 +6,7 @@
 
         public ApiGateway()
         {
-
+            Persone = new PersoneGateway();
         }
 
         public ApiGateway(string token)
