@@ -251,7 +251,7 @@ namespace PortaleRegione.BAL
                             {
                                 NOTIFICHE = newNotifica,
                                 UIDPersona = destinatario.UID_persona,
-                                IdGruppo = em.id_gruppo,
+                                IdGruppo = em.id_gruppo.ToString(),
                                 UID = Guid.NewGuid()
                             });
                     }

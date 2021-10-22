@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -55,7 +55,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.IDStato >= (int) StatiEnum.Depositato) return false;
+            if (em.IDStato >= (int)StatiEnum.Depositato) return false;
 
             if (em.ATTI.Chiuso) return false;
 
@@ -126,7 +126,7 @@ namespace PortaleRegione.Persistance
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
-            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
+            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo.ToString());
 
             if (Solo_Non_Viste == false)
             {
@@ -148,7 +148,7 @@ namespace PortaleRegione.Persistance
                 return await query.CountAsync();
             }
 
-            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM || 
+            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                 currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                 return 0;
 
@@ -233,7 +233,7 @@ namespace PortaleRegione.Persistance
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
-            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
+            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo.ToString());
 
             if (Solo_Non_Viste == false)
             {
@@ -268,7 +268,7 @@ namespace PortaleRegione.Persistance
                     .ToListAsync();
             }
 
-            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM || 
+            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                 currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                 return new List<NOTIFICHE>();
             queryDestinatari = queryDestinatari
