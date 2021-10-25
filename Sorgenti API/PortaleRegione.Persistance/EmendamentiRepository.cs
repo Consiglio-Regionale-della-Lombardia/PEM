@@ -416,54 +416,74 @@ namespace PortaleRegione.Persistance
         /// <param name="ordine"></param>
         /// <param name="filtro"></param>
         /// <returns></returns>
-        public string GetAll_Query(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, Filter<EM> filtro = null)
+        public string GetAll_Query(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, Filter<EM> filtro = null, int CLIENT_MODE = (int)ClientModeEnum.GRUPPI)
         {
-            var query = PRContext.EM
-                .Where(em =>
-                    em.UIDAtto == attoUId
-                    && !em.Eliminato
-                    && (em.IDStato != (int)StatiEnum.Bozza
-                        || em.IDStato == (int)StatiEnum.Bozza
-                        && (em.UIDPersonaCreazione == persona.UID_persona
-                            || em.UIDPersonaProponente == persona.UID_persona)));
+            var query = PRContext
+               .EM
+               .Where(em =>
+                   em.UIDAtto == attoUId
+                   && !em.Eliminato);
 
-            if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
             {
-                query = query
-                    .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
+                query = query.Where(em => em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
-            else if (ordine == OrdinamentoEnum.Default)
+            else
             {
-                ordine = OrdinamentoEnum.Presentazione;
-            }
+                query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza_Riservata
+                                          || em.IDStato == (int)StatiEnum.Bozza_Riservata
+                                          && (em.UIDPersonaCreazione == persona.UID_persona
+                                              || em.UIDPersonaProponente == persona.UID_persona));
 
-            if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-            {
-                query = query.Where(em =>
-                    !string.IsNullOrEmpty(em.DataDeposito) ||
-                    em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
+                if (persona.IsGiunta())
+                {
+                    query = query
+                        .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                }
+                else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
+                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                         && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                {
+                    query = query
+                        .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
+                }
+
+                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                {
+                    query = query.Where(em =>
+                        !string.IsNullOrEmpty(em.DataDeposito) ||
+                        em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
+                }
             }
 
             filtro?.BuildExpression(ref query);
 
-            switch (ordine)
+            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
+                (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                 || persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
             {
-                case OrdinamentoEnum.Default:
-                case OrdinamentoEnum.Presentazione:
-                    query = query.OrderBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.OrdinePresentazione)
-                        .ThenBy(em => em.IDStato);
-                    break;
-                case OrdinamentoEnum.Votazione:
-                    query = query.OrderBy(em => em.OrdineVotazione)
-                        .ThenBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.IDStato);
-                    break;
-                default:
-                    query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
-                    break;
+                switch (ordine)
+                {
+                    case OrdinamentoEnum.Default:
+                    case OrdinamentoEnum.Presentazione:
+                        query = query.OrderBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.OrdinePresentazione)
+                            .ThenBy(em => em.IDStato);
+                        break;
+                    case OrdinamentoEnum.Votazione:
+                        query = query.OrderBy(em => em.OrdineVotazione)
+                            .ThenBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.IDStato);
+                        break;
+                    default:
+                        query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo).ThenBy(em => em.SubProgressivo);
             }
 
             var sql = query.ToTraceQuery();

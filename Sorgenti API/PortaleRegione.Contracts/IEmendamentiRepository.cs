@@ -42,8 +42,6 @@ namespace PortaleRegione.Contracts
 
         IEnumerable<EM> GetAll(EmendamentiByQueryModel model);
 
-        string GetAll_Query(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, Filter<EM> filtro = null);
-
         Task<EM> Get(Guid emendamentoUId);
         Task<EM> Get(string emendamentoUId);
         Task<int> GetProgressivo(Guid attoUId, int gruppo, bool sub);
@@ -67,7 +65,7 @@ namespace PortaleRegione.Contracts
         Task UP_EM_TRATTAZIONE(Guid emendamentoUId);
         Task DOWN_EM_TRATTAZIONE(Guid emendamentoUId);
         Task SPOSTA_EM_TRATTAZIONE(Guid emendamentoUId, int pos);
-        
+
         Task<EM> GetEMInProiezione(Guid emUidAtto, int ordine);
 
         Task<IEnumerable<EM>> GetAll_RichiestaPropriaFirma(Guid id, PersonaDto persona, OrdinamentoEnum ordine,
@@ -75,5 +73,6 @@ namespace PortaleRegione.Contracts
 
         Task<EM> GetCurrentEMInProiezione(Guid attoUId);
         Task<EM> GetByQR(Guid id);
+        string GetAll_Query(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, Filter<EM> filtro = null, int CLIENT_MODE = (int)ClientModeEnum.GRUPPI);
     }
 }

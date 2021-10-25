@@ -28,6 +28,13 @@
         </div>
     </div>
 </div>
+@{
+    var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
+    if (string.IsNullOrEmpty(mode))
+    {
+        mode = "1";
+    }
+}
 
 <script>
     function ConfirmStampa() {
@@ -70,7 +77,8 @@
                     UIDAtto: $("#hdUIdAtto").val(),
                     Da: $("#txtDa").val(),
                     A: $("#txtA").val(),
-                    Ordine: $("#hdOrdine").val()
+                    Ordine: $("#hdOrdine").val(),
+                    CLIENT_MODE: @Html.Raw(mode)
                 };
                 var lstEM = getListaEmendamenti();
                 if (lstEM.length > 0) {

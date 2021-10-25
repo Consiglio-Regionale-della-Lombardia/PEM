@@ -63,8 +63,10 @@ namespace PortaleRegione.DTO.Domain
 
         public string QueryEM { get; set; }
 
+        public int CLIENT_MODE { get; set; }
+
         public virtual AttiDto ATTI { get; set; }
-        
+
         public virtual EmendamentiDto EM { get; set; }
 
         public PersonaLightDto Richiedente { get; set; }

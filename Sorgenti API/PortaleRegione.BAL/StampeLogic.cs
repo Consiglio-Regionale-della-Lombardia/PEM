@@ -38,7 +38,7 @@ namespace PortaleRegione.BAL
     public class StampeLogic : BaseLogic
     {
         private readonly IUnitOfWork _unitOfWork;
-        
+
         public StampeLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -57,7 +57,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model, PersonaDto persona)
         {
             try
@@ -70,12 +70,12 @@ namespace PortaleRegione.BAL
                     queryFilter.ImportStatements(model.filtro);
 
                     var queryEM =
-                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, model.ordine, queryFilter);
+                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, model.ordine, queryFilter, model.entity.CLIENT_MODE);
                     stampa.QueryEM = queryEM;
                 }
-                
+
                 stampa.DataRichiesta = DateTime.Now;
-                stampa.CurrentRole = (int) persona.CurrentRole;
+                stampa.CurrentRole = (int)persona.CurrentRole;
                 stampa.UIDStampa = Guid.NewGuid();
                 stampa.UIDUtenteRichiesta = persona.UID_persona;
                 stampa.Lock = false;
@@ -99,7 +99,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task LockStampa(IEnumerable<StampaDto> listaStampe)
         {
             try
@@ -121,7 +121,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task UnLockStampa(Guid stampaUId)
         {
             try
@@ -137,7 +137,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task ResetStampa(STAMPE stampa)
         {
             try
@@ -156,7 +156,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task ErroreStampa(StampaRequest model)
         {
             try
@@ -173,7 +173,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task UpdateFileStampa(StampaDto stampa)
         {
             try
@@ -191,7 +191,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task SetInvioStampa(StampaDto stampa)
         {
             try
@@ -208,7 +208,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task<HttpResponseMessage> DownloadStampa(STAMPE stampa)
         {
             try
@@ -219,7 +219,7 @@ namespace PortaleRegione.BAL
                     : AppSettingsConfiguration.CartellaLavoroStampe;
 
                 var result = await ComposeFileResponse(Path.Combine(_pathTemp, stampa.PathFile));
-                
+
                 return result;
             }
             catch (Exception e)
@@ -228,7 +228,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<BaseResponse<StampaDto>> GetStampe(BaseRequest<StampaDto> model, PersonaDto persona, Uri url)
         {
             try
@@ -316,13 +316,13 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Stampe.GetInfo(stampa.UIDStampa);
             return result.Select(Mapper.Map<STAMPE_INFO, Stampa_InfoDto>);
         }
-        
+
         public async Task<Stampa_InfoDto> GetLastInfo(STAMPE stampa)
         {
             var result = await _unitOfWork.Stampe.GetLastInfo(stampa.UIDStampa);
             return Mapper.Map<STAMPE_INFO, Stampa_InfoDto>(result);
         }
-        
+
         public async Task<IEnumerable<Stampa_InfoDto>> GetInfo()
         {
             var result = await _unitOfWork.Stampe.GetInfo();

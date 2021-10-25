@@ -55,11 +55,17 @@ namespace PortaleRegione.Client.Controllers
             model.param.TryGetValue("Da", out DA);
             object A;
             model.param.TryGetValue("A", out A);
+            object client_mode;
+            model.param.TryGetValue("CLIENT_MODE", out client_mode);
+            object ordine;
+            model.param.TryGetValue("Ordine", out ordine);
             model.entity = new StampaDto
             {
                 UIDAtto = new Guid(UIDAtto.ToString()),
                 Da = Convert.ToInt16(DA),
-                A = Convert.ToInt16(A)
+                A = Convert.ToInt16(A),
+                Ordine = Convert.ToInt32(ordine),
+                CLIENT_MODE = Convert.ToInt32(client_mode)
             };
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Stampe.InserisciStampa(model);
