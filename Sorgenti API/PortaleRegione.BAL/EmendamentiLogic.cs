@@ -348,14 +348,17 @@ namespace PortaleRegione.BAL
                 {
                     var path = ByteArrayToFile(emendamentoDto.DocAllegatoGenerico_Stream);
                     em.PATH_AllegatoGenerico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
-                    em.EffettiFinanziari = 0;
                 }
 
                 if (emendamentoDto.DocEffettiFinanziari_Stream != null)
                 {
                     var path = ByteArrayToFile(emendamentoDto.DocEffettiFinanziari_Stream);
                     em.PATH_AllegatoTecnico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
-                    em.EffettiFinanziari = 1;
+                }
+
+                if (em.EffettiFinanziari == 0)
+                {
+                    em.PATH_AllegatoTecnico = string.Empty;
                 }
 
                 if (em.UIDLettera.HasValue && string.IsNullOrEmpty(em.NLettera))
@@ -407,14 +410,17 @@ namespace PortaleRegione.BAL
                 {
                     var path = ByteArrayToFile(model.DocAllegatoGenerico_Stream);
                     em.PATH_AllegatoGenerico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
-                    em.EffettiFinanziari = 0;
                 }
 
                 if (model.DocEffettiFinanziari_Stream != null)
                 {
                     var path = ByteArrayToFile(model.DocEffettiFinanziari_Stream);
                     em.PATH_AllegatoTecnico = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
-                    em.EffettiFinanziari = 1;
+                }
+
+                if (em.EffettiFinanziari == 0)
+                {
+                    em.PATH_AllegatoTecnico = string.Empty;
                 }
 
                 if (em.UIDLettera.HasValue && string.IsNullOrEmpty(em.NLettera))

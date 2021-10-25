@@ -7,11 +7,16 @@
             <i class="large material-icons">playlist_add</i>
         </a>
         <ul>
-            @if (!User.IsInRole(RuoliExt.Segreteria_Assemblea)
-                && !User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
-                && !User.IsInRole(RuoliExt.Segreteria_Politica)
-                && !User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica)
-                && !User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta))
+            @if (User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica) || User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta))
+            {
+            <li>
+                <a id="btnDepositaMassivo" class="btn-floating purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                    <i class="material-icons">lock</i>
+                </a>
+            </li>
+            }else if (User.IsInRole(RuoliExt.Consigliere_Regionale)
+                || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+                || User.IsInRole(RuoliExt.Presidente_Regione))
             {
                 <li>
                     <a id="btnFirmaMassivo" class="btn-floating green tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.FIRMA))" data-position="left" data-tooltip="Firma massiva">
@@ -24,6 +29,7 @@
                     </a>
                 </li>
             }
+
             <li>
                 <a id="btnInvitaMassivo" class="btn-floating amber tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.INVITA))" data-position="left" data-tooltip="Invito massivo">
                     <i class="material-icons">send</i>

@@ -12,6 +12,7 @@
             $('.only-effetti').show();
         } else {
             $('.only-effetti').hide();
+            $('.pnl-doc').hide();
         }
     }
 
@@ -92,12 +93,7 @@
             form_data.append("NProgramma", $('input[name="Emendamento.NProgramma"]').val());
             form_data.append("IDTipo_EM", $('#hdTipoId').val());
 
-            var effettiFinanziari = 0;
-            $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
-                if (item.checked) {
-                    effettiFinanziari = item.value;
-                }
-            });
+            var effettiFinanziari = $('input[id="Emendamento.EffettiFinanziari"]').is(":checked") ? 1 : 0;
 
             form_data.append("DocEffettiFinanziari", docAllegatoTecnico);
             form_data.append("EffettiFinanziari", effettiFinanziari);

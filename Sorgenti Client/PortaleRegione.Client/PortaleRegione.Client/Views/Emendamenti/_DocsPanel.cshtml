@@ -18,18 +18,18 @@
 </div>
 @if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoGenerico))
 {
-    <div class="form-group">
+    <div class="form-group pnl-doc">
         <div class="chip">@Model.Emendamento.PATH_AllegatoGenerico</div>
     </div>
 }
 <div class="form-group">
     @Html.Label("Ci sono effetti finanziari?")
     <label class="black-text" style="margin-left: 20px">
-        <input type="radio" name="Emendamento.EffettiFinanziari" value="1" onchange="EffettiFinanziari_OnChange(1)" @Html.Raw(Model.Emendamento.EffettiFinanziari == 1 ? "checked=\"checked\"" : "") />
+        <input type="radio" id="Emendamento.EffettiFinanziari" name="EffettiFinanziari" value="1" onchange="EffettiFinanziari_OnChange(1)" @Html.Raw(Model.Emendamento.EffettiFinanziari == 1 ? "checked=\"checked\"" : "") />
         <span>Si</span>
     </label>
     <label class="black-text" style="margin-left: 20px">
-        <input type="radio" name="Emendamento.EffettiFinanziari" value="0" onchange="EffettiFinanziari_OnChange(0)" @Html.Raw(Model.Emendamento.EffettiFinanziari == 0 ? "checked=\"checked\"" : "") />
+        <input type="radio" id="Emendamento.EffettiFinanziari" name="EffettiFinanziari" value="0" onchange="EffettiFinanziari_OnChange(0)" @Html.Raw(Model.Emendamento.EffettiFinanziari == 0 ? "checked=\"checked\"" : "") />
         <span>No</span>
     </label>
 </div>
@@ -48,7 +48,7 @@
 </div>
 @if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoTecnico))
 {
-    <div class="form-group">
+    <div class="form-group pnl-doc">
         <div class="chip">@Model.Emendamento.PATH_AllegatoTecnico</div>
     </div>
 }

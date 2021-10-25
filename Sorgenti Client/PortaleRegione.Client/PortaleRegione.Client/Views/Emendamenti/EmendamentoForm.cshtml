@@ -94,11 +94,7 @@
 </div>
 
 @{
-    var effetti_finanziari_visible = "0";
-    if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoTecnico))
-    {
-        effetti_finanziari_visible = "1";
-    }
+    var effetti_finanziari_visible = Model.Emendamento.EffettiFinanziari;
 }
 
 @Html.Partial("_EMFormScript")
