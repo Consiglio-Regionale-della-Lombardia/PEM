@@ -38,7 +38,7 @@ namespace PortaleRegione.Domain
 
         public DateTime? DataChiusura { get; set; }
 
-        public string IdGruppo { get; set; }
+        public int IdGruppo { get; set; }
 
         public virtual gruppi_politici gruppi_politici { get; set; }
 
