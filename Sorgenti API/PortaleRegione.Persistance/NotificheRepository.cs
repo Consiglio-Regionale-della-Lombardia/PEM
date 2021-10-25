@@ -126,7 +126,7 @@ namespace PortaleRegione.Persistance
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
-            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo.ToString());
+            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
 
             if (Solo_Non_Viste == false)
             {
@@ -233,7 +233,7 @@ namespace PortaleRegione.Persistance
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
-            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo.ToString());
+            if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
 
             if (Solo_Non_Viste == false)
             {
