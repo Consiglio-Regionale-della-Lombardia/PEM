@@ -70,18 +70,24 @@
     </div>
     <div class="col s6">
         <div class="right">
-            @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione) && Model.Atto.OrdinePresentazione == true)
+            @if (mode == ((int)ClientModeEnum.TRATTAZIONE).ToString())
             {
-                <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloPresentazione" data-position="bottom" data-tooltip="Scarica fascicolo presentazione" target="">
-                    <i class="material-icons">file_download</i>
-                </a>
+                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione) && Model.Atto.OrdinePresentazione == true)
+                {
+                    <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloPresentazione" data-position="bottom" data-tooltip="Scarica fascicolo presentazione" target="">
+                        <i class="material-icons">file_download</i>
+                    </a>
+                }
             }
-        @if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione) && Model.Atto.OrdineVotazione == true)
-        {
-            <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloVotazione" data-position="bottom" data-tooltip="Scarica fascicolo votazione" target="">
-                <i class="material-icons">file_download</i>
-            </a>
-        }
+            @if (mode == ((int)ClientModeEnum.TRATTAZIONE).ToString())
+            {
+                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione) && Model.Atto.OrdineVotazione == true)
+                {
+                    <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloVotazione" data-position="bottom" data-tooltip="Scarica fascicolo votazione" target="">
+                        <i class="material-icons">file_download</i>
+                    </a>
+                }
+            }
             <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
                 <i class="material-icons">print</i>
             </a>
