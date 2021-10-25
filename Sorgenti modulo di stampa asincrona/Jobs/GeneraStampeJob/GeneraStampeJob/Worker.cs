@@ -139,7 +139,7 @@ namespace GeneraStampeJob
                 Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
                 SpostaFascicolo(FilePathTarget, _pathStampe);
 
-                var URLDownload = Path.Combine(_model.UrlAPI, $"stampe?id={_stampa.UIDStampa}");
+                var URLDownload = Path.Combine(_model.UrlCLIENT, $"{_stampa.UIDStampa}");
                 _stampa.PathFile = nameFileTarget;
                 await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
                 if (_stampa.Scadenza.HasValue)
