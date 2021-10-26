@@ -315,14 +315,16 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function(data) {
-                    console.log("success", data);
-                    if (data.message)
-                        ErrorAlert(data.message);
-                    else {
+                    swal({
+                        title: "Procedura completata",
+                        text: data.message,
+                        icon: "info",
+                        button: "Ok"
+                    }).then(() => {
                         setSelezionaTutti([]);
                         setListaEmendamenti([]);
                         go(data);
-                    }
+                    });
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err.message);
@@ -403,13 +405,16 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function(data) {
-                    if (data.message)
-                        ErrorAlert(data.message);
-                    else {
+                    swal({
+                        title: "Procedura completata",
+                        text: data.message,
+                        icon: "info",
+                        button: "Ok"
+                    }).then(() => {
                         setSelezionaTutti([]);
                         setListaEmendamenti([]);
                         go(data);
-                    }
+                    });
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err.message);
@@ -486,13 +491,16 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function(data) {
-                    if (data.message) {
-                        ErrorAlert(data.message);
-                    } else {
+                    swal({
+                        title: "Procedura completata",
+                        text: data.message,
+                        icon: "info",
+                        button: "Ok"
+                    }).then(() => {
                         setSelezionaTutti([]);
                         setListaEmendamenti([]);
                         go(data);
-                    }
+                    });
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err.message);

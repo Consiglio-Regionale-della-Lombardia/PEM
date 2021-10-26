@@ -733,7 +733,7 @@ namespace PortaleRegione.BAL
                     }
 
                     results.Add(idGuid, "OK");
-                    countFirme++;
+                    counterFirme++;
                 }
 
                 return results;

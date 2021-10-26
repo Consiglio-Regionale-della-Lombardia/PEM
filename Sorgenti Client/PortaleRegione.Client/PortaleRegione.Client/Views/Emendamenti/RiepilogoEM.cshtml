@@ -222,7 +222,7 @@
             }
         }
 
-        $('#btnCreaEM').attr('href', '@Url.Action("NuovoEmendamento", new {id = Model.Atto.UIDAtto})');
+        $('#btnCreaEM').attr('href', '@Url.Action("NuovoEmendamento", new { id = Model.Atto.UIDAtto })');
 
         async function RevealMassivo(action) {
             var text = "";
@@ -245,7 +245,7 @@
                 text = "Inserisci il PIN per depositare ";
                 button = "Deposita";
             } else if (action == @((int)ActionEnum.INVITA)) {
-                await NotificaA('@Model.Atto.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI));
+                await NotificaA('@Model.Atto.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
                 return;
             }
 
@@ -267,7 +267,7 @@
                     obj.Azione = action;
                     obj.ListaEmendamenti = listaEM.length > 0 ? listaEM : [];
                     obj.AttoUId = '@Model.Atto.UIDAtto';
-                    obj.Mode = @((int) Model.Mode);
+                    obj.Mode = @((int)Model.Mode);
 
                     $.ajax({
                         url: baseUrl + "/emendamenti/azioni-massive",
@@ -276,13 +276,16 @@
                         contentType: "application/json; charset=utf-8",
                         dataType: "json"
                     }).done(function(data) {
-                        if (data.message) {
-                            ErrorAlert(data.message);
-                        } else {
+                        swal({
+                            title: "Procedura completata",
+                            text: data.message,
+                            icon: "info",
+                            button: "Ok"
+                        }).then(() => {
                             setSelezionaTutti([]);
                             setListaEmendamenti([]);
                             go(data);
-                        }
+                        });
                     }).fail(function(err) {
                         console.log("error", err);
                         ErrorAlert(err.message);

@@ -282,29 +282,28 @@ namespace PortaleRegione.Client.Controllers
                     case ActionEnum.FIRMA:
                         var resultFirma = await apiGateway.Emendamento.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
-                        foreach (var itemFirma in resultFirma.Where(itemFirma => itemFirma.Value.Contains("ERROR")))
-                            listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value.Substring(7)}");
+                        foreach (var itemFirma in resultFirma)
+                            listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value}");
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Errori nella procedura di firma: {listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
+                                        $"Riepilogo procedura di firma: {listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
                         var resultDeposita = await apiGateway.Emendamento.Deposita(id, pin);
                         var listaErroriDeposito = new List<string>();
-                        foreach (var itemDeposito in resultDeposita.Where(itemDeposito =>
-                            itemDeposito.Value.Contains("ERROR")))
+                        foreach (var itemDeposito in resultDeposita)
                             listaErroriDeposito.Add(
-                                $"{listaErroriDeposito.Count + 1} - {itemDeposito.Value.Substring(7)}");
+                                $"{listaErroriDeposito.Count + 1} - {itemDeposito.Value}");
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Errori nella procedura di deposito: {listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
+                                        $"Riepilogo procedura di deposito: {listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     default:
@@ -344,44 +343,42 @@ namespace PortaleRegione.Client.Controllers
                     case ActionEnum.FIRMA:
                         var resultFirma = await apiGateway.Emendamento.Firma(model);
                         var listaErroriFirma = new List<string>();
-                        foreach (var itemFirma in resultFirma.Where(itemFirma => itemFirma.Value.Contains("ERROR")))
-                            listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value.Substring(7)}");
+                        foreach (var itemFirma in resultFirma)
+                            listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value}");
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Errori nella procedura di firma: {listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
+                                        $"Riepilogo procedura di firma: {listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
                         var resultDeposita = await apiGateway.Emendamento.Deposita(model);
                         var listaErroriDeposito = new List<string>();
-                        foreach (var itemDeposito in resultDeposita.Where(itemDeposito =>
-                            itemDeposito.Value.Contains("ERROR")))
+                        foreach (var itemDeposito in resultDeposita)
                             listaErroriDeposito.Add(
-                                $"{listaErroriDeposito.Count + 1} - {itemDeposito.Value.Substring(7)}");
+                                $"{listaErroriDeposito.Count + 1} - {itemDeposito.Value}");
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Errori nella procedura di deposito: {listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
+                                        $"Riepilogo procedura di deposito: {listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.INVITA:
                         var resultInvita = await apiGateway.Notifiche.NotificaEM(model);
                         var listaErroriInvita = new List<string>();
-                        foreach (var itemInvito in resultInvita.Where(itemInvita =>
-                            itemInvita.Value.Contains("ERROR")))
+                        foreach (var itemInvito in resultInvita)
                             listaErroriInvita.Add(
-                                $"{listaErroriInvita.Count + 1} - {itemInvito.Value.Substring(7)}");
+                                $"{listaErroriInvita.Count + 1} - {itemInvito.Value}");
                         if (listaErroriInvita.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Errori nella procedura di invito: {listaErroriInvita.Aggregate((i, j) => i + ", " + j)}"
+                                        $"Riepilogo procedura di invito: {listaErroriInvita.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     default:
@@ -412,16 +409,15 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 var resultRitiro = await apiGateway.Emendamento.RitiraFirma(id, pin);
                 var listaErroriRitiroFirma = new List<string>();
-                foreach (var itemRitiroFirma in resultRitiro.Where(itemRitiroFirma =>
-                    itemRitiroFirma.Value.Contains("ERROR")))
+                foreach (var itemRitiroFirma in resultRitiro)
                     listaErroriRitiroFirma.Add(
-                        $"{listaErroriRitiroFirma.Count + 1} - {itemRitiroFirma.Value.Substring(7)}");
+                        $"{listaErroriRitiroFirma.Count + 1} - {itemRitiroFirma.Value}");
                 if (listaErroriRitiroFirma.Count > 0)
                     return Json(
                         new
                         {
                             message =
-                                $"Errori nella procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}"
+                                $"Riepilogo procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}"
                         }, JsonRequestBehavior.AllowGet);
 
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
@@ -447,16 +443,15 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 var resultEliminaFirma = await apiGateway.Emendamento.EliminaFirma(id, pin);
                 var listaErroriEliminaFirma = new List<string>();
-                foreach (var itemEliminaFirma in resultEliminaFirma.Where(itemRitiroFirma =>
-                    itemRitiroFirma.Value.Contains("ERROR")))
+                foreach (var itemEliminaFirma in resultEliminaFirma)
                     listaErroriEliminaFirma.Add(
-                        $"{listaErroriEliminaFirma.Count + 1} - {itemEliminaFirma.Value.Substring(7)}");
+                        $"{listaErroriEliminaFirma.Count + 1} - {itemEliminaFirma}");
                 if (listaErroriEliminaFirma.Count > 0)
                     return Json(
                         new
                         {
                             message =
-                                $"Errori nella procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}"
+                                $"Riepilogo procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}"
                         }, JsonRequestBehavior.AllowGet);
 
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
@@ -582,13 +577,12 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 var resultRaggruppamento = await apiGateway.Emendamento.Raggruppa(model);
                 var listaErroriRaggruppamento = new List<string>();
-                foreach (var item in resultRaggruppamento.Where(item =>
-                    item.Value.Contains("ERROR")))
+                foreach (var item in resultRaggruppamento)
                     listaErroriRaggruppamento.Add(
-                        $"{listaErroriRaggruppamento.Count + 1} - {item.Value.Substring(7)}");
+                        $"{listaErroriRaggruppamento.Count + 1} - {item.Value}");
                 if (listaErroriRaggruppamento.Count > 0)
                     throw new Exception(
-                        $"Errori nella procedura di raggruppamento: {listaErroriRaggruppamento.Aggregate((i, j) => i + ", " + j)}");
+                        $"Riepilogo procedura di raggruppamento: {listaErroriRaggruppamento.Aggregate((i, j) => i + ", " + j)}");
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -612,13 +606,12 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 var resultNuovoProponente = await apiGateway.Emendamento.AssegnaNuovoPorponente(model);
                 var listaErroriNuovoProponente = new List<string>();
-                foreach (var item in resultNuovoProponente.Where(item =>
-                    item.Value.Contains("ERROR")))
+                foreach (var item in resultNuovoProponente)
                     listaErroriNuovoProponente.Add(
-                        $"{listaErroriNuovoProponente.Count + 1} - {item.Value.Substring(7)}");
+                        $"{listaErroriNuovoProponente.Count + 1} - {item.Value}");
                 if (listaErroriNuovoProponente.Count > 0)
                     throw new Exception(
-                        $"Errori nella procedura di assegnazione nuovo proponente: {listaErroriNuovoProponente.Aggregate((i, j) => i + ", " + j)}");
+                        $"Riepilogo procedura di assegnazione nuovo proponente: {listaErroriNuovoProponente.Aggregate((i, j) => i + ", " + j)}");
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
