@@ -279,6 +279,8 @@
                         if (data.message) {
                             ErrorAlert(data.message);
                         } else {
+                            setSelezionaTutti([]);
+                            setListaEmendamenti([]);
                             go(data);
                         }
                     }).fail(function(err) {

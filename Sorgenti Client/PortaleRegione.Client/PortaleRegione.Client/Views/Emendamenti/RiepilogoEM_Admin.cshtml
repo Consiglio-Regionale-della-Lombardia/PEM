@@ -318,8 +318,11 @@
                     console.log("success", data);
                     if (data.message)
                         ErrorAlert(data.message);
-                    else
+                    else {
+                        setSelezionaTutti([]);
+                        setListaEmendamenti([]);
                         go(data);
+                    }
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err.message);
@@ -402,8 +405,11 @@
                 }).done(function(data) {
                     if (data.message)
                         ErrorAlert(data.message);
-                    else
+                    else {
+                        setSelezionaTutti([]);
+                        setListaEmendamenti([]);
                         go(data);
+                    }
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err.message);
@@ -483,6 +489,8 @@
                     if (data.message) {
                         ErrorAlert(data.message);
                     } else {
+                        setSelezionaTutti([]);
+                        setListaEmendamenti([]);
                         go(data);
                     }
                 }).fail(function(err) {
