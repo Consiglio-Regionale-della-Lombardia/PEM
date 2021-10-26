@@ -652,12 +652,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (firmaModel.ListaEmendamenti.Count > Convert.ToInt16(AppSettingsConfiguration.LimiteFirmaMassivo))
-                {
-                    return BadRequest(
-                        $"Non è possibile firmare contemporaneamente più di {AppSettingsConfiguration.LimiteFirmaMassivo} emendamenti");
-                }
-
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
@@ -812,17 +806,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (_logicEm.BloccaDepositi)
+                if (ManagerLogic.BloccaDeposito)
                 {
                     return BadRequest(
                         "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
-                }
-
-                if (depositoModel.ListaEmendamenti.Count >
-                    Convert.ToInt16(AppSettingsConfiguration.LimiteDepositoMassivo))
-                {
-                    return BadRequest(
-                        $"Non è possibile depositare contemporaneamente più di {AppSettingsConfiguration.LimiteDepositoMassivo} emendamenti");
                 }
 
                 var session = await GetSession();
@@ -865,7 +852,7 @@ namespace PortaleRegione.API.Controllers
             }
             finally
             {
-                _logicEm.BloccaDepositi = false;
+                ManagerLogic.BloccaDeposito = false;
             }
         }
 

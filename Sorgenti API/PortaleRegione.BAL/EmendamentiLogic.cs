@@ -54,8 +54,6 @@ namespace PortaleRegione.BAL
             _logicUtil = logicUtil;
         }
 
-        public bool BloccaDepositi { get; set; }
-
         public async Task ORDINA_EM_TRATTAZIONE(Guid id)
         {
             try
@@ -617,8 +615,13 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
+                var counterFirme = 1;
                 foreach (var idGuid in firmaModel.ListaEmendamenti)
                 {
+                    if (counterFirme == Convert.ToInt32(AppSettingsConfiguration.LimiteFirmaMassivo) + 1)
+                    {
+                        break;
+                    }
                     var em = await GetEM(idGuid);
                     if (em == null)
                     {
@@ -657,7 +660,6 @@ namespace PortaleRegione.BAL
                         //Controllo se l'utente ha già firmato
                         if (firmato_utente)
                         {
-                            results.Add(idGuid, $"ERROR: Emendamento {n_em} già firmato");
                             continue;
                         }
 
@@ -731,6 +733,7 @@ namespace PortaleRegione.BAL
                     }
 
                     results.Add(idGuid, "OK");
+                    countFirme++;
                 }
 
                 return results;
@@ -883,9 +886,15 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
-                BloccaDepositi = true;
+                ManagerLogic.BloccaDeposito = true;
+                var counterDepositi = 1;
                 foreach (var idGuid in depositoModel.ListaEmendamenti)
                 {
+                    if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1)
+                    {
+                        break;
+                    }
+
                     var em = await GetEM(idGuid);
                     if (em == null)
                     {
@@ -897,7 +906,6 @@ namespace PortaleRegione.BAL
                     var n_em = emDto.N_EM;
                     if (emDto.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
                     {
-                        results.Add(idGuid, $"ERROR: Emendamento {n_em} già depositato");
                         continue;
                     }
 
@@ -956,6 +964,7 @@ namespace PortaleRegione.BAL
                         UIDEM = idGuid
                     });
                     await _unitOfWork.CompleteAsync();
+                    counterDepositi++;
                 }
 
                 return results;
