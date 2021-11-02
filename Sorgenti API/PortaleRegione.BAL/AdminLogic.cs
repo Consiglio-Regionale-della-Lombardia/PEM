@@ -574,6 +574,8 @@ namespace PortaleRegione.BAL
                             {
                                 var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
                                     AppSettingsConfiguration.TOKEN_W);
+                                if (resultAdd != 0)
+                                    throw new InvalidOperationException($"Errore inserimento gruppo AD [{item.GruppoAD}]");
                             }
                             catch (Exception e)
                             {
@@ -587,6 +589,8 @@ namespace PortaleRegione.BAL
                                 var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
                                     request.userAD,
                                     AppSettingsConfiguration.TOKEN_W);
+                                if (resultRemove == false)
+                                    throw new InvalidOperationException($"Errore rimozione gruppo AD [{item.GruppoAD}]");
                             }
                             catch (Exception e)
                             {
