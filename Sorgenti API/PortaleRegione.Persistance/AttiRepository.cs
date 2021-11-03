@@ -102,7 +102,7 @@ namespace PortaleRegione.Persistance
             }
 
             var newRelatori = persone.Select(persona => new ATTI_RELATORI
-                {UIDAtto = attoUId, UIDPersona = persona, sycReplica = Guid.NewGuid()}).ToList();
+            { UIDAtto = attoUId, UIDPersona = persona, sycReplica = Guid.NewGuid() }).ToList();
             PRContext
                 .ATTI_RELATORI
                 .AddRange(newRelatori);
@@ -129,8 +129,8 @@ namespace PortaleRegione.Persistance
 
             if (persona != null)
             {
-                query = query.Where(em => em.IDStato != (int) StatiEnum.Bozza
-                                          || em.IDStato == (int) StatiEnum.Bozza
+                query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza
+                                          || em.IDStato == (int)StatiEnum.Bozza
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
                 if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
@@ -146,7 +146,7 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.Where(em => em.IDStato != (int) StatiEnum.Bozza);
+                query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza);
             }
 
             if (sub_em)
@@ -201,7 +201,7 @@ namespace PortaleRegione.Persistance
         {
             var oldStampe = await PRContext
                 .STAMPE
-                .Where(s => s.UIDAtto == attoUId && s.Da == 0 && s.A == 0 && s.Ordine == (int) ordinamento)
+                .Where(s => s.UIDAtto == attoUId && s.Da == 0 && s.A == 0 && s.Ordine == (int)ordinamento)
                 .ToListAsync();
             PRContext.STAMPE.RemoveRange(oldStampe);
         }
