@@ -945,6 +945,12 @@ namespace PortaleRegione.BAL
                     var count_firme = await _unitOfWork.Firme.CountFirme(idGuid);
                     em.chkf = count_firme.ToString();
 
+                    var ultimo_in_votazione = await _unitOfWork.Emendamenti.UltimoInVotazione(em.UIDAtto);
+                    if (ultimo_in_votazione > 0)
+                    {
+                        em.OrdineVotazione = ultimo_in_votazione + 1;
+                    }
+
                     await _unitOfWork.CompleteAsync();
 
                     results.Add(idGuid, "OK");

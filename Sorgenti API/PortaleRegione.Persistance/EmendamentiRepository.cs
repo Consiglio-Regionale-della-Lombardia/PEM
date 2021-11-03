@@ -490,6 +490,18 @@ namespace PortaleRegione.Persistance
             return sql;
         }
 
+        public async Task<int> UltimoInVotazione(Guid uidAtto)
+        {
+            var result = await PRContext
+                .EM
+                .Where(em => em.UIDAtto == uidAtto)
+                .OrderByDescending(em => em.OrdineVotazione)
+                .Select(em => em.OrdineVotazione)
+                .FirstOrDefaultAsync();
+
+            return result;
+        }
+
         /// <summary>
         ///     Singolo emendamento
         /// </summary>

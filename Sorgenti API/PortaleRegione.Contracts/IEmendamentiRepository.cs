@@ -74,5 +74,6 @@ namespace PortaleRegione.Contracts
         Task<EM> GetCurrentEMInProiezione(Guid attoUId);
         Task<EM> GetByQR(Guid id);
         string GetAll_Query(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, Filter<EM> filtro = null, int CLIENT_MODE = (int)ClientModeEnum.GRUPPI);
+        Task<int> UltimoInVotazione(Guid uidAtto);
     }
 }
