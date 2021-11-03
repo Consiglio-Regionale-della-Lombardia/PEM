@@ -1,4 +1,4 @@
-USE [dbEmendamenti]
+USE [dbEmendamenti_beta]
 GO
 
 /****** Object:  StoredProcedure [dbo].[UP_ATTO]    Script Date: 04/20/2021 14:32:27 ******/
@@ -13,12 +13,12 @@ CREATE PROCEDURE [dbo].[UP_ATTO]
    @UIDAtto uniqueidentifier
 AS
 BEGIN
-	SET NOCOUNT ON;
+SET NOCOUNT ON;
     DECLARE @Priorita int;
-    DECLARE @UIDSeduta uniqueidentifier;
-
-/*Seleziono e memorizzo l'UID della seduta a cui appartiene l'ATTO*/
-select @UIDSeduta =
+	DECLARE @UIDSeduta uniqueidentifier;
+	DECLARE @Destinazione uniqueidentifier;
+	
+	select @UIDSeduta =
 (
 	SELECT ATTI.UIDSeduta
 )
@@ -32,16 +32,22 @@ select @Priorita =
 )
   FROM [ATTI]
 	WHERE ATTI.UIDAtto=@UIDAtto
+	
+	if (@Priorita = 1) return;
 
-if (@Priorita <= 1) return;
+select @Destinazione =
+(
+	SELECT ATTI.UIDAtto
+)
+  FROM [ATTI]
+	WHERE ATTI.Priorita=@Priorita - 1 AND ATTI.UIDSeduta = @UIDSeduta
 
-/*Aggiorno l'ordine di votazione dell'ATTO sottraendo 1 a Priorita e quindi lo porto in alto di una posizione*/
+/*Aggiorno l'ordine di votazione dell'ATTO sommando 1 a Priorita e quindi lo porto in basso di una posizione*/
 UPDATE ATTI SET ATTI.Priorita=@Priorita-1 where ATTI.UIDAtto=@UIDAtto
 
 /*Dopo l'aggiornamento avrò 2 ATTI con la stessa numerazione: 1 ATTO è quello che ho appena spostato mentre l'altro ATTO è quello che deve essere spostato in basso di una posizione*/
-/*Quindi sposto l'altro ATTO in basso di una posizione sommando 1 a Priorita*/
-
-UPDATE ATTI SET ATTI.Priorita=@Priorita where (ATTI.Priorita=@Priorita-1 AND ATTI.UIDAtto<>@UIDAtto) AND ATTI.UIDSeduta=@UIDSeduta	
+/*Quindi sposto l'altro ATTO in alto di una posizione sottraendo 1 a Ordine Votazione*/
+UPDATE ATTI SET ATTI.Priorita=@Priorita where Atti.UIDAtto = @Destinazione	
 	
 END
 
