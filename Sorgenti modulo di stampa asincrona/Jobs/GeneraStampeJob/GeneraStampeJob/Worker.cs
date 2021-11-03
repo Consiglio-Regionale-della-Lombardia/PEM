@@ -59,14 +59,22 @@ namespace GeneraStampeJob
                 }
                 else
                 {
-                    await BaseGateway.SendMail(new MailModel
+                    try
                     {
-                        DA = _model.EmailFrom,
-                        A = utenteRichiedente.email,
-                        OGGETTO = "Errore generazione stampa",
-                        MESSAGGIO = $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]"
-                    },
-                        _auth.jwt);
+                        await BaseGateway.SendMail(new MailModel
+                        {
+                            DA = _model.EmailFrom,
+                            A = utenteRichiedente.email,
+                            OGGETTO = "Errore generazione stampa",
+                            MESSAGGIO = $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]"
+                        },
+                            _auth.jwt);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Debug($"[{_stampa.UIDStampa}] Invio mail EXCEPTION", e);
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail EXCEPTION ERRORE. Motivo: {e.Message}");
+                    }
                 }
 
                 OnWorkerFinish?.Invoke(this, true);
@@ -145,17 +153,25 @@ namespace GeneraStampeJob
                 if (_stampa.Scadenza.HasValue)
                 {
 
-                    var bodyMail = $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
-                    var resultInvio = await BaseGateway.SendMail(new MailModel
+                    try
                     {
-                        DA = _model.EmailFrom,
-                        A = utenteRichiedente.email,
-                        OGGETTO = "Link download fascicolo",
-                        MESSAGGIO = bodyMail
-                    },
-                        _auth.jwt);
-                    if (resultInvio)
-                        await apiGateway.Stampe.JobSetInvioStampa(_stampa);
+                        var bodyMail = $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
+                        var resultInvio = await BaseGateway.SendMail(new MailModel
+                        {
+                            DA = _model.EmailFrom,
+                            A = utenteRichiedente.email,
+                            OGGETTO = "Link download fascicolo",
+                            MESSAGGIO = bodyMail
+                        },
+                            _auth.jwt);
+                        if (resultInvio)
+                            await apiGateway.Stampe.JobSetInvioStampa(_stampa);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
+                    }
                 }
                 else
                 {
@@ -218,15 +234,23 @@ namespace GeneraStampeJob
                 {
                     Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta già iniziata");
 
-                    await BaseGateway.SendMail(new MailModel
+                    try
                     {
-                        DA = _model.EmailFrom,
-                        A = $"{ruoloSegreteriaAssempblea.ADGroupShort}@consiglio.regione.lombardia.it",
-                        OGGETTO =
-                            $"[TRATTAZIONE AULA] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
-                        MESSAGGIO = bodyMail
-                    },
-                        _auth.jwt);
+                        await BaseGateway.SendMail(new MailModel
+                        {
+                            DA = _model.EmailFrom,
+                            A = $"{ruoloSegreteriaAssempblea.ADGroupShort}@consiglio.regione.lombardia.it",
+                            OGGETTO =
+                                    $"[TRATTAZIONE AULA] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
+                            MESSAGGIO = bodyMail
+                        },
+                            _auth.jwt);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Debug($"[{_stampa.UIDStampa}] Invio mail segreteria", e);
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail a segreteria ERRORE. Motivo: {e.Message}");
+                    }
                 }
             }
             else
@@ -272,20 +296,28 @@ namespace GeneraStampeJob
             if (!string.IsNullOrEmpty(email_destinatariGiunta))
                 email_destinatari += ";" + email_destinatariGiunta;
 
-            var resultInvio = await BaseGateway.SendMail(new MailModel
+            try
             {
-                DA = _model.EmailFrom,
-                A = email_destinatari,
-                OGGETTO =
-                    $"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
-                MESSAGGIO = bodyMail,
-                pathAttachment = destinazioneDeposito,
-                IsDeposito = true
-            },
-                _auth.jwt);
+                var resultInvio = await BaseGateway.SendMail(new MailModel
+                {
+                    DA = _model.EmailFrom,
+                    A = email_destinatari,
+                    OGGETTO =
+                            $"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
+                    MESSAGGIO = bodyMail,
+                    pathAttachment = destinazioneDeposito,
+                    IsDeposito = true
+                },
+                    _auth.jwt);
 
-            if (resultInvio)
-                await apiGateway.Stampe.JobSetInvioStampa(_stampa);
+                if (resultInvio)
+                    await apiGateway.Stampe.JobSetInvioStampa(_stampa);
+            }
+            catch (Exception e)
+            {
+                Log.Debug($"[{_stampa.UIDStampa}] Invio mail deposito", e);
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail deposito ERRORE. Motivo: {e.Message}");
+            }
         }
 
         private async Task<IEnumerable<EmendamentiDto>> GetListaEM()
