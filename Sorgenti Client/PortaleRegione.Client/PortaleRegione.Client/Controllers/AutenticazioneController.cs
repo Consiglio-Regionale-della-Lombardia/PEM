@@ -234,6 +234,12 @@ namespace PortaleRegione.Client.Controllers
                     Response.Cookies.Remove("SCookies2");
                 if (Response.Cookies.AllKeys.Contains("SCookies3"))
                     Response.Cookies.Remove("SCookies3");
+                if (Response.Cookies.AllKeys.Contains("GCookies1"))
+                    Response.Cookies.Remove("GCookies1");
+                if (Response.Cookies.AllKeys.Contains("GCookies2"))
+                    Response.Cookies.Remove("GCookies2");
+                if (Response.Cookies.AllKeys.Contains("GCookies3"))
+                    Response.Cookies.Remove("GCookies3");
             }
 
             FormsAuthentication.SignOut();
