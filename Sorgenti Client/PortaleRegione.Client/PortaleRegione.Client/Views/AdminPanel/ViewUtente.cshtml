@@ -40,7 +40,7 @@
         @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new { id = "formPersona" }))
         {
             @Html.AntiForgeryToken()
-            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona" />
+            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona"/>
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.UID_persona)
@@ -48,7 +48,6 @@
                 {
                     @class = "form-control",
                     @readonly = true
-
                 })
             </div>
 
@@ -204,6 +203,19 @@
                 }
             </div>
         }
+
+        <div class="row">
+            <div class="col s12">
+                @using (Html.BeginForm("EliminaPersona", "AdminPanel", FormMethod.Post, new { id = "formElimina" }
+                    ))
+                {
+                    @Html.AntiForgeryToken()
+                    <a class="btn chip hoverable red center white-text" id="btnElimina" style="width: 255px;">
+                        <i class="icon material-icons">close</i> Elimina
+                    </a>
+                }
+            </div>
+        </div>
         <div class="fixed-action-btn">
             <button id="btnSalvaUtente" class="btn-floating btn-large blue">
                 <i class="large material-icons">save</i>
@@ -226,7 +238,7 @@
 
             var groups = $('input[name="gruppiAD"]');
 
-            var selected_groups = []
+            var selected_groups = [];
             $.each(groups,
                 function(index, item) {
                     selected_groups.push({
@@ -237,7 +249,7 @@
             var gruppo_riferimento = $("#ddlRiferimentoGruppo").children("option:selected");
             var id_gruppo_politico_rif = 0;
             $.each(gruppo_riferimento,
-                function (index, item) {
+                function(index, item) {
                     id_gruppo_politico_rif = $(item).val();
                 });
             var form_data = {
@@ -255,7 +267,7 @@
                 no_cons: $('input[name="No_Cons"]').is(":checked") ? 0 : 1,
                 gruppiAd: selected_groups,
                 id_gruppo_politico_rif: id_gruppo_politico_rif
-            }
+            };
 
             //submit via ajax
             $.ajax({
@@ -273,6 +285,44 @@
                             go(dataResult);
                         } else {
                             SuccessAlert("Profilo salvato correttamente");
+                        }
+                    }
+                })
+                .fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
+
+    $("#btnElimina").on("click",
+        function() {
+            waiting(true);
+            $('#formElimina').submit();
+        });
+
+    $("#formElimina").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+            
+            //submit via ajax
+            $.ajax({
+                    url: '@Url.Action("EliminaPersona", "AdminPanel")' + "?id=@Html.Raw(Model.Persona.UID_persona)",
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(dataResult) {
+                    waiting(false);
+                    if (dataResult.message)
+                        ErrorAlert(dataResult.message);
+                    else {
+                        if ($('input[name="Persona.UID_persona"]').val() == "@Html.Raw(Guid.Empty)") {
+                            go(dataResult);
+                        } else {
+                            location.reload();
                         }
                     }
                 })

@@ -38,5 +38,6 @@ namespace PortaleRegione.Gateway
         Task ResetPin(ResetRequest request);
         Task SalvaGruppo(SalvaGruppoRequest request);
         Task<Guid> SalvaPersona(PersonaUpdateRequest request);
+        Task EliminaPersona(Guid uid_persona);
     }
 }

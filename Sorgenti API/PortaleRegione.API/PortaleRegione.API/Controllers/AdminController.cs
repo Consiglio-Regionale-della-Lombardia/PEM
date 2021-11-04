@@ -247,6 +247,28 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        /// Endpoint per eliminare un utente
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [System.Web.Http.HttpDelete]
+        [System.Web.Http.Route("elimina")]
+        public async Task<IHttpActionResult> EliminaUtente(Guid id)
+        {
+            try
+            {
+                var session = await GetSession();
+                await _logic.EliminaUtente(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("EliminaUtente", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         /// Endpoint per aggiornare i dati del gruppo
         /// </summary>
         /// <param name="request"></param>

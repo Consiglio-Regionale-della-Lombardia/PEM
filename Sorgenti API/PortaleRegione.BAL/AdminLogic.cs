@@ -39,14 +39,12 @@ namespace PortaleRegione.BAL
     public class AdminLogic : BaseLogic
     {
         private readonly PersoneLogic _logicPersona;
-        private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
+        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
-            _logicUtil = logicUtil;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model)
@@ -538,7 +536,7 @@ namespace PortaleRegione.BAL
                     string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
                     string autoPassword = _logicUtil.GenerateRandomCode();
                     intranetAdService.CreatePEMADUser(
-                        request.userAD,
+                        request.userAD.Replace(@"CONSIGLIO\", ""),
                         autoPassword,
                         ruolo == RuoliIntEnum.Amministratore_Giunta,
                         AppSettingsConfiguration.TOKEN_W
@@ -546,7 +544,7 @@ namespace PortaleRegione.BAL
 #endif
 
                     request.UID_persona = Guid.NewGuid();
-                    request.no_Cons = 0;
+                    request.no_Cons = 1;
                     UTENTI_NoCons newUser = request;
                     _unitOfWork.Persone.Add(newUser);
                     await _unitOfWork.CompleteAsync();
@@ -559,7 +557,7 @@ namespace PortaleRegione.BAL
                         CC = "max.pagliaro@consiglio.regione.lombardia.it",
                         OGGETTO = "PEM - Utenza aperta",
                         MESSAGGIO =
- $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+ $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
                     });
 #endif
                 }
@@ -572,7 +570,7 @@ namespace PortaleRegione.BAL
                         {
                             try
                             {
-                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
+                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD.Replace(@"CONSIGLIO\", ""), request.userAD.Replace(@"CONSIGLIO\", ""),
                                     AppSettingsConfiguration.TOKEN_W);
                                 if (resultAdd != 0)
                                     throw new InvalidOperationException($"Errore inserimento gruppo AD [{item.GruppoAD}]");
@@ -586,8 +584,8 @@ namespace PortaleRegione.BAL
                         {
                             try
                             {
-                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
-                                    request.userAD,
+                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD.Replace(@"CONSIGLIO\", ""),
+                                    request.userAD.Replace(@"CONSIGLIO\", ""),
                                     AppSettingsConfiguration.TOKEN_W);
                                 if (resultRemove == false)
                                     throw new InvalidOperationException($"Errore rimozione gruppo AD [{item.GruppoAD}]");
@@ -604,7 +602,7 @@ namespace PortaleRegione.BAL
                     {
                         //No CONS
                         await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                            request.userAD);
+                            request.userAD.Replace(@"CONSIGLIO\", ""));
                     }
                     else
                     {
@@ -623,6 +621,21 @@ namespace PortaleRegione.BAL
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public async Task EliminaUtente(Guid uid_persona)
+        {
+            try
+            {
+                var user = await _unitOfWork.Persone.Get_NoCons(uid_persona);
+                user.deleted = true;
+                user.attivo = false;
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                throw;
             }
         }
 
@@ -651,7 +664,7 @@ namespace PortaleRegione.BAL
                         var consiglieri = await _unitOfWork.Gruppi.GetConsiglieriInCarica(request.Id_Gruppo);
                         user_list = consiglieri.Aggregate((i, j) => i + ";" + j);
                     }
-                    
+
                     user_list = user_list.Replace(@"CONSIGLIO\", "");
 
                     var intranetAdService = new proxyAD();

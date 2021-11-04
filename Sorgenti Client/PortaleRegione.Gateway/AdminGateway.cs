@@ -126,6 +126,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task EliminaPersona(Guid uid_persona)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/admin/elimina?id={uid_persona}";
+
+                await Delete(requestUrl, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("EliminaPersona", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("EliminaPersona", ex);
+                throw ex;
+            }
+
+        }
+
         public async Task ResetPin(ResetRequest request)
         {
             try

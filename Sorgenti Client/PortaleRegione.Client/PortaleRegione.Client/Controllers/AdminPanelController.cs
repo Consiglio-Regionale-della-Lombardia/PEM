@@ -244,6 +244,30 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Controller per eliminare l' utente
+        /// </summary>
+        /// <param name="persona"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("elimina")]
+        public async Task<ActionResult> EliminaPersona(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Admin.EliminaPersona(id);
+
+                return Json(Url.Action("ViewUtente", "AdminPanel", new { id = id })
+                    , JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Controller per resettare il pin dell' utente
         /// </summary>
         /// <param name="request"></param>
