@@ -379,6 +379,7 @@
     <Content Include="Views\Emendamenti\_StampaModal.cshtml" />
     <Content Include="Views\EMPublic\Index.cshtml" />
     <Content Include="Views\AdminPanel\RiepilogoGruppi.cshtml" />
+    <Content Include="Views\Emendamenti\_MetaDatiPanelAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

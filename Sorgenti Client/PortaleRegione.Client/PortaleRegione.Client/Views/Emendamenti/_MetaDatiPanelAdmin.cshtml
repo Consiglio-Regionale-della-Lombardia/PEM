@@ -97,11 +97,11 @@
                                 @Html.LabelFor(m => m.Emendamento.UIDComma)
                                 @if (_disabled)
                                 {
-                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList", disabled = true})
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList", disabled = true })
                                 }
                                 else
                                 {
-                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList"})
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList" })
                                 }
 
                             </div>
@@ -132,7 +132,7 @@
                                 }
                                 else
                                 {
-                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD"})
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD" })
                                 }
 
                             </div>
@@ -162,7 +162,7 @@
                             }
                             else
                             {
-                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList"})
+                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList" })
                             }
 
                         </div>
@@ -237,72 +237,8 @@
         TestoEmendamento_TipoEM(item.value);
     }
 
-    function TestoEmendamento_TipoEM(tipo, block_edit_text_auto) {
+    function TestoEmendamento_TipoEM(tipo) {
         $('#hdTipoId').val(tipo);
-        
-        var container_testo_em = $("#Emendamento_TestoEM_originale").parent();
-        var editor_test_em = $(container_testo_em).find(".trumbowyg-editor");
-
-        if (editor_test_em.html().length < 200 && !block_edit_text_auto) {
-            var parteEMList = $('input[name="Emendamento.IDParte"]');
-            $.each(parteEMList,
-                function(index, itemParteEM) {
-                    if (itemParteEM.checked) {
-                        var testo = "";
-                        if (itemParteEM.value == @((int) PartiEMEnum.Titolo_PDL)) {
-                            testo = "Il titolo del PDL ";
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Titolo)) {
-                            testo = "Il titolo " + $("input[name='Emendamento.NTitolo']").val();
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Capo)) {
-                            testo = "Il capo " + $("input[name='Emendamento.NCapo']").val();
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Articolo)) {
-                            if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
-                                testo = "La lettera " + $("#Emendamento_NLettera").val();
-                            } else if ($("#pnlLettere").is(":visible") && $("#LettereList option:selected").val() != 0) {
-                                testo = "La lettera " + $("#LettereList option:selected").text();
-                            }
-
-                            if ($("#pnlCommi").is(":visible") && $("#CommiList option:selected").val() != 0) {
-                                if (testo == "") {
-                                    testo = "Il comma ";
-                                } else {
-                                    testo = testo + " del comma ";
-                                }
-
-                                testo = testo + $("#CommiList option:selected").text();
-                            }
-                            if ($("#pnlArticoli").is(":visible") && $("#ArticoliList option:selected").val() != 0) {
-                                if (testo == "") {
-                                    testo = "L'articolo ";
-                                } else {
-                                    testo = testo + " dell'articolo ";
-                                }
-
-                                testo = testo + $("#ArticoliList option:selected").text();
-                            }
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Missione)) {
-                            testo = "La missione " +
-                                $("#MissioniList option:selected").val() +
-                                " programma " +
-                                $("input[name='Emendamento.NProgramma']").val() +
-                                " titolo " +
-                                $("#TitoliMissioniList option:selected").val() +
-                                " ";
-                        }
-
-                        if (tipo == @((int) TipiEMEnum.SOPPRESSIVO)) {
-                            testo = testo + " è soppresso.";
-                        } else if (tipo == @((int) TipiEMEnum.MODIFICATIVO)) {
-                            testo = testo + " è modificato come segue: ";
-                        } else if (tipo == @((int) TipiEMEnum.AGGIUNTIVO)) {
-                            testo = testo + " viene emendato aggiungendo: ";
-                        } else if (tipo == @((int) TipiEMEnum.SOSTITUTIVO)) {
-                            testo = testo + " è sostituito.";
-                        }
-                        editor_test_em.html(testo);
-                    }
-                });
-        }
     }
 
     function ClearMetaDati() {

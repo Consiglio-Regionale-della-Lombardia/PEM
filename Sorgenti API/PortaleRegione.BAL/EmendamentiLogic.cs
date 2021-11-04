@@ -259,6 +259,12 @@ namespace PortaleRegione.BAL
                 result.Emendamento = emendamento;
                 result.Atto = Mapper.Map<ATTI, AttiDto>(atto);
 
+                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                {
+                    result.Emendamento.TestoEM_originale = AppSettingsConfiguration.TestoEMCartaceo;
+                }
+
                 return result;
             }
             catch (Exception e)

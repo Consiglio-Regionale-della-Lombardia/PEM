@@ -74,14 +74,14 @@
                                 <span>Assessori</span>
                             </label>
                             <div id="pnlProponentiConsiglieri" style="margin-top: 20px">
-                                @Html.DropDownListFor(m => m.Emendamento.UIDPersonaProponente, new SelectList(Model.ListaConsiglieri, "UID_persona", "DisplayName_GruppoCode_EX"), "Seleziona proponente consigliere", new { @class = "form-control", id = "selectProponentiConsiglieri" })
+                                @Html.DropDownListFor(m => m.Emendamento.UIDPersonaProponente, new SelectList(Model.ListaConsiglieri, "UID_persona", "DisplayName_GruppoCode_EX"), "Seleziona proponente consigliere", new { @class = "form-control", id = "selectProponentiConsiglieri", onchange = "OnProponenteChange()" })
                             </div>
                             <div id="pnlProponentiAssessori" style="display: none; margin-top: 20px">
-                                @Html.DropDownListFor(m => m.Emendamento.UIDPersonaProponente, new SelectList(Model.ListaAssessori, "UID_persona", "DisplayName"), "Seleziona proponente assessore", new { @class = "form-control", id = "selectProponentiAssessori" })
+                                @Html.DropDownListFor(m => m.Emendamento.UIDPersonaProponente, new SelectList(Model.ListaAssessori, "UID_persona", "DisplayName"), "Seleziona proponente assessore", new { @class = "form-control", id = "selectProponentiAssessori", onchange = "OnProponenteChange()" })
                             </div>
                         </div>
                     </div>
-                    @Html.Partial("_MetaDatiPanel", Model)
+                    @Html.Partial("_MetaDatiPanelAdmin", Model)
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
                         @Html.TextAreaFor(model => model.Emendamento.TestoEM_originale, new { @class = "form-control trumbowyg" })
@@ -121,5 +121,31 @@
         TestoEmendamento_TipoEM(@Model.Emendamento.IDTipo_EM);
         InitEffettiFinanziari(@Model.Emendamento.EffettiFinanziari);
     });
+
+    var old_text = "";
+    function OnProponenteChange() {
+        var proponente;
+        if ($('input[name="Emendamento.UIDPersonaProponente"]').val())
+            proponente = $('input[name="Emendamento.UIDPersonaProponente"]').text();
+        else {
+            if ($('#chkProponentiConsiglieri').is(":checked"))
+                proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").text();
+            else if ($('#chkProponentiAssessori').is(":checked"))
+                proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").text();
+            else
+                proponente = $('select[id="Emendamento_UIDPersonaProponente"]').children("option:selected").text();
+        }
+
+        var container_testo_em = $("#Emendamento_TestoEM_originale").parent();
+        var editor_test_em = $(container_testo_em).find(".trumbowyg-editor");
+        if (old_text == "") {
+            old_text = editor_test_em.html();
+        }
+        if (editor_test_em.html().length > old_text.length) {
+            editor_test_em.html(old_text + ' ' + proponente);
+        } else {
+            editor_test_em.html(editor_test_em.html() + ' ' + proponente);
+        }
+    }
 </script>
 
