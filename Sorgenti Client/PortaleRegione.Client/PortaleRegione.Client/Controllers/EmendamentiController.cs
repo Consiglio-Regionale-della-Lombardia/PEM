@@ -52,6 +52,15 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoEmendamenti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, int page = 1, int size = 50)
         {
+            if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
+            {
+                if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                    HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                    return View("RiepilogoEM_Admin", old_model);
+
+                return View("RiepilogoEM", old_model);
+            }
+
             var view_grid = Request.QueryString["view"];
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
@@ -830,6 +839,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("filtra")]
         public async Task<ActionResult> Filtri_RiepilogoEM()
         {
+            Session["RiepilogoEmendamenti"] = null;
             var mode = 1;
             var model = ElaboraFiltriEM(ref mode);
 
@@ -845,7 +855,10 @@ namespace PortaleRegione.Client.Controllers
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+            {
+                Session["RiepilogoEmendamenti"] = modelResult;
                 return View("RiepilogoEM_Admin", modelResult);
+            }
 
             if (Convert.ToInt16(mode) == (int)ClientModeEnum.GRUPPI)
                 foreach (var emendamentiDto in modelResult.Data.Results)
@@ -860,6 +873,7 @@ namespace PortaleRegione.Client.Controllers
                             await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
 
+            Session["RiepilogoEmendamenti"] = modelResult;
             return View("RiepilogoEM", modelResult);
         }
 

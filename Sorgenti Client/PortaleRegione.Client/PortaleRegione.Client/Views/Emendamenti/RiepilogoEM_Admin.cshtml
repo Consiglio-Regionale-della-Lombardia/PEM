@@ -194,8 +194,10 @@
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
                 set_Filtri_EM({});
+                $('#counterFilterActive').hide();
             } else {
-                openSearch();
+                /*openSearch();*/
+                $('#counterFilterActive').show();
             }
 
             Filtri_EM_CaricaText1("filter_em_text1");

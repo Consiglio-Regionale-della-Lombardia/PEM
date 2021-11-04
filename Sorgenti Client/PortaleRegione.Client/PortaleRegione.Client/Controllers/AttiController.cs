@@ -46,6 +46,7 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoAtti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
             int page = 1, int size = 50)
         {
+            Session["RiepilogoEmendamenti"] = null;
             var apiGateway = new ApiGateway(_Token);
             var sedutaInDb = await apiGateway.Sedute.Get(id);
             var model = new AttiViewModel
