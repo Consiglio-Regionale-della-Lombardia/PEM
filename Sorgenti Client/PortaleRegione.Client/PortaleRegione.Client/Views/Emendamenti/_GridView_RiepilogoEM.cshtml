@@ -36,12 +36,12 @@ else
             lastRow = 1;
         }
 
-        <div class="col @Html.Raw(itemEM.IDStato >= (int) StatiEnum.Depositato ? "s6": "s12")">
+        <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s6" : "s12")">
             <div class="card hoverable" style="min-height: 300px">
                 <div class="card-content">
                     <div class="card-title">
                         <div class="row">
-                            <div class="col @Html.Raw(itemEM.IDStato >= (int) StatiEnum.Depositato ? "s12": "s6")">
+                            <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s12" : "s6")">
                                 <div class="col l1" style="margin-top: 10px">
                                     <label>
                                         <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
@@ -52,17 +52,17 @@ else
                                     <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip white-text @itemEM.STATI_EM.CssClass" style="width: 100%">
                                         @if (itemEM.Depositabile)
                                         {
-                                            <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top:-2px">gavel</i>
+                                            <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top: -2px">gavel</i>
                                         }
                                         @itemEM.STATI_EM.Stato
                                         @if (itemEM.PresentatoOltreITermini)
                                         {
                                             //presentato oltre i termini
-                                            <i class="icon material-icons white-text right tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" style="margin-top:-3px">warning</i>
+                                            <i class="icon material-icons white-text right tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" style="margin-top: -3px">warning</i>
                                         }
                                         @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
                                         {
-                                            <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)" style="margin-top:-2px">chat</i>
+                                            <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)" style="margin-top: -2px">chat</i>
                                         }
                                     </div>
                                 </div>
@@ -72,7 +72,7 @@ else
                                             <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
                                         </h5>
                                         <h6>@Utility.MetaDatiEM_Label(itemEM)</h6>
-                                        @if (itemEM.IDStato <= (int) StatiEnum.Bozza)
+                                        @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
                                         {
                                             <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
                                                 Bozza predisposta da:
@@ -86,7 +86,7 @@ else
                                             if (!string.IsNullOrEmpty(itemEM.DataDeposito))
                                             {
                                                 <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
-                                                   Depositato da
+                                                    Depositato da
                                                     <span id="lblPersonaDeposito_@itemEM.UIDEM">
                                                         @itemEM.PersonaDeposito.DisplayName
                                                     </span>
@@ -96,7 +96,7 @@ else
                                             }
                                         }
 
-                                        @if (itemEM.IDStato >= (int) StatiEnum.Depositato)
+                                        @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
                                         {
                                             <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 35px; min-width: unset;">
                                                 Firmato dal proponente:
@@ -126,7 +126,7 @@ else
                                     </div>
                                 </div>
                             </div>
-                            @if (itemEM.IDStato < (int) StatiEnum.Depositato)
+                            @if (itemEM.IDStato < (int)StatiEnum.Depositato)
                             {
                                 <div class="col s6">
                                     <div id="pnlAzioniEM_@itemEM.UIDEM" class="col l12 center">
@@ -134,7 +134,7 @@ else
                                         @if (!string.IsNullOrEmpty(itemEM.Firmatari))
                                         {
                                             <div class="row">
-                                                <div class="col s12">
+                                                <div class="col s12 left-align">
                                                     <h6>
                                                         <b>Firmatari</b>
                                                     </h6>
@@ -143,22 +143,25 @@ else
                                                 </div>
                                             </div>
                                         }
-                                        @if (!string.IsNullOrEmpty(itemEM.Destinatari))
-                                        {
-                                            <div class="row">
-                                                <div class="col s12">
-                                                    <h6>
-                                                        <b>Invitati</b>
-                                                    </h6>
-                                                    <hr/>
-                                                    @Html.Raw(itemEM.Destinatari)
-                                                </div>
-                                            </div>
-                                        }
                                     </div>
                                 </div>
                             }
                         </div>
+                        @if (itemEM.IDStato < (int)StatiEnum.Depositato)
+                        {
+                            if (!string.IsNullOrEmpty(itemEM.Destinatari))
+                            {
+                                <div class="row">
+                                    <div class="col s12">
+                                        <h6>
+                                            <b>Invitati</b>
+                                        </h6>
+                                        <hr/>
+                                        @Html.Raw(itemEM.Destinatari)
+                                    </div>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
                 <div class="card-action grey lighten-4">
@@ -170,7 +173,7 @@ else
                             </h6>
                         </div>
                         <div class="col s5 right-align" style="margin-top: 9px">
-                            <a class="btn-floating green tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')">
+                            <a class="btn-floating green tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
