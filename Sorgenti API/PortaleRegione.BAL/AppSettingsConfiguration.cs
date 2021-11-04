@@ -37,7 +37,7 @@ namespace PortaleRegione.BAL
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
         public static string SMTP => ConfigurationManager.AppSettings["SMTP"];
         public static bool Invio_Notifiche => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["InvioNotifiche"]));
-        public static string UtenteFirmaUfficio => ConfigurationManager.AppSettings["UtenteFirmaUfficio"];
+        public static string FirmaUfficio => ConfigurationManager.AppSettings["UtenteFirmaUfficio"];
         public static string LimiteFirmaMassivo => ConfigurationManager.AppSettings["LimiteFirmaMassivo"];
         public static string LimiteDepositoMassivo => ConfigurationManager.AppSettings["LimiteDepositoMassivo"];
         public static string GiorniValiditaLink => ConfigurationManager.AppSettings["GiorniValiditaLink"];

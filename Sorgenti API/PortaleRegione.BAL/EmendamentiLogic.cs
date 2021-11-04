@@ -656,7 +656,7 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
-                        firmaCert = EncryptString($"Inserito d'ufficio ({AppSettingsConfiguration.UtenteFirmaUfficio})"
+                        firmaCert = EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
                             , AppSettingsConfiguration.masterKey);
                     }
                     else
