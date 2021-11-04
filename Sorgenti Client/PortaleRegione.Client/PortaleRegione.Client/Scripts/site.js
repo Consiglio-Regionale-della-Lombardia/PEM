@@ -308,7 +308,7 @@ function RevealFirmaDeposito(id, action) {
             }).done(function(data) {
                 if (data.message) {
                     swal({
-                        title: "Riepilogo " + button,
+                        title: "Esito " + button,
                         text: data.message,
                         icon: "info",
                         button: "OK"

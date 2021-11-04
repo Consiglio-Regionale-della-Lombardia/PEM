@@ -732,7 +732,7 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(idGuid, persona.UID_persona);
                     }
 
-                    results.Add(idGuid, "OK");
+                    results.Add(idGuid, $"{n_em} - OK");
                     counterFirme++;
                 }
 
@@ -953,7 +953,7 @@ namespace PortaleRegione.BAL
 
                     await _unitOfWork.CompleteAsync();
 
-                    results.Add(idGuid, "OK");
+                    results.Add(idGuid, $"{n_em} - OK");
 
                     _unitOfWork.Stampe.Add(new STAMPE
                     {

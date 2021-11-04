@@ -283,13 +283,13 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.Emendamento.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
-                            listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value}");
+                            listaErroriFirma.Add($"{itemFirma.Value}");
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Riepilogo procedura di firma: {listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
+                                        $"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
@@ -297,13 +297,13 @@ namespace PortaleRegione.Client.Controllers
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
                             listaErroriDeposito.Add(
-                                $"{listaErroriDeposito.Count + 1} - {itemDeposito.Value}");
+                                $"{itemDeposito.Value}");
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Riepilogo procedura di deposito: {listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
+                                        $"{listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     default:
@@ -344,13 +344,13 @@ namespace PortaleRegione.Client.Controllers
                         var resultFirma = await apiGateway.Emendamento.Firma(model);
                         var listaErroriFirma = new List<string>();
                         foreach (var itemFirma in resultFirma)
-                            listaErroriFirma.Add($"{listaErroriFirma.Count + 1} - {itemFirma.Value}");
+                            listaErroriFirma.Add($"{itemFirma.Value}");
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Riepilogo procedura di firma: {listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
+                                        $"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
@@ -358,13 +358,13 @@ namespace PortaleRegione.Client.Controllers
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
                             listaErroriDeposito.Add(
-                                $"{listaErroriDeposito.Count + 1} - {itemDeposito.Value}");
+                                $"{itemDeposito.Value}");
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Riepilogo procedura di deposito: {listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
+                                        $"{listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.INVITA:
@@ -372,13 +372,13 @@ namespace PortaleRegione.Client.Controllers
                         var listaErroriInvita = new List<string>();
                         foreach (var itemInvito in resultInvita)
                             listaErroriInvita.Add(
-                                $"{listaErroriInvita.Count + 1} - {itemInvito.Value}");
+                                $"{itemInvito.Value}");
                         if (listaErroriInvita.Count > 0)
                             return Json(
                                 new
                                 {
                                     message =
-                                        $"Riepilogo procedura di invito: {listaErroriInvita.Aggregate((i, j) => i + ", " + j)}"
+                                        $"{listaErroriInvita.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     default:
