@@ -307,7 +307,14 @@ function RevealFirmaDeposito(id, action) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Riepilogo " + button,
+                        text: data.message,
+                        icon: "info",
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
                     go(data);
                 }

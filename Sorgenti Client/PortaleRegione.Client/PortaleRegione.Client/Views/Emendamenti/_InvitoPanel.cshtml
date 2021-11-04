@@ -108,6 +108,7 @@
             function() {
                 setTimeout(function() {
                         $('body').removeClass('loaded');
+                        $("#modalEmendamentiNotificaA").modal("close");
                     },
                     200);
                 $("#formNotificaA").submit();
@@ -148,7 +149,14 @@
                 dataType: "json"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Riepilogo Inviti",
+                        text: data.message,
+                        icon: "info",
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
                     go(data);
                 }
