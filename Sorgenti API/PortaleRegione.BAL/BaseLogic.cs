@@ -373,9 +373,18 @@ namespace PortaleRegione.BAL
                     var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito));
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
 
-                    body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))
-                        .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
-                        .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                    if (firmeAnte.Any())
+                    {
+                        body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))
+                            .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
+                            .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                    }
+                    else
+                    {
+                        body = body.Replace("{radGridFirmeView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+                    }
+
                     var TemplatefirmePOST = @"<div>
                              <div style='width:100%;'>
                                       <h5>Firme dopo il deposito</h5>
@@ -400,13 +409,27 @@ namespace PortaleRegione.BAL
                 else
                 {
                     //FIRMATO MA NON DEPOSITATO
-                    body = body.Replace("{lblDepositoEMView}", string.Empty);
-                    body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeDtos))
-                        .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
-                        .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
-                    body = body.Replace("{radGridFirmePostView}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_START}", "<!--")
-                        .Replace("{FIRME_COMMENTO_END}", "-->");
+                    var firmatari = GetFirmatariEM(firmeDtos);
+                    if (!string.IsNullOrEmpty(firmatari))
+                    {
+                        body = body.Replace("{lblDepositoEMView}", string.Empty);
+                        body = body.Replace("{radGridFirmeView}", firmatari)
+                            .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
+                            .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                        body = body.Replace("{radGridFirmePostView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--")
+                            .Replace("{FIRME_COMMENTO_END}", "-->");
+                    }
+                    else
+                    {
+                        body = body.Replace("{lblDepositoEMView}", string.Empty);
+                        body = body.Replace("{FIRMEANTE_COMMENTO_START}", "<!--")
+                            .Replace("{FIRMEANTE_COMMENTO_END}", "-->");
+                        body = body.Replace("{radGridFirmePostView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--")
+                            .Replace("{FIRME_COMMENTO_END}", "-->");
+                    }
+
                 }
 
                 #endregion
