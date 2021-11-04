@@ -39,12 +39,14 @@ namespace PortaleRegione.BAL
     public class AdminLogic : BaseLogic
     {
         private readonly PersoneLogic _logicPersona;
+        private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona)
+        public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
+            _logicUtil = logicUtil;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model)

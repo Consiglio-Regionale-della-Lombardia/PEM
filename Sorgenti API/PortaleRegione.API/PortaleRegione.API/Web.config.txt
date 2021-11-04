@@ -50,7 +50,7 @@
     <add key="URL_API" value="YOUR_URL_API" />
     <add key="SMTP" value="YOUR_SMTP" />
     <add key="InvioNotifiche" value="0 (spento) oppure 1 (attivo)" />
-    <add key="UtenteFirmaUfficio" value="YOUR_UTENTE_FIRMA_UFFICIO" />
+    <add key="FirmaUfficio" value="YOUR_UTENTE_FIRMA_UFFICIO" />
     <add key="LimiteFirmaMassivo" value="YOUR_LIMITE" />
     <add key="LimiteDepositoMassivo" value="YOUR_LIMITE" />
     <add key="GiorniValiditaLink" value="YOUR_GIORNI_VALIDITA" />
