@@ -35,7 +35,7 @@
             @Html.AntiForgeryToken()
 
             <input id="inputFilterPage" type="hidden" name="page" value=""/>
-            <input type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
+            <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
             <input type="hidden" name="view" value="@view"/>
             <input type="hidden" id="hdMode" name="mode" value="@Html.Raw(Convert.ToInt16(mode))"/>
             <input type="hidden" name="ordine" value="@((int) ordinePaginaEnum)"/>

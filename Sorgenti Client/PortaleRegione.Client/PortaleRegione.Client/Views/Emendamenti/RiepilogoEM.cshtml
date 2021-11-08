@@ -173,6 +173,15 @@
                 200);
             $('#formFiltraEM').submit();
         }
+        
+        function filtra_Paginazione(page) {
+            $('#inputFilterSize').val(page);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
+            $('#formFiltraEM').submit();
+        }
 
         async function reset() {
             set_Filtri_EM({});
