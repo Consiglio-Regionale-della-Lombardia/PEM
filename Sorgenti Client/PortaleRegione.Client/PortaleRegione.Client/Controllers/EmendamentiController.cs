@@ -55,11 +55,21 @@ namespace PortaleRegione.Client.Controllers
         {
             if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
             {
-                if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                    HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                    return View("RiepilogoEM_Admin", old_model);
+                try
+                {
+                    if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                        HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                        return View("RiepilogoEM_Admin", old_model);
 
-                return View("RiepilogoEM", old_model);
+                    return View("RiepilogoEM", old_model);
+                }
+                catch (Exception e)
+                {
+                }
+                finally
+                {
+                    Session["RiepilogoEmendamenti"] = null;
+                }
             }
 
             var view_grid = Request.QueryString["view"];
