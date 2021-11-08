@@ -26,6 +26,7 @@ using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -342,8 +343,27 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 if (model.ListaEmendamenti == null || !model.ListaEmendamenti.Any())
                 {
-                    var listaEM = await apiGateway.Emendamento.Get(model.AttoUId, (ClientModeEnum)model.ClientMode,
-                        OrdinamentoEnum.Default, 1, 50);
+                    var listaEM = new EmendamentiViewModel();
+                    var limit = 0;
+                    switch (model.Azione)
+                    {
+                        case ActionEnum.FIRMA:
+                            limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteFirmaMassivo"]);
+                            break;
+                        case ActionEnum.DEPOSITA:
+                            limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteDepositoMassivo"]);
+                            break;
+                    }
+                    if (model.Richiesta_Firma)
+                    {
+                        listaEM = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(model.AttoUId, (ClientModeEnum)model.ClientMode,
+                            OrdinamentoEnum.Default, 1, limit);
+                    }
+                    else
+                    {
+                        listaEM = await apiGateway.Emendamento.Get(model.AttoUId, (ClientModeEnum)model.ClientMode,
+                            OrdinamentoEnum.Default, 1, limit);
+                    }
                     model.ListaEmendamenti = listaEM.Data.Results.Select(em => em.UIDEM).ToList();
                 }
 

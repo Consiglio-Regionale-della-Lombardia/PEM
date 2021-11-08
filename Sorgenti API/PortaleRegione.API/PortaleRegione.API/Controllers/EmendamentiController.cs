@@ -146,7 +146,7 @@ namespace PortaleRegione.API.Controllers
                         model.size,
                         results,
                         model.filtro,
-                        await _logicEm.CountEM(model, persona, Convert.ToInt16(CLIENT_MODE)),
+                        results.Count,
                         Request.RequestUri),
                     Atto = Mapper.Map<ATTI, AttiDto>(atto),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),

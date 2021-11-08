@@ -534,16 +534,15 @@ namespace PortaleRegione.BAL
                 {
                     //NUOVO
 
-#if DEBUG == false
                     string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
                     string autoPassword = _logicUtil.GenerateRandomCode();
                     intranetAdService.CreatePEMADUser(
-                        request.userAD.Replace(@"CONSIGLIO\", ""),
+                        request.userAD,
                         autoPassword,
                         ruolo == RuoliIntEnum.Amministratore_Giunta,
                         AppSettingsConfiguration.TOKEN_W
                     );
-#endif
+                    autoPassword = ruolo == RuoliIntEnum.Amministratore_Giunta ? $"{autoPassword}" : "[Stessa usata per accedere al tuo pc]";
 
                     request.UID_persona = Guid.NewGuid();
                     request.no_Cons = 1;
@@ -551,7 +550,7 @@ namespace PortaleRegione.BAL
                     _unitOfWork.Persone.Add(newUser);
                     await _unitOfWork.CompleteAsync();
 
-#if DEBUG == false
+
                     await _logicUtil.InvioMail(new MailModel
                     {
                         DA = "pem@consiglio.regione.lombardia.it",
@@ -561,18 +560,18 @@ namespace PortaleRegione.BAL
                         MESSAGGIO =
  $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
                     });
-#endif
+
                 }
                 else
                 {
-#if DEBUG == false
+
                     foreach (var item in request.gruppiAd)
                     {
                         if (item.Membro)
                         {
                             try
                             {
-                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD.Replace(@"CONSIGLIO\", ""), request.userAD.Replace(@"CONSIGLIO\", ""),
+                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
                                     AppSettingsConfiguration.TOKEN_W);
                                 if (resultAdd != 0)
                                     throw new InvalidOperationException($"Errore inserimento gruppo AD [{item.GruppoAD}]");
@@ -586,8 +585,8 @@ namespace PortaleRegione.BAL
                         {
                             try
                             {
-                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD.Replace(@"CONSIGLIO\", ""),
-                                    request.userAD.Replace(@"CONSIGLIO\", ""),
+                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
+                                    request.userAD,
                                     AppSettingsConfiguration.TOKEN_W);
                                 if (resultRemove == false)
                                     throw new InvalidOperationException($"Errore rimozione gruppo AD [{item.GruppoAD}]");
@@ -598,15 +597,9 @@ namespace PortaleRegione.BAL
                             }
                         }
                     }
-#endif
+
 
                     if (request.no_Cons == 1)
-                    {
-                        //No CONS
-                        await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                            request.userAD.Replace(@"CONSIGLIO\", ""));
-                    }
-                    else
                     {
                         //Consigliere/Assessore
                         UTENTI_NoCons persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
@@ -615,6 +608,11 @@ namespace PortaleRegione.BAL
                         persona.notifica_firma = request.notifica_firma;
                         persona.notifica_deposito = request.notifica_deposito;
                         await _unitOfWork.CompleteAsync();
+                    }
+                    else
+                    {
+                        await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
+                            request.userAD.Replace(@"CONSIGLIO\", ""));
                     }
                 }
 
