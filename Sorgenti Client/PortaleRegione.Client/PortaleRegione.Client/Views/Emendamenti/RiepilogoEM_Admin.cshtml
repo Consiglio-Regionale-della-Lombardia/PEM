@@ -5,13 +5,8 @@
 
 @{
     ViewBag.Title = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
-
-    var view = HttpUtility.ParseQueryString(Request.Url.Query).Get("view");
+    
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-    if (string.IsNullOrEmpty(view))
-    {
-        view = "grid";
-    }
 
     var classActiveTabPresentazione = "";
     var classActiveTabVotazione = "";
@@ -101,14 +96,14 @@
         }
 
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = view, IsAdmin = true, Atto = Model.Atto });
+        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, IsAdmin = true, Atto = Model.Atto });
 
         <div class="row">
-            @if (view == "grid")
+            @if (Model.ViewMode == ViewModeEnum.GRID)
             {
                 Html.RenderPartial("_GridView_Admin_RiepilogoEM", Model);
             }
-            else if (view == "zoom")
+            else if (Model.ViewMode == ViewModeEnum.PREVIEW)
             {
                 Html.RenderPartial("_ZoomView_RiepilogoEM", Model);
             }

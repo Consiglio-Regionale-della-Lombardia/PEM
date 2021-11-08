@@ -51,7 +51,7 @@ namespace PortaleRegione.Client.Controllers
         [HttpGet]
         [Route("{id:guid}")]
         public async Task<ActionResult> RiepilogoEmendamenti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
-            OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, int page = 1, int size = 50)
+            OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1, int size = 50)
         {
             if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
             {
@@ -72,14 +72,23 @@ namespace PortaleRegione.Client.Controllers
                 }
             }
 
-            var view_grid = Request.QueryString["view"];
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             HttpContext.Cache.Insert(
                 "OrdinamentoEM",
                 (int)ordine,
                 null,
-                DateTime.Now.AddMinutes(2),
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
+
+            HttpContext.Cache.Insert(
+                "ViewMode",
+                view,
+                null,
+                Cache.NoAbsoluteExpiration,
                 Cache.NoSlidingExpiration,
                 CacheItemPriority.NotRemovable,
                 (key, value, reason) => { Console.WriteLine("Cache removed"); }
@@ -91,8 +100,8 @@ namespace PortaleRegione.Client.Controllers
                 model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
             else
                 model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
-
-            if (!string.IsNullOrEmpty(view_grid))
+            model.ViewMode = view;
+            if (view == ViewModeEnum.PREVIEW)
                 foreach (var emendamentiDto in model.Data.Results)
                     emendamentiDto.BodyEM = await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
 
@@ -917,6 +926,7 @@ namespace PortaleRegione.Client.Controllers
             int.TryParse(Request.Form["ordine"], out var ordine);
             if (ordine == 0)
                 ordine = 1;
+            var view = Request.Form["view"];
             var atto = Request.Form["atto"];
             var filtro_text1 = Request.Form["filtro_text1"];
             var filtro_text2 = Request.Form["filtro_text2"];
@@ -946,7 +956,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 page = filtro_page,
                 size = filtro_size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", mode_result } },
+                param = new Dictionary<string, object> { { "CLIENT_MODE", mode_result }, { "ViewMode", view } },
                 ordine = (OrdinamentoEnum)ordine,
                 id = new Guid(atto)
             };

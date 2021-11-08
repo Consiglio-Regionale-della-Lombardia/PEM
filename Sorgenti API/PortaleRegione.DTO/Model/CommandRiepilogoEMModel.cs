@@ -17,12 +17,13 @@
  */
 
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.DTO.Model
 {
     public class CommandRiepilogoEMModel
     {
-        public string view { get; set; }
+        public ViewModeEnum view { get; set; } = ViewModeEnum.GRID;
         public bool IsAdmin { get; set; }
         public AttiDto Atto { get; set; }
     }

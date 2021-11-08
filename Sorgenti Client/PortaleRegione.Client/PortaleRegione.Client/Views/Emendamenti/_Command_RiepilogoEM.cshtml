@@ -39,13 +39,13 @@
         }
     }
 
-    if (Model.view == "zoom")
+    if (Model.view == ViewModeEnum.PREVIEW)
     {
-        url += "&view=grid";
+        url += $"&view={ViewModeEnum.GRID}";
     }
-    else if (Model.view == "grid")
+    else if (Model.view == ViewModeEnum.GRID)
     {
-        url += "&view=zoom";
+        url += $"&view={ViewModeEnum.PREVIEW}";
     }
 
 
@@ -95,12 +95,12 @@
                 var text = "";
                 var icon = "";
 
-                if (Model.view == "zoom")
+                if (Model.view == ViewModeEnum.PREVIEW)
                 {
                     text = "Visualizza EM in griglia";
                     icon = "developer_board";
                 }
-                else if (Model.view == "grid")
+                else if (Model.view == ViewModeEnum.GRID)
                 {
                     text = "Visualizza EM in preview";
                     icon = "desktop_windows";

@@ -128,6 +128,7 @@
     <Compile Include="Response\Paging.cs" />
     <Compile Include="Response\ProiettaResponse.cs" />
     <Compile Include="Request\ReportRequest.cs" />
+    <Compile Include="Enum\ViewModeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

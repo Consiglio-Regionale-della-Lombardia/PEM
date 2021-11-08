@@ -16,17 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-
-namespace PortaleRegione.DTO.Response
+namespace PortaleRegione.DTO.Enum
 {
-    public class EmendamentiViewModel
+    public enum ViewModeEnum
     {
-        public BaseResponse<EmendamentiDto> Data { get; set; }
-        public PersonaDto CurrentUser { get; set; }
-        public AttiDto Atto { get; set; }
-        public ClientModeEnum Mode { get; set; }
-        public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
+        GRID = 1,
+        PREVIEW = 2
     }
 }

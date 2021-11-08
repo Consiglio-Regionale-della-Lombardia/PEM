@@ -7,22 +7,14 @@
     ViewBag.Title = string.Format("{0}", displayAtto);
 
     var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
+    var viewFromCache = HttpContext.Current.Cache.Get("ViewMode");
     object objParams = null;
-    if (ordineFromCache != null)
+    objParams = new
     {
-        objParams = new
-        {
-            id = Model.UIDAtto,
-            ordine = ordineFromCache
-        };
-    }
-    else
-    {
-        objParams = new
-        {
-            id = Model.UIDAtto
-        };
-    }
+        id = Model.UIDAtto,
+        ordine = ordineFromCache,
+        view = viewFromCache
+    };
     var backUrl = Url.Action("RiepilogoEmendamenti", objParams);
 
     var gruppoText = "";
