@@ -113,14 +113,16 @@
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
         Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = view, IsAdmin = false, Atto = Model.Atto });
 
-        if (view == "grid")
+        <div class="row">
+        @if (view == "grid")
         {
             Html.RenderPartial("_GridView_RiepilogoEM", Model);
-        }
-        if (view == "zoom")
+        }else if (view == "zoom")
         {
             Html.RenderPartial("_ZoomView_RiepilogoEM", Model);
         }
+        </div>
+        Html.RenderPartial("_PaginationBar", Model.Data.Paging);
     }
 </div>
 
