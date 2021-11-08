@@ -225,6 +225,16 @@
             $('#formFiltraEM').submit();
         }
 
+        function filtra_Paginazione(size) {
+            $('#inputFilterPage').val(1);
+            $('#inputFilterSize').val(size);
+            setTimeout(function () {
+                $('body').removeClass('loaded');
+            },
+                200);
+            $('#formFiltraEM').submit();
+        }
+
         async function reset() {
             set_Filtri_EM({});
             $('#inputFilterPage').val(1);

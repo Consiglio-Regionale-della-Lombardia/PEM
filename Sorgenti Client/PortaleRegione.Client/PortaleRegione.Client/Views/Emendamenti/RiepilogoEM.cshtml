@@ -174,8 +174,9 @@
             $('#formFiltraEM').submit();
         }
         
-        function filtra_Paginazione(page) {
-            $('#inputFilterSize').val(page);
+        function filtra_Paginazione(size) {
+            $('#inputFilterPage').val(1);
+            $('#inputFilterSize').val(size);
             setTimeout(function() {
                     $('body').removeClass('loaded');
                 },

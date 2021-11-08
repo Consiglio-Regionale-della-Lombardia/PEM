@@ -35,8 +35,9 @@
 
     var prev_url = Model.Has_Prev ? string.Format("{0}{1}", url, Model.Prev_Url.Query) : "#!";
     var next_url = Model.Has_Next ? string.Format("{0}{1}", url, Model.Next_Url.Query) : "#!";
-    var first_url =  string.Format("{0}{1}", url, Model.First_Url.Query);
+    var first_url = string.Format("{0}{1}", url, Model.First_Url.Query);
     var last_url = string.Format("{0}{1}", url, Model.Last_Url.Query);
+    var size_url = url + "?";
 
     if (!string.IsNullOrEmpty(view))
     {
@@ -44,6 +45,7 @@
         next_url += string.Format("&view={0}", view);
         first_url += string.Format("&view={0}", view);
         last_url += string.Format("&view={0}", view);
+        size_url += string.Format("&view={0}", view);
     }
     if (!string.IsNullOrEmpty(archivio))
     {
@@ -51,6 +53,7 @@
         next_url += string.Format("&archivio={0}", archivio);
         first_url += string.Format("&archivio={0}", archivio);
         last_url += string.Format("&archivio={0}", archivio);
+        size_url += string.Format("&archivio={0}", archivio);
     }
     if (!string.IsNullOrEmpty(is_inviate))
     {
@@ -58,6 +61,7 @@
         next_url += string.Format("&is_inviate={0}", is_inviate);
         first_url += string.Format("&is_inviate={0}", is_inviate);
         last_url += string.Format("&is_inviate={0}", is_inviate);
+        size_url += string.Format("&is_inviate={0}", is_inviate);
     }
     if (!string.IsNullOrEmpty(mode))
     {
@@ -65,6 +69,7 @@
         next_url += string.Format("&mode={0}", mode);
         first_url += string.Format("&mode={0}", mode);
         last_url += string.Format("&mode={0}", mode);
+        size_url += string.Format("&mode={0}", mode);
     }
 
     <div class="row valign-wrapper">
@@ -160,7 +165,7 @@
 
                 <li>
                     <div class="chip deep-purple lighten-5" style="margin-top: -5px;">@Model.Total elementi trovati</div>
-                    <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total" />
+                    <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total"/>
                 </li>
             </ul>
         </div>
@@ -171,9 +176,16 @@
                 <ul id='ddlPaginazione' class='dropdown-content' style="width: 100px !important">
                     @for (var i = 0; i < sizeArray.Length; i++)
                     {
-                        var sized_url = string.Format("{0}?size={1}", url, sizeArray[i]);
+                        var sized_url = string.Format("{0}&size={1}", size_url, sizeArray[i]);
                         <li>
-                            <a href=@sized_url>@sizeArray[i]</a>
+                            @if (!filtri_attivi)
+                            {
+                                <a href=@sized_url>@sizeArray[i]</a>
+                            }
+                            else
+                            {
+                                <a onclick="filtra_Paginazione(@sizeArray[i])">@sizeArray[i]</a>
+                            }
                         </li>
                     }
                 </ul>
