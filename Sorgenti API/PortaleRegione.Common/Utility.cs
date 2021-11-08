@@ -61,9 +61,9 @@ namespace PortaleRegione.Common
                 case PartiEMEnum.Capo:
                     return $"Capo: {em.NCapo}";
                 case PartiEMEnum.Articolo:
-                {
-                    var strArticolo = string.Empty;
-                    if (em.UIDArticolo.HasValue)
+                    {
+                        var strArticolo = string.Empty;
+                        if (em.UIDArticolo.HasValue)
                         {
                             strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
                         }
@@ -74,19 +74,19 @@ namespace PortaleRegione.Common
                         }
 
                         if (!string.IsNullOrEmpty(em.NLettera))
-                    {
-                        strArticolo += $", Lettera: {em.NLettera}";
-                    }
-                    else
-                    {
-                        if (em.UIDLettera.HasValue)
+                        {
+                            strArticolo += $", Lettera: {em.NLettera}";
+                        }
+                        else
+                        {
+                            if (em.UIDLettera.HasValue)
                             {
                                 strArticolo += $", Lettera: {em.LETTERE.Lettera}";
                             }
                         }
 
-                    return strArticolo;
-                }
+                        return strArticolo;
+                    }
                 case PartiEMEnum.Missione:
                     return $"Missione: {em.NMissione} Programma: {em.NProgramma} titolo: {em.NTitoloB}";
                 case PartiEMEnum.Allegato_Tabella:
@@ -106,20 +106,20 @@ namespace PortaleRegione.Common
             switch (effetti_finanziari)
             {
                 case 0:
-                {
-                    return "NO";
-                }
+                    {
+                        return "NO";
+                    }
                 case 1:
-                {
-                    return "SI";
-                }
+                    {
+                        return "SI";
+                    }
                 default:
-                {
-                    return "NON SPECIFICATO";
-                }
+                    {
+                        return "NON SPECIFICATO";
+                    }
             }
         }
-        
+
         /// <summary>
         ///     Metodo per convertire un enum in KeyValueDto
         /// </summary>
@@ -128,11 +128,11 @@ namespace PortaleRegione.Common
         public static List<KeyValueDto> GetEnumList<T>()
         {
             return (from object e in Enum.GetValues(typeof(T))
-                select new KeyValueDto
-                {
-                    id = (int) e,
-                    descr = e.ToString().Replace("_", " ")
-                }).ToList();
+                    select new KeyValueDto
+                    {
+                        id = (int)e,
+                        descr = e.ToString().Replace("_", " ")
+                    }).ToList();
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace PortaleRegione.Common
                 };
                 if (connettore > 0)
                 {
-                    filtro1.Connector = (FilterStatementConnector) connettore;
+                    filtro1.Connector = (FilterStatementConnector)connettore;
                 }
 
                 model.filtro.Add(filtro1);
@@ -187,7 +187,7 @@ namespace PortaleRegione.Common
                 };
                 if (connettore > 0)
                 {
-                    filtro2.Connector = (FilterStatementConnector) connettore;
+                    filtro2.Connector = (FilterStatementConnector)connettore;
                 }
 
                 model.filtro.Add(filtro2);
@@ -217,10 +217,11 @@ namespace PortaleRegione.Common
                 {
                     PropertyId = nameof(EmendamentiDto.IDParte),
                     Operation = Operation.EqualTo,
-                    Value = q_parte
+                    Value = q_parte,
+                    Connector = FilterStatementConnector.And
                 });
                 var filtro_parte_enum = Convert.ToInt16(q_parte);
-                switch ((PartiEMEnum) filtro_parte_enum)
+                switch ((PartiEMEnum)filtro_parte_enum)
                 {
                     case PartiEMEnum.Titolo_PDL:
                         break;
@@ -231,7 +232,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.NTitolo),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_titolo
+                                Value = q_parte_titolo,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -243,7 +245,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.NCapo),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_capo
+                                Value = q_parte_capo,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -255,7 +258,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDArticolo),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_articolo
+                                Value = q_parte_articolo,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -265,7 +269,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDComma),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_comma
+                                Value = q_parte_comma,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -275,7 +280,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDLettera),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_lettera
+                                Value = q_parte_lettera,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -285,7 +291,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.NLettera),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_letteraOLD
+                                Value = q_parte_letteraOLD,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -297,7 +304,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.NMissione),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_missione
+                                Value = q_parte_missione,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -307,7 +315,8 @@ namespace PortaleRegione.Common
                             {
                                 PropertyId = nameof(EmendamentiDto.NProgramma),
                                 Operation = Operation.EqualTo,
-                                Value = q_parte_programma
+                                Value = q_parte_programma,
+                                Connector = FilterStatementConnector.And
                             });
                         }
 
@@ -332,7 +341,8 @@ namespace PortaleRegione.Common
                 {
                     PropertyId = nameof(EmendamentiDto.IDStato),
                     Operation = Operation.EqualTo,
-                    Value = statoId
+                    Value = statoId,
+                    Connector = FilterStatementConnector.And
                 });
             }
         }
@@ -349,7 +359,8 @@ namespace PortaleRegione.Common
                 {
                     PropertyId = nameof(EmendamentiDto.IDTipo_EM),
                     Operation = Operation.EqualTo,
-                    Value = tipoId
+                    Value = tipoId,
+                    Connector = FilterStatementConnector.And
                 });
             }
         }
@@ -368,26 +379,34 @@ namespace PortaleRegione.Common
 
             var filtro1 = new FilterStatement<EmendamentiDto>
             {
-                PropertyId = nameof(EmendamentiDto.IDStato), Operation = Operation.NotEqualTo,
-                Value = (int) StatiEnum.Bozza_Riservata, Connector = FilterStatementConnector.Or
+                PropertyId = nameof(EmendamentiDto.IDStato),
+                Operation = Operation.NotEqualTo,
+                Value = (int)StatiEnum.Bozza_Riservata,
+                Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro1);
             var filtro2 = new FilterStatement<EmendamentiDto>
             {
-                PropertyId = nameof(EmendamentiDto.IDStato), Operation = Operation.EqualTo,
-                Value = (int) StatiEnum.Bozza_Riservata, Connector = FilterStatementConnector.And
+                PropertyId = nameof(EmendamentiDto.IDStato),
+                Operation = Operation.EqualTo,
+                Value = (int)StatiEnum.Bozza_Riservata,
+                Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtro2);
             var filtro3 = new FilterStatement<EmendamentiDto>
             {
-                PropertyId = nameof(EmendamentiDto.UIDPersonaProponente), Operation = Operation.EqualTo,
-                Value = personaUID, Connector = FilterStatementConnector.Or
+                PropertyId = nameof(EmendamentiDto.UIDPersonaProponente),
+                Operation = Operation.EqualTo,
+                Value = personaUID,
+                Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro3);
             var filtro4 = new FilterStatement<EmendamentiDto>
             {
-                PropertyId = nameof(EmendamentiDto.UIDPersonaCreazione), Operation = Operation.EqualTo,
-                Value = personaUID, Connector = FilterStatementConnector.Or
+                PropertyId = nameof(EmendamentiDto.UIDPersonaCreazione),
+                Operation = Operation.EqualTo,
+                Value = personaUID,
+                Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro4);
         }
@@ -405,8 +424,10 @@ namespace PortaleRegione.Common
 
             var filtro1 = new FilterStatement<EmendamentiDto>
             {
-                PropertyId = nameof(EmendamentiDto.EffettiFinanziari), Operation = Operation.EqualTo,
-                Value = 1
+                PropertyId = nameof(EmendamentiDto.EffettiFinanziari),
+                Operation = Operation.EqualTo,
+                Value = 1,
+                Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtro1);
         }
@@ -433,13 +454,15 @@ namespace PortaleRegione.Common
             {
                 var filtro = new FilterStatement<EmendamentiDto>
                 {
-                    PropertyId = nameof(EmendamentiDto.id_gruppo), Operation = Operation.EqualTo,
-                    Value = groupId, Connector = FilterStatementConnector.Or
+                    PropertyId = nameof(EmendamentiDto.id_gruppo),
+                    Operation = Operation.EqualTo,
+                    Value = groupId,
+                    Connector = FilterStatementConnector.Or
                 };
-                model.filtro.Add(filtro);   
+                model.filtro.Add(filtro);
             }
         }
-        
+
         /// <summary>
         /// Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
@@ -462,13 +485,15 @@ namespace PortaleRegione.Common
             {
                 var filtro = new FilterStatement<EmendamentiDto>
                 {
-                    PropertyId = nameof(EmendamentiDto.UIDPersonaProponente), Operation = Operation.EqualTo,
-                    Value = personaUId, Connector = FilterStatementConnector.Or
+                    PropertyId = nameof(EmendamentiDto.UIDPersonaProponente),
+                    Operation = Operation.EqualTo,
+                    Value = personaUId,
+                    Connector = FilterStatementConnector.Or
                 };
-                model.filtro.Add(filtro);   
+                model.filtro.Add(filtro);
             }
         }
-        
+
         /// <summary>
         /// Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
@@ -491,10 +516,11 @@ namespace PortaleRegione.Common
             {
                 var filtro = new FilterStatement<EmendamentiDto>
                 {
-                    PropertyId = "Firmatario", Operation = Operation.EqualTo,
+                    PropertyId = "Firmatario",
+                    Operation = Operation.EqualTo,
                     Value = personaUId
                 };
-                model.filtro.Add(filtro);   
+                model.filtro.Add(filtro);
             }
         }
 
