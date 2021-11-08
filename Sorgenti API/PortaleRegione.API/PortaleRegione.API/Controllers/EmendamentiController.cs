@@ -80,8 +80,11 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                object CLIENT_MODE;
-                model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
+                model.param.TryGetValue("CLIENT_MODE", out object CLIENT_MODE); // per trattazione aula
+                model.param.TryGetValue("VIEW_MODE", out object viewMode); // per vista preview/griglia
+                ViewModeEnum VIEW_MODE = ViewModeEnum.GRID;
+                if (viewMode != null)
+                    Enum.TryParse(viewMode.ToString(), out VIEW_MODE);
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var ricerca_presidente_regione = await _logicAdmin.GetUtenti(new BaseRequest<PersonaDto>
@@ -102,7 +105,7 @@ namespace PortaleRegione.API.Controllers
                     , Request.RequestUri);
                 var presidente = ricerca_presidente_regione.Results.First();
                 var results =
-                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE), presidente, Request.RequestUri);
+                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE), (int)VIEW_MODE, presidente, Request.RequestUri);
                 results.Atto = Mapper.Map<ATTI, AttiDto>(atto);
                 return Ok(results);
 

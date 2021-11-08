@@ -51,29 +51,67 @@ namespace PortaleRegione.Client.Controllers
         [HttpGet]
         [Route("{id:guid}")]
         public async Task<ActionResult> RiepilogoEmendamenti(Guid id, ClientModeEnum mode = ClientModeEnum.GRUPPI,
-            OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1, int size = 50)
+            OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
+            int size = 50)
         {
-            if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
-            {
-                try
-                {
-                    if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                        HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                        return View("RiepilogoEM_Admin", old_model);
+            //if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
+            //{
+            //    try
+            //    {
+            //        if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+            //            HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+            //            return View("RiepilogoEM_Admin", old_model);
 
-                    return View("RiepilogoEM", old_model);
-                }
-                catch (Exception e)
-                {
-                }
-                finally
-                {
-                    Session["RiepilogoEmendamenti"] = null;
-                }
-            }
+            //        return View("RiepilogoEM", old_model);
+            //    }
+            //    catch (Exception e)
+            //    {
+            //    }
+            //    finally
+            //    {
+            //        Session["RiepilogoEmendamenti"] = null;
+            //    }
+            //}
 
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
+            SetCache(page, size, ordine, view);
+
+            var apiGateway = new ApiGateway(_Token);
+            EmendamentiViewModel model;
+            if (view_require_my_sign == false)
+                model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
+            else
+                model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
+            model.ViewMode = view;
+            if (view == ViewModeEnum.PREVIEW)
+                foreach (var emendamentiDto in model.Data.Results)
+                    emendamentiDto.BodyEM =
+                        await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
+
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                return View("RiepilogoEM_Admin", model);
+
+            if (mode == ClientModeEnum.GRUPPI)
+                foreach (var emendamentiDto in model.Data.Results)
+                    if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
+                    {
+                        if (emendamentiDto.ConteggioFirme > 0)
+                            emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
+                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
+                                _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
+
+                        emendamentiDto.Destinatari =
+                            await Utility.GetDestinatariNotifica(
+                                await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
+                    }
+
+            return View("RiepilogoEM", model);
+        }
+
+        private void SetCache(int page, int size, OrdinamentoEnum ordine, ViewModeEnum view)
+        {
             HttpContext.Cache.Insert(
                 "OrdinamentoEM",
                 (int)ordine,
@@ -94,35 +132,25 @@ namespace PortaleRegione.Client.Controllers
                 (key, value, reason) => { Console.WriteLine("Cache removed"); }
             );
 
-            var apiGateway = new ApiGateway(_Token);
-            EmendamentiViewModel model;
-            if (view_require_my_sign == false)
-                model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
-            else
-                model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
-            model.ViewMode = view;
-            if (view == ViewModeEnum.PREVIEW)
-                foreach (var emendamentiDto in model.Data.Results)
-                    emendamentiDto.BodyEM = await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
+            HttpContext.Cache.Insert(
+                "Page",
+                page,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
 
-            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                return View("RiepilogoEM_Admin", model);
-
-            if (mode == ClientModeEnum.GRUPPI)
-                foreach (var emendamentiDto in model.Data.Results)
-                    if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
-                    {
-                        if (emendamentiDto.ConteggioFirme > 0)
-                            emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
-                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
-                                _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
-
-                        emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
-                    }
-
-            return View("RiepilogoEM", model);
+            HttpContext.Cache.Insert(
+                "Size",
+                size,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
         }
 
         [HttpGet]
@@ -373,16 +401,14 @@ namespace PortaleRegione.Client.Controllers
                             limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteDepositoMassivo"]);
                             break;
                     }
+
                     if (model.Richiesta_Firma)
-                    {
-                        listaEM = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(model.AttoUId, (ClientModeEnum)model.ClientMode,
+                        listaEM = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(model.AttoUId,
+                            (ClientModeEnum)model.ClientMode,
                             OrdinamentoEnum.Default, 1, limit);
-                    }
                     else
-                    {
                         listaEM = await apiGateway.Emendamento.Get(model.AttoUId, (ClientModeEnum)model.ClientMode,
                             OrdinamentoEnum.Default, 1, limit);
-                    }
                     model.ListaEmendamenti = listaEM.Data.Results.Select(em => em.UIDEM).ToList();
                 }
 
@@ -549,7 +575,8 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("esportaXLS")]
-        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default, ClientModeEnum mode = ClientModeEnum.GRUPPI,
+        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default,
+            ClientModeEnum mode = ClientModeEnum.GRUPPI,
             bool is_report = false)
         {
             try
@@ -705,13 +732,9 @@ namespace PortaleRegione.Client.Controllers
             ProiettaResponse proietta = default;
             var apiGateway = new ApiGateway(_Token);
             if (ordine <= 0)
-            {
                 proietta = await apiGateway.Emendamento.Proietta_ViewLive(id);
-            }
             else
-            {
                 proietta = await apiGateway.Emendamento.Proietta_View(id, ordine);
-            }
             var em = proietta.EM;
             em.BodyEM = em.EM_Certificato;
 
@@ -892,6 +915,11 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var modelResult = await apiGateway.Emendamento.Get(model);
 
+            if (modelResult.ViewMode == ViewModeEnum.PREVIEW)
+                foreach (var emendamentiDto in modelResult.Data.Results)
+                    emendamentiDto.BodyEM =
+                        await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
+
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
             {
@@ -909,7 +937,8 @@ namespace PortaleRegione.Client.Controllers
                                 _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
 
                         emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
+                            await Utility.GetDestinatariNotifica(
+                                await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
 
             Session["RiepilogoEmendamenti"] = modelResult;
@@ -956,7 +985,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 page = filtro_page,
                 size = filtro_size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", mode_result }, { "ViewMode", view } },
+                param = new Dictionary<string, object> { { "CLIENT_MODE", mode_result }, { "VIEW_MODE", view } },
                 ordine = (OrdinamentoEnum)ordine,
                 id = new Guid(atto)
             };

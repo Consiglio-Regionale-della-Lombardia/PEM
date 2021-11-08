@@ -186,12 +186,16 @@
 {
     <script>
         $(document).ready(async function() {
+            setTimeout(function () {
+                console.log("Caricamento filtri")
+                $('body').removeClass('loaded');
+            }, 200);
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
                 set_Filtri_EM({});
                 $('#counterFilterActive').hide();
             } else {
-                /*openSearch();*/
+                //openSearch();
                 $('#counterFilterActive').show();
             }
 
@@ -206,6 +210,11 @@
             await Filtri_EM_CaricaTipiEM("filter_em_tipo");
 
             checkSelectedEM();
+
+            setTimeout(function () {
+                console.log("Filtri caricati")
+                $('body').addClass('loaded');
+            }, 200);
         });
 
         function filtra() {
@@ -228,9 +237,18 @@
         function filtra_Paginazione(size) {
             $('#inputFilterPage').val(1);
             $('#inputFilterSize').val(size);
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            },
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
+            $('#formFiltraEM').submit();
+        }
+
+        function filtra_View(view) {
+            $('#inputFilterView').val(view);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
                 200);
             $('#formFiltraEM').submit();
         }

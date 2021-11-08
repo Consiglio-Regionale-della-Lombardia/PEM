@@ -8,10 +8,14 @@
 
     var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
     var viewFromCache = HttpContext.Current.Cache.Get("ViewMode");
+    var pageFromCache = HttpContext.Current.Cache.Get("Page");
+    var sizeFromCache = HttpContext.Current.Cache.Get("Size");
     object objParams = null;
     objParams = new
     {
         id = Model.UIDAtto,
+        page= pageFromCache,
+        size = sizeFromCache,
         ordine = ordineFromCache,
         view = viewFromCache
     };

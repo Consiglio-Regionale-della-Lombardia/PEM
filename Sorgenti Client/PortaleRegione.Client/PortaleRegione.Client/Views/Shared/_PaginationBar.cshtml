@@ -29,10 +29,7 @@
     }
 
     var url = string.Format("{0}://{1}{2}{3}", Request.Url.Scheme, Request.Url.Host, port, Request.Url.AbsolutePath);
-
-    var prev_class_style = Model.Has_Prev ? "waves-effect" : "disabled";
-    var next_class_style = Model.Has_Next ? "waves-effect" : "disabled";
-
+    
     var prev_url = Model.Has_Prev ? string.Format("{0}{1}", url, Model.Prev_Url.Query) : "#!";
     var next_url = Model.Has_Next ? string.Format("{0}{1}", url, Model.Next_Url.Query) : "#!";
     var first_url = string.Format("{0}{1}", url, Model.First_Url.Query);
@@ -82,7 +79,7 @@
                     {
                         if (!filtri_attivi)
                         {
-                            <li class="@prev_class_style" style="margin-top: -4px;">
+                            <li class="waves-effect" style="margin-top: -4px;">
                                 <a href="@first_url">
                                     <i class="material-icons tooltipped" data-tooltip="Prima pagina">first_page</i>
                                 </a>
@@ -90,7 +87,7 @@
                         }
                         else
                         {
-                            <li class="@next_class_style" style="margin-top: -4px;">
+                            <li class="waves-effect" style="margin-top: -4px;">
                                 <a onclick="filtra(1)">
                                     <i class="material-icons tooltipped" data-tooltip="Prima pagina">first_page</i>
                                 </a>
@@ -101,7 +98,7 @@
                     //Torna indietro
                     if (!filtri_attivi)
                     {
-                        <li class="@prev_class_style" style="margin-top: -4px;">
+                        <li class="waves-effect" style="margin-top: -4px;">
                             <a href="@prev_url">
                                 <i class="material-icons tooltipped" data-tooltip="Pagina precedente">chevron_left</i>
                             </a>
@@ -109,7 +106,7 @@
                     }
                     else
                     {
-                        <li class="@next_class_style" style="margin-top: -4px;">
+                        <li class="waves-effect" style="margin-top: -4px;">
                             <a onclick="filtra(@(Model.Page - 1))">
                                 <i class="material-icons tooltipped" data-tooltip="Pagina precedente">chevron_left</i>
                             </a>
@@ -127,7 +124,7 @@
                 {
                     if (!filtri_attivi)
                     {
-                        <li class="@next_class_style" style="margin-top: -4px;">
+                        <li class="waves-effect" style="margin-top: -4px;">
                             <a href="@next_url">
                                 <i class="material-icons tooltipped" data-tooltip="Prossima pagina">chevron_right</i>
                             </a>
@@ -135,7 +132,7 @@
                     }
                     else
                     {
-                        <li class="@next_class_style" style="margin-top: -4px;">
+                        <li class="waves-effect" style="margin-top: -4px;">
                             <a onclick="filtra(@(Model.Page + 1))">
                                 <i class="material-icons tooltipped" data-tooltip="Prossima pagina">chevron_right</i>
                             </a>
@@ -146,7 +143,7 @@
                     {
                         if (!filtri_attivi)
                         {
-                            <li class="@next_class_style" style="margin-top: -4px;">
+                            <li class="waves-effect" style="margin-top: -4px;">
                                 <a href="@last_url">
                                     <i class="material-icons tooltipped" data-tooltip="Ultima pagina">last_page</i>
                                 </a>
@@ -154,7 +151,7 @@
                         }
                         else
                         {
-                            <li class="@next_class_style" style="margin-top: -4px;">
+                            <li class="waves-effect" style="margin-top: -4px;">
                                 <a onclick="filtra(@(Model.Last_Page))">
                                     <i class="material-icons tooltipped" data-tooltip="Ultima pagina">last_page</i>
                                 </a>

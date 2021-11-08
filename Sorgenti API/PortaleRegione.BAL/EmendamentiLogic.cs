@@ -1549,7 +1549,7 @@ namespace PortaleRegione.BAL
 
 
         public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
-            PersonaDto persona, int CLIENT_MODE, PersonaDto presidente_regione, Uri uri)
+            PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, Uri uri)
         {
             try
             {
@@ -1604,6 +1604,7 @@ namespace PortaleRegione.BAL
                         total_em,
                         uri),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
                     CurrentUser = persona
                 };
             }

@@ -107,9 +107,22 @@
                 }
             }
 
-            <a class="blue-text tooltipped" onclick="go('@url')" data-tooltip="@text" data-position="left">
-                <i class="icon material-icons">@icon</i>
-            </a>
+            @{
+                var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
+            }
+
+            @if (!filtri_attivi)
+            {
+                <a class="blue-text tooltipped" onclick="go('@url')" data-tooltip="@text" data-position="left">
+                    <i class="icon material-icons">@icon</i>
+                </a>
+            }
+            else
+            {
+                <a class="blue-text tooltipped" onclick="filtra_View()" data-tooltip="@text" data-position="left">
+                    <i class="icon material-icons">@icon</i>
+                </a>
+            }
         </div>
     </div>
 </div>

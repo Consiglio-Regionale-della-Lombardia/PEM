@@ -183,6 +183,15 @@
                 200);
             $('#formFiltraEM').submit();
         }
+        
+        function filtra_View(view) {
+            $('#inputFilterView').val(view);
+            setTimeout(function() {
+                    $('body').removeClass('loaded');
+                },
+                200);
+            $('#formFiltraEM').submit();
+        }
 
         async function reset() {
             set_Filtri_EM({});

@@ -9,7 +9,7 @@
             var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
 
             var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-            var view = HttpUtility.ParseQueryString(Request.Url.Query).Get("view");
+            var view = Model.ViewMode;
             var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
             if (string.IsNullOrEmpty(mode))
             {
@@ -34,9 +34,9 @@
         {
             @Html.AntiForgeryToken()
 
-            <input id="inputFilterPage" type="hidden" name="page" value=""/>
+            <input id="inputFilterView" type="hidden" name="view" value="@view"/>
+            <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page"/>
             <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
-            <input type="hidden" name="view" value="@view"/>
             <input type="hidden" id="hdMode" name="mode" value="@Html.Raw(Convert.ToInt16(mode))"/>
             <input type="hidden" name="ordine" value="@((int) ordinePaginaEnum)"/>
             <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto"/>
