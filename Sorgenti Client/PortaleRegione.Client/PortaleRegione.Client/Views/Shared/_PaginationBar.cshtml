@@ -1,7 +1,7 @@
 ﻿@model PortaleRegione.DTO.Response.Paging
 
 @{
-    var sizeArray = new[] {20, 50, 100, 250};
+    var sizeArray = new[] { 20, 50, 100, 250 };
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
 
@@ -35,97 +35,149 @@
 
     var prev_url = Model.Has_Prev ? string.Format("{0}{1}", url, Model.Prev_Url.Query) : "#!";
     var next_url = Model.Has_Next ? string.Format("{0}{1}", url, Model.Next_Url.Query) : "#!";
+    var first_url =  string.Format("{0}{1}", url, Model.First_Url.Query);
+    var last_url = string.Format("{0}{1}", url, Model.Last_Url.Query);
 
     if (!string.IsNullOrEmpty(view))
     {
         prev_url += string.Format("&view={0}", view);
         next_url += string.Format("&view={0}", view);
+        first_url += string.Format("&view={0}", view);
+        last_url += string.Format("&view={0}", view);
     }
     if (!string.IsNullOrEmpty(archivio))
     {
         prev_url += string.Format("&archivio={0}", archivio);
         next_url += string.Format("&archivio={0}", archivio);
+        first_url += string.Format("&archivio={0}", archivio);
+        last_url += string.Format("&archivio={0}", archivio);
     }
     if (!string.IsNullOrEmpty(is_inviate))
     {
         prev_url += string.Format("&is_inviate={0}", is_inviate);
         next_url += string.Format("&is_inviate={0}", is_inviate);
+        first_url += string.Format("&is_inviate={0}", is_inviate);
+        last_url += string.Format("&is_inviate={0}", is_inviate);
     }
     if (!string.IsNullOrEmpty(mode))
     {
         prev_url += string.Format("&mode={0}", mode);
         next_url += string.Format("&mode={0}", mode);
+        first_url += string.Format("&mode={0}", mode);
+        last_url += string.Format("&mode={0}", mode);
     }
 
-        <div class="row valign-wrapper">
-            <div class="col l6 m6 s12">
-                <ul class="pagination">
-                    @if (Model.Has_Prev)
+    <div class="row valign-wrapper">
+        <div class="col l6 m6 s12">
+            <ul class="pagination">
+                @if (Model.Has_Prev)
+                {
+                    //Torna alla prima pagina
+                    if (Model.Last_Page > 1)
                     {
                         if (!filtri_attivi)
                         {
                             <li class="@prev_class_style" style="margin-top: -4px;">
-                                <a href="@prev_url">
-                                    <i class="material-icons">chevron_left</i>
+                                <a href="@first_url">
+                                    <i class="material-icons tooltipped" data-tooltip="Prima pagina">first_page</i>
                                 </a>
                             </li>
                         }
                         else
                         {
                             <li class="@next_class_style" style="margin-top: -4px;">
-                                <a onclick="filtra(@(Model.Page-1))">
-                                    <i class="material-icons">chevron_left</i>
+                                <a onclick="filtra(1)">
+                                    <i class="material-icons tooltipped" data-tooltip="Prima pagina">first_page</i>
                                 </a>
                             </li>
                         }
                     }
-                    @if (Model.Last_Page > 1)
+
+                    //Torna indietro
+                    if (!filtri_attivi)
                     {
-                        <li class="waves-effect">
-                            <span class="badge">Pagina @Model.Page di @Model.Last_Page</span>
+                        <li class="@prev_class_style" style="margin-top: -4px;">
+                            <a href="@prev_url">
+                                <i class="material-icons tooltipped" data-tooltip="Pagina precedente">chevron_left</i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="@next_class_style" style="margin-top: -4px;">
+                            <a onclick="filtra(@(Model.Page - 1))">
+                                <i class="material-icons tooltipped" data-tooltip="Pagina precedente">chevron_left</i>
+                            </a>
+                        </li>
+                    }
+                }
+                @if (Model.Last_Page > 1)
+                {
+                    <li class="waves-effect">
+                        <span class="badge">Pagina @Model.Page di @Model.Last_Page</span>
+                    </li>
+                }
+
+                @if (Model.Has_Next)
+                {
+                    if (!filtri_attivi)
+                    {
+                        <li class="@next_class_style" style="margin-top: -4px;">
+                            <a href="@next_url">
+                                <i class="material-icons tooltipped" data-tooltip="Prossima pagina">chevron_right</i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="@next_class_style" style="margin-top: -4px;">
+                            <a onclick="filtra(@(Model.Page + 1))">
+                                <i class="material-icons tooltipped" data-tooltip="Prossima pagina">chevron_right</i>
+                            </a>
                         </li>
                     }
 
-                    @if (Model.Has_Next)
+                    if (Model.Last_Page > 1)
                     {
                         if (!filtri_attivi)
                         {
                             <li class="@next_class_style" style="margin-top: -4px;">
-                                <a href="@next_url">
-                                    <i class="material-icons">chevron_right</i>
+                                <a href="@last_url">
+                                    <i class="material-icons tooltipped" data-tooltip="Ultima pagina">last_page</i>
                                 </a>
                             </li>
                         }
                         else
                         {
                             <li class="@next_class_style" style="margin-top: -4px;">
-                                <a onclick="filtra(@(Model.Page+1))">
-                                    <i class="material-icons">chevron_right</i>
+                                <a onclick="filtra(@(Model.Last_Page))">
+                                    <i class="material-icons tooltipped" data-tooltip="Ultima pagina">last_page</i>
                                 </a>
                             </li>
                         }
                     }
+                }
 
-                    <li>
-                        <div class="chip deep-purple lighten-5" style="margin-top: -5px;">@Model.Total elementi trovati</div>
-                        <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total" />
-                    </li>
+                <li>
+                    <div class="chip deep-purple lighten-5" style="margin-top: -5px;">@Model.Total elementi trovati</div>
+                    <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total" />
+                </li>
+            </ul>
+        </div>
+        <div class="col l6 m6 s12 right-align" style="margin-top: -5px;">
+            <div class="chip deep-purple lighten-5 center" style="min-width: unset">
+                Paginazione
+                <a class='dropdown-trigger chip grey white-text' href='#' data-target='ddlPaginazione' style="font-size: small; margin-right: -12px; min-width: unset">@limite</a>
+                <ul id='ddlPaginazione' class='dropdown-content' style="width: 100px !important">
+                    @for (var i = 0; i < sizeArray.Length; i++)
+                    {
+                        var sized_url = string.Format("{0}?size={1}", url, sizeArray[i]);
+                        <li>
+                            <a href=@sized_url>@sizeArray[i]</a>
+                        </li>
+                    }
                 </ul>
             </div>
-            <div class="col l6 m6 s12 right-align" style="margin-top: -5px;">
-                <div class="chip deep-purple lighten-5 center" style="min-width: unset">
-                    Paginazione
-                    <a class='dropdown-trigger chip grey white-text' href='#' data-target='ddlPaginazione' style="font-size: small; margin-right: -12px; min-width: unset">@limite</a>
-                    <ul id='ddlPaginazione' class='dropdown-content' style="width: 100px!important">
-                        @for (var i = 0; i < sizeArray.Length; i++)
-                        {
-                            var sized_url = string.Format("{0}?size={1}", url, sizeArray[i]);
-                            <li>
-                                <a href=@sized_url>@sizeArray[i]</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
         </div>
+    </div>
 }

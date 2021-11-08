@@ -51,7 +51,7 @@ namespace PortaleRegione.DTO.Response
                 path = $"{original_path.Scheme}://{original_path.Host}{port}{original_path.AbsolutePath}";
             }
 
-            var max_page = (int) Math.Ceiling(total_entities / (double) page_size);
+            var max_page = (int)Math.Ceiling(total_entities / (double)page_size);
             Paging = new Paging
             {
                 Page = current_page,
@@ -70,6 +70,8 @@ namespace PortaleRegione.DTO.Response
 
             Paging.Next_Url = new Uri(path + $"?page={current_page + 1}&size={page_size}");
             Paging.Prev_Url = new Uri(path + $"?page={current_page - 1}&size={page_size}");
+            Paging.Last_Url = new Uri(path + $"?page={this.Paging.Last_Page}&size={page_size}");
+            Paging.First_Url = new Uri(path + $"?page=1&size={page_size}");
         }
 
         public Paging Paging { get; set; }

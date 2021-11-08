@@ -31,5 +31,7 @@ namespace PortaleRegione.DTO.Response
         public Uri Next_Url { get; set; }
         public Uri Prev_Url { get; set; }
         public int Last_Page { get; set; }
+        public Uri Last_Url { get; set; }
+        public Uri First_Url { get; set; }
     }
 }
