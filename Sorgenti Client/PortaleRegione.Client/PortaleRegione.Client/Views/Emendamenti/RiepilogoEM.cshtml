@@ -4,13 +4,9 @@
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 <style>
-    tr {
-        border: unset;
-    }
+    tr { border: unset; }
 
-    td {
-        text-align: center;
-    }
+    td { text-align: center; }
 </style>
 
 @{
@@ -61,7 +57,7 @@
     <div class="col l1 s2">
         @if (!filtri_attivi)
         {
-            <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
+            <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new { id = Model.Atto.UIDSeduta })">
                 <i class="material-icons">arrow_back</i>
             </a>
         }
@@ -78,15 +74,15 @@
         </h5>
         @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
         {
-            <a href="@Url.Action("Download", "Atti", new {path = Model.Atto.Path_Testo_Atto})" class="hoverable">
-                <i class="material-icons pink-text medium tooltipped" data-tooltip="Scarica documento atto" style="padding-left:20px">cloud_download</i>
+            <a href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" class="hoverable">
+                <i class="material-icons pink-text medium tooltipped" data-tooltip="Scarica documento atto" style="padding-left: 20px">cloud_download</i>
             </a>
         }
         @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
         {
             if (classActiveTabVotazione == "active")
             {
-                <a target="_blank" href="@Url.Action("ViewerProietta", "Emendamenti", new {id = Model.Atto.UIDAtto})" class="btn chip hoverable purple white-text" style="margin-left: 20px; margin-top: 15px;">
+                <a target="_blank" href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" class="btn chip hoverable purple white-text" style="margin-left: 20px; margin-top: 15px;">
                     <i class="icon material-icons">subscriptions</i> Proietta
                 </a>
             }
@@ -98,29 +94,27 @@
     @{
         if (Model.Mode == ClientModeEnum.TRATTAZIONE)
         {
-            if (!filtri_attivi)
-            {
-                <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
-                    <li class="tab col s3">
-                        <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {ordine = (int) OrdinamentoEnum.Presentazione})')">Ordine Presentazione</a>
-                    </li>
-                    <li class="tab col s3">
-                        <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {ordine = (int) OrdinamentoEnum.Votazione})')">Ordine Votazione</a>
-                    </li>
-                </ul>
-            }
+            <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
+                <li class="tab col s3">
+                    <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione })')">Ordine Presentazione</a>
+                </li>
+                <li class="tab col s3">
+                    <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione })')">Ordine Votazione</a>
+                </li>
+            </ul>
         }
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
         Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = view, IsAdmin = false, Atto = Model.Atto });
 
         <div class="row">
-        @if (view == "grid")
-        {
-            Html.RenderPartial("_GridView_RiepilogoEM", Model);
-        }else if (view == "zoom")
-        {
-            Html.RenderPartial("_ZoomView_RiepilogoEM", Model);
-        }
+            @if (view == "grid")
+            {
+                Html.RenderPartial("_GridView_RiepilogoEM", Model);
+            }
+            else if (view == "zoom")
+            {
+                Html.RenderPartial("_ZoomView_RiepilogoEM", Model);
+            }
         </div>
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
     }
@@ -195,17 +189,17 @@
 
             $('#filter_em_gruppi option').each(function(index, opt) {
                 if ($(opt).is(":checked")) {
-                    $(opt).attr("selected", false)
+                    $(opt).attr("selected", false);
                 }
             });
             $('#filter_em_proponente option').each(function(index, opt) {
                 if ($(opt).is(":checked")) {
-                    $(opt).attr("selected", false)
+                    $(opt).attr("selected", false);
                 }
             });
             $('#filter_em_firmatari option').each(function(index, opt) {
                 if ($(opt).is(":checked")) {
-                    $(opt).attr("selected", false)
+                    $(opt).attr("selected", false);
                 }
             });
 

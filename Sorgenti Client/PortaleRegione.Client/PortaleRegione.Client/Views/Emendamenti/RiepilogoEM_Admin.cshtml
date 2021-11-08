@@ -5,7 +5,7 @@
 
 @{
     ViewBag.Title = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
-    
+
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
 
     var classActiveTabPresentazione = "";
@@ -82,18 +82,15 @@
 
 <div id="emendamentiTable" class="row">
     @{
-        if (!filtri_attivi)
-        {
-            var view_grid = HttpUtility.ParseQueryString(Request.Url.Query).Get("view");
-            <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
-                <li class="tab col s3">
-                    <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = view_grid })')">Ordine Presentazione</a>
-                </li>
-                <li class="tab col s3">
-                    <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = view_grid })')">Ordine Votazione</a>
-                </li>
-            </ul>
-        }
+        <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
+            <li class="tab col s3">
+                <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
+            </li>
+            <li class="tab col s3">
+                <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
+            </li>
+        </ul>
+
 
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
         Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, IsAdmin = true, Atto = Model.Atto });
