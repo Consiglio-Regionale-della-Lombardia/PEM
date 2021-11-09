@@ -54,6 +54,29 @@ namespace PortaleRegione.Client.Controllers
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
             int size = 50)
         {
+            if (Session["RicaricaFiltri"] is bool)
+            {
+                Session["RicaricaFiltri"] = false; //reset sessione
+                if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
+                {
+                    try
+                    {
+                        if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                            HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                            return View("RiepilogoEM_Admin", old_model);
+
+                        return View("RiepilogoEM", old_model);
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                    finally
+                    {
+                        Session["RiepilogoEmendamenti"] = null; // reset sessione
+                    }
+                }
+            }
+
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             SetCache(page, size, ordine, view);
@@ -72,7 +95,10 @@ namespace PortaleRegione.Client.Controllers
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+            {
+                Session["RiepilogoEmendamenti"] = model;
                 return View("RiepilogoEM_Admin", model);
+            }
 
             if (mode == ClientModeEnum.GRUPPI)
                 foreach (var emendamentiDto in model.Data.Results)
@@ -88,6 +114,7 @@ namespace PortaleRegione.Client.Controllers
                                 await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
 
+            Session["RiepilogoEmendamenti"] = model;
             return View("RiepilogoEM", model);
         }
 
@@ -157,6 +184,8 @@ namespace PortaleRegione.Client.Controllers
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(id), _Token);
             em.ATTI = await apiGateway.Atti.Get(em.UIDAtto);
+
+            Session["RicaricaFiltri"] = true;
 
             return View(em);
         }

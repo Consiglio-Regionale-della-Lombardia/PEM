@@ -11,35 +11,13 @@
 
 @{
     ViewBag.Title = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
-
-    var view = HttpUtility.ParseQueryString(Request.Url.Query).Get("view");
+    
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-    if (string.IsNullOrEmpty(view))
-    {
-        view = "grid";
-    }
 
     var classActiveTabPresentazione = "";
     var classActiveTabVotazione = "";
 
-    var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
-
-    var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-    OrdinamentoEnum ordinePaginaEnum;
-    if (!string.IsNullOrEmpty(ordinePagina))
-    {
-        ordinePaginaEnum = (OrdinamentoEnum)Convert.ToInt16(ordinePagina);
-    }
-    else if (ordineFromCache != null)
-    {
-        ordinePaginaEnum = (OrdinamentoEnum)ordineFromCache;
-    }
-    else
-    {
-        ordinePaginaEnum = OrdinamentoEnum.Presentazione;
-    }
-
-    switch (ordinePaginaEnum)
+    switch (Model.Ordinamento)
     {
         case OrdinamentoEnum.Presentazione:
         case OrdinamentoEnum.Default:
@@ -95,23 +73,35 @@
         if (Model.Mode == ClientModeEnum.TRATTAZIONE)
         {
             <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
-                <li class="tab col s3">
-                    <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione })')">Ordine Presentazione</a>
-                </li>
-                <li class="tab col s3">
-                    <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione })')">Ordine Votazione</a>
-                </li>
+                @if (!filtri_attivi)
+                {
+                    <li class="tab col s3">
+                        <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
+                    </li>
+                    <li class="tab col s3">
+                        <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="tab col s3">
+                        <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
+                    </li>
+                    <li class="tab col s3">
+                        <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
+                    </li>
+                }
             </ul>
         }
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = view, IsAdmin = false, Atto = Model.Atto });
+        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, IsAdmin = false, Atto = Model.Atto });
 
         <div class="row">
-            @if (view == "grid")
+            @if (Model.ViewMode ==ViewModeEnum.GRID)
             {
                 Html.RenderPartial("_GridView_RiepilogoEM", Model);
             }
-            else if (view == "zoom")
+            else if (Model.ViewMode == ViewModeEnum.PREVIEW)
             {
                 Html.RenderPartial("_ZoomView_RiepilogoEM", Model);
             }
@@ -189,6 +179,16 @@
             setTimeout(function() {
                     $('body').removeClass('loaded');
                 },
+                200);
+            $('#formFiltraEM').submit();
+        }
+
+        function filtra_Ordinamento(ordine) {
+            $('#inputFilterPage').val(1);
+            $('#inputFilterOrdine').val(ordine);
+            setTimeout(function () {
+                $('body').removeClass('loaded');
+            },
                 200);
             $('#formFiltraEM').submit();
         }
