@@ -4,41 +4,16 @@
 <li class="active">
     <div class="collapsible-header teal white-text"><i class="material-icons">search</i>Ricerca</div>
     <div class="collapsible-body">
-
-        @{
-            var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
-
-            var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-            var view = Model.ViewMode;
-            var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
-            if (string.IsNullOrEmpty(mode))
-            {
-                mode = "1";
-            }
-            OrdinamentoEnum ordinePaginaEnum;
-            if (!string.IsNullOrEmpty(ordinePagina))
-            {
-                ordinePaginaEnum = (OrdinamentoEnum) Convert.ToInt16(ordinePagina);
-            }
-            else if (ordineFromCache != null)
-            {
-                ordinePaginaEnum = (OrdinamentoEnum) ordineFromCache;
-            }
-            else
-            {
-                ordinePaginaEnum = OrdinamentoEnum.Presentazione;
-            }
-        }
-
         @using (Html.BeginForm("Filtri_RiepilogoEM", "Emendamenti", FormMethod.Post, new {id = "formFiltraEM"}))
         {
             @Html.AntiForgeryToken()
 
-            <input id="inputFilterView" type="hidden" name="view" value="@view"/>
+            <input id="inputFilterReset" type="hidden" name="reset" value="0"/>
+            <input id="inputFilterView" type="hidden" name="view" value="@Model.ViewMode"/>
             <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page"/>
             <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
-            <input type="hidden" id="hdMode" name="mode" value="@Html.Raw(Convert.ToInt16(mode))"/>
-            <input type="hidden" id="inputFilterOrdine" name="ordine" value="@((int) ordinePaginaEnum)"/>
+            <input type="hidden" id="hdMode" name="mode" value="@((int)Model.Mode)"/>
+            <input type="hidden" id="inputFilterOrdine" name="ordine" value="@((int) Model.Ordinamento)"/>
             <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto"/>
 
             <div class="row" style="margin: 0 !important">
@@ -277,19 +252,19 @@
     <div class="collapsible-header light-blue lighten-4"><i class="material-icons">import_export</i>Esporta</div>
     <div class="collapsible-body">
         <div class="container">
-            <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum, mode=Convert.ToInt16(mode), is_report = false})" style="width: 100%">
+            <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode, is_report = false})" style="width: 100%">
                 <i class="icon material-icons">
                     grid_on</i> EXCEL
             </a>
 
             @if (User.IsInRole(RuoliExt.Segreteria_Assemblea))
             {
-                <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum,mode=Convert.ToInt16(mode), is_report = true})" style="width: 100%">
+                <a class="btn chip hoverable green lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode, is_report = true})" style="width: 100%">
                     <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA
                 </a>
             }
 
-            <a class="btn chip hoverable blue lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)ordinePaginaEnum,mode=Convert.ToInt16(mode)})" style="width: 100%">
+            <a class="btn chip hoverable blue lighten-1 center white-text" target="_blank" href="@Url.Action("EsportaDOC", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode})" style="width: 100%">
                 <i class="icon material-icons">font_download</i> WORD
             </a>
         </div>

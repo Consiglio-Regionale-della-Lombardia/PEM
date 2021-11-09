@@ -19,7 +19,7 @@
     var url = string.Format("{0}://{1}{2}{3}", Request.Url.Scheme, Request.Url.Host, port, Request.Url.AbsolutePath);
     if (url.Contains("filtra"))
     {
-        url = Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto, mode, ordine = ordinePaginaEnum});
+        url = Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto, mode, ordine = ordinePaginaEnum });
     }
     else
     {
@@ -109,22 +109,11 @@
                 }
             }
 
-            @{
-                var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-            }
 
-            @if (!filtri_attivi)
-            {
-                <a class="blue-text tooltipped" onclick="go('@url')" data-tooltip="@text" data-position="left">
-                    <i class="icon material-icons">@icon</i>
-                </a>
-            }
-            else
-            {
-                <a class="blue-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="left">
-                    <i class="icon material-icons">@icon</i>
-                </a>
-            }
+            <a class="blue-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="left">
+                <i class="icon material-icons">@icon</i>
+            </a>
+
         </div>
     </div>
 </div>
@@ -132,9 +121,9 @@
 <script>
     function filtraEM_RichiestaFirma(enable) {
         if (enable) {
-            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {require_my_sign = true})');
+            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { require_my_sign = true })');
         } else {
-            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {require_my_sign = false})');
+            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { require_my_sign = false })');
         }
     }
 

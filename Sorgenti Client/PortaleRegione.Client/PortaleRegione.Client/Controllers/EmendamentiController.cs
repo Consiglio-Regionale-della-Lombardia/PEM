@@ -915,13 +915,17 @@ namespace PortaleRegione.Client.Controllers
             var mode = 1;
             var model = ElaboraFiltriEM(ref mode);
 
-            if (!model.filtro.Any())
+            int.TryParse(Request.Form["reset"], out var reset_enabled);
+            if (reset_enabled == 1)
+            {
                 return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     model.id,
                     mode,
                     ordine = (int)model.ordine
                 });
+            }
+
             var apiGateway = new ApiGateway(_Token);
             var modelResult = await apiGateway.Emendamento.Get(model);
 
