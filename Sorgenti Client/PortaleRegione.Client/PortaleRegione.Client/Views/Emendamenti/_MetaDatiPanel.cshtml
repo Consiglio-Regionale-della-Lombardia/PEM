@@ -97,11 +97,11 @@
                                 @Html.LabelFor(m => m.Emendamento.UIDComma)
                                 @if (_disabled)
                                 {
-                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList", disabled = true})
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList", disabled = true })
                                 }
                                 else
                                 {
-                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList"})
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList" })
                                 }
 
                             </div>
@@ -132,13 +132,16 @@
                                 }
                                 else
                                 {
-                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD"})
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD" })
                                 }
 
                             </div>
                         </div>
                     </div>
-                    <div id="pnlMissioni" style="display: none">
+                    @{
+                        var pnlMissioniVisible = !Model.Emendamento.NMissione.HasValue ? "none" : "block";
+                    }
+                    <div id="pnlMissioni" style="display: @pnlMissioniVisible">
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NMissione)
                             @if (_disabled)
@@ -162,7 +165,7 @@
                             }
                             else
                             {
-                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList"})
+                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList" })
                             }
 
                         </div>

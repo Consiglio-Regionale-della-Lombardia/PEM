@@ -54,6 +54,8 @@ namespace PortaleRegione.Client.Controllers
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
             int size = 50)
         {
+            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
+
             if (Session["RicaricaFiltri"] is bool)
             {
                 Session["RicaricaFiltri"] = false; //reset sessione
@@ -69,15 +71,10 @@ namespace PortaleRegione.Client.Controllers
                     }
                     catch (Exception e)
                     {
-                    }
-                    finally
-                    {
-                        Session["RiepilogoEmendamenti"] = null; // reset sessione
+                        Session["RiepilogoEmendamenti"] = null;
                     }
                 }
             }
-
-            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             SetCache(page, size, ordine, view);
 
@@ -292,6 +289,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}/edit-meta-dati")]
         public async Task<ActionResult> ModificaMetaDatiEmendamento(Guid id)
         {
+            Session["RicaricaFiltri"] = true;
             var apiGateway = new ApiGateway(_Token);
             var emModel = await apiGateway.Emendamento.GetModificaMetaDatiModel(id);
             return View("MetaDatiForm", emModel);

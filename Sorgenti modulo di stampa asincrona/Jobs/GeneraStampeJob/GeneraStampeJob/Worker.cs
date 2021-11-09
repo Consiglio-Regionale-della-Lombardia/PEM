@@ -112,16 +112,21 @@ namespace GeneraStampeJob
             }
         }
 
-        private async Task Stampa(IEnumerable<EmendamentiDto> listaEMendamenti, string path,
+        private async Task Stampa(List<EmendamentiDto> listaEMendamenti, string path,
             PersonaDto utenteRichiedente)
         {
             try
             {
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto);
+                if (_stampa.Da > 0 && _stampa.A > 0)
+                {
+                    listaEMendamenti = listaEMendamenti.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
+                }
+
                 var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
                 {
                     Atto = atto,
-                    TotaleEM = listaEMendamenti.Count(),
+                    TotaleEM = listaEMendamenti.Count,
                     Ordinamento = _stampa.Ordine.HasValue
                         ? (OrdinamentoEnum)_stampa.Ordine.Value
                         : OrdinamentoEnum.Presentazione
@@ -132,7 +137,7 @@ namespace GeneraStampeJob
                 PdfStamper.CreaPDFCopertina(bodyCopertina, DirCopertina);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
                 var listaPdfEmendamentiGenerati =
-                    await GeneraPDFEmendamenti(listaEMendamenti, _stampa.Da, _stampa.A, path);
+                    await GeneraPDFEmendamenti(listaEMendamenti, path);
 
                 var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => !File.Exists(item.Value.Path));
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
@@ -192,14 +197,14 @@ namespace GeneraStampeJob
             }
         }
 
-        private async Task DepositoDifferito(IEnumerable<EmendamentiDto> listaEMendamenti, string path,
+        private async Task DepositoDifferito(List<EmendamentiDto> listaEMendamenti, string path,
             PersonaDto utenteRichiedente)
         {
             //STAMPA PDF DEPOSITATO (BACKGROUND MODE)
             Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Depositato");
 
             var listaPdfEmendamentiGenerati =
-                await GeneraPDFEmendamenti(listaEMendamenti, 0, 0, path);
+                await GeneraPDFEmendamenti(listaEMendamenti, path);
 
             Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva EM nel repository");
 
@@ -320,7 +325,7 @@ namespace GeneraStampeJob
             }
         }
 
-        private async Task<IEnumerable<EmendamentiDto>> GetListaEM()
+        private async Task<List<EmendamentiDto>> GetListaEM()
         {
             if (_stampa.UIDEM.HasValue)
             {
@@ -335,19 +340,35 @@ namespace GeneraStampeJob
             }
 
             var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.QueryEM, 1);
-            await ScaricaEM_Log(resultEmendamenti.Paging);
-            var has_next = resultEmendamenti.Paging.Has_Next;
+            var currentPaging = resultEmendamenti.Paging;
+            await ScaricaEM_Log(currentPaging);
+            var has_next = currentPaging.Has_Next;
             var listaEMendamenti = resultEmendamenti.Results.ToList();
             while (has_next)
             {
                 resultEmendamenti =
                     await apiGateway.Stampe.JobGetEmendamenti(_stampa.QueryEM, resultEmendamenti.Paging.Page + 1);
-                has_next = resultEmendamenti.Paging.Has_Next;
-                await ScaricaEM_Log(resultEmendamenti.Paging);
-                listaEMendamenti.AddRange(resultEmendamenti.Results);
+                await ScaricaEM_Log(currentPaging, resultEmendamenti.Paging);
+                foreach (var item in resultEmendamenti.Results)
+                {
+                    listaEMendamenti.Add(item);
+                    if (listaEMendamenti.Count >= currentPaging.Total)
+                    {
+                        has_next = false;
+                        break;
+                    }
+                }
             }
 
             return listaEMendamenti;
+        }
+
+        private async Task ScaricaEM_Log(Paging currentPaging, Paging paging)
+        {
+            var partial_em = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
+            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
+                $"Scarica emendamenti.. Blocco [{paging.Page}/{paging.Last_Page}] - EM [{partial_em}/{currentPaging.Total}]");
+
         }
 
         private async Task ScaricaEM_Log(Paging paging)
@@ -365,64 +386,29 @@ namespace GeneraStampeJob
                 Directory.CreateDirectory(path);
         }
 
-        private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(IEnumerable<EmendamentiDto> Emendamenti,
-            int Da, int A,
-            string _pathTemp)
+        private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(IEnumerable<EmendamentiDto> Emendamenti, string _pathTemp)
         {
             var listaPercorsiEM = new Dictionary<Guid, BodyModel>();
             try
             {
-                listaPercorsiEM = Emendamenti.ToDictionary(em => em.UIDEM, em => new BodyModel());
+                var listaEmendamenti = Emendamenti.ToList();
 
-                if (Da != 0 && A != 0)
+                listaPercorsiEM = listaEmendamenti.ToDictionary(em => em.UIDEM, em => new BodyModel());
+                foreach (var item in listaEmendamenti)
                 {
-                    Log.Debug($"Stampo solo DA [{Da}], A [{A}]");
-                    var j = 1;
-                    var k = Da;
-                    var k_end = A;
-                    foreach (var item in Emendamenti)
+                    var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
+                    var nameFilePDF =
+                        $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                    var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
+
+                    var dettagliCreaPDF = new BodyModel
                     {
-                        if (j >= k)
-                        {
-                            if (j > k_end)
-                                break;
-
-                            var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
-                            var nameFilePDF =
-                                $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                            var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
-
-                            var dettagliCreaPDF = new BodyModel
-                            {
-                                Path = FilePathComplete,
-                                Body = bodyPDF,
-                                EM = item
-                            };
-                            listaPercorsiEM[item.UIDEM] = dettagliCreaPDF;
-                            await CreaPDF(dettagliCreaPDF, Emendamenti);
-                        }
-
-                        j++;
-                    }
-                }
-                else
-                {
-                    foreach (var item in Emendamenti)
-                    {
-                        var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
-                        var nameFilePDF =
-                            $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                        var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
-
-                        var dettagliCreaPDF = new BodyModel
-                        {
-                            Path = FilePathComplete,
-                            Body = bodyPDF,
-                            EM = item
-                        };
-                        listaPercorsiEM[item.UIDEM] = dettagliCreaPDF;
-                        await CreaPDF(dettagliCreaPDF, Emendamenti);
-                    }
+                        Path = FilePathComplete,
+                        Body = bodyPDF,
+                        EM = item
+                    };
+                    listaPercorsiEM[item.UIDEM] = dettagliCreaPDF;
+                    await CreaPDF(dettagliCreaPDF, listaPercorsiEM.Count);
                 }
             }
             catch (Exception ex)
@@ -433,12 +419,12 @@ namespace GeneraStampeJob
             return listaPercorsiEM;
         }
 
-        private async Task CreaPDF(BodyModel item, IEnumerable<EmendamentiDto> Emendamenti)
+        private async Task CreaPDF(BodyModel item, long total)
         {
             PdfStamper.CreaPDF(item.Body, item.Path, item.EM, _model.UrlCLIENT);
             var dirInfo = new DirectoryInfo(Path.GetDirectoryName(item.Path));
             var files = dirInfo.GetFiles().Where(f => !f.Name.ToLower().Contains("copertina"));
-            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {files.Count()}/{Emendamenti.Count()}");
+            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {files.Count()}/{total}");
         }
 
         private void SpostaFascicolo(string _pathFascicolo, string _pathDestinazione)
