@@ -1,56 +1,7 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.CommandRiepilogoEMModel
 @{
-    var port = "";
-    if (Request.Url.Port > 0)
-    {
-        port = string.Format(":{0}", Request.Url.Port);
-    }
-
-    var atto = Request.Form["atto"];
-    var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
-    var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-    var ordinePaginaEnum = 1;
-    var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
-    if (string.IsNullOrEmpty(mode))
-    {
-        mode = "1";
-    }
-    var url = string.Format("{0}://{1}{2}{3}", Request.Url.Scheme, Request.Url.Host, port, Request.Url.AbsolutePath);
-    if (url.Contains("filtra"))
-    {
-        url = Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto, mode, ordine = ordinePaginaEnum });
-    }
-    else
-    {
-        url += string.Format("?mode={0}", mode);
-
-        if (!string.IsNullOrEmpty(ordinePagina))
-        {
-            ordinePaginaEnum = Convert.ToInt16(ordinePagina);
-        }
-        else if (ordineFromCache != null)
-        {
-            ordinePaginaEnum = Convert.ToInt16(ordineFromCache);
-        }
-        if (ordinePaginaEnum != 0)
-        {
-            url += string.Format("&ordine={0}", ordinePaginaEnum);
-        }
-    }
-
-    if (Model.view == ViewModeEnum.PREVIEW)
-    {
-        url += $"&view={ViewModeEnum.GRID}";
-    }
-    else if (Model.view == ViewModeEnum.GRID)
-    {
-        url += $"&view={ViewModeEnum.PREVIEW}";
-    }
-
-
     var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
-
 }
 <div class="row valign-wrapper">
     <div class="col s3 left">
@@ -60,7 +11,7 @@
         </label>
     </div>
     <div class="col s5 left">
-        @if ((User.IsInRole(RuoliExt.Consigliere_Regionale) || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)) && mode == ((int)ClientModeEnum.GRUPPI).ToString())
+        @if ((User.IsInRole(RuoliExt.Consigliere_Regionale) || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)) && Model.mode == ClientModeEnum.GRUPPI)
         {
             <label>
                 <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
@@ -70,7 +21,7 @@
     </div>
     <div class="col s6">
         <div class="right">
-            @if (mode == ((int)ClientModeEnum.TRATTAZIONE).ToString())
+            @if (Model.mode == ClientModeEnum.TRATTAZIONE)
             {
                 if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione) && Model.Atto.OrdinePresentazione == true)
                 {
@@ -79,7 +30,7 @@
                     </a>
                 }
             }
-            @if (mode == ((int)ClientModeEnum.TRATTAZIONE).ToString())
+            @if (Model.mode == ClientModeEnum.TRATTAZIONE)
             {
                 if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione) && Model.Atto.OrdineVotazione == true)
                 {
@@ -120,10 +71,11 @@
 
 <script>
     function filtraEM_RichiestaFirma(enable) {
+        var url = '@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = Model.Atto.UIDAtto, Model.mode, Model.view })';
         if (enable) {
-            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { require_my_sign = true })');
+            go(url + '&require_my_sign=true');
         } else {
-            go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { require_my_sign = false })');
+            go(url + '&require_my_sign=false');
         }
     }
 

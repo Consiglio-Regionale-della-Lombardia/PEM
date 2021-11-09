@@ -27,18 +27,9 @@
 
 <div class="row valign-wrapper">
     <div class="col l1 s2">
-        @if (!filtri_attivi)
-        {
-            <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new { id = Model.Atto.UIDSeduta })" style="top: 0px !important;">
-                <i class="material-icons">arrow_back</i>
-            </a>
-        }
-        else
-        {
-            <a class="btn-floating waves-effect waves-light grey header-back" onclick="reset()" style="top: 0px !important;">
-                <i class="material-icons">arrow_back</i>
-            </a>
-        }
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new { id = Model.Atto.UIDSeduta })" style="top: 0px !important;">
+            <i class="material-icons">arrow_back</i>
+        </a>
     </div>
     <div class="col l11 s10" style="display: inline-flex">
         <h5>
@@ -89,7 +80,7 @@
 
 
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, IsAdmin = true, Atto = Model.Atto });
+        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, mode = Model.Mode, IsAdmin = true, Atto = Model.Atto });
 
         <div class="row">
             @if (Model.ViewMode == ViewModeEnum.GRID)

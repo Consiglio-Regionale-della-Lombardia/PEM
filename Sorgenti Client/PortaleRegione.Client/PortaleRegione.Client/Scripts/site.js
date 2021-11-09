@@ -589,6 +589,7 @@ function CambioStatoMassivo(stato, descr) {
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
+                    DeselectALLEM();
                     go(data);
                 }
             }).fail(function(err) {

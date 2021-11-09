@@ -26,5 +26,6 @@ namespace PortaleRegione.DTO.Model
         public ViewModeEnum view { get; set; } = ViewModeEnum.GRID;
         public bool IsAdmin { get; set; }
         public AttiDto Atto { get; set; }
+        public ClientModeEnum mode { get; set; }
     }
 }
