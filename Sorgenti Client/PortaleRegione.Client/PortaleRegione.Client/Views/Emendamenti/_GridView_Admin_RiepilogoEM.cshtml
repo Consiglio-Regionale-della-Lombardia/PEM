@@ -1,19 +1,6 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
-@{
-    var ordinePagina = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
-    var ordinePaginaEnum = (OrdinamentoEnum) Convert.ToInt16(ordinePagina);
-    if (!string.IsNullOrEmpty(ordinePagina))
-    {
-        ordinePaginaEnum = (OrdinamentoEnum) Convert.ToInt16(ordinePagina);
-    }
-    else
-    {
-        ordinePaginaEnum = OrdinamentoEnum.Presentazione;
-    }
-}
-
 @if (!Model.Data.Results.Any())
 {
     <div class="row">
@@ -95,7 +82,7 @@ else
                     }
                 </td>
                 <td>
-                    @if (ordinePaginaEnum == OrdinamentoEnum.Presentazione)
+                    @if (Model.Ordinamento == OrdinamentoEnum.Presentazione)
                     {
                         @itemEM.OrdinePresentazione
                     }
@@ -220,7 +207,7 @@ else
                 </td>
                 <td class="center" style="min-width: 120px">
                     @*COMANDI*@
-                    @if (ordinePaginaEnum == OrdinamentoEnum.Votazione && itemEM.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                    @if (Model.Ordinamento == OrdinamentoEnum.Votazione && itemEM.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
                     {
                         <a id="cmdProietta_@itemEM.UIDEM" class="purple-text tooltipped" onclick="proiettaEM('@itemEM.UIDEM', '@itemEM.N_EM.Replace(" all\'", " -")')" data-position="left" data-tooltip="Proietta emendamento" style="margin: 2px">
                             @if (itemEM.Proietta.Value)
