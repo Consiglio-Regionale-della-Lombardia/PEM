@@ -364,19 +364,14 @@ namespace PortaleRegione.Persistance
             {
                 switch (ordine)
                 {
-                    case OrdinamentoEnum.Default:
                     case OrdinamentoEnum.Presentazione:
-                        query = query.OrderBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.OrdinePresentazione)
-                            .ThenBy(em => em.IDStato);
+                        query = query.OrderBy(em => em.OrdinePresentazione);
                         break;
                     case OrdinamentoEnum.Votazione:
-                        query = query.OrderBy(em => em.OrdineVotazione)
-                            .ThenBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.IDStato);
+                        query = query.OrderBy(em => em.OrdineVotazione);
                         break;
                     default:
-                        query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
+                        query = query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
                         break;
                 }
             }

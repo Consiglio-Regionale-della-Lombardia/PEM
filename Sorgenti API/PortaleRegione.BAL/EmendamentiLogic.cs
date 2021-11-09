@@ -938,7 +938,7 @@ namespace PortaleRegione.BAL
                     }
 
                     em.UIDPersonaDeposito = persona.UID_persona;
-                    em.OrdinePresentazione = etichetta_progressiva;
+                    em.OrdinePresentazione = em.OrdineVotazione = etichetta_progressiva;
                     em.Timestamp = DateTime.Now;
                     em.DataDeposito = EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
@@ -950,12 +950,6 @@ namespace PortaleRegione.BAL
 
                     var count_firme = await _unitOfWork.Firme.CountFirme(idGuid);
                     em.chkf = count_firme.ToString();
-
-                    var ultimo_in_votazione = await _unitOfWork.Emendamenti.UltimoInVotazione(em.UIDAtto);
-                    if (ultimo_in_votazione > 0)
-                    {
-                        em.OrdineVotazione = ultimo_in_votazione + 1;
-                    }
 
                     await _unitOfWork.CompleteAsync();
 
