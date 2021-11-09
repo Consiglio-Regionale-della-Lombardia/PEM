@@ -54,25 +54,6 @@ namespace PortaleRegione.Client.Controllers
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
             int size = 50)
         {
-            //if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
-            //{
-            //    try
-            //    {
-            //        if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-            //            HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-            //            return View("RiepilogoEM_Admin", old_model);
-
-            //        return View("RiepilogoEM", old_model);
-            //    }
-            //    catch (Exception e)
-            //    {
-            //    }
-            //    finally
-            //    {
-            //        Session["RiepilogoEmendamenti"] = null;
-            //    }
-            //}
-
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             SetCache(page, size, ordine, view);

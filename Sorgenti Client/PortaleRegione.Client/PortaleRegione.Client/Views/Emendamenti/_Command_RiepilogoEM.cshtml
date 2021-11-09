@@ -94,6 +94,7 @@
             @{
                 var text = "";
                 var icon = "";
+                var new_view = ViewModeEnum.GRID;
 
                 if (Model.view == ViewModeEnum.PREVIEW)
                 {
@@ -102,6 +103,7 @@
                 }
                 else if (Model.view == ViewModeEnum.GRID)
                 {
+                    new_view = ViewModeEnum.PREVIEW;
                     text = "Visualizza EM in preview";
                     icon = "desktop_windows";
                 }
@@ -119,7 +121,7 @@
             }
             else
             {
-                <a class="blue-text tooltipped" onclick="filtra_View()" data-tooltip="@text" data-position="left">
+                <a class="blue-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="left">
                     <i class="icon material-icons">@icon</i>
                 </a>
             }

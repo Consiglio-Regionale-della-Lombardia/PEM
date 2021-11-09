@@ -1605,6 +1605,7 @@ namespace PortaleRegione.BAL
                         uri),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                    Ordinamento = model.ordine,
                     CurrentUser = persona
                 };
             }

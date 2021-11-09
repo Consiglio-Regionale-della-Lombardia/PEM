@@ -28,5 +28,6 @@ namespace PortaleRegione.DTO.Response
         public AttiDto Atto { get; set; }
         public ClientModeEnum Mode { get; set; }
         public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
+        public OrdinamentoEnum Ordinamento { get; set; } = OrdinamentoEnum.Presentazione;
     }
 }

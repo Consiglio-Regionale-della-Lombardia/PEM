@@ -38,7 +38,7 @@
             <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page"/>
             <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit"/>
             <input type="hidden" id="hdMode" name="mode" value="@Html.Raw(Convert.ToInt16(mode))"/>
-            <input type="hidden" name="ordine" value="@((int) ordinePaginaEnum)"/>
+            <input type="hidden" id="inputFilterOrdine" name="ordine" value="@((int) ordinePaginaEnum)"/>
             <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto"/>
 
             <div class="row" style="margin: 0 !important">
