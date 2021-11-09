@@ -30,6 +30,8 @@
     <add key="UnobtrusiveJavaScriptEnabled" value="true" />
     <add key="URL_API" value="YOUR_URL" />
     <add key="URL_CLIENT" value="YOUR_URL" />
+    <add key="LimiteFirmaMassivo" value="10" />
+    <add key="LimiteDepositoMassivo" value="10" />
   </appSettings>
   <system.web>
     <authentication mode="Forms">
