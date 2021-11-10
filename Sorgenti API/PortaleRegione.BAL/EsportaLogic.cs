@@ -16,19 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HtmlToOpenXml;
 using NPOI.HSSF.Util;
-using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
-using PortaleRegione.Common;
 using PortaleRegione.Contracts;
-using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
@@ -73,15 +69,7 @@ namespace PortaleRegione.BAL
                 var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}");
 
                 var row = excelSheet.CreateRow(0);
-
-                if (atto.OrdineVotazione.HasValue)
-                {
-                    if (atto.OrdineVotazione.Value)
-                    {
-                        SetColumnValue(ref row, "OrdineVotazione");
-                    }
-                }
-
+                SetColumnValue(ref row, "Ordine");
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                 {
                     SetColumnValue(ref row, "IDEM");
@@ -118,13 +106,10 @@ namespace PortaleRegione.BAL
                 {
                     var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
 
-                    if (atto.OrdineVotazione.HasValue)
-                    {
-                        if (atto.OrdineVotazione.Value)
-                        {
-                            SetColumnValue(ref rowEm, em.OrdineVotazione.ToString());
-                        }
-                    }
+                    if (ordine == OrdinamentoEnum.Presentazione)
+                        SetColumnValue(ref rowEm, em.OrdinePresentazione.ToString());
+                    else if (ordine == OrdinamentoEnum.Votazione)
+                        SetColumnValue(ref rowEm, em.OrdineVotazione.ToString());
 
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                     {
@@ -227,7 +212,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
             try
@@ -280,7 +265,7 @@ namespace PortaleRegione.BAL
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
             body += "<table>";
-            
+
             body += "<thead>";
             body += "<tr>";
             body += ComposeHeaderColumn("Ordine");
@@ -292,11 +277,11 @@ namespace PortaleRegione.BAL
             body += ComposeHeaderColumn("Stato");
             body += "</tr>";
             body += "</thead>";
-            
+
             body += "<tbody>";
             body = emList.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
             body += "</tbody>";
-            
+
             body += "</table>";
             body += "</body>";
             body += "</html>";
@@ -332,8 +317,6 @@ namespace PortaleRegione.BAL
             try
             {
                 var FilePathComplete = GetLocalPath("xlsx");
-
-                var atto = await _unitOfWork.Atti.Get(id);
 
                 IWorkbook workbook = new XSSFWorkbook();
                 var style = workbook.CreateCellStyle();
@@ -427,7 +410,7 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    if (em.IDParte == (int) PartiEMEnum.Missione)
+                    if (em.IDParte == (int)PartiEMEnum.Missione)
                     {
                         if (em.NMissione.HasValue)
                         {
@@ -526,14 +509,14 @@ namespace PortaleRegione.BAL
                 }
 
                 SetColumnValue(ref rowEm, em.TIPI_EM.Tipo_EM);
-                SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Inammissibile ? "X" : "");
+                SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "");
 
                 if (reportType != ReportType.PCR)
                 {
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Ritirato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Non_Approvato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Decaduto ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "");
                 }
 
                 SetColumnValue(ref rowEm, em.NOTE_EM);
@@ -541,11 +524,11 @@ namespace PortaleRegione.BAL
             }
 
             var countEM = emendamentiDtos.Count();
-            var approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche);
-            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Non_Approvato);
-            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Ritirato);
-            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Decaduto);
-            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Inammissibile);
+            var approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
+            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
+            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
+            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
+            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
 
             var rowReport = sheet.CreateRow(sheet.LastRowNum + 1);
             rowReport.RowStyle = styleR;
@@ -595,7 +578,7 @@ namespace PortaleRegione.BAL
 
         private short GetColumn(short column)
         {
-            return column < 0 ? (short) 0 : column;
+            return column < 0 ? (short)0 : column;
         }
 
         private string GetLocalPath(string extension)
