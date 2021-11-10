@@ -399,17 +399,7 @@ namespace PortaleRegione.Client.Controllers
                 if (model.ListaEmendamenti == null || !model.ListaEmendamenti.Any())
                 {
                     var listaEM = new EmendamentiViewModel();
-                    var limit = 0;
-                    switch (model.Azione)
-                    {
-                        case ActionEnum.FIRMA:
-                            limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteFirmaMassivo"]);
-                            break;
-                        case ActionEnum.DEPOSITA:
-                            limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteDepositoMassivo"]);
-                            break;
-                    }
-
+                    var limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"]);
                     if (model.Richiesta_Firma)
                         listaEM = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(model.AttoUId,
                             (ClientModeEnum)model.ClientMode,
