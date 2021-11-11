@@ -1251,13 +1251,14 @@ namespace PortaleRegione.BAL
             return await GetEM(guidId);
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, PersonaDto presidente_regione = null, bool enable_cmd = true)
+        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, List<PersonaLightDto> relatori = null, PersonaDto presidente_regione = null, bool enable_cmd = true)
         {
             var em = await GetEM(emendamentoUId);
-            return await GetEM_DTO(em, atto, persona, personeInDbLight, presidente_regione, enable_cmd);
+            return await GetEM_DTO(em, atto, persona, personeInDbLight, relatori, presidente_regione, enable_cmd);
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO(EM em, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, PersonaDto presidente_regione = null,
+        public async Task<EmendamentiDto> GetEM_DTO(EM em, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight,
+            List<PersonaLightDto> relatori = null, PersonaDto presidente_regione = null,
             bool enable_cmd = true)
         {
             try
@@ -1354,9 +1355,9 @@ namespace PortaleRegione.BAL
                             persona);
                 }
 
-                var relatori = await _unitOfWork.Atti.GetRelatori(emendamentoDto.UIDAtto);
-                if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
-                    emendamentoDto.Proponente_Relatore = true;
+                if (relatori != null)
+                    if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
+                        emendamentoDto.Proponente_Relatore = true;
 
                 if (presidente_regione != null)
                 {
@@ -1454,10 +1455,12 @@ namespace PortaleRegione.BAL
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var relatori = await _unitOfWork.Atti.GetRelatori(firstEM.UIDAtto);
+
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    var dto = await GetEM_DTO(em, atto, persona, personeInDbLight, presidente_regione);
+                    var dto = await GetEM_DTO(em, atto, persona, personeInDbLight, relatori.ToList(), presidente_regione);
                     result.Add(dto);
                 }
 

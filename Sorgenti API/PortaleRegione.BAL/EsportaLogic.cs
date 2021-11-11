@@ -255,7 +255,7 @@ namespace PortaleRegione.BAL
                     {
                         FileName = Path.GetFileName(FilePathComplete)
                     };
-                    result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                    result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/doc");
 
                     return result;
                 }

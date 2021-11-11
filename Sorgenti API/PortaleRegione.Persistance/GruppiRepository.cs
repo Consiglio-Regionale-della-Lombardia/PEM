@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpressionBuilder.Generics;
-using PortaleRegione.DTO.Enum;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -133,11 +133,11 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
         {
-            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
 
             return await PRContext
                 .View_gruppi_politici_con_giunta
-                .SingleOrDefaultAsync(g => g.id_gruppo == gruppoId);
+                .FirstOrDefaultAsync(g => g.id_gruppo == gruppoId);
         }
 
         public async Task<View_UTENTI> GetCapoGruppo(int gruppoId)
@@ -179,7 +179,7 @@ namespace PortaleRegione.Persistance
         {
             var join_persona_gruppo = await PRContext
                 .join_persona_gruppi_politici
-                .Where(g => g.id_gruppo == id_gruppo 
+                .Where(g => g.id_gruppo == id_gruppo
                 && !g.deleted
                 && !g.data_fine.HasValue)
                 .Select(j => j.id_persona)
@@ -191,7 +191,7 @@ namespace PortaleRegione.Persistance
 
             var join_persona_ad = await PRContext
                 .join_persona_AD
-                .Where(p => consiglieri_in_carica.Contains(p.UID_persona) 
+                .Where(p => consiglieri_in_carica.Contains(p.UID_persona)
                             && join_persona_gruppo.Contains(p.id_persona))
                 .Select(p => p.UserAD)
                 .ToListAsync();

@@ -173,10 +173,6 @@
 {
     <script>
         $(document).ready(async function() {
-            setTimeout(function () {
-                console.log("Caricamento filtri")
-                $('body').removeClass('loaded');
-            }, 200);
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
                 set_Filtri_EM({});
@@ -197,11 +193,6 @@
             await Filtri_EM_CaricaTipiEM("filter_em_tipo");
 
             checkSelectedEM();
-
-            setTimeout(function () {
-                console.log("Filtri caricati")
-                $('body').addClass('loaded');
-            }, 200);
         });
 
         function filtra() {

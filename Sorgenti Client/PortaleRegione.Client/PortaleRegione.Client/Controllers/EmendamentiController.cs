@@ -605,7 +605,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
-                return File(file.Content, "application/doc", file.FileName);
+                return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
