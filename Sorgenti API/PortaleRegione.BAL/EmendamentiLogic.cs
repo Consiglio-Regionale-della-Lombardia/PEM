@@ -1541,6 +1541,38 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task<EmendamentiDto> GetEM_DTO_Light(Guid uidEM, PersonaDto persona)
+        {
+            try
+            {
+                if (uidEM == new Guid("dbceb7ca-1ed0-ea11-80b7-005056904635"))
+                {
+
+                }
+
+                var em = await _unitOfWork.Emendamenti.Get(uidEM);
+                em.ATTI = await _unitOfWork.Atti.Get(em.UIDAtto);
+
+                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+
+                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                    em.Rif_UIDEM.HasValue ? await GetEM_DTO_Light(em.Rif_UIDEM.Value, persona) : null);
+
+                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
+                    emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
+
+                emendamentoDto.PersonaProponente =
+                    Mapper.Map<View_UTENTI, PersonaLightDto>(
+                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
+
+                return emendamentoDto;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEM_DTO", e);
+                throw e;
+            }
+        }
 
         public async Task<EmendamentiViewModel> GetEmendamenti(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE, int VIEW_MODE, PersonaDto presidente_regione, Uri uri)
@@ -1611,7 +1643,7 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<EmendamentiViewModel> GetEmendamenti_RawChunk(BaseRequest<EmendamentiDto> model,
-            PersonaDto persona, int CLIENT_MODE, Uri uri)
+            PersonaDto persona, int CLIENT_MODE, Uri uri, bool open_data_enabled = false, bool light_version = false)
         {
             try
             {
@@ -1625,32 +1657,50 @@ namespace PortaleRegione.BAL
                         CLIENT_MODE);
 
                 var result = new List<EmendamentiDto>();
-                foreach (var em in em_in_db)
+                var totalProcessTime = 0f;
+                foreach (var guid in em_in_db)
                 {
-                    var dto = await GetEM_DTO(em, persona);
-
-                    var firme = await _logicFirme.GetFirme(dto, FirmeTipoEnum.TUTTE);
-                    var firmeDto = firme.ToList();
-
-                    var firmatari_opendata = "--";
                     try
                     {
-                        if (firmeDto.Any(f =>
-                            f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
-                            firmatari_opendata = await GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
-                                    f.Timestamp < Convert.ToDateTime(dto.DataDeposito)),
-                                persona.CurrentRole);
+                        var startTimer = DateTime.Now;
+                        EmendamentiDto dto;
+                        if (light_version)
+                            dto = await GetEM_DTO_Light(guid, persona);
+                        else
+                            dto = await GetEM_DTO(guid, persona);
+
+                        if (open_data_enabled)
+                        {
+                            var firme = await _logicFirme.GetFirme(dto, FirmeTipoEnum.TUTTE);
+                            var firmeDto = firme.ToList();
+
+                            var firmatari_opendata = "--";
+                            try
+                            {
+                                if (firmeDto.Any(f =>
+                                    f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
+                                    firmatari_opendata = await GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                            f.Timestamp < Convert.ToDateTime(dto.DataDeposito)),
+                                        persona.CurrentRole);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+
+                            dto.Firme_OPENDATA = firmatari_opendata;
+                        }
+
+                        result.Add(dto);
+                        var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
+                        totalProcessTime += (float)spentTime;
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
-
-                    dto.Firme_OPENDATA = firmatari_opendata;
-
-                    result.Add(dto);
                 }
-
+                Log.Debug($"GetEmendamenti_RawChunk: Eseguito in {totalProcessTime} s");
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE));
 
                 return new EmendamentiViewModel
@@ -1801,7 +1851,7 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(Guid attoUId, OrdinamentoEnum ordine,
             ClientModeEnum mode,
-            PersonaDto persona)
+            PersonaDto persona, bool open_data_enabled = false, bool light_version = false)
         {
             var result = new List<EmendamentiDto>();
             var counter_em = await _unitOfWork.Emendamenti.Count(attoUId, persona, CounterEmendamentiEnum.NONE,
@@ -1813,7 +1863,7 @@ namespace PortaleRegione.BAL
                 ordine = ordine,
                 page = 1,
                 size = counter_em
-            }, persona, (int)mode, new Uri(AppSettingsConfiguration.urlPEM));
+            }, persona, (int)mode, new Uri(AppSettingsConfiguration.urlPEM), open_data_enabled, light_version);
 
             result.AddRange(emList.Data.Results);
 

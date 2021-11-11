@@ -14,6 +14,18 @@ document.addEventListener("DOMContentLoaded",
         }, 200);
     });
 
+function waiting(enable, message) {
+    var instance = M.Modal.getInstance($("#waiting"));
+    if (enable) {
+        $('#waiting_info_message').text(message);
+        instance.options.dismissible = false;
+        instance.options.preventScrolling = true;
+        instance.open();
+    } else {
+        instance.close();
+    }
+}
+
 var gruppi_theme = "";
 var trattazione_theme = "";
 

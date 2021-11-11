@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -32,7 +33,7 @@ namespace PortaleRegione.Domain
             FIRME = new HashSet<FIRME>();
             NOTIFICHE = new HashSet<NOTIFICHE>();
         }
-        
+
         [Key] public Guid UIDEM { get; set; }
 
         public int? Progressivo { get; set; }
@@ -175,5 +176,16 @@ namespace PortaleRegione.Domain
         public virtual ICollection<FIRME> FIRME { get; set; }
 
         public virtual ICollection<NOTIFICHE> NOTIFICHE { get; set; }
+
+        public static implicit operator EM(EmendamentiDto dto)
+        {
+            return new EM
+            {
+                UIDEM = dto.UIDEM,
+                IDStato = dto.IDStato,
+                UIDPersonaProponente = dto.UIDPersonaProponente,
+                Timestamp = dto.Timestamp
+            };
+        }
     }
 }

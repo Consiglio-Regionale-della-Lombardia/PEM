@@ -43,11 +43,31 @@
     </script>
 </head>
 <body>
-    <div id="loader-wrapper">
-        <div id="loader"></div>
-        <div class="loader-section section-left"></div>
-        <div class="loader-section section-right"></div>
+<div id="loader-wrapper">
+    <div id="loader"></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+<div id="waiting" class="modal">
+    <div class="modal-content center">
+        <div class="preloader-wrapper active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+
+        <h6 id="waiting_info_message"></h6>
     </div>
+</div>
 
 @Html.Partial("_NavigationBar")
 
@@ -67,39 +87,11 @@
     </div>
 </div>
 
-<div id="waiting" class="modal">
-    <div class="modal-content center">
-        <div class="preloader-wrapper active">
-            <div class="spinner-layer spinner-blue-only">
-                <div class="circle-clipper left">
-                    <div class="circle"></div>
-                </div><div class="gap-patch">
-                    <div class="circle"></div>
-                </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
-            </div>
-        </div>
-
-        <p>Attendi un attimo</p>
-    </div>
-</div>
 
 @RenderSection("scripts", false)
 
 <script>
     $('.trumbowyg').trumbowyg();
-
-    function waiting(enable) {
-        var instance = M.Modal.getInstance($("#waiting"));
-        if (enable) {
-            instance.options.dismissible = false;
-            instance.options.preventScrolling = true;
-            instance.open();
-        } else {
-            instance.close();
-        }
-    }
 
     $("body").on("keyup",
         function(event) {

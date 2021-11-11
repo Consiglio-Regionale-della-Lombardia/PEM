@@ -95,7 +95,7 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.IDStato > (int) StatiEnum.Depositato)
+            if (em.IDStato > (int)StatiEnum.Depositato)
             {
                 return false;
             }
@@ -168,7 +168,7 @@ namespace PortaleRegione.Persistance
                 case FirmeTipoEnum.TUTTE:
                     break;
                 case FirmeTipoEnum.PRIMA_DEPOSITO:
-                    if (em.IDStato >= (int) StatiEnum.Depositato)
+                    if (em.IDStato >= (int)StatiEnum.Depositato)
                     {
                         query = query.Where(f => f.Timestamp < em.Timestamp);
                     }
@@ -202,7 +202,7 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .FIRME
                 .FindAsync(emendamentoUId, personaUId);
-                
+
         }
     }
 }

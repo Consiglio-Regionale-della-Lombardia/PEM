@@ -25,6 +25,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
 using PortaleRegione.Contracts;
+using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
@@ -100,10 +101,11 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, "Firmatari dopo deposito");
                 SetColumnValue(ref row, "LinkEM");
 
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona);
-
+                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, false, true);
+                var totalProcessTime = 0f;
                 foreach (var em in emList)
                 {
+                    var startTimer = DateTime.Now;
                     var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
 
                     if (ordine == OrdinamentoEnum.Presentazione)
@@ -156,7 +158,7 @@ namespace PortaleRegione.BAL
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
-                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                        var firme = await _logicFirme.GetFirme((EM)em, FirmeTipoEnum.TUTTE);
                         var firmeDto = firme.ToList();
 
                         var firmatari_opendata_ante = "--";
@@ -201,7 +203,10 @@ namespace PortaleRegione.BAL
                     }
 
                     SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}");
+                    var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
+                    totalProcessTime += (float)spentTime;
                 }
+                Log.Debug($"EsportaGrigliaXLS: Compilazione XLS eseguita in {totalProcessTime} s");
 
                 Console.WriteLine($"Excel row count: {excelSheet.LastRowNum}");
                 return await Response(FilePathComplete, workbook);
@@ -260,7 +265,7 @@ namespace PortaleRegione.BAL
 
         private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
-            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona);
+            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, true);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";

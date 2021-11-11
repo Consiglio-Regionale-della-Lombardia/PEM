@@ -513,25 +513,6 @@ namespace PortaleRegione.Persistance
                 .Include(em => em.TIPI_EM)
                 .SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
 
-            //if (result.gruppi_politici == null)
-            //{
-            //    try
-            //    {
-            //        var gruppo  =
-            //            await PRContext.View_gruppi_politici_con_giunta.FirstOrDefaultAsync(
-            //                g => g.id_gruppo == result.id_gruppo);
-            //        result.gruppi_politici = new gruppi_politici
-            //        {
-            //            id_gruppo= gruppo.id_gruppo,
-            //            nome_gruppo = gruppo.nome_gruppo,
-            //            codice_gruppo = gruppo.codice_gruppo
-            //        };
-            //    }
-            //    catch (Exception e)
-            //    {
-            //    }
-            //}
-
             return result;
         }
 

@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -586,7 +587,7 @@ namespace PortaleRegione.Client.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Error("EsportaXLS", e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
