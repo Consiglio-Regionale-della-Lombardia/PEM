@@ -21,6 +21,7 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -77,9 +78,13 @@ namespace PortaleRegione.BAL
                     .ToList();
 
                 var result = new List<NotificaDto>();
+                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM);
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var notifica in notifiche)
                 {
-                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, currentUser);
+                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
                     notifica.UTENTI_NoCons = await _logicPersone.GetPersona(notifica.Mittente,
                         notifica.EM.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                     result.Add(notifica);
@@ -120,9 +125,13 @@ namespace PortaleRegione.BAL
                     .ToList();
 
                 var result = new List<NotificaDto>();
+                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM);
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var notifica in notifiche)
                 {
-                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, currentUser);
+                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
                     notifica.UTENTI_NoCons = await _logicPersone.GetPersona(notifica.Mittente,
                         notifica.EM.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                     result.Add(notifica);
@@ -200,9 +209,13 @@ namespace PortaleRegione.BAL
                 }
 
                 var bodyMail = string.Empty;
+                var firstEM = await _unitOfWork.Emendamenti.Get(model.ListaEmendamenti.First());
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var idGuid in model.ListaEmendamenti)
                 {
-                    var em = await _logicEm.GetEM_DTO(idGuid, currentUser);
+                    var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser, personeInDbLight);
                     if (em == null)
                     {
                         results.Add(idGuid, "ERROR: NON TROVATO");

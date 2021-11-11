@@ -2,6 +2,7 @@
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
 using System;
@@ -26,10 +27,13 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var persona = await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value);
-                var personaDto = Mapper.Map<View_UTENTI, PersonaDto>(persona);
-                var emendamentoDto = await _logicEm.GetEM_DTO(em, personaDto);
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
+                var persona = personeInDb.First(p => p.UID_persona == em.UIDPersonaProponente);
+                var personaDto = Mapper.Map<View_UTENTI, PersonaDto>(persona);
+                var emendamentoDto = await _logicEm.GetEM_DTO(em, atto, personaDto, personeInDbLight);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try

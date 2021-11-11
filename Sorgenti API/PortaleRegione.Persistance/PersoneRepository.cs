@@ -140,6 +140,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetAll()
         {
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty)
@@ -153,6 +155,9 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetAssessoriRiferimento(int id_legislatura)
         {
+            PRContext.View_assessori_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
             var assessori = await PRContext
                 .View_assessori_in_carica
                 .ToListAsync();
@@ -197,6 +202,9 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<View_UTENTI>> GetConsiglieri(int id_legislatura)
         {
+            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
             var consiglieri = await PRContext
                 .View_consiglieri_in_carica
                 .ToListAsync();

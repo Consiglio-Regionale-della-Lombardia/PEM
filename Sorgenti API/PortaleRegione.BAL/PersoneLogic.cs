@@ -103,7 +103,6 @@ namespace PortaleRegione.BAL
             var persone = new List<PersonaDto>();
             persone.AddRange(consiglieri.Select(Mapper.Map<View_UTENTI, PersonaDto>));
             persone.AddRange(assessori.Select(Mapper.Map<View_UTENTI, PersonaDto>));
-            var test = persone.FirstOrDefault(u => u.DisplayName.Contains("Casati"));
 
             return persone;
         }

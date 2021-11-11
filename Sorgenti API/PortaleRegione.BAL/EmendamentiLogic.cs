@@ -146,9 +146,12 @@ namespace PortaleRegione.BAL
                     : await _unitOfWork.Emendamenti.GetProgressivo(atto.UIDAtto,
                        persona.Gruppo.id_gruppo, sub_em);
 
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
                 if (sub_em)
                 {
-                    var ref_em = await GetEM_DTO(em_riferimentoUId.Value, persona);
+                    var ref_em = await GetEM_DTO(em_riferimentoUId.Value, atto, persona, personeInDbLight);
                     emendamento.SubProgressivo = progressivo;
                     emendamento.Rif_UIDEM = em_riferimentoUId;
                     emendamento.IDStato = (int)StatiEnum.Bozza;
@@ -278,7 +281,10 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var em = await GetEM_DTO(emInDb, persona);
+                var atto = await _unitOfWork.Atti.Get(emInDb.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var em = await GetEM_DTO(emInDb, atto, persona, personeInDbLight);
                 var result = new EmendamentiFormModel { Emendamento = em, Atto = em.ATTI };
                 if (persona.CurrentRole != RuoliIntEnum.Consigliere_Regionale &&
                     persona.CurrentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta)
@@ -536,8 +542,10 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var emendamentoDto = await GetEM_DTO(em, persona);
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var emendamentoDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try
@@ -894,6 +902,11 @@ namespace PortaleRegione.BAL
 
                 ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
+                var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.ListaEmendamenti.First());
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
                 foreach (var idGuid in depositoModel.ListaEmendamenti)
                 {
                     if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1)
@@ -908,7 +921,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var emDto = await GetEM_DTO(em, persona);
+                    var emDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
                     var n_em = emDto.N_EM;
                     if (emDto.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
                     {
@@ -1213,7 +1226,11 @@ namespace PortaleRegione.BAL
             var em_da_proiettare = await _unitOfWork.Emendamenti.GetEMInProiezione(id, ordine);
             if (em_da_proiettare == null) return null;
 
-            var proietta = new ProiettaResponse { EM = await GetEM_DTO(em_da_proiettare, persona) };
+            var atto = await _unitOfWork.Atti.Get(em_da_proiettare.UIDAtto);
+            var personeInDb = await _unitOfWork.Persone.GetAll();
+            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
+            var proietta = new ProiettaResponse { EM = await GetEM_DTO(em_da_proiettare, atto, persona, personeInDbLight) };
             var em_next = await _unitOfWork.Emendamenti.GetEMInProiezione(id, ordine + 1);
             if (em_next != null) proietta.next = em_next.OrdineVotazione;
 
@@ -1234,273 +1251,13 @@ namespace PortaleRegione.BAL
             return await GetEM(guidId);
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, PersonaDto persona, bool enable_cmd = true)
+        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, PersonaDto presidente_regione = null, bool enable_cmd = true)
         {
             var em = await GetEM(emendamentoUId);
-            return await GetEM_DTO(em, persona, enable_cmd);
+            return await GetEM_DTO(em, atto, persona, personeInDbLight, presidente_regione, enable_cmd);
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, bool enable_cmd = true)
-        {
-            var em = await GetEM(emendamentoUId);
-            return await GetEM_DTO(em, atto, persona, personeInDbLight, enable_cmd);
-        }
-
-        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId)
-        {
-            var em = await GetEM(emendamentoUId);
-            return await GetEM_DTO(em);
-        }
-
-        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, PersonaDto persona, PersonaDto presidente_regione,
-            bool enable_cmd = true)
-        {
-            try
-            {
-                var em = await GetEM(emendamentoUId);
-                em.ATTI = await _unitOfWork.Atti.Get(em.UIDAtto);
-
-                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
-
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                    em.Rif_UIDEM.HasValue ? await GetEM_DTO(em.Rif_UIDEM.Value, persona) : null);
-                emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
-
-                if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
-                    emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
-
-                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
-                    emendamentoDto.Firmato_Da_Me = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, persona.UID_persona);
-
-                emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
-                emendamentoDto.PersonaProponente =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
-                emendamentoDto.PersonaCreazione =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.PersonaDeposito =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
-
-                if (emendamentoDto.UIDPersonaModifica.HasValue)
-                    emendamentoDto.PersonaModifica =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
-
-                emendamentoDto.gruppi_politici =
-                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                        await _unitOfWork.Gruppi.Get(em.id_gruppo));
-
-                if (persona == null) return emendamentoDto;
-
-                emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int)StatiEnum.Depositato
-                                              && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
-                                              && !emendamentoDto.ATTI.Chiuso ||
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
-                                              persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
-
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-                    if (emendamentoDto.ConteggioFirme > 1)
-                    {
-                        var firme = await _logicFirme.GetFirme(emendamentoDto, FirmeTipoEnum.ATTIVI);
-                        emendamentoDto.Firme = firme
-                            .Where(f => f.UID_persona != emendamentoDto.UIDPersonaProponente)
-                            .Select(f => f.FirmaCert)
-                            .Aggregate((i, j) => i + "<br>" + j);
-                    }
-
-                if (enable_cmd)
-                {
-                    if (string.IsNullOrEmpty(em.DataDeposito))
-                        emendamentoDto.Depositabile = await _unitOfWork
-                            .Emendamenti
-                            .CheckIfDepositabile(emendamentoDto,
-                                persona);
-
-                    if (em.IDStato <= (int)StatiEnum.Depositato)
-                        emendamentoDto.Firmabile = await _unitOfWork
-                            .Firme
-                            .CheckIfFirmabile(emendamentoDto,
-                                persona);
-
-                    if (!em.DataRitiro.HasValue && em.IDStato == (int)StatiEnum.Depositato)
-                        emendamentoDto.Ritirabile = _unitOfWork
-                            .Emendamenti
-                            .CheckIfRitirabile(emendamentoDto,
-                                persona);
-
-                    if (string.IsNullOrEmpty(em.DataDeposito))
-                        emendamentoDto.Eliminabile = _unitOfWork
-                            .Emendamenti
-                            .CheckIfEliminabile(emendamentoDto,
-                                persona);
-
-                    emendamentoDto.Modificabile = await _unitOfWork
-                        .Emendamenti
-                        .CheckIfModificabile(emendamentoDto,
-                            persona);
-
-                    emendamentoDto.Invito_Abilitato = _unitOfWork
-                        .Notifiche
-                        .CheckIfNotificabile(emendamentoDto,
-                            persona);
-                }
-
-                var relatori = await _unitOfWork.Atti.GetRelatori(emendamentoDto.UIDAtto);
-                if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
-                    emendamentoDto.Proponente_Relatore = true;
-                if (!string.IsNullOrEmpty(em.DataDeposito))
-                    if (Convert.ToDateTime(emendamentoDto.DataDeposito) >
-                        emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione)
-                    {
-                        emendamentoDto.PresentatoOltreITermini = true;
-
-                        if (emendamentoDto.Proponente_Relatore)
-                            emendamentoDto.PresentatoOltreITermini = false;
-
-                        if (emendamentoDto.Firmato_Dal_Proponente)
-                        {
-                            if (emendamentoDto.UIDPersonaProponente.Value == presidente_regione.UID_persona)
-                            {
-                                emendamentoDto.PresentatoOltreITermini = false;
-                            }
-                        }
-                    }
-
-                return emendamentoDto;
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - GetEM_DTO", e);
-                throw e;
-            }
-        }
-
-        public async Task<EmendamentiDto> GetEM_DTO(EM em, PersonaDto persona,
-            bool enable_cmd = true)
-        {
-            try
-            {
-                em.ATTI = await _unitOfWork.Atti.Get(em.UIDAtto);
-
-                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
-
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                    em.Rif_UIDEM.HasValue ? await GetEM_DTO(em.Rif_UIDEM.Value, persona) : null);
-                emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
-
-                if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
-                    emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
-
-                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
-                    emendamentoDto.Firmato_Da_Me = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, persona.UID_persona);
-
-                emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
-                emendamentoDto.PersonaProponente =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
-                emendamentoDto.PersonaCreazione =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.PersonaDeposito =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
-
-                if (emendamentoDto.UIDPersonaModifica.HasValue)
-                    emendamentoDto.PersonaModifica =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
-
-                emendamentoDto.gruppi_politici =
-                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                        await _unitOfWork.Gruppi.Get(em.id_gruppo));
-
-                if (persona == null) return emendamentoDto;
-
-                emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int)StatiEnum.Depositato
-                                              && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
-                                              && !emendamentoDto.ATTI.Chiuso ||
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
-                                              persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
-
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-                    if (emendamentoDto.ConteggioFirme > 1)
-                    {
-                        var firme = await _logicFirme.GetFirme(emendamentoDto, FirmeTipoEnum.ATTIVI);
-                        emendamentoDto.Firme = firme
-                            .Where(f => f.UID_persona != emendamentoDto.UIDPersonaProponente)
-                            .Select(f => f.FirmaCert)
-                            .Aggregate((i, j) => i + "<br>" + j);
-                    }
-
-                if (enable_cmd)
-                {
-                    if (string.IsNullOrEmpty(em.DataDeposito))
-                        emendamentoDto.Depositabile = await _unitOfWork
-                            .Emendamenti
-                            .CheckIfDepositabile(emendamentoDto,
-                                persona);
-
-                    if (em.IDStato <= (int)StatiEnum.Depositato)
-                        emendamentoDto.Firmabile = await _unitOfWork
-                            .Firme
-                            .CheckIfFirmabile(emendamentoDto,
-                                persona);
-
-                    if (!em.DataRitiro.HasValue && em.IDStato == (int)StatiEnum.Depositato)
-                        emendamentoDto.Ritirabile = _unitOfWork
-                            .Emendamenti
-                            .CheckIfRitirabile(emendamentoDto,
-                                persona);
-
-                    if (string.IsNullOrEmpty(em.DataDeposito))
-                        emendamentoDto.Eliminabile = _unitOfWork
-                            .Emendamenti
-                            .CheckIfEliminabile(emendamentoDto,
-                                persona);
-
-                    emendamentoDto.Modificabile = await _unitOfWork
-                        .Emendamenti
-                        .CheckIfModificabile(emendamentoDto,
-                            persona);
-
-                    emendamentoDto.Invito_Abilitato = _unitOfWork
-                        .Notifiche
-                        .CheckIfNotificabile(emendamentoDto,
-                            persona);
-                }
-
-                var relatori = await _unitOfWork.Atti.GetRelatori(emendamentoDto.UIDAtto);
-                if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
-                    emendamentoDto.Proponente_Relatore = true;
-
-                return emendamentoDto;
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - GetEM_DTO", e);
-                throw e;
-            }
-        }
-
-        public async Task<EmendamentiDto> GetEM_DTO(EM em, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight,
+        public async Task<EmendamentiDto> GetEM_DTO(EM em, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, PersonaDto presidente_regione = null,
             bool enable_cmd = true)
         {
             try
@@ -1601,54 +1358,26 @@ namespace PortaleRegione.BAL
                 if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
                     emendamentoDto.Proponente_Relatore = true;
 
-                return emendamentoDto;
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - GetEM_DTO", e);
-                throw e;
-            }
-        }
+                if (presidente_regione != null)
+                {
+                    if (!string.IsNullOrEmpty(em.DataDeposito))
+                        if (Convert.ToDateTime(emendamentoDto.DataDeposito) >
+                            emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione)
+                        {
+                            emendamentoDto.PresentatoOltreITermini = true;
 
-        public async Task<EmendamentiDto> GetEM_DTO(EM em)
-        {
-            try
-            {
-                em.ATTI = await _unitOfWork.Atti.Get(em.UIDAtto);
+                            if (emendamentoDto.Proponente_Relatore)
+                                emendamentoDto.PresentatoOltreITermini = false;
 
-                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
-
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                    em.Rif_UIDEM.HasValue ? await GetEM_DTO(em.Rif_UIDEM.Value) : null);
-                emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
-
-                if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
-                    emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
-
-                emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
-                emendamentoDto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
-                emendamentoDto.PersonaProponente =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
-                emendamentoDto.PersonaCreazione =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaCreazione.Value));
-                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
-                    emendamentoDto.PersonaDeposito =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaDeposito.Value));
-
-                if (emendamentoDto.UIDPersonaModifica.HasValue)
-                    emendamentoDto.PersonaModifica =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaModifica.Value));
-
-                emendamentoDto.gruppi_politici =
-                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                        await _unitOfWork.Gruppi.Get(em.id_gruppo));
+                            if (emendamentoDto.Firmato_Dal_Proponente)
+                            {
+                                if (emendamentoDto.UIDPersonaProponente.Value == presidente_regione.UID_persona)
+                                {
+                                    emendamentoDto.PresentatoOltreITermini = false;
+                                }
+                            }
+                        }
+                }
 
                 return emendamentoDto;
             }
@@ -1720,10 +1449,15 @@ namespace PortaleRegione.BAL
                         CLIENT_MODE,
                         queryFilter,
                         firmatari);
+
+                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First());
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
                 {
-                    var dto = await GetEM_DTO(em, persona, presidente_regione, false);
+                    var dto = await GetEM_DTO(em, atto, persona, personeInDbLight, presidente_regione);
                     result.Add(dto);
                 }
 
@@ -1919,9 +1653,12 @@ namespace PortaleRegione.BAL
                     .Emendamenti
                     .GetAll(model);
                 var result = new List<EmendamentiDto>();
+                var atto = await _unitOfWork.Atti.Get(emendamenti.First().UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var em in emendamenti)
                 {
-                    var dto = await GetEM_DTO(em.UIDEM);
+                    var dto = await GetEM_DTO(em, atto, null, personeInDbLight);
                     result.Add(dto);
                 }
 
@@ -2165,7 +1902,10 @@ namespace PortaleRegione.BAL
             var em_da_proiettare = await _unitOfWork.Emendamenti.GetCurrentEMInProiezione(attoUId);
             if (em_da_proiettare == null) return null;
 
-            var proietta = new ProiettaResponse { EM = await GetEM_DTO(em_da_proiettare, persona) };
+            var atto = await _unitOfWork.Atti.Get(em_da_proiettare.UIDAtto);
+            var personeInDb = await _unitOfWork.Persone.GetAll();
+            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+            var proietta = new ProiettaResponse { EM = await GetEM_DTO(em_da_proiettare, atto, persona, personeInDbLight) };
             var em_next =
                 await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione + 1);
             if (em_next != null) proietta.next = em_next.OrdineVotazione;

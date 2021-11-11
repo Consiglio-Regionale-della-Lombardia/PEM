@@ -21,8 +21,10 @@ using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -47,14 +49,18 @@ namespace PortaleRegione.API.Controllers
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
         private readonly AdminLogic _logicAdmin;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly PersoneLogic _logicPersone;
 
-        public EmendamentiController(PersoneLogic logicPersone,
+        public EmendamentiController(
+            IUnitOfWork unitOfWork,
+            PersoneLogic logicPersone,
             AttiLogic logicAtti,
             EmendamentiLogic logicEm,
             FirmeLogic logicFirme,
             AdminLogic logicAdmin)
         {
+            _unitOfWork = unitOfWork;
             _logicPersone = logicPersone;
             _logicAtti = logicAtti;
             _logicEm = logicEm;
@@ -208,7 +214,11 @@ namespace PortaleRegione.API.Controllers
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
-                var result = await _logicEm.GetEM_DTO(em, persona);
+                var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
+                var result = await _logicEm.GetEM_DTO(em, atto, persona, personeInDbLight);
                 return Ok(result);
             }
             catch (Exception e)
@@ -359,7 +369,11 @@ namespace PortaleRegione.API.Controllers
                 var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente.Value, isGiunta);
 
                 var em = await _logicEm.NuovoEmendamento(model, proponente, isGiunta);
-                return Ok(await _logicEm.GetEM_DTO(em.UIDEM, null));
+
+                var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                return Ok(await _logicEm.GetEM_DTO(em.UIDEM, atto, null, personeInDbLight));
             }
             catch (Exception e)
             {
