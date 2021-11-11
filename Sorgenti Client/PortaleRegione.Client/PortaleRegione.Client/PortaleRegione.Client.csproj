@@ -380,6 +380,8 @@
     <Content Include="Views\EMPublic\Index.cshtml" />
     <Content Include="Views\AdminPanel\RiepilogoGruppi.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiPanelAdmin.cshtml" />
+    <Content Include="Views\Emendamenti\_MetaDatiFormPartial.cshtml" />
+    <Content Include="Views\Emendamenti\_MetaDatiPanelPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

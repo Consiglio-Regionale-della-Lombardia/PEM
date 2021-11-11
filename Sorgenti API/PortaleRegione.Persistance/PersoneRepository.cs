@@ -50,7 +50,7 @@ namespace PortaleRegione.Persistance
         public async Task<View_UTENTI> Get(Guid personaUId)
         {
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-            var result = await PRContext.View_UTENTI.SingleOrDefaultAsync(p => p.UID_persona == personaUId);
+            var result = await PRContext.View_UTENTI.FindAsync(personaUId);
             return result;
         }
 

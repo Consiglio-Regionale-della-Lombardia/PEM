@@ -1,0 +1,68 @@
+﻿@model  PortaleRegione.DTO.Domain.EmendamentiDto
+
+<div id="modalMetaDati_@Model.UIDEM" class="modal">
+    <div class="modal-content">
+        <div class="row">
+            <div class="col l12">
+                <h5>
+                    <b>
+                        <span>@Model.N_EM</span>
+                    </b>
+                </h5>
+            </div>
+        </div>
+        @using (Html.BeginForm("SalvaMetaDatiEmendamento", "Emendamenti", FormMethod.Post, new { id = "formMetaDati" }))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(m => m.UIDEM)
+            @Html.HiddenFor(m => m.UIDAtto)
+
+            <div class="row">
+                <div class="col s12">
+                    <ul id="emendamentoFormsTabs_@Model.UIDEM" class="tabs tabs-fixed-width">
+                        <li class="tab col s3">
+                            <a class="active" href="#metaDatiTab_@Model.UIDEM">Meta dati</a>
+                        </li>
+                        <li class="tab col s3">
+                            <a href="#testoEMTab_@Model.UIDEM">Testo</a>
+                        </li>
+                        <li class="tab col s3">
+                            <a href="#noteTab_@Model.UIDEM">Note</a>
+                        </li>
+                    </ul>
+                    <div id="metaDatiTab_@Model.UIDEM" class="col s12 left-align">
+                        @Html.Partial("_MetaDatiPanelPartial", Model)
+                        
+                    </div>
+                    <div id="testoEMTab_@Model.UIDEM" class="col s12 left-align">
+                        <div class="form-group">
+                            @Html.LabelFor(s => s.TestoEM_Modificabile, new { @class = "bold" })
+                            @Html.TextAreaFor(model => model.TestoEM_Modificabile, new { @class = "form-control trumbowyg" })
+                        </div>
+                    </div>
+                    <div id="noteTab_@Model.UIDEM" class="col s12 left-align">
+                        <div class="row">
+                            <div class="col s6">
+                                <div class="card-action green lighten-4 form-group">
+                                    <label class="bold">Nota pubblica</label>
+                                    @Html.TextAreaFor(model => model.NOTE_Griglia, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col s6">
+                                <div class="card-action red lighten-4 form-group">
+                                    <label class="bold">Nota riservata</label>
+                                    @Html.TextAreaFor(model => model.NOTE_EM, new { @class = "form-control" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
