@@ -252,7 +252,7 @@
     <div class="collapsible-header light-blue lighten-4"><i class="material-icons">import_export</i>Esporta</div>
     <div class="collapsible-body">
         <div class="container">
-            <a class="btn chip hoverable green lighten-1 center white-text" href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode, is_report = false})" style="width: 100%">
+            <a id="btnExportXLS" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode, is_report = false})" style="width: 100%">
                 <i class="icon material-icons">
                     grid_on</i> EXCEL
             </a>
@@ -295,12 +295,11 @@
                     waiting(true, "Elaborazione in corso..");
                 },
                 success: function(response) {
-                    var blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    var blob = new Blob([s2ab(atob(response))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                     var link = URL.createObjectURL(blob);
                     var a = document.createElement("a");
-                    console.log(link)
                     a.href = link;
-                    a.download = "Esportazione.xls";
+                    a.download = "Esportazione.xlsx";
                     document.body.appendChild(a);
                     a.click();
                 },
@@ -314,6 +313,13 @@
             });
         });
     });
+
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
 
     async function SetupFiltriFirmatari() {
         var filterSelect = [];

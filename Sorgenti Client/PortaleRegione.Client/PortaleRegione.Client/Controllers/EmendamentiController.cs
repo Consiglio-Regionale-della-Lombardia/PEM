@@ -582,8 +582,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 var file = await apiGateway.Esporta.EsportaXLS(id, ordine, mode, is_report);
-                return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    file.FileName);
+                return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

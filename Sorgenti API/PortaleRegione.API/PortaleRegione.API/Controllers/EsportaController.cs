@@ -71,7 +71,8 @@ namespace PortaleRegione.API.Controllers
                     return ResponseMessage(await _logicEsporta.EsportaGrigliaReportExcel(id, ordine, mode, persona));
                 }
 
-                return ResponseMessage(await _logicEsporta.EsportaGrigliaExcel(id, ordine, mode, persona));
+                var file = await _logicEsporta.EsportaGrigliaExcel(id, ordine, mode, persona);
+                return ResponseMessage(file);
             }
             catch (Exception e)
             {

@@ -602,6 +602,7 @@ namespace PortaleRegione.BAL
 
         private async Task<HttpResponseMessage> Response<T>(string path, T book)
         {
+            var contentType = "";
             using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
                 var bookType = book.GetType();
@@ -609,12 +610,14 @@ namespace PortaleRegione.BAL
                 {
                     var t = book as IWorkbook;
                     t?.Write(fs);
+                    contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 }
 
                 if (typeof(XWPFDocument) == bookType)
                 {
                     var t = book as XWPFDocument;
                     t?.Write(fs);
+                    contentType = "application/doc";
                 }
             }
 
@@ -625,16 +628,13 @@ namespace PortaleRegione.BAL
             }
 
             stream.Position = 0;
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(stream.GetBuffer())
-            };
+            var result = new HttpResponseMessage(HttpStatusCode.OK);
+            result.Content = new StreamContent(stream);
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
             result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
             {
                 FileName = Path.GetFileName(path)
             };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
             return result;
         }
 

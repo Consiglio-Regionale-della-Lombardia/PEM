@@ -229,11 +229,13 @@ namespace PortaleRegione.Gateway
                     throw new KeyNotFoundException();
                 case HttpStatusCode.Created:
                 case HttpStatusCode.OK:
-                    return new FileResponse
                     {
-                        Content = await result.Content.ReadAsByteArrayAsync(),
-                        FileName = result.Content.Headers.ContentDisposition.FileName
-                    };
+                        return new FileResponse
+                        {
+                            Content = await result.Content.ReadAsByteArrayAsync(),
+                            FileName = result.Content.Headers.ContentDisposition.FileName
+                        };
+                    }
                 default:
                     {
                         throw new Exception(await result.Content.ReadAsStringAsync());
