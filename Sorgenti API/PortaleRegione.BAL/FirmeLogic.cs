@@ -37,12 +37,6 @@ namespace PortaleRegione.BAL
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<FirmeDto>> GetFirme(EmendamentiDto emDto, FirmeTipoEnum tipo)
-        {
-            var em = await _unitOfWork.Emendamenti.Get(emDto.UIDEM);
-            return await GetFirme(em, tipo);
-        }
-
         public async Task<IEnumerable<FirmeDto>> GetFirme(EM em, FirmeTipoEnum tipo)
         {
             try
