@@ -37,7 +37,7 @@
       <forms loginUrl="~/Login" timeout="2880" />
     </authentication>
     <compilation debug="true" targetFramework="4.7.2" />
-    <httpRuntime targetFramework="4.7.2" maxRequestLength="500000" executionTimeout="300000"/>
+    <httpRuntime targetFramework="4.7.2" maxRequestLength="500000"/>
   </system.web>
   <system.webServer>
     <security>

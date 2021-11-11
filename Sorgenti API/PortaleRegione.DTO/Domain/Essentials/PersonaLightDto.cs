@@ -29,5 +29,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string cognome { get; set; }
         public string nome { get; set; }
         public string foto { get; set; }
+        public int id_persona { get; set; }
     }
 }

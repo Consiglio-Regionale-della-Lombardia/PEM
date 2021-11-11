@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -27,6 +28,7 @@ using NPOI.XWPF.UserModel;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
 using System;
@@ -101,7 +103,9 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, "Firmatari dopo deposito");
                 SetColumnValue(ref row, "LinkEM");
 
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, false, true);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, personeInDbLight, false, true);
                 var totalProcessTime = 0f;
                 foreach (var em in emList)
                 {
@@ -169,7 +173,7 @@ namespace PortaleRegione.BAL
                             {
                                 firmatari_opendata_ante = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
-                                    persona.CurrentRole);
+                                    persona.CurrentRole, personeInDbLight);
                             }
                         }
                         catch (Exception e)
@@ -185,7 +189,7 @@ namespace PortaleRegione.BAL
                             {
                                 firmatari_opendata_post = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
-                                    persona.CurrentRole);
+                                    persona.CurrentRole, personeInDbLight);
                             }
                         }
                         catch (Exception e)
@@ -265,7 +269,9 @@ namespace PortaleRegione.BAL
 
         private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
         {
-            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, true);
+            var personeInDb = await _unitOfWork.Persone.GetAll();
+            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, open_data_enabled: true);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -331,8 +337,9 @@ namespace PortaleRegione.BAL
                 styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
                 styleReport.FillPattern = FillPattern.SolidForeground;
                 styleReport.Alignment = HorizontalAlignment.Center;
-
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, personeInDbLight);
 
                 var uolaSheet =
                     await NewSheet(

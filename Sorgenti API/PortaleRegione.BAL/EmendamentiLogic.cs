@@ -1026,16 +1026,18 @@ namespace PortaleRegione.BAL
             try
             {
                 var results = new Dictionary<Guid, string>();
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 if (model.All && !model.ListaEmendamenti.Any())
                 {
                     model.ListaEmendamenti =
-                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
+                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto, personeInDbLight))
                         .Select(em => em.UIDEM).ToList();
                 }
                 else if (model.All && model.ListaEmendamenti.Any())
                 {
                     var emendamentiInDb =
-                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
+                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto, personeInDbLight))
                         .Select(em => em.UIDEM).ToList();
                     emendamentiInDb.RemoveAll(em => model.ListaEmendamenti.Contains(em));
                     model.ListaEmendamenti = emendamentiInDb;
@@ -1068,8 +1070,8 @@ namespace PortaleRegione.BAL
                             var resultOpenData = await GetEM_OPENDATA(em,
                                 em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null,
                                 firmeDto,
-                                Mapper.Map<View_UTENTI, PersonaDto>(
-                                    await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value)));
+                                personeInDbLight.First(p => p.UID_persona == em.UIDPersonaProponente),
+                                personeInDbLight);
                             wsOD.UpsertEM(resultOpenData, AppSettingsConfiguration.OpenData_PrivateToken);
                         }
                     }
@@ -1236,6 +1238,12 @@ namespace PortaleRegione.BAL
         {
             var em = await GetEM(emendamentoUId);
             return await GetEM_DTO(em, persona, enable_cmd);
+        }
+
+        public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight, bool enable_cmd = true)
+        {
+            var em = await GetEM(emendamentoUId);
+            return await GetEM_DTO(em, atto, persona, personeInDbLight, enable_cmd);
         }
 
         public async Task<EmendamentiDto> GetEM_DTO(Guid emendamentoUId)
@@ -1492,6 +1500,116 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task<EmendamentiDto> GetEM_DTO(EM em, ATTI atto, PersonaDto persona, List<PersonaLightDto> personeInDbLight,
+            bool enable_cmd = true)
+        {
+            try
+            {
+                em.ATTI = atto;
+
+                var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+
+                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
+                    em.Rif_UIDEM.HasValue ? await GetEM_DTO(em.Rif_UIDEM.Value, atto, persona, personeInDbLight) : null);
+                emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
+                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
+                    emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
+
+                if (!string.IsNullOrEmpty(emendamentoDto.EM_Certificato))
+                    emendamentoDto.EM_Certificato = Decrypt(emendamentoDto.EM_Certificato, em.Hash);
+
+                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
+                    emendamentoDto.Firmato_Da_Me = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, persona.UID_persona);
+
+                emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
+                emendamentoDto.Firmato_Dal_Proponente =
+                    await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
+                emendamentoDto.PersonaProponente =
+                    personeInDbLight.First(p => p.UID_persona == em.UIDPersonaProponente);
+                emendamentoDto.PersonaCreazione = personeInDbLight.First(p => p.UID_persona == em.UIDPersonaCreazione);
+                if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
+                    emendamentoDto.PersonaDeposito =
+                        personeInDbLight.First(p => p.UID_persona == em.UIDPersonaDeposito);
+
+                if (emendamentoDto.UIDPersonaModifica.HasValue)
+                    emendamentoDto.PersonaModifica =
+                        personeInDbLight.First(p => p.UID_persona == em.UIDPersonaModifica);
+
+                emendamentoDto.gruppi_politici =
+            Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                await _unitOfWork.Gruppi.Get(em.id_gruppo));
+
+                if (persona == null) return emendamentoDto;
+
+                emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int)StatiEnum.Depositato
+                                              && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
+                                              && !emendamentoDto.ATTI.Chiuso ||
+                                              persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
+                                              persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
+                                              persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+
+                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
+                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    if (emendamentoDto.ConteggioFirme > 1)
+                    {
+                        var firme = await _logicFirme.GetFirme(emendamentoDto, FirmeTipoEnum.ATTIVI);
+                        emendamentoDto.Firme = firme
+                            .Where(f => f.UID_persona != emendamentoDto.UIDPersonaProponente)
+                            .Select(f => f.FirmaCert)
+                            .Aggregate((i, j) => i + "<br>" + j);
+                    }
+
+                if (enable_cmd)
+                {
+                    if (string.IsNullOrEmpty(em.DataDeposito))
+                        emendamentoDto.Depositabile = await _unitOfWork
+                            .Emendamenti
+                            .CheckIfDepositabile(emendamentoDto,
+                                persona);
+
+                    if (em.IDStato <= (int)StatiEnum.Depositato)
+                        emendamentoDto.Firmabile = await _unitOfWork
+                            .Firme
+                            .CheckIfFirmabile(emendamentoDto,
+                                persona);
+
+                    if (!em.DataRitiro.HasValue && em.IDStato == (int)StatiEnum.Depositato)
+                        emendamentoDto.Ritirabile = _unitOfWork
+                            .Emendamenti
+                            .CheckIfRitirabile(emendamentoDto,
+                                persona);
+
+                    if (string.IsNullOrEmpty(em.DataDeposito))
+                        emendamentoDto.Eliminabile = _unitOfWork
+                            .Emendamenti
+                            .CheckIfEliminabile(emendamentoDto,
+                                persona);
+
+                    emendamentoDto.Modificabile = await _unitOfWork
+                        .Emendamenti
+                        .CheckIfModificabile(emendamentoDto,
+                            persona);
+
+                    emendamentoDto.Invito_Abilitato = _unitOfWork
+                        .Notifiche
+                        .CheckIfNotificabile(emendamentoDto,
+                            persona);
+                }
+
+                var relatori = await _unitOfWork.Atti.GetRelatori(emendamentoDto.UIDAtto);
+                if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
+                    emendamentoDto.Proponente_Relatore = true;
+
+                return emendamentoDto;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEM_DTO", e);
+                throw e;
+            }
+        }
+
         public async Task<EmendamentiDto> GetEM_DTO(EM em)
         {
             try
@@ -1541,29 +1659,23 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<EmendamentiDto> GetEM_DTO_Light(Guid uidEM, PersonaDto persona)
+        public async Task<EmendamentiDto> GetEM_DTO_Light(Guid uidEM, ATTI atto, PersonaDto persona,
+            List<PersonaLightDto> personeInDbLight)
         {
             try
             {
-                if (uidEM == new Guid("dbceb7ca-1ed0-ea11-80b7-005056904635"))
-                {
-
-                }
-
                 var em = await _unitOfWork.Emendamenti.Get(uidEM);
-                em.ATTI = await _unitOfWork.Atti.Get(em.UIDAtto);
+                em.ATTI = atto;
 
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
 
                 emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                    em.Rif_UIDEM.HasValue ? await GetEM_DTO_Light(em.Rif_UIDEM.Value, persona) : null);
+                    em.Rif_UIDEM.HasValue ? await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona, personeInDbLight) : null);
 
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = Decrypt(emendamentoDto.DataDeposito);
 
-                emendamentoDto.PersonaProponente =
-                    Mapper.Map<View_UTENTI, PersonaLightDto>(
-                        await _unitOfWork.Persone.Get(emendamentoDto.UIDPersonaProponente.Value));
+                emendamentoDto.PersonaProponente = personeInDbLight.First(p => p.UID_persona == em.UIDPersonaProponente);
 
                 return emendamentoDto;
             }
@@ -1643,7 +1755,8 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<EmendamentiViewModel> GetEmendamenti_RawChunk(BaseRequest<EmendamentiDto> model,
-            PersonaDto persona, int CLIENT_MODE, Uri uri, bool open_data_enabled = false, bool light_version = false)
+            PersonaDto persona, int CLIENT_MODE, Uri uri, List<PersonaLightDto> personeInDbLight,
+            bool open_data_enabled = false, bool light_version = false)
         {
             try
             {
@@ -1658,6 +1771,9 @@ namespace PortaleRegione.BAL
 
                 var result = new List<EmendamentiDto>();
                 var totalProcessTime = 0f;
+                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First());
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+
                 foreach (var guid in em_in_db)
                 {
                     try
@@ -1665,9 +1781,9 @@ namespace PortaleRegione.BAL
                         var startTimer = DateTime.Now;
                         EmendamentiDto dto;
                         if (light_version)
-                            dto = await GetEM_DTO_Light(guid, persona);
+                            dto = await GetEM_DTO_Light(guid, atto, persona, personeInDbLight);
                         else
-                            dto = await GetEM_DTO(guid, persona);
+                            dto = await GetEM_DTO(guid, atto, persona, personeInDbLight);
 
                         if (open_data_enabled)
                         {
@@ -1681,7 +1797,7 @@ namespace PortaleRegione.BAL
                                     f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
                                     firmatari_opendata = await GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                             f.Timestamp < Convert.ToDateTime(dto.DataDeposito)),
-                                        persona.CurrentRole);
+                                        persona.CurrentRole, personeInDbLight);
                             }
                             catch (Exception e)
                             {
@@ -1851,7 +1967,8 @@ namespace PortaleRegione.BAL
 
         public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(Guid attoUId, OrdinamentoEnum ordine,
             ClientModeEnum mode,
-            PersonaDto persona, bool open_data_enabled = false, bool light_version = false)
+            PersonaDto persona, List<PersonaLightDto> personeInDbLight, bool open_data_enabled = false,
+            bool light_version = false)
         {
             var result = new List<EmendamentiDto>();
             var counter_em = await _unitOfWork.Emendamenti.Count(attoUId, persona, CounterEmendamentiEnum.NONE,
@@ -1863,7 +1980,13 @@ namespace PortaleRegione.BAL
                 ordine = ordine,
                 page = 1,
                 size = counter_em
-            }, persona, (int)mode, new Uri(AppSettingsConfiguration.urlPEM), open_data_enabled, light_version);
+            },
+                persona,
+                (int)mode,
+                new Uri(AppSettingsConfiguration.urlPEM),
+                personeInDbLight,
+                open_data_enabled,
+                light_version);
 
             result.AddRange(emList.Data.Results);
 
@@ -1873,9 +1996,15 @@ namespace PortaleRegione.BAL
         /// <summary>
         ///     Restituisce la stringa da aggiornare/inserire in OpenData
         /// </summary>
+        /// <param name="em"></param>
+        /// <param name="em_riferimento"></param>
+        /// <param name="firme"></param>
+        /// <param name="proponente"></param>
+        /// <param name="personeInDbLight"></param>
         /// <param name="uidEM"></param>
         /// <returns></returns>
-        public async Task<string> GetEM_OPENDATA(EM em, EM em_riferimento, List<FirmeDto> firme, PersonaDto proponente)
+        public async Task<string> GetEM_OPENDATA(EM em, EM em_riferimento, List<FirmeDto> firme,
+            PersonaLightDto proponente, List<PersonaLightDto> personeInDbLight)
         {
             var separatore = AppSettingsConfiguration.OpenData_Separatore;
             var result = string.Empty;
@@ -1961,9 +2090,9 @@ namespace PortaleRegione.BAL
                         f.Timestamp > Convert.ToDateTime(em.DataDeposito));
 
                     result +=
-                        $"{await GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                        $"{await GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM, personeInDbLight)}{separatore}";
                     result +=
-                        $"{await GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                        $"{await GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM, personeInDbLight)}{separatore}";
                 }
                 else
                 {
@@ -1983,7 +2112,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<string> GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo)
+        public async Task<string> GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo,
+            List<PersonaLightDto> personeInDbLight)
         {
             try
             {
@@ -1997,7 +2127,7 @@ namespace PortaleRegione.BAL
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                         {
-                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            var firmatario = personeInDbLight.First(p => p.UID_persona == firmeDto.UID_persona);
                             result +=
                                 $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
                         }
@@ -2010,7 +2140,7 @@ namespace PortaleRegione.BAL
                     {
                         if (ruolo == RuoliIntEnum.Amministratore_PEM)
                         {
-                            var firmatario = await _unitOfWork.Persone.Get(firmeDto.UID_persona);
+                            var firmatario = personeInDbLight.First(p => p.UID_persona == firmeDto.UID_persona);
                             result +=
                                 $"{firmatario.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
                         }
