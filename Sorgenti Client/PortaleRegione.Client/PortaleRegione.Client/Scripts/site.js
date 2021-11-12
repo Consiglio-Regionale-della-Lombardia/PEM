@@ -650,7 +650,7 @@ function Ordina_EMTrattazione(attoUId) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            go(data);
+            location.reload();
         }
     }).fail(function(err) {
         console.log("error", err);
@@ -679,7 +679,7 @@ function SpostaUP_EMTrattazione() {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            go(data);
+            location.reload();
         }
     }).fail(function(err) {
         console.log("error", err);
@@ -708,7 +708,7 @@ function SpostaDOWN_EMTrattazione() {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            go(data);
+            location.reload();
         }
     }).fail(function(err) {
         console.log("error", err);
@@ -748,7 +748,7 @@ function Sposta_EMTrattazione() {
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
-                    go(data);
+                    location.reload();
                 }
             }).fail(function(err) {
                 console.log("error", err);
@@ -768,7 +768,7 @@ function OrdinamentoConcluso(attoUId) {
             ErrorAlert(data.message);
         } else {
             swal("Email inviata con successo!").then((val) => {
-                go(data);
+                location.reload();
             });
         }
     }).fail(function(err) {
