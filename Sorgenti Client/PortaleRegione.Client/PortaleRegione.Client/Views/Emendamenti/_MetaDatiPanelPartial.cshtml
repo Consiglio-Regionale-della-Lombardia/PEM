@@ -11,7 +11,7 @@
 <div class="form-group">
     @Html.LabelFor(s => s.IDParte)
     <div class="row">
-        <div class="col s12" id="pnlParte">
+        <div class="col s12" id="ddlParte_@Model.UIDEM">
             
         </div>
     </div>
@@ -101,10 +101,56 @@
 <div class="form-group">
     @Html.LabelFor(s => s.IDTipo_EM, new { @class = "bold" })
     <div class="row">
-        <div class="col s12" id="pnlTipo">
+        <div class="col s12" id="pnlTipo_@Model.UIDEM">
 
         </div>
     </div>
 </div>
 <input type="hidden" id="hdParteId_@Model.UIDEM" />
 <input type="hidden" id="hdTipoId_@Model.UIDEM" />
+
+<script>
+    $(document).ready(
+        async function() {
+            console.log("Caricamento parti @Model.N_EM");
+            await LoadMetaDati_Parte('@Model.UIDEM', @Model.IDParte);
+
+        });
+
+    async function LoadMetaDati_Parte(emendamentoUId, parteId) {
+        var parti = await GetPartiEM();
+        var ctrlSelect = "#ddlParte_" + emendamentoUId;
+        var select = $(ctrlSelect);
+        var template = '<label class="black-text" style="margin-left: 20px"></label>';
+        var templateInput = '<input type="radio" name="Parte_'+ emendamentoUId + '"/>';
+        var templateSpan = '<span></span>';
+
+            select.empty();
+ 
+            $.each(parti,
+                function(index, item) {
+                    var templateTemp = template;
+                    templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte))
+                    templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte))
+                    select.append(templateTemp);
+
+                    if (item.IDParte == parteId) {
+                        if (parteId == @((int)PartiEMEnum.Articolo)) {
+                            $("#pnlFiltroArticolo").show();
+                        } else if (parteId == @((int)PartiEMEnum.Missione)) {
+                            $("#pnlFiltroMissione").show();
+                        } else if (parteId == @((int)PartiEMEnum.Titolo)) {
+                            $("#pnlFiltroTitolo").show();
+                        } else if (parteId == @((int)PartiEMEnum.Capo)) {
+                            $("#pnlFiltroCapo").show();
+                        }
+                    }
+                });
+        
+
+        //await Filtri_EM_CaricaPartiArticoloEM("filter_em_parte_articolo");
+        //await Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
+        //Filtri_EM_CaricaPartiTitoloEM("filter_em_parte_titolo");
+        //Filtri_EM_CaricaPartiCapoEM("filter_em_parte_capo");
+    }
+</script>

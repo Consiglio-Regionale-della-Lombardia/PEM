@@ -220,7 +220,10 @@ else
                             }
                         </a>
                     }
-                    <a class="blue-text tooltipped" onclick="go('@Url.Action("ModificaMetaDatiEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                    
+                    @Html.Partial("_MetaDatiFormPartial", itemEM)
+
+                    <a class="blue-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
                         <i class="material-icons">edit</i>
                     </a>
                     <a class="green-text tooltipped" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
@@ -263,6 +266,10 @@ else
             hover: true
         });
     });
+
+    function openMetaDati(emendamentoUId) {
+        $('#modalMetaDati_' + emendamentoUId).modal("open");
+    }
 
     function proiettaEM(uidem, displayEM) {
         $.ajax({
