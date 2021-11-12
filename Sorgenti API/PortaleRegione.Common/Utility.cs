@@ -335,7 +335,7 @@ namespace PortaleRegione.Common
         /// <param name="statoId"></param>
         public static void AddFilter_ByState(ref BaseRequest<EmendamentiDto> model, string statoId)
         {
-            if (!string.IsNullOrEmpty(statoId) && statoId != "0")
+            if (!string.IsNullOrEmpty(statoId))
             {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {

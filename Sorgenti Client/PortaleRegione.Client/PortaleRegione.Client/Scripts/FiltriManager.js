@@ -230,6 +230,7 @@ async function Filtri_EM_CaricaStatiEM(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_EM();
     if (filtri != null) {
+        console.log(filterSelect)
         filterSelect = filtri.stato;
     }
 
@@ -237,7 +238,7 @@ async function Filtri_EM_CaricaStatiEM(ctrlSelect) {
     if (stati.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
         $.each(stati,
             function(index, item) {
                 var template = "";
@@ -284,7 +285,7 @@ async function Filtri_EM_CaricaTipiEM(ctrlSelect) {
     if (tipi.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
 
         $.each(tipi,
             function(index, item) {
@@ -332,7 +333,7 @@ async function Filtri_EM_CaricaPartiEM(ctrlSelect) {
     if (parti.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
 
         $.each(parti,
             function(index, item) {
@@ -399,7 +400,7 @@ async function Filtri_EM_CaricaPartiArticoloEM(ctrlSelect) {
     if (parti_articoli.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
 
         $.each(parti_articoli,
             function(index, item) {
@@ -437,7 +438,7 @@ async function Filtri_EM_CaricaPartiCommaEM(ctrlSelect) {
     if (parti_commi.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
 
         $.each(parti_commi,
             function(index, item) {
@@ -475,7 +476,7 @@ async function Filtri_EM_CaricaPartiLetteraEM(ctrlSelect) {
     if (parti_lettere.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
 
         $.each(parti_lettere,
             function(index, item) {
@@ -510,7 +511,7 @@ async function Filtri_EM_CaricaPartiMissioneEM(ctrlSelect) {
     if (missioni.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-        select.append('<option value="0">Seleziona</option>');
+        select.append('<option value="">Seleziona</option>');
 
         $.each(missioni,
             function(index, item) {
