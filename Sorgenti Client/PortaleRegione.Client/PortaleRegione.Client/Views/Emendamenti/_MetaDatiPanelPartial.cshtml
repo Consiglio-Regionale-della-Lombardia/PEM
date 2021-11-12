@@ -131,7 +131,7 @@
                 function(index, item) {
                     var templateTemp = template;
                     templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte).prop("checked", parteId == item.IDParte));
-                    templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte))
+                    templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte));
                     select.append(templateTemp);
 
                     if (item.IDParte == parteId) {
