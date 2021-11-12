@@ -55,8 +55,6 @@ namespace PortaleRegione.Contracts
 
         bool CheckIfEliminabile(EmendamentiDto em, PersonaDto persona);
         bool CheckIfRitirabile(EmendamentiDto em, PersonaDto persona);
-        Task<bool> CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
-        Task<bool> CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
 
         Task<bool> CheckProgressivo(Guid attoUId, string encrypt_progressivo,
             CounterEmendamentiEnum counter_emendamenti);
@@ -75,5 +73,7 @@ namespace PortaleRegione.Contracts
         Task<EM> GetByQR(Guid id);
         string GetAll_Query(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, Filter<EM> filtro = null, int CLIENT_MODE = (int)ClientModeEnum.GRUPPI);
         Task<int> UltimoInVotazione(Guid uidAtto);
+        Task<bool> CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
+        Task<bool> CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
     }
 }

@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -640,6 +641,8 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<PARTI_TESTO>> GetPartiEmendabili()
         {
+            PRContext.PARTI_TESTO.FromCache(DateTimeOffset.Now.AddDays(100)).ToList();
+
             return await PRContext.PARTI_TESTO.ToListAsync();
         }
 
@@ -649,6 +652,8 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<TIPI_EM>> GetTipiEmendamento()
         {
+            PRContext.TIPI_EM.FromCache(DateTimeOffset.Now.AddDays(100)).ToList();
+
             return await PRContext.TIPI_EM.ToListAsync();
         }
 
@@ -658,6 +663,8 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<MISSIONI>> GetMissioniEmendamento()
         {
+            PRContext.MISSIONI.FromCache(DateTimeOffset.Now.AddDays(8)).ToList();
+
             return await PRContext.MISSIONI
                 .Where(m => DateTime.Now > m.DAL && DateTime.Now <= m.AL || !m.AL.HasValue).OrderBy(m => m.Ordine)
                 .ToListAsync();
@@ -669,6 +676,8 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<TITOLI_MISSIONI>> GetTitoliMissioneEmendamento()
         {
+            PRContext.TITOLI_MISSIONI.FromCache(DateTimeOffset.Now.AddDays(8)).ToList();
+
             return await PRContext.TITOLI_MISSIONI.ToListAsync();
         }
 
@@ -678,6 +687,8 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<STATI_EM>> GetStatiEmendamento()
         {
+            PRContext.STATI_EM.FromCache(DateTimeOffset.Now.AddDays(100)).ToList();
+
             return await PRContext
                 .STATI_EM
                 .ToListAsync();
@@ -734,7 +745,7 @@ namespace PortaleRegione.Persistance
                 return false;
             }
 
-            if (em.STATI_EM.IDStato != (int)StatiEnum.Depositato)
+            if (em.IDStato != (int)StatiEnum.Depositato)
             {
                 return false;
             }
@@ -767,17 +778,8 @@ namespace PortaleRegione.Persistance
                 }
             }
 
-            var firmaProponente = await PRContext
-                .FIRME
-                .FindAsync(em.UIDEM, em.UIDPersonaProponente);
-
             // Se proponente non ha firmato non è possibile depositare
-            if (firmaProponente == null)
-            {
-                return false;
-            }
-            // Se proponente ha ritirato la firma non è possibile depositare
-            if (!string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
+            if (!em.Firmato_Dal_Proponente)
             {
                 return false;
             }
@@ -817,11 +819,9 @@ namespace PortaleRegione.Persistance
                        || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
             }
 
-            var counter =
-                await PRContext.FIRME.CountAsync(f => f.UIDEM == em.UIDEM && string.IsNullOrEmpty(f.Data_ritirofirma));
             return (em.UIDPersonaProponente == persona.UID_persona || em.UIDPersonaCreazione == persona.UID_persona)
                    && (em.IDStato == (int)StatiEnum.Bozza || em.IDStato == (int)StatiEnum.Bozza_Riservata)
-                   && counter == 1;
+                   && em.ConteggioFirme == 1;
         }
 
         /// <summary>

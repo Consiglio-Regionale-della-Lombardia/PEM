@@ -628,8 +628,17 @@ namespace PortaleRegione.BAL
             try
             {
                 var results = new Dictionary<Guid, string>();
-
                 var counterFirme = 1;
+                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First());
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
+                var isRelatore = await _unitOfWork.Persone.IsRelatore(persona.UID_persona, firstEM.UIDAtto);
+                var isAssessore = await _unitOfWork.Persone.IsAssessore(persona.UID_persona, firstEM.UIDAtto);
+
+                var carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
+
                 foreach (var idGuid in firmaModel.ListaEmendamenti)
                 {
                     if (counterFirme == Convert.ToInt32(AppSettingsConfiguration.LimiteFirmaMassivo) + 1)
@@ -643,7 +652,8 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var n_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
+                    var emDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
+                    var n_em = emDto.N_EM;
 
                     if (em.IDStato > (int)StatiEnum.Depositato)
                     {
@@ -655,10 +665,8 @@ namespace PortaleRegione.BAL
 
                     if (firmaUfficio)
                     {
-                        var firmato_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(idGuid);
-
                         //Controllo se l'utente ha già firmato
-                        if (firmato_ufficio)
+                        if (emDto.Firma_da_ufficio)
                         {
                             results.Add(idGuid, $"ERROR: Emendamento {n_em} già firmato dall'ufficio");
                             continue;
@@ -669,20 +677,14 @@ namespace PortaleRegione.BAL
                     }
                     else
                     {
-                        var firmato_utente = await _unitOfWork.Firme.CheckFirmato(idGuid, persona.UID_persona);
-
                         //Controllo se l'utente ha già firmato
-                        if (firmato_utente)
+                        if (emDto.Firmato_Da_Me)
                         {
                             continue;
                         }
 
-                        var firmato_dal_proponente = em.IDStato >= (int)StatiEnum.Depositato
-                            ? true
-                            : await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
-
                         //Controllo la firma del proponente
-                        if (!firmato_dal_proponente && em.UIDPersonaProponente.Value != persona.UID_persona)
+                        if (!emDto.Firmato_Dal_Proponente && em.UIDPersonaProponente.Value != persona.UID_persona)
                         {
                             results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'emendamento {n_em}");
                             continue;
@@ -695,12 +697,9 @@ namespace PortaleRegione.BAL
                                 info_codice_carica_gruppo = persona.Gruppo.codice_gruppo;
                                 break;
                             case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
-                                info_codice_carica_gruppo = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
+                                info_codice_carica_gruppo = carica;
                                 break;
                         }
-
-                        var isRelatore = await _unitOfWork.Persone.IsRelatore(persona.UID_persona, em.UIDAtto);
-                        var isAssessore = await _unitOfWork.Persone.IsAssessore(persona.UID_persona, em.UIDAtto);
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo}){(isRelatore ? " - RELATORE" : string.Empty)}{(isAssessore ? " - Ass. capofila" : string.Empty)}";
@@ -923,13 +922,12 @@ namespace PortaleRegione.BAL
 
                     var emDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
                     var n_em = emDto.N_EM;
-                    if (emDto.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
+                    if (emDto.IDStato >= (int)StatiEnum.Depositato)
                     {
                         continue;
                     }
 
-                    var depositabile = await _unitOfWork.Emendamenti.CheckIfDepositabile(emDto, persona);
-                    if (!depositabile)
+                    if (!emDto.Depositabile)
                     {
                         results.Add(idGuid, $"ERROR: Emendamento {n_em} non depositabile");
                         continue;
