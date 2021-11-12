@@ -2,13 +2,13 @@
 
 <div id="modalMetaDati_@Model.UIDEM" class="modal">
     <div class="modal-content">
-        <div class="row">
+        <div class="row" style="margin:unset!important">
             <div class="col l12">
-                <h5>
-                    <b>
-                        <span>@Model.N_EM</span>
-                    </b>
-                </h5>
+                <h5 style="margin:unset!important">
+                        <b>
+                            <span>@Model.N_EM</span>
+                        </b>
+                    </h5>
             </div>
         </div>
         @using (Html.BeginForm("SalvaMetaDatiEmendamento", "Emendamenti", FormMethod.Post, new { id = "formMetaDati" }))
@@ -33,11 +33,11 @@
                     </ul>
                     <div id="metaDatiTab_@Model.UIDEM" class="col s12 left-align">
                         @Html.Partial("_MetaDatiPanelPartial", Model)
-                        
+
                     </div>
                     <div id="testoEMTab_@Model.UIDEM" class="col s12 left-align">
                         <div class="form-group">
-                            @Html.LabelFor(s => s.TestoEM_Modificabile, new { @class = "bold" })
+                            @Html.LabelFor(s => s.TestoEM_Modificabile)
                             @Html.TextAreaFor(model => model.TestoEM_Modificabile, new { @class = "form-control trumbowyg" })
                         </div>
                     </div>
