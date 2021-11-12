@@ -425,7 +425,13 @@ namespace PortaleRegione.Client.Controllers
                                     message =
                                         $"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
-                        break;
+
+                        return Json(
+                            new
+                            {
+                                message =
+                                    $"Nessuna firma effettuata"
+                            }, JsonRequestBehavior.AllowGet);
                     case ActionEnum.DEPOSITA:
                         var resultDeposita = await apiGateway.Emendamento.Deposita(model);
                         var listaErroriDeposito = new List<string>();
@@ -439,7 +445,14 @@ namespace PortaleRegione.Client.Controllers
                                     message =
                                         $"{listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
-                        break;
+
+
+                        return Json(
+                            new
+                            {
+                                message =
+                                    $"Nessuna deposito effettuato"
+                            }, JsonRequestBehavior.AllowGet);
                     case ActionEnum.INVITA:
                         var resultInvita = await apiGateway.Notifiche.NotificaEM(model);
                         var listaErroriInvita = new List<string>();
@@ -453,12 +466,17 @@ namespace PortaleRegione.Client.Controllers
                                     message =
                                         $"{listaErroriInvita.Aggregate((i, j) => i + ", " + j)}"
                                 }, JsonRequestBehavior.AllowGet);
-                        break;
+
+
+                        return Json(
+                            new
+                            {
+                                message =
+                                    $"Nessuna invito effettuato"
+                            }, JsonRequestBehavior.AllowGet);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(model.Azione), model.Azione, null);
                 }
-
-                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

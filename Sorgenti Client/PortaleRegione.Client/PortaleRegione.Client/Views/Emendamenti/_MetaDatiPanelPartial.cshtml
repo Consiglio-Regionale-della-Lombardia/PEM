@@ -19,86 +19,69 @@
     @{
         var detailPanelVisible = Model.IDParte == (int)PartiEMEnum.Titolo_PDL ? "none" : "block";
     }
-<div class="row" id="detailsPanel_@Model.UIDEM" style="display: @detailPanelVisible">
-    <div class="col s12">
-        <div class="row" style="margin:unset!important">
+    <div class="row" id="detailsPanel_@Model.UIDEM" style="display: @detailPanelVisible">
+        <div class="col s12">
+            <div class="row" style="margin: unset !important">
 
-            <div class="col s12">
-                @{
-                    var pnlTitoloVisible = string.IsNullOrEmpty(Model.NTitolo) ? "none" : "block";
-                }
-                <div id="pnlParte_Titolo_@Model.UIDEM" style="display: @pnlTitoloVisible">
-                    @Html.LabelFor(m => m.NTitolo)
-                    <input type="text" id="Emendamento.NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                <div class="col s12">
+                    @{
+                        var pnlTitoloVisible = string.IsNullOrEmpty(Model.NTitolo) ? "none" : "block";
+                    }
+                    <div id="pnlParte_Titolo_@Model.UIDEM" style="display: @pnlTitoloVisible">
+                        @Html.LabelFor(m => m.NTitolo)
+                        <input type="text" id="Emendamento.NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
 
-                </div>
-                @{
-                    var pnlCapoVisible = string.IsNullOrEmpty(Model.NCapo) ? "none" : "block";
-                }
-                <div id="pnlParte_Capo_@Model.UIDEM" style="display: @pnlCapoVisible">
-                    @Html.LabelFor(m => m.NCapo)
-                    <input type="text" id="Emendamento.NCapo_@Model.UIDEM" value="@Model.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
-                </div>
-                @{
-                    var pnlArticoliVisible = Model.UIDArticolo.HasValue ? "block" : "none";
-                }
-                <div id="pnlParte_Articoli_@Model.UIDEM" style="display: @pnlArticoliVisible">
-                    <div class="input-field">
-                        <select id="Articoli_@Model.UIDEM"></select>
-                        @Html.LabelFor(m => m.UIDArticolo)
                     </div>
-
-                    <div id="pnlParte_Articoli_Commi_@Model.UIDEM" style="display: none">
-                        <div class="input-field">
-                            <select id="Commi_@Model.UIDEM"></select>
-                            @Html.LabelFor(m => m.UIDComma)
+                    @{
+                        var pnlCapoVisible = string.IsNullOrEmpty(Model.NCapo) ? "none" : "block";
+                    }
+                    <div id="pnlParte_Capo_@Model.UIDEM" style="display: @pnlCapoVisible">
+                        @Html.LabelFor(m => m.NCapo)
+                        <input type="text" id="Emendamento.NCapo_@Model.UIDEM" value="@Model.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                    </div>
+                    @{
+                        var pnlArticoliVisible = Model.UIDArticolo.HasValue ? "block" : "none";
+                    }
+                    <div id="pnlParte_Articoli_@Model.UIDEM" style="display: @pnlArticoliVisible">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.UIDArticolo)
+                            <select id="Articoli_@Model.UIDEM" class="browser-default"></select>
                         </div>
-                    </div>
-                    <div id="pnlParte_Articoli_Lettere_@Model.UIDEM" style="display: none">
-                        <div class="form-group" id="Lettere_@Model.UIDEM">
-                            @Html.LabelFor(m => m.UIDLettera)
 
+                        <div id="pnlParte_Articoli_Commi_@Model.UIDEM" style="display: none">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.UIDComma)
+                                <select id="Commi_@Model.UIDEM" class="browser-default"></select>
+                            </div>
+                        </div>
+                        <div id="pnlParte_Articoli_Lettere_@Model.UIDEM" style="display: none">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.UIDLettera)
+                                <select id="Lettere_@Model.UIDEM" class="browser-default"></select>
+                            </div>
                         </div>
                     </div>
                     @{
-                        var pnlLettereOLDVisible = string.IsNullOrEmpty(Model.NLettera) ? "none" : "block";
+                        var pnlMissioniVisible = !Model.NMissione.HasValue ? "none" : "block";
                     }
-                    <div id="pnlLettereOLD_@Model.UIDEM" style="display: @pnlLettereOLDVisible">
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.NLettera)
-                            @if (_disabled)
-                            {
-                                @Html.TextBoxFor(m => m.NLettera, new { id = $"txtLetteraOLD_{Model.UIDEM}", disabled = true })
-                            }
-                            else
-                            {
-                                @Html.TextBoxFor(m => m.NLettera, new { id = $"txtLetteraOLD_{Model.UIDEM}" })
-                            }
+                    <div id="pnlParte_Missioni" style="display: @pnlMissioniVisible">
+                        <div class="form-group" id="pnlListaMissioni">
+                            @Html.LabelFor(m => m.NMissione)
 
                         </div>
-                    </div>
-                </div>
-                @{
-                    var pnlMissioniVisible = !Model.NMissione.HasValue ? "none" : "block";
-                }
-                <div id="pnlParte_Missioni" style="display: @pnlMissioniVisible">
-                    <div class="form-group" id="pnlListaMissioni">
-                        @Html.LabelFor(m => m.NMissione)
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NProgramma)
+                            <input type="number" id="Emendamento.NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                        </div>
+                        <div class="form-group" id="pnlListaTitoli_Missioni">
+                            @Html.LabelFor(m => m.NTitoloB)
 
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.NProgramma)
-                        <input type="number" id="Emendamento.NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
-                    </div>
-                    <div class="form-group" id="pnlListaTitoli_Missioni">
-                        @Html.LabelFor(m => m.NTitoloB)
-
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 <div class="form-group">
     @Html.LabelFor(s => s.IDTipo_EM)
@@ -108,8 +91,8 @@
         </div>
     </div>
 </div>
-<input type="hidden" id="hdParteId_@Model.UIDEM" />
-<input type="hidden" id="hdTipoId_@Model.UIDEM" />
+<input type="hidden" id="hdParteId_@Model.UIDEM"/>
+<input type="hidden" id="hdTipoId_@Model.UIDEM"/>
 
 <script>
     $(document).ready(
@@ -144,10 +127,10 @@
                     } else if (em.IDParte == @((int)PartiEMEnum.Titolo)) {
                         $("#pnlFiltroTitolo").show();
                     } else if (em.IDParte == @((int)PartiEMEnum.Capo)) {
-                            $("#pnlFiltroCapo").show();
-                        }
+                        $("#pnlFiltroCapo").show();
                     }
-                });
+                }
+            });
 
         await LoadMetaDati_Parte_Articolo(em);
 
@@ -184,9 +167,9 @@
             $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
             return;
         }
-        $('#pnlParte_Articoli_Commi_' + em.UIDEM).show();
         var parti_commi = await GetCommi(em.UIDArticolo);
         if (parti_commi.length > 0) {
+            $('#pnlParte_Articoli_Commi_' + em.UIDEM).show();
             var select = $("#Commi_" + em.UIDEM);
             select.empty();
             select.append('<option value="">Seleziona</option>');
@@ -203,6 +186,35 @@
                 });
 
             $(select).formSelect();
+            await LoadMetaDati_Parte_Lettere(em);
+        }
+    }
+
+    async function LoadMetaDati_Parte_Lettere(em) {
+        if (em.UIDComma == null) {
+            $('#pnlParte_Articoli_Lettere_' + em.UIDEM).hide();
+            return;
+        }
+
+        var parti_lettere = await GetLettere(em.UIDComma);
+        if (parti_lettere.length > 0) {
+            $('#pnlParte_Articoli_Lettere_' + em.UIDEM).show();
+            var select = $("#Lettere_" + em.UIDEM);
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_lettere,
+                function(index, item) {
+                    var template = "";
+                    if (item.UIDLettera == em.UIDLettera) {
+                        template = "<option selected='selected'></option>";
+
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.UIDLettera).html(item.Lettera));
+                });
+
+            $(select).formSelect();
         }
     }
 
@@ -214,14 +226,14 @@
         var templateInput = '<input type="radio" name="Tipo_' + em.UIDEM + '"/>';
         var templateSpan = '<span></span>';
 
-            select.empty();
+        select.empty();
 
         $.each(tipi,
-                function(index, item) {
-                    var templateTemp = template;
-                    templateTemp = $(templateTemp).append($(templateInput).val(item.IDTipo_EM).prop("checked", em.IDTipo_EM == item.IDTipo_EM));
-                    templateTemp = $(templateTemp).append($(templateSpan).html(item.Tipo_EM));
-                    select.append(templateTemp);
-                });
+            function(index, item) {
+                var templateTemp = template;
+                templateTemp = $(templateTemp).append($(templateInput).val(item.IDTipo_EM).prop("checked", em.IDTipo_EM == item.IDTipo_EM));
+                templateTemp = $(templateTemp).append($(templateSpan).html(item.Tipo_EM));
+                select.append(templateTemp);
+            });
     }
 </script>

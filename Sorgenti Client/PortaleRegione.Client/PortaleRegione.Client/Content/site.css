@@ -29,7 +29,15 @@ main { margin-bottom: 150px; }
 .input-field > label {
     font-weight: bold !important
 }
-a { cursor: pointer }
+
+.modal.bottom-sheet {
+    max-height: unset !important;
+    height: 60%!important;
+}
+
+a {
+    cursor: pointer
+}
 
 .bodyEMClass > table > tbody > tr { border-bottom: unset !important; }
 

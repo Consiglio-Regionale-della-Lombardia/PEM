@@ -1,14 +1,17 @@
 ﻿@model  PortaleRegione.DTO.Domain.EmendamentiDto
 
-<div id="modalMetaDati_@Model.UIDEM" class="modal">
+<div id="modalMetaDati_@Model.UIDEM" class="modal bottom-sheet">
     <div class="modal-content">
-        <div class="row" style="margin:unset!important">
-            <div class="col l12">
-                <h5 style="margin:unset!important">
-                        <b>
-                            <span>@Model.N_EM</span>
-                        </b>
-                    </h5>
+        <div class="row" style="margin: unset !important">
+            <div class="col l6 left-align">
+                <h5 style="margin: unset !important">
+                    <b>
+                        <span>@Model.N_EM</span>
+                    </b>
+                </h5>
+            </div>
+            <div class="col l6 right-align">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
             </div>
         </div>
         @using (Html.BeginForm("SalvaMetaDatiEmendamento", "Emendamenti", FormMethod.Post, new { id = "formMetaDati" }))
@@ -62,7 +65,5 @@
             </div>
         }
     </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
+
 </div>
