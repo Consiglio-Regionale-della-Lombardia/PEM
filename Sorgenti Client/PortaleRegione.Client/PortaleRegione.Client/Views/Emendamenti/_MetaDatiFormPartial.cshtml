@@ -2,9 +2,9 @@
 
 <div id="modalMetaDati_@Model.UIDEM" class="modal">
     <div class="modal-content">
-        <div class="row" style="margin:unset!important">
+        <div class="row">
             <div class="col l12">
-                <h5 style="margin:unset!important">
+                <h5>
                     <b>
                         <span>@Model.N_EM</span>
                     </b>
@@ -37,7 +37,7 @@
                     </div>
                     <div id="testoEMTab_@Model.UIDEM" class="col s12 left-align">
                         <div class="form-group">
-                            @Html.LabelFor(s => s.TestoEM_Modificabile)
+                            @Html.LabelFor(s => s.TestoEM_Modificabile, new { @class = "bold" })
                             @Html.TextAreaFor(model => model.TestoEM_Modificabile, new { @class = "form-control trumbowyg" })
                         </div>
                     </div>
@@ -63,6 +63,6 @@
         }
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Salva</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
     </div>
 </div>

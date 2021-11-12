@@ -1,5 +1,4 @@
-﻿@using Newtonsoft.Json
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Domain.EmendamentiDto
 @{
     var _disabled = false;
@@ -12,67 +11,68 @@
 <div class="form-group">
     @Html.LabelFor(s => s.IDParte)
     <div class="row">
-        <div class="col s12" id="pnlParte_@Model.UIDEM">
+        <div class="col s12" id="ddlParte_@Model.UIDEM">
             
         </div>
     </div>
     @{
         var detailPanelVisible = Model.IDParte == (int)PartiEMEnum.Titolo_PDL ? "none" : "block";
     }
-    <div class="row" id="detailsPanel_@Model.UIDEM" style="display: @detailPanelVisible">
+    <div class="row" id="detailsPanel" style="display: @detailPanelVisible">
         <div class="col s12">
-            <div class="row" style="margin:unset!important">
+            <div class="row">
+
                 <div class="col s12">
                     @{
                         var pnlTitoloVisible = string.IsNullOrEmpty(Model.NTitolo) ? "none" : "block";
                     }
-                    <div id="pnlParte_Titolo_@Model.UIDEM" style="display: @pnlTitoloVisible">
-                        @Html.LabelFor(m => m.NTitolo)
+                    <div id="pnlParte_Titolo" style="display: @pnlTitoloVisible">
+                        @Html.LabelFor(m => m.NTitolo, new { @class = "bold" })
                         <input type="text" id="Emendamento.NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
 
                     </div>
                     @{
                         var pnlCapoVisible = string.IsNullOrEmpty(Model.NCapo) ? "none" : "block";
                     }
-                    <div id="pnlParte_Capo_@Model.UIDEM" style="display: @pnlCapoVisible">
-                        @Html.LabelFor(m => m.NCapo)
+                    <div id="pnlParte_Capo" style="display: @pnlCapoVisible">
+                        @Html.LabelFor(m => m.NCapo, new { @class = "bold" })
                         <input type="text" id="Emendamento.NCapo_@Model.UIDEM" value="@Model.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                     </div>
                     @{
                         var pnlArticoliVisible = Model.UIDArticolo.HasValue ? "block" : "none";
                     }
-                    <div id="pnlParte_Articoli_@Model.UIDEM" style="display: @pnlArticoliVisible">
-                        <div class="input-field">
-                            <select id="Articoli_@Model.UIDEM"></select>
-                            @Html.LabelFor(m => m.UIDArticolo)
+                    <div id="pnlParte_Articoli" style="display: @pnlArticoliVisible">
+                        <div class="form-group" id="Articoli">
+                            
                         </div>
 
-                        <div id="pnlParte_Articoli_Commi_@Model.UIDEM" style="display: none">
-                            <div class="input-field">
-                                <select id="Commi_@Model.UIDEM"></select>
-                                @Html.LabelFor(m => m.UIDComma)
+                        <div id="pnlParte_Articoli_Commi" style="display: none">
+                            <div class="form-group" id="Commi">
+                                @Html.LabelFor(m => m.UIDComma, new { @class = "bold" })
+                                
                             </div>
                         </div>
-                        <div id="pnlParte_Articoli_Lettere_@Model.UIDEM" style="display: none">
-                            <div class="form-group" id="Lettere_@Model.UIDEM">
-                                @Html.LabelFor(m => m.UIDLettera)
+                        <div id="pnlParte_Articoli_Lettere" style="display: none">
+                            <div class="form-group" id="Lettere">
+                                @Html.LabelFor(m => m.UIDLettera, new { @class = "bold" })
                                 
                             </div>
                         </div>
                         @{
                             var pnlLettereOLDVisible = string.IsNullOrEmpty(Model.NLettera) ? "none" : "block";
                         }
-                        <div id="pnlLettereOLD_@Model.UIDEM" style="display: @pnlLettereOLDVisible">
+                        <div id="pnlLettereOLD" style="display: @pnlLettereOLDVisible">
                             <div class="form-group">
-                                @Html.LabelFor(m => m.NLettera)
+                                @Html.LabelFor(m => m.NLettera, new { @class = "bold" })
                                 @if (_disabled)
                                 {
-                                    @Html.TextBoxFor(m => m.NLettera, new { id = $"txtLetteraOLD_{Model.UIDEM}", disabled = true })
+                                    @Html.TextBoxFor(m => m.NLettera, new { id = "txtLetteraOLD", disabled = true })
                                 }
                                 else
                                 {
-                                    @Html.TextBoxFor(m => m.NLettera, new { id = $"txtLetteraOLD_{Model.UIDEM}" })
+                                    @Html.TextBoxFor(m => m.NLettera, new { id = "txtLetteraOLD" })
                                 }
+
                             </div>
                         </div>
                     </div>
@@ -81,15 +81,15 @@
                     }
                     <div id="pnlParte_Missioni" style="display: @pnlMissioniVisible">
                         <div class="form-group" id="pnlListaMissioni">
-                            @Html.LabelFor(m => m.NMissione)
+                            @Html.LabelFor(m => m.NMissione, new { @class = "bold" })
                             
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.NProgramma)
+                            @Html.LabelFor(m => m.NProgramma, new { @class = "bold" })
                             <input type="number" id="Emendamento.NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
                         </div>
                         <div class="form-group" id="pnlListaTitoli_Missioni">
-                            @Html.LabelFor(m => m.NTitoloB)
+                            @Html.LabelFor(m => m.NTitoloB, new { @class = "bold" })
                         
                             </div>
                     </div>
@@ -99,7 +99,7 @@
     </div>
 </div>
 <div class="form-group">
-    @Html.LabelFor(s => s.IDTipo_EM)
+    @Html.LabelFor(s => s.IDTipo_EM, new { @class = "bold" })
     <div class="row">
         <div class="col s12" id="pnlTipo_@Model.UIDEM">
 
@@ -112,113 +112,45 @@
 <script>
     $(document).ready(
         async function() {
-            var em = @Html.Raw(JsonConvert.SerializeObject(Model));
-            LoadMetaDati_Parte(em);
-            LoadMetaDati_Tipo(em);
+            console.log("Caricamento parti @Model.N_EM");
+            await LoadMetaDati_Parte('@Model.UIDEM', @Model.IDParte);
+
         });
 
-    async function LoadMetaDati_Parte(em) {
+    async function LoadMetaDati_Parte(emendamentoUId, parteId) {
         var parti = await GetPartiEM();
-        var ctrlSelect = "#pnlParte_" + em.UIDEM;
+        var ctrlSelect = "#ddlParte_" + emendamentoUId;
         var select = $(ctrlSelect);
         var template = '<label class="black-text" style="margin-left: 20px"></label>';
-        var templateInput = '<input type="radio" name="Parte_' + em.UIDEM + '"/>';
+        var templateInput = '<input type="radio" name="Parte_'+ emendamentoUId + '"/>';
         var templateSpan = '<span></span>';
 
-        select.empty();
+            select.empty();
+ 
+            $.each(parti,
+                function(index, item) {
+                    var templateTemp = template;
+                    templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte).prop("checked", parteId == item.IDParte));
+                    templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte));
+                    select.append(templateTemp);
 
-        $.each(parti,
-            function(index, item) {
-                var templateTemp = template;
-                templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte).prop("checked", em.IDParte == item.IDParte));
-                templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte));
-                select.append(templateTemp);
-
-                if (item.IDParte == em.IDParte) {
-                    if (em.IDParte == @((int)PartiEMEnum.Articolo)) {
-                        $("#pnlFiltroArticolo").show();
-                    } else if (em.IDParte == @((int)PartiEMEnum.Missione)) {
-                        $("#pnlFiltroMissione").show();
-                    } else if (em.IDParte == @((int)PartiEMEnum.Titolo)) {
-                        $("#pnlFiltroTitolo").show();
-                    } else if (em.IDParte == @((int)PartiEMEnum.Capo)) {
+                    if (item.IDParte == parteId) {
+                        if (parteId == @((int)PartiEMEnum.Articolo)) {
+                            $("#pnlFiltroArticolo").show();
+                        } else if (parteId == @((int)PartiEMEnum.Missione)) {
+                            $("#pnlFiltroMissione").show();
+                        } else if (parteId == @((int)PartiEMEnum.Titolo)) {
+                            $("#pnlFiltroTitolo").show();
+                        } else if (parteId == @((int)PartiEMEnum.Capo)) {
                             $("#pnlFiltroCapo").show();
                         }
                     }
                 });
         
-        await LoadMetaDati_Parte_Articolo(em);
+
+        //await Filtri_EM_CaricaPartiArticoloEM("filter_em_parte_articolo");
         //await Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
         //Filtri_EM_CaricaPartiTitoloEM("filter_em_parte_titolo");
         //Filtri_EM_CaricaPartiCapoEM("filter_em_parte_capo");
-    }
-
-    async function LoadMetaDati_Parte_Articolo(em) {
-        var parti_articoli = await GetArticoli(em.UIDAtto);
-        if (parti_articoli.length > 0) {
-            var select = $("#Articoli_" + em.UIDEM);
-            select.empty();
-            select.append('<option value="">Seleziona</option>');
-
-            $.each(parti_articoli,
-                function(index, item) {
-                    var template = "";
-                    if (item.UIDArticolo == em.UIDArticolo) {
-                        template = "<option selected='selected'></option>";
-
-                    } else
-                        template = "<option></option>";
-                    select.append($(template).val(item.UIDArticolo).html(item.Articolo));
-                });
-
-            $(select).formSelect();
-            await LoadMetaDati_Parte_Comma(em);
-        }
-    }
-    
-    async function LoadMetaDati_Parte_Comma(em) {
-        if (em.UIDArticolo == null) {
-            $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
-            return;
-        }
-        $('#pnlParte_Articoli_Commi_' + em.UIDEM).show();
-        var parti_commi = await GetCommi(em.UIDArticolo);
-        if (parti_commi.length > 0) {
-            var select = $("#Commi_" + em.UIDEM);
-            select.empty();
-            select.append('<option value="">Seleziona</option>');
-
-            $.each(parti_commi,
-                function(index, item) {
-                    var template = "";
-                    if (item.UIDComma == em.UIDComma) {
-                        template = "<option selected='selected'></option>";
-
-                    } else
-                        template = "<option></option>";
-                    select.append($(template).val(item.UIDComma).html(item.Comma));
-                });
-
-            $(select).formSelect();
-        }
-    }
-
-    async function LoadMetaDati_Tipo(em) {
-        var tipi = await GetTipiEM();
-        var ctrlSelect = "#pnlTipo_" + em.UIDEM;
-        var select = $(ctrlSelect);
-        var template = '<label class="black-text" style="margin-left: 20px"></label>';
-        var templateInput = '<input type="radio" name="Tipo_' + em.UIDEM + '"/>';
-        var templateSpan = '<span></span>';
-
-            select.empty();
-
-        $.each(tipi,
-                function(index, item) {
-                    var templateTemp = template;
-                    templateTemp = $(templateTemp).append($(templateInput).val(item.IDTipo_EM).prop("checked", em.IDTipo_EM == item.IDTipo_EM));
-                    templateTemp = $(templateTemp).append($(templateSpan).html(item.Tipo_EM));
-                    select.append(templateTemp);
-                });
     }
 </script>
