@@ -130,7 +130,7 @@
             $.each(parti,
                 function(index, item) {
                     var templateTemp = template;
-                    templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte))
+                    templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte).prop("checked", parteId == item.IDParte));
                     templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte))
                     select.append(templateTemp);
 
