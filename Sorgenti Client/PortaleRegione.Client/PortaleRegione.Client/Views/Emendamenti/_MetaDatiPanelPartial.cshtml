@@ -105,6 +105,21 @@
                     $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
                 }
             });
+            $('#btnSalvaMetaDatiPartial_' + em.UIDEM).click(function() {
+                waiting(true);
+                $.ajax({
+                    url: '@Url.Action("SalvaMetaDatiEM")',
+                    type: "POST",
+                    data: JSON.parse(em),
+                }).done(function(result) {
+                    waiting(false);
+                    location.reload();
+                }).fail(function(err) {
+                    waiting(false);
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            });
         });
 
     async function LoadMetaDati_Parte(em) {
@@ -145,7 +160,6 @@
         await LoadMetaDati_Parte_Missione(em);
 
         $("input[type=radio][name='Parte_" + em.UIDEM + "']").change(function() {
-            console.log("Parte", this.value)
             em.IDParte = this.value;
             LoadMetaDati_Parte(em);
         });
@@ -171,6 +185,12 @@
 
             $(select).formSelect();
             await LoadMetaDati_Parte_Comma(em);
+
+            $(select).change(function() {
+                em.UIDArticolo = this.value;
+                LoadMetaDati_Parte_Comma(em);
+            });
+
         } else {
             $('#pnlParte_Articoli_' + em.UIDEM).hide();
         }
@@ -201,6 +221,11 @@
 
             $(select).formSelect();
             await LoadMetaDati_Parte_Lettere(em);
+
+            $(select).change(function () {
+                em.UIDComma = this.value;
+                LoadMetaDati_Parte_Lettere(em);
+            });
         } else {
             $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
         }

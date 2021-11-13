@@ -322,6 +322,31 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Controller per modificare i metadati di un emendamento
+        /// </summary>
+        /// <param name="model">Modello emendamento</param>
+        /// <returns></returns>
+        [Route("meta-dati-em")]
+        [HttpPost]
+        public async Task<ActionResult> SalvaMetaDatiEM(EmendamentiDto model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Emendamento.ModificaMetaDati(model);
+                return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
+                {
+                    id = model.UIDAtto
+                }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Esegui azione su emendamento selezionato
         /// </summary>
         /// <param name="id">Guid emendamento</param>
