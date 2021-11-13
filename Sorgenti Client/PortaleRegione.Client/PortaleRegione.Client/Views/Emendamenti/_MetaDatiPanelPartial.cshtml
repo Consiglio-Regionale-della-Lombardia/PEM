@@ -64,18 +64,18 @@
                     @{
                         var pnlMissioniVisible = !Model.NMissione.HasValue ? "none" : "block";
                     }
-                    <div id="pnlParte_Missioni" style="display: @pnlMissioniVisible">
-                        <div class="form-group" id="pnlListaMissioni">
+                    <div id="pnlParte_Missioni_@Model.UIDEM" style="display: @pnlMissioniVisible">
+                        <div class="form-group">
                             @Html.LabelFor(m => m.NMissione)
-
+                            <select id="Missioni_@Model.UIDEM" class="browser-default"></select>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.NProgramma)
-                            <input type="number" id="Emendamento.NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                            <input type="number" id="NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                         </div>
                         <div class="form-group" id="pnlListaTitoli_Missioni">
                             @Html.LabelFor(m => m.NTitoloB)
-
+                            <select id="TitoliMissioni_@Model.UIDEM" class="browser-default"></select>
                         </div>
                     </div>
                 </div>
@@ -133,10 +133,7 @@
             });
 
         await LoadMetaDati_Parte_Articolo(em);
-
-        //await Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
-        //Filtri_EM_CaricaPartiTitoloEM("filter_em_parte_titolo");
-        //Filtri_EM_CaricaPartiCapoEM("filter_em_parte_capo");
+        await LoadMetaDati_Parte_Missione(em);
     }
 
     async function LoadMetaDati_Parte_Articolo(em) {
@@ -215,6 +212,30 @@
                 });
 
             $(select).formSelect();
+        }
+    }
+    
+    async function LoadMetaDati_Parte_Missione(em) {
+        var parti_missioni = await GetMissioni();
+        if (parti_missioni.length > 0) {
+            $('#pnlParte_Missioni_' + em.UIDEM).show();
+            var select = $("#Missioni_" + em.UIDEM);
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_missioni,
+                function(index, item) {
+                    var template = "";
+                    if (item.NMissione == em.NMissione) {
+                        template = "<option selected='selected'></option>";
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.NMissione).html(item.NMissione + ' - ' + item.Desccrizione));
+                });
+
+            $(select).formSelect();
+        } else {
+            $('#pnlParte_Missioni_' + em.UIDEM).hide();
         }
     }
 
