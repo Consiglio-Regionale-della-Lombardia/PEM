@@ -1,14 +1,7 @@
 ﻿@using Newtonsoft.Json
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Domain.EmendamentiDto
-@{
-    var _disabled = false;
 
-    if (Model.Rif_UIDEM.HasValue && Model.Rif_UIDEM != Guid.Empty)
-    {
-        _disabled = true;
-    }
-}
 <div class="form-group">
     @Html.LabelFor(s => s.IDParte)
     <div class="row">
@@ -26,12 +19,12 @@
                 <div class="col s12">
                     <div id="pnlParte_Titolo_@Model.UIDEM" style="display: none">
                         @Html.LabelFor(m => m.NTitolo)
-                        <input type="text" id="Emendamento.NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                        <input type="text" id="Emendamento.NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)" />
 
                     </div>
                     <div id="pnlParte_Capo_@Model.UIDEM" style="display: none">
                         @Html.LabelFor(m => m.NCapo)
-                        <input type="text" id="Emendamento.NCapo_@Model.UIDEM" value="@Model.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                        <input type="text" id="Emendamento.NCapo_@Model.UIDEM" value="@Model.NCapo" onkeyup="NCapo_OnChange(this)"/>
                     </div>
                     <div id="pnlParte_Articoli_@Model.UIDEM" style="display: none">
                         <div class="form-group">
@@ -59,7 +52,7 @@
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.NProgramma)
-                            <input type="number" id="NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
+                            <input type="number" id="NProgramma_@Model.UIDEM" min="0" value="@Model.NProgramma"/>
                         </div>
                         <div class="form-group" id="pnlListaTitoli_Missioni">
                             @Html.LabelFor(m => m.NTitoloB)
@@ -123,7 +116,11 @@
         var templateSpan = '<span></span>';
 
         select.empty();
-        
+        $('#pnlParte_Articoli_' + em.UIDEM).hide();
+        $('#pnlParte_Missioni_' + em.UIDEM).hide();
+        $('#pnlParte_Titolo_' + em.UIDEM).hide();
+        $('#pnlParte_Capo_' + em.UIDEM).hide();
+
         $.each(parti,
             function(index, item) {
                 var templateTemp = template;
@@ -146,6 +143,12 @@
 
         await LoadMetaDati_Parte_Articolo(em);
         await LoadMetaDati_Parte_Missione(em);
+
+        $("input[type=radio][name='Parte_" + em.UIDEM + "']").change(function() {
+            console.log("Parte", this.value)
+            em.IDParte = this.value;
+            LoadMetaDati_Parte(em);
+        });
     }
 
     async function LoadMetaDati_Parte_Articolo(em) {
