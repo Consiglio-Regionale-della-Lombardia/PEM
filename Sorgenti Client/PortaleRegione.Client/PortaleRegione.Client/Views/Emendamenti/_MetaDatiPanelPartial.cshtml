@@ -9,10 +9,7 @@
 
         </div>
     </div>
-    @{
-        var detailPanelVisible = Model.IDParte == (int)PartiEMEnum.Titolo_PDL ? "none" : "block";
-    }
-    <div class="row" id="detailsPanel_@Model.UIDEM" style="display: @detailPanelVisible">
+    <div class="row" id="detailsPanel_@Model.UIDEM" style="display: none">
         <div class="col s12">
             <div class="row" style="margin: unset !important">
 
@@ -107,12 +104,20 @@
             });
             $('#btnSalvaMetaDatiPartial_' + em.UIDEM).click(function() {
                 waiting(true);
+                var testo_modificabile = $("input[type=radio][name='Testo_" + em.UIDEM + "']:checked")[0];
+                if ($(testo_modificabile).val() == 1) {
+                    em.TestoEM_Modificabile = editor_testo.html();
+                } else {
+                    em.TestoEM_Modificabile = "";
+                }
+
                 $.ajax({
                     url: '@Url.Action("SalvaMetaDatiEM")',
                     type: "POST",
-                    data: JSON.parse(em),
+                    data: JSON.stringify(em),
+                    contentType: "application/json",
+                    dataType: "json"
                 }).done(function(result) {
-                    waiting(false);
                     location.reload();
                 }).fail(function(err) {
                     waiting(false);
@@ -131,6 +136,13 @@
         var templateSpan = '<span></span>';
 
         select.empty();
+
+        if (em.IDParte > @((int)PartiEMEnum.Titolo_PDL)) {
+            $('#detailsPanel_' + em.UIDEM).show();
+        } else {
+            $('#detailsPanel_' + em.UIDEM).hide();
+        }
+
         $('#pnlParte_Articoli_' + em.UIDEM).hide();
         $('#pnlParte_Missioni_' + em.UIDEM).hide();
         $('#pnlParte_Titolo_' + em.UIDEM).hide();
@@ -159,9 +171,9 @@
         await LoadMetaDati_Parte_Articolo(em);
         await LoadMetaDati_Parte_Missione(em);
 
-        $("input[type=radio][name='Parte_" + em.UIDEM + "']").change(function() {
+        $("input[type=radio][name='Parte_" + em.UIDEM + "']").change(async function() {
             em.IDParte = this.value;
-            LoadMetaDati_Parte(em);
+            await LoadMetaDati_Parte(em);
         });
     }
 
@@ -186,9 +198,9 @@
             $(select).formSelect();
             await LoadMetaDati_Parte_Comma(em);
 
-            $(select).change(function() {
+            $(select).change(async function() {
                 em.UIDArticolo = this.value;
-                LoadMetaDati_Parte_Comma(em);
+                await LoadMetaDati_Parte_Comma(em);
             });
 
         } else {
@@ -222,9 +234,9 @@
             $(select).formSelect();
             await LoadMetaDati_Parte_Lettere(em);
 
-            $(select).change(function () {
+            $(select).change(async function () {
                 em.UIDComma = this.value;
-                LoadMetaDati_Parte_Lettere(em);
+                await LoadMetaDati_Parte_Lettere(em);
             });
         } else {
             $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
@@ -284,10 +296,10 @@
             $('#pnlParte_Missioni_' + em.UIDEM).hide();
         }
     }
-    
+
     async function LoadMetaDati_Parte_TitoliMissione(em) {
         var parti_titoli_missioni = await GetTitoliMissioni();
-        
+
         if (parti_titoli_missioni.length > 0) {
             var select = $("#TitoliMissioni_" + em.UIDEM);
             select.empty();
@@ -304,7 +316,7 @@
                 });
 
             $(select).formSelect();
-        } 
+        }
     }
 
     async function LoadMetaDati_Tipo(em) {
