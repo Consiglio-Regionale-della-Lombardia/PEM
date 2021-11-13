@@ -628,6 +628,26 @@ function GetMissioni() {
     });
 }
 
+function GetTitoliMissioni() {
+    var missioni = get_ListaTitoliMissioniEM();
+    if (missioni.length > 0) {
+        return missioni;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/emendamenti/titoli-missioni-em",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaTitoliMissioniEM(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 function filter_em_text1_OnChange() {
     var value = $("#filter_em_text1").val();
     var filtri_em = get_Filtri_EM();

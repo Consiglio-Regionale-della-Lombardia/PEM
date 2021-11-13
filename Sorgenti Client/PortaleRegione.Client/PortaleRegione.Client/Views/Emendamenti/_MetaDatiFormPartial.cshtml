@@ -41,7 +41,22 @@
                     <div id="testoEMTab_@Model.UIDEM" class="col s12 left-align">
                         <div class="form-group">
                             @Html.LabelFor(s => s.TestoEM_Modificabile)
-                            @Html.TextAreaFor(model => model.TestoEM_Modificabile, new { @class = "form-control trumbowyg" })
+                            <span style="display: flex">
+                                <p>
+                                    <label>
+                                        <input name="Testo_@Model.UIDEM" type="radio" value="0" @Html.Raw(string.IsNullOrEmpty(Model.TestoEM_Modificabile) ? "checked='checked'" : "")/>
+                                        <span>Originale</span>
+                                    </label>
+                                </p>
+                                <p style="padding-left: 10px">
+                                    <label>
+                                        <input name="Testo_@Model.UIDEM" type="radio" value="1" @Html.Raw(!string.IsNullOrEmpty(Model.TestoEM_Modificabile) ? "checked='checked'" : "")/>
+                                        <span>Modifica</span>
+                                    </label>
+                                </p>
+                            </span>
+                            <p>Durante la discussione in aula il testo è stato così modificato:</p>
+                            <textarea id="EditorTesto_@Model.UIDEM" class="form-control trumbowyg"></textarea>
                         </div>
                     </div>
                     <div id="noteTab_@Model.UIDEM" class="col s12 left-align">
@@ -49,13 +64,13 @@
                             <div class="col s6">
                                 <div class="card-action green lighten-4 form-group">
                                     <label class="bold">Nota pubblica</label>
-                                    @Html.TextAreaFor(model => model.NOTE_Griglia, new { @class = "form-control" })
+                                    @Html.TextAreaFor(model => model.NOTE_Griglia, new { @class = "form-control", style="min-height: 100px!important" })
                                 </div>
                             </div>
                             <div class="col s6">
                                 <div class="card-action red lighten-4 form-group">
                                     <label class="bold">Nota riservata</label>
-                                    @Html.TextAreaFor(model => model.NOTE_EM, new { @class = "form-control" })
+                                    @Html.TextAreaFor(model => model.NOTE_EM, new { @class = "form-control", style = "min-height: 100px!important" })
                                 </div>
 
                             </div>

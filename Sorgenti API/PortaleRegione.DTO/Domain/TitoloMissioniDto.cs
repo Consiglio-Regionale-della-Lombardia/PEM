@@ -20,6 +20,8 @@ namespace PortaleRegione.DTO.Domain
 {
     public class TitoloMissioniDto
     {
+        public string Display => $"{NTitoloB} - {Descrizione}";
+
         public int NTitoloB { get; set; }
         public string Descrizione { get; set; }
     }

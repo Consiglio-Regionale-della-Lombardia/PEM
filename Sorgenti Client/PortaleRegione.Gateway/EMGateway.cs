@@ -449,6 +449,28 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<IEnumerable<TitoloMissioniDto>> GetTitoliMissioni()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/emendamenti/titoli-missioni-em";
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<TitoloMissioniDto>>(await Get(requestUrl, _token));
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetTitoliMissioni", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetTitoliMissioni", ex);
+                throw ex;
+            }
+
+        }
+
         public async Task<EmendamentiFormModel> GetModificaMetaDatiModel(Guid id)
         {
             try

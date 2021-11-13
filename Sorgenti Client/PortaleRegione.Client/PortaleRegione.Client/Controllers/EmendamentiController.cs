@@ -913,6 +913,14 @@ namespace PortaleRegione.Client.Controllers
             return Json(await apiGateway.Emendamento.GetMissioni(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        [Route("titoli-missioni-em")]
+        public async Task<ActionResult> Filtri_GetTitoliMissioniEM()
+        {
+            var apiGateway = new ApiGateway(_Token);
+            return Json(await apiGateway.Emendamento.GetTitoliMissioni(), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         [Route("filtra")]
         public async Task<ActionResult> Filtri_RiepilogoEM()

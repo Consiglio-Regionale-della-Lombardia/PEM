@@ -24,25 +24,16 @@
             <div class="row" style="margin: unset !important">
 
                 <div class="col s12">
-                    @{
-                        var pnlTitoloVisible = string.IsNullOrEmpty(Model.NTitolo) ? "none" : "block";
-                    }
-                    <div id="pnlParte_Titolo_@Model.UIDEM" style="display: @pnlTitoloVisible">
+                    <div id="pnlParte_Titolo_@Model.UIDEM" style="display: none">
                         @Html.LabelFor(m => m.NTitolo)
                         <input type="text" id="Emendamento.NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
 
                     </div>
-                    @{
-                        var pnlCapoVisible = string.IsNullOrEmpty(Model.NCapo) ? "none" : "block";
-                    }
-                    <div id="pnlParte_Capo_@Model.UIDEM" style="display: @pnlCapoVisible">
+                    <div id="pnlParte_Capo_@Model.UIDEM" style="display: none">
                         @Html.LabelFor(m => m.NCapo)
                         <input type="text" id="Emendamento.NCapo_@Model.UIDEM" value="@Model.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                     </div>
-                    @{
-                        var pnlArticoliVisible = Model.UIDArticolo.HasValue ? "block" : "none";
-                    }
-                    <div id="pnlParte_Articoli_@Model.UIDEM" style="display: @pnlArticoliVisible">
+                    <div id="pnlParte_Articoli_@Model.UIDEM" style="display: none">
                         <div class="form-group">
                             @Html.LabelFor(m => m.UIDArticolo)
                             <select id="Articoli_@Model.UIDEM" class="browser-default"></select>
@@ -61,10 +52,7 @@
                             </div>
                         </div>
                     </div>
-                    @{
-                        var pnlMissioniVisible = !Model.NMissione.HasValue ? "none" : "block";
-                    }
-                    <div id="pnlParte_Missioni_@Model.UIDEM" style="display: @pnlMissioniVisible">
+                    <div id="pnlParte_Missioni_@Model.UIDEM" style="display: none">
                         <div class="form-group">
                             @Html.LabelFor(m => m.NMissione)
                             <select id="Missioni_@Model.UIDEM" class="browser-default"></select>
@@ -100,6 +88,30 @@
             var em = @Html.Raw(JsonConvert.SerializeObject(Model));
             LoadMetaDati_Parte(em);
             LoadMetaDati_Tipo(em);
+
+            var container_testo = $('#EditorTesto_' + em.UIDEM).parent();
+            var editor_testo = $(container_testo).find(".trumbowyg-editor");
+            var testo_checked = $("input[type=radio][name='Testo_" + em.UIDEM + "']:checked");
+            if ($(testo_checked).val() == 0) {
+                editor_testo.html(em.TestoEM_originale);
+                $('#testoEMTab_' + em.UIDEM + '> .form-group > p').hide();
+            } else if ($(testo_checked).val() == 1) {
+                editor_testo.html(em.TestoEM_Modificabile);
+                $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
+            }
+
+            $("input[type=radio][name='Testo_" +em.UIDEM+ "']").change(function() {
+                if (this.value == 0) {
+                    editor_testo.html(em.TestoEM_originale);
+                    $('#testoEMTab_' + em.UIDEM + '> .form-group > p').hide();
+                }else if (this.value == 1) {
+                    if (em.TestoEM_Modificabile == null)
+                        editor_testo.html(em.TestoEM_originale);
+                    else
+                        editor_testo.html(em.TestoEM_Modificabile);
+                    $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
+                }
+            });
         });
 
     async function LoadMetaDati_Parte(em) {
@@ -111,7 +123,7 @@
         var templateSpan = '<span></span>';
 
         select.empty();
-
+        
         $.each(parti,
             function(index, item) {
                 var templateTemp = template;
@@ -121,13 +133,13 @@
 
                 if (item.IDParte == em.IDParte) {
                     if (em.IDParte == @((int)PartiEMEnum.Articolo)) {
-                        $("#pnlFiltroArticolo").show();
+                        $('#pnlParte_Articoli_' + em.UIDEM).show();
                     } else if (em.IDParte == @((int)PartiEMEnum.Missione)) {
-                        $("#pnlFiltroMissione").show();
+                        $('#pnlParte_Missioni_' + em.UIDEM).show();
                     } else if (em.IDParte == @((int)PartiEMEnum.Titolo)) {
-                        $("#pnlFiltroTitolo").show();
+                        $('#pnlParte_Titolo_' + em.UIDEM).show();
                     } else if (em.IDParte == @((int)PartiEMEnum.Capo)) {
-                        $("#pnlFiltroCapo").show();
+                        $('#pnlParte_Capo_' + em.UIDEM).show();
                     }
                 }
             });
@@ -156,6 +168,8 @@
 
             $(select).formSelect();
             await LoadMetaDati_Parte_Comma(em);
+        } else {
+            $('#pnlParte_Articoli_' + em.UIDEM).hide();
         }
     }
 
@@ -184,6 +198,8 @@
 
             $(select).formSelect();
             await LoadMetaDati_Parte_Lettere(em);
+        } else {
+            $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
         }
     }
 
@@ -212,13 +228,14 @@
                 });
 
             $(select).formSelect();
+        } else {
+            $('#pnlParte_Articoli_Lettere_' + em.UIDEM).hide();
         }
     }
-    
+
     async function LoadMetaDati_Parte_Missione(em) {
         var parti_missioni = await GetMissioni();
         if (parti_missioni.length > 0) {
-            $('#pnlParte_Missioni_' + em.UIDEM).show();
             var select = $("#Missioni_" + em.UIDEM);
             select.empty();
             select.append('<option value="">Seleziona</option>');
@@ -230,13 +247,36 @@
                         template = "<option selected='selected'></option>";
                     } else
                         template = "<option></option>";
-                    select.append($(template).val(item.NMissione).html(item.NMissione + ' - ' + item.Desccrizione));
+                    select.append($(template).val(item.NMissione).html(item.Display));
                 });
 
             $(select).formSelect();
+            await LoadMetaDati_Parte_TitoliMissione(em);
         } else {
             $('#pnlParte_Missioni_' + em.UIDEM).hide();
         }
+    }
+    
+    async function LoadMetaDati_Parte_TitoliMissione(em) {
+        var parti_titoli_missioni = await GetTitoliMissioni();
+        
+        if (parti_titoli_missioni.length > 0) {
+            var select = $("#TitoliMissioni_" + em.UIDEM);
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_titoli_missioni,
+                function(index, item) {
+                    var template = "";
+                    if (item.NTitoloB == em.NTitoloB) {
+                        template = "<option selected='selected'></option>";
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.NTitoloB).html(item.Display));
+                });
+
+            $(select).formSelect();
+        } 
     }
 
     async function LoadMetaDati_Tipo(em) {

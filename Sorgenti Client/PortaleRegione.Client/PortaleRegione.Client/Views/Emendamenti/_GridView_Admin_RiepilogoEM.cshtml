@@ -184,9 +184,9 @@ else
                     }
                     @if (!itemEM.Firmato_Dal_Proponente)
                     {
-                        <div class="chip grey white-text" style="min-width: unset; opacity: .5">
+                        <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
                             @Html.Raw(proponente)
-                        </div>
+                        </span>
                     }
                     else
                     {

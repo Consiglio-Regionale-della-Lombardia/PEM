@@ -89,8 +89,19 @@ function get_ListaMissioniEM() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaTitoliMissioniEM() {
+    var session_raw = sessionStorage.getItem("ListaTitoliMissioniEM");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function set_ListaMissioniEM(obj) {
     sessionStorage.setItem("ListaMissioniEM", JSON.stringify(obj));
+}
+
+function set_ListaTitoliMissioniEM(obj) {
+    sessionStorage.setItem("ListaTitoliMissioniEM", JSON.stringify(obj));
 }
 
 function get_Gruppi() {

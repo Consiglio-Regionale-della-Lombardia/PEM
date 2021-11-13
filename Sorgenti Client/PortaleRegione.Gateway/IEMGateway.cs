@@ -47,6 +47,7 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<FirmeDto>> GetFirmatari(Guid emendamentoUId, FirmeTipoEnum tipo);
         Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId);
         Task<IEnumerable<MissioniDto>> GetMissioni();
+        Task<IEnumerable<TitoloMissioniDto>> GetTitoliMissioni();
         Task<EmendamentiFormModel> GetModificaMetaDatiModel(Guid id);
         Task<EmendamentiFormModel> GetModificaModel(Guid id);
         Task<EmendamentiFormModel> GetNuovoModel(Guid id, Guid? em_riferimentoUId);
