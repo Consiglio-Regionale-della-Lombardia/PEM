@@ -462,12 +462,19 @@ namespace PortaleRegione.BAL
                     emAggiornato.TestoEM_Modificabile = model.TestoEM_Modificabile;
                     emAggiornato.IDStato = (int)StatiEnum.Approvato_Con_Modifiche;
                 }
+                else if (string.IsNullOrEmpty(model.TestoEM_Modificabile) && !string.IsNullOrEmpty(em.TestoEM_Modificabile) && em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche)
+                {
+                    //caso in cui l'utente voglia tornare allo stato precedente all' "approvato con modifiche"
+                    emAggiornato.IDStato = (int)StatiEnum.Approvato;
+                }
 
                 if (em.UIDLettera.HasValue && string.IsNullOrEmpty(em.NLettera))
                 {
                     var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
                     em.NLettera = lettera.Lettera;
                 }
+
+                CleanMetaDatiInEccesso(em);
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -476,6 +483,78 @@ namespace PortaleRegione.BAL
                 Log.Error("Logic - ModificaMetaDatiEmendamento", e);
                 throw e;
             }
+        }
+
+        private void CleanMetaDatiInEccesso(EM em)
+        {
+            switch ((PartiEMEnum)em.IDParte)
+            {
+                case PartiEMEnum.Titolo_PDL:
+                    CleanParteArticolo(em);
+                    CleanParteMissione(em);
+                    CleanParteTitolo(em);
+                    CleanParteCapo(em);
+                    break;
+                case PartiEMEnum.Titolo:
+                    CleanParteArticolo(em);
+                    CleanParteMissione(em);
+                    CleanParteCapo(em);
+                    break;
+                case PartiEMEnum.Capo:
+                    CleanParteArticolo(em);
+                    CleanParteMissione(em);
+                    CleanParteTitolo(em);
+                    break;
+                case PartiEMEnum.Articolo:
+                    CleanParteMissione(em);
+                    CleanParteTitolo(em);
+                    CleanParteCapo(em);
+
+                    break;
+                case PartiEMEnum.Missione:
+                    CleanParteArticolo(em);
+                    CleanParteTitolo(em);
+                    CleanParteCapo(em);
+                    break;
+                default:
+                    {
+                        CleanParteArticolo(em);
+                        CleanParteMissione(em);
+                        CleanParteTitolo(em);
+                        CleanParteCapo(em);
+                        break;
+                    }
+            }
+
+            if (em.IDStato != (int)StatiEnum.Approvato_Con_Modifiche)
+            {
+                em.TestoEM_Modificabile = string.Empty;
+            }
+        }
+
+        private void CleanParteCapo(EM em)
+        {
+            em.NCapo = string.Empty;
+        }
+
+        private void CleanParteTitolo(EM em)
+        {
+            em.NTitolo = string.Empty;
+        }
+
+        private void CleanParteMissione(EM em)
+        {
+            em.NMissione = null;
+            em.NProgramma = null;
+            em.NTitoloB = null;
+        }
+
+        private void CleanParteArticolo(EM em)
+        {
+            em.UIDArticolo = null;
+            em.UIDComma = null;
+            em.NLettera = string.Empty;
+            em.UIDLettera = null;
         }
 
         public async Task DeleteEmendamento(EM em, PersonaDto persona)

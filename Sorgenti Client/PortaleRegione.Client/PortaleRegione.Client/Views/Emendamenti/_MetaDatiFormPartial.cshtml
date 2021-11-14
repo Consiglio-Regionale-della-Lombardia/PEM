@@ -59,13 +59,13 @@
                         <div class="col s6">
                             <div class="card-action green lighten-4 form-group">
                                 <label class="bold">Nota pubblica</label>
-                                @Html.TextAreaFor(model => model.NOTE_Griglia, new { @class = "form-control", style = "min-height: 100px!important" })
+                                <textarea id="NotePubbliche_@Model.UIDEM" style="min-height: 100px" class="form-control">@Model.NOTE_Griglia</textarea>
                             </div>
                         </div>
                         <div class="col s6">
                             <div class="card-action red lighten-4 form-group">
                                 <label class="bold">Nota riservata</label>
-                                @Html.TextAreaFor(model => model.NOTE_EM, new { @class = "form-control", style = "min-height: 100px!important" })
+                                <textarea id="NotePrivate_@Model.UIDEM" style="min-height: 100px" class="form-control">@Model.NOTE_EM</textarea>
                             </div>
 
                         </div>
