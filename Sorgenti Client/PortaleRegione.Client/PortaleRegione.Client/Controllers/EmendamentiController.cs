@@ -68,16 +68,13 @@ namespace PortaleRegione.Client.Controllers
                     {
                         try
                         {
-                            var composeModelCache = await ComposeModel(old_model.Atto.UIDAtto, old_model.Mode,
-                                old_model.Ordinamento, view, old_model.Data.Paging.Page, old_model.Data.Paging.Limit, view_require_my_sign);
-
                             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                             {
-                                return View("RiepilogoEM_Admin", composeModelCache);
+                                return View("RiepilogoEM_Admin", old_model);
                             }
 
-                            return View("RiepilogoEM", composeModelCache);
+                            return View("RiepilogoEM", old_model);
                         }
                         catch (Exception e)
                         {
