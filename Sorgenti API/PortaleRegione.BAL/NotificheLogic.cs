@@ -77,6 +77,11 @@ namespace PortaleRegione.BAL
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
+                if (!notifiche.Any())
+                {
+                    return default;
+                }
+
                 var result = new List<NotificaDto>();
                 var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
@@ -123,6 +128,11 @@ namespace PortaleRegione.BAL
                         .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size, queryFilter))
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
+
+                if (!notifiche.Any())
+                {
+                    return default;
+                }
 
                 var result = new List<NotificaDto>();
                 var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM);
