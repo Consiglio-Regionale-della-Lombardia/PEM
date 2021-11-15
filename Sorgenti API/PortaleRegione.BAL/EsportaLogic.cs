@@ -271,7 +271,7 @@ namespace PortaleRegione.BAL
         {
             var personeInDb = await _unitOfWork.Persone.GetAll();
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, open_data_enabled: true);
+            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, open_data_enabled: false, true);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -284,7 +284,6 @@ namespace PortaleRegione.BAL
             body += ComposeHeaderColumn("Testo");
             body += ComposeHeaderColumn("Relazione");
             body += ComposeHeaderColumn("Proponente");
-            body += ComposeHeaderColumn("Firme");
             body += ComposeHeaderColumn("Stato");
             body += "</tr>";
             body += "</thead>";
@@ -312,7 +311,6 @@ namespace PortaleRegione.BAL
             row += ComposeBodyColumn(em.TestoEM_originale);
             row += ComposeBodyColumn(em.TestoREL_originale);
             row += ComposeBodyColumn(em.PersonaProponente.DisplayName);
-            row += ComposeBodyColumn(em.Firme_OPENDATA);
             row += ComposeBodyColumn(em.STATI_EM.Stato);
 
             row += "</tr>";
