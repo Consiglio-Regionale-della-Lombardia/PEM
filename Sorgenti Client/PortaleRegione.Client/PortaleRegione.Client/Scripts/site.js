@@ -598,12 +598,8 @@ function CambioStatoMassivo(stato, descr) {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
-                if (data.message) {
-                    ErrorAlert(data.message);
-                } else {
-                    DeselectALLEM();
-                    go(data);
-                }
+                DeselectALLEM();
+                location.reload();
             }).fail(function(err) {
                 console.log("error", err);
                 ErrorAlert(err.message);

@@ -55,65 +55,97 @@ namespace PortaleRegione.Client.Controllers
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
             int size = 50)
         {
+            var apiGateway = new ApiGateway(_Token);
+            EmendamentiViewModel model;
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             if (Session["RicaricaFiltri"] is bool)
             {
-                Session["RicaricaFiltri"] = false; //reset sessione
-                if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
+                if (Convert.ToBoolean(Session["RicaricaFiltri"]))
                 {
-                    try
+                    Session["RicaricaFiltri"] = false; //reset sessione
+                    if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
                     {
-                        if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
-                            HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                            return View("RiepilogoEM_Admin", old_model);
+                        try
+                        {
+                            var composeModelCache = await ComposeModel(old_model.Atto.UIDAtto, old_model.Mode,
+                                old_model.Ordinamento, view, old_model.Data.Paging.Page, old_model.Data.Paging.Limit, view_require_my_sign);
 
-                        return View("RiepilogoEM", old_model);
-                    }
-                    catch (Exception e)
-                    {
-                        Session["RiepilogoEmendamenti"] = null;
+                            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                            {
+                                return View("RiepilogoEM_Admin", composeModelCache);
+                            }
+
+                            return View("RiepilogoEM", composeModelCache);
+                        }
+                        catch (Exception e)
+                        {
+                            Session["RiepilogoEmendamenti"] = null;
+                        }
                     }
                 }
             }
 
             SetCache(page, size, ordine, view);
 
-            var apiGateway = new ApiGateway(_Token);
-            EmendamentiViewModel model;
-            if (view_require_my_sign == false)
-                model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
-            else
-                model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
-            model.ViewMode = view;
-            if (view == ViewModeEnum.PREVIEW)
-                foreach (var emendamentiDto in model.Data.Results)
-                    emendamentiDto.BodyEM =
-                        await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
+            var composeModel = await ComposeModel(id, mode, ordine, view, page, size, view_require_my_sign);
+            Session["RiepilogoEmendamenti"] = composeModel;
 
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
             {
-                Session["RiepilogoEmendamenti"] = model;
-                return View("RiepilogoEM_Admin", model);
+                return View("RiepilogoEM_Admin", composeModel);
             }
+            return View("RiepilogoEM", composeModel);
+        }
 
-            if (mode == ClientModeEnum.GRUPPI)
-                foreach (var emendamentiDto in model.Data.Results)
-                    if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
-                    {
-                        if (emendamentiDto.ConteggioFirme > 0)
-                            emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
-                                await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
-                                _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
+        private async Task<EmendamentiViewModel> ComposeModel(Guid id, ClientModeEnum mode,
+            OrdinamentoEnum ordine, ViewModeEnum view, int page,
+            int size, bool view_require_my_sign)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                EmendamentiViewModel model;
+                if (view_require_my_sign == false)
+                    model = await apiGateway.Emendamento.Get(id, mode, ordine, page, size);
+                else
+                    model = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(id, mode, ordine, page, size);
+                model.ViewMode = view;
+                if (view == ViewModeEnum.PREVIEW)
+                    foreach (var emendamentiDto in model.Data.Results)
+                        emendamentiDto.BodyEM =
+                            await apiGateway.Emendamento.GetBody(emendamentiDto.UIDEM, TemplateTypeEnum.HTML);
 
-                        emendamentiDto.Destinatari =
-                            await Utility.GetDestinatariNotifica(
-                                await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
-                    }
+                if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                    HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                {
+                    return model;
+                }
 
-            Session["RiepilogoEmendamenti"] = model;
-            return View("RiepilogoEM", model);
+                if (mode == ClientModeEnum.GRUPPI)
+                    foreach (var emendamentiDto in model.Data.Results)
+                        if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
+                        {
+                            if (emendamentiDto.ConteggioFirme > 0)
+                                emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
+                                    await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM,
+                                        FirmeTipoEnum.TUTTE),
+                                    _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
+
+                            emendamentiDto.Destinatari =
+                                await Utility.GetDestinatariNotifica(
+                                    await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
+                        }
+
+                return model;
+            }
+            catch (Exception e)
+            {
+                Log.Error("ComposeModel", e);
+                throw;
+            }
         }
 
         private void SetCache(int page, int size, OrdinamentoEnum ordine, ViewModeEnum view)

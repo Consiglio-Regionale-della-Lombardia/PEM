@@ -101,16 +101,36 @@
             $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
         }
 
+        var carica_testo = true;
+
+        $('#EditorTesto_' + em.UIDEM).parent().keyup(function() {
+            if (carica_testo) {
+                if ($("input[type=radio][name='Testo_" + em.UIDEM + "']:checked").val() == 0) {
+                    carica_testo = false;
+                    $("input[type=radio][name='Testo_" + em.UIDEM + "']:not(:checked)").click();
+                }
+            }
+        });
         $("input[type=radio][name='Testo_" + em.UIDEM + "']").change(function() {
-            if (this.value == 0) {
-                editor_testo.html(em.TestoEM_originale);
-                $('#testoEMTab_' + em.UIDEM + '> .form-group > p').hide();
-            } else if (this.value == 1) {
-                if (em.TestoEM_Modificabile == null)
+            if (carica_testo) {
+                if (this.value == 0) {
                     editor_testo.html(em.TestoEM_originale);
-                else
-                    editor_testo.html(em.TestoEM_Modificabile);
-                $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
+                    $('#testoEMTab_' + em.UIDEM + '> .form-group > p').hide();
+                } else if (this.value == 1) {
+                    if (em.TestoEM_Modificabile == null || em.TestoEM_Modificabile == "")
+                        editor_testo.html(em.TestoEM_originale);
+                    else
+                        editor_testo.html(em.TestoEM_Modificabile);
+                    $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
+                }
+            } else {
+                if (this.value == 0) {
+                    $('#testoEMTab_' + em.UIDEM + '> .form-group > p').hide();
+                    editor_testo.html(em.TestoEM_originale);
+                    carica_testo = true;
+                } else {
+                    $('#testoEMTab_' + em.UIDEM + '> .form-group > p').show();
+                }
             }
         });
         $('#NTitolo_' + em.UIDEM).keyup(function() {

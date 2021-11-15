@@ -40,13 +40,13 @@
                             <p>
                                 <label>
                                     <input name="Testo_@Model.UIDEM" type="radio" value="0" @Html.Raw(string.IsNullOrEmpty(Model.TestoEM_Modificabile) ? "checked='checked'" : "")/>
-                                    <span>Originale</span>
+                                    <span>Testo Originale</span>
                                 </label>
                             </p>
                             <p style="padding-left: 10px">
                                 <label>
                                     <input name="Testo_@Model.UIDEM" type="radio" value="1" @Html.Raw(!string.IsNullOrEmpty(Model.TestoEM_Modificabile) ? "checked='checked'" : "")/>
-                                    <span>Modifica</span>
+                                    <span>Testo Modificato</span>
                                 </label>
                             </p>
                         </span>

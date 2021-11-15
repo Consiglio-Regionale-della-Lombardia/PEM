@@ -1106,20 +1106,17 @@ namespace PortaleRegione.BAL
                 if (DateTime.Now > em.ATTI.SEDUTE.Scadenza_presentazione &&
                     DateTime.Now < em.ATTI.SEDUTE.Data_seduta)
                 {
-                    //  14/11/2021
-                    //  Invio mail già effettuato al ritiro dell'ultima firma
-
                     // INVIO MAIL A SEGRETERIA PER AVVISARE DEL RITIRO DELL'EM DOPO IL TERMINE DELL'ATTO
-                    //var nome_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
-                    //var ruoloSegreterie = await _unitOfWork.Ruoli.Get(10);
-                    //await _logicUtil.InvioMail(new MailModel
-                    //{
-                    //    DA = "pem@consiglio.regione.lombardia.it",
-                    //    A =
-                    //        $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
-                    //    OGGETTO = $"Ritirato {nome_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
-                    //    MESSAGGIO = "ATTENZIONE: E' stato appena ritirato l'emendamento in oggetto"
-                    //});
+                    var nome_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get(10);
+                    await _logicUtil.InvioMail(new MailModel
+                    {
+                        DA = "pem@consiglio.regione.lombardia.it",
+                        A =
+                            $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                        OGGETTO = $"Ritirato {nome_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
+                        MESSAGGIO = "ATTENZIONE: E' stato appena ritirato l'emendamento in oggetto"
+                    });
                 }
                 else if (DateTime.Now > em.ATTI.SEDUTE.Data_seduta)
                 {
