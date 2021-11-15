@@ -79,7 +79,7 @@ namespace PortaleRegione.BAL
 
                 if (!notifiche.Any())
                 {
-                    return default;
+                    return new List<NotificaDto>();
                 }
 
                 var result = new List<NotificaDto>();
@@ -131,7 +131,7 @@ namespace PortaleRegione.BAL
 
                 if (!notifiche.Any())
                 {
-                    return default;
+                    return new List<NotificaDto>();
                 }
 
                 var result = new List<NotificaDto>();
