@@ -58,6 +58,10 @@ function openSearch() {
     instances.open();
 }
 
+function openMetaDati(emendamentoUId) {
+    $('#modalMetaDati_' + emendamentoUId).modal("open");
+}
+
 function go(link, switchMode) {
     var mode = getClientMode();
     if (switchMode == true) {

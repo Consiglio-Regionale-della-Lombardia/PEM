@@ -267,10 +267,6 @@ else
         });
     });
 
-    function openMetaDati(emendamentoUId) {
-        $('#modalMetaDati_' + emendamentoUId).modal("open");
-    }
-
     function proiettaEM(uidem, displayEM) {
         $.ajax({
             url: '@Url.Action("ProiettaEmendamento")?id=' + uidem,

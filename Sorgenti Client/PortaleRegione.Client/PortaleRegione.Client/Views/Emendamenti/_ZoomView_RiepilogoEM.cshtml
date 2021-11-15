@@ -77,8 +77,10 @@ else
                         <div class='card-action right'>
                             @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
-                                <a class='blue-text' style='margin: 5px' onclick="go('@Url.Action("ModificaMetaDatiEmendamento", new {id = itemEM.UIDEM})')">
-                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Modifica dati">edit</i>
+                                @Html.Partial("_MetaDatiFormPartial", itemEM)
+
+                                <a class="blue-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                    <i class="material-icons">edit</i>
                                 </a>
                             }
 
@@ -133,4 +135,3 @@ else
         </div>
     }
 }
-
