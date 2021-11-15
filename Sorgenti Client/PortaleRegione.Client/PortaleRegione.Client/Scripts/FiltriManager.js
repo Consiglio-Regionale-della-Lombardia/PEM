@@ -357,8 +357,8 @@ async function Filtri_EM_CaricaPartiEM(ctrlSelect) {
         var elems = document.querySelectorAll("#" + ctrlSelect);
         M.FormSelect.init(elems, null);
 
-        await Filtri_EM_CaricaPartiArticoloEM("filter_em_parte_articolo");
-        await Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
+        Filtri_EM_CaricaPartiArticoloEM("filter_em_parte_articolo");
+        Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
         Filtri_EM_CaricaPartiTitoloEM("filter_em_parte_titolo");
         Filtri_EM_CaricaPartiCapoEM("filter_em_parte_capo");
     }
@@ -564,12 +564,19 @@ function GetPartiEM() {
 }
 
 function GetArticoli(attoUId) {
+    var articoli = get_ListaArticoliEM();
+    if (articoli.length > 0) {
+        console.log("Articoli", articoli)
+        return articoli;
+    }
+
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/articoli",
             data: { id: attoUId },
             type: "GET"
         }).done(function(result) {
+            set_ListaArticoliEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
@@ -579,12 +586,20 @@ function GetArticoli(attoUId) {
 }
 
 function GetCommi(articoloUId) {
+    var commi = get_ListaCommiEM();
+    if (commi.length > 0) {
+        console.log("Commi", commi)
+
+        return commi;
+    }
+
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/commi",
             data: { id: articoloUId },
             type: "GET"
         }).done(function(result) {
+            set_ListaCommiEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
@@ -594,12 +609,20 @@ function GetCommi(articoloUId) {
 }
 
 function GetLettere(commaUId) {
+    var lettere = get_ListaLettereEM();
+    if (lettere.length > 0) {
+        console.log("Lettere", lettere)
+
+        return lettere;
+    }
+
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/lettere",
             data: { id: commaUId },
             type: "GET"
         }).done(function(result) {
+            set_ListaLettereEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
@@ -739,6 +762,8 @@ async function filter_em_parte_articolo_OnChange() {
     set_Filtri_EM(filtri_em);
     $("#pnlFiltroComma").show();
     $("#pnlFiltroLettera").hide();
+    set_ListaCommiEM([]);
+    set_ListaLettereEM([]);
     await Filtri_EM_CaricaPartiCommaEM("filter_em_parte_comma");
 }
 
@@ -750,6 +775,7 @@ async function filter_em_parte_comma_OnChange() {
     filtri_em.parte_letteraOLD = "";
     set_Filtri_EM(filtri_em);
     $("#pnlFiltroLettera").show();
+    set_ListaLettereEM([]);
     await Filtri_EM_CaricaPartiLetteraEM("filter_em_parte_lettera");
 }
 
@@ -768,6 +794,9 @@ function filter_em_parte_letteraOLD_OnChange() {
 }
 
 function filter_em_parte_titolo_OnChange() {
+    set_ListaArticoliEM([]);
+    set_ListaCommiEM([]);
+    set_ListaLettereEM([]);
     var value = $("#filter_em_parte_titolo").val();
     var filtri_em = get_Filtri_EM();
     filtri_em.parte_titolo = value;
@@ -775,6 +804,9 @@ function filter_em_parte_titolo_OnChange() {
 }
 
 function filter_em_parte_capo_OnChange() {
+    set_ListaArticoliEM([]);
+    set_ListaCommiEM([]);
+    set_ListaLettereEM([]);
     var value = $("#filter_em_parte_capo").val();
     var filtri_em = get_Filtri_EM();
     filtri_em.parte_capo = value;
@@ -782,6 +814,9 @@ function filter_em_parte_capo_OnChange() {
 }
 
 function filter_em_parte_missione_OnChange() {
+    set_ListaArticoliEM([]);
+    set_ListaCommiEM([]);
+    set_ListaLettereEM([]);
     var value = $("#filter_em_parte_missione").val();
     var filtri_em = get_Filtri_EM();
     filtri_em.parte_missione = value;
