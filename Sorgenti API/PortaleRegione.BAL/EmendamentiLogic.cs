@@ -1565,6 +1565,24 @@ namespace PortaleRegione.BAL
                         queryFilter,
                         firmatari);
 
+                if (!em_in_db.Any())
+                {
+                    return new EmendamentiViewModel
+                    {
+                        Data = new BaseResponse<EmendamentiDto>(
+                            model.page,
+                            model.size,
+                            new List<EmendamentiDto>(),
+                            model.filtro,
+                            0,
+                            uri),
+                        Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                        ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
+                        Ordinamento = model.ordine,
+                        CurrentUser = persona
+                    };
+                }
+
                 var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First());
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
