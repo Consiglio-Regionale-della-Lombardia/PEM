@@ -714,7 +714,7 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
                 var counterFirme = 1;
-                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -853,7 +853,7 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
-                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta!.Value);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
@@ -1003,7 +1003,7 @@ namespace PortaleRegione.BAL
 
                 ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
-                var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.ListaEmendamenti.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.ListaEmendamenti.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -1580,7 +1580,7 @@ namespace PortaleRegione.BAL
                     };
                 }
 
-                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -1638,7 +1638,7 @@ namespace PortaleRegione.BAL
 
                 var result = new List<EmendamentiDto>();
                 var totalProcessTime = 0f;
-                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
 
                 foreach (var guid in em_in_db)

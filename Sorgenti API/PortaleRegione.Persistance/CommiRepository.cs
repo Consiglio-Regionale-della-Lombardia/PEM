@@ -48,7 +48,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<COMMI>> GetCommi(Guid articoloUId)
         {
-            PRContext.COMMI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             return await PRContext
                 .COMMI
                 .Where(c => c.UIDArticolo == articoloUId)
@@ -58,7 +57,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<COMMI> GetComma(Guid commaUId)
         {
-            PRContext.COMMI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             return await PRContext.COMMI.FindAsync(commaUId);
         }
 

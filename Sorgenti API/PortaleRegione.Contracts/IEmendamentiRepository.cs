@@ -42,7 +42,7 @@ namespace PortaleRegione.Contracts
 
         IEnumerable<EM> GetAll(EmendamentiByQueryModel model);
 
-        Task<EM> Get(Guid emendamentoUId);
+        Task<EM> Get(Guid emendamentoUId, bool includes = true);
         Task<EM> Get(string emendamentoUId);
         Task<int> GetProgressivo(Guid attoUId, int gruppo, bool sub);
         Task<int> GetEtichetta(Guid attoUId, bool sub);

@@ -342,12 +342,16 @@ async function Filtri_EM_CaricaPartiEM(ctrlSelect) {
                     template = "<option selected='selected'></option>";
                     if (filterSelect == 4) {
                         $("#pnlFiltroArticolo").show();
+                        Filtri_EM_CaricaPartiArticoloEM("filter_em_parte_articolo");
                     } else if (filterSelect == 5) {
                         $("#pnlFiltroMissione").show();
+                        Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
                     } else if (filterSelect == 2) {
                         $("#pnlFiltroTitolo").show();
+                        Filtri_EM_CaricaPartiTitoloEM("filter_em_parte_titolo");
                     } else if (filterSelect == 3) {
                         $("#pnlFiltroCapo").show();
+                        Filtri_EM_CaricaPartiCapoEM("filter_em_parte_capo");
                     }
                 } else
                     template = "<option></option>";
@@ -356,11 +360,6 @@ async function Filtri_EM_CaricaPartiEM(ctrlSelect) {
 
         var elems = document.querySelectorAll("#" + ctrlSelect);
         M.FormSelect.init(elems, null);
-
-        Filtri_EM_CaricaPartiArticoloEM("filter_em_parte_articolo");
-        Filtri_EM_CaricaPartiMissioneEM("filter_em_parte_missione");
-        Filtri_EM_CaricaPartiTitoloEM("filter_em_parte_titolo");
-        Filtri_EM_CaricaPartiCapoEM("filter_em_parte_capo");
     }
 }
 

@@ -253,7 +253,7 @@ namespace PortaleRegione.Persistance
                     if (allEM.Any())
                     {
                         var em = allEM.First();
-                        var emdto = await Get(em);
+                        var emdto = await Get(em, false);
                         emdto.Proietta = true;
                         await Context.SaveChangesAsync();
                         return emdto;
@@ -503,16 +503,20 @@ namespace PortaleRegione.Persistance
         /// </summary>
         /// <param name="emendamentoUId"></param>
         /// <returns></returns>
-        public async Task<EM> Get(Guid emendamentoUId)
+        public async Task<EM> Get(Guid emendamentoUId, bool includes = true)
         {
-            var result = await PRContext.EM
-                .Include(em => em.ARTICOLI)
-                .Include(em => em.COMMI)
-                .Include(em => em.LETTERE)
-                .Include(em => em.PARTI_TESTO)
-                .Include(em => em.STATI_EM)
-                .Include(em => em.TIPI_EM)
-                .SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
+            var query = PRContext.EM.AsQueryable();
+            if (includes)
+            {
+                query = query.Include(em => em.ARTICOLI)
+                    .Include(em => em.COMMI)
+                    .Include(em => em.LETTERE)
+                    .Include(em => em.PARTI_TESTO)
+                    .Include(em => em.STATI_EM)
+                    .Include(em => em.TIPI_EM);
+            }
+
+            var result = await query.SingleOrDefaultAsync(em => em.UIDEM == emendamentoUId);
 
             return result;
         }
@@ -663,8 +667,6 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<MISSIONI>> GetMissioniEmendamento()
         {
-            PRContext.MISSIONI.FromCache(DateTimeOffset.Now.AddDays(8)).ToList();
-
             return await PRContext.MISSIONI
                 .Where(m => DateTime.Now > m.DAL && DateTime.Now <= m.AL || !m.AL.HasValue).OrderBy(m => m.Ordine)
                 .ToListAsync();
@@ -676,8 +678,6 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<TITOLI_MISSIONI>> GetTitoliMissioneEmendamento()
         {
-            PRContext.TITOLI_MISSIONI.FromCache(DateTimeOffset.Now.AddDays(8)).ToList();
-
             return await PRContext.TITOLI_MISSIONI.ToListAsync();
         }
 

@@ -48,7 +48,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<ARTICOLI>> GetArticoli(Guid attoUId)
         {
-            PRContext.ARTICOLI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             return await PRContext
                 .ARTICOLI
                 .Where(a => a.UIDAtto == attoUId)
@@ -58,7 +57,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<ARTICOLI> GetArticolo(Guid articoloUId)
         {
-            PRContext.ARTICOLI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             return await PRContext.ARTICOLI.FindAsync(articoloUId);
         }
 

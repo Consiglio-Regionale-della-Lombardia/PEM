@@ -48,13 +48,11 @@ namespace PortaleRegione.Persistance
 
         public async Task<LETTERE> GetLettera(Guid lettaraUId)
         {
-            PRContext.LETTERE.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             return await PRContext.LETTERE.FindAsync(lettaraUId);
         }
 
         public async Task<IEnumerable<LETTERE>> GetLettere(Guid commaUId)
         {
-            PRContext.LETTERE.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             return await PRContext
                 .LETTERE
                 .Where(l => l.UIDComma == commaUId)

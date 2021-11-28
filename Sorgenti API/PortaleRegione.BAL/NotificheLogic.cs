@@ -83,7 +83,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var result = new List<NotificaDto>();
-                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM);
+                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM, false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -135,7 +135,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var result = new List<NotificaDto>();
-                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM);
+                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM, false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -219,7 +219,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var bodyMail = string.Empty;
-                var firstEM = await _unitOfWork.Emendamenti.Get(model.ListaEmendamenti.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(model.ListaEmendamenti.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
