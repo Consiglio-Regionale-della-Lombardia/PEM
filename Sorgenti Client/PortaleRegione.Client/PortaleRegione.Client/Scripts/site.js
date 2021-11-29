@@ -797,6 +797,8 @@ async function GetArticoliAtto(attoUId) {
     var tableLettere = $("#tableLettere");
     tableCommi.empty();
     tableLettere.empty();
+    set_ListaCommiEM([]);
+    set_ListaLettereEM([]);
     tableCommi.append("<li class='collection-item'>Crea da un articolo</li>");
     tableLettere.append("<li class='collection-item'>Crea da un comma</li>");
 
@@ -825,6 +827,8 @@ async function GetArticoliAtto(attoUId) {
 }
 
 async function GetCommiArticolo(articoloUId) {
+
+    set_ListaCommiEM([]);
 
     $("#tableArticoli").find("li").removeClass("active");
     $("#tableArticoli").find("li[uid='" + articoloUId + "']").addClass("active");
@@ -859,6 +863,8 @@ async function GetCommiArticolo(articoloUId) {
 }
 
 async function GetLettereComma(commaUId) {
+
+    set_ListaLettereEM([]);
 
     $("#tableCommi").find("li").removeClass("active");
     $("#tableCommi").find("li[uid='" + commaUId + "']").addClass("active");

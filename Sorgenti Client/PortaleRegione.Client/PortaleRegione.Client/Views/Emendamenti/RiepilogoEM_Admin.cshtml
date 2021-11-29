@@ -10,6 +10,9 @@
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
                 set_Filtri_EM({});
+                set_ListaArticoliEM([]);
+                set_ListaCommiEM([]);
+                set_ListaLettereEM([]);
                 $('#counterFilterActive').hide();
             } else {
                 $('#counterFilterActive').show();
