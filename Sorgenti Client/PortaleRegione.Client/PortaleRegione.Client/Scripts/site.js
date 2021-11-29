@@ -375,7 +375,7 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
-    console.log("selectArticolo")
+    set_ListaCommiEM([]);
     $('#ArticoliList').val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
     M.FormSelect.init(elemsArt, null);
@@ -412,7 +412,7 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
 }
 
 async function Commi_OnChange(value, valueLetteraSelected) {
-
+    set_ListaLettereEM([]);
     var lettere = await GetLettere(value);
 
     if (lettere.length > 0) {
