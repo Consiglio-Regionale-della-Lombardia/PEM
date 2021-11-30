@@ -17,7 +17,6 @@
                     <div id="pnlParte_Titolo_@Model.UIDEM" style="display: none">
                         @Html.LabelFor(m => m.NTitolo)
                         <input type="text" id="NTitolo_@Model.UIDEM" value="@Model.NTitolo" onkeyup="NTitolo_OnChange(this)"/>
-
                     </div>
                     <div id="pnlParte_Capo_@Model.UIDEM" style="display: none">
                         @Html.LabelFor(m => m.NCapo)
@@ -74,6 +73,7 @@
 
 <script>
     var ListaEM = [];
+
     $(document).ready(
         async function() {
             var em = @Html.Raw(JsonConvert.SerializeObject(Model));
@@ -82,6 +82,10 @@
             if (cacheEM.length <= 0) {
                 ListaEM.push(em); // aggiungo em alla lista per gestire il reset delle modifiche
             }
+
+            set_ListaArticoliEM([]);
+            set_ListaCommiEM([]);
+            set_ListaLettereEM([]);
 
             SetupMetaDati(em);
         });
@@ -218,6 +222,9 @@
 
         $("input[type=radio][name='Parte_" + em.UIDEM + "']").change(async function() {
             em.IDParte = this.value;
+            set_ListaArticoliEM([]);
+            set_ListaCommiEM([]);
+            set_ListaLettereEM([]);
             await LoadMetaDati_Parte(em);
         });
     }
@@ -244,6 +251,8 @@
             await LoadMetaDati_Parte_Comma(em);
 
             $(select).change(async function() {
+                set_ListaCommiEM([]);
+                set_ListaLettereEM([]);
                 em.UIDArticolo = this.value;
                 await LoadMetaDati_Parte_Comma(em);
             });
@@ -280,6 +289,7 @@
             await LoadMetaDati_Parte_Lettere(em);
 
             $(select).change(async function() {
+                set_ListaLettereEM([]);
                 em.UIDComma = this.value;
                 await LoadMetaDati_Parte_Lettere(em);
             });
