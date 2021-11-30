@@ -22,3 +22,8 @@
 .green { background-color: #73bbf7 !important; }
 
 .green.lighten-4 { background-color: #BBDEFB !important; }
+
+.sidenav li.active {
+    background-color: #f5fafe;
+    border-bottom: solid #73bbf7;
+}

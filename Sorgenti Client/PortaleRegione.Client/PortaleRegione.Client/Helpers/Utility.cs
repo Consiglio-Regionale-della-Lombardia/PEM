@@ -191,5 +191,170 @@ namespace PortaleRegione.Client.Helpers
         }
 
         #endregion
+
+        public static string GetCSS_TipoDASI(int tipoAtto)
+        {
+            switch ((TipoAttoEnum)tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return TipoAttoCSSConst.ITR;
+                case TipoAttoEnum.IQT:
+                    return TipoAttoCSSConst.IQT;
+                case TipoAttoEnum.ITL:
+                    return TipoAttoCSSConst.ITL;
+                case TipoAttoEnum.MOZ:
+                    return TipoAttoCSSConst.MOZ;
+                case TipoAttoEnum.MOZ_U:
+                    return TipoAttoCSSConst.MOZ_U;
+                case TipoAttoEnum.MOZ_A:
+                    return TipoAttoCSSConst.MOZ_A;
+                case TipoAttoEnum.MOZ_S:
+                    return TipoAttoCSSConst.MOZ_S;
+                case TipoAttoEnum.MOZ_C:
+                    return TipoAttoCSSConst.MOZ_C;
+                case TipoAttoEnum.ODG:
+                    return TipoAttoCSSConst.ODG;
+                case TipoAttoEnum.PDL:
+                    return string.Empty;
+                case TipoAttoEnum.PDA:
+                    return string.Empty;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
+        public static string GetText_TipoDASI(int tipoAtto)
+        {
+            switch ((TipoAttoEnum)tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return TipoAttoEnum.ITR.ToString();
+                case TipoAttoEnum.IQT:
+                    return TipoAttoEnum.IQT.ToString();
+                case TipoAttoEnum.ITL:
+                    return TipoAttoEnum.ITL.ToString();
+                case TipoAttoEnum.MOZ:
+                    return TipoAttoEnum.MOZ.ToString();
+                case TipoAttoEnum.MOZ_U:
+                    return TipoAttoEnum.MOZ_U.ToString();
+                case TipoAttoEnum.MOZ_A:
+                    return TipoAttoEnum.MOZ_A.ToString();
+                case TipoAttoEnum.MOZ_S:
+                    return TipoAttoEnum.MOZ_S.ToString();
+                case TipoAttoEnum.MOZ_C:
+                    return TipoAttoEnum.MOZ_C.ToString();
+                case TipoAttoEnum.ODG:
+                    return TipoAttoEnum.ODG.ToString();
+                case TipoAttoEnum.PDL:
+                    return TipoAttoEnum.PDL.ToString();
+                case TipoAttoEnum.PDA:
+                    return TipoAttoEnum.PDA.ToString();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
+        public static string GetTooltip_TipoDASI(int tipoAtto)
+        {
+            switch ((TipoAttoEnum)tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return "Interrogazione";
+                case TipoAttoEnum.IQT:
+                    return "Interrogazione a risposta immediata";
+                case TipoAttoEnum.ITL:
+                    return "Interpellanza";
+                case TipoAttoEnum.MOZ:
+                    return "Mozione Ordinaria";
+                case TipoAttoEnum.MOZ_U:
+                    return "Mozione Urgente";
+                case TipoAttoEnum.MOZ_A:
+                    return "Mozione Abbinate";
+                case TipoAttoEnum.MOZ_S:
+                    return "Mozione di Sfiducia";
+                case TipoAttoEnum.MOZ_C:
+                    return "Mozione di Censura";
+                case TipoAttoEnum.ODG:
+                    return "Ordine del Giorno";
+                case TipoAttoEnum.PDL:
+                    return "Progetto di Legge";
+                case TipoAttoEnum.PDA:
+                    return TipoAttoEnum.PDA.ToString();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+
+        }
+
+        public static string GetCSS_StatoDASI(int stato)
+        {
+            switch ((StatiAttoEnum)stato)
+            {
+                case StatiAttoEnum.BOZZA:
+                    return StatiAttoCSSConst.BOZZA;
+                case StatiAttoEnum.PRESENTATO:
+                    return StatiAttoCSSConst.PRESENTATO;
+                case StatiAttoEnum.IN_TRATTAZIONE:
+                    return StatiAttoCSSConst.IN_TRATTAZIONE;
+                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
+                    return StatiAttoCSSConst.COMUNICAZIONE_ASSEMBLEA;
+                case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
+                    return StatiAttoCSSConst.TRATTAZIONE_ASSEMBLEA;
+                case StatiAttoEnum.APPROVATO:
+                    return StatiAttoCSSConst.APPROVATO;
+                case StatiAttoEnum.RESPINTO:
+                    return StatiAttoCSSConst.RESPINTO;
+                case StatiAttoEnum.INAMMISSIBILE:
+                    return StatiAttoCSSConst.INAMMISSIBILE;
+                case StatiAttoEnum.RITIRATO:
+                    return StatiAttoCSSConst.RITIRATO;
+                case StatiAttoEnum.DECADUTO:
+                    return StatiAttoCSSConst.DECADUTO;
+                case StatiAttoEnum.DECADUTO_FINE_MANDATO:
+                    return StatiAttoCSSConst.DECADUTO_FINE_MANDATO;
+                case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
+                    return StatiAttoCSSConst.DECADUTO_FINE_LEGISLATURA;
+                case StatiAttoEnum.ALTRO:
+                    return StatiAttoCSSConst.ALTRO;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
+            }
+        }
+
+        public static string GetText_StatoDASI(int stato)
+        {
+            switch ((StatiAttoEnum)stato)
+            {
+                case StatiAttoEnum.BOZZA:
+                    return "Bozza";
+                case StatiAttoEnum.PRESENTATO:
+                    return "Presentato";
+                case StatiAttoEnum.IN_TRATTAZIONE:
+                    return "In Trattazione";
+                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
+                    return "Comunicazione all’Assemblea";
+                case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
+                    return "Trattazione all’Assemblea";
+                case StatiAttoEnum.APPROVATO:
+                    return "Approvato";
+                case StatiAttoEnum.RESPINTO:
+                    return "Respinto";
+                case StatiAttoEnum.INAMMISSIBILE:
+                    return "Inammissibile";
+                case StatiAttoEnum.RITIRATO:
+                    return "Ritirato";
+                case StatiAttoEnum.DECADUTO:
+                    return "Decaduto";
+                case StatiAttoEnum.DECADUTO_FINE_MANDATO:
+                    return "Decadenza per fine mandato consigliere";
+                case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
+                    return "Decadenza per fine legislatura";
+                case StatiAttoEnum.ALTRO:
+                    return "Chiusura per motivi diversi";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
+            }
+
+        }
     }
 }

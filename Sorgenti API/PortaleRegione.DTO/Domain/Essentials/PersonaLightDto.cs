@@ -22,6 +22,16 @@ namespace PortaleRegione.DTO.Domain.Essentials
 {
     public class PersonaLightDto
     {
+        public PersonaLightDto()
+        {
+
+        }
+
+        public PersonaLightDto(string cognome, string nome)
+        {
+            this.cognome = cognome;
+            this.nome = nome;
+        }
         public string DisplayName => $"{cognome} {nome}";
 
         public Guid UID_persona { get; set; }

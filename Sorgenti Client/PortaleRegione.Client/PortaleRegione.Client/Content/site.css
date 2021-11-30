@@ -318,6 +318,23 @@ div.input-field>label {
     font-weight: bold !important;
 }
 
+.trattazioneT {
+    color: #00e5ff !important;
+    font-weight: bold !important;
+}
+.comunicazioneAssembleaT {
+    color: #00e676 !important;
+    font-weight: bold !important;
+}
+.trattazioneAssembleaT {
+    color: #546e7a !important;
+    font-weight: bold !important;
+}
+.altroT {
+    color: #546e7a !important;
+    font-weight: bold !important;
+}
+
 .pnlbozza { background-color: black; }
 
 .pnlbozzaR { background-color: #d8d8d8; }
@@ -335,6 +352,60 @@ div.input-field>label {
 .pnldecaduto { background-color: #9C27B0; }
 
 .pnlinammissibile { background-color: #FFC107; }
+
+/*----------------------------------------
+    DASI
+------------------------------------------*/
+
+.badgeIQT {
+    color: white;
+    background-color: #006064;
+    min-width: unset !important;
+}
+.badgeITL {
+    color: white;
+    background-color: #1a237e;
+    min-width: unset !important;
+}
+.badgeMOZ {
+    color: white;
+    background-color: #e4286d;
+    min-width: unset !important;
+}
+.badgeMOZ_U {
+    color: white;
+    background-color: #d81b60;
+    min-width: unset !important;
+}
+.badgeMOZ_A {
+    color: white;
+    background-color: #c2185b;
+    min-width: unset !important;
+}
+.badgeMOZ_C {
+    color: white;
+    background-color: #ad1457;
+    min-width: unset !important;
+}
+.badgeMOZ_S {
+    color: white;
+    background-color: #880e4f;
+    min-width: unset !important;
+}
+.badgeITR {
+    color: white;
+    background-color: #bf360c;
+    min-width: unset !important;
+}
+.badgeODG {
+    color: white;
+    background-color: #f57f17;
+    min-width: unset !important;
+}
+
+/*----------------------------------------
+    ###
+------------------------------------------*/
 
 .dropdown-content { width: 100% !important }
 

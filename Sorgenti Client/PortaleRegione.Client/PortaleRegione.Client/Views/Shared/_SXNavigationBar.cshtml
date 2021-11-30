@@ -174,8 +174,11 @@
                 </div>
             </div>
         </li>
-        <li class="menuItem_Sedute bold">
+        <li class="menuItem_Sedute bold" style="margin-top:-8px">
             <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "Sedute")"><i class="material-icons">event</i>Riepilogo sedute</a>
+        </li>
+        <li class="menuItem_DASI bold">
+            <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "AttiSindacatoIspettivo")"><i class="material-icons">record_voice_over</i>Atti Sindacato Ispettivo</a>
         </li>
         <li class="menuItem_Notifiche bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
@@ -239,6 +242,8 @@
             $('.menuItem_Stampe').addClass("active");
         } else if (url.includes("adminpanel")) {
             $('.menuItem_Amministrazione').addClass("active");
+        } else if (url.includes("attisindacatoispettivo")) {
+            $('.menuItem_DASI').addClass("active");
         } else {
             $('.menuItem_Sedute').addClass("active");
         }

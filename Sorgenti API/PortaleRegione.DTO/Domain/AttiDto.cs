@@ -88,6 +88,10 @@ namespace PortaleRegione.DTO.Domain
         public bool CanMoveDown { get; set; } = false;
         public bool CanMoveUp { get; set; } = false;
 
-
+        //DASI
+        public string Testo { get; set; } = string.Empty;
+        public PersonaLightDto PersonaProponente { get; set; }
+        public DateTime DataPresentazione { get; set; }
+        public int Stato { get; set; }
     }
 }

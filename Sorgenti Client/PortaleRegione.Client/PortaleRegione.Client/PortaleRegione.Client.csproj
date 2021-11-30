@@ -102,6 +102,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminPanelController.cs" />
     <Compile Include="Controllers\AttiController.cs" />
+    <Compile Include="Controllers\AttiSindacatoIspettivoController.cs" />
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\EMPublicController.cs" />
@@ -118,6 +119,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AttiViewModel.cs" />
+    <Compile Include="Models\DASIViewModel.cs" />
     <Compile Include="Models\ViewUtenteModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -382,6 +384,7 @@
     <Content Include="Views\Emendamenti\_MetaDatiPanelAdmin.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiFormPartial.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiPanelPartial.cshtml" />
+    <Content Include="Views\AttiSindacatoIspettivo\RiepilogoDASI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -24,3 +24,8 @@
 .tabs .indicator {
     background-color: #4CAF50 !important;
 }
+
+.sidenav li.active {
+    background-color: #fcfefc;
+    border-bottom: solid #4CAF50;
+}

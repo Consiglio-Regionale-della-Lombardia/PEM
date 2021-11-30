@@ -1,0 +1,159 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.Client.Models.DASIViewModel
+
+@{
+    ViewBag.Title = "Atti Sindacato Ispettivo";
+}
+
+<script>
+    $(document).ready(function() {
+        $('#btnSearch').hide();
+    });
+</script>
+
+<div class="row">
+    <div class="col s1">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col s3">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+    <div class="col s8">
+        <div class="row">
+            <div class="col s12 right-align">
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.ITR)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.ITR)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.ITR
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.IQT)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.IQT)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.IQT
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.ITL)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.ITL
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.MOZ
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_U)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_U)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.MOZ_U
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_A)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_A)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.MOZ_A
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_C)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_C)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.MOZ_C
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_S)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_S)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.MOZ_S
+                    </span>
+                </div>
+                <div class="chip @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.ODG)" style="min-width: unset">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.ODG)
+                    <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                        @Model.ODG
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="highlight responsive-table">
+    <thead>
+    <tr>
+        <th>Tipo</th>
+        <th>Oggetto</th>
+        <th>Soggetto</th>
+        <th>Testo</th>
+        <th>Stato</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var atto in Model.Data.Results)
+    {
+        <tr>
+            <td>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI(atto.IDTipoAtto)" data-tooltip="@Utility.GetTooltip_TipoDASI(atto.IDTipoAtto)">
+                    @Utility.GetText_TipoDASI(atto.IDTipoAtto)
+                </div>
+            </td>
+            <td>@atto.Oggetto</td>
+            <td>@atto.PersonaProponente.DisplayName</td>
+            <td>@atto.Testo</td>
+            <td>
+                <div class="@Utility.GetCSS_StatoDASI(atto.Stato)">
+                    @Utility.GetText_StatoDASI(atto.Stato)
+                </div>
+            </td>
+            <td class="center">
+                @if (atto.Stato == (int)StatiAttoEnum.BOZZA)
+                {
+                    <a class="blue-text tooltipped" style="margin: 2px" data-position="left" data-tooltip="Modifica">
+                        <i class="material-icons">edit</i>
+                    </a>
+                    <a class="red-text tooltipped" style="margin: 2px" data-position="left" data-tooltip="Elimina">
+                        <i class="material-icons">delete</i>
+                    </a>
+                }
+                else
+                {
+                    <a class="green-text tooltipped" style="margin: 2px" data-position="left" data-tooltip="Visualizza">
+                        <i class="material-icons">visibility</i>
+                    </a>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div class="fixed-action-btn">
+    <a id="btnCreaDASI" class="btn-floating btn-large blue darken-1">
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+<div id="modalDASI" class="modal">
+    <div class="modal-content">
+        <h4>Nuovo atto</h4>
+        <p>A bunch of text</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Salva</a>
+    </div>
+</div>
+
+
+<script>
+    $('#btnCreaDASI').on("click", function() {
+        $('#modalDASI').modal("open");
+    });
+</script>
