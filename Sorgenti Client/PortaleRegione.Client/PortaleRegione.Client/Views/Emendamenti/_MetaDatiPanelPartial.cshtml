@@ -222,7 +222,9 @@
         await LoadMetaDati_Parte_Articolo(em);
         await LoadMetaDati_Parte_Missione(em);
 
+        $("input[type=radio][name='Parte_" + em.UIDEM + "']").unbind();
         $("input[type=radio][name='Parte_" + em.UIDEM + "']").change(async function() {
+            console.log("Reset PARTE")
             em.IDParte = this.value;
             set_ListaArticoliEM([]);
             set_ListaCommiEM([]);
@@ -259,7 +261,9 @@
             $(select).formSelect();
             await LoadMetaDati_Parte_Comma(em);
 
+            $(select).unbind();
             $(select).change(async function() {
+                console.log("Reset ARTICOLO")
                 set_ListaCommiEM([]);
                 set_ListaLettereEM([]);
                 em.UIDArticolo = this.value;
@@ -299,7 +303,9 @@
             $(select).formSelect();
             await LoadMetaDati_Parte_Lettere(em);
 
+            $(select).unbind();
             $(select).change(async function() {
+                console.log("SET COMMA")
                 set_ListaLettereEM([]);
                 em.UIDComma = this.value;
                 em.UIDLettera = null;
@@ -336,7 +342,9 @@
 
             $(select).formSelect();
 
+            $(select).unbind();
             $(select).change(function() {
+                console.log("SET LETTERA")
                 em.UIDLettera = this.value;
             });
         } else {

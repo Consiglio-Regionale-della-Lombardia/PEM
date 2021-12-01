@@ -88,9 +88,9 @@ namespace PortaleRegione.Domain
 
         public int IDParte { get; set; }
 
-        [StringLength(5)] public string NTitolo { get; set; }
+        [StringLength(5)] public string NTitolo { get; set; } = string.Empty;
 
-        [StringLength(5)] public string NCapo { get; set; }
+        [StringLength(5)] public string NCapo { get; set; } = string.Empty;
 
         public Guid? UIDArticolo { get; set; }
 
