@@ -254,7 +254,7 @@
                 set_ListaCommiEM([]);
                 set_ListaLettereEM([]);
                 em.UIDArticolo = this.value;
-                await LoadMetaDati_Parte_Comma(em);
+                await LoadMetaDati_Parte_Articolo(em);
             });
 
         } else {
@@ -291,7 +291,7 @@
             $(select).change(async function() {
                 set_ListaLettereEM([]);
                 em.UIDComma = this.value;
-                await LoadMetaDati_Parte_Lettere(em);
+                await LoadMetaDati_Parte_Articolo(em);
             });
         } else {
             $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
