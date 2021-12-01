@@ -193,6 +193,8 @@
         }
 
         $('#pnlParte_Articoli_' + em.UIDEM).hide();
+        $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
+        $('#pnlParte_Articoli_Lettere_' + em.UIDEM).hide();
         $('#pnlParte_Missioni_' + em.UIDEM).hide();
         $('#pnlParte_Titolo_' + em.UIDEM).hide();
         $('#pnlParte_Capo_' + em.UIDEM).hide();
@@ -225,6 +227,13 @@
             set_ListaArticoliEM([]);
             set_ListaCommiEM([]);
             set_ListaLettereEM([]);
+            em.UIDArticolo = null;
+            em.UIDComma = null;
+            em.UIDLettera = null;
+            em.NMissione = null;
+            em.NTitoloB = null;
+            em.NTitolo = "";
+            em.NCapo = "";
             await LoadMetaDati_Parte(em);
         });
     }
@@ -254,7 +263,9 @@
                 set_ListaCommiEM([]);
                 set_ListaLettereEM([]);
                 em.UIDArticolo = this.value;
-                await LoadMetaDati_Parte_Articolo(em);
+                em.UIDComma = null;
+                em.UIDLettera = null;
+                await LoadMetaDati_Parte(em);
             });
 
         } else {
@@ -291,7 +302,8 @@
             $(select).change(async function() {
                 set_ListaLettereEM([]);
                 em.UIDComma = this.value;
-                await LoadMetaDati_Parte_Articolo(em);
+                em.UIDLettera = null;
+                await LoadMetaDati_Parte(em);
             });
         } else {
             $('#pnlParte_Articoli_Commi_' + em.UIDEM).hide();
