@@ -88,7 +88,7 @@
 <table class="highlight responsive-table">
     <thead>
     <tr>
-        <th>Tipo</th>
+        <th style="width: 60px">Tipo</th>
         <th>Oggetto</th>
         <th>Soggetto</th>
         <th>Testo</th>
@@ -143,8 +143,39 @@
 
 <div id="modalDASI" class="modal">
     <div class="modal-content">
-        <h4>Nuovo atto</h4>
-        <p>A bunch of text</p>
+        <h4 id="modalDASI_Title">Nuovo Atto</h4>
+        <i class="material-icons modal-close" style="position: absolute;top: 20px;right: 25px;">close</i>
+        <div class="row">
+            <div class="col s12 center">
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.ITR)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.ITR)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.ITR)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.IQT)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.IQT)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.IQT)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.ITL)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.ITL)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.MOZ)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_U)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.MOZ_U)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_U)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_A)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.MOZ_A)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_A)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_C)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.MOZ_C)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_C)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.MOZ_S)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.MOZ_S)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ_S)
+                </div>
+                <div class="chip tooltipped @Utility.GetCSS_TipoDASI((int)TipoAttoEnum.ODG)" style="min-width: unset" data-tooltip="@Utility.GetTooltip_TipoDASI((int)TipoAttoEnum.ODG)">
+                    @Utility.GetText_TipoDASI((int)TipoAttoEnum.ODG)
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Salva</a>
@@ -154,6 +185,32 @@
 
 <script>
     $('#btnCreaDASI').on("click", function() {
-        $('#modalDASI').modal("open");
+        OpenDasiModal();
     });
+
+    function OpenDasiModal() {
+        $('#modalDASI_Title').text("Nuovo Atto");
+        $('#modalDASI').modal("open");
+    }
+
+    var trigger_command = false;
+    $("body").on("keyup",
+        function (event) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 17 && trigger_command == false) {
+                // Trigger the button element with a click
+                trigger_command = true;
+                M.toast({ html: "Hotkeys attivato", classes: 'rounded', displayLength: 1000 });
+            }else if (event.keyCode === 17 && trigger_command == true) {
+                // Trigger the button element with a click
+                trigger_command = false;
+                M.toast({ html: "Hotkeys disattivato", classes: 'rounded', displayLength: 1000 });
+            }else if (trigger_command == true) {
+                if (event.keyCode == 78) {
+                    OpenDasiModal();
+                }
+            }
+        });
 </script>

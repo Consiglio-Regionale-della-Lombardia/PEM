@@ -77,6 +77,14 @@ namespace PortaleRegione.Client.Controllers
                     Testo = "Perchè sei li seduto e non fai niente?",
                     IDTipoAtto = (int)TipoAttoEnum.ODG,
                     Stato = (int)StatiAttoEnum.INAMMISSIBILE
+                },
+                new AttiDto
+                {
+                    PersonaProponente = new PersonaLightDto("Cattapan", "Matteo"),
+                    Oggetto = "Domanda spiccia",
+                    Testo = "Perchè sei li seduto e non fai niente?",
+                    IDTipoAtto = (int)TipoAttoEnum.MOZ_A,
+                    Stato = (int)StatiAttoEnum.IN_TRATTAZIONE
                 }
             };
 
@@ -85,7 +93,8 @@ namespace PortaleRegione.Client.Controllers
                 Data = new BaseResponse<AttiDto>
                 {
                     Results = list
-                }
+                },
+                ODG = 21000
             };
 
             return View("RiepilogoDASI", model);
