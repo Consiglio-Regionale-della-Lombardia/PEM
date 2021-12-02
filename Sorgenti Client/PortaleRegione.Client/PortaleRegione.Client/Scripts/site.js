@@ -58,9 +58,26 @@ function openSearch() {
     instances.open();
 }
 
-function openMetaDati(emendamentoUId) {
-    $('#modalMetaDati_' + emendamentoUId).modal("open");
+async function openMetaDati(emendamentoUId) {
+    var em = await GetEM(emendamentoUId);
+    await LoadMetaDatiEM(em);
+    $('#modalMetaDati').modal("open");
 }
+
+async function GetEM(emUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/emendamenti/" + emUId + "/meta-data",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 
 function go(link, switchMode) {
     var mode = getClientMode();

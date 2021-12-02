@@ -217,6 +217,27 @@ namespace PortaleRegione.Client.Controllers
             return View(em);
         }
 
+        [HttpGet]
+        [Route("{id:guid}/meta-data")]
+        public async Task<ActionResult> GetMetaData(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var em = await apiGateway.Emendamento.Get(id);
+
+                if (em.ATTI == null)
+                    em.ATTI = await apiGateway.Atti.Get(em.UIDAtto);
+
+                return Json(em, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         ///     Controller per aggiungere un emendamento. Restituisce il modello dell'emendamento pre-compilato.
         /// </summary>

@@ -1,70 +1,68 @@
-﻿@model  PortaleRegione.DTO.Domain.EmendamentiDto
-
-<div id="modalMetaDati_@Model.UIDEM" class="modal bottom-sheet">
+﻿<div id="modalMetaDati" class="modal bottom-sheet">
     <div class="modal-content">
         <div class="row" style="margin: unset !important">
             <div class="col l6 left-align">
                 <h5 style="margin: unset !important">
                     <b>
-                        <span>@Model.N_EM</span>
+                        <span id="N_EM">N_EM</span>
                     </b>
                 </h5>
             </div>
             <div class="col l6 right-align">
-                <a id="btnSalvaMetaDatiPartial_@Model.UIDEM" href="#!" class="waves-effect waves-green btn-flat green-text" style="font-weight: bold;">Salva</a>
+                <a id="btnSalvaMetaDatiPartial" href="#!" class="waves-effect waves-green btn-flat green-text" style="font-weight: bold;">Salva</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
             </div>
         </div>
 
         <div class="row">
             <div class="col s12">
-                <ul id="emendamentoFormsTabs_@Model.UIDEM" class="tabs tabs-fixed-width">
+                <ul id="emendamentoFormsTabs" class="tabs tabs-fixed-width">
                     <li class="tab col s3">
-                        <a class="active" href="#metaDatiTab_@Model.UIDEM">Meta dati</a>
+                        <a class="active" href="#metaDatiTab">Meta dati</a>
                     </li>
                     <li class="tab col s3">
-                        <a href="#testoEMTab_@Model.UIDEM">Testo</a>
+                        <a href="#testoEMTab">Testo</a>
                     </li>
                     <li class="tab col s3">
-                        <a href="#noteTab_@Model.UIDEM">Note</a>
+                        <a href="#noteTab">Note</a>
                     </li>
                 </ul>
-                <div id="metaDatiTab_@Model.UIDEM" class="col s12 left-align">
-                    @Html.Partial("_MetaDatiPanelPartial", Model)
+                <div id="metaDatiTab" class="col s12 left-align">
+                    @Html.Partial("_MetaDatiPanelPartial")
                 </div>
-                <div id="testoEMTab_@Model.UIDEM" class="col s12 left-align">
+                <div id="testoEMTab" class="col s12 left-align">
                     <div class="form-group">
-                        @Html.LabelFor(s => s.TestoEM_Modificabile)
+                        <label>Testo</label>
                         <span style="display: flex">
                             <p>
                                 <label>
-                                    <input name="Testo_@Model.UIDEM" type="radio" value="0" @Html.Raw(string.IsNullOrEmpty(Model.TestoEM_Modificabile) ? "checked='checked'" : "")/>
+                                    <input name="Testo" type="radio" value="0"/>
                                     <span>Testo Originale</span>
                                 </label>
                             </p>
                             <p style="padding-left: 10px">
                                 <label>
-                                    <input name="Testo_@Model.UIDEM" type="radio" value="1" @Html.Raw(!string.IsNullOrEmpty(Model.TestoEM_Modificabile) ? "checked='checked'" : "")/>
+                                    <input name="Testo" type="radio" value="1"/>
                                     <span>Testo Modificato</span>
                                 </label>
                             </p>
                         </span>
                         <p>Durante la discussione in aula il testo è stato così modificato:</p>
-                        <textarea id="EditorTesto_@Model.UIDEM" class="form-control trumbowyg"></textarea>
+                        <textarea id="EditorTesto" class="form-control trumbowyg"></textarea>
                     </div>
                 </div>
-                <div id="noteTab_@Model.UIDEM" class="col s12 left-align">
+                <div id="noteTab" class="col s12 left-align">
                     <div class="row">
                         <div class="col s6">
                             <div class="card-action green lighten-4 form-group">
                                 <label class="bold">Nota pubblica</label>
-                                <textarea id="NotePubbliche_@Model.UIDEM" style="min-height: 100px" class="form-control">@Model.NOTE_Griglia</textarea>
+                                <textarea id="NotePubbliche" style="min-height: 100px" class="form-control"></textarea>
                             </div>
                         </div>
                         <div class="col s6">
                             <div class="card-action red lighten-4 form-group">
                                 <label class="bold">Nota riservata</label>
-                                <textarea id="NotePrivate_@Model.UIDEM" style="min-height: 100px" class="form-control">@Model.NOTE_EM</textarea>
+                                <textarea id="NotePrivate" style="min-height: 100px" class="form-control"></textarea>
                             </div>
 
                         </div>
