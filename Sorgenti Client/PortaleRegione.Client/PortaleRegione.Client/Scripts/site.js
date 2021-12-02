@@ -667,7 +667,16 @@ function Ordina_EMTrattazione(attoUId) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            location.reload();
+            swal({
+                    title: "Ordinamento automatico",
+                    text: "L'operazione di ordinamento automatico è stata effettuata correttamente",
+                    icon: "success",
+                    buttons: true,
+                })
+                .then((willDelete) => {
+                    location.reload();
+                });
+            
         }
     }).fail(function(err) {
         console.log("error", err);
