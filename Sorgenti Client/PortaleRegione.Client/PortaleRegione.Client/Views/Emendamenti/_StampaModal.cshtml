@@ -10,7 +10,7 @@
         {
             @Html.AntiForgeryToken()
             <input id="hdUIdAtto" name="UIDAtto" type="hidden" value="@Model"/>
-            <input id="hdOrdine" name="Ordine" type="hidden" value="@((int) OrdinamentoEnum.Presentazione)" />
+            <input id="hdOrdine" name="Ordine" type="hidden" value="" />
             <div id="pnlDaA">
             <div class="form-group">
                 <label>Dall' emendamento in posizione:</label>
@@ -79,6 +79,7 @@
                     Ordine: $("#hdOrdine").val(),
                     CLIENT_MODE: @Html.Raw(mode)
                 };
+
                 var lstEM = getListaEmendamenti();
                 if (lstEM.length > 0) {
                     obj.filtro = [];
@@ -92,6 +93,7 @@
                         });
                     }
                 }
+                console.log("STampa", obj)
 
                 //submit via ajax
                 $.ajax({
