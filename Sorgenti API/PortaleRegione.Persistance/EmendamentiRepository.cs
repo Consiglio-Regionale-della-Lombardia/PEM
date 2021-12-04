@@ -454,32 +454,17 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
-                (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                 || persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
+            switch (ordine)
             {
-                switch (ordine)
-                {
-                    case OrdinamentoEnum.Default:
-                    case OrdinamentoEnum.Presentazione:
-                        query = query.OrderBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.OrdinePresentazione)
-                            .ThenBy(em => em.IDStato);
-                        break;
-                    case OrdinamentoEnum.Votazione:
-                        query = query.OrderBy(em => em.OrdineVotazione)
-                            .ThenBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.IDStato);
-                        break;
-                    default:
-                        query = query.OrderBy(em => em.IDStato).ThenBy(em => em.DataCreazione);
-                        break;
-                }
-            }
-            else
-            {
-                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo).ThenBy(em => em.SubProgressivo);
+                case OrdinamentoEnum.Presentazione:
+                    query = query.OrderBy(em => em.OrdinePresentazione);
+                    break;
+                case OrdinamentoEnum.Votazione:
+                    query = query.OrderBy(em => em.OrdineVotazione);
+                    break;
+                default:
+                    query = query.OrderBy(em => em.IDStato).ThenByDescending(em => em.DataCreazione);
+                    break;
             }
 
             var sql = query.ToTraceQuery();
