@@ -224,8 +224,7 @@ namespace PortaleRegione.BAL
                 {
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                         || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione
-                        || isGiunta)
+                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
                     {
                         result.ListaConsiglieri =
                             await _logicPersone.GetConsiglieri();
