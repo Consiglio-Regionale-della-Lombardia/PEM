@@ -1043,7 +1043,7 @@ namespace PortaleRegione.Client.Controllers
                             await Utility.GetDestinatariNotifica(
                                 await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
-
+            
             Session["RiepilogoEmendamenti"] = modelResult;
             return View("RiepilogoEM", modelResult);
         }

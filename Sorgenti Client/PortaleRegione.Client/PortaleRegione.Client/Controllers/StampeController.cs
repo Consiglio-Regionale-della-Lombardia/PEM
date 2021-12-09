@@ -19,6 +19,7 @@
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
@@ -67,6 +68,16 @@ namespace PortaleRegione.Client.Controllers
                 Ordine = Convert.ToInt32(ordine),
                 CLIENT_MODE = Convert.ToInt32(client_mode)
             };
+            if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
+            {
+                try
+                {
+                    model.filtro = old_model.Data.Filters;
+                }
+                catch (Exception e)
+                {
+                }
+            }
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Stampe.InserisciStampa(model);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
