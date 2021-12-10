@@ -280,7 +280,6 @@ namespace PortaleRegione.BAL
 
             body += "<thead>";
             body += "<tr>";
-            body += ComposeHeaderColumn("Ordine");
             body += ComposeHeaderColumn("EM/SUB");
             body += ComposeHeaderColumn("Testo");
             body += ComposeHeaderColumn("Relazione");
@@ -307,7 +306,6 @@ namespace PortaleRegione.BAL
         {
             var row = string.Empty;
             row += "<tr>";
-            row += ComposeBodyColumn(em.OrdineVotazione.ToString());
             row += ComposeBodyColumn(em.N_EM);
             row += ComposeBodyColumn(em.TestoEM_originale);
             row += ComposeBodyColumn(em.TestoREL_originale);
