@@ -1,7 +1,7 @@
-﻿@model string
+﻿@model object
 
 @{
     Layout = null;
 }
 
-@Html.Raw(Model)
+@Html.Raw((string)Model)

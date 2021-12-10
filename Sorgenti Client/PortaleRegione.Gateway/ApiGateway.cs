@@ -7,6 +7,7 @@
         public ApiGateway()
         {
             Persone = new PersoneGateway();
+            Emendamento_Pubblico = new EMGateway_Pubblico();
         }
 
         public ApiGateway(string token)
@@ -19,7 +20,6 @@
             Stampe = new StampeGateway(_token);
             Esporta = new EsportaGateway(_token);
             Emendamento = new EMGateway(_token);
-            Emendamento_Pubblico = new EMGateway_Pubblico();
             Atti = new AttiGateway(_token);
             Admin = new AdminGateway(_token);
         }

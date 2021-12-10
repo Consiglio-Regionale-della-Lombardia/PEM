@@ -33,7 +33,24 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway();
+                var em = await apiGateway.Emendamento_Pubblico.GetBody(id);
+                return View("Index", (object)em);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Route("{id:guid}")]
+        public async Task<ActionResult> GetEMPublic2(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway();
                 var em = await apiGateway.Emendamento_Pubblico.GetBody(id);
                 return View("Index", (object)em);
             }
