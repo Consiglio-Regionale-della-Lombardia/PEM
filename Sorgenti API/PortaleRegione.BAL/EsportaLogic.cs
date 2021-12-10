@@ -272,6 +272,7 @@ namespace PortaleRegione.BAL
             var personeInDb = await _unitOfWork.Persone.GetAll();
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
             var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, open_data_enabled: false, true);
+            var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -289,7 +290,7 @@ namespace PortaleRegione.BAL
             body += "</thead>";
 
             body += "<tbody>";
-            body = emList.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
+            body = list.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
             body += "</tbody>";
 
             body += "</table>";
