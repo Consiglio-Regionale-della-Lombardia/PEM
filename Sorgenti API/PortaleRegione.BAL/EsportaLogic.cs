@@ -544,7 +544,8 @@ namespace PortaleRegione.BAL
             var cellCount = rowReport.CreateCell(0);
             cellCount.CellStyle = styleR;
             cellCount.SetCellValue(countEM);
-            var cellInamm = rowReport.CreateCell(11);
+            var colonna_conteggi = atto.VIS_Mis_Prog ? 11 : 8;
+            var cellInamm = rowReport.CreateCell(colonna_conteggi);
             cellInamm.CellStyle = styleR;
             cellInamm.SetCellValue(inammissibili);
 
@@ -553,16 +554,16 @@ namespace PortaleRegione.BAL
                 return sheet;
             }
 
-            var cellRit = rowReport.CreateCell(12);
+            var cellRit = rowReport.CreateCell(colonna_conteggi + 1);
             cellRit.CellStyle = styleR;
             cellRit.SetCellValue(ritirati);
-            var cellApp = rowReport.CreateCell(13);
+            var cellApp = rowReport.CreateCell(colonna_conteggi + 2);
             cellApp.CellStyle = styleR;
             cellApp.SetCellValue(approvati);
-            var cellNonApp = rowReport.CreateCell(14);
+            var cellNonApp = rowReport.CreateCell(colonna_conteggi + 3);
             cellNonApp.CellStyle = styleR;
             cellNonApp.SetCellValue(non_approvati);
-            var cellDeca = rowReport.CreateCell(15);
+            var cellDeca = rowReport.CreateCell(colonna_conteggi + 4);
             cellDeca.CellStyle = styleR;
             cellDeca.SetCellValue(decaduti);
 
