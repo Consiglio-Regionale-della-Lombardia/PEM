@@ -809,6 +809,14 @@ namespace PortaleRegione.Persistance
                    && em.ConteggioFirme == 1;
         }
 
+        public async Task<int> GetOrdinePresentazione(Guid uidAtto)
+        {
+            var query = PRContext.EM
+                .Where(em => em.UIDAtto == uidAtto
+                             && em.Eliminato == false);
+            return await query.CountAsync();
+        }
+
         /// <summary>
         ///     Controlla che il progressivo sia unico all'interno dell'atto
         /// </summary>

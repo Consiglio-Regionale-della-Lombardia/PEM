@@ -1050,7 +1050,7 @@ namespace PortaleRegione.BAL
                     }
 
                     em.UIDPersonaDeposito = persona.UID_persona;
-                    em.OrdinePresentazione = em.OrdineVotazione = etichetta_progressiva;
+                    em.OrdinePresentazione = em.OrdineVotazione = await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
                     em.Timestamp = DateTime.Now;
                     em.DataDeposito = EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
