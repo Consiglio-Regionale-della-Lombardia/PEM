@@ -35,6 +35,7 @@ function getClientMode() {
 }
 
 function setClientMode(mode) {
+    $('#hdMode').val(mode);
     sessionStorage.setItem("CLIENT_MODE", JSON.stringify(mode));
 }
 
