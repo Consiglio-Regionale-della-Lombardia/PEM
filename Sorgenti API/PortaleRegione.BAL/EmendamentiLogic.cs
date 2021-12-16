@@ -1466,6 +1466,12 @@ namespace PortaleRegione.BAL
                     if (relatori.Any(r => r.UID_persona == emendamentoDto.UIDPersonaProponente))
                         emendamentoDto.Proponente_Relatore = true;
 
+                if (atto.UIDAssessoreRiferimento.HasValue)
+                {
+                    emendamentoDto.Proponente_Assessore_Riferimento =
+                        emendamentoDto.UIDPersonaProponente == atto.UIDAssessoreRiferimento;
+                }
+
                 if (presidente_regione != null)
                 {
                     if (!string.IsNullOrEmpty(em.DataDeposito))
@@ -1474,7 +1480,7 @@ namespace PortaleRegione.BAL
                         {
                             emendamentoDto.PresentatoOltreITermini = true;
 
-                            if (emendamentoDto.Proponente_Relatore)
+                            if (emendamentoDto.Proponente_Relatore || emendamentoDto.Proponente_Assessore_Riferimento)
                                 emendamentoDto.PresentatoOltreITermini = false;
 
                             if (emendamentoDto.Firmato_Dal_Proponente)

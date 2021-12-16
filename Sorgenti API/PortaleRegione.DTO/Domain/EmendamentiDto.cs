@@ -197,6 +197,7 @@ namespace PortaleRegione.DTO.Domain
         public string Firme_OPENDATA { get; set; }
 
         public bool Firmato_Da_Me { get; set; } = false;
+        public bool Proponente_Assessore_Riferimento { get; set; }
 
         #endregion
     }
