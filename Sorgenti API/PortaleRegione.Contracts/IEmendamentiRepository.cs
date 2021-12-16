@@ -75,5 +75,6 @@ namespace PortaleRegione.Contracts
         Task<int> UltimoInVotazione(Guid uidAtto);
         Task<bool> CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
         Task<bool> CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
+        Task<int> GetOrdinePresentazione(Guid uidAtto);
     }
 }
