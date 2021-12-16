@@ -16,14 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
-using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -68,16 +69,18 @@ namespace PortaleRegione.Client.Controllers
                 Ordine = Convert.ToInt32(ordine),
                 CLIENT_MODE = Convert.ToInt32(client_mode)
             };
-            if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
-            {
-                try
-                {
-                    model.filtro = old_model.Data.Filters;
-                }
-                catch (Exception e)
-                {
-                }
-            }
+
+            if (model.filtro != null)
+                if (!model.filtro.Any())
+                    if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
+                        try
+                        {
+                            model.filtro = old_model.Data.Filters;
+                        }
+                        catch (Exception e)
+                        {
+                        }
+
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Stampe.InserisciStampa(model);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
