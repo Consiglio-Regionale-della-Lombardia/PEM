@@ -132,8 +132,7 @@ function DeselectALLEM() {
 function AbilitaComandiMassivi(uidEM) {
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
-        if (chk.length > 0) {
-            var selezionaTutti = getSelezionaTutti();
+        var selezionaTutti = getSelezionaTutti();
             if (chk[0].checked) {
                 if (selezionaTutti) {
                     removeEM(uidEM); //listaEsclusiva
@@ -147,7 +146,6 @@ function AbilitaComandiMassivi(uidEM) {
                     removeEM(uidEM); //listaInsclusiva
                 }
             }
-        }
     }
 
     var lchk = getListaEmendamenti();

@@ -420,6 +420,17 @@ namespace PortaleRegione.Persistance
                    em.UIDAtto == attoUId
                    && !em.Eliminato);
 
+            if (filtro != null)
+            {
+                if (filtro.Statements.Any(s => s.PropertyId == nameof(EM.UIDEM)))
+                {
+                    filtro.BuildExpression(ref query);
+
+                    var sql_solo_em = query.ToTraceQuery();
+                    return sql_solo_em;
+                }
+            }
+
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
             {
                 query = query.Where(em => em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
