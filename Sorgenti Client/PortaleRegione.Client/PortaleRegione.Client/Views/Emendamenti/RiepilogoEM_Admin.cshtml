@@ -140,7 +140,9 @@
 
             $("#modalEmendamentiUguali").modal("open");
             $("#btnConfermaUguali").on("click",
-                function() {
+                function () {
+                    $("#modalEmendamentiUguali").modal("close");
+
                     setTimeout(function() {
                             $('body').removeClass('loaded');
                         },
@@ -152,7 +154,7 @@
         $("#formRaggruppa").submit(function(e) {
             e.preventDefault();
         }).validate({
-            submitHandler: function(form) {
+            submitHandler: function (form) {
                 var listaEM = getListaEmendamenti();
                 var obj = {};
                 obj.Colore = $("#txtColore").val();
@@ -165,7 +167,7 @@
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
-                }).done(function(data) {
+                }).done(function (data) {
                     swal({
                         title: "Esito procedura:",
                         text: data.message,
@@ -178,6 +180,7 @@
                     });
                 }).fail(function(err) {
                     console.log("error", err);
+                    $("#modalEmendamentiUguali").modal("open");
                     ErrorAlert(err.message);
                 });
 
