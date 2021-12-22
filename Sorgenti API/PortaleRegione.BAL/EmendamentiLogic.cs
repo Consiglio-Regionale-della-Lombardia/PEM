@@ -1490,6 +1490,11 @@ namespace PortaleRegione.BAL
                                     emendamentoDto.PresentatoOltreITermini = false;
                                 }
                             }
+
+                            if (emendamentoDto.Rif_UIDEM != null)
+                            {
+                                emendamentoDto.PresentatoOltreITermini = false;
+                            }
                         }
                 }
 
@@ -1728,50 +1733,13 @@ namespace PortaleRegione.BAL
                 var result = new List<EmendamentiDto>();
                 if (em_in_db == null) return result;
 
+                var atto = await _unitOfWork.Atti.Get(em_in_db.First().UIDAtto);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
                 foreach (var em in em_in_db)
                 {
-                    em.N_EM = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
-                    if (!string.IsNullOrEmpty(em.DataDeposito)) em.DataDeposito = Decrypt(em.DataDeposito);
-
-                    var dto = Mapper.Map<EM, EmendamentiDto>(em);
-                    dto.ConteggioFirme = await _logicFirme.CountFirme(em.UIDEM);
-                    dto.Firmato_Dal_Proponente = em.IDStato >= (int)StatiEnum.Depositato;
-
-                    if (dto.ConteggioFirme > 1)
-                    {
-                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.ATTIVI);
-                        dto.Firme = firme
-                            .Where(f => f.UID_persona != em.UIDPersonaProponente)
-                            .Select(f => f.FirmaCert)
-                            .Aggregate((i, j) => i + "<br>" + j);
-                    }
-
-                    dto.PersonaProponente =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaProponente.Value));
-                    dto.PersonaCreazione =
-                        Mapper.Map<View_UTENTI, PersonaLightDto>(
-                            await _unitOfWork.Persone.Get(em.UIDPersonaCreazione.Value));
-                    if (!string.IsNullOrEmpty(em.DataDeposito))
-                        dto.PersonaDeposito =
-                            Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaDeposito.Value));
-
-                    if (em.UIDPersonaModifica.HasValue)
-                        dto.PersonaModifica =
-                            Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(em.UIDPersonaModifica.Value));
-
-                    if (!string.IsNullOrEmpty(em.DataDeposito))
-                        if (Convert.ToDateTime(em.DataDeposito) >
-                            em.ATTI.SEDUTE.Scadenza_presentazione)
-                        {
-                            var relatori = await _unitOfWork.Atti.GetRelatori(em.UIDAtto);
-                            var deposito_del_relatore =
-                                relatori.FirstOrDefault(r => r.UID_persona == em.UIDPersonaDeposito.Value);
-                            if (deposito_del_relatore == null) dto.PresentatoOltreITermini = true;
-                        }
-
+                    var dto = await GetEM_DTO(em, atto, null, personeInDbLight);
                     result.Add(dto);
                 }
 
