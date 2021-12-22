@@ -217,6 +217,27 @@ namespace PortaleRegione.Client.Controllers
             return View(em);
         }
 
+        [HttpGet]
+        [Route("{id:guid}/meta-data")]
+        public async Task<ActionResult> GetMetaData(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var em = await apiGateway.Emendamento.Get(id);
+
+                if (em.ATTI == null)
+                    em.ATTI = await apiGateway.Atti.Get(em.UIDAtto);
+
+                return Json(em, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         ///     Controller per aggiungere un emendamento. Restituisce il modello dell'emendamento pre-compilato.
         /// </summary>
@@ -723,12 +744,23 @@ namespace PortaleRegione.Client.Controllers
                 var resultRaggruppamento = await apiGateway.Emendamento.Raggruppa(model);
                 var listaErroriRaggruppamento = new List<string>();
                 foreach (var item in resultRaggruppamento)
-                    listaErroriRaggruppamento.Add(
-                        $"{listaErroriRaggruppamento.Count + 1} - {item.Value}");
+                    listaErroriRaggruppamento.Add($"{item.Value}");
+
                 if (listaErroriRaggruppamento.Count > 0)
-                    throw new Exception(
-                        $"Riepilogo procedura di raggruppamento: {listaErroriRaggruppamento.Aggregate((i, j) => i + ", " + j)}");
-                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Raggruppamento eseguito con successo!"
+                        }, JsonRequestBehavior.AllowGet);
+
+
+                return Json(
+                    new
+                    {
+                        message =
+                            $"Nessuna raggruppamento effettuato"
+                    }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -1022,7 +1054,7 @@ namespace PortaleRegione.Client.Controllers
                             await Utility.GetDestinatariNotifica(
                                 await apiGateway.Emendamento.GetInvitati(emendamentiDto.UIDEM), _Token);
                     }
-
+            
             Session["RiepilogoEmendamenti"] = modelResult;
             return View("RiepilogoEM", modelResult);
         }

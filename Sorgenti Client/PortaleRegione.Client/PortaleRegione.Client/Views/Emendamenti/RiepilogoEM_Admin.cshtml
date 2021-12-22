@@ -6,6 +6,7 @@
 {
     <script>
         $(document).ready(async function() {
+            $("#hdOrdine").val(@((int) Model.Ordinamento));
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
                 set_Filtri_EM({});
@@ -122,7 +123,7 @@
             }
         }
 
-        $('#btnCreaEM').attr('href', '@Url.Action("NuovoEmendamento", new { id = Model.Atto.UIDAtto })');
+        $('#btnCreaEM').attr('href', '@Url.Action("NuovoEmendamento", new {id = Model.Atto.UIDAtto})');
 
         function UgualiA() {
             $("#emUgualiDisplayName").empty();
@@ -139,11 +140,17 @@
             $("#modalEmendamentiUguali").modal("open");
             $("#btnConfermaUguali").on("click",
                 function() {
-                    setTimeout(function() {
-                            $('body').removeClass('loaded');
-                        },
-                        200);
-                    $("#formRaggruppa").submit();
+                    if ($("#txtColore").val() == '') {
+                        ErrorAlert("Conferma il colore dalla tavollozza");
+                    } else {
+                        $("#modalEmendamentiUguali").modal("close");
+
+                        setTimeout(function() {
+                                $('body').removeClass('loaded');
+                            },
+                            200);
+                        $("#formRaggruppa").submit();
+                    }
                 });
         }
 
@@ -170,12 +177,13 @@
                         icon: "info",
                         button: "Ok"
                     }).then(() => {
-                        setSelezionaTutti([]);
+                        setSelezionaTutti(false);
                         setListaEmendamenti([]);
-                        go(data);
+                        location.reload();
                     });
                 }).fail(function(err) {
                     console.log("error", err);
+                    $("#modalEmendamentiUguali").modal("open");
                     ErrorAlert(err.message);
                 });
 
@@ -260,7 +268,7 @@
                         icon: "info",
                         button: "Ok"
                     }).then(() => {
-                        setSelezionaTutti([]);
+                        setSelezionaTutti(false);
                         setListaEmendamenti([]);
                         go(data);
                     });
@@ -346,7 +354,7 @@
                         icon: "info",
                         button: "Ok"
                     }).then(() => {
-                        setSelezionaTutti([]);
+                        setSelezionaTutti(false);
                         setListaEmendamenti([]);
                         go(data);
                     });
@@ -385,7 +393,7 @@
 
 <div class="row valign-wrapper">
     <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new { id = Model.Atto.UIDSeduta })" style="top: 0px !important;">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})" style="top: 0px !important;">
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
@@ -395,7 +403,7 @@
         </h5>
         @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
         {
-            <a href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" class="hoverable">
+            <a href="@Url.Action("Download", "Atti", new {path = Model.Atto.Path_Testo_Atto})" class="hoverable">
                 <i class="material-icons pink-text medium tooltipped" data-tooltip="Scarica documento atto" style="padding-left: 20px">cloud_download</i>
             </a>
         }
@@ -403,7 +411,7 @@
         {
             if (classActiveTabVotazione == "active")
             {
-                <a target="_blank" href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" class="btn chip hoverable purple white-text" style="margin-left: 20px; margin-top: 15px;">
+                <a target="_blank" href="@Url.Action("ViewerProietta", "Emendamenti", new {id = Model.Atto.UIDAtto})" class="btn chip hoverable purple white-text" style="margin-left: 20px; margin-top: 15px;">
                     <i class="icon material-icons">subscriptions</i> Proietta
                 </a>
             }
@@ -418,19 +426,19 @@
             @if (!filtri_attivi)
             {
                 <li class="tab col s3">
-                    <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
+                    <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {ordine = (int) OrdinamentoEnum.Presentazione, view = Model.ViewMode})')">Ordine Presentazione</a>
                 </li>
                 <li class="tab col s3">
-                    <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
+                    <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {ordine = (int) OrdinamentoEnum.Votazione, view = Model.ViewMode})')">Ordine Votazione</a>
                 </li>
             }
             else
             {
                 <li class="tab col s3">
-                    <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
+                    <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int) OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
                 </li>
                 <li class="tab col s3">
-                    <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
+                    <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int) OrdinamentoEnum.Votazione))">Ordine Votazione</a>
                 </li>
             }
 
@@ -438,7 +446,7 @@
 
 
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, mode = Model.Mode, IsAdmin = true, Atto = Model.Atto });
+        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel {view = Model.ViewMode, mode = Model.Mode, IsAdmin = true, Atto = Model.Atto});
 
         <div class="row">
             @if (Model.ViewMode == ViewModeEnum.GRID)
@@ -468,7 +476,7 @@
 <div id="modalEmendamentiUguali" class="modal">
     <div class="modal-content">
         <h5 id="emUgualiDisplayName"></h5>
-        @using (Html.BeginForm("RaggruppaEmendamenti", "Emendamenti", FormMethod.Post, new { id = "formRaggruppa" }))
+        @using (Html.BeginForm("RaggruppaEmendamenti", "Emendamenti", FormMethod.Post, new {id = "formRaggruppa"}))
         {
             @Html.AntiForgeryToken()
 
@@ -487,7 +495,7 @@
 <div id="modalEmendamentiAssegnaA" class="modal">
     <div class="modal-content">
         <h5 id="emProponenteDisplayName"></h5>
-        @using (Html.BeginForm("AssegnaNuovoPorponente", "Emendamenti", FormMethod.Post, new { id = "formAssegnaA" }))
+        @using (Html.BeginForm("AssegnaNuovoPorponente", "Emendamenti", FormMethod.Post, new {id = "formAssegnaA"}))
         {
             @Html.AntiForgeryToken()
 

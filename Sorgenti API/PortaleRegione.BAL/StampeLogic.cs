@@ -70,7 +70,7 @@ namespace PortaleRegione.BAL
                     queryFilter.ImportStatements(model.filtro);
 
                     var queryEM =
-                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, model.ordine, queryFilter, model.entity.CLIENT_MODE);
+                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
                     stampa.QueryEM = queryEM;
                 }
 

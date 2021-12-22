@@ -58,9 +58,26 @@ function openSearch() {
     instances.open();
 }
 
-function openMetaDati(emendamentoUId) {
-    $('#modalMetaDati_' + emendamentoUId).modal("open");
+async function openMetaDati(emendamentoUId) {
+    var em = await GetEM(emendamentoUId);
+    await LoadMetaDatiEM(em);
+    $('#modalMetaDati').modal("open");
 }
+
+async function GetEM(emUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/emendamenti/" + emUId + "/meta-data",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 
 function go(link, switchMode) {
     var mode = getClientMode();
@@ -92,14 +109,14 @@ function go(link, switchMode) {
     document.location = link;
 }
 
-function AbilitaTrattazione(url) {
+function AbilitaTrattazione() {
     var mode = getClientMode();
     if (mode == 1) {
         setClientMode(2);
     } else {
         setClientMode(1);
     }
-    go(url, true);
+    location.reload();
 }
 
 //EVENTI EMENDAMENTO
@@ -115,8 +132,7 @@ function DeselectALLEM() {
 function AbilitaComandiMassivi(uidEM) {
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
-        if (chk.length > 0) {
-            var selezionaTutti = getSelezionaTutti();
+        var selezionaTutti = getSelezionaTutti();
             if (chk[0].checked) {
                 if (selezionaTutti) {
                     removeEM(uidEM); //listaEsclusiva
@@ -130,7 +146,6 @@ function AbilitaComandiMassivi(uidEM) {
                     removeEM(uidEM); //listaInsclusiva
                 }
             }
-        }
     }
 
     var lchk = getListaEmendamenti();
@@ -650,7 +665,16 @@ function Ordina_EMTrattazione(attoUId) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            location.reload();
+            swal({
+                    title: "Ordinamento automatico",
+                    text: "L'operazione di ordinamento automatico è stata effettuata correttamente",
+                    icon: "success",
+                    buttons: true,
+                })
+                .then((willDelete) => {
+                    location.reload();
+                });
+            
         }
     }).fail(function(err) {
         console.log("error", err);

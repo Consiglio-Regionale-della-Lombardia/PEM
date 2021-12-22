@@ -85,11 +85,11 @@ namespace PortaleRegione.DTO.Domain
 
         [Display(Name = "Titolo")]
         [StringLength(5)]
-        public string NTitolo { get; set; }
+        public string NTitolo { get; set; } = string.Empty;
 
         [Display(Name = "Capo")]
         [StringLength(5)]
-        public string NCapo { get; set; }
+        public string NCapo { get; set; } = string.Empty;
 
         [Display(Name = "Articolo")] public Guid? UIDArticolo { get; set; }
 
@@ -176,7 +176,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Eliminato { get; set; }
 
         #region Campi consumabili lato client
-        
+
         public bool Depositabile { get; set; } = false;
         public bool Firmabile { get; set; } = false;
         public bool Ritirabile { get; set; } = false;
@@ -193,10 +193,11 @@ namespace PortaleRegione.DTO.Domain
         public bool Proponente_Relatore { get; set; } = false;
 
         public string BodyEM { get; set; }
-        public string Firme_dopo_deposito{ get; set; }
-        public string Firme_OPENDATA{ get; set; }
+        public string Firme_dopo_deposito { get; set; }
+        public string Firme_OPENDATA { get; set; }
 
         public bool Firmato_Da_Me { get; set; } = false;
+        public bool Proponente_Assessore_Riferimento { get; set; }
 
         #endregion
     }

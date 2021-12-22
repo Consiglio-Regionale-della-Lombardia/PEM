@@ -8,6 +8,7 @@
 {
     <script>
         $(document).ready(async function() {
+            $("#hdOrdine").val(@((int)Model.Ordinamento));
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
                 set_Filtri_EM({});

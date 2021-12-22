@@ -303,6 +303,10 @@
     <Content Include="Content\editor\plugins\specialchars\ui\sass\trumbowyg.specialchars.scss" />
     <Content Include="Content\editor\plugins\table\ui\sass\trumbowyg.table.scss" />
     <Content Include="Content\editor\ui\sass\trumbowyg.scss" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile2.pubxml" />
+    <None Include="Properties\PublishProfiles\IISProfile.pubxml" />
     <None Include="Properties\PublishProfiles\Pubblicazione - FileSystem.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\FiltriManager.js" />

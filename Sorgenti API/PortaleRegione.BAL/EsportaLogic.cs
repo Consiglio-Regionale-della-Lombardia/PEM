@@ -272,6 +272,7 @@ namespace PortaleRegione.BAL
             var personeInDb = await _unitOfWork.Persone.GetAll();
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
             var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, open_data_enabled: false, true);
+            var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -279,7 +280,6 @@ namespace PortaleRegione.BAL
 
             body += "<thead>";
             body += "<tr>";
-            body += ComposeHeaderColumn("Ordine");
             body += ComposeHeaderColumn("EM/SUB");
             body += ComposeHeaderColumn("Testo");
             body += ComposeHeaderColumn("Relazione");
@@ -289,7 +289,7 @@ namespace PortaleRegione.BAL
             body += "</thead>";
 
             body += "<tbody>";
-            body = emList.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
+            body = list.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
             body += "</tbody>";
 
             body += "</table>";
@@ -306,7 +306,6 @@ namespace PortaleRegione.BAL
         {
             var row = string.Empty;
             row += "<tr>";
-            row += ComposeBodyColumn(em.OrdineVotazione.ToString());
             row += ComposeBodyColumn(em.N_EM);
             row += ComposeBodyColumn(em.TestoEM_originale);
             row += ComposeBodyColumn(em.TestoREL_originale);
@@ -545,7 +544,8 @@ namespace PortaleRegione.BAL
             var cellCount = rowReport.CreateCell(0);
             cellCount.CellStyle = styleR;
             cellCount.SetCellValue(countEM);
-            var cellInamm = rowReport.CreateCell(8);
+            var colonna_conteggi = atto.VIS_Mis_Prog ? 11 : 8;
+            var cellInamm = rowReport.CreateCell(colonna_conteggi);
             cellInamm.CellStyle = styleR;
             cellInamm.SetCellValue(inammissibili);
 
@@ -554,16 +554,16 @@ namespace PortaleRegione.BAL
                 return sheet;
             }
 
-            var cellRit = rowReport.CreateCell(9);
+            var cellRit = rowReport.CreateCell(colonna_conteggi + 1);
             cellRit.CellStyle = styleR;
             cellRit.SetCellValue(ritirati);
-            var cellApp = rowReport.CreateCell(10);
+            var cellApp = rowReport.CreateCell(colonna_conteggi + 2);
             cellApp.CellStyle = styleR;
             cellApp.SetCellValue(approvati);
-            var cellNonApp = rowReport.CreateCell(11);
+            var cellNonApp = rowReport.CreateCell(colonna_conteggi + 3);
             cellNonApp.CellStyle = styleR;
             cellNonApp.SetCellValue(non_approvati);
-            var cellDeca = rowReport.CreateCell(12);
+            var cellDeca = rowReport.CreateCell(colonna_conteggi + 4);
             cellDeca.CellStyle = styleR;
             cellDeca.SetCellValue(decaduti);
 

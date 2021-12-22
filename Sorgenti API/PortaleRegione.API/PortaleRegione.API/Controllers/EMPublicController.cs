@@ -28,6 +28,7 @@ namespace PortaleRegione.API.Controllers
     /// <summary>
     ///     Controller per gestire gli emendamenti pubblici
     /// </summary>
+    [AllowAnonymous]
     [RoutePrefix("public")]
     public class EMPublicController : BaseApiController
     {
