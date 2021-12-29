@@ -272,11 +272,18 @@
 </li>
 </ul>
 </div>
+
+@{
+    bool load_gruppi = User.IsInRole(RuoliExt.Amministratore_PEM)
+                       || User.IsInRole(RuoliExt.Segreteria_Assemblea);
+}
+
 <script>
     $(document).ready(async function() {
         var mode = getClientMode();
         $("#hdMode").val(mode);
-        if (mode == 2) {
+        var load_gruppi = @Html.Raw(load_gruppi.ToString().ToLower());
+        if (mode == 2 || load_gruppi == true) {
             $("#pnlFiltroGruppo").show();
             await SetupFiltriGruppi();
         } else {

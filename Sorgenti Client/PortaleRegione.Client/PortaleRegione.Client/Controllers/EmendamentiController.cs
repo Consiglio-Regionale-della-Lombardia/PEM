@@ -744,12 +744,23 @@ namespace PortaleRegione.Client.Controllers
                 var resultRaggruppamento = await apiGateway.Emendamento.Raggruppa(model);
                 var listaErroriRaggruppamento = new List<string>();
                 foreach (var item in resultRaggruppamento)
-                    listaErroriRaggruppamento.Add(
-                        $"{listaErroriRaggruppamento.Count + 1} - {item.Value}");
+                    listaErroriRaggruppamento.Add($"{item.Value}");
+
                 if (listaErroriRaggruppamento.Count > 0)
-                    throw new Exception(
-                        $"Riepilogo procedura di raggruppamento: {listaErroriRaggruppamento.Aggregate((i, j) => i + ", " + j)}");
-                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Raggruppamento eseguito con successo!"
+                        }, JsonRequestBehavior.AllowGet);
+
+
+                return Json(
+                    new
+                    {
+                        message =
+                            $"Nessuna raggruppamento effettuato"
+                    }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
