@@ -421,7 +421,7 @@ namespace GeneraStampeJob
 
         private async Task CreaPDF(BodyModel item, long total)
         {
-            PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/{item.EM.UID_QRCode}"));
+            PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/em?id={item.EM.UID_QRCode}"));
             var dirInfo = new DirectoryInfo(Path.GetDirectoryName(item.Path));
             var files = dirInfo.GetFiles().Where(f => !f.Name.ToLower().Contains("copertina"));
             await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {files.Count()}/{total}");
