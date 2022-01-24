@@ -10,12 +10,12 @@
 
 <script>
     function openDeleteModal(id) {
-        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaSeduta","Sedute")?id=' + id);
+        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaSeduta","PEM")?id=' + id);
         $('#modalDeleteSeduta').modal('open');
     }
 
     $(document).ready(function() {
-        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta","Sedute")');
+        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta","PEM")');
     });
 </script>
 
@@ -62,7 +62,7 @@
                 <div class="card-action grey lighten-4 center">
                     <div class="row valign-wrapper" style="margin: 0 !important; padding: 0 !important">
                         <div class="col s12 right-align">
-                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaSeduta", "Sedute", new {id = seduta.UIDSeduta})')" title="Modifica">
+                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new {id = seduta.UIDSeduta})')" title="Modifica">
                                 <i class="material-icons">edit</i>
                             </a>
                             <a class="hoverable center red-text" onclick="openDeleteModal('@seduta.UIDSeduta')" title="Elimina">

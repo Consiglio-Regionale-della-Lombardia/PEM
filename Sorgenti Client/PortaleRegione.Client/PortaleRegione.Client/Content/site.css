@@ -23,21 +23,32 @@ main { margin-bottom: 150px; }
     }
 }
 
-.form-group > label {
-    font-weight: bold !important
+.carousel {
+    height: unset !important;
+    margin-bottom: -55px;
 }
-.input-field > label {
-    font-weight: bold !important
+
+.carousel .carousel-item { top: -40px; }
+
+.carousel .indicators .indicator-item { background-color: #C8E6C9; }
+
+.carousel .indicators .indicator-item.active { background-color: grey; }
+
+.carousel .indicators {
+    margin-top: 200px;
+    position: unset;
 }
+
+.form-group > label { font-weight: bold !important }
+
+.input-field > label { font-weight: bold !important }
 
 .modal.bottom-sheet {
+    height: 60% !important;
     max-height: unset !important;
-    height: 60%!important;
 }
 
-a {
-    cursor: pointer
-}
+a { cursor: pointer }
 
 .bodyEMClass > table > tbody > tr { border-bottom: unset !important; }
 
@@ -58,7 +69,7 @@ label {
 }
 
 .chip {
-    cursor: pointer;    
+    cursor: pointer;
     min-width: 180px;
 }
 
@@ -72,17 +83,11 @@ div.chip > i.material-icons {
     top: 3px;
 }
 
-td> div.chip > i.material-icons {
-    top: unset!important;
-}
+td > div.chip > i.material-icons { top: unset !important; }
 
-div.input-field>div.chip > i.material-icons {
-    top: unset!important;
-}
+div.input-field > div.chip > i.material-icons { top: unset !important; }
 
-div.input-field.chips.chips-autocomplete {
-    bottom: -20px;
-}
+div.input-field.chips.chips-autocomplete { bottom: -20px; }
 
 div.chip.hoverable > i.material-icons {
     margin-left: unset !important;
@@ -212,9 +217,8 @@ h5 > a { color: black !important; }
 
 .input-validation-error { border-color: red !important }
 
-div.input-field>label {
-    line-height: initial;
-}
+div.input-field > label { line-height: initial; }
+
 /* NOTIFICHE */
 
 .notifica-check {
@@ -322,14 +326,17 @@ div.input-field>label {
     color: #00e5ff !important;
     font-weight: bold !important;
 }
+
 .comunicazioneAssembleaT {
     color: #00e676 !important;
     font-weight: bold !important;
 }
+
 .trattazioneAssembleaT {
     color: #546e7a !important;
     font-weight: bold !important;
 }
+
 .altroT {
     color: #546e7a !important;
     font-weight: bold !important;
@@ -358,48 +365,56 @@ div.input-field>label {
 ------------------------------------------*/
 
 .badgeIQT {
-    color: white;
     background-color: #006064;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeITL {
-    color: white;
     background-color: #1a237e;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeMOZ {
-    color: white;
     background-color: #e4286d;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeMOZ_U {
-    color: white;
     background-color: #d81b60;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeMOZ_A {
-    color: white;
     background-color: #c2185b;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeMOZ_C {
-    color: white;
     background-color: #ad1457;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeMOZ_S {
-    color: white;
     background-color: #880e4f;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeITR {
-    color: white;
     background-color: #bf360c;
+    color: white;
     min-width: unset !important;
 }
+
 .badgeODG {
-    color: white;
     background-color: #f57f17;
+    color: white;
     min-width: unset !important;
 }
 
@@ -558,6 +573,4 @@ div.input-field>label {
 
 .no-js #loader-wrapper { display: none; }
 
-label {
-    color: #424242 !important;
-}
+label { color: #424242 !important; }

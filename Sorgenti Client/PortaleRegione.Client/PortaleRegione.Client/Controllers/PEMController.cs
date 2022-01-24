@@ -34,8 +34,8 @@ namespace PortaleRegione.Client.Controllers
     ///     Controller sedute
     /// </summary>
     [Authorize]
-    [RoutePrefix("sedute")]
-    public class SeduteController : BaseController
+    [RoutePrefix("pem")]
+    public class PEMController : BaseController
     {
         public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
         {
@@ -54,7 +54,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Sedute.Elimina(id);
-            return RedirectToAction("RiepilogoSedute", "Sedute");
+            return RedirectToAction("RiepilogoSedute", "PEM");
         }
 
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
@@ -86,7 +86,7 @@ namespace PortaleRegione.Client.Controllers
                 else
                     await apiGateway.Sedute.Modifica(seduta);
 
-                return Json(Url.Action("RiepilogoSedute", "Sedute")
+                return Json(Url.Action("RiepilogoSedute", "PEM")
                     , JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

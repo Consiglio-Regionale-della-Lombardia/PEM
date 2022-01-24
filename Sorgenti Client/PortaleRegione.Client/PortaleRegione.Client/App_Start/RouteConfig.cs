@@ -15,7 +15,7 @@ namespace PortaleRegione.Client
             routes.MapRoute(
                 "Default",
                 "{controller}/{action}/{id}",
-                new {controller = "Sedute", action = "RiepilogoSedute", id = UrlParameter.Optional}
+                new {controller = "Home", action = "RiepilogoDASI", id = UrlParameter.Optional}
             );
         }
     }

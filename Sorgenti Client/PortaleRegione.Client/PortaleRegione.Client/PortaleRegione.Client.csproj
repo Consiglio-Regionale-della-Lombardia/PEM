@@ -70,9 +70,19 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
@@ -102,10 +112,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminPanelController.cs" />
     <Compile Include="Controllers\AttiController.cs" />
-    <Compile Include="Controllers\AttiSindacatoIspettivoController.cs" />
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\DASIController.cs" />
     <Compile Include="Controllers\EMPublicController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
@@ -114,7 +125,7 @@
     <Compile Include="Controllers\VideoTutorialController.cs" />
     <Compile Include="Helpers\Utility.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
-    <Compile Include="Controllers\SeduteController.cs" />
+    <Compile Include="Controllers\PEMController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -341,12 +352,12 @@
     <Content Include="Views\Autenticazione\FormAutenticazione.cshtml" />
     <Content Include="Views\Shared\_SXNavigationBar.cshtml" />
     <Content Include="Views\Shared\_NavigationBar.cshtml" />
-    <Content Include="Views\Sedute\RiepilogoSedute.cshtml" />
+    <Content Include="Views\PEM\RiepilogoSedute.cshtml" />
     <Content Include="Views\Shared\_PaginationBar.cshtml" />
-    <Content Include="Views\Sedute\SedutaForm.cshtml" />
+    <Content Include="Views\PEM\SedutaForm.cshtml" />
     <Content Include="Views\Atti\RiepilogoAtti.cshtml" />
     <Content Include="Views\Atti\AttoForm.cshtml" />
-    <Content Include="Views\Sedute\RiepilogoSedute_Admin.cshtml" />
+    <Content Include="Views\PEM\RiepilogoSedute_Admin.cshtml" />
     <Content Include="Views\Atti\RiepilogoAtti_Admin.cshtml" />
     <Content Include="Views\Emendamenti\RiepilogoEM_Admin.cshtml" />
     <Content Include="Views\Emendamenti\RiepilogoEM.cshtml" />
@@ -375,7 +386,7 @@
     <Content Include="Views\Notifiche\_CardInvito_Destinatari.cshtml" />
     <Content Include="Views\AdminPanel\RiepilogoUtenti.cshtml" />
     <Content Include="Views\AdminPanel\ViewUtente.cshtml" />
-    <Content Include="Views\Sedute\_SeduteFiltri.cshtml" />
+    <Content Include="Views\PEM\_SeduteFiltri.cshtml" />
     <Content Include="Views\Emendamenti\_EMFormScript.cshtml" />
     <Content Include="Views\Emendamenti\_DocsPanel.cshtml" />
     <Content Include="Views\Emendamenti\_CommandSUBEM.cshtml" />
@@ -388,7 +399,8 @@
     <Content Include="Views\Emendamenti\_MetaDatiPanelAdmin.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiFormPartial.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiPanelPartial.cshtml" />
-    <Content Include="Views\AttiSindacatoIspettivo\RiepilogoDASI.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\DASI\RiepilogoDASI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
