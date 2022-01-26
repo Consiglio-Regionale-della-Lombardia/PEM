@@ -1,25 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.GestioneStampe.Helpers;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace PortaleRegione.GestioneStampe
 {
     public sealed class PdfStamper
     {
-        static PdfStamper _instance;  
-   
+        static PdfStamper _instance;
+
         public static PdfStamper Instance => _instance ?? (_instance = new PdfStamper());
 
         public PdfStamper()
         {
-            
+
         }
 
         public static void CreaPDF(string txtHTML, string path, EmendamentiDto em, string urlPEM)
@@ -43,7 +43,7 @@ namespace PortaleRegione.GestioneStampe
                         //Create a writer that's bound to our PDF abstraction and our stream
                         using (var writer = PdfWriter.GetInstance(doc, ms))
                         {
-                            var ev = new ITextEvents {EM = em};
+                            var ev = new ITextEvents { EM = em };
                             writer.PageEvent = ev;
                             //Open the document for writing
                             doc.Open();
@@ -77,7 +77,7 @@ namespace PortaleRegione.GestioneStampe
                                 }
                                 catch (Exception ex2)
                                 {
-                                    var linkPemError = $"{urlPEM}{em.UID_QRCode}";
+                                    var linkPemError = urlPEM;
                                     using (var srHtml_ERR = new StringReader(
                                         $"<html><body>ATTENZIONE, Si è verificato un problema durante la generazione del pdf di questo EM/SUBEM: {ex2.Message} <br/> L'emendamento/subemendamento è stato comunque correttamente acquisito dal sistema ed è visualizzabile attraverso la piattaforma PEM all'indirizzo <a href='{linkPemError}'>{linkPemError}</a></body></html>")
                                     )
