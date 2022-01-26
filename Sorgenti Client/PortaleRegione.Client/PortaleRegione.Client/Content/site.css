@@ -48,6 +48,10 @@ main { margin-bottom: 150px; }
     max-height: unset !important;
 }
 
+.modal { height: 70%; }
+
+.modal .modal-footer { position: absolute; bottom: 10px; }
+
 a { cursor: pointer }
 
 .bodyEMClass > table > tbody > tr { border-bottom: unset !important; }
@@ -87,7 +91,7 @@ td > div.chip > i.material-icons { top: unset !important; }
 
 div.input-field > div.chip > i.material-icons { top: unset !important; }
 
-div.input-field.chips.chips-autocomplete { bottom: -20px; }
+div.input-field.chips.chips-autocomplete { bottom: -40px; }
 
 div.chip.hoverable > i.material-icons {
     margin-left: unset !important;

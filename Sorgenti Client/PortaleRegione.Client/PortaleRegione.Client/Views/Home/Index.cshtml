@@ -40,7 +40,7 @@
                                     </p>
                                 </div>
                                 <div class="col s2">
-                                    <a class="btn-floating green" onclick="" title="Riepilogo atti">
+                                    <a class="btn-floating green" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')" title="Riepilogo atti">
                                         <i class="material-icons">chevron_right</i>
                                     </a>
                                 </div>
@@ -62,7 +62,7 @@
                                     </p>
                                 </div>
                                 <div class="col s2">
-                                    <a class="btn-floating green" onclick="" title="Riepilogo atti">
+                                    <a class="btn-floating green" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')" title="Riepilogo atti">
                                         <i class="material-icons">chevron_right</i>
                                     </a>
                                 </div>
@@ -84,7 +84,7 @@
                                     </p>
                                 </div>
                                 <div class="col s2">
-                                    <a class="btn-floating green" onclick="" title="Riepilogo atti">
+                                    <a class="btn-floating green" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')" title="Riepilogo atti">
                                         <i class="material-icons">chevron_right</i>
                                     </a>
                                 </div>
@@ -118,7 +118,7 @@
                             </h5>
                         </div>
                         <div class="col s5">
-                            <a class="btn chip blue white-text">
+                            <a class="btn chip blue white-text" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')">
                                 <i class="icon material-icons">chevron_right</i>Riepilogo EM
                             </a>
                         </div>
@@ -131,7 +131,7 @@
                             </h5>
                         </div>
                         <div class="col s5">
-                            <a class="btn chip amber white-text">
+                            <a class="btn chip amber white-text" onclick="go('/notifiche/view?is_inviate=False&archivio=False')">
                                 <i class="icon material-icons">chevron_right</i>Riepilogo notifiche
                             </a>
                         </div>
@@ -165,7 +165,7 @@
                             </h5>
                         </div>
                         <div class="col s5">
-                            <a class="btn chip amber white-text">
+                            <a class="btn chip amber white-text" onclick="go('/notifiche/view?is_inviate=False&archivio=False')">
                                 <i class="icon material-icons">chevron_right</i>Riepilogo notifiche
                             </a>
                         </div>
@@ -194,10 +194,10 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text" style="right: 60px;">
+                <a href="#!" class="secondary-content blue-text" style="right: 60px;" data-tipo-dasi="1">
                     <i class="material-icons">add</i>
                 </a>
-                <a href="#!" class="secondary-content">
+                <a href="#!" class="secondary-content" onclick="go('/dasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
             </li>
@@ -213,7 +213,7 @@
                 <a href="#!" class="secondary-content blue-text" style="right: 60px;">
                     <i class="material-icons">add</i>
                 </a>
-                <a href="#!" class="secondary-content">
+                <a href="#!" class="secondary-content" onclick="go('/dasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
             </li>
@@ -229,7 +229,7 @@
                 <a href="#!" class="secondary-content blue-text" style="right: 60px;">
                     <i class="material-icons">add</i>
                 </a>
-                <a href="#!" class="secondary-content">
+                <a href="#!" class="secondary-content" onclick="go('/dasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
             </li>
@@ -242,10 +242,10 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text" style="right: 60px;">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;">
                     <i class="material-icons">add</i>
                 </a>
-                <a href="#!" class="secondary-content">
+                <a href="#!" class="secondary-content" onclick="go('/dasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
             </li>
@@ -300,7 +300,7 @@
         <div class="col s12" style="border-bottom: 1px solid grey">
             <div class="form-group">
                 <p>
-                    <b>EM 1</b>
+                    <b>EM 2</b>
                     <br/>
                     <label>
                         Soppressivo - Titolo PDL
@@ -324,11 +324,94 @@
 
 </div>
 
+<div id="modalAggiungiDASI" class="modal">
+    <div class="modal-content">
+        <h4 id="titleDasiModal" style="padding-bottom: 10px"></h4>
+        <div class="input-field">
+            <select id='modalTipoDasi'>
+                <option>Permanente</option>
+                <option>Speciale</option>
+            </select>
+            <label for="modalTipoDasi">Tipo</label>
+        </div>
+        <div class="input-field" style="margin-top:30px">
+            <label for="modalOggettoDasi">Oggetto</label>
+            <textarea id="modalOggettoDasi" class="materialize-textarea"></textarea>
+        </div>
+        <div class="input-field">
+            <label for="modalTestoDasi">Testo</label>
+            <textarea id="modalTestoDasi" class="materialize-textarea"></textarea>
+        </div>
+        <div class="input-field">
+            <label for="autocompleteSoggettoDestinatarioDasi">Soggetto interrogato</label>
+            <div id="autocompleteSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="btn chip grey white-text modal-close">Annulla</a>
+        <a href="#!" class="btn chip blue white-text" onclick="SalvaDasi()" style="margin-right: 15px">Salva</a>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         $('#btnSearch').hide();
         initCarousel();
+        $('#btnShowDashbloardNotification').show();
     });
+
+    function SalvaDasi() {
+        swal({
+            title: "Procedura completata",
+            text: "Atto inserito correttamente a sistema.",
+            icon: "success",
+            buttons: ["Ok", "Vai al riepilogo"]
+        }).then((value) => {
+            if (value) {
+                go("/dasi");
+            } else
+                instanceModalDasi.close();
+        });
+    }
+
+    var instanceModalDasi;
+    $(".secondary-content, .blue-text, .add").on("click",
+        function() {
+            var tipo_dasi = $(this).data('tipo-dasi');
+            var title = "";
+            if (tipo_dasi == 1) {
+                title = "Nuova interrogazione ITL";
+            }
+            $('#titleDasiModal').text(title);
+            $('select').formSelect();
+            var elemAutocomplete = document.querySelector('#autocompleteSoggettoDestinatarioDasi');
+
+            var autocompleteDataOptions = {
+                data: [
+                    { tag: 'I Commissione permanente - Economia e Bilancio', id: '1' },
+                    { tag: 'II Commissione', id: '2' },
+                    { tag: 'III Commissione', id: '3' }
+                ],
+                limit: 10,
+                minLength: 1
+            };
+            M.Chips.init(elemAutocomplete,
+                {
+                    autocompleteOptions: autocompleteDataOptions,
+                    onChipAdd: function(e, chip) {
+                    },
+                    onChipSelect: function(e, chip) {
+                    },
+                    onChipDelete: function(e, chip) {
+                    }
+                });
+            var elemModal = document.querySelector("#modalAggiungiDASI");
+            var options = {
+                dismissible: false
+            };
+            instanceModalDasi = M.Modal.init(elemModal, options);
+            instanceModalDasi.open();
+        });
 
     $(".carousel").on("mouseover",
         function() {
@@ -341,7 +424,7 @@
 
     var interval = null;
     var initial_start = 30;
-    var instance;
+    var instanceCarousel;
 
     function initCarousel() {
         var elem = document.querySelector('.carousel');
@@ -350,13 +433,13 @@
             numVisible: 5,
             indicators: true
         };
-        instance = M.Carousel.init(elem, options);
+        instanceCarousel = M.Carousel.init(elem, options);
         playRicaricaAuto();
     }
 
     function playRicaricaAuto() {
         interval = setInterval(function() {
-                instance.next();
+                instanceCarousel.next();
             },
             8500);
     }
