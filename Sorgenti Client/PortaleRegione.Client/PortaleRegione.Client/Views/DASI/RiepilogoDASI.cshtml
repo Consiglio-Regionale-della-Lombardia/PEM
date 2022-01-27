@@ -7,8 +7,142 @@
 <div class="row">
     <div class="col s12">
         <h5>
-            <b>Riepilogo Attisi Sindacato Ispettivo</b>
+            <b>Riepilogo Atti Sindacato Ispettivo</b>
         </h5>
     </div>
 </div>
 <hr />
+<div class="row">
+    <div class="col s12">
+        <ul class="tabs">
+            <li class="tab col s6"><a class="active" href="#testBozza">Bozza</a></li>
+            <li class="tab col s6"><a href="#testPresentati">Presentati</a></li>
+        </ul>
+    </div>
+    <div id="testBozza" class="col s12">
+        <table class="responsive-table highlight">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Atto</th>
+                    <th>Tipo</th>
+                    <th>Oggetto</th>
+                    <th>Soggetto</th>
+                    <th>Firmatari</th>
+                    <th>Stato</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td class="center">
+
+                        <p>
+                            <label>
+                                <input type="checkbox" />
+                                <span></span>
+                            </label>
+                        </p>
+                    </td>
+                    <td>ITL TEMP 1</td>
+                    <td>Orale</td>
+                    <td>Prova di trasmissione</td>
+                    <td>I Commissione permanente - Economia e Bilancio</td>
+                    <td>
+                        Mario Rossi (NP)
+                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (M5S)" style="min-width: unset">
+                            + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                        </a>
+                    </td>
+                    <td class="bozzaT">
+                        Bozza
+                    </td>
+                    <td class="center">
+                        <a class="amber-text tooltipped" data-tooltip="Invita"><i class="icon material-icons">send</i></a>
+                        <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
+                        <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
+                        <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="center">
+
+                        <p>
+                            <label>
+                                <input type="checkbox" />
+                                <span></span>
+                            </label>
+                        </p>
+                    </td>
+                    <td>ITR TEMP 1</td>
+                    <td>Scritto</td>
+                    <td>Prova di trasmissione</td>
+                    <td>I Commissione permanente - Economia e Bilancio</td>
+                    <td>
+                        Mario Rossi (NP)
+                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
+                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                        </a>
+                    </td>
+                    <td class="bozzaT">
+                        Bozza
+                    </td>
+                    <td class="center">
+                        <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
+                        <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
+                        <a class="depositatoT tooltipped" data-tooltip="Presenta" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="testPresentati" class="col s12">
+        <table class="responsive-table highlight">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Atto</th>
+                    <th>Tipo</th>
+                    <th>Oggetto</th>
+                    <th>Soggetto</th>
+                    <th>Firmatari</th>
+                    <th>Stato</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td class="center">
+
+                        <p>
+                            <label>
+                                <input type="checkbox" />
+                                <span></span>
+                            </label>
+                        </p>
+                    </td>
+                    <td>ITL-4000</td>
+                    <td>Orale</td>
+                    <td>Prova di trasmissione</td>
+                    <td>I Commissione permanente - Economia e Bilancio</td>
+                    <td>
+                        Mario Rossi (NP)
+                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
+                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                        </a>
+                    </td>
+                    <td class="depositatoT">
+                        Presentato
+                    </td>
+                    <td class="center">
+                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
