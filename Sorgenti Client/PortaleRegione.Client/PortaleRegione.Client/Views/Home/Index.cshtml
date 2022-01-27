@@ -194,7 +194,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text" style="right: 60px;" data-tipo-dasi="1">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="1">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -210,7 +210,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text" style="right: 60px;">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="2">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -226,7 +226,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text" style="right: 60px;">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="3">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -242,7 +242,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="4">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -258,7 +258,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text" style="right: 60px;">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="5">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content">
@@ -376,12 +376,20 @@
     }
 
     var instanceModalDasi;
-    $(".secondary-content, .blue-text, .add").on("click",
-        function() {
+    $(".secondary-content.blue-text.add").on("click",
+        function () {
             var tipo_dasi = $(this).data('tipo-dasi');
             var title = "";
             if (tipo_dasi == 1) {
-                title = "Nuova interrogazione ITL";
+                title = "Nuova interpellanza (ITL)";
+            }else if (tipo_dasi == 2) {
+                title = "Nuova interrogazione (ITR)";
+            }else if (tipo_dasi == 3) {
+                title = "Nuova interrogazione a risposta immediata (IQT)";
+            }else if (tipo_dasi == 4) {
+                title = "Nuova mozione (MOZ)";
+            }else if (tipo_dasi == 5) {
+                title = "Nuovo ordine del giorno (ODG)";
             }
             $('#titleDasiModal').text(title);
             $('select').formSelect();
