@@ -27,7 +27,12 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> RiepilogoDASI()
         {
-            return View();
+            return View("RiepilogoDASI");
+        }
+
+        public async Task<ActionResult> RiepilogoDASI_Admin()
+        {
+            return View("RiepilogoDASI_Admin");
         }
     }
 }

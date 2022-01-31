@@ -404,6 +404,10 @@
     <Content Include="Views\DASI\_ComandiDASI.cshtml" />
     <Content Include="Views\DASI\_DASIForm.cshtml" />
     <Content Include="Views\DASI\_PannelloRicerche.cshtml" />
+    <Content Include="Views\DASI\RiepilogoDASI_Admin.cshtml" />
+    <Content Include="Views\DASI\_ComandiDASI_Admin.cshtml" />
+    <Content Include="Views\DASI\_ScriptRiepilogoDASI.cshtml" />
+    <Content Include="Views\DASI\_ScriptFormDASI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

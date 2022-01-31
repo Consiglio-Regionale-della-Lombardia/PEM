@@ -5,21 +5,6 @@
     </a>
     <ul>
         <li>
-            <a class="btn-floating tooltipped green white-text" data-position="left" data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
-                <i class="material-icons">gavel</i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating tooltipped depositato" data-position="left" data-tooltip="Presenta" onclick="CambioStatoMassivo_DASI(@((int) StatiAttoEnum.PRESENTATO))">
-                <i class="material-icons">lock</i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating tooltipped ritirato" data-position="left" data-tooltip="Ritira" onclick="CambioStatoMassivo_DASI(@((int) StatiAttoEnum.RITIRATO))">
-                <i class="material-icons">delete</i>
-            </a>
-        </li>
-        <li>
             <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </a>
@@ -37,11 +22,6 @@
     $("#btnNuovoDASI").on("click", function() {
         openFormDASI();
     });
-
-    function FirmaMassivo_DASI() {
-        var listaAtti = getListaAtti();
-        console.log("Firma massivo", listaAtti);
-    }
 
     function AbilitaComandiMassivi_DASI(uidAtto) {
         if (uidAtto) {

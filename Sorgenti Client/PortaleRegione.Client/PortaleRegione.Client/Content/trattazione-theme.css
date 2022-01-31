@@ -25,5 +25,6 @@
 
 .sidenav li.active {
     background-color: #f5fafe;
-    border-bottom: solid #73bbf7;
+    border-bottom: solid rgba(115,187,247, 0.8);
+    border-width: .05em;
 }
