@@ -1,0 +1,92 @@
+﻿<div id="modalAggiungiDASI" class="modal">
+    <div class="modal-content">
+        <h4 id="titleDasiModal" style="padding-bottom: 10px"></h4>
+        <div class="input-field">
+            <select id='modalTipoDasi'>
+                <option>Orale</option>
+                <option>Scritto</option>
+                <option>Commissione</option>
+            </select>
+            <label for="modalTipoDasi">Tipo</label>
+        </div>
+        <div class="input-field" style="margin-top:30px">
+            <label for="modalOggettoDasi">Oggetto</label>
+            <textarea id="modalOggettoDasi" class="materialize-textarea"></textarea>
+        </div>
+        <div class="input-field">
+            <label for="modalTestoDasi">Testo</label>
+            <textarea id="modalTestoDasi" class="materialize-textarea"></textarea>
+        </div>
+        <div class="input-field">
+            <label for="autocompleteSoggettoDestinatarioDasi">Soggetto interrogato</label>
+            <div id="autocompleteSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="btn chip grey white-text modal-close">Annulla</a>
+        <a href="#!" class="btn chip blue white-text" onclick="SalvaDasi()" style="margin-right: 15px">Salva</a>
+    </div>
+</div>
+
+<script>
+    var instanceModalDasi;
+
+    function SalvaDasi() {
+        swal({
+            title: "Procedura completata",
+            text: "Atto inserito correttamente a sistema.",
+            icon: "success",
+            buttons: ["Ok", "Vai al riepilogo"]
+        }).then((value) => {
+            if (value) {
+                go("/dasi");
+            } else
+                instanceModalDasi.close();
+        });
+    }
+
+    function openFormDASI() {
+        var tipo_dasi = $(this).data('tipo-dasi');
+        var title = "";
+        if (tipo_dasi == 1) {
+            title = "Nuova interpellanza (ITL)";
+        }else if (tipo_dasi == 2) {
+            title = "Nuova interrogazione (ITR)";
+        }else if (tipo_dasi == 3) {
+            title = "Nuova interrogazione a risposta immediata (IQT)";
+        }else if (tipo_dasi == 4) {
+            title = "Nuova mozione (MOZ)";
+        }else if (tipo_dasi == 5) {
+            title = "Nuovo ordine del giorno (ODG)";
+        }
+        $('#titleDasiModal').text(title);
+        $('select').formSelect();
+        var elemAutocomplete = document.querySelector('#autocompleteSoggettoDestinatarioDasi');
+
+        var autocompleteDataOptions = {
+            data: [
+                { tag: 'I Commissione permanente - Economia e Bilancio', id: '1' },
+                { tag: 'II Commissione', id: '2' },
+                { tag: 'III Commissione', id: '3' }
+            ],
+            limit: 10,
+            minLength: 1
+        };
+        M.Chips.init(elemAutocomplete,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                onChipAdd: function(e, chip) {
+                },
+                onChipSelect: function(e, chip) {
+                },
+                onChipDelete: function(e, chip) {
+                }
+            });
+        var elemModal = document.querySelector("#modalAggiungiDASI");
+        var options = {
+            dismissible: false
+        };
+        instanceModalDasi = M.Modal.init(elemModal, options);
+        instanceModalDasi.open();
+    }
+</script>

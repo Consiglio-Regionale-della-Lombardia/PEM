@@ -188,6 +188,21 @@ function removeEM(uidEM) {
     setListaEmendamenti(lista);
 }
 
+function addAtto(uidAtto) {
+    var lista = getListaAtti();
+    lista.push(uidAtto);
+    setListaAtti(lista);
+}
+
+function removeAtto(uidAtto) {
+    var lista = getListaAtti();
+    var findIndex = jQuery.inArray(uidAtto, lista);
+    lista.splice(findIndex, 1);
+    setListaAtti(lista);
+}
+
+
+
 function ConfirmAction(id, name, action) {
     $("#emActionDisplayName").empty();
     $("#emActionDisplayName").append(name);

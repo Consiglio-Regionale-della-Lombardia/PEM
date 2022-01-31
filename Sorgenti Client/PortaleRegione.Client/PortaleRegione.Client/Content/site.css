@@ -369,56 +369,38 @@ div.input-field > label { line-height: initial; }
 ------------------------------------------*/
 
 .badgeIQT {
-    background-color: #006064;
-    color: white;
+    background-color: #f8bbd0;
+    color: #e91e63;
     min-width: unset !important;
 }
 
 .badgeITL {
-    background-color: #1a237e;
-    color: white;
+    background-color: #bbdefb;
+    color: #2196f3;
     min-width: unset !important;
 }
 
 .badgeMOZ {
-    background-color: #e4286d;
-    color: white;
-    min-width: unset !important;
-}
-
-.badgeMOZ_U {
-    background-color: #d81b60;
-    color: white;
-    min-width: unset !important;
-}
-
-.badgeMOZ_A {
-    background-color: #c2185b;
-    color: white;
-    min-width: unset !important;
-}
-
-.badgeMOZ_C {
-    background-color: #ad1457;
-    color: white;
-    min-width: unset !important;
-}
-
-.badgeMOZ_S {
-    background-color: #880e4f;
-    color: white;
+    background-color: #ffccbc;
+    color: #ff5722;
     min-width: unset !important;
 }
 
 .badgeITR {
-    background-color: #bf360c;
-    color: white;
+    background-color: #d1c4e9;
+    color: #673ab7;
     min-width: unset !important;
 }
 
 .badgeODG {
-    background-color: #f57f17;
-    color: white;
+    background-color: #c8e6c9;
+    color: #4caf50;
+    min-width: unset !important;
+}
+
+.badgeALL {
+    background-color: #f5f5f5;
+    color: #9e9e9e;
     min-width: unset !important;
 }
 

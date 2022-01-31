@@ -1,0 +1,28 @@
+﻿<div id="slide-dasi-DX" class="sidenav" style="overflow: auto !important">
+    <div class="row">
+        <h5>Ricerca</h5>
+        <hr />
+        
+    </div>
+</div>
+
+<script>
+    function openDasiSearch() {
+        var elems = document.querySelector("#slide-dasi-DX");
+        var instances = M.Sidenav.init(elems,
+            {
+                edge: "right",
+                draggable: true,
+                onOpenStart: function () {
+                    // Menu laterale SX sotto a layer opaco
+                    $("#slide-out").css("z-index", 997);
+                },
+                onCloseEnd: function () {
+                    // Ripristino menu laterale SX
+                    $("#slide-out").css("z-index", 999);
+                }
+            });
+
+        instances.open();
+    }
+</script>

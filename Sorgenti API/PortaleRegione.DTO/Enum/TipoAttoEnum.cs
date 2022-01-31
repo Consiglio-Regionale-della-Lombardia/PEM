@@ -20,16 +20,13 @@ namespace PortaleRegione.DTO.Enum
 {
     public enum TipoAttoEnum
     {
+        TUTTI = 0,
         PDL = 1,
         PDA = 2,
         ITR = 3,
         IQT = 4,
         ITL = 5,
         MOZ = 6,
-        MOZ_U = 7,
-        MOZ_A = 8,
-        MOZ_S = 9,
-        MOZ_C = 10,
-        ODG = 11
+        ODG = 7
     }
 }

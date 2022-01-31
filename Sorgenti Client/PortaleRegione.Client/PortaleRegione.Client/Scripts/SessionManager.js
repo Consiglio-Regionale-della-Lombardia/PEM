@@ -9,6 +9,17 @@ function setListaEmendamenti(lista) {
     sessionStorage.setItem("listaEmendamenti", JSON.stringify(lista));
 }
 
+function getListaAtti() {
+    var session_raw = sessionStorage.getItem("listaDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function setListaAtti(lista) {
+    sessionStorage.setItem("listaDASI", JSON.stringify(lista));
+}
+
 function getSelezionaTutti() {
     var session_raw = sessionStorage.getItem("SelezionaTutti");
     return JSON.parse(session_raw);
@@ -16,6 +27,15 @@ function getSelezionaTutti() {
 
 function setSelezionaTutti(seleziona) {
     sessionStorage.setItem("SelezionaTutti", JSON.stringify(seleziona));
+}
+
+function getSelezionaTutti_DASI() {
+    var session_raw = sessionStorage.getItem("SelezionaTutti_DASI");
+    return JSON.parse(session_raw);
+}
+
+function setSelezionaTutti_DASI(seleziona) {
+    sessionStorage.setItem("SelezionaTutti_DASI", JSON.stringify(seleziona));
 }
 
 function getListaPersone() {

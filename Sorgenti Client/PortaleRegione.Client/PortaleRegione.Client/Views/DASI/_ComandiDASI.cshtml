@@ -1,0 +1,80 @@
+﻿@using PortaleRegione.DTO.Enum
+<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
+    <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+        <i class="large material-icons">playlist_add</i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating tooltipped depositato" data-position="left" data-tooltip="Presenta" onclick="CambioStatoMassivo_DASI(@((int) StatiAttoEnum.PRESENTATO))">
+                <i class="material-icons">lock</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating tooltipped ritirato" data-position="left" data-tooltip="Ritira" onclick="CambioStatoMassivo_DASI(@((int) StatiAttoEnum.RITIRATO))">
+                <i class="material-icons">delete</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+                <i class="material-icons">undo</i>
+            </a>
+        </li>
+    </ul>
+</div>
+<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: block">
+    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo atto">
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+
+<script>
+    $("#btnNuovoDASI").on("click", function() {
+        openFormDASI();
+    });
+
+    function AbilitaComandiMassivi_DASI(uidAtto) {
+        if (uidAtto) {
+            var chk = $("#chk_Atto_" + uidAtto);
+            var selezionaTutti = getSelezionaTutti_DASI();
+            if (chk[0].checked) {
+                if (selezionaTutti) {
+                    removeAtto(uidAtto); //listaEsclusiva
+                } else {
+                    addAtto(uidAtto); //listaInsclusiva
+                }
+            } else {
+                if (selezionaTutti) {
+                    addAtto(uidAtto); //listaEsclusiva
+                } else {
+                    removeAtto(uidAtto); //listaInsclusiva
+                }
+            }
+        }
+
+        var lchk = getListaAtti();
+
+        if (lchk.length > 0 || $("#checkAll")[0].checked) {
+            $("#btnComandiMassivi").show();
+            $("#pnlNuovoDASI").hide();
+        } else {
+            $("#btnComandiMassivi").hide();
+            $("#pnlNuovoDASI").show();
+        }
+    }
+
+    $("#checkAll").click(function() {
+        setSelezionaTutti_DASI(this.checked);
+        setListaAtti([]);
+        $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
+        AbilitaComandiMassivi_DASI(null);
+    });
+
+    function resetGridSelection() {
+        $("#checkAll").prop("checked", false);
+        $('input[id^="chk_Atto_"]').not(this).prop("checked", false);
+        setSelezionaTutti_DASI(false);
+        setListaAtti([]);
+        AbilitaComandiMassivi_DASI(null);
+    }
+</script>

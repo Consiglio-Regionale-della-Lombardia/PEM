@@ -1,4 +1,5 @@
-﻿@model dynamic
+﻿@using PortaleRegione.DTO.Enum
+@model dynamic
 
 @{
     ViewBag.Title = "DASI";
@@ -12,137 +13,215 @@
     </div>
 </div>
 <hr />
+<div class="row center">
+    <div class="col s12">
+        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)" style="min-width: unset" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.ITL})')">
+            ITL
+            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                4
+            </span>
+        </div>
+        <div class="chip @Html.Raw(TipoAttoCSSConst.ITR)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.ITR})')">
+            ITR
+            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                3
+            </span>
+        </div>
+        <div class="chip @Html.Raw(TipoAttoCSSConst.IQT)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.IQT})')">
+            IQT
+            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                2
+            </span>
+        </div>
+        <div class="chip @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.MOZ})')">
+            MOZ
+            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                5
+            </span>
+        </div>
+        <div class="chip @Html.Raw(TipoAttoCSSConst.ODG)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.ODG})')">
+            ODG
+            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                1
+            </span>
+        </div>
+        <div class="chip @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="go('@Url.Action("RiepilogoDASI", "DASI")')">
+            Tutti
+            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+                10
+            </span>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col s12">
         <ul class="tabs">
-            <li class="tab col s6"><a class="active" href="#testBozza">Bozza</a></li>
-            <li class="tab col s6"><a href="#testPresentati">Presentati</a></li>
+            <li class="tab col s6"><a class="active" href="#testBozza" onclick="resetGridSelection();">Bozza</a></li>
+            <li class="tab col s6"><a href="#testPresentati" onclick="resetGridSelection();">Presentati</a></li>
         </ul>
     </div>
     <div id="testBozza" class="col s12">
         <table class="responsive-table highlight">
             <thead>
-                <tr>
-                    <th></th>
-                    <th>Atto</th>
-                    <th>Tipo</th>
-                    <th>Oggetto</th>
-                    <th>Soggetto</th>
-                    <th>Firmatari</th>
-                    <th>Stato</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th class="center">
+
+                    <label>
+                        <input type="checkbox" id="checkAll"/>
+                        <span for="checkAll"></span>
+                    </label>
+                </th>
+                <th>Atto</th>
+                <th>Tipo</th>
+                <th>Oggetto</th>
+                <th>Soggetto</th>
+                <th>Firmatari</th>
+                <th>Stato</th>
+                <th></th>
+            </tr>
             </thead>
 
             <tbody>
-                <tr>
-                    <td class="center">
+            <tr>
+                <td class="center">
 
-                        <p>
-                            <label>
-                                <input type="checkbox" />
-                                <span></span>
-                            </label>
-                        </p>
-                    </td>
-                    <td>ITL TEMP 1</td>
-                    <td>Orale</td>
-                    <td>Prova di trasmissione</td>
-                    <td>I Commissione permanente - Economia e Bilancio</td>
-                    <td>
-                        Mario Rossi (NP)
-                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (M5S)" style="min-width: unset">
-                            + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                        </a>
-                    </td>
-                    <td class="bozzaT">
-                        Bozza
-                    </td>
-                    <td class="center">
-                        <a class="amber-text tooltipped" data-tooltip="Invita"><i class="icon material-icons">send</i></a>
-                        <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
-                        <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
-                        <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="center">
+                    <p>
+                        <label>
+                            <input type="checkbox" id="chk_Atto_1" onclick="AbilitaComandiMassivi_DASI('1');"/>
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+                <td>
+                    <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
+                        ITL TEMP-1
+                    </div>
+                </td>
+                <td>Orale</td>
+                <td>Prova di trasmissione</td>
+                <td>I Commissione permanente - Economia e Bilancio</td>
+                <td>
+                    Mario Rossi (NP)
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (M5S)" style="min-width: unset">
+                        + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                    </a>
+                </td>
+                <td class="bozzaT">
+                    Bozza
+                </td>
+                <td class="center">
+                    <a class="amber-text tooltipped" data-tooltip="Invita"><i class="icon material-icons">send</i></a>
+                    <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
+                    <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
+                    <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
+                </td>
+            </tr>
+            <tr>
+                <td class="center">
 
-                        <p>
-                            <label>
-                                <input type="checkbox" />
-                                <span></span>
-                            </label>
-                        </p>
-                    </td>
-                    <td>ITR TEMP 1</td>
-                    <td>Scritto</td>
-                    <td>Prova di trasmissione</td>
-                    <td>I Commissione permanente - Economia e Bilancio</td>
-                    <td>
-                        Mario Rossi (NP)
-                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
-                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                        </a>
-                    </td>
-                    <td class="bozzaT">
-                        Bozza
-                    </td>
-                    <td class="center">
-                        <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
-                        <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
-                        <a class="depositatoT tooltipped" data-tooltip="Presenta" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="chk_Atto_2" onclick="AbilitaComandiMassivi_DASI('2');"/>
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+                <td>
+                    <div class="chip @Html.Raw(TipoAttoCSSConst.ITR)">
+                        ITR TEMP-1
+                    </div>
+                </td>
+                <td>Scritto</td>
+                <td>Prova di trasmissione</td>
+                <td>I Commissione permanente - Economia e Bilancio</td>
+                <td>
+                    Mario Rossi (NP)
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
+                        + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                    </a>
+                </td>
+                <td class="bozzaT">
+                    Bozza
+                </td>
+                <td class="center">
+                    <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
+                    <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
+                    <a class="depositatoT tooltipped" data-tooltip="Presenta" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
 
-                    </td>
-                </tr>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
     <div id="testPresentati" class="col s12">
         <table class="responsive-table highlight">
             <thead>
-                <tr>
-                    <th></th>
-                    <th>Atto</th>
-                    <th>Tipo</th>
-                    <th>Oggetto</th>
-                    <th>Soggetto</th>
-                    <th>Firmatari</th>
-                    <th>Stato</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th class="center">
+                    <label>
+                        <input type="checkbox" id="checkAll" />
+                        <span for="checkAll"></span>
+                    </label>
+                </th>
+                <th>Atto</th>
+                <th>Tipo</th>
+                <th>Oggetto</th>
+                <th>Soggetto</th>
+                <th>Firmatari</th>
+                <th>Stato</th>
+                <th></th>
+            </tr>
             </thead>
 
             <tbody>
-                <tr>
-                    <td class="center">
+            <tr>
+                <td class="center">
 
-                        <p>
-                            <label>
-                                <input type="checkbox" />
-                                <span></span>
-                            </label>
-                        </p>
-                    </td>
-                    <td>ITL-4000</td>
-                    <td>Orale</td>
-                    <td>Prova di trasmissione</td>
-                    <td>I Commissione permanente - Economia e Bilancio</td>
-                    <td>
-                        Mario Rossi (NP)
-                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
-                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                        </a>
-                    </td>
-                    <td class="depositatoT">
-                        Presentato
-                    </td>
-                    <td class="center">
-                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
+                    <p>
+                        <label>
+                            <input type="checkbox" />
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+                <td>
+                    <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
+                        ITL-4000
+                    </div>
+                </td>
+                <td>Orale</td>
+                <td>Prova di trasmissione</td>
+                <td>I Commissione permanente - Economia e Bilancio</td>
+                <td>
+                    Mario Rossi (NP)
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
+                        + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                    </a>
+                </td>
+                <td class="depositatoT">
+                    Presentato
+                </td>
+                <td class="center">
+                    <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
 
-                    </td>
-                </tr>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
 </div>
+
+@{
+    Html.RenderPartial("_PannelloRicerche");
+    Html.RenderPartial("_DASIForm");
+    Html.RenderPartial("_ComandiDASI");
+}
+
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').on("click", function () {
+            openDasiSearch();
+        });
+    });
+</script>

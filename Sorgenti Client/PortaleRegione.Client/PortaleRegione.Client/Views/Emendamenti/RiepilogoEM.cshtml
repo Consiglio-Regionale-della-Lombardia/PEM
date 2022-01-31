@@ -7,7 +7,10 @@
 @section scripts
 {
     <script>
-        $(document).ready(async function() {
+        $(document).ready(async function () {
+            $('#btnSearch').on("click", function () {
+                openSearch();
+            });
             $("#hdOrdine").val(@((int)Model.Ordinamento));
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {

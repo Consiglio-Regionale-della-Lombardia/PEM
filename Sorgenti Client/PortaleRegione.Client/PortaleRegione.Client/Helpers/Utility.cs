@@ -204,14 +204,6 @@ namespace PortaleRegione.Client.Helpers
                     return TipoAttoCSSConst.ITL;
                 case TipoAttoEnum.MOZ:
                     return TipoAttoCSSConst.MOZ;
-                case TipoAttoEnum.MOZ_U:
-                    return TipoAttoCSSConst.MOZ_U;
-                case TipoAttoEnum.MOZ_A:
-                    return TipoAttoCSSConst.MOZ_A;
-                case TipoAttoEnum.MOZ_S:
-                    return TipoAttoCSSConst.MOZ_S;
-                case TipoAttoEnum.MOZ_C:
-                    return TipoAttoCSSConst.MOZ_C;
                 case TipoAttoEnum.ODG:
                     return TipoAttoCSSConst.ODG;
                 case TipoAttoEnum.PDL:
@@ -235,14 +227,6 @@ namespace PortaleRegione.Client.Helpers
                     return TipoAttoEnum.ITL.ToString();
                 case TipoAttoEnum.MOZ:
                     return TipoAttoEnum.MOZ.ToString();
-                case TipoAttoEnum.MOZ_U:
-                    return TipoAttoEnum.MOZ_U.ToString();
-                case TipoAttoEnum.MOZ_A:
-                    return TipoAttoEnum.MOZ_A.ToString();
-                case TipoAttoEnum.MOZ_S:
-                    return TipoAttoEnum.MOZ_S.ToString();
-                case TipoAttoEnum.MOZ_C:
-                    return TipoAttoEnum.MOZ_C.ToString();
                 case TipoAttoEnum.ODG:
                     return TipoAttoEnum.ODG.ToString();
                 case TipoAttoEnum.PDL:
@@ -266,14 +250,6 @@ namespace PortaleRegione.Client.Helpers
                     return "Interpellanza";
                 case TipoAttoEnum.MOZ:
                     return "Mozione Ordinaria";
-                case TipoAttoEnum.MOZ_U:
-                    return "Mozione Urgente";
-                case TipoAttoEnum.MOZ_A:
-                    return "Mozione Abbinate";
-                case TipoAttoEnum.MOZ_S:
-                    return "Mozione di Sfiducia";
-                case TipoAttoEnum.MOZ_C:
-                    return "Mozione di Censura";
                 case TipoAttoEnum.ODG:
                     return "Ordine del Giorno";
                 case TipoAttoEnum.PDL:
