@@ -1,4 +1,5 @@
-﻿@{
+﻿@using PortaleRegione.DTO.Enum
+@{
     ViewBag.Title = "Home";
 }
 
@@ -118,7 +119,7 @@
                             </h5>
                         </div>
                         <div class="col s5">
-                            <a class="btn chip blue white-text" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')">
+                            <a class="btn chip blue white-text" onclick="go('/emendamenti/7e02e09a-200b-40d7-b35c-904626640ab1')">
                                 <i class="icon material-icons">chevron_right</i>Riepilogo EM
                             </a>
                         </div>
@@ -152,7 +153,7 @@
                             </h5>
                         </div>
                         <div class="col s5">
-                            <a class="btn chip blue white-text">
+                            <a class="btn chip blue white-text" onclick="go('/emendamenti/7e02e09a-200b-40d7-b35c-904626640ab1')">
                                 <i class="icon material-icons">chevron_right</i>Riepilogo EM
                             </a>
                         </div>
@@ -194,7 +195,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="1">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ITL)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -210,7 +211,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="2">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ITR)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -226,7 +227,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="3">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.IQT)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -242,7 +243,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="4">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.MOZ)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi')">
@@ -258,7 +259,7 @@
                     Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="5">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ODG)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content">
@@ -328,7 +329,8 @@
 }
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
+        $('#btnSearch>i').html('notifications_active');
         $('#btnSearch').on("click", function() {
             openDashboardNotification();
         });
@@ -337,7 +339,8 @@
 
     $(".secondary-content.blue-text.add").on("click",
         function () {
-            openFormDASI();
+            var tipo = $(this).data('tipo-dasi');
+            openFormDASI(tipo);
         });
 
     $(".carousel").on("mouseover",

@@ -27,17 +27,21 @@
     </ul>
 </div>
 <div id="pnlNuovoDASI" class="fixed-action-btn" style="display: block">
-    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo atto">
+    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
         <i class="large material-icons">add</i>
     </a>
+    <ul>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITL)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.ITL))">ITL</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.ITR))">ITR</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.IQT))">IQT</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.MOZ))">MOZ</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.ODG))">ODG</a></li>
+    </ul>
 </div>
 
 
 <script>
-    $("#btnNuovoDASI").on("click", function() {
-        openFormDASI();
-    });
-
+    
     function FirmaMassivo_DASI() {
         var listaAtti = getListaAtti();
         console.log("Firma massivo", listaAtti);

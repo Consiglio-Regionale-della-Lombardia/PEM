@@ -1,12 +1,74 @@
-﻿<div id="slide-dasi-DX" class="sidenav" style="overflow: auto !important">
+﻿@using PortaleRegione.DTO.Enum
+<div id="slide-dasi-DX" class="sidenav" style="overflow: auto !important">
     <div class="row">
         <h5>Ricerca</h5>
         <hr />
-        
+        <div class="input-field col s12">
+            <select>
+                <option value="" disabled selected>Seleziona</option>
+                <option value="@Html.Raw((int)TipoAttoEnum.ITL)">ITL</option>
+                <option value="@Html.Raw((int)TipoAttoEnum.ITR)">ITR</option>
+                <option value="@Html.Raw((int)TipoAttoEnum.IQT)">IQT</option>
+                <option value="@Html.Raw((int)TipoAttoEnum.MOZ)">MOZ</option>
+                <option value="@Html.Raw((int)TipoAttoEnum.ODG)">ODG</option>
+            </select>
+            <label>Tipo</label>
+        </div>
+        <div class="input-field col s12">
+            <select>
+                <option value="" disabled selected>Seleziona</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">Presentato</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.APPROVATO)">Approvato</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA)">Comunicazione Assemblea</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">In Trattazione</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.INAMMISSIBILE)">Inammissibile</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.DECADUTO)">Decaduto</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.DECADUTO_FINE_LEGISLATURA)">Decaduto FL</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.DECADUTO_FINE_MANDATO)">Decaduto FM</option>
+                <option value="@Html.Raw((int)StatiAttoEnum.RITIRATO)">Ritirato</option>
+            </select>
+            <label>Stato</label>
+        </div>
+        <div class="input-field col s12">
+            <input placeholder="Lorem ipsum" id="qOggetto" type="text">
+            <label for="qOggetto">Oggetto</label>
+        </div>
+        <div class="input-field col s12">
+            <label for="qSoggettoDestinatarioDasi">Soggetto interrogato</label>
+            <div id="qSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
+        </div>
     </div>
 </div>
 
 <script>
+    $(document).ready(function() {
+        CaricaSoggettiInterrogati();
+    });
+
+    function CaricaSoggettiInterrogati() {
+        var elemAutocomplete = document.querySelector('#qSoggettoDestinatarioDasi');
+
+        var autocompleteDataOptions = {
+            data: [
+                { tag: 'I Commissione permanente - Economia e Bilancio', id: '1' },
+                { tag: 'II Commissione', id: '2' },
+                { tag: 'III Commissione', id: '3' }
+            ],
+            limit: 10,
+            minLength: 1
+        };
+        M.Chips.init(elemAutocomplete,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                onChipAdd: function (e, chip) {
+                },
+                onChipSelect: function (e, chip) {
+                },
+                onChipDelete: function (e, chip) {
+                }
+            });
+    }
+
     function openDasiSearch() {
         var elems = document.querySelector("#slide-dasi-DX");
         var instances = M.Sidenav.init(elems,

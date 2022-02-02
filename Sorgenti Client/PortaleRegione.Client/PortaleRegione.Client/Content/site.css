@@ -77,7 +77,7 @@ label {
     min-width: 180px;
 }
 
-div.chips.chips-autocomplete > .chip { min-width: unset !important; }
+div.chips.chips-autocomplete > .chip { min-width: unset !important; font-weight: bold; background-color: unset !important; text-decoration: underline;}
 
 div.form-group > .chip { min-width: unset !important; }
 

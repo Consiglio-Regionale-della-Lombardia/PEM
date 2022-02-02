@@ -1,4 +1,5 @@
-﻿<script>
+﻿@using PortaleRegione.DTO.Enum
+<script>
     var instanceModalDasi;
 
     function SalvaDasi() {
@@ -15,18 +16,18 @@
         });
     }
 
-    function openFormDASI() {
-        var tipo_dasi = $(this).data('tipo-dasi');
+    function openFormDASI(tipo) {
+        var tipo_dasi = tipo;
         var title = "";
-        if (tipo_dasi == 1) {
+        if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITL)) {
             title = "Nuova interpellanza (ITL)";
-        }else if (tipo_dasi == 2) {
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITR)) {
             title = "Nuova interrogazione (ITR)";
-        }else if (tipo_dasi == 3) {
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.IQT)) {
             title = "Nuova interrogazione a risposta immediata (IQT)";
-        }else if (tipo_dasi == 4) {
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.MOZ)) {
             title = "Nuova mozione (MOZ)";
-        }else if (tipo_dasi == 5) {
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ODG)) {
             title = "Nuovo ordine del giorno (ODG)";
         }
         $('#titleDasiModal').text(title);

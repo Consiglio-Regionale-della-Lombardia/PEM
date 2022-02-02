@@ -1,5 +1,4 @@
-﻿@using PortaleRegione.DTO.Enum
-<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
+﻿<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
     <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
         <i class="large material-icons">playlist_add</i>
     </a>
@@ -11,17 +10,12 @@
         </li>
     </ul>
 </div>
-<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: block">
-    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo atto">
-        <i class="large material-icons">add</i>
-    </a>
-</div>
-
 
 <script>
-    $("#btnNuovoDASI").on("click", function() {
-        openFormDASI();
-    });
+    $("#btnNuovoDASI").on("click",
+        function() {
+            openFormDASI();
+        });
 
     function AbilitaComandiMassivi_DASI(uidAtto) {
         if (uidAtto) {
