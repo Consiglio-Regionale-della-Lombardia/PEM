@@ -183,7 +183,7 @@
         <li class="menuItem_DASI bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
         </li>
-        <li class="menuItem_DASI bold">
+        <li class="menuItem_DASI_Admin bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoDASI_Admin", "DASI")"><i class="material-icons">event</i>DASI UOLA</a>
         </li>
         <li class="menuItem_Notifiche bold">
@@ -248,8 +248,11 @@
             $('.menuItem_Stampe').addClass("active");
         } else if (url.includes("adminpanel")) {
             $('.menuItem_Amministrazione').addClass("active");
-        } else if (url.includes("dasi")) {
+        } else if (url.includes("riepilogodasi")) {
             $('.menuItem_DASI').addClass("active");
+        }
+        else if (url.includes("riepilogodasi_admin")) {
+            $('.menuItem_DASI_Admin').addClass("active");
         } else if (url.includes("pem") || url.includes("atti") || url.includes("emendamenti")) {
             $('.menuItem_PEM').addClass("active");
         } else {

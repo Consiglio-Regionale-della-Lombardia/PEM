@@ -12,7 +12,7 @@ function setListaEmendamenti(lista) {
 function getListaAtti() {
     var session_raw = sessionStorage.getItem("listaDASI");
     if (session_raw == null)
-        return {}
+        return [];
     return JSON.parse(session_raw);
 }
 

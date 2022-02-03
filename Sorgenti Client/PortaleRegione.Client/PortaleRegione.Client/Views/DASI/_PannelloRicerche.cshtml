@@ -1,47 +1,80 @@
 ﻿@using PortaleRegione.DTO.Enum
 <div id="slide-dasi-DX" class="sidenav" style="overflow: auto !important">
-    <div class="row">
-        <h5>Ricerca</h5>
-        <hr />
-        <div class="input-field col s12">
-            <select>
-                <option value="" disabled selected>Seleziona</option>
-                <option value="@Html.Raw((int)TipoAttoEnum.ITL)">ITL</option>
-                <option value="@Html.Raw((int)TipoAttoEnum.ITR)">ITR</option>
-                <option value="@Html.Raw((int)TipoAttoEnum.IQT)">IQT</option>
-                <option value="@Html.Raw((int)TipoAttoEnum.MOZ)">MOZ</option>
-                <option value="@Html.Raw((int)TipoAttoEnum.ODG)">ODG</option>
-            </select>
-            <label>Tipo</label>
-        </div>
-        <div class="input-field col s12">
-            <select>
-                <option value="" disabled selected>Seleziona</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.PRESENTATO)">Presentato</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.APPROVATO)">Approvato</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA)">Comunicazione Assemblea</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.IN_TRATTAZIONE)">In Trattazione</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.INAMMISSIBILE)">Inammissibile</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.DECADUTO)">Decaduto</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.DECADUTO_FINE_LEGISLATURA)">Decaduto FL</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.DECADUTO_FINE_MANDATO)">Decaduto FM</option>
-                <option value="@Html.Raw((int)StatiAttoEnum.RITIRATO)">Ritirato</option>
-            </select>
-            <label>Stato</label>
-        </div>
-        <div class="input-field col s12">
-            <input placeholder="Lorem ipsum" id="qOggetto" type="text">
-            <label for="qOggetto">Oggetto</label>
-        </div>
-        <div class="input-field col s12">
-            <label for="qSoggettoDestinatarioDasi">Soggetto interrogato</label>
-            <div id="qSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
-        </div>
-    </div>
+    <ul class="collapsible">
+        <li class="active">
+            <div class="collapsible-header teal white-text"><i class="material-icons">search</i>Ricerca</div>
+            <div class="collapsible-body">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <select>
+                            <option value="" disabled selected>Seleziona</option>
+                            <option value="@Html.Raw((int) TipoAttoEnum.ITL)">ITL</option>
+                            <option value="@Html.Raw((int) TipoAttoEnum.ITR)">ITR</option>
+                            <option value="@Html.Raw((int) TipoAttoEnum.IQT)">IQT</option>
+                            <option value="@Html.Raw((int) TipoAttoEnum.MOZ)">MOZ</option>
+                            <option value="@Html.Raw((int) TipoAttoEnum.ODG)">ODG</option>
+                        </select>
+                        <label>Tipo</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <select>
+                            <option value="" disabled selected>Seleziona</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.PRESENTATO)">Presentato</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.APPROVATO)">Approvato</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA)">Comunicazione Assemblea</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.IN_TRATTAZIONE)">In Trattazione</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.INAMMISSIBILE)">Inammissibile</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO)">Decaduto</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_LEGISLATURA)">Decaduto FL</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_MANDATO)">Decaduto FM</option>
+                            <option value="@Html.Raw((int) StatiAttoEnum.RITIRATO)">Ritirato</option>
+                        </select>
+                        <label>Stato</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input placeholder="Lorem ipsum" id="qOggetto" type="text">
+                        <label for="qOggetto">Oggetto</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <label for="qSoggettoDestinatarioDasi">Soggetto interrogato</label>
+                        <div id="qSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
+                    </div>
+                    <div class="input-field col s12 center" style="padding-top: 30px">
+                        <a class="btn chip hoverable blue center white-text" style="min-width: unset !important">
+                            <i class="icon material-icons">search</i> Filtra
+                        </a>
+                        <a class="btn chip hoverable grey center white-text" style="min-width: unset !important">
+                            <i class="icon material-icons">close</i> Reset
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header white black-text"><i class="material-icons">settings</i>Strumenti</div>
+            <div class="collapsible-body">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="collection">
+                            <a href="#!" class="collection-item">
+                                <i class="icon material-icons left">download</i>
+                                Esporta Excel
+                            </a>
+                            <a href="#!" class="collection-item">
+                                <i class="icon material-icons left">download</i>
+                                Esporta Word
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
+        $('#btnSearch>i').html('more_vert');
         CaricaSoggettiInterrogati();
     });
 
@@ -60,11 +93,11 @@
         M.Chips.init(elemAutocomplete,
             {
                 autocompleteOptions: autocompleteDataOptions,
-                onChipAdd: function (e, chip) {
+                onChipAdd: function(e, chip) {
                 },
-                onChipSelect: function (e, chip) {
+                onChipSelect: function(e, chip) {
                 },
-                onChipDelete: function (e, chip) {
+                onChipDelete: function(e, chip) {
                 }
             });
     }
@@ -75,11 +108,11 @@
             {
                 edge: "right",
                 draggable: true,
-                onOpenStart: function () {
+                onOpenStart: function() {
                     // Menu laterale SX sotto a layer opaco
                     $("#slide-out").css("z-index", 997);
                 },
-                onCloseEnd: function () {
+                onCloseEnd: function() {
                     // Ripristino menu laterale SX
                     $("#slide-out").css("z-index", 999);
                 }
