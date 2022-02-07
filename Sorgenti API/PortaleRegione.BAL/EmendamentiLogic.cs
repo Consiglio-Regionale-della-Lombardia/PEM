@@ -346,7 +346,7 @@ namespace PortaleRegione.BAL
                 em.UID_QRCode = Guid.NewGuid();
                 em.Eliminato = false;
                 em.DataCreazione = DateTime.Now;
-                em.OrdinePresentazione = 1;
+                em.OrdinePresentazione = 0;
                 em.id_gruppo = persona.Gruppo.id_gruppo;
                 _unitOfWork.Emendamenti.Add(em);
                 await _unitOfWork.CompleteAsync();
