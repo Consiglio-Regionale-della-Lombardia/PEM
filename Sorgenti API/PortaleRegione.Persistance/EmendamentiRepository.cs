@@ -824,6 +824,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.EM
                 .Where(em => em.UIDAtto == uidAtto
+                             && em.IDStato >= (int)StatiEnum.Depositato
                              && em.Eliminato == false);
             return await query.CountAsync();
         }
