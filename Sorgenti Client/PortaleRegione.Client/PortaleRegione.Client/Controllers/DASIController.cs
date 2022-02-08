@@ -18,6 +18,7 @@
 
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -27,12 +28,10 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> RiepilogoDASI()
         {
+            if(User.IsInRole(((int)RuoliIntEnum.Amministratore_PEM).ToString()))
+                return View("RiepilogoDASI_Admin"); 
+            
             return View("RiepilogoDASI");
-        }
-
-        public async Task<ActionResult> RiepilogoDASI_Admin()
-        {
-            return View("RiepilogoDASI_Admin");
         }
     }
 }

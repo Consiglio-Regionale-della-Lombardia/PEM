@@ -16,20 +16,10 @@
         });
     }
 
-    function openFormDASI(tipo) {
+    function openFormDASI(tipo, edit) {
         var tipo_dasi = tipo;
-        var title = "";
-        if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITL)) {
-            title = "Nuova interpellanza (ITL)";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITR)) {
-            title = "Nuova interrogazione (ITR)";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.IQT)) {
-            title = "Nuova interrogazione a risposta immediata (IQT)";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.MOZ)) {
-            title = "Nuova mozione (MOZ)";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ODG)) {
-            title = "Nuovo ordine del giorno (ODG)";
-        }
+        var title = GetTitle(tipo, edit);
+
         $('#titleDasiModal').text(title);
         $('select').formSelect();
         var elemAutocomplete = document.querySelector('#autocompleteSoggettoDestinatarioDasi');
@@ -59,5 +49,20 @@
         };
         instanceModalDasi = M.Modal.init(elemModal, options);
         instanceModalDasi.open();
+    }
+
+    function GetTitle(tipo_dasi, edit) {
+        var prefix = edit ? "Modifica" : "Nuovo";
+        if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITL)) {
+            return prefix + " ITL";
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITR)) {
+            return prefix + " ITR";
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.IQT)) {
+            return prefix + " IQT";
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.MOZ)) {
+            return prefix + " MOZ";
+        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ODG)) {
+            return prefix + " ODG";
+        }
     }
 </script>

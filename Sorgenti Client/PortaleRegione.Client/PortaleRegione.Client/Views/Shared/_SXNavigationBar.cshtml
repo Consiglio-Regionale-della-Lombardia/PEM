@@ -63,151 +63,165 @@
             </div>
         </div>
     }
-    <ul class="collapsible collapsible-accordion" style="margin: 0">
-        <li>
-            <div class="user-view" style="padding: 10px">
-                <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
-                    <div class="col s1 center">
-                        <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 15px">
-                            <i class="material-icons">more_vert</i>
-                        </a>
-                        <ul class="dropdown-content" id="ddlSubMenu">
-                            <li>
-                                <a onclick="CambioPin()">
-                                    <i class="material-icons">settings</i>Reimposta Pin
-                                </a>
-                            </li>
-                            <li>
-                                <a href="@Url.Action("Index", "VideoTutorial")">
-                                    <i class="material-icons">music_video</i>Video Tutorial
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col s3 center">
-                        <img class="responsive-img circle" style="height: 35px; width: 35px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto">
-                    </div>
-                    <div class="col s8" style="padding-left: 0">
-                        <h6 class="black-text">
-                            <b>@displayName</b>
-                        </h6>
-                    </div>
-                </div>
-                <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
-                    <div class="col s12">
-                        @if (ruoli.Any())
-                        {
-                            var testo = string.Empty;
-                            var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int) currentRole);
-
-                            if (ruoliDto != null)
-                            {
-                                testo = ruoliDto.Ruolo;
-                            }
-                            else
-                            {
-                                testo = "Responsabile Segreteria Politica";
-                            }
-
-                            var triggerClass = "";
-                            var iconClassSwapRuoli = "";
-                            if (ruoli.Count() > 1)
-                            {
-                                //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
-                                triggerClass = "dropdown-trigger";
-                                iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
-                                <ul id='ddlCambioRuolo' class='dropdown-content'>
-                                    @foreach (var ruolo in ruoli)
-                                    {
-                                        if (ruolo.IDruolo != (int) currentRole)
-                                        {
-                                            <li>
-                                                <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
-                                            </li>
-                                        }
-                                    }
-                                </ul>
-                            }
-
-                            <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
-                                @testo @Html.Raw(iconClassSwapRuoli)
+<ul class="collapsible collapsible-accordion" style="margin: 0">
+    <li>
+        <div class="user-view" style="padding: 10px">
+            <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
+                <div class="col s1 center">
+                    <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 15px">
+                        <i class="material-icons">more_vert</i>
+                    </a>
+                    <ul class="dropdown-content" id="ddlSubMenu">
+                        <li>
+                            <a onclick="CambioPin()">
+                                <i class="material-icons">settings</i>Reimposta Pin
                             </a>
-                        }
-                    </div>
-                    <div class="col s12" style="margin-top: -15px">
-                        @{
-                            var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
-                            if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
-                                || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
-                            {
-                                testoGruppo = "Giunta";
-                            }
-                            var triggerClassGruppi = "";
-                            var iconClassSwapGruppi = "";
-                            if (gruppiAdmin.Any())
-                            {
-                                triggerClassGruppi = "dropdown-trigger";
-                                iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
-                                <ul id='ddlCambioGruppo' class='dropdown-content'>
-                                    @foreach (var gruppiDto in gruppiAdmin)
-                                    {
-                                        <li>
-                                            <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
-                                               href="@Url.Action("CambioGruppo", "Autenticazione", new {gruppo = gruppiDto.id, returnUrl = Request.Url})">
-                                                <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
-                                            </a>
-                                        </li>
-                                    }
-                                </ul>
-                            }
-
-                            if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                            {
-                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
-                                    @testoGruppo @Html.Raw(iconClassSwapGruppi)
-                                </a>
-                            }
-                        }
-                    </div>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", "VideoTutorial")">
+                                <i class="material-icons">music_video</i>Video Tutorial
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col s3 center">
+                    <img class="responsive-img circle" style="height: 35px; width: 35px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto">
+                </div>
+                <div class="col s8" style="padding-left: 0">
+                    <h6 class="black-text">
+                        <b>@displayName</b>
+                    </h6>
                 </div>
             </div>
+            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+                <div class="col s12">
+                    @if (ruoli.Any())
+                    {
+                        var testo = string.Empty;
+                        var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int)currentRole);
+
+                        if (ruoliDto != null)
+                        {
+                            testo = ruoliDto.Ruolo;
+                        }
+                        else
+                        {
+                            testo = "Responsabile Segreteria Politica";
+                        }
+
+                        var triggerClass = "";
+                        var iconClassSwapRuoli = "";
+                        if (ruoli.Count() > 1)
+                        {
+                            //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
+                            triggerClass = "dropdown-trigger";
+                            iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
+                            <ul id='ddlCambioRuolo' class='dropdown-content'>
+                                @foreach (var ruolo in ruoli)
+                                {
+                                    if (ruolo.IDruolo != (int)currentRole)
+                                    {
+                                        <li>
+                                            <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        }
+
+                        <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
+                            @testo @Html.Raw(iconClassSwapRuoli)
+                        </a>
+                    }
+                </div>
+                <div class="col s12" style="margin-top: -15px">
+                    @{
+                        var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
+                        if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+                            || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
+                            || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
+                            || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
+                        {
+                            testoGruppo = "Giunta";
+                        }
+                        var triggerClassGruppi = "";
+                        var iconClassSwapGruppi = "";
+                        if (gruppiAdmin.Any())
+                        {
+                            triggerClassGruppi = "dropdown-trigger";
+                            iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
+                            <ul id='ddlCambioGruppo' class='dropdown-content'>
+                                @foreach (var gruppiDto in gruppiAdmin)
+                                {
+                                    <li>
+                                        <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
+                                           href="@Url.Action("CambioGruppo", "Autenticazione", new {gruppo = gruppiDto.id, returnUrl = Request.Url})">
+                                            <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+
+                        if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                        {
+                            <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
+                                @testoGruppo @Html.Raw(iconClassSwapGruppi)
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </li>
+    @{
+
+    }
+    <li class="menuItem_Home bold" style="margin-top:-8px">
+        <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
+    </li>
+    <li class="menuItem_PEM bold">
+        <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
+    </li>
+    <li class="menuItem_DASI bold">
+        <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
+    </li>
+
+    <li class="menuItem_Notifiche bold">
+        <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
+            <i class="material-icons">email</i>Notifiche <div id="counterNotifiche" class="chip pink white-text right" style="min-width: unset; margin-top: 8px;"></div>
+        </a>
+    </li>
+    <li class="menuItem_Stampe bold">
+        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
+    </li>
+    @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
+    {
+        <li class="menuItem_Amministrazione_Utenti bold">
+            <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">person</i>Utenti</a>
         </li>
-        <li class="menuItem_Home bold" style="margin-top:-8px">
-            <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
+    }
+    @if (currentRole == RuoliIntEnum.Amministratore_PEM)
+    {
+        <li class="menuItem_Amministrazione_Gruppi bold">
+            <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Gruppi</a>
         </li>
-        <li class="menuItem_PEM bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
-        </li>
-        <li class="menuItem_DASI bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
-        </li>
-        <li class="menuItem_DASI_Admin bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoDASI_Admin", "DASI")"><i class="material-icons">event</i>DASI UOLA</a>
-        </li>
-        <li class="menuItem_Notifiche bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
-                <i class="material-icons">email</i>Notifiche <div id="counterNotifiche" class="chip pink white-text right" style="min-width: unset; margin-top: 8px;"></div>
-            </a>
-        </li>
-        <li class="menuItem_Stampe bold">
-            <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
-        </li>
-        @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
-        {
-            <li class="menuItem_Amministrazione_Utenti bold">
-                <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">person</i>Utenti</a>
-            </li>
-        }
-        @if (currentRole == RuoliIntEnum.Amministratore_PEM)
-        {
-            <li class="menuItem_Amministrazione_Gruppi bold">
-                <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Gruppi</a>
-            </li>
-        }
-        
-    </ul>
+    }
+
+    <li class="menuTrattazione bold">
+        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta 1</a>
+    </li>                                                                                                
+    <li class="menuTrattazione bold">                                                                    
+        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta 2</a>
+    </li>                                                                                                
+    <li class="menuTrattazione bold">                                                                    
+        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta 3</a>
+    </li>                                                                                                
+    <li class="menuTrattazione bold">                                                                    
+        <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Archivio</a>
+    </li>
+
+</ul>
     <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
         <div class="row valign-wrapper">
             <div class="col s9">
@@ -250,9 +264,6 @@
             $('.menuItem_Amministrazione').addClass("active");
         } else if (url.includes("riepilogodasi")) {
             $('.menuItem_DASI').addClass("active");
-        }
-        else if (url.includes("riepilogodasi_admin")) {
-            $('.menuItem_DASI_Admin').addClass("active");
         } else if (url.includes("pem") || url.includes("atti") || url.includes("emendamenti")) {
             $('.menuItem_PEM').addClass("active");
         } else {
@@ -261,6 +272,9 @@
         var mode = getClientMode();
         if (mode == 2) {
             $('#switchTrattazione').prop("checked", true);
+            $('li[class*="menuItem"]').hide();
+        } else {
+            $('li[class*="menuTrattazione"]').hide();
         }
         LoadCounterNotifiche();
     });
@@ -361,6 +375,7 @@
     }
 
     function logout() {
+        setClientMode(1);
         $('#formLogout').submit();
     }
 </script>

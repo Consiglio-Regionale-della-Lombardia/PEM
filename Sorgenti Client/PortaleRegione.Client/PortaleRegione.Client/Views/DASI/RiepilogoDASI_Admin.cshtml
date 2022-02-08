@@ -71,6 +71,7 @@
                 <th>Soggetto</th>
                 <th>Firmatari</th>
                 <th>Stato</th>
+                <th>Seduta</th>
                 <th></th>
             </tr>
             </thead>
@@ -96,15 +97,93 @@
                 <td>I Commissione permanente - Economia e Bilancio</td>
                 <td>
                     Mario Rossi (NP)
-                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
                         + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
                     </a>
                 </td>
                 <td class="depositatoT">
                     Presentato
+                    <a class='dropdown-trigger' href='#' data-target='dropdown_'>
+                        <i class="icon material-icons">refresh</i>
+                    </a>
+
+                    <!-- Dropdown Structure -->
+                    <ul id='dropdown_' class='dropdown-content' style="max-width: 300px">
+                        <li>
+                            <a class="approvatoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Approvato))"><i class="material-icons">check</i> Approva</a>
+                        </li>
+                        <li>
+                            <a class="NOapprovatoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i> Non approva</a>
+                        </li>
+                        <li>
+                            <a class="decadutoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Decaduto))"><i class="material-icons">report</i> Decaduto</a>
+                        </li>
+                        <li>
+                            <a class="ritiratoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i> Ritira</a>
+                        </li>
+                    </ul>
                 </td>
                 <td>
-                    <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
+
+                </td>
+                <td>
+                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@Html.Raw((int)TipoAttoEnum.ITL)')"><i class="icon material-icons">edit</i></a>
+
+                </td>
+            </tr>
+            <tr>
+                <td class="center">
+
+                    <p>
+                        <label>
+                            <input type="checkbox" id="chk_Atto_2" onclick="AbilitaComandiMassivi_DASI('2');"/>
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+                <td>
+                    <div class="chip @Html.Raw(TipoAttoCSSConst.IQT)">
+                        IQT-6000
+                    </div>
+                </td>
+                <td></td>
+                <td>Prova di trasmissione 2</td>
+                <td>II Commissione - Politiche interne</td>
+                <td>
+                    Matteo Bianchi (NP)
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
+                        + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                    </a>
+                </td>
+                <td class="depositatoT">
+                    Presentato
+                    <a class='dropdown-trigger' href='#' data-target='dropdown_1'>
+                        <i class="icon material-icons">refresh</i>
+                    </a>
+
+                    <!-- Dropdown Structure -->
+                    <ul id='dropdown_1' class='dropdown-content' style="max-width: 300px">
+                        <li>
+                            <a class="approvatoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Approvato))"><i class="material-icons">check</i> Approva</a>
+                        </li>
+                        <li>
+                            <a class="NOapprovatoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Non_Approvato))"><i class="material-icons">close</i> Non approva</a>
+                        </li>
+                        <li>
+                            <a class="decadutoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Decaduto))"><i class="material-icons">report</i> Decaduto</a>
+                        </li>
+                        <li>
+                            <a class="ritiratoT" onclick="CambioStatoDASI('', @((int) StatiEnum.Ritirato))"><i class="material-icons">delete</i> Ritira</a>
+                        </li>
+                    </ul>
+                </td>
+                <td>
+                    <div class="chip badgeSeduta">
+                        Seduta 15-10-2022
+                    </div>
+                </td>
+                <td>
+                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@Html.Raw((int)TipoAttoEnum.IQT)')"><i class="icon material-icons">edit</i></a>
 
                 </td>
             </tr>
@@ -115,6 +194,7 @@
 
 @{
     Html.RenderPartial("_PannelloRicerche");
+    Html.RenderPartial("_DASIForm");
     Html.RenderPartial("_ComandiDASI_Admin");
     Html.RenderPartial("_ScriptRiepilogoDASI");
 }

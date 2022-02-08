@@ -1,8 +1,19 @@
-﻿<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
+﻿@using PortaleRegione.DTO.Enum
+<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
     <a class="btn-floating btn-large pink">
         <i class="large material-icons">playlist_add</i>
     </a>
     <ul>
+        <li>
+            <a class="btn-floating approvatoT tooltipped" onclick="IscriviASeduta()" data-position="left" data-tooltip="Iscrivi alla seduta">
+                <i class="material-icons">assignment_turned_in</i> Assegna a seduta
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating approvatoT tooltipped" onclick="" data-position="left" data-tooltip="Approva">
+                <i class="material-icons">check</i> Approva
+            </a>
+        </li>
         <li>
             <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
@@ -11,16 +22,87 @@
     </ul>
 </div>
 
+<div id="modalIscriviASeduta" class="modal">
+    <div class="modal-content">
+        <h4>Seleziona seduta</h4>
+        <div class="row">
+            <div class="col s12 carousel-item">
+                <div class="card hoverable green lighten-4 black-text">
+                    <div class="card-content">
+                        <h5 class="card-title">
+                            <span>Seduta del 6/12/2021 10:45</span>
+                        </h5>
+                        <div class="row valign-wrapper">
+                            <div class="col s10">
+                                <p>
+
+                                    Scadenza presentazione: 10/12/2021 09:45
+                                </p>
+                            </div>
+                            <div class="col s2">
+                                <p>
+                                    <label>
+                                        <input type="checkbox" />
+                                        <span></span>
+                                    </label>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 carousel-item">
+                <div class="card hoverable green lighten-4 black-text">
+                    <div class="card-content">
+                        <h5 class="card-title">
+                            <span>Seduta del 6/12/2021 10:45</span>
+                        </h5>
+                        <div class="row valign-wrapper">
+                            <div class="col s10">
+                                <p>
+
+                                    Scadenza presentazione: 10/12/2021 09:45
+                                </p>
+                            </div>
+                            <div class="col s2">
+                                <p>
+                                    <label>
+                                        <input type="checkbox" />
+                                        <span></span>
+                                    </label>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="SalvaIscriviASeduta()">Salva</a>
+    </div>
+</div>
+
 <script>
-    $("#btnNuovoDASI").on("click",
-        function() {
-            openFormDASI();
-        });
+
+    function SalvaIscriviASeduta() {
+        SuccessAlert("Atti iscritti");
+    }
+
+    function IscriviASeduta() {
+        //Nuova modal
+        $('#modalIscriviASeduta').modal("open");
+    }
+        function ModificaMetaDASI(tipo) {
+        openFormDASI(tipo, true);
+    }
 
     function AbilitaComandiMassivi_DASI(uidAtto) {
+        console.log("Atto", uidAtto);
         if (uidAtto) {
             var chk = $("#chk_Atto_" + uidAtto);
             var selezionaTutti = getSelezionaTutti_DASI();
+            console.log("SEL.TUTTI", selezionaTutti);
             if (chk[0].checked) {
                 if (selezionaTutti) {
                     removeAtto(uidAtto); //listaEsclusiva

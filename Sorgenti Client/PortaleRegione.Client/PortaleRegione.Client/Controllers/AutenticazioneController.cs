@@ -66,7 +66,7 @@ namespace PortaleRegione.Client.Controllers
 
             if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
 
-            return RedirectToAction("RiepilogoSedute", "PEM");
+            return RedirectToAction("Index", "Home");
         }
 
         [Authorize]

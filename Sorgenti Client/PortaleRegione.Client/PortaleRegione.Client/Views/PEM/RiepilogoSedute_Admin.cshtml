@@ -8,17 +8,6 @@
     }
 }
 
-<script>
-    function openDeleteModal(id) {
-        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaSeduta","PEM")?id=' + id);
-        $('#modalDeleteSeduta').modal('open');
-    }
-
-    $(document).ready(function() {
-        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta","PEM")');
-    });
-</script>
-
 <div class="row">
     <div class="col s12">
         <h5>
@@ -123,10 +112,6 @@
 
 <script>
     $(document).ready(function () {
-        set_Filtri_EM({});
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
         var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
         if (filters == 0)
             set_Filtri_Sedute({});
@@ -135,6 +120,11 @@
         Filtri_Sedute_CaricaAnni("filter_sedute_anno");
         Filtri_Sedute_CaricaDa("filter_sedute_da");
         Filtri_Sedute_CaricaA("filter_sedute_a");
+
+        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta","PEM")');
+        $('#btnSearch').on("click", function() {
+            openSearch();
+        });
     });
 
     function filtra() {
@@ -149,5 +139,10 @@
             $('body').removeClass('loaded');
         }, 200);
         $('#formFiltraSedute').submit();
+    }
+
+    function openDeleteModal(id) {
+        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaSeduta","PEM")?id=' + id);
+        $('#modalDeleteSeduta').modal('open');
     }
 </script>

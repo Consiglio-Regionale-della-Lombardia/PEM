@@ -18,20 +18,27 @@
 
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using PortaleRegione.DTO.Enum;
+using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
+    /// <summary>
+    ///     Controller atti dasi trattazione
+    /// </summary>
     [Authorize]
-    [RoutePrefix("home")]
-    public class HomeController : BaseController
+    [RoutePrefix("attitrattazione")]
+    public class AttiTrattazioneController : BaseController
     {
         public async Task<ActionResult> Index()
         {
-            if (User.IsInRole(((int)RuoliIntEnum.Amministratore_PEM).ToString()))
-                return View("Index_Admin");
-            
             return View("Index");
+        }
+        
+        public async Task<ActionResult> Archivio(int page = 1, int size = 50)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var model = await apiGateway.Sedute.Get(page, size);
+            return View("Archivio", model);
         }
     }
 }

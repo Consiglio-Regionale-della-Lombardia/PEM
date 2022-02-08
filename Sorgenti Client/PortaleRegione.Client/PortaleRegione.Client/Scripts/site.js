@@ -113,10 +113,11 @@ function AbilitaTrattazione() {
     var mode = getClientMode();
     if (mode == 1) {
         setClientMode(2);
+        go('/attitrattazione/archivio');
     } else {
         setClientMode(1);
+        go('/home');
     }
-    location.reload();
 }
 
 //EVENTI EMENDAMENTO

@@ -103,7 +103,7 @@
                 <td>I Commissione permanente - Economia e Bilancio</td>
                 <td>
                     Mario Rossi (NP)
-                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (M5S)" style="min-width: unset">
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (NP)" style="min-width: unset">
                         + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
                     </a>
                 </td>
@@ -122,7 +122,7 @@
 
                     <p>
                         <label>
-                            <input type="checkbox" id="chk_Atto_2" onclick="AbilitaComandiMassivi_DASI('2');"/>
+                            <input type="checkbox" id="chk_Atto_2" onclick="AbilitaComandiMassivi_DASI('2');" />
                             <span></span>
                         </label>
                     </p>
@@ -137,7 +137,7 @@
                 <td>I Commissione permanente - Economia e Bilancio</td>
                 <td>
                     Mario Rossi (NP)
-                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
                         + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
                     </a>
                 </td>
@@ -170,43 +170,84 @@
                 <th>Soggetto</th>
                 <th>Firmatari</th>
                 <th>Stato</th>
+                <th>Seduta</th>
                 <th></th>
             </tr>
             </thead>
 
             <tbody>
-            <tr>
-                <td class="center">
+                <tr>
+                    <td class="center">
 
-                    <p>
-                        <label>
-                            <input type="checkbox" />
-                            <span></span>
-                        </label>
-                    </p>
-                </td>
-                <td>
-                    <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
-                        ITL-4000
-                    </div>
-                </td>
-                <td>Orale</td>
-                <td>Prova di trasmissione</td>
-                <td>I Commissione permanente - Economia e Bilancio</td>
-                <td>
-                    Mario Rossi (NP)
-                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (M5S)<br>FORTE Monica (M5S)<br>ALBERTI Ferdinando (M5S)<br>VERNI Simone (M5S)" style="min-width: unset">
-                        + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                    </a>
-                </td>
-                <td class="depositatoT">
-                    Presentato
-                </td>
-                <td class="center">
-                    <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
+                        <p>
+                            <label>
+                                <input type="checkbox" />
+                                <span></span>
+                            </label>
+                        </p>
+                    </td>
+                    <td>
+                        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
+                            ITL-4000
+                        </div>
+                    </td>
+                    <td>Orale</td>
+                    <td>Prova di trasmissione</td>
+                    <td>I Commissione permanente - Economia e Bilancio</td>
+                    <td>
+                        Mario Rossi (NP)
+                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
+                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                        </a>
+                    </td>
+                    <td class="depositatoT">
+                        Presentato
+                    </td>
+                    <td>
+                        <div class="chip badgeSeduta">
+                            Seduta 15-10-2022
+                        </div>
+                    </td>
+                    <td class="center">
+                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
 
-                </td>
-            </tr>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="center">
+
+                        <p>
+                            <label>
+                                <input type="checkbox" />
+                                <span></span>
+                            </label>
+                        </p>
+                    </td>
+                    <td>
+                        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
+                            ITL-4001
+                        </div>
+                    </td>
+                    <td>Orale</td>
+                    <td>Prova di trasmissione 2</td>
+                    <td>I Commissione permanente - Economia e Bilancio</td>
+                    <td>
+                        Mario Rossi (NP)
+                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
+                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                        </a>
+                    </td>
+                    <td class="depositatoT">
+                        Presentato
+                    </td>
+                    <td>
+                        
+                    </td>
+                    <td class="center">
+                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
+
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>

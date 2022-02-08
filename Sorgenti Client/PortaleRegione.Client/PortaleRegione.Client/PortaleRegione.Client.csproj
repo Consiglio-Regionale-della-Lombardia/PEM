@@ -112,6 +112,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminPanelController.cs" />
     <Compile Include="Controllers\AttiController.cs" />
+    <Compile Include="Controllers\AttiTrattazioneController.cs" />
     <Compile Include="Controllers\AutenticazioneController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\DASIController.cs" />
@@ -408,6 +409,10 @@
     <Content Include="Views\DASI\_ComandiDASI_Admin.cshtml" />
     <Content Include="Views\DASI\_ScriptRiepilogoDASI.cshtml" />
     <Content Include="Views\DASI\_ScriptFormDASI.cshtml" />
+    <Content Include="Views\Home\Index_Admin.cshtml" />
+    <Content Include="Views\AttiTrattazione\Index.cshtml" />
+    <Content Include="Views\AttiTrattazione\Archivio.cshtml" />
+    <Content Include="Views\AttiTrattazione\_SeduteFiltri.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

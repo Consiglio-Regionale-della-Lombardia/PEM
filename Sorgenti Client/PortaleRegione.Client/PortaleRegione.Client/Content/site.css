@@ -404,6 +404,12 @@ div.input-field > label { line-height: initial; }
     min-width: unset !important;
 }
 
+.badgeSeduta {
+    background-color: #c8e6c9;
+    color: #4caf50;
+    min-width: unset !important;
+}
+
 /*----------------------------------------
     ###
 ------------------------------------------*/

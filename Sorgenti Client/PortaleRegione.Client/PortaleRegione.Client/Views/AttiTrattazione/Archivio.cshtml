@@ -1,7 +1,7 @@
 ﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
 
 @{
-    ViewBag.Title = "Riepilogo Sedute";
+    ViewBag.Title = "Archivio Sedute";
     if (Model.Filters.Any())
     {
         ViewBag.Title += " - Ricerca";
@@ -65,17 +65,18 @@
                             @if (!seduta.Data_apertura.HasValue)
                             {
                                 <div class="chip grey" style="margin-left: -20px;min-width: unset">Chiusa</div>
-                            }else if (seduta.Data_apertura.Value > DateTime.Now)
-                                {
-                                    <div class="chip grey" style="margin-left: -20px;min-width: unset">Chiusa</div>
-                                }
-                                else
-                                {
-                                    <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
-                                        <i class="material-icons">chevron_right</i>
-                                    </a>
-                                }
-                            
+                            }
+                            else if (seduta.Data_apertura.Value > DateTime.Now)
+                            {
+                                <div class="chip grey" style="margin-left: -20px;min-width: unset">Chiusa</div>
+                            }
+                            else
+                            {
+                                <a class="btn-floating green" onclick="go('@Url.Action("Index", "AttiTrattazione", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
+                                    <i class="material-icons">chevron_right</i>
+                                </a>
+                            }
+
                         </div>
                     </div>
                 </div>

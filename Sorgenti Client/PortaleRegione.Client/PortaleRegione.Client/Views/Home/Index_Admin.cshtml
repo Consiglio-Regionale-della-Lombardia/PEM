@@ -8,8 +8,8 @@
         <h5>
             Benvenuto,
             <b> Mario Rossi </b>
-            <br/>
-            <br/>
+            <br />
+            <br />
             Questo è il portale di dematerializzazione atti del <b>Consiglio Regione Lombardia.</b>
         </h5>
     </div>
@@ -24,7 +24,7 @@
                 </h6>
             </div>
         </div>
-        <hr/>
+        <hr />
         <div class="row">
             <div class="carousel hide-on-small-only">
                 <div class="col s6 carousel-item">
@@ -106,7 +106,7 @@
                 <h6><b>PEM</b> - Atti iscritti alla seduta del 12/12/2021</h6>
             </div>
         </div>
-        <hr/>
+        <hr />
         <ul class="collapsible">
             <li>
                 <div class="collapsible-header"><i class="material-icons pink-text">textsms</i>PDL 124</div>
@@ -121,19 +121,6 @@
                         <div class="col s5">
                             <a class="btn chip blue white-text" onclick="go('/emendamenti/7e02e09a-200b-40d7-b35c-904626640ab1')">
                                 <i class="icon material-icons">chevron_right</i>Riepilogo EM
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row valign-wrapper">
-                        <div class="col s7">
-                            <h6>Notifiche in sospeso</h6>
-                            <h5>
-                                <b>10</b>
-                            </h5>
-                        </div>
-                        <div class="col s5">
-                            <a class="btn chip amber white-text" onclick="go('/notifiche/view?is_inviate=False&archivio=False')">
-                                <i class="icon material-icons">chevron_right</i>Riepilogo notifiche
                             </a>
                         </div>
                     </div>
@@ -158,20 +145,6 @@
                             </a>
                         </div>
                     </div>
-                    <div class="row valign-wrapper">
-                        <div class="col s7">
-                            <h6>Notifiche in sospeso</h6>
-                            <h5>
-                                <b>10</b>
-                            </h5>
-                        </div>
-                        <div class="col s5">
-                            <a class="btn chip amber white-text" onclick="go('/notifiche/view?is_inviate=False&archivio=False')">
-                                <i class="icon material-icons">chevron_right</i>Riepilogo notifiche
-                            </a>
-                        </div>
-                    </div>
-
                 </div>
             </li>
         </ul>
@@ -184,7 +157,7 @@
                 </h6>
             </div>
         </div>
-        <hr/>
+        <hr />
         <ul class="collection">
             <li class="collection-item avatar">
                 <i class="material-icons circle green">textsms</i>
@@ -192,12 +165,8 @@
                     <b>ITL</b>
                 </span>
                 <p>
-                    Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ITL)">
-                    <i class="material-icons">add</i>
-                </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
@@ -208,12 +177,8 @@
                     <b>ITR</b>
                 </span>
                 <p>
-                    Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ITR)">
-                    <i class="material-icons">add</i>
-                </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
@@ -224,12 +189,8 @@
                     <b>IQT</b>
                 </span>
                 <p>
-                    Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.IQT)">
-                    <i class="material-icons">add</i>
-                </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
@@ -240,12 +201,8 @@
                     <b>MOZ</b>
                 </span>
                 <p>
-                    Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.MOZ)">
-                    <i class="material-icons">add</i>
-                </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
@@ -256,71 +213,14 @@
                     <b>ODG</b>
                 </span>
                 <p>
-                    Bozza: <b>3</b> <br>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ODG)">
-                    <i class="material-icons">add</i>
-                </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
                     <i class="material-icons">chevron_right</i>
                 </a>
             </li>
 
         </ul>
-    </div>
-</div>
-
-<div id="slide-dashboard-DX" class="sidenav" style="overflow: auto !important">
-    <div class="row">
-        <h5>Notifiche</h5>
-        <hr/>
-        <div class="col s12" style="border-bottom: 1px solid grey">
-            <div class="form-group">
-                <p>
-                    <b>EM 1</b>
-                    <br/>
-                    <label>
-                        Soppressivo - Titolo PDL
-                        <br/>
-                        Entro il <i>27/11/2021 14:39</i>
-                    </label>
-                </p>
-            </div>
-            <div class="row valign-wrapper" style="margin-top: 20px">
-                <div class="col s6">
-                    PIZZUL Fabio (PD)
-                </div>
-                <div class="col s6 right-align">
-                    <div class="btn chip blue white-text" style="min-width: unset" onclick="go('/emendamenti/view/72b37a2b-d9e9-40f9-8099-720a354ed9c9?notificaId=215122677')" title="Vedi EM">
-                        <i class="icon material-icons">arrow_forward</i> Vedi EM
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col s12" style="border-bottom: 1px solid grey">
-            <div class="form-group">
-                <p>
-                    <b>EM 2</b>
-                    <br/>
-                    <label>
-                        Soppressivo - Titolo PDL
-                        <br/>
-                        Entro il <i>27/11/2021 14:39</i>
-                    </label>
-                </p>
-            </div>
-            <div class="row valign-wrapper" style="margin-top: 20px">
-                <div class="col s6">
-                    PIZZUL Fabio (PD)
-                </div>
-                <div class="col s6 right-align">
-                    <div class="btn chip blue white-text" style="min-width: unset" onclick="go('/emendamenti/view/72b37a2b-d9e9-40f9-8099-720a354ed9c9?notificaId=215122677')" title="Vedi EM">
-                        <i class="icon material-icons">arrow_forward</i> Vedi EM
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -336,10 +236,7 @@
         set_ListaLettereEM([]);
         setListaAtti([]);
 
-        $('#btnSearch>i').html('notifications_active');
-        $('#btnSearch').on("click", function() {
-            openDashboardNotification();
-        });
+        $('#btnSearch').hide();
         initCarousel();
     });
 
