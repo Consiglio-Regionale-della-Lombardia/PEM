@@ -98,7 +98,25 @@ div.chip.hoverable > i.material-icons {
     top: unset !important;
 }
 
-.progress { margin-top: unset !important; }
+.chip-in-collection {
+    min-width: unset !important;
+    position: relative;
+    top: 3px;
+}
+.chip-value-in-collection {
+    min-width: unset !important;
+    font-size: small;
+    margin-right: -12px;
+}
+
+.icon-in-collection {
+    position: relative;
+    top: 10px;
+}
+
+.progress {
+    margin-top: unset !important;
+}
 
 /* Wrapping element */
 
@@ -410,11 +428,23 @@ div.input-field > label { line-height: initial; }
     min-width: unset !important;
 }
 
+.badgeCounterTrattazione {
+    background-color: #bbdefb;
+    color: #2196f3;
+    min-width: unset !important;
+}
+
+.counterDivider {
+    position: relative;
+    top: 3px;
+    color: lightgray;
+}
 /*----------------------------------------
     ###
 ------------------------------------------*/
-
-.dropdown-content { width: 100% !important }
+.dropdown-content {
+    width: 100% !important
+}
 
 #ddlPaginazione { width: 100px !important }
 

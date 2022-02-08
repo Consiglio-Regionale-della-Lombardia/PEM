@@ -1,1 +1,140 @@
-﻿
+﻿@{
+    ViewBag.Title = "Seduta 1";
+}
+
+<div class="row">
+    <div class="col s12">
+        <h5>
+            <b>@ViewBag.Title</b>
+        </h5>
+    </div>
+</div>
+
+<ul class="collapsible">
+    <li>
+        <div class="collapsible-header">
+            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
+                <div class="col s6">
+                    <i class="material-icons" style="position: relative; top: 5px; color: #2196f3 ">info_outline</i>
+                    <b>PDL 987</b>
+                </div>
+                <div class="col s6 right-align">
+                    <span class="chip white black-text chip-in-collection">
+                        EM:
+                        <span class="chip badgeCounterTrattazione chip-value-in-collection">44</span>
+                    </span>
+                    <span class="counterDivider">|</span>
+
+                    <span class="chip white black-text chip-in-collection">
+                        SUBEM:
+                        <span class="chip badgeCounterTrattazione chip-value-in-collection">2</span>
+                    </span>
+                    <span class="counterDivider">|</span>
+                    <a href="#!" class="pink-text" style="padding-left: 10px">
+                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Scarica fascicolo presentazione/votazione">download</i>
+                    </a>
+                    <a class="blue-text" href="#!">
+                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="collapsible-body">
+            <div class="input-field">
+                <label>Oggetto</label>
+                <textarea class="materialize-textarea" readonly="readonly" rows="4">
+                    Lorem ipsum
+                </textarea>
+            </div>
+            <div class="input-field">
+                <label>Assessore di riferimento</label>
+                <input type="text" readonly="readonly" value="Mario Biondi"/>
+            </div>
+            <div class="input-field">
+                <label>Relatori</label>
+                <input type="text" readonly="readonly" value="Giovanni Ingarsia, Matt Bianco"/>
+            </div>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header">
+            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
+                <div class="col s6">
+                    <i class="material-icons" style="position: relative; top: 5px; color: #2196f3 ">info_outline</i>
+                    <b>PDL 123</b>
+                </div>
+                <div class="col s6 right-align">
+                    <span class="chip white black-text chip-in-collection">
+                        EM:
+                        <span class="chip badgeCounterTrattazione chip-value-in-collection">25</span>
+                    </span>
+                    <span class="counterDivider">|</span>
+                    <a href="#!" class="pink-text" style="padding-left: 10px">
+                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Scarica fascicolo presentazione/votazione">download</i>
+                    </a>
+                    <a class="blue-text" href="#!">
+                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="collapsible-body">
+            <div class="input-field">
+                <label>Oggetto</label>
+                <textarea class="materialize-textarea" readonly="readonly" rows="4">
+                    Lorem ipsum
+                </textarea>
+            </div>
+            <div class="input-field">
+                <label>Assessore di riferimento</label>
+                <input type="text" readonly="readonly" value="Mario Biondi"/>
+            </div>
+            <div class="input-field">
+                <label>Relatori</label>
+                <input type="text" readonly="readonly" value="Giovanni Ingarsia, Matt Bianco"/>
+            </div>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header">
+            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
+                <div class="col s6">
+                    <b>ITR</b>
+                </div>
+                <div class="col s6 right-align">
+                    <span class="chip badgeCounterTrattazione chip-in-collection">
+                        32
+                    </span>
+                    <span class="counterDivider">|</span>
+                    <a class="blue-text" href="#!">
+                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header">
+            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
+                <div class="col s6">
+                    <b>IQT</b>
+                </div>
+                <div class="col s6 right-align">
+                    <span class="chip badgeCounterTrattazione chip-in-collection">
+                        45
+                    </span>
+                    <span class="counterDivider">|</span>
+                    <a class="blue-text" href="#!">
+                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </li>
+</ul>
+
+<script>
+    $(document).ready(function() {
+        $('#btnSearch').hide();
+    });
+</script>
