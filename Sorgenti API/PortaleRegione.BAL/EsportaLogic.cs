@@ -16,6 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -31,14 +39,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace PortaleRegione.BAL
@@ -59,7 +59,8 @@ namespace PortaleRegione.BAL
             _logicPersone = logicPersone;
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode,
+            PersonaDto persona)
         {
             try
             {
@@ -69,7 +70,7 @@ namespace PortaleRegione.BAL
 
 
                 IWorkbook workbook = new XSSFWorkbook();
-                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}");
+                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto.Replace('/','-')}");
 
                 var row = excelSheet.CreateRow(0);
                 SetColumnValue(ref row, "Ordine");
@@ -105,7 +106,8 @@ namespace PortaleRegione.BAL
 
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, personeInDbLight, false, true);
+                var emList =
+                    await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, personeInDbLight, false, true);
                 var totalProcessTime = 0f;
                 foreach (var em in emList)
                 {
@@ -139,12 +141,21 @@ namespace PortaleRegione.BAL
                         ? $"{em.IDParte}-{em.PARTI_TESTO.Parte}"
                         : em.PARTI_TESTO.Parte);
 
-                    SetColumnValue(ref rowEm,
-                        em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty ? em.ARTICOLI.Articolo : "");
-                    SetColumnValue(ref rowEm,
-                        em.UIDComma.HasValue && em.UIDComma.Value != Guid.Empty ? em.COMMI.Comma : "");
-                    SetColumnValue(ref rowEm,
-                        em.UIDLettera.HasValue && em.UIDLettera.Value != Guid.Empty ? em.LETTERE.Lettera : em.NLettera);
+                    if (em.UIDArticolo.HasValue)
+                        SetColumnValue(ref rowEm, em.ARTICOLI.Articolo);
+                    else
+                        SetColumnValue(ref rowEm, "");
+
+                    if (em.UIDComma.HasValue)
+                        SetColumnValue(ref rowEm, em.COMMI.Comma);
+                    else
+                        SetColumnValue(ref rowEm, "");
+
+                    if (em.UIDLettera.HasValue)
+                        SetColumnValue(ref rowEm, em.LETTERE.Lettera);
+                    else
+                        SetColumnValue(ref rowEm, "");
+
                     SetColumnValue(ref rowEm, em.NTitolo);
                     SetColumnValue(ref rowEm, em.NCapo);
 
@@ -162,7 +173,7 @@ namespace PortaleRegione.BAL
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
-                        var firme = await _logicFirme.GetFirme((EM)em, FirmeTipoEnum.TUTTE);
+                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                         var firmeDto = firme.ToList();
 
                         var firmatari_opendata_ante = "--";
@@ -170,11 +181,9 @@ namespace PortaleRegione.BAL
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
-                            {
                                 firmatari_opendata_ante = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole, personeInDbLight);
-                            }
                         }
                         catch (Exception e)
                         {
@@ -186,11 +195,9 @@ namespace PortaleRegione.BAL
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
-                            {
                                 firmatari_opendata_post = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole, personeInDbLight);
-                            }
                         }
                         catch (Exception e)
                         {
@@ -208,8 +215,9 @@ namespace PortaleRegione.BAL
 
                     SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}");
                     var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
-                    totalProcessTime += (float)spentTime;
+                    totalProcessTime += (float) spentTime;
                 }
+
                 Log.Debug($"EsportaGrigliaXLS: Compilazione XLS eseguita in {totalProcessTime} s");
 
                 Console.WriteLine($"Excel row count: {excelSheet.LastRowNum}");
@@ -222,7 +230,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
+        public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
+            PersonaDto persona)
         {
             try
             {
@@ -267,12 +276,14 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
+        private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode,
+            PersonaDto persona)
         {
             var personeInDb = await _unitOfWork.Persone.GetAll();
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-            var emList = await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, open_data_enabled: false, true);
-            var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
+            var emList =
+                await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, false, true);
+            var list = emList.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -302,6 +313,7 @@ namespace PortaleRegione.BAL
         {
             return $"<th style='text-align:center;'>{column_title}</th>";
         }
+
         private string ComposeBodyRow(EmendamentiDto em)
         {
             var row = string.Empty;
@@ -315,12 +327,14 @@ namespace PortaleRegione.BAL
             row += "</tr>";
             return row;
         }
+
         private string ComposeBodyColumn(string column_body)
         {
             return $"<td>{column_body}</td>";
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(Guid id, OrdinamentoEnum ordine,
+            ClientModeEnum mode, PersonaDto persona)
         {
             try
             {
@@ -419,15 +433,13 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    if (em.IDParte == (int)PartiEMEnum.Missione)
+                    if (em.IDParte == (int) PartiEMEnum.Missione)
                     {
                         if (em.NMissione.HasValue)
                         {
                             currentParte_Missione = em.NMissione!.Value;
                             if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
-                            {
                                 SetSeparator(ref sheet, ref style, ref reportType);
-                            }
 
                             oldParte_Missione = currentParte_Missione;
                         }
@@ -438,9 +450,7 @@ namespace PortaleRegione.BAL
                         {
                             currentParte_Articolo = em.UIDArticolo!.Value;
                             if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
-                            {
                                 SetSeparator(ref sheet, ref style, ref reportType);
-                            }
 
                             oldParte_Articolo = currentParte_Articolo;
                         }
@@ -451,22 +461,14 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref rowEm, em.N_EM);
                 SetColumnValue(ref rowEm, em.PersonaProponente.DisplayName);
                 if (em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty)
-                {
                     SetColumnValue(ref rowEm, em.ARTICOLI.Articolo);
-                }
                 else
-                {
                     SetColumnValue(ref rowEm, "--");
-                }
 
                 if (em.UIDComma.HasValue && em.UIDComma.Value != Guid.Empty)
-                {
                     SetColumnValue(ref rowEm, em.COMMI.Comma);
-                }
                 else
-                {
                     SetColumnValue(ref rowEm, "--");
-                }
 
                 if (em.UIDLettera.HasValue && em.UIDLettera.Value != Guid.Empty)
                 {
@@ -475,13 +477,9 @@ namespace PortaleRegione.BAL
                 else
                 {
                     if (!string.IsNullOrEmpty(em.NLettera))
-                    {
                         SetColumnValue(ref rowEm, em.NLettera);
-                    }
                     else
-                    {
                         SetColumnValue(ref rowEm, "--");
-                    }
                 }
 
                 SetColumnValue(ref rowEm, em.NTitolo);
@@ -490,42 +488,33 @@ namespace PortaleRegione.BAL
                 if (atto.VIS_Mis_Prog)
                 {
                     if (em.NMissione.HasValue && em.NMissione.Value != 0)
-                    {
                         SetColumnValue(ref rowEm, em.NMissione.Value.ToString());
-                    }
                     else
-                    {
                         SetColumnValue(ref rowEm, "--");
-                    }
 
                     if (em.NProgramma.HasValue && em.NProgramma.Value != 0)
-                    {
                         SetColumnValue(ref rowEm, em.NProgramma.Value.ToString());
-                    }
                     else
-                    {
                         SetColumnValue(ref rowEm, "--");
-                    }
 
                     if (em.NTitoloB.HasValue && em.NTitoloB.Value != 0)
-                    {
                         SetColumnValue(ref rowEm, em.NTitoloB.Value.ToString());
-                    }
                     else
-                    {
                         SetColumnValue(ref rowEm, "--");
-                    }
                 }
 
                 SetColumnValue(ref rowEm, em.TIPI_EM.Tipo_EM);
-                SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "");
+                SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Inammissibile ? "X" : "");
 
                 if (reportType != ReportType.PCR)
                 {
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Ritirato ? "X" : "");
+                    SetColumnValue(ref rowEm,
+                        em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche
+                            ? "X"
+                            : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Non_Approvato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Decaduto ? "X" : "");
                 }
 
                 SetColumnValue(ref rowEm, em.NOTE_EM);
@@ -533,11 +522,12 @@ namespace PortaleRegione.BAL
             }
 
             var countEM = emendamentiDtos.Count();
-            var approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
-            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
-            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
-            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
-            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
+            var approvati = emendamentiDtos.Count(em =>
+                em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche);
+            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Non_Approvato);
+            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Ritirato);
+            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Decaduto);
+            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Inammissibile);
 
             var rowReport = sheet.CreateRow(sheet.LastRowNum + 1);
             rowReport.RowStyle = styleR;
@@ -549,10 +539,7 @@ namespace PortaleRegione.BAL
             cellInamm.CellStyle = styleR;
             cellInamm.SetCellValue(inammissibili);
 
-            if (reportType == ReportType.PCR)
-            {
-                return sheet;
-            }
+            if (reportType == ReportType.PCR) return sheet;
 
             var cellRit = rowReport.CreateCell(colonna_conteggi + 1);
             cellRit.CellStyle = styleR;
@@ -577,10 +564,7 @@ namespace PortaleRegione.BAL
 
         private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
         {
-            if (reportType == ReportType.PROGRESSIVO)
-            {
-                return;
-            }
+            if (reportType == ReportType.PROGRESSIVO) return;
 
             var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
             rowSep.RowStyle = style;
@@ -588,16 +572,13 @@ namespace PortaleRegione.BAL
 
         private short GetColumn(short column)
         {
-            return column < 0 ? (short)0 : column;
+            return column < 0 ? (short) 0 : column;
         }
 
         private string GetLocalPath(string extension)
         {
             var _pathTemp = AppSettingsConfiguration.CartellaTemp;
-            if (!Directory.Exists(_pathTemp))
-            {
-                Directory.CreateDirectory(_pathTemp);
-            }
+            if (!Directory.Exists(_pathTemp)) Directory.CreateDirectory(_pathTemp);
 
             var nameFile = $"PEM_{DateTime.Now:ddMMyyyy_hhmmss}.{extension}";
             var FilePathComplete = Path.Combine(_pathTemp, nameFile);
