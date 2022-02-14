@@ -70,7 +70,7 @@ namespace PortaleRegione.BAL
 
 
                 IWorkbook workbook = new XSSFWorkbook();
-                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}");
+                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto.Replace('/','-')}");
 
                 var row = excelSheet.CreateRow(0);
                 SetColumnValue(ref row, "Ordine");
