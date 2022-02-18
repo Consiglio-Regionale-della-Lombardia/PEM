@@ -16,13 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.Gateway;
 using System.Configuration;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -31,6 +34,23 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     public class BaseController : Controller
     {
+        internal bool CanAccess(List<RuoliIntEnum> ruoli)
+        {
+            for (int i = 0; i < ruoli.Count; i++)
+            {
+                //if (_CurrentUser.Ruoli.Select(item=>item.IDruolo).Contains((int)ruoli[i]))
+                //{
+
+                //}
+
+                var check = User.IsInRole(((int) ruoli[i]).ToString());
+                if (check)
+                    return true;
+            }
+
+            return false;
+        }
+
         public PersonaDto _CurrentUser
         {
             get

@@ -55,14 +55,14 @@
 }
 
 <div id="slide-out" class="sidenav sidenav-fixed">
-    @if (!string.IsNullOrEmpty(carica))
-    {
-        <div class="row green darken-3 center" style="margin: 0 !important">
-            <div class="col s12">
-                <label class="white-text" style="padding: 10px">@carica</label>
-            </div>
+@if (!string.IsNullOrEmpty(carica))
+{
+    <div class="row green darken-3 center" style="margin: 0 !important">
+        <div class="col s12">
+            <label class="white-text" style="padding: 10px">@carica</label>
         </div>
-    }
+    </div>
+}
 <ul class="collapsible collapsible-accordion" style="margin: 0">
     <li>
         <div class="user-view" style="padding: 10px">
@@ -98,7 +98,7 @@
                     @if (ruoli.Any())
                     {
                         var testo = string.Empty;
-                        var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int)currentRole);
+                        var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int) currentRole);
 
                         if (ruoliDto != null)
                         {
@@ -119,7 +119,7 @@
                             <ul id='ddlCambioRuolo' class='dropdown-content'>
                                 @foreach (var ruolo in ruoli)
                                 {
-                                    if (ruolo.IDruolo != (int)currentRole)
+                                    if (ruolo.IDruolo != (int) currentRole)
                                     {
                                         <li>
                                             <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
@@ -177,19 +177,26 @@
     @{
 
     }
-    <li class="menuItem_Home bold" style="margin-top:-8px">
+    <li class="menuItem_Home bold" style="margin-top: -8px">
         <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
     </li>
     <li class="menuItem_PEM bold">
         <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
     </li>
-    <li class="menuItem_DASI bold">
-        <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
-    </li>
-
+    @if (currentRole != RuoliIntEnum.Utente 
+         && currentRole != RuoliIntEnum.Amministratore_Giunta 
+         && currentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta 
+         && currentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta 
+         && currentRole != RuoliIntEnum.Segreteria_Giunta_Regionale)
+    {
+        <li class="menuItem_DASI bold">
+            <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
+        </li>
+    }
     <li class="menuItem_Notifiche bold">
         <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
-            <i class="material-icons">email</i>Notifiche <div id="counterNotifiche" class="chip pink white-text right" style="min-width: unset; margin-top: 8px;"></div>
+            <i class="material-icons">email</i>Notifiche
+            <div id="counterNotifiche" class="chip pink white-text right" style="margin-top: 8px; min-width: unset;"></div>
         </a>
     </li>
     <li class="menuItem_Stampe bold">
@@ -210,47 +217,47 @@
 
     <li class="menuTrattazione bold">
         <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta 1</a>
-    </li>                                                                                                
-    <li class="menuTrattazione bold">                                                                    
+    </li>
+    <li class="menuTrattazione bold">
         <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta 2</a>
-    </li>                                                                                                
-    <li class="menuTrattazione bold">                                                                    
+    </li>
+    <li class="menuTrattazione bold">
         <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta 3</a>
-    </li>                                                                                                
-    <li class="menuTrattazione bold">                                                                    
+    </li>
+    <li class="menuTrattazione bold">
         <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
     </li>
 
 </ul>
-    <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
-        <div class="row valign-wrapper">
-            <div class="col s9">
-                <p>Trattazione aula</p>
-            </div>
-            <div class="col s3">
-                <div class="switch">
-                    <label>
-                        <input id="switchTrattazione" type="checkbox" onclick="AbilitaTrattazione()">
-                        <span class="lever"></span>
-                    </label>
-                </div>
+<div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
+    <div class="row valign-wrapper">
+        <div class="col s9">
+            <p>Trattazione aula</p>
+        </div>
+        <div class="col s3">
+            <div class="switch">
+                <label>
+                    <input id="switchTrattazione" type="checkbox" onclick="AbilitaTrattazione()">
+                    <span class="lever"></span>
+                </label>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
-        @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
-        {
-            @Html.AntiForgeryToken()
-            <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
-                <i class="icon material-icons">lock_outline</i> Esci
-            </a>
-        }
-        
-        <a class="grey-text" href="https://pem2.consiglio.regione.lombardia.it/" target="_blank" style="cursor: pointer; text-decoration: underline;font-size: smaller">
-            Vai alla vecchia versione
+<div class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
+    @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
+    {
+        @Html.AntiForgeryToken()
+        <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
+            <i class="icon material-icons">lock_outline</i> Esci
         </a>
-    </div>
+    }
+
+    <a class="grey-text" href="https://pem2.consiglio.regione.lombardia.it/" target="_blank" style="cursor: pointer; font-size: smaller; text-decoration: underline;">
+        Vai alla vecchia versione
+    </a>
+</div>
 </div>
 
 <script>
@@ -279,15 +286,15 @@
         LoadCounterNotifiche();
     });
 
-    function LoadCounterNotifiche(){
+    function LoadCounterNotifiche() {
         $.ajax({
             url: '@Url.Action("CounterRiepilogoNotifiche", "Notifiche")',
             type: "GET"
         }).done(function(result) {
-            console.log(result)
+            console.log(result);
             if (result == 0) {
                 $('#counterNotifiche').hide();
-            } else if(result > 0){
+            } else if (result > 0) {
                 $('#counterNotifiche').html(result + " nuove");
                 $('#counterNotifiche').show();
             }
@@ -358,7 +365,7 @@
                                             type: "POST",
                                             data: request
                                         }).done(function(result2) {
-                                            M.toast({html: 'Il Pin è stato cambiato', classes: 'rounded'});
+                                            M.toast({ html: 'Il Pin è stato cambiato', classes: 'rounded' });
                                         }).fail(function(err) {
                                             console.log("error", err);
                                             ErrorAlert(err.message);
@@ -366,7 +373,7 @@
                                     }
                                 });
                         });
-                    
+
                 }).fail(function(err) {
                     console.log("error", err);
                     ErrorAlert(err);

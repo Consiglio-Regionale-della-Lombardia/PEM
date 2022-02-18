@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PortaleRegione.DTO.Enum;
@@ -28,9 +29,9 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> Index()
         {
-            if (User.IsInRole(((int)RuoliIntEnum.Amministratore_PEM).ToString()))
+            if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("Index_Admin");
-            
+
             return View("Index");
         }
     }
