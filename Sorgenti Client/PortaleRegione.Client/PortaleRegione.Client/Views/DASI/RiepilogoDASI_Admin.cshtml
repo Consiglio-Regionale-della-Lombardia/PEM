@@ -55,13 +55,25 @@
 </div>
 
 <div class="row">
+    <div class="col s12">
+        <ul class="tabs">
+            <li class="tab col s4"><a class="active" href="#testPresentati" onclick="resetGridSelection();">Presentati</a></li>
+            <li class="tab col s4"><a href="#testInTrattazione" onclick="resetGridSelection();">In Trattazione</a></li>
+            <li class="tab col s4"><a href="#testChiusi" onclick="resetGridSelection();">Chiusi</a></li>
+        </ul>
+    </div>
     <div id="testPresentati" class="col s12">
+        <div class="row">
+            <div class="col s12 right-align">
+                <a><i class="icon material-icons">desktop_windows</i></a>
+            </div>
+        </div>
         <table class="responsive-table highlight">
             <thead>
             <tr>
                 <th class="center">
                     <label>
-                        <input type="checkbox" id="checkAll" />
+                        <input type="checkbox" id="checkAll"/>
                         <span for="checkAll"></span>
                     </label>
                 </th>
@@ -127,7 +139,7 @@
 
                 </td>
                 <td>
-                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@Html.Raw((int)TipoAttoEnum.ITL)')"><i class="icon material-icons">edit</i></a>
+                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@Html.Raw((int) TipoAttoEnum.ITL)')"><i class="icon material-icons">edit</i></a>
 
                 </td>
             </tr>
@@ -183,7 +195,7 @@
                     </div>
                 </td>
                 <td>
-                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@Html.Raw((int)TipoAttoEnum.IQT)')"><i class="icon material-icons">edit</i></a>
+                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@Html.Raw((int) TipoAttoEnum.IQT)')"><i class="icon material-icons">edit</i></a>
 
                 </td>
             </tr>

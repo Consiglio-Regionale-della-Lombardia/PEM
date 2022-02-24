@@ -98,7 +98,7 @@
                     @if (ruoli.Any())
                     {
                         var testo = string.Empty;
-                        var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int) currentRole);
+                        var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int)currentRole);
 
                         if (ruoliDto != null)
                         {
@@ -119,7 +119,7 @@
                             <ul id='ddlCambioRuolo' class='dropdown-content'>
                                 @foreach (var ruolo in ruoli)
                                 {
-                                    if (ruolo.IDruolo != (int) currentRole)
+                                    if (ruolo.IDruolo != (int)currentRole)
                                     {
                                         <li>
                                             <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
@@ -183,10 +183,10 @@
     <li class="menuItem_PEM bold">
         <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
     </li>
-    @if (currentRole != RuoliIntEnum.Utente 
-         && currentRole != RuoliIntEnum.Amministratore_Giunta 
-         && currentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta 
-         && currentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta 
+    @if (currentRole != RuoliIntEnum.Utente
+         && currentRole != RuoliIntEnum.Amministratore_Giunta
+         && currentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta
+         && currentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta
          && currentRole != RuoliIntEnum.Segreteria_Giunta_Regionale)
     {
         <li class="menuItem_DASI bold">
@@ -216,18 +216,20 @@
     }
 
     <li class="menuTrattazione bold">
-        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 10/10/2022</a>
+        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 18/10/2022</a>
     </li>
     <li class="menuTrattazione bold">
-        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 10/10/2022</a>
+        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 11/10/2022</a>
     </li>
     <li class="menuTrattazione bold">
-        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 10/10/2022</a>
+        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 8/10/2022</a>
     </li>
     <li class="menuTrattazione bold">
         <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
     </li>
-
+    <li class="menuTrattazione bold">
+        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
+    </li>
 </ul>
 <div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
     <div class="row valign-wrapper">
