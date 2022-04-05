@@ -1,15 +1,17 @@
-﻿<div id="modalAggiungiDASI" class="modal">
+﻿@using PortaleRegione.DTO.Enum
+<div id="modalAggiungiDASI" class="modal">
     <div class="modal-content">
+        <input type="hidden" id="hdTipoAttoDasi"/>
         <h4 id="titleDasiModal" style="padding-bottom: 10px"></h4>
         <div class="input-field">
             <select id='modalTipoDasi'>
-                <option>Orale</option>
-                <option>Scritto</option>
-                <option>Commissione</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">Orale</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTO)">Scritto</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">Commissione</option>
             </select>
             <label for="modalTipoDasi">Tipo</label>
         </div>
-        <div class="input-field" style="margin-top:30px">
+        <div class="input-field" style="margin-top: 30px">
             <label for="modalOggettoDasi">Oggetto</label>
             <textarea id="modalOggettoDasi" class="materialize-textarea"></textarea>
         </div>

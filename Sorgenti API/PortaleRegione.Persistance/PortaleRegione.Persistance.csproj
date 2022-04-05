@@ -71,6 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArticoliRepository.cs" />
+    <Compile Include="AttiFirmeRepository.cs" />
+    <Compile Include="DASIRepository.cs" />
     <Compile Include="EmendamentiRepository.cs" />
     <Compile Include="FirmeRepository.cs" />
     <Compile Include="GruppiRepository.cs" />

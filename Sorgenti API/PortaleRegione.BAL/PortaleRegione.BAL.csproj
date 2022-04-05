@@ -112,8 +112,10 @@
   <ItemGroup>
     <Compile Include="AdminLogic.cs" />
     <Compile Include="AppSettingsConfiguration.cs" />
+    <Compile Include="AttiFirmeLogic.cs" />
     <Compile Include="AttiLogic.cs" />
     <Compile Include="AuthLogic.cs" />
+    <Compile Include="DASILogic.cs" />
     <Compile Include="EmendamentiLogic.cs" />
     <Compile Include="EMPublicLogic.cs" />
     <Compile Include="EsportaLogic.cs" />

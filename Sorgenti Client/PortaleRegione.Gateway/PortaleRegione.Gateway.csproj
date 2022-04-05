@@ -46,12 +46,14 @@
     <Compile Include="ApiGateway.cs" />
     <Compile Include="AttiGateway.cs" />
     <Compile Include="BaseGateway.cs" />
+    <Compile Include="DASIGateway.cs" />
     <Compile Include="EMGateway.cs" />
     <Compile Include="EMGateway_Pubblico.cs" />
     <Compile Include="EsportaGateway.cs" />
     <Compile Include="IAdminGateway.cs" />
     <Compile Include="IApiGateway.cs" />
     <Compile Include="IAttiGateway.cs" />
+    <Compile Include="IDASIGateway.cs" />
     <Compile Include="IEMGateway.cs" />
     <Compile Include="IEMGateway_Pubblico.cs" />
     <Compile Include="IEsportaGateway.cs" />

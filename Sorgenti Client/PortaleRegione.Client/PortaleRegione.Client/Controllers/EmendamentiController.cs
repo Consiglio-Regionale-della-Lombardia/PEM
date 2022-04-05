@@ -472,7 +472,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                if (model.ListaEmendamenti == null || !model.ListaEmendamenti.Any())
+                if (model.Lista == null || !model.Lista.Any())
                 {
                     var listaEM = new EmendamentiViewModel();
                     var limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"]);
@@ -483,7 +483,7 @@ namespace PortaleRegione.Client.Controllers
                     else
                         listaEM = await apiGateway.Emendamento.Get(model.AttoUId, (ClientModeEnum)model.ClientMode,
                             OrdinamentoEnum.Default, 1, limit);
-                    model.ListaEmendamenti = listaEM.Data.Results.Select(em => em.UIDEM).ToList();
+                    model.Lista = listaEM.Data.Results.Select(em => em.UIDEM).ToList();
                 }
 
                 switch (model.Azione)

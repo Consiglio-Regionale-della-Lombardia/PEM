@@ -22,6 +22,7 @@
             Emendamento = new EMGateway(_token);
             Atti = new AttiGateway(_token);
             Admin = new AdminGateway(_token);
+            DASI = new DASIGateway(_token);
         }
 
         public void SetToken(string token)
@@ -38,5 +39,6 @@
         public IEMGateway Emendamento { get; }
         public IAttiGateway Atti { get; }
         public IAdminGateway Admin { get; }
+        public IDASIGateway DASI { get; set; }
     }
 }

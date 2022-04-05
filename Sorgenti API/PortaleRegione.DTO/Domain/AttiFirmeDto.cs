@@ -16,20 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Enum;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.DTO.Domain
 {
-    public class ComandiAzioneModel
+    public class AttiFirmeDto
     {
-        public ICollection<Guid> Lista { get; set; }
-        public ICollection<string> ListaDestinatari { get; set; }
-        public string Pin { get; set; }
-        public ActionEnum Azione { get; set; }
-        public Guid AttoUId { get; set; }
-        public int ClientMode { get; set; }
-        public bool Richiesta_Firma { get; set; }
+        public Guid UIDAtto { get; set; }
+
+        public Guid UID_persona { get; set; }
+
+        public string FirmaCert { get; set; }
+
+        [StringLength(255)]
+        public string Data_firma { get; set; }
+
+        [StringLength(255)]
+        public string Data_ritirofirma { get; set; }
+
+        public int? id_AreaPolitica { get; set; }
+
+        public DateTime Timestamp { get; set; }
+
+        public bool ufficio { get; set; }
+
+        public virtual PersonaDto UTENTI_NoCons { get; set; }
     }
 }

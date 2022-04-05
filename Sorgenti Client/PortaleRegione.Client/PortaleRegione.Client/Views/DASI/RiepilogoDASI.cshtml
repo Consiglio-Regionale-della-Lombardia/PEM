@@ -1,5 +1,5 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model dynamic
+@model PortaleRegione.Client.Controllers.RiepilogoDASIModel
 
 @{
     ViewBag.Title = "DASI";
@@ -83,74 +83,43 @@
             </thead>
 
             <tbody>
-            <tr>
-                <td class="center">
+            @foreach (var item in Model.Data.Results)
+            {
+                <tr>
+                    <td class="center">
 
-                    <p>
-                        <label>
-                            <input type="checkbox" id="chk_Atto_1" onclick="AbilitaComandiMassivi_DASI('1');"/>
-                            <span></span>
-                        </label>
-                    </p>
-                </td>
-                <td>
-                    <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
-                        ITL TEMP-1
-                    </div>
-                </td>
-                <td>Orale</td>
-                <td>Prova di trasmissione</td>
-                <td>I Commissione permanente - Economia e Bilancio</td>
-                <td>
-                    Mario Rossi (NP)
-                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (NP)" style="min-width: unset">
-                        + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                    </a>
-                </td>
-                <td class="bozzaT">
-                    Bozza
-                </td>
-                <td class="center">
-                    <a class="amber-text tooltipped" data-tooltip="Invita"><i class="icon material-icons">send</i></a>
-                    <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
-                    <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
-                    <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
-                </td>
-            </tr>
-            <tr>
-                <td class="center">
-
-                    <p>
-                        <label>
-                            <input type="checkbox" id="chk_Atto_2" onclick="AbilitaComandiMassivi_DASI('2');" />
-                            <span></span>
-                        </label>
-                    </p>
-                </td>
-                <td>
-                    <div class="chip @Html.Raw(TipoAttoCSSConst.ITR)">
-                        ITR TEMP-1
-                    </div>
-                </td>
-                <td>Scritto</td>
-                <td>Prova di trasmissione</td>
-                <td>I Commissione permanente - Economia e Bilancio</td>
-                <td>
-                    Mario Rossi (NP)
-                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
-                        + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                    </a>
-                </td>
-                <td class="bozzaT">
-                    Bozza
-                </td>
-                <td class="center">
-                    <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
-                    <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
-                    <a class="depositatoT tooltipped" data-tooltip="Presenta" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
-
-                </td>
-            </tr>
+                        <p>
+                            <label>
+                                <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                                <span></span>
+                            </label>
+                        </p>
+                    </td>
+                    <td>
+                        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
+                            ITL TEMP-1
+                        </div>
+                    </td>
+                    <td>Orale</td>
+                    <td>@Html.Raw(item.Oggetto)</td>
+                    <td>I Commissione permanente - Economia e Bilancio</td>
+                    <td>
+                        Mario Rossi (NP)
+                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (NP)" style="min-width: unset">
+                            + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                        </a>
+                    </td>
+                    <td class="bozzaT">
+                        Bozza
+                    </td>
+                    <td class="center">
+                        <a class="amber-text tooltipped" data-tooltip="Invita"><i class="icon material-icons">send</i></a>
+                        <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
+                        <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
+                        <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>

@@ -702,7 +702,7 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
                 var counterFirme = 1;
-                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First(), false);
+                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -712,7 +712,7 @@ namespace PortaleRegione.BAL
 
                 var carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 
-                foreach (var idGuid in firmaModel.ListaEmendamenti)
+                foreach (var idGuid in firmaModel.Lista)
                 {
                     if (counterFirme == Convert.ToInt32(AppSettingsConfiguration.LimiteFirmaMassivo) + 1) break;
 
@@ -833,7 +833,7 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
-                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.ListaEmendamenti.First(), false);
+                var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta!.Value);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
@@ -842,7 +842,7 @@ namespace PortaleRegione.BAL
                 var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
                 var jumpMail = false;
 
-                foreach (var idGuid in firmaModel.ListaEmendamenti)
+                foreach (var idGuid in firmaModel.Lista)
                 {
                     var em = await GetEM(idGuid);
                     if (em == null)
@@ -934,7 +934,7 @@ namespace PortaleRegione.BAL
             {
                 var results = new Dictionary<Guid, string>();
 
-                foreach (var idGuid in firmaModel.ListaEmendamenti)
+                foreach (var idGuid in firmaModel.Lista)
                 {
                     var em = await GetEM(idGuid);
                     if (em == null)
@@ -979,12 +979,12 @@ namespace PortaleRegione.BAL
 
                 ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
-                var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.ListaEmendamenti.First(), false);
+                var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
-                foreach (var idGuid in depositoModel.ListaEmendamenti)
+                foreach (var idGuid in depositoModel.Lista)
                 {
                     if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1) break;
 

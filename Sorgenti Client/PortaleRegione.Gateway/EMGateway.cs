@@ -259,7 +259,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                ListaEmendamenti = new List<Guid> { emendamentoUId },
+                Lista = new List<Guid> { emendamentoUId },
                 Pin = pin
             };
             return await Firma(model);
@@ -291,7 +291,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                ListaEmendamenti = new List<Guid> { emendamentoUId },
+                Lista = new List<Guid> { emendamentoUId },
                 Pin = pin
             };
             return await Deposita(model);
@@ -323,7 +323,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                ListaEmendamenti = new List<Guid> { emendamentoUId },
+                Lista = new List<Guid> { emendamentoUId },
                 Pin = pin
             };
             return await RitiraFirma(model);
@@ -355,7 +355,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                ListaEmendamenti = new List<Guid> { emendamentoUId },
+                Lista = new List<Guid> { emendamentoUId },
                 Pin = pin
             };
             return await EliminaFirma(model);

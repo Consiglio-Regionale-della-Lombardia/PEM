@@ -181,6 +181,15 @@ namespace PortaleRegione.API
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
 
             #endregion
+
+            #region DASI
+
+            Mapper.CreateMap<ATTI_DASI, AttoDASIDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<AttoDASIDto, ATTI_DASI>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<ATTI_FIRME, AttiFirmeDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+
+            #endregion
         }
     }
 }

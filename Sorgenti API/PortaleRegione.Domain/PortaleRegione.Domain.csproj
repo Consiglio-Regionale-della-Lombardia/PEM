@@ -38,6 +38,8 @@
   <ItemGroup>
     <Compile Include="ARTICOLI.cs" />
     <Compile Include="ATTI.cs" />
+    <Compile Include="ATTI_DASI.cs" />
+    <Compile Include="ATTI_FIRME.cs" />
     <Compile Include="ATTI_RELATORI.cs" />
     <Compile Include="cariche.cs" />
     <Compile Include="COMMI.cs" />

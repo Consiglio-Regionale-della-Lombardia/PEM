@@ -15,21 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Response;
 
-using PortaleRegione.DTO.Enum;
-using System;
-using System.Collections.Generic;
-
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.Client.Controllers
 {
-    public class ComandiAzioneModel
+    public class RiepilogoDASIModel
     {
-        public ICollection<Guid> Lista { get; set; }
-        public ICollection<string> ListaDestinatari { get; set; }
-        public string Pin { get; set; }
-        public ActionEnum Azione { get; set; }
-        public Guid AttoUId { get; set; }
-        public int ClientMode { get; set; }
-        public bool Richiesta_Firma { get; set; }
+        public BaseResponse<AttoDASIDto> Data { get; set; }
+
     }
 }

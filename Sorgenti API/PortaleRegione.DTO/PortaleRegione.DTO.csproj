@@ -48,6 +48,8 @@
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
+    <Compile Include="Domain\AttiFirmeDto.cs" />
+    <Compile Include="Domain\AttoDASIDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="Model\PubblicaFascicoloModel.cs" />
     <Compile Include="Model\RaggruppaEmendamentiModel.cs" />
     <Compile Include="Model\ResetPinModel.cs" />
+    <Compile Include="Model\RiepilogoDASIModel.cs" />
     <Compile Include="Model\SessionManager.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
@@ -121,6 +124,7 @@
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />
+    <Compile Include="Enum\TipoRispostaEnum.cs" />
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\SeduteDto.cs" />

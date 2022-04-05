@@ -16,27 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.Client.Controllers;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
 
-namespace PortaleRegione.Contracts
+namespace PortaleRegione.Gateway
 {
-    /// <summary>
-    ///     Interfaccia Firme
-    /// </summary>
-    public interface IFirmeRepository : IRepository<FIRME>
+    public interface IDASIGateway
     {
-        Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert, bool ufficio = false);
-        Task<int> CountFirme(Guid emendamentoUId);
-        Task<IEnumerable<FIRME>> GetFirmatari(EM em, FirmeTipoEnum tipo);
-        Task CancellaFirme(Guid emendamentoUId);
-        Task<bool> CheckFirmato(Guid emendamentoUId, Guid personaUId);
-        Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona);
-        Task<bool> CheckFirmatoDaUfficio(Guid emendamentoUId);
-        Task<FIRME> Get(Guid emendamentoUId, Guid personaUId);
+        Task<AttoDASIDto> Salva(AttoDASIDto request);
+
+        Task Modifica(AttoDASIDto request);
+        Task<AttoDASIDto> Get(Guid id);
+        Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo);
     }
 }

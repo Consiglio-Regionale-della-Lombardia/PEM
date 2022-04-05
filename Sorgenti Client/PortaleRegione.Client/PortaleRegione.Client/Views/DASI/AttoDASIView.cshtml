@@ -1,0 +1,14 @@
+﻿@model PortaleRegione.DTO.Domain.AttoDASIDto
+
+@{
+    ViewBag.Title = "title";
+}
+
+<h2>title</h2>
+<div class="form-group">
+    @Html.LabelFor(s => s.Oggetto)
+    @Html.TextAreaFor(model => model.Oggetto, new { @class = "form-control trumbowyg" })
+</div>
+    <p>
+        @Model.Oggetto
+    </p>

@@ -16,27 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts
 {
-    /// <summary>
-    ///     Interfaccia Firme
-    /// </summary>
-    public interface IFirmeRepository : IRepository<FIRME>
+    public interface IAttiFirmeRepository : IRepository<ATTI_FIRME>
     {
-        Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert, bool ufficio = false);
-        Task<int> CountFirme(Guid emendamentoUId);
-        Task<IEnumerable<FIRME>> GetFirmatari(EM em, FirmeTipoEnum tipo);
-        Task CancellaFirme(Guid emendamentoUId);
-        Task<bool> CheckFirmato(Guid emendamentoUId, Guid personaUId);
-        Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona);
-        Task<bool> CheckFirmatoDaUfficio(Guid emendamentoUId);
-        Task<FIRME> Get(Guid emendamentoUId, Guid personaUId);
+        Task Firma(Guid attoUId, Guid personaUId, string firmaCert, string dataFirmaCert, bool ufficio = false);
+        Task<int> CountFirme(Guid attoUId);
+        Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo);
+        Task CancellaFirme(Guid attoUId);
+        Task<bool> CheckFirmato(Guid attoUId, Guid personaUId);
+        Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona);
+        Task<bool> CheckFirmatoDaUfficio(Guid attoUId);
+        Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId);
     }
 }

@@ -219,11 +219,11 @@ namespace PortaleRegione.BAL
                 }
 
                 var bodyMail = string.Empty;
-                var firstEM = await _unitOfWork.Emendamenti.Get(model.ListaEmendamenti.First(), false);
+                var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                foreach (var idGuid in model.ListaEmendamenti)
+                foreach (var idGuid in model.Lista)
                 {
                     var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser, personeInDbLight);
                     if (em == null)
