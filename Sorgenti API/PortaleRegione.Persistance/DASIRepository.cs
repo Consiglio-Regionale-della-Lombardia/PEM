@@ -26,6 +26,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Persistance
 {
@@ -36,7 +37,7 @@ namespace PortaleRegione.Persistance
         }
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
-        
+
         public async Task<ATTI_DASI> Get(Guid attoUId)
         {
             var result = await PRContext
@@ -45,16 +46,16 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro=null)
+        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null)
         {
             var query = PRContext
                 .DASI
-                .Where(item=>!item.Eliminato);
+                .Where(item => !item.Eliminato);
 
             filtro?.BuildExpression(ref query);
 
             return await query
-                .OrderByDescending(item=>item.OrdineVisualizzazione)
+                .OrderByDescending(item => item.OrdineVisualizzazione)
                 .Select(item => item.UIDAtto)
                 .Skip((page - 1) * size)
                 .Take(size)
@@ -71,6 +72,35 @@ namespace PortaleRegione.Persistance
 
             return await query
                 .CountAsync();
+        }
+
+        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato);
+            if (tipo != TipoAttoEnum.TUTTI)
+            {
+                query = query.Where(item => item.Tipo == (int) tipo);
+            }
+
+            return await query
+                .CountAsync();
+        }
+
+        public async Task<int> GetEtichetta(ATTI_DASI atto)
+        {
+            //TODO: CONTATORI PER TIPOLOGIA DI ATTO
+            var random = new Random();
+            return random.Next(9, 999);
+        }
+
+        public async Task<int> GetOrdine(int tipo)
+        {
+            //TODO: CALCOLA L'ORDINE IN BASE ALLA PROGRESSIONE
+            //ULTIMO DEI CONTATORI 
+            var random = new Random();
+            return random.Next(9, 999);
         }
     }
 }

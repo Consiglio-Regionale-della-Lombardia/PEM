@@ -23,11 +23,11 @@ using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
-using PortaleRegione.Client.Controllers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.Gateway
@@ -153,6 +153,39 @@ namespace PortaleRegione.Gateway
                 Pin = pin
             };
             return await Firma(model);
+        }
+
+        public async Task<RiepilogoDASIModel> GetBySeduta(Guid sedutaUId)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/riepilogo";
+
+                var model = new BaseRequest<AttoDASIDto>();
+                var filtroSeduta = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UIDSeduta),
+                    Operation = Operation.EqualTo,
+                    Value = sedutaUId
+                };
+                model.filtro.Add(filtroSeduta);
+                
+                var body = JsonConvert.SerializeObject(model);
+
+                var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetRiepilogoAttoDasi -  Per Seduta", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetRiepilogoAttoDasi -  Per Seduta", ex);
+                throw ex;
+            }
         }
 
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)

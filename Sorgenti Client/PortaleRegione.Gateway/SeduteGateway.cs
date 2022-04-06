@@ -23,6 +23,9 @@ using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
+using SeduteDto = PortaleRegione.DTO.Domain.SeduteDto;
 
 namespace PortaleRegione.Gateway
 {
@@ -147,6 +150,32 @@ namespace PortaleRegione.Gateway
             {
                 Log.Error("SalvaSeduta", ex);
                 throw ex;
+            }
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetActive()
+        {
+            try
+            {
+                var request = new BaseRequest<SeduteDto>
+                {
+                    filtro = new List<FilterStatement<SeduteDto>>
+                    {
+                        new FilterStatement<SeduteDto>
+                        {
+                            PropertyId = nameof(SeduteDto.Data_effettiva_fine),
+                            Operation = Operation.IsNull,
+                            Connector = FilterStatementConnector.Or
+                        }
+                    }
+                };
+
+                return await Get(request);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Riepilogo Sedute Attive", e);
+                throw;
             }
         }
 

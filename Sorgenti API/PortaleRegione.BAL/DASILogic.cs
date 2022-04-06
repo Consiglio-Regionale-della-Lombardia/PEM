@@ -23,11 +23,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
-using PortaleRegione.Client.Controllers;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -38,8 +36,8 @@ namespace PortaleRegione.API.Controllers
 {
     public class DASILogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly AttiFirmeLogic _logicFirme;
+        private readonly IUnitOfWork _unitOfWork;
 
         public DASILogic(IUnitOfWork unitOfWork, AttiFirmeLogic logicFirme)
         {
@@ -57,16 +55,17 @@ namespace PortaleRegione.API.Controllers
                     //Nuovo inserimento
                     result.UIDAtto = Guid.NewGuid();
                     result.UIDPersonaCreazione = persona.UID_persona;
+                    result.UIDPersonaProponente = attoDto.UIDPersonaProponente;
                     result.DataCreazione = DateTime.Now;
                     result.IDStato = (int) StatiAttoEnum.BOZZA;
                     result.Oggetto = attoDto.Oggetto;
-                    result.Tipo = (int) TipoAttoEnum.ITR;
+                    result.Tipo = attoDto.Tipo;
                     result.IDTipo_Risposta = (int) TipoRispostaEnum.ORALE;
                     result.UID_QRCode = Guid.NewGuid();
                     result.idRuoloCreazione = (int) persona.CurrentRole;
                     result.id_gruppo = persona.Gruppo.id_gruppo;
                     var random = new Random();
-                    result.Progressivo = random.Next(0, 1000);
+                    result.Progressivo = random.Next(1, 1000);
 
                     _unitOfWork.DASI.Add(result);
                 }
@@ -86,13 +85,21 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<AttoDASIDto> Get(Guid id)
+        public async Task<AttoDASIDto> Get(Guid id, PersonaDto persona = null)
         {
             try
             {
                 var attoInDb = await _unitOfWork.DASI.Get(id);
-                await _unitOfWork.CompleteAsync();
-                return Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+                var result = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+                if (persona != null)
+                {
+                    result.Firmato_Da_Me = await _unitOfWork.Atti_Firme.CheckFirmato(id, persona.UID_persona);
+                    result.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(id);
+                    result.Firmato_Dal_Proponente =
+                        await _unitOfWork.Atti_Firme.CheckFirmato(id, attoInDb.UIDPersonaProponente.Value);
+                }
+
+                return result;
             }
             catch (Exception e)
             {
@@ -114,7 +121,19 @@ namespace PortaleRegione.API.Controllers
                         model.size,
                         queryFilter);
                 if (!atti_in_db.Any())
-                    return new RiepilogoDASIModel();
+                    return new RiepilogoDASIModel
+                    {
+                        Data = new BaseResponse<AttoDASIDto>(
+                            model.page
+                            , model.size
+                            , new List<AttoDASIDto>()
+                            , model.filtro
+                            , 0
+                            , uri),
+                        Stato = GetResponseStatusFromFilters(model.filtro),
+                        Tipo = GetResponseTypeFromFilters(model.filtro),
+                        CountBarData = await GetResponseCountBar(persona)
+                    };
 
                 var result = new List<AttoDASIDto>();
                 foreach (var attoUId in atti_in_db)
@@ -136,7 +155,10 @@ namespace PortaleRegione.API.Controllers
                         , result
                         , model.filtro
                         , totaleAtti
-                        , uri)
+                        , uri),
+                    Stato = GetResponseStatusFromFilters(model.filtro),
+                    Tipo = GetResponseTypeFromFilters(model.filtro),
+                    CountBarData = await GetResponseCountBar(persona)
                 };
             }
             catch (Exception e)
@@ -146,6 +168,67 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona)
+        {
+            var result = new CountBarData
+            {
+                ITL = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.ITL)
+                , ITR = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.ITR)
+                , IQT = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.IQT)
+                , MOZ = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.MOZ)
+                , ODG = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.ODG)
+                , TUTTI = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        TipoAttoEnum.TUTTI)
+            };
+
+            return result;
+        }
+
+        private TipoAttoEnum GetResponseTypeFromFilters(List<FilterStatement<AttoDASIDto>> modelFiltro)
+        {
+            if (modelFiltro == null)
+                return TipoAttoEnum.TUTTI;
+            if (!modelFiltro.Any()) return TipoAttoEnum.TUTTI;
+
+            var typeFilter = modelFiltro
+                .FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.Tipo));
+            if (typeFilter == null)
+                return TipoAttoEnum.TUTTI;
+
+            return (TipoAttoEnum) Convert.ToInt16(typeFilter.Value);
+        }
+
+        private StatiAttoEnum GetResponseStatusFromFilters(List<FilterStatement<AttoDASIDto>> modelFiltro)
+        {
+            if (modelFiltro == null)
+                return StatiAttoEnum.BOZZA;
+            if (!modelFiltro.Any()) return StatiAttoEnum.BOZZA;
+
+            var statusFilter = modelFiltro
+                .FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.IDStato));
+            if (statusFilter == null)
+                return StatiAttoEnum.BOZZA;
+
+            return (StatiAttoEnum) Convert.ToInt16(statusFilter.Value);
+        }
+
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
             PinDto pin, bool firmaUfficio = false)
         {
@@ -153,9 +236,6 @@ namespace PortaleRegione.API.Controllers
             {
                 var results = new Dictionary<Guid, string>();
                 var counterFirme = 1;
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-
                 var carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 
                 foreach (var idGuid in firmaModel.Lista)
@@ -279,7 +359,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
-                var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
+                var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
                 var jumpMail = false;
 
                 foreach (var idGuid in firmaModel.Lista)
@@ -297,7 +377,7 @@ namespace PortaleRegione.API.Controllers
                         //TODO: BLOCCO RITIRO FIRMA
 
                         //RITIRA EM
-                        atto.IDStato = (int)StatiAttoEnum.RITIRATO;
+                        atto.IDStato = (int) StatiAttoEnum.RITIRATO;
                         atto.UIDPersonaRitiro = persona.UID_persona;
                         atto.DataRitiro = DateTime.Now;
 
@@ -320,7 +400,7 @@ namespace PortaleRegione.API.Controllers
                             AppSettingsConfiguration.masterKey);
 
                     //TODO: INVIO MAIL ALLA SEGRETERIA
-                   
+
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
                     jumpMail = false;
@@ -362,7 +442,8 @@ namespace PortaleRegione.API.Controllers
                     //RITIRA FIRMA
                     var firmeAttive = await _logicFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
                     var firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
-                    var firma_da_ritirare = await _unitOfWork.Atti_Firme.Get(firma_utente.UIDAtto, firma_utente.UID_persona);
+                    var firma_da_ritirare =
+                        await _unitOfWork.Atti_Firme.Get(firma_utente.UIDAtto, firma_utente.UID_persona);
                     _unitOfWork.Atti_Firme.Remove(firma_da_ritirare);
 
                     results.Add(idGuid, "OK");
@@ -374,6 +455,73 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Logic - EliminaFirma - DASI", e);
+                throw e;
+            }
+        }
+
+        public async Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel depositoModel,
+            PersonaDto persona)
+        {
+            try
+            {
+                var results = new Dictionary<Guid, string>();
+
+                ManagerLogic.BloccaDeposito = true;
+                var counterDepositi = 1;
+
+                foreach (var idGuid in depositoModel.Lista)
+                {
+                    if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1) break;
+
+                    var atto = await _unitOfWork.DASI.Get(idGuid);
+                    if (atto == null)
+                    {
+                        results.Add(idGuid, "ERROR: NON TROVATO");
+                        continue;
+                    }
+
+                    var attoDto = await Get(idGuid);
+                    var nAtto = atto.NAtto;
+                    if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
+
+                    if (!attoDto.Depositabile)
+                    {
+                        results.Add(idGuid, $"ERROR: Atto {nAtto} non presentabile");
+                        continue;
+                    }
+
+                    var etichetta_progressiva =
+                        await _unitOfWork.DASI.GetEtichetta(atto) + 1;
+                    var etichetta_encrypt =
+                        EncryptString(etichetta_progressiva.ToString(), AppSettingsConfiguration.masterKey);
+
+                    //TODO: CONTROLLO PROGRESSIVO SE UNIVOCO PER EVITARE DOPPIONI O BUCHI NELLA NUMERAZIONE
+
+                    atto.UIDPersonaDeposito = persona.UID_persona;
+                    atto.OrdineVisualizzazione = await _unitOfWork.DASI.GetOrdine(atto.Tipo) + 1;
+                    atto.Timestamp = DateTime.Now;
+                    atto.DataDeposito_crypt = EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
+                        AppSettingsConfiguration.masterKey);
+                    atto.IDStato = (int) StatiAttoEnum.PRESENTATO;
+
+                    var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                    atto.chkf = count_firme.ToString();
+
+                    await _unitOfWork.CompleteAsync();
+
+                    results.Add(idGuid, $"{nAtto} - OK");
+
+                    //TODO: INSERIRE STAMPA
+
+                    await _unitOfWork.CompleteAsync();
+                    counterDepositi++;
+                }
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Deposita - DASI", e);
                 throw e;
             }
         }

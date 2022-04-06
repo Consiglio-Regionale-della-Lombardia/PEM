@@ -1,0 +1,120 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+}
+
+@if (!Model.Data.Results.Any())
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel panel-warning center">
+                <span class="center">
+                    @{
+                        var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+                        if (require_my_sign)
+                        {
+                            <p>Non ci sono atti dove è richiesta la tua firma</p>
+                        }
+                        else
+                        {
+                            <p>Non ci sono atti al momento</p>
+                        }
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <table class="responsive-table highlight">
+        <thead>
+        <tr>
+            <th class="center">
+
+                <label>
+                    <input type="checkbox" id="checkAll"/>
+                    <span for="checkAll"></span>
+                </label>
+            </th>
+            <th>Atto</th>
+            <th>Tipo</th>
+            <th>Oggetto</th>
+            <th>Soggetto</th>
+            <th>Firmatari</th>
+            <th>Stato</th>
+            @if (Model.Stato != StatiAttoEnum.BOZZA)
+            {
+                <th>Seduta</th>
+            }
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var item in Model.Data.Results)
+        {
+            <tr>
+                <td class="center">
+
+                    <p>
+                        <label>
+                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+                <td>
+                    <div class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
+                        @Html.Raw(Utility.GetText_TipoDASI(item.Tipo)) TEMP-@Html.Raw(item.Progressivo)
+                    </div>
+                </td>
+                <td>Orale</td>
+                <td>@Html.Raw(item.Oggetto)</td>
+                <td>I Commissione permanente - Economia e Bilancio</td>
+                <td>
+                    Mario Rossi (NP)
+                    <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (NP)" style="min-width: unset">
+                        + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
+                    </a>
+                </td>
+                <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
+                    @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                </td>
+                @if (Model.Stato != StatiAttoEnum.BOZZA)
+                {
+                    <td>
+                        <div class="chip badgeSeduta">
+                            Seduta 15-10-2022
+                        </div>
+                    </td>
+                }
+                <td class="center">
+                    @if (Model.Stato == StatiAttoEnum.BOZZA)
+                    {
+                        <a class="amber-text tooltipped" data-tooltip="Invita">
+                            <i class="icon material-icons">send</i>
+                        </a>
+                        <a class="blue-text tooltipped" data-tooltip="Modifica">
+                            <i class="icon material-icons">edit</i>
+                        </a>
+                        <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                            <i class="icon material-icons">gavel</i>
+                        </a>
+                        <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)">
+                            <i class="material-icons">lock</i>
+                        </a>
+                    }
+
+                    <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)">
+                        <i class="material-icons">close</i>
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

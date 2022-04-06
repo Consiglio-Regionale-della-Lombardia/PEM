@@ -105,6 +105,8 @@
     <Compile Include="Model\CambioPinModel.cs" />
     <Compile Include="Model\CommandRiepilogoEMModel.cs" />
     <Compile Include="Model\CopertinaModel.cs" />
+    <Compile Include="Model\CountBarData.cs" />
+    <Compile Include="Model\DashboardModel.cs" />
     <Compile Include="Model\EmendamentiByQueryModel.cs" />
     <Compile Include="Model\EmendamentiFormModel.cs" />
     <Compile Include="Model\ComandiAzioneModel.cs" />

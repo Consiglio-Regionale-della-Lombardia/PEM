@@ -67,8 +67,11 @@
         }
 
         var lchk = getListaAtti();
-
-        if (lchk.length > 0 || $("#checkAll")[0].checked) {
+        var check_all = false;
+        if ($("#checkAll").length > 0) {
+            check_all = $("#checkAll")[0].checked;
+        }
+        if (lchk.length > 0 || check_all) {
             $("#btnComandiMassivi").show();
             $("#pnlNuovoDASI").hide();
         } else {

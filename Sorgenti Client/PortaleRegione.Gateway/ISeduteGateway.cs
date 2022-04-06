@@ -33,5 +33,6 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<LegislaturaDto>> GetLegislature();
         Task Modifica(SeduteFormUpdateDto seduta);
         Task Salva(SeduteFormUpdateDto seduta);
+        Task<BaseResponse<SeduteDto>> GetActive();
     }
 }

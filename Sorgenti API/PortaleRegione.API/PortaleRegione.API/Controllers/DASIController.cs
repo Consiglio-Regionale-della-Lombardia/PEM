@@ -275,5 +275,66 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per depositare gli Atto di Sindacato Ispettivo
+        /// </summary>
+        /// <param name="depositoModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("deposita")]
+        public async Task<IHttpActionResult> Deposita(ComandiAzioneModel depositoModel)
+        {
+            try
+            {
+                if (ManagerLogic.BloccaDeposito)
+                {
+                    return BadRequest(
+                        "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
+                }
+
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var depositoUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
+                                      persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+
+                if (depositoUfficio)
+                {
+                    if (depositoModel.Pin != AppSettingsConfiguration.MasterPIN)
+                    {
+                        return BadRequest("Pin inserito non valido");
+                    }
+
+                    return Ok(await _logic.Deposita(depositoModel, persona));
+                }
+
+                var pinInDb = await _logicPersone.GetPin(persona);
+                if (pinInDb == null)
+                {
+                    return BadRequest("Pin non impostato");
+                }
+
+                if (pinInDb.RichiediModificaPIN)
+                {
+                    return BadRequest("E' richiesto il reset del pin");
+                }
+
+                if (depositoModel.Pin != pinInDb.PIN_Decrypt)
+                {
+                    return BadRequest("Pin inserito non valido");
+                }
+
+                return Ok(await _logic.Deposita(depositoModel, persona));
+            }
+            catch (Exception e)
+            {
+                Log.Error("Deposita - DASI", e);
+                return ErrorHandler(e);
+            }
+            finally
+            {
+                ManagerLogic.BloccaDeposito = false;
+            }
+        }
     }
 }

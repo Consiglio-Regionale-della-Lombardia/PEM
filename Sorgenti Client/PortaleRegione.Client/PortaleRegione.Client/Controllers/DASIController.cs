@@ -18,10 +18,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Threading.Tasks;   
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
@@ -92,6 +96,201 @@ namespace PortaleRegione.Client.Controllers
             {
                 Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Esegui azione su Atti di Sindacato Ispettivo selezionato
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("azioni")]
+        public async Task<ActionResult> EseguiAzione(Guid id, int azione, string pin = "")
+        {
+            try
+            {
+                //TODO: ELIMINA E RITIRA MASSIVO
+                var apiGateway = new ApiGateway(_Token);
+                switch ((ActionEnum)azione)
+                {
+                    case ActionEnum.FIRMA:
+                        var resultFirma = await apiGateway.DASI.Firma(id, pin);
+                        var listaErroriFirma = new List<string>();
+                        foreach (var itemFirma in resultFirma)
+                            listaErroriFirma.Add($"{itemFirma.Value}");
+                        if (listaErroriFirma.Count > 0)
+                            return Json(
+                                new
+                                {
+                                    message =
+                                        $"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
+                                }, JsonRequestBehavior.AllowGet);
+                        break;
+                    case ActionEnum.DEPOSITA:
+                        var resultDeposita = await apiGateway.DASI.Deposita(id, pin);
+                        var listaErroriDeposito = new List<string>();
+                        foreach (var itemDeposito in resultDeposita)
+                            listaErroriDeposito.Add(
+                                $"{itemDeposito.Value}");
+                        if (listaErroriDeposito.Count > 0)
+                            return Json(
+                                new
+                                {
+                                    message =
+                                        $"{listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
+                                }, JsonRequestBehavior.AllowGet);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(azione), azione, null);
+                }
+
+                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Esegui azione su Atti di Sindacato Ispettivo selezionato
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("azioni-massive")]
+        public async Task<ActionResult> EseguiAzioneMassive(ComandiAzioneModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                if (model.Lista == null || !model.Lista.Any())
+                {
+                    throw new NotImplementedException("Azione non funzionante");
+                }
+
+                //TODO: INVITO MASSIVO
+                switch (model.Azione)
+                {
+                    case ActionEnum.FIRMA:
+                        var resultFirma = await apiGateway.DASI.Firma(model);
+                        var listaErroriFirma = new List<string>();
+                        foreach (var itemFirma in resultFirma)
+                            listaErroriFirma.Add($"{itemFirma.Value}");
+                        if (listaErroriFirma.Count > 0)
+                            return Json(
+                                new
+                                {
+                                    message =
+                                        $"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}"
+                                }, JsonRequestBehavior.AllowGet);
+
+                        return Json(
+                            new
+                            {
+                                message =
+                                    $"Nessuna firma effettuata"
+                            }, JsonRequestBehavior.AllowGet);
+                    case ActionEnum.DEPOSITA:
+                        var resultDeposita = await apiGateway.DASI.Deposita(model);
+                        var listaErroriDeposito = new List<string>();
+                        foreach (var itemDeposito in resultDeposita)
+                            listaErroriDeposito.Add(
+                                $"{itemDeposito.Value}");
+                        if (listaErroriDeposito.Count > 0)
+                            return Json(
+                                new
+                                {
+                                    message =
+                                        $"{listaErroriDeposito.Aggregate((i, j) => i + ", " + j)}"
+                                }, JsonRequestBehavior.AllowGet);
+
+
+                        return Json(
+                            new
+                            {
+                                message =
+                                    $"Nessuna deposito effettuato"
+                            }, JsonRequestBehavior.AllowGet);
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(model.Azione), model.Azione, null);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Ritira firma di un Atti di Sindacato Ispettivo
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <param name="pin">pin</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("ritiro-firma")]
+        public async Task<ActionResult> RitiroFirma(Guid id, string pin = "")
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var resultRitiro = await apiGateway.Emendamento.RitiraFirma(id, pin);
+                var listaErroriRitiroFirma = new List<string>();
+                foreach (var itemRitiroFirma in resultRitiro)
+                    listaErroriRitiroFirma.Add(
+                        $"{listaErroriRitiroFirma.Count + 1} - {itemRitiroFirma.Value}");
+                if (listaErroriRitiroFirma.Count > 0)
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Riepilogo procedura di ritiro firma: {listaErroriRitiroFirma.Aggregate((i, j) => i + ", " + j)}"
+                        }, JsonRequestBehavior.AllowGet);
+
+                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Elimina firma di un Atti di Sindacato Ispettivo
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <param name="pin">pin</param>
+        /// <returns></returns>
+        [Route("elimina-firma")]
+        public async Task<ActionResult> EliminaFirma(Guid id, string pin = "")
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var resultEliminaFirma = await apiGateway.Emendamento.EliminaFirma(id, pin);
+                var listaErroriEliminaFirma = new List<string>();
+                foreach (var itemEliminaFirma in resultEliminaFirma)
+                    listaErroriEliminaFirma.Add(
+                        $"{listaErroriEliminaFirma.Count + 1} - {itemEliminaFirma}");
+                if (listaErroriEliminaFirma.Count > 0)
+                    return Json(
+                        new
+                        {
+                            message =
+                                $"Riepilogo procedura di elimina firma: {listaErroriEliminaFirma.Aggregate((i, j) => i + ", " + j)}"
+                        }, JsonRequestBehavior.AllowGet);
+
+                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
     }

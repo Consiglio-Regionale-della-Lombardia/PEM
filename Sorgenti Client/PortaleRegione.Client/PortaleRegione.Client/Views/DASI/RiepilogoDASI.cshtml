@@ -1,8 +1,19 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model PortaleRegione.Client.Controllers.RiepilogoDASIModel
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 @{
     ViewBag.Title = "DASI";
+    var classTabBozza = "";
+    var classTabPresentati = "";
+    switch (Model.Stato)
+    {
+        case StatiAttoEnum.BOZZA:
+            classTabBozza = "active";
+            break;
+        case StatiAttoEnum.PRESENTATO:
+            classTabPresentati = "active";
+            break;
+    }
 }
 
 <div class="row">
@@ -12,213 +23,28 @@
         </h5>
     </div>
 </div>
-<hr />
+<hr/>
 <div class="row center">
-    <div class="col s12">
-        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)" style="min-width: unset" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.ITL})')">
-            ITL
-            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                4
-            </span>
-        </div>
-        <div class="chip @Html.Raw(TipoAttoCSSConst.ITR)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.ITR})')">
-            ITR
-            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                3
-            </span>
-        </div>
-        <div class="chip @Html.Raw(TipoAttoCSSConst.IQT)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.IQT})')">
-            IQT
-            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                2
-            </span>
-        </div>
-        <div class="chip @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.MOZ})')">
-            MOZ
-            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                5
-            </span>
-        </div>
-        <div class="chip @Html.Raw(TipoAttoCSSConst.ODG)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { status = (int)TipoAttoEnum.ODG})')">
-            ODG
-            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                1
-            </span>
-        </div>
-        <div class="chip @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="go('@Url.Action("RiepilogoDASI", "DASI")')">
-            Tutti
-            <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
-                10
-            </span>
-        </div>
-    </div>
+    @{
+        Html.RenderPartial("_CounterBar_RiepilogoDASI", Model);
+    }
 </div>
 
 <div class="row">
     <div class="col s12">
         <ul class="tabs">
-            <li class="tab col s6"><a class="active" href="#testBozza" onclick="resetGridSelection();">Bozza</a></li>
-            <li class="tab col s6"><a href="#testPresentati" onclick="resetGridSelection();">Presentati</a></li>
+            <li class="tab col s6">
+                <a class="@classTabBozza" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.BOZZA})');">Bozza</a>
+            </li>
+            <li class="tab col s6">
+                <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO})');">Presentati</a>
+            </li>
         </ul>
     </div>
-    <div id="testBozza" class="col s12">
-        <table class="responsive-table highlight">
-            <thead>
-            <tr>
-                <th class="center">
-
-                    <label>
-                        <input type="checkbox" id="checkAll"/>
-                        <span for="checkAll"></span>
-                    </label>
-                </th>
-                <th>Atto</th>
-                <th>Tipo</th>
-                <th>Oggetto</th>
-                <th>Soggetto</th>
-                <th>Firmatari</th>
-                <th>Stato</th>
-                <th></th>
-            </tr>
-            </thead>
-
-            <tbody>
-            @foreach (var item in Model.Data.Results)
-            {
-                <tr>
-                    <td class="center">
-
-                        <p>
-                            <label>
-                                <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
-                                <span></span>
-                            </label>
-                        </p>
-                    </td>
-                    <td>
-                        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
-                            ITL TEMP-1
-                        </div>
-                    </td>
-                    <td>Orale</td>
-                    <td>@Html.Raw(item.Oggetto)</td>
-                    <td>I Commissione permanente - Economia e Bilancio</td>
-                    <td>
-                        Mario Rossi (NP)
-                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="VERNI Simone (NP)" style="min-width: unset">
-                            + 1 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                        </a>
-                    </td>
-                    <td class="bozzaT">
-                        Bozza
-                    </td>
-                    <td class="center">
-                        <a class="amber-text tooltipped" data-tooltip="Invita"><i class="icon material-icons">send</i></a>
-                        <a class="blue-text tooltipped" data-tooltip="Modifica"><i class="icon material-icons">edit</i></a>
-                        <a class="green-text tooltipped" data-tooltip="Firma"><i class="icon material-icons">gavel</i></a>
-                        <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)"><i class="material-icons">lock</i></a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-    <div id="testPresentati" class="col s12">
-        <table class="responsive-table highlight">
-            <thead>
-            <tr>
-                <th class="center">
-                    <label>
-                        <input type="checkbox" id="checkAll" />
-                        <span for="checkAll"></span>
-                    </label>
-                </th>
-                <th>Atto</th>
-                <th>Tipo</th>
-                <th>Oggetto</th>
-                <th>Soggetto</th>
-                <th>Firmatari</th>
-                <th>Stato</th>
-                <th>Seduta</th>
-                <th></th>
-            </tr>
-            </thead>
-
-            <tbody>
-                <tr>
-                    <td class="center">
-
-                        <p>
-                            <label>
-                                <input type="checkbox" />
-                                <span></span>
-                            </label>
-                        </p>
-                    </td>
-                    <td>
-                        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
-                            ITL-4000
-                        </div>
-                    </td>
-                    <td>Orale</td>
-                    <td>Prova di trasmissione</td>
-                    <td>I Commissione permanente - Economia e Bilancio</td>
-                    <td>
-                        Mario Rossi (NP)
-                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
-                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                        </a>
-                    </td>
-                    <td class="depositatoT">
-                        Presentato
-                    </td>
-                    <td>
-                        <div class="chip badgeSeduta">
-                            Seduta 15-10-2022
-                        </div>
-                    </td>
-                    <td class="center">
-                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="center">
-
-                        <p>
-                            <label>
-                                <input type="checkbox" />
-                                <span></span>
-                            </label>
-                        </p>
-                    </td>
-                    <td>
-                        <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)">
-                            ITL-4001
-                        </div>
-                    </td>
-                    <td>Orale</td>
-                    <td>Prova di trasmissione 2</td>
-                    <td>I Commissione permanente - Economia e Bilancio</td>
-                    <td>
-                        Mario Rossi (NP)
-                        <a class="chip tooltipped blue white-text" data-position="left" data-tooltip="DEGLI ANGELI Marco (NP)<br>FORTE Monica (NP)<br>ALBERTI Ferdinando (NP)<br>VERNI Simone (NP)" style="min-width: unset">
-                            + 3 <i class="icon material-icons right" style="margin-left: unset">group</i>
-                        </a>
-                    </td>
-                    <td class="depositatoT">
-                        Presentato
-                    </td>
-                    <td>
-                        
-                    </td>
-                    <td class="center">
-                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)"><i class="material-icons">close</i></a>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="col s12">
+        @{
+            Html.RenderPartial("_GridView_RiepilogoDASI", Model);
+        }
     </div>
 </div>
 

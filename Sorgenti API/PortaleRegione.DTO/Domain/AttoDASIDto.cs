@@ -20,18 +20,18 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using Newtonsoft.Json;
-using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.DTO.Domain
 {
     public class AttoDASIDto
     {
         public Guid UIDAtto { get; set; }
+        public Guid? UIDSeduta { get; set; }
         public string Oggetto { get; set; }
         public string Oggetto_Pubblico { get; set; }
         public string Testo { get; set; }
         public string Testo_Pubblico { get; set; }
-        public TipoAttoEnum Tipo { get; set; }
+        public int Tipo { get; set; }
         public string NAtto { get; set; }
         public DateTime DataCreazione { get; set; }
         public Guid UIDPersonaCreazione { get; set; }
@@ -49,7 +49,7 @@ namespace PortaleRegione.DTO.Domain
         public DateTime? DataRitiro { get; set; }
         public Guid? UIDPersonaRitiro { get; set; }
         public string Hash { get; set; }
-        public TipoRispostaEnum IDTipo_Risposta { get; set; }
+        public int IDTipo_Risposta { get; set; }
         public int OrdineVisualizzazione { get; set; }
         public string PATH_AllegatoGenerico { get; set; }
         public string Note_Pubbliche { get; set; }
@@ -61,6 +61,8 @@ namespace PortaleRegione.DTO.Domain
         public bool Firma_da_ufficio { get; set; } = false;
         public bool Firmato_Da_Me { get; set; } = false;
         public bool Firmato_Dal_Proponente { get; set; } = false;
+        public bool Depositabile { get; set; } = false;
+        public int Progressivo { get; set; }
 
         public List<Guid> SoggettiInterrogati { get; set; }
 

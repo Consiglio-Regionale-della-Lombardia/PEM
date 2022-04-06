@@ -62,6 +62,12 @@ namespace PortaleRegione.Persistance
                 filtro.BuildExpression(ref query);
             }
 
+            if (pageIndex == 0 && pageSize == 0)
+            {
+                return await query.OrderByDescending(c => c.Data_seduta)
+                    .ToListAsync();
+            }
+
             return await query.OrderByDescending(c => c.Data_seduta)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)

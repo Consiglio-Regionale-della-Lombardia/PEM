@@ -9,6 +9,7 @@
         form_data.append("Tipo", $('input[id="hdTipoAttoDasi"]').val());
         form_data.append("Testo", $('textarea[id="modalTestoDasi"]').val());
         form_data.append("IDTipo_Risposta", $('select[id="modalTipoDasi"]').children("option:selected").val());
+        form_data.append("UIDPersonaProponente", $('input[id="hdProponenteAttoDasi"]').val());
 
         $.ajax({
             url: baseUrl + "/dasi",

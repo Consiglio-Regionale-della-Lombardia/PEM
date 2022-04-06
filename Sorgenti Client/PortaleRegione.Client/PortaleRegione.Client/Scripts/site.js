@@ -372,6 +372,52 @@ function RevealFirmaDeposito(id, action) {
         });
 }
 
+function RevealFirmaDepositoDASI(id, action) {
+    var text = "";
+    var button = "";
+    if (action == 3) {
+        text = "Inserisci il PIN per firmare";
+        button = "Firma";
+    } else if (action == 4) {
+        text = "Inserisci il PIN per depositare";
+        button = "Deposita";
+    }
+
+    swal(text,
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                buttons: { cancel: "Annulla", confirm: button }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            $.ajax({
+                url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+                method: "GET"
+            }).done(function(data) {
+                if (data.message) {
+                    swal({
+                        title: "Esito " + button,
+                        text: data.message,
+                        icon: "info",
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+}
+
 function NTitolo_OnChange(item) {
     TestoEmendamento_ParteEM(item.value, "Il titolo");
 }

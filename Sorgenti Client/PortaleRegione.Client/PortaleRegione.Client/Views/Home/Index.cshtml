@@ -1,4 +1,6 @@
 ﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DashboardModel
+
 @{
     ViewBag.Title = "Home";
 }
@@ -23,73 +25,45 @@
         <hr/>
         <div class="row">
             <div class="carousel hide-on-small-only">
-                <div class="col s6 carousel-item">
-                    <div class="card hoverable green lighten-4 black-text">
-                        <div class="card-content">
-                            <h5 class="card-title">
-                                <span>Seduta del 12/12/2021 10:45</span>
-                            </h5>
-                            <div class="row valign-wrapper">
-                                <div class="col s10">
-                                    <p>
 
-                                        Scadenza presentazione EM: 10/12/2021 09:45
-                                    </p>
-                                </div>
-                                <div class="col s2">
-                                    <a class="btn-floating green" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')" title="Riepilogo atti">
-                                        <i class="material-icons">chevron_right</i>
-                                    </a>
+                @foreach (var seduta in Model.Sedute.Results)
+                {
+                    <div class="col s6 carousel-item">
+                        <div class="card hoverable green lighten-4 black-text">
+                            <div class="card-content">
+                                <h5 class="card-title">
+                                    <span>Seduta del @seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                </h5>
+                                <div class="row valign-wrapper">
+                                    <div class="col s10">
+                                        @if (seduta.Scadenza_presentazione.HasValue)
+                                        {
+                                            <p>
+                                                Scadenza presentazione: @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                                            </p>
+                                        }
+                                    </div>
+                                    <div class="col s2">
+                                        @if (!seduta.Data_apertura.HasValue)
+                                        {
+                                            <div class="chip grey" style="margin-left: -20px; min-width: unset">Chiusa</div>
+                                        }
+                                        else if (seduta.Data_apertura.Value > DateTime.Now)
+                                        {
+                                            <div class="chip grey" style="margin-left: -20px; min-width: unset">Chiusa</div>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
+                                                <i class="material-icons">chevron_right</i>
+                                            </a>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col s6 carousel-item">
-                    <div class="card hoverable green lighten-4 black-text">
-                        <div class="card-content">
-                            <h5 class="card-title">
-                                <span>Seduta del 10/12/2021 10:45</span>
-                            </h5>
-                            <div class="row valign-wrapper">
-                                <div class="col s10">
-                                    <p>
-
-                                        Scadenza presentazione EM: 10/12/2021 09:45
-                                    </p>
-                                </div>
-                                <div class="col s2">
-                                    <a class="btn-floating green" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')" title="Riepilogo atti">
-                                        <i class="material-icons">chevron_right</i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col s6 carousel-item">
-                    <div class="card hoverable green lighten-4 black-text">
-                        <div class="card-content">
-                            <h5 class="card-title">
-                                <span>Seduta del 6/12/2021 10:45</span>
-                            </h5>
-                            <div class="row valign-wrapper">
-                                <div class="col s10">
-                                    <p>
-
-                                        Scadenza presentazione EM: 10/12/2021 09:45
-                                    </p>
-                                </div>
-                                <div class="col s2">
-                                    <a class="btn-floating green" onclick="go('/atti/16045e98-3246-46b5-bf98-62f522184fb4')" title="Riepilogo atti">
-                                        <i class="material-icons">chevron_right</i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                }
             </div>
         </div>
     </div>
@@ -141,7 +115,7 @@
                             </a>
                         </div>
                     </div>
-                 </div>
+                </div>
             </li>
         </ul>
     </div>
@@ -163,7 +137,7 @@
                 <p>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ITL)">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int) TipoAttoEnum.ITL)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
@@ -178,7 +152,7 @@
                 <p>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ITR)">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int) TipoAttoEnum.ITR)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
@@ -193,7 +167,7 @@
                 <p>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.IQT)">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int) TipoAttoEnum.IQT)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
@@ -208,7 +182,7 @@
                 <p>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.MOZ)">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int) TipoAttoEnum.MOZ)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
@@ -223,7 +197,7 @@
                 <p>
                     Presentato: <b>2</b>
                 </p>
-                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int)TipoAttoEnum.ODG)">
+                <a href="#!" class="secondary-content blue-text add" style="right: 60px;" data-tipo-dasi="@Html.Raw((int) TipoAttoEnum.ODG)">
                     <i class="material-icons">add</i>
                 </a>
                 <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
@@ -293,7 +267,7 @@
 }
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         set_Filtri_EM({});
         set_ListaArticoliEM([]);
         set_ListaCommiEM([]);
@@ -301,14 +275,15 @@
         setListaAtti([]);
 
         $('#btnSearch>i').html('notifications_active');
-        $('#btnSearch').on("click", function() {
-            openDashboardNotification();
-        });
+        $('#btnSearch').on("click",
+            function() {
+                openDashboardNotification();
+            });
         initCarousel();
     });
 
     $(".secondary-content.blue-text.add").on("click",
-        function () {
+        function() {
             var tipo = $(this).data('tipo-dasi');
             openFormDASI(tipo);
         });

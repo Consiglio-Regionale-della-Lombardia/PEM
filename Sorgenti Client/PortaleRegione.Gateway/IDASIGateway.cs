@@ -19,10 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using PortaleRegione.Client.Controllers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 
 namespace PortaleRegione.Gateway
 {
@@ -33,5 +34,12 @@ namespace PortaleRegione.Gateway
         Task Modifica(AttoDASIDto request);
         Task<AttoDASIDto> Get(Guid id);
         Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo);
+        Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel model);
+        Task<Dictionary<Guid, string>> Deposita(Guid attoUId, string pin);
+        Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model);
+        Task<Dictionary<Guid, string>> EliminaFirma(Guid attoUId, string pin);
+        Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model);
+        Task<Dictionary<Guid, string>> Firma(Guid attoUId, string pin);
+        Task<RiepilogoDASIModel> GetBySeduta(Guid sedutaUidSeduta);
     }
 }

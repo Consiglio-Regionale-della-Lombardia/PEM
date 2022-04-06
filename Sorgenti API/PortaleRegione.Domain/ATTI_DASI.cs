@@ -32,6 +32,7 @@ namespace PortaleRegione.Domain
         }
 
         [Key] public Guid UIDAtto { get; set; }
+        public Guid? UIDSeduta { get; set; }
 
         public int Tipo { get; set; }
         public int Progressivo { get; set; }

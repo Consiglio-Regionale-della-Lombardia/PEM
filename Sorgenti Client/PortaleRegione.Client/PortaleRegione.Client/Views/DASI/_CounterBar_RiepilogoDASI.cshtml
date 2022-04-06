@@ -1,0 +1,41 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+<div class="col s12">
+    <div class="chip @Html.Raw(TipoAttoCSSConst.ITL)" style="min-width: unset" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {status = (int) TipoAttoEnum.ITL})')">
+        ITL
+        <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+            @Model.CountBarData.ITL
+        </span>
+    </div>
+    <div class="chip @Html.Raw(TipoAttoCSSConst.ITR)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {status = (int) TipoAttoEnum.ITR})')">
+        ITR
+        <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+            @Model.CountBarData.ITR
+        </span>
+    </div>
+    <div class="chip @Html.Raw(TipoAttoCSSConst.IQT)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {status = (int) TipoAttoEnum.IQT})')">
+        IQT
+        <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+            @Model.CountBarData.IQT
+        </span>
+    </div>
+    <div class="chip @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {status = (int) TipoAttoEnum.MOZ})')">
+        MOZ
+        <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+            @Model.CountBarData.MOZ
+        </span>
+    </div>
+    <div class="chip @Html.Raw(TipoAttoCSSConst.ODG)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {status = (int) TipoAttoEnum.ODG})')">
+        ODG
+        <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+            @Model.CountBarData.ODG
+        </span>
+    </div>
+    <div class="chip @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="go('@Url.Action("RiepilogoDASI", "DASI")')">
+        Tutti
+        <span class="chip hoverable white black-text" style="font-size: small; margin-right: -12px; min-width: unset">
+            @Model.CountBarData.TUTTI
+        </span>
+    </div>
+</div>

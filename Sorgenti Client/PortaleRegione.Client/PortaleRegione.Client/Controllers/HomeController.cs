@@ -16,10 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -29,10 +34,31 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> Index()
         {
-            if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
-                return View("Index_Admin");
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var model = new DashboardModel();
+                model.Sedute = await apiGateway.Sedute.GetActive();
+                foreach (var seduta in model.Sedute.Results)
+                {
+                    var attiPEM = await apiGateway.Atti.Get(seduta.UIDSeduta, ClientModeEnum.GRUPPI, 1, 99);
+                    if (attiPEM.Results.Any())
+                        model.PEM.Add(attiPEM);
 
-            return View("Index");
+                    var attiDASI = await apiGateway.DASI.GetBySeduta(seduta.UIDSeduta);
+                    if(attiDASI.Data.Results.Any())
+                        model.DASI.Add(attiDASI);
+                }
+                if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
+                    return View("Index_Admin", model);
+
+                return View("Index", model);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

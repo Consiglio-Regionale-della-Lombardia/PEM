@@ -414,6 +414,8 @@
     <Content Include="Views\AttiTrattazione\Archivio.cshtml" />
     <Content Include="Views\AttiTrattazione\_SeduteFiltri.cshtml" />
     <Content Include="Views\DASI\AttoDASIView.cshtml" />
+    <Content Include="Views\DASI\_GridView_RiepilogoDASI.cshtml" />
+    <Content Include="Views\DASI\_CounterBar_RiepilogoDASI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
