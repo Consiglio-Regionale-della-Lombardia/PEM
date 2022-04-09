@@ -126,7 +126,7 @@ namespace PortaleRegione.Client.Controllers
                         if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
                         {
                             if (emendamentiDto.ConteggioFirme > 0)
-                                emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
+                                emendamentiDto.Firmatari = await Utility.GetFirmatari(
                                     await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM,
                                         FirmeTipoEnum.TUTTE),
                                     _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
@@ -201,10 +201,10 @@ namespace PortaleRegione.Client.Controllers
             else
                 em.BodyEM = em.EM_Certificato;
 
-            em.Firme = await Utility.GetFirmatariEM(
+            em.Firme = await Utility.GetFirmatari(
                 await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
-            em.Firme_dopo_deposito = await Utility.GetFirmatariEM(
+            em.Firme_dopo_deposito = await Utility.GetFirmatari(
                 await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
             if (em.IDStato <= (int)StatiEnum.Depositato)
@@ -641,7 +641,7 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
 
             var firme = await apiGateway.Emendamento.GetFirmatari(id, tipo);
-            var result = await Utility.GetFirmatariEM(firme, _CurrentUser.UID_persona, tipo, _Token, tag);
+            var result = await Utility.GetFirmatari(firme, _CurrentUser.UID_persona, tipo, _Token, tag);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -840,10 +840,10 @@ namespace PortaleRegione.Client.Controllers
             var em = proietta.EM;
             em.BodyEM = em.EM_Certificato;
 
-            em.Firme = await Utility.GetFirmatariEM(
+            em.Firme = await Utility.GetFirmatari(
                 await apiGateway.Emendamento.GetFirmatari(em.UIDEM, FirmeTipoEnum.PRIMA_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
-            em.Firme_dopo_deposito = await Utility.GetFirmatariEM(
+            em.Firme_dopo_deposito = await Utility.GetFirmatari(
                 await apiGateway.Emendamento.GetFirmatari(em.UIDEM, FirmeTipoEnum.DOPO_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
 
@@ -1046,7 +1046,7 @@ namespace PortaleRegione.Client.Controllers
                     if (emendamentiDto.STATI_EM.IDStato <= (int)StatiEnum.Depositato)
                     {
                         if (emendamentiDto.ConteggioFirme > 0)
-                            emendamentiDto.Firmatari = await Utility.GetFirmatariEM(
+                            emendamentiDto.Firmatari = await Utility.GetFirmatari(
                                 await apiGateway.Emendamento.GetFirmatari(emendamentiDto.UIDEM, FirmeTipoEnum.TUTTE),
                                 _CurrentUser.UID_persona, FirmeTipoEnum.TUTTE, _Token, true);
 

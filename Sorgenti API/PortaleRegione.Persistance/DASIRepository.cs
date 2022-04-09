@@ -74,15 +74,13 @@ namespace PortaleRegione.Persistance
                 .CountAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo)
+        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato)
         {
             var query = PRContext
                 .DASI
-                .Where(item => !item.Eliminato);
-            if (tipo != TipoAttoEnum.TUTTI)
-            {
-                query = query.Where(item => item.Tipo == (int) tipo);
-            }
+                .Where(item => !item.Eliminato
+                               && item.IDStato == (int) stato);
+            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
 
             return await query
                 .CountAsync();

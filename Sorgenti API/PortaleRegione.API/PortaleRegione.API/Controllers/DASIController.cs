@@ -17,13 +17,16 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -38,18 +41,22 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("dasi")]
     public class DASIController : BaseApiController
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly DASILogic _logic;
         private readonly PersoneLogic _logicPersone;
+        private readonly AttiFirmeLogic _logicFirma;
 
         /// <summary>
         /// Controller per la gestione modulo DASI (Atti Sindacato Ispettivo)
         /// </summary>
         /// <param name="logic"></param>
         /// <param name="logicPersone"></param>
-        public DASIController(DASILogic logic, PersoneLogic logicPersone)
+        public DASIController(IUnitOfWork unitOfWork, DASILogic logic, PersoneLogic logicPersone, AttiFirmeLogic logicFirma)
         {
+            _unitOfWork = unitOfWork;
             _logic = logic;
             _logicPersone = logicPersone;
+            _logicFirma = logicFirma;
         }
 
         /// <summary>
@@ -87,7 +94,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(id);
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var atto = await _logic.GetAttoDto(id, persona, personeInDbLight);
 
                 return Ok(atto);
             }
@@ -334,6 +345,33 @@ namespace PortaleRegione.API.Controllers
             finally
             {
                 ManagerLogic.BloccaDeposito = false;
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere i firmatari di un atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="tipo"></param>
+        /// <returns></returns>
+        [Route("firmatari")]
+        public async Task<IHttpActionResult> GetFirmatari(Guid id, FirmeTipoEnum tipo)
+        {
+            try
+            {
+                var atto = await _logic.Get(id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _logicFirma.GetFirme(atto, tipo);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetFirmatari", e);
+                return ErrorHandler(e);
             }
         }
     }

@@ -166,6 +166,11 @@ namespace PortaleRegione.Gateway
                             PropertyId = nameof(SeduteDto.Data_effettiva_fine),
                             Operation = Operation.IsNull,
                             Connector = FilterStatementConnector.Or
+                        },new FilterStatement<SeduteDto>
+                        {
+                            PropertyId = nameof(SeduteDto.Data_effettiva_fine),
+                            Operation = Operation.GreaterThan,
+                            Value = DateTime.Now
                         }
                     }
                 };

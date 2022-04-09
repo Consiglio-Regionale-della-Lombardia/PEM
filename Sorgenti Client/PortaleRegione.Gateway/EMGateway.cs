@@ -161,7 +161,7 @@ namespace PortaleRegione.Gateway
             try
             {
                 var requestUrl = $"{apiUrl}/emendamenti/template-body";
-                var model = new GetBodyEmendamentoModel
+                var model = new GetBodyModel
                 {
                     Id = id,
                     Template = template,

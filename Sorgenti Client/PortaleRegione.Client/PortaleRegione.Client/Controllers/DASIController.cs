@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading.Tasks;   
 using System.Web.Mvc;
 using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -90,6 +91,11 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 var atto = await apiGateway.DASI.Get(id);
+                atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML);
+                atto.Firme = await Utility.GetFirmatari(
+                    await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
+                    _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
+
                 return View("AttoDASIView", atto);
             }
             catch (Exception e)

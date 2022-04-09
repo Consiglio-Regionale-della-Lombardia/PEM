@@ -605,7 +605,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("template-body")]
-        public async Task<IHttpActionResult> GetBody(GetBodyEmendamentoModel model)
+        public async Task<IHttpActionResult> GetBody(GetBodyModel model)
         {
             try
             {

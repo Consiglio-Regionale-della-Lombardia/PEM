@@ -169,7 +169,14 @@ namespace PortaleRegione.Gateway
                     Value = sedutaUId
                 };
                 model.filtro.Add(filtroSeduta);
-                
+                var filtroStato = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = Operation.GreaterThanOrEqualTo,
+                    Value = (int)StatiAttoEnum.PRESENTATO
+                };
+                model.filtro.Add(filtroStato);
+
                 var body = JsonConvert.SerializeObject(model);
 
                 var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
@@ -184,6 +191,60 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("GetRiepilogoAttoDasi -  Per Seduta", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<AttiFirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum tipo)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/firmatari?id={id}&tipo={tipo}";
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<AttiFirmeDto>>(await Get(requestUrl, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetFirmatari - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetFirmatari - DASI", ex);
+                throw ex;
+            }
+
+        }
+
+        public async Task<string> GetBody(Guid id, TemplateTypeEnum template)
+        {
+            var result = string.Empty;
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/template-body";
+                var model = new GetBodyModel
+                {
+                    Id = id,
+                    Template = template
+                };
+                var body = JsonConvert.SerializeObject(model);
+                result = await Post(requestUrl, body, _token);
+                var lst = JsonConvert.DeserializeObject<string>(result);
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetBodyAtto - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"GetBodyAtto - DASI - PARAMS: GUID ATTO [{id}], TEMPLATE [{template}]");
+                Log.Error($"GetBodyAtto - DASI - RESULT: [{result}]");
+                Log.Error("GetBodyAtto - DASI", ex);
                 throw ex;
             }
         }

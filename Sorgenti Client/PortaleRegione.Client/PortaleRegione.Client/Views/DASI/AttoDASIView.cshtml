@@ -1,14 +1,108 @@
-﻿@model PortaleRegione.DTO.Domain.AttoDASIDto
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Domain.AttoDASIDto
 
 @{
     ViewBag.Title = "title";
 }
 
-<h2>title</h2>
-<div class="form-group">
-    @Html.LabelFor(s => s.Oggetto)
-    @Html.TextAreaFor(model => model.Oggetto, new { @class = "form-control trumbowyg" })
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
+                <div class="row">
+                    <div class="col s6 left">
+                        @if (Model.UIDPersonaModifica.HasValue)
+                        {
+                            <label style="font-size: small !important">Ultima modifica: </label>
+                            <br />
+                            <b>[@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @Model.PersonaModifica.DisplayName</b>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Note_Pubbliche))
+                        {
+                            <div class="green-text">
+                                <p style="padding-top: 10px">
+                                    <b>Nota ufficio dei lavori assembleari: </b>
+                                    @Html.Raw(Model.Note_Pubbliche)
+                                </p>
+                            </div>
+                        }
+                    </div>
+                    <div class="col s6 right-align">
+                        <label style="font-size: small !important">Proponente: </label>
+                        <br />
+                        <b>@Model.PersonaProponente.DisplayName</b>
+                    </div>
+                </div>
+                @if (string.IsNullOrEmpty(Model.DataDeposito_crypt))
+                {
+                    @* TITOLO *@
+                    <div class="row">
+                        <div class="col s12 center">
+                            <h4>
+                                <b>
+                                    <span>@Html.Raw(Model.NAtto)</span>
+                                </b>
+                            </h4>
+                        </div>
+                    </div>
+                }
+                @* BODY *@
+                <div class="row">
+                    <div class="col s12 center bodyEMClass">
+                        @Html.Raw(Model.BodyAtto)
+                    </div>
+                </div>
+                @* FIRME *@
+                <div class="row">
+                    <div class="col s12">
+                        @Html.Raw(Model.Firme)
+
+                        @if (!string.IsNullOrEmpty(Model.DataDeposito_crypt))
+                        {
+                            var testoDeposito = "Emendamento depositato";
+                            if (Model.Firma_da_ufficio)
+                            {
+                                testoDeposito += " d'ufficio";
+                            }
+
+                            <label class="green-text">@testoDeposito il @Html.Raw(Model.DataDeposito)</label>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))
+                        {
+                            @Html.Raw(Model.Firme_dopo_deposito)
+                        }
+                    </div>
+                </div>
+
+                @* INVITI *@
+                @if (!string.IsNullOrEmpty(Model.Destinatari))
+                {
+                    <div class="row">
+                        <div class="col s12">
+                            <h5>Invitati</h5>
+                            <hr />
+                            @Html.Raw(Model.Destinatari)
+                        </div>
+                    </div>
+                }
+                
+                @* NOTE RISERVATE *@
+                @if (!string.IsNullOrEmpty(Model.Note_Private) &&
+                     (User.IsInRole(RuoliExt.Amministratore_PEM)
+                    || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
+                {
+                    <div class="row">
+                        <div class="col s12 red-text">
+                            <p>
+                                <b>Nota riservata:</b>
+                                @Html.Raw(Model.Note_Private)
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
-    <p>
-        @Model.Oggetto
-    </p>

@@ -31,7 +31,7 @@ namespace PortaleRegione.Contracts
         Task<ATTI_DASI> Get(Guid attoUId);
         Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null);
         Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter);
-        Task<int> Count(PersonaDto persona, TipoAttoEnum tipo);
+        Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato);
         Task<int> GetEtichetta(ATTI_DASI atto);
         Task<int> GetOrdine(int tipo);
     }

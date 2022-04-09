@@ -24,12 +24,10 @@
                     title: "Procedura completata",
                     text: "Atto inserito correttamente a sistema.",
                     icon: "success",
-                    buttons: ["Ok", "Vai al riepilogo"]
+                    buttons: ["Ok"]
                 }).then((value) => {
-                    if (value) {
-                        go(baseUrl + data);
-                    } else
-                        instanceModalDasi.close();
+                    instanceModalDasi.close();
+                    location.reload();
                 });
             
         }).fail(function(err) {

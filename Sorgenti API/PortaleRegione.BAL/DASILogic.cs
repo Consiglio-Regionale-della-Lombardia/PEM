@@ -26,6 +26,7 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -85,21 +86,12 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<AttoDASIDto> Get(Guid id, PersonaDto persona = null)
+        public async Task<ATTI_DASI> Get(Guid id)
         {
             try
             {
                 var attoInDb = await _unitOfWork.DASI.Get(id);
-                var result = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
-                if (persona != null)
-                {
-                    result.Firmato_Da_Me = await _unitOfWork.Atti_Firme.CheckFirmato(id, persona.UID_persona);
-                    result.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(id);
-                    result.Firmato_Dal_Proponente =
-                        await _unitOfWork.Atti_Firme.CheckFirmato(id, attoInDb.UIDPersonaProponente.Value);
-                }
-
-                return result;
+                return attoInDb;
             }
             catch (Exception e)
             {
@@ -132,14 +124,16 @@ namespace PortaleRegione.API.Controllers
                             , uri),
                         Stato = GetResponseStatusFromFilters(model.filtro),
                         Tipo = GetResponseTypeFromFilters(model.filtro),
-                        CountBarData = await GetResponseCountBar(persona)
+                        CountBarData = new CountBarData()
                     };
 
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var result = new List<AttoDASIDto>();
                 foreach (var attoUId in atti_in_db)
                 {
-                    var dto = await _unitOfWork.DASI.Get(attoUId);
-                    result.Add(Mapper.Map<ATTI_DASI, AttoDASIDto>(dto));
+                    var dto = await GetAttoDto(attoUId, persona, personeInDbLight);
+                    result.Add(dto);
                 }
 
                 var totaleAtti = await _unitOfWork
@@ -147,7 +141,7 @@ namespace PortaleRegione.API.Controllers
                     .Count(persona,
                         queryFilter);
 
-                return new RiepilogoDASIModel
+                var responseModel = new RiepilogoDASIModel
                 {
                     Data = new BaseResponse<AttoDASIDto>(
                         model.page
@@ -157,9 +151,13 @@ namespace PortaleRegione.API.Controllers
                         , totaleAtti
                         , uri),
                     Stato = GetResponseStatusFromFilters(model.filtro),
-                    Tipo = GetResponseTypeFromFilters(model.filtro),
-                    CountBarData = await GetResponseCountBar(persona)
+                    Tipo = GetResponseTypeFromFilters(model.filtro)
                 };
+
+                responseModel.CountBarData =
+                    await GetResponseCountBar(persona, responseModel.Stato);
+
+                return responseModel;
             }
             catch (Exception e)
             {
@@ -168,34 +166,89 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona)
+        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona,
+            List<PersonaLightDto> personeInDbLight)
+        {
+            try
+            {
+                var attoInDb = await _unitOfWork.DASI.Get(attoUid);
+                var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+
+                if (!string.IsNullOrEmpty(dto.DataDeposito_crypt))
+                {
+                    //Atto certificato
+                    dto.DataDeposito = Decrypt(dto.DataDeposito_crypt);
+                }
+
+                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                                        persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
+                    dto.Firmato_Da_Me = await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, persona.UID_persona);
+
+                dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
+                dto.Firmato_Dal_Proponente =
+                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, dto.UIDPersonaProponente.Value);
+                
+                dto.PersonaCreazione = personeInDbLight.First(p => p.UID_persona == dto.UIDPersonaCreazione);
+                dto.PersonaProponente =
+                    personeInDbLight.First(p => p.UID_persona == dto.UIDPersonaProponente);
+                if (dto.UIDPersonaModifica.HasValue)
+                    dto.PersonaModifica =
+                        personeInDbLight.First(p => p.UID_persona == dto.UIDPersonaModifica);
+                
+                dto.ConteggioFirme = await _logicFirme.CountFirme(attoUid);
+
+                if (dto.ConteggioFirme > 1)
+                {
+                    var firme = await _logicFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                    dto.Firme = firme
+                        .Where(f => f.UID_persona != dto.UIDPersonaProponente)
+                        .Select(f => f.FirmaCert)
+                        .Aggregate((i, j) => i + "<br>" + j);
+                }
+                
+                return dto;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Get DTO Atto - DASI", e);
+                throw;
+            }
+        }
+
+        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato)
         {
             var result = new CountBarData
             {
                 ITL = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.ITL)
-                , ITR = await _unitOfWork
+                        TipoAttoEnum.ITL
+                        , stato),
+                ITR = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.ITR)
-                , IQT = await _unitOfWork
+                        TipoAttoEnum.ITR
+                        , stato),
+                IQT = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.IQT)
-                , MOZ = await _unitOfWork
+                        TipoAttoEnum.IQT
+                        , stato),
+                MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.MOZ)
-                , ODG = await _unitOfWork
+                        TipoAttoEnum.MOZ
+                        , stato),
+                ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.ODG)
-                , TUTTI = await _unitOfWork
+                        TipoAttoEnum.ODG
+                        , stato),
+                TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.TUTTI)
+                        TipoAttoEnum.TUTTI
+                        , stato)
             };
 
             return result;
@@ -235,6 +288,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var counterFirme = 1;
                 var carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 
@@ -243,7 +298,7 @@ namespace PortaleRegione.API.Controllers
                     if (counterFirme == Convert.ToInt32(AppSettingsConfiguration.LimiteFirmaMassivo) + 1) break;
 
                     var attoInDb = await _unitOfWork.DASI.Get(idGuid);
-                    var atto = await Get(idGuid);
+                    var atto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     if (atto == null)
                     {
                         results.Add(idGuid, "ERROR: NON TROVATO");
@@ -465,7 +520,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
-
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
 
@@ -480,7 +536,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    var attoDto = await Get(idGuid);
+                    var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     var nAtto = atto.NAtto;
                     if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
 
@@ -524,6 +580,11 @@ namespace PortaleRegione.API.Controllers
                 Log.Error("Logic - Deposita - DASI", e);
                 throw e;
             }
+        }
+
+        public async Task<T> GetFirme<T>(AttoDASIDto em, FirmeTipoEnum tipo)
+        {
+            throw new NotImplementedException();
         }
     }
 }

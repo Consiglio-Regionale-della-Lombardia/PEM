@@ -21,7 +21,7 @@ using System;
 
 namespace PortaleRegione.DTO.Model
 {
-    public class GetBodyEmendamentoModel
+    public class GetBodyModel
     {
         //Emendamento UID
         public Guid Id { get; set; }

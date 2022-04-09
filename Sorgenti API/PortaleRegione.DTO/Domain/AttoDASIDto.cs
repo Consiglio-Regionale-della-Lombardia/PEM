@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using Newtonsoft.Json;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.DTO.Domain
 {
@@ -69,5 +70,16 @@ namespace PortaleRegione.DTO.Domain
         [JsonIgnore] public HttpPostedFileBase DocAllegatoGenerico { get; set; }
 
         public byte[] DocAllegatoGenerico_Stream { get; set; }
+        public bool Atto_Certificato { get; set; } = false;
+        public string BodyAtto { get; set; }
+        public string Firme { get; set; }
+        public DateTime? Timestamp { get; set; }
+        public string Firme_dopo_deposito { get; set; }
+        public string Destinatari { get; set; }
+        public PersonaLightDto PersonaModifica { get; set; }
+        public PersonaLightDto PersonaProponente { get; set; }
+        public string DataDeposito { get; set; }
+        public PersonaLightDto PersonaCreazione { get; set; }
+        public int ConteggioFirme { get; set; }
     }
 }
