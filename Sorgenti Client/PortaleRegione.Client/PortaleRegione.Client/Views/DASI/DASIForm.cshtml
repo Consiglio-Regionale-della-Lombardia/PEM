@@ -1,0 +1,95 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+@{
+    var isNew = Model.Atto.UIDAtto == Guid.Empty;
+    ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
+
+    var backUrl = isNew ? Url.Action("RiepilogoDASI", new { tipo = Model.Atto.Tipo }) : Url.Action("ViewAtto", new { id = Model.Atto.UIDAtto });
+}
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').hide();
+    });
+</script>
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>
+                <span>@ViewBag.Title</span>
+                <input id="hfIsNew" type="hidden" value="@isNew" />
+            </b>
+        </h5>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-content">
+        <div class="row">
+            <div class="col s12 center">
+                <h5>
+                    <b>
+                        <span>@Html.Raw(Model.Atto.NAtto)</span>
+                    </b>
+                </h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 form-group">
+                <label>Proponente: </label>
+                <h6 style="font-size: small;">
+                    @Html.Raw(Model.Atto.PersonaProponente.DisplayName)
+                </h6>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                @using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(m => m.Atto.UIDAtto)
+                    @Html.HiddenFor(m => m.Atto.Tipo)
+
+                    <div class="input-field">
+                        <select id='TipoDasi'>
+                            <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)">Orale</option>
+                            <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
+                            <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)">Commissione</option>
+                        </select>
+                        <label for="TipoDasi">Tipo Risposta</label>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(s => s.Atto.Oggetto)
+                        @Html.TextAreaFor(model => model.Atto.Oggetto, new { @class = "form-control trumbowyg" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(s => s.Atto.Testo)
+                        @Html.TextAreaFor(model => model.Atto.Testo, new { @class = "form-control trumbowyg" })
+                    </div>
+                }
+
+                <div class="fixed-action-btn">
+                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva emendamento" onclick="SalvaDasi()">
+                        <i class="large material-icons">save</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("_ScriptFormDASI")
+
+<script>
+    $(document).ready(function() {
+    });
+</script>

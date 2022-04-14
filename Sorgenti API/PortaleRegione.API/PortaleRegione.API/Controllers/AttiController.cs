@@ -16,19 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using AutoMapper;
-using PortaleRegione.API.Helpers;
-using PortaleRegione.BAL;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using AutoMapper;
+using PortaleRegione.API.Helpers;
+using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -43,10 +45,13 @@ namespace PortaleRegione.API.Controllers
         private readonly PersoneLogic _logicPersone;
         private readonly SeduteLogic _logicSedute;
         private readonly StampeLogic _logicStampe;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AttiController(PersoneLogic logicPersone, SeduteLogic logicSedute, AttiLogic logic,
+        public AttiController(IUnitOfWork unitOfWork, PersoneLogic logicPersone, SeduteLogic logicSedute,
+            AttiLogic logic,
             StampeLogic logicStampe)
         {
+            _unitOfWork = unitOfWork;
             _logicPersone = logicPersone;
             _logicSedute = logicSedute;
             _logic = logic;
@@ -86,24 +91,22 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (model.id == Guid.Empty)
-                {
-                    return BadRequest();
-                }
+                if (model.id == Guid.Empty) return BadRequest();
 
                 var sedutaInDb = await _logicSedute.GetSeduta(model.id);
-                if (sedutaInDb == null)
-                {
-                    return BadRequest("Seduta non valida");
-                }
+                if (sedutaInDb == null) return BadRequest("Seduta non valida");
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
-                var result = await _logic.GetAtti(model, Convert.ToInt16(CLIENT_MODE), persona,
-                    Request.RequestUri);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var result = await _logic.GetAtti(model
+                    , Convert.ToInt16(CLIENT_MODE)
+                    , persona, personeInDbLight
+                    , Request.RequestUri);
                 return Ok(result);
             }
             catch (Exception e)
@@ -112,9 +115,9 @@ namespace PortaleRegione.API.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+
         /// <summary>
-        /// Endpoint per avere un singolo atto
+        ///     Endpoint per avere un singolo atto
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -135,7 +138,7 @@ namespace PortaleRegione.API.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per eliminare virtualmente un atto
         /// </summary>
@@ -148,17 +151,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (id == Guid.Empty)
-                {
-                    return BadRequest();
-                }
+                if (id == Guid.Empty) return BadRequest();
 
                 var attoInDb = await _logic.GetAtto(id);
 
-                if (attoInDb == null)
-                {
-                    return NotFound();
-                }
+                if (attoInDb == null) return NotFound();
 
                 await _logic.DeleteAtto(attoInDb);
 
@@ -183,20 +180,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(attoModel.NAtto))
-                {
-                    return BadRequest("Imposta il numero di atto");
-                }
+                if (string.IsNullOrEmpty(attoModel.NAtto)) return BadRequest("Imposta il numero di atto");
 
-                if (string.IsNullOrEmpty(attoModel.Oggetto))
-                {
-                    return BadRequest("Imposta l'oggetto");
-                }
+                if (string.IsNullOrEmpty(attoModel.Oggetto)) return BadRequest("Imposta l'oggetto");
 
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
-                {
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
-                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -224,15 +213,10 @@ namespace PortaleRegione.API.Controllers
             {
                 var attoInDb = await _logic.GetAtto(attoModel.UIDAtto);
 
-                if (attoInDb == null)
-                {
-                    return NotFound();
-                }
+                if (attoInDb == null) return NotFound();
 
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
-                {
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
-                }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -260,10 +244,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var attoInDb = await _logic.GetAtto(atto.UIDAtto);
 
-                if (attoInDb == null)
-                {
-                    return NotFound();
-                }
+                if (attoInDb == null) return NotFound();
 
                 await _logic.ModificaFascicoli(attoInDb, atto);
 
@@ -332,10 +313,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var articolo = await _logic.GetArticolo(id);
-                if (articolo == null)
-                {
-                    return NotFound();
-                }
+                if (articolo == null) return NotFound();
 
                 await _logic.DeleteArticolo(articolo);
 
@@ -391,10 +369,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var articolo = await _logic.GetArticolo(id);
-                if (articolo == null)
-                {
-                    return NotFound();
-                }
+                if (articolo == null) return NotFound();
 
                 await _logic.CreaCommi(articolo, commi);
                 return Ok("OK");
@@ -418,10 +393,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var comma = await _logic.GetComma(id);
-                if (comma == null)
-                {
-                    return NotFound();
-                }
+                if (comma == null) return NotFound();
 
                 await _logic.DeleteComma(comma);
 
@@ -471,10 +443,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var comma = await _logic.GetComma(id);
-                if (comma == null)
-                {
-                    return NotFound();
-                }
+                if (comma == null) return NotFound();
 
                 await _logic.CreaLettere(comma, lettere);
 
@@ -499,10 +468,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var lettera = await _logic.GetLettera(id);
-                if (lettera == null)
-                {
-                    return NotFound();
-                }
+                if (lettera == null) return NotFound();
 
                 await _logic.DeleteLettere(lettera);
 
@@ -529,10 +495,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var attoInDb = await _logic.GetAtto(model.Id);
 
-                if (attoInDb == null)
-                {
-                    return NotFound();
-                }
+                if (attoInDb == null) return NotFound();
 
                 await _logic.SalvaRelatori(model.Id, model.Persone);
 
@@ -559,17 +522,13 @@ namespace PortaleRegione.API.Controllers
             {
                 var attoInDb = await _logic.GetAtto(model.Id);
 
-                if (attoInDb == null)
-                {
-                    return NotFound();
-                }
+                if (attoInDb == null) return NotFound();
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.PubblicaFascicolo(attoInDb, model, persona);
 
                 if (model.Abilita)
-                {
                     await _logicStampe.InserisciStampa(new BaseRequest<EmendamentiDto, StampaDto>
                     {
                         entity = new StampaDto
@@ -581,7 +540,6 @@ namespace PortaleRegione.API.Controllers
                         },
                         ordine = model.Ordinamento
                     }, persona);
-                }
 
                 return Ok();
             }

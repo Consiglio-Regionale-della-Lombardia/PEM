@@ -27,7 +27,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.Gateway
@@ -149,7 +148,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                Lista = new List<Guid> { attoUId },
+                Lista = new List<Guid> {attoUId},
                 Pin = pin
             };
             return await Firma(model);
@@ -173,7 +172,7 @@ namespace PortaleRegione.Gateway
                 {
                     PropertyId = nameof(AttoDASIDto.IDStato),
                     Operation = Operation.GreaterThanOrEqualTo,
-                    Value = (int)StatiAttoEnum.PRESENTATO
+                    Value = (int) StatiAttoEnum.PRESENTATO
                 };
                 model.filtro.Add(filtroStato);
 
@@ -215,7 +214,6 @@ namespace PortaleRegione.Gateway
                 Log.Error("GetFirmatari - DASI", ex);
                 throw ex;
             }
-
         }
 
         public async Task<string> GetBody(Guid id, TemplateTypeEnum template)
@@ -249,13 +247,77 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task Elimina(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/elimina?id={id}";
+
+                JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("Elimina Atto - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Elimina Atto - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task Ritira(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/ritira?id={id}";
+
+                JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("Ritira Atto - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Ritira Atto - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<DASIFormModel> GetNuovoModello(TipoAttoEnum tipo)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/new?tipo={tipo}";
+
+                var result = await Get(requestUrl, _token);
+                var lst = JsonConvert.DeserializeObject<DASIFormModel>(result);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetNuovoModello", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetNuovoModello", ex);
+                throw ex;
+            }
+        }
+
+
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)
         {
             try
             {
                 var requestUrl = $"{apiUrl}/dasi/firma";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -275,7 +337,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                Lista = new List<Guid> { attoUId },
+                Lista = new List<Guid> {attoUId},
                 Pin = pin
             };
             return await Deposita(model);
@@ -287,7 +349,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/dasi/deposita";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -299,38 +362,6 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("Deposita - DASI", ex);
-                throw ex;
-            }
-        }
-
-        public async Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin)
-        {
-            var model = new ComandiAzioneModel
-            {
-                Lista = new List<Guid> { attoUId },
-                Pin = pin
-            };
-            return await RitiraFirma(model);
-        }
-
-        public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/dasi/ritiro-firma";
-                var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("RitiraFirma - DASI", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("RitiraFirma - DASI", ex);
                 throw ex;
             }
         }
@@ -339,7 +370,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                Lista = new List<Guid> { attoUId },
+                Lista = new List<Guid> {attoUId},
                 Pin = pin
             };
             return await EliminaFirma(model);
@@ -351,7 +382,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/dasi/elimina-firma";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -363,6 +395,39 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("EliminaFirma - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin)
+        {
+            var model = new ComandiAzioneModel
+            {
+                Lista = new List<Guid> {attoUId},
+                Pin = pin
+            };
+            return await RitiraFirma(model);
+        }
+
+        public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/ritiro-firma";
+                var body = JsonConvert.SerializeObject(model);
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("RitiraFirma - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("RitiraFirma - DASI", ex);
                 throw ex;
             }
         }

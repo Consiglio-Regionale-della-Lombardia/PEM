@@ -238,6 +238,40 @@ function ConfirmAction(id, name, action) {
     $("#modalAction").modal("open");
 }
 
+function ConfirmActionDASI(id, name, action) {
+    $("#attoActionDisplayName").empty();
+    $("#attoActionDisplayName").append(name);
+    $("#attoActionMessage").empty();
+
+    if (action == 1) {
+        $("#btnConfermaAction").text("ELIMINA");
+        $("#attoActionMessage").append("Stai per eliminare l'atto selezionato. Sei sicuro?");
+    } else if (action == 2) {
+        $("#btnConfermaAction").text("RITIRA");
+        $("#emActionMessage").append("Stai per ritirare l'atto selezionato. Sei sicuro?");
+    }
+    $("#btnConfermaActionDASI").on("click",
+        function() {
+            $.ajax({
+                url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action,
+                method: "GET"
+            }).done(function(data) {
+                $("#modalActionDASI").modal("close");
+                $("#btnConfermaActionDASI").off("click");
+                console.log(data.message)
+                if (data.message) {
+                    ErrorAlert(data.message);
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+    $("#modalActionDASI").modal("open");
+}
+
 function RitiraFirma(id) {
 
     swal("Inserisci il pin per ritirare la firma",

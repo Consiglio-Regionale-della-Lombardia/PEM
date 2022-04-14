@@ -388,5 +388,10 @@
         await loadLegislature();
         await loadGruppi();
         loadRuoli();
+
+        $('#btnSearch').on("click",
+            function () {
+                openSearch();
+            });
     });
 </script>

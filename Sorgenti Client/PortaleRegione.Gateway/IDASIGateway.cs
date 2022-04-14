@@ -43,5 +43,8 @@ namespace PortaleRegione.Gateway
         Task<RiepilogoDASIModel> GetBySeduta(Guid sedutaUidSeduta);
         Task<IEnumerable<AttiFirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum primaDeposito);
         Task<string> GetBody(Guid id, TemplateTypeEnum template);
+        Task Elimina(Guid id);
+        Task Ritira(Guid id);
+        Task<DASIFormModel> GetNuovoModello(TipoAttoEnum tipo);
     }
 }

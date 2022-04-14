@@ -25,6 +25,7 @@ using System.Web.Mvc;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -53,6 +54,19 @@ namespace PortaleRegione.Client.Controllers
                 return View("RiepilogoDASI_Admin", model);
             
             return View("RiepilogoDASI", model);
+        }
+
+        /// <summary>
+        ///     Controller per aggiungere un atto di sindacato ispettivo. Restituisce il modello dell'atto pre-compilato.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("new")]
+        public async Task<ActionResult> Nuovo(TipoAttoEnum tipo)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var model = await apiGateway.DASI.GetNuovoModello(tipo);
+            return View("DASIForm", model);
         }
 
         /// <summary>
@@ -120,6 +134,12 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 switch ((ActionEnum)azione)
                 {
+                    case ActionEnum.ELIMINA:
+                        await apiGateway.DASI.Elimina(id);
+                        return Json(Url.Action("RiepilogoDASI", "DASI"), JsonRequestBehavior.AllowGet);
+                    case ActionEnum.RITIRA:
+                        await apiGateway.DASI.Ritira(id);
+                        break;
                     case ActionEnum.FIRMA:
                         var resultFirma = await apiGateway.DASI.Firma(id, pin);
                         var listaErroriFirma = new List<string>();
@@ -298,6 +318,20 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
             }
+        }
+
+        /// <summary>
+        ///     Controller per modificare un atto. Restituisce il modello dell'atto pre-compilato.
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id:guid}/edit")]
+        public async Task<ActionResult> Modifica(Guid id)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var model = await apiGateway.DASI.Get(id);
+            return View("DASIForm", model);
         }
     }
 }

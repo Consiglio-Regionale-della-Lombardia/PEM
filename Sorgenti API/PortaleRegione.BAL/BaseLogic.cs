@@ -16,16 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using AutoMapper;
-using PortaleRegione.Common;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
-using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -35,6 +29,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using AutoMapper;
+using PortaleRegione.Common;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Logger;
+using QRCoder;
 
 namespace PortaleRegione.BAL
 {
@@ -45,10 +46,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var root = AppSettingsConfiguration.PercorsoCompatibilitaDocumenti;
-                if (!Directory.Exists(root))
-                {
-                    Directory.CreateDirectory(root);
-                }
+                if (!Directory.Exists(root)) Directory.CreateDirectory(root);
 
                 var fileName = DateTime.Now.Ticks + ".pdf";
                 var path = Path.Combine(root, fileName);
@@ -86,6 +84,15 @@ namespace PortaleRegione.BAL
             return result;
         }
 
+        public async Task<HttpResponseMessage> Download(string path)
+        {
+            var complete_path = Path.Combine(
+                AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                Path.GetFileName(path));
+            var result = await ComposeFileResponse(complete_path);
+            return result;
+        }
+
         internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
         {
             try
@@ -95,26 +102,18 @@ namespace PortaleRegione.BAL
                 {
                     //EMENDAMENTO
                     if (!string.IsNullOrEmpty(emendamento.N_EM))
-                    {
                         result = "EM " + DecryptString(emendamento.N_EM, AppSettingsConfiguration.masterKey);
-                    }
                     else
-                    {
                         result = "TEMP " + emendamento.Progressivo;
-                    }
                 }
                 else
                 {
                     //SUB EMENDAMENTO
 
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
-                    {
                         result = "SUBEM " + DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
-                    }
                     else
-                    {
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
-                    }
 
                     result = $"{result} all' {riferimento.N_EM}";
                 }
@@ -142,20 +141,34 @@ namespace PortaleRegione.BAL
             }
         }
 
+        internal static string GetNome(string nAtto, int progressivo)
+        {
+            try
+            {
+                var result = string.Empty;
+
+                if (!string.IsNullOrEmpty(nAtto))
+                    result = DecryptString(nAtto, AppSettingsConfiguration.masterKey);
+                else
+                    result = "TEMP " + progressivo;
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetNome - DASI", e);
+                throw e;
+            }
+        }
+
         internal static string GetFirmatariEM(IEnumerable<FirmeDto> firme)
         {
             try
             {
-                if (firme == null)
-                {
-                    return string.Empty;
-                }
+                if (firme == null) return string.Empty;
 
                 var firmeDtos = firme.ToList();
-                if (!firmeDtos.Any())
-                {
-                    return string.Empty;
-                }
+                if (!firmeDtos.Any()) return string.Empty;
 
                 var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
                         ? $"<label style='font-size:12px'>{item.FirmaCert}, {item.Data_firma}</label><br/>"
@@ -210,35 +223,61 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string GetTemplate(TemplateTypeEnum templateType)
+        internal static string GetTemplate(TemplateTypeEnum templateType, bool dasi = false)
         {
             try
             {
-                string path;
-                switch (templateType)
-                {
-                    case TemplateTypeEnum.PDF:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_pdf.html");
-                        break;
-                    case TemplateTypeEnum.PDF_COPERTINA:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_pdf_copertina.html");
-                        break;
-                    case TemplateTypeEnum.MAIL:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_mail.html");
-                        break;
-                    case TemplateTypeEnum.HTML:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_html.html");
-                        break;
-                    case TemplateTypeEnum.FIRMA:
-                        path = HttpContext.Current.Server.MapPath("~/templates/template_firma.html");
-                        break;
-                    case TemplateTypeEnum.HTML_MODIFICABILE:
-                        path = HttpContext.Current.Server.MapPath(
-                            "~/templates/template_html_testomodificabile.html");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(templateType), templateType, null);
-                }
+                var path = "";
+                if (dasi == false)
+                    switch (templateType)
+                    {
+                        case TemplateTypeEnum.PDF:
+                            path = HttpContext.Current.Server.MapPath("~/templates/template_pdf.html");
+                            break;
+                        case TemplateTypeEnum.PDF_COPERTINA:
+                            path = HttpContext.Current.Server.MapPath("~/templates/template_pdf_copertina.html");
+                            break;
+                        case TemplateTypeEnum.MAIL:
+                            path = HttpContext.Current.Server.MapPath("~/templates/template_mail.html");
+                            break;
+                        case TemplateTypeEnum.HTML:
+                            path = HttpContext.Current.Server.MapPath("~/templates/template_html.html");
+                            break;
+                        case TemplateTypeEnum.FIRMA:
+                            path = HttpContext.Current.Server.MapPath("~/templates/template_firma.html");
+                            break;
+                        case TemplateTypeEnum.HTML_MODIFICABILE:
+                            path = HttpContext.Current.Server.MapPath(
+                                "~/templates/template_html_testomodificabile.html");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(templateType), templateType, null);
+                    }
+                else
+                    switch (templateType)
+                    {
+                        case TemplateTypeEnum.PDF:
+                            path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_pdf.html");
+                            break;
+                        case TemplateTypeEnum.PDF_COPERTINA:
+                            path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_pdf_copertina.html");
+                            break;
+                        case TemplateTypeEnum.MAIL:
+                            path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_mail.html");
+                            break;
+                        case TemplateTypeEnum.HTML:
+                            path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_html.html");
+                            break;
+                        case TemplateTypeEnum.FIRMA:
+                            path = HttpContext.Current.Server.MapPath("~/templates/dasi/template_firma.html");
+                            break;
+                        case TemplateTypeEnum.HTML_MODIFICABILE:
+                            path = HttpContext.Current.Server.MapPath(
+                                "~/templates/dasi/template_html_testomodificabile.html");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(templateType), templateType, null);
+                    }
 
                 var result = File.ReadAllText(path);
 
@@ -255,10 +294,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (!string.IsNullOrEmpty(emendamento.EM_Certificato))
-                {
-                    return;
-                }
+                if (!string.IsNullOrEmpty(emendamento.EM_Certificato)) return;
                 //EM TEMPORANEO
                 body = body.Replace("{lblTitoloPDLEMView}",
                     $"PROGETTO DI LEGGE N.{atto.NAtto}");
@@ -281,10 +317,8 @@ namespace PortaleRegione.BAL
 
                 //Allegato Tecnico
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
-                {
                     allegato_tecnico =
                         $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
-                }
 
                 #endregion
 
@@ -292,10 +326,8 @@ namespace PortaleRegione.BAL
 
                 //Allegato Generico
                 if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
-                {
                     allegato_generico =
                         $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
-                }
 
                 #endregion
 
@@ -308,7 +340,36 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
+        internal static void GetBodyTemporaneo(AttoDASIDto atto, string tipoAtto, ref string body)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(atto.Atto_Certificato)) return;
+                body = body.Replace("{lblSubTitoloATTOView}", atto.Oggetto);
+
+                body = body.Replace("{lblTestoATTOView}", atto.Testo);
+
+                var allegato_generico = string.Empty;
+
+                #region Allegato Generico
+
+                //Allegato Generico
+                if (!string.IsNullOrEmpty(atto.PATH_AllegatoGenerico))
+                    allegato_generico =
+                        $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/dasi/file?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+
+                #endregion
+
+                body = body.Replace("{lblAllegati}", allegato_generico);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetBodyTemporaneo - DASI", e);
+                throw e;
+            }
+        }
+
+        public static void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             ref string body)
@@ -362,7 +423,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.IDStato >= (int)StatiEnum.Depositato)
+                if (emendamento.IDStato >= (int) StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",
@@ -374,16 +435,12 @@ namespace PortaleRegione.BAL
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
 
                     if (firmeAnte.Any())
-                    {
                         body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))
                             .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                             .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
-                    }
                     else
-                    {
                         body = body.Replace("{radGridFirmeView}", string.Empty)
                             .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
-                    }
 
                     var TemplatefirmePOST = @"<div>
                              <div style='width:100%;'>
@@ -394,17 +451,13 @@ namespace PortaleRegione.BAL
                             </div>
                         </div>";
                     if (firmePost.Any())
-                    {
                         body = body.Replace("{radGridFirmePostView}",
                                 TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost)))
                             .Replace("{FIRME_COMMENTO_START}", string.Empty)
                             .Replace("{FIRME_COMMENTO_END}", string.Empty);
-                    }
                     else
-                    {
                         body = body.Replace("{radGridFirmePostView}", string.Empty)
                             .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
-                    }
                 }
                 else
                 {
@@ -429,7 +482,6 @@ namespace PortaleRegione.BAL
                             .Replace("{FIRME_COMMENTO_START}", "<!--")
                             .Replace("{FIRME_COMMENTO_END}", "-->");
                     }
-
                 }
 
                 #endregion
@@ -445,17 +497,16 @@ namespace PortaleRegione.BAL
 
                 if (currentUser != null)
                 {
-                    if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea && !string.IsNullOrEmpty(emendamento.NOTE_EM))
-                    {
+                    if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea &&
+                        !string.IsNullOrEmpty(emendamento.NOTE_EM))
                         body = body.Replace("{lblNotePrivateEMView}",
-                            $"Note Riservate: {emendamento.NOTE_EM}").Replace("{NOTEPRIV_COMMENTO_START}", string.Empty).Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
-                    }
+                                $"Note Riservate: {emendamento.NOTE_EM}")
+                            .Replace("{NOTEPRIV_COMMENTO_START}", string.Empty)
+                            .Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
                     else
-                    {
                         body = body.Replace("{lblNotePrivateEMView}", string.Empty)
                             .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
                             .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
-                    }
                 }
                 else
                 {
@@ -468,7 +519,8 @@ namespace PortaleRegione.BAL
                 if (enableQrCode)
                 {
                     var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
-                    var qrFilePathComplete = Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
+                    var qrFilePathComplete =
+                        Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
                     var qrLink = $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}";
                     var qrGenerator = new QRCodeGenerator();
                     var urlPayload = new PayloadGenerator.Url(qrLink);
@@ -491,10 +543,181 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public static void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
+            PersonaDto currentUser,
+            bool enableQrCode,
+            ref string body)
+        {
+            try
+            {
+                var firmeDtos = firme.ToList();
+                if (!string.IsNullOrEmpty(atto.Atto_Certificato))
+                    body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} {atto.NAtto}");
+                else
+                    body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} TEMP-{atto.Progressivo}");
+
+
+                if (string.IsNullOrEmpty(atto.Atto_Certificato))
+                {
+                    //ATTO TEMPORANEO
+                    var bodyTemp = GetTemplate(TemplateTypeEnum.FIRMA, true);
+                    GetBodyTemporaneo(atto, tipoAtto, ref bodyTemp);
+                    body = body.Replace("{ltATTOView}", bodyTemp);
+                }
+                else
+                {
+                    body = body.Replace("{ltATTOView}", atto.Atto_Certificato);
+                }
+
+                #region Firme
+
+                if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                {
+                    //DEPOSITATO
+                    body = body.Replace("{lblDepositoATTOView}",
+                        firmeDtos.Any(s => s.ufficio)
+                            ? "Atto presentato d'ufficio"
+                            : $"Atto presentato il {atto.DataDeposito}");
+
+                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataDeposito));
+                    var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataDeposito));
+
+                    if (firmeAnte.Any())
+                        body = body.Replace("{radGridFirmeView}", GetFirmatari(firmeAnte))
+                            .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
+                            .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                    else
+                        body = body.Replace("{radGridFirmeView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+
+                    var TemplatefirmePOST = @"<div>
+                             <div style='width:100%;'>
+                                      <h5>Firme dopo la presentazione</h5>
+                              </div>
+                              <div style='text-align:left'>
+                                {firme}
+                            </div>
+                        </div>";
+                    if (firmePost.Any())
+                        body = body.Replace("{radGridFirmePostView}",
+                                TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)))
+                            .Replace("{FIRME_COMMENTO_START}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_END}", string.Empty);
+                    else
+                        body = body.Replace("{radGridFirmePostView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+                }
+                else
+                {
+                    //FIRMATO MA NON DEPOSITATO
+                    var firmatari = GetFirmatari(firmeDtos);
+                    if (!string.IsNullOrEmpty(firmatari))
+                    {
+                        body = body.Replace("{lblDepositoATTOView}", string.Empty);
+                        body = body.Replace("{radGridFirmeView}", firmatari)
+                            .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
+                            .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                        body = body.Replace("{radGridFirmePostView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--")
+                            .Replace("{FIRME_COMMENTO_END}", "-->");
+                    }
+                    else
+                    {
+                        body = body.Replace("{lblDepositoATTOView}", string.Empty);
+                        body = body.Replace("{FIRMEANTE_COMMENTO_START}", "<!--")
+                            .Replace("{FIRMEANTE_COMMENTO_END}", "-->");
+                        body = body.Replace("{radGridFirmePostView}", string.Empty)
+                            .Replace("{FIRME_COMMENTO_START}", "<!--")
+                            .Replace("{FIRME_COMMENTO_END}", "-->");
+                    }
+                }
+
+                #endregion
+
+                body = body.Replace("{lblNotePubblicheATTOView}",
+                        !string.IsNullOrEmpty(atto.Note_Pubbliche)
+                            ? $"Note: {atto.Note_Pubbliche}"
+                            : string.Empty)
+                    .Replace("{NOTE_PUBBLICHE_COMMENTO_START}",
+                        !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "<!--").Replace(
+                        "{NOTE_PUBBLICHE_COMMENTO_END}",
+                        !string.IsNullOrEmpty(atto.Note_Pubbliche) ? string.Empty : "-->");
+
+                if (currentUser != null)
+                {
+                    if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea &&
+                        !string.IsNullOrEmpty(atto.Note_Private))
+                        body = body.Replace("{lblNotePrivateATTOView}",
+                                $"Note Riservate: {atto.Note_Private}")
+                            .Replace("{NOTEPRIV_COMMENTO_START}", string.Empty)
+                            .Replace("{NOTEPRIV_COMMENTO_END}", string.Empty);
+                    else
+                        body = body.Replace("{lblNotePrivateATTOView}", string.Empty)
+                            .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
+                            .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
+                }
+                else
+                {
+                    body = body.Replace("{lblNotePrivateATTOView}", string.Empty)
+                        .Replace("{NOTEPRIV_COMMENTO_START}", "<!--")
+                        .Replace("{NOTEPRIV_COMMENTO_END}", "-->");
+                }
+
+                var textQr = string.Empty;
+                if (enableQrCode)
+                {
+                    var nameFileQrCode = $"QR_{atto.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
+                    var qrFilePathComplete =
+                        Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
+                    var qrLink = $"{AppSettingsConfiguration.urlDASI_ViewATTO}{atto.UID_QRCode}";
+                    var qrGenerator = new QRCodeGenerator();
+                    var urlPayload = new PayloadGenerator.Url(qrLink);
+                    var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
+                    var qrCode = new QRCode(qrData);
+                    using (var qrCodeImage = qrCode.GetGraphic(20))
+                    {
+                        qrCodeImage.Save(qrFilePathComplete);
+                    }
+
+                    textQr = $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />";
+                }
+
+                body = body.Replace("{QRCode}", textQr);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetBody - DASI", e);
+                throw e;
+            }
+        }
+
+        private static string GetFirmatari(IEnumerable<AttiFirmeDto> firme)
+        {
+            try
+            {
+                if (firme == null) return string.Empty;
+
+                var firmeDtos = firme.ToList();
+                if (!firmeDtos.Any()) return string.Empty;
+
+                var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
+                        ? $"<label style='font-size:12px'>{item.FirmaCert}, {item.Data_firma}</label><br/>"
+                        : $"<div style='text-decoration:line-through;'><label style='font-size:12px'>{item.FirmaCert}, {item.Data_firma} ({item.Data_ritirofirma})</label></div><br/>")
+                    .ToList();
+
+                return result.Aggregate((i, j) => i + j);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetFirmatari - DASI", e);
+                throw e;
+            }
+        }
+
         private static byte[] BitmapToBytes(Bitmap img)
         {
             using var stream = new MemoryStream();
-            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            img.Save(stream, ImageFormat.Png);
             return stream.ToArray();
         }
 
@@ -528,7 +751,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
+                if (emendamento.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",

@@ -193,6 +193,12 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Content Include="Templates\DASI\template_firma.html" />
+    <Content Include="Templates\DASI\template_html.html" />
+    <Content Include="Templates\DASI\template_html_testomodificabile.html" />
+    <Content Include="Templates\DASI\template_mail.html" />
+    <Content Include="Templates\DASI\template_pdf.html" />
+    <Content Include="Templates\DASI\template_pdf_copertina.html" />
     <Content Include="Templates\ErrAllegatoPDF.pdf" />
     <Content Include="Templates\template_firma.html" />
     <Content Include="Templates\template_html.html" />

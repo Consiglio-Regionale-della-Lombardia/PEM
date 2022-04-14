@@ -47,6 +47,7 @@ namespace PortaleRegione.BAL
 
         public async Task<BaseResponse<AttiDto>> GetAtti(BaseRequest<AttiDto> model, int CLIENT_MODE,
             PersonaDto currentUser,
+            List<PersonaLightDto> personeInDbLight,
             Uri url)
         {
             try
@@ -76,6 +77,9 @@ namespace PortaleRegione.BAL
 
                         appoggio.Informazioni_Mancanti = listaArticoli.Any() || listaRelatori.Any() ? false : true;
                     }
+
+                    appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
+                    appoggio.PersonaAssessore = personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
 
                     result.Add(appoggio);
                 }

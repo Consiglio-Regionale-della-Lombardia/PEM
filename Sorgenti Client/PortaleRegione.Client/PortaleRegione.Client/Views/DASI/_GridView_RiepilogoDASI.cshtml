@@ -69,7 +69,10 @@ else
                 </td>
                 <td>
                     <div class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
-                        @Html.Raw(Utility.GetText_TipoDASI(item.Tipo)) TEMP-@Html.Raw(item.Progressivo)
+                        @{
+                            var title = $"{Utility.GetText_TipoDASI(item.Tipo)} TEMP - {item.Progressivo}";
+                        }
+                        @Html.Raw(title)
                     </div>
                 </td>
                 <td>Orale</td>
@@ -84,7 +87,7 @@ else
                 <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
                     @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
                 </td>
-                @if (Model.Stato != StatiAttoEnum.BOZZA)
+                @if (item.IDStato != (int)StatiAttoEnum.BOZZA)
                 {
                     <td>
                         <div class="chip badgeSeduta">
@@ -93,23 +96,29 @@ else
                     </td>
                 }
                 <td class="center">
-                    @if (Model.Stato == StatiAttoEnum.BOZZA)
+                    @if (item.IDStato == (int)StatiAttoEnum.BOZZA)
                     {
-                        <a class="amber-text tooltipped" data-tooltip="Invita">
+                        @*<a class="amber-text tooltipped" data-tooltip="Invita">
                             <i class="icon material-icons">send</i>
-                        </a>
+                        </a>*@
                         <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
                             <i class="icon material-icons">edit</i>
                         </a>
-                        <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
-                            <i class="icon material-icons">gavel</i>
-                        </a>
-                        <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)">
-                            <i class="material-icons">lock</i>
-                        </a>
+                        if(item.Firmabile)
+                        {
+                            <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                <i class="icon material-icons">gavel</i>
+                            </a>
+                        }
+                        if(item.Depositabile)
+                        {
+                            <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme" onclick="CambioStatoDASI('', 1)">
+                                <i class="material-icons">lock</i>
+                            </a>
+                        }
                     }
 
-                    <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="CambioStatoDASI('', 1)">
+                    <a class="red-text tooltipped" data-tooltip="Elimina atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.ELIMINA))">
                         <i class="material-icons">close</i>
                     </a>
                 </td>

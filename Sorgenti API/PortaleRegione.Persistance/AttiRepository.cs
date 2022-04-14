@@ -217,7 +217,8 @@ namespace PortaleRegione.Persistance
                 {
                     UID_persona = persona.UID_persona.Value,
                     cognome = persona.cognome,
-                    nome = persona.nome
+                    nome = persona.nome,
+                    foto = persona.foto
                 });
             }
 

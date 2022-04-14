@@ -18,7 +18,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
@@ -39,10 +41,12 @@ namespace PortaleRegione.API.Controllers
     {
         private readonly AttiFirmeLogic _logicFirme;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly PersoneLogic _logicPersona;
 
-        public DASILogic(IUnitOfWork unitOfWork, AttiFirmeLogic logicFirme)
+        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme)
         {
             _unitOfWork = unitOfWork;
+            _logicPersona = logicPersona;
             _logicFirme = logicFirme;
         }
 
@@ -54,20 +58,44 @@ namespace PortaleRegione.API.Controllers
                 if (attoDto.UIDAtto == Guid.Empty)
                 {
                     //Nuovo inserimento
-                    result.UIDAtto = Guid.NewGuid();
-                    result.UIDPersonaCreazione = persona.UID_persona;
-                    result.UIDPersonaProponente = attoDto.UIDPersonaProponente;
-                    result.DataCreazione = DateTime.Now;
-                    result.IDStato = (int) StatiAttoEnum.BOZZA;
-                    result.Oggetto = attoDto.Oggetto;
-                    result.Tipo = attoDto.Tipo;
-                    result.IDTipo_Risposta = (int) TipoRispostaEnum.ORALE;
-                    result.UID_QRCode = Guid.NewGuid();
-                    result.idRuoloCreazione = (int) persona.CurrentRole;
-                    result.id_gruppo = persona.Gruppo.id_gruppo;
-                    var random = new Random();
-                    result.Progressivo = random.Next(1, 1000);
+                    var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
+                    var progressivo =
+                        await _unitOfWork.DASI.GetProgressivo((TipoAttoEnum)attoDto.Tipo, persona.Gruppo.id_gruppo, legislatura);
+                    result.Progressivo = progressivo;
 
+                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+                        result.IDStato = (int)StatiAttoEnum.BOZZA;
+                    else
+                        result.IDStato = persona.Gruppo.abilita_em_privati
+                            ? (int)StatiAttoEnum.BOZZA_RISERVATA
+                            : (int)StatiAttoEnum.BOZZA;
+                    
+                    if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                        persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
+                    {
+                        result.UIDPersonaProponente = persona.UID_persona;
+                    }
+                    else
+                    {
+                        result.UIDPersonaProponente = attoDto.UIDPersonaProponente;
+                    }
+
+                    result.UIDPersonaCreazione = persona.UID_persona;
+                    result.DataCreazione = DateTime.Now;
+                    result.idRuoloCreazione = (int)persona.CurrentRole;
+                    if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
+                        && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                        && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                        result.id_gruppo = persona.Gruppo.id_gruppo;
+                    else
+                    {
+                        var proponente = await _logicPersona.GetPersona(result.UIDPersonaProponente.Value);
+                        result.id_gruppo = proponente.Gruppo.id_gruppo;
+                    }
+                    result.UIDAtto = Guid.NewGuid();
+                    result.UID_QRCode = Guid.NewGuid();
                     _unitOfWork.DASI.Add(result);
                 }
                 else
@@ -174,11 +202,15 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _unitOfWork.DASI.Get(attoUid);
                 var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
+                dto.NAtto = GetNome(dto.NAtto, dto.Progressivo);
+
                 if (!string.IsNullOrEmpty(dto.DataDeposito_crypt))
                 {
                     //Atto certificato
                     dto.DataDeposito = Decrypt(dto.DataDeposito_crypt);
                 }
+                if (!string.IsNullOrEmpty(dto.Atto_Certificato))
+                    dto.Atto_Certificato = Decrypt(dto.Atto_Certificato, dto.Hash);
 
                 if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                         persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
@@ -205,7 +237,40 @@ namespace PortaleRegione.API.Controllers
                         .Select(f => f.FirmaCert)
                         .Aggregate((i, j) => i + "<br>" + j);
                 }
-                
+
+                dto.gruppi_politici =
+                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+                if (string.IsNullOrEmpty(dto.DataDeposito))
+                    dto.Depositabile = await _unitOfWork
+                        .DASI
+                        .CheckIfDepositabile(dto,
+                            persona);
+
+                if (dto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                    dto.Firmabile = await _unitOfWork
+                        .Atti_Firme
+                        .CheckIfFirmabile(dto,
+                            persona);
+
+                if (!dto.DataRitiro.HasValue && dto.IDStato == (int)StatiAttoEnum.PRESENTATO)
+                    dto.Ritirabile = _unitOfWork
+                        .DASI
+                        .CheckIfRitirabile(dto,
+                            persona);
+
+                if (string.IsNullOrEmpty(dto.DataDeposito))
+                    dto.Eliminabile = _unitOfWork
+                        .DASI
+                        .CheckIfEliminabile(dto,
+                            persona);
+
+                dto.Modificabile = await _unitOfWork
+                    .DASI
+                    .CheckIfModificabile(dto,
+                        persona);
+
                 return dto;
             }
             catch (Exception e)
@@ -367,23 +432,22 @@ namespace PortaleRegione.API.Controllers
                             : pin.PIN;
                         attoInDb.UIDPersonaPrimaFirma = persona.UID_persona;
                         attoInDb.DataPrimaFirma = DateTime.Now;
-                        //TODO: GET BODY DASI
-                        //var body = await GetBodyEM(atto, new List<FirmeDto>
-                        //    {
-                        //        new FirmeDto
-                        //        {
-                        //            UIDEM = idGuid,
-                        //            UID_persona = persona.UID_persona,
-                        //            FirmaCert = firmaCert,
-                        //            Data_firma = dataFirma,
-                        //            ufficio = firmaUfficio
-                        //        }
-                        //    }, persona,
-                        //    TemplateTypeEnum.FIRMA);
-                        var body_encrypt = EncryptString(attoInDb.Testo,
+                        var body = await GetBodyDASI(attoInDb, new List<AttiFirmeDto>
+                            {
+                                new AttiFirmeDto
+                                {
+                                    UIDAtto = idGuid,
+                                    UID_persona = persona.UID_persona,
+                                    FirmaCert = firmaCert,
+                                    Data_firma = dataFirma,
+                                    ufficio = firmaUfficio
+                                }
+                            }, persona,
+                            TemplateTypeEnum.FIRMA);
+                        var body_encrypt = EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
-                        attoInDb.Testo_crypt = body_encrypt;
+                        attoInDb.Atto_Certificato = body_encrypt;
                     }
 
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
@@ -489,7 +553,7 @@ namespace PortaleRegione.API.Controllers
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     if (countFirme == 1)
                     {
-                        atto.Testo_crypt = string.Empty;
+                        atto.Atto_Certificato = string.Empty;
                         atto.DataPrimaFirma = null;
                         atto.UIDPersonaPrimaFirma = null;
                     }
@@ -524,6 +588,8 @@ namespace PortaleRegione.API.Controllers
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 ManagerLogic.BloccaDeposito = true;
                 var counterDepositi = 1;
+                var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
+                var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
 
                 foreach (var idGuid in depositoModel.Lista)
                 {
@@ -537,21 +603,27 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
-                    var nAtto = atto.NAtto;
                     if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
 
                     if (!attoDto.Depositabile)
                     {
-                        results.Add(idGuid, $"ERROR: Atto {nAtto} non presentabile");
+                        results.Add(idGuid, $"ERROR: Atto {attoDto.NAtto} non presentabile");
                         continue;
                     }
 
                     var etichetta_progressiva =
-                        await _unitOfWork.DASI.GetEtichetta(atto) + 1;
+                        await _unitOfWork.DASI.GetEtichetta((TipoAttoEnum)atto.Tipo, atto.IDTipo_Risposta) + $"_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
-                        EncryptString(etichetta_progressiva.ToString(), AppSettingsConfiguration.masterKey);
+                        EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
 
-                    //TODO: CONTROLLO PROGRESSIVO SE UNIVOCO PER EVITARE DOPPIONI O BUCHI NELLA NUMERAZIONE
+                    var checkProgressivo_unique =
+                        await _unitOfWork.DASI.CheckProgressivo(etichetta_encrypt);
+
+                    if (!checkProgressivo_unique)
+                    {
+                        results.Add(idGuid, $"ERROR: Progressivo {attoDto.NAtto} occupato");
+                        continue;
+                    }
 
                     atto.UIDPersonaDeposito = persona.UID_persona;
                     atto.OrdineVisualizzazione = await _unitOfWork.DASI.GetOrdine(atto.Tipo) + 1;
@@ -565,7 +637,7 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    results.Add(idGuid, $"{nAtto} - OK");
+                    results.Add(idGuid, $"{attoDto.NAtto} - OK");
 
                     //TODO: INSERIRE STAMPA
 
@@ -581,10 +653,174 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
         }
-
-        public async Task<T> GetFirme<T>(AttoDASIDto em, FirmeTipoEnum tipo)
+        
+        public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
+    TemplateTypeEnum template, bool isDeposito = false)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var dto = await GetAttoDto(atto.UIDAtto, persona, personeInDbLight);
+
+                try
+                {
+                    var tipo = "";
+                    switch (atto.Tipo)
+                    {
+                        case (int)TipoAttoEnum.ITL:
+                        {
+                            tipo = nameof(TipoAttoEnum.ITL);
+                            break;
+                        }
+                        case (int)TipoAttoEnum.ITR:
+                        {
+                            tipo = nameof(TipoAttoEnum.ITR);
+                            break;
+                        }
+                        case (int)TipoAttoEnum.IQT:
+                        {
+                            tipo = nameof(TipoAttoEnum.IQT);
+                            break;
+                        }
+                        case (int)TipoAttoEnum.MOZ:
+                        {
+                            tipo = nameof(TipoAttoEnum.MOZ);
+                            break;
+                        }
+                        case (int)TipoAttoEnum.ODG:
+                        {
+                            tipo = nameof(TipoAttoEnum.ODG);
+                            break;
+                        }
+                    }
+
+                    var body = GetTemplate(template, true);
+
+                    switch (template)
+                    {
+                        case TemplateTypeEnum.MAIL:
+                            GetBody(dto, tipo, firme, persona, false, ref body);
+                            break;
+                        case TemplateTypeEnum.PDF:
+                            GetBody(dto, tipo, firme, persona, true, ref body);
+                            break;
+                        case TemplateTypeEnum.HTML:
+                            GetBody(dto, tipo, firme, persona, false, ref body);
+                            break;
+                        case TemplateTypeEnum.FIRMA:
+                            GetBodyTemporaneo(dto, tipo, ref body);
+                            break;
+                        case TemplateTypeEnum.HTML_MODIFICABILE:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(template), template, null);
+                    }
+
+                    return body;
+                }
+                catch (Exception e)
+                {
+                    Log.Error("GetBodyEM", e);
+                    throw e;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetBodyEM", e);
+                throw e;
+            }
+        }
+
+        public async Task Elimina(ATTI_DASI atto, Guid sessionCurrentUId)
+        {
+            try
+            {
+                atto.Eliminato = true;
+                atto.DataElimina = DateTime.Now;
+                atto.UIDPersonaElimina = sessionCurrentUId;
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Elimina Atto - DASI", e);
+                throw;
+            }
+        }
+
+        public async Task Ritira(ATTI_DASI atto, PersonaDto persona)
+        {
+            try
+            {
+                atto.IDStato = (int)StatiEnum.Ritirato;
+                atto.UIDPersonaRitiro = persona.UID_persona;
+                atto.DataRitiro = DateTime.Now;
+                
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Ritira Atto - DASI", e);
+                throw e;
+            }
+        }
+
+        public async Task<DASIFormModel> NuovoModello(TipoAttoEnum tipo, PersonaDto persona)
+        {
+            try
+            {
+                var result = new DASIFormModel
+                {
+                    Atto = new AttoDASIDto
+                    {
+                        Tipo = (int)tipo
+                    }
+                };
+
+                var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
+                var progressivo =
+                    await _unitOfWork.DASI.GetProgressivo(tipo, persona.Gruppo.id_gruppo, legislatura);
+                result.Atto.Progressivo = progressivo;
+
+                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                    || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+                    result.Atto.IDStato = (int)StatiAttoEnum.BOZZA;
+                else
+                    result.Atto.IDStato = persona.Gruppo.abilita_em_privati
+                        ? (int)StatiAttoEnum.BOZZA_RISERVATA
+                        : (int)StatiAttoEnum.BOZZA;
+
+                result.Atto.NAtto = GetNome(result.Atto.NAtto, progressivo);
+
+                if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
+                {
+                    result.Atto.UIDPersonaProponente = persona.UID_persona;
+                    result.Atto.PersonaProponente = new PersonaLightDto
+                    {
+                        UID_persona = persona.UID_persona,
+                        cognome = persona.cognome,
+                        nome = persona.nome
+                    };
+                }
+
+                result.Atto.UIDPersonaCreazione = persona.UID_persona;
+                result.Atto.DataCreazione = DateTime.Now;
+                result.Atto.idRuoloCreazione = (int)persona.CurrentRole;
+                if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
+                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                    && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                    result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - NuovoModello - DASI", e);
+                throw e;
+            }
         }
     }
 }

@@ -93,5 +93,6 @@ namespace PortaleRegione.DTO.Domain
         public PersonaLightDto PersonaProponente { get; set; }
         public DateTime DataPresentazione { get; set; }
         public int Stato { get; set; }
+        public PersonaLightDto PersonaAssessore { get; set; }
     }
 }

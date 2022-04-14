@@ -23,23 +23,32 @@ main { margin-bottom: 150px; }
     }
 }
 
-.carousel {
-    height: unset !important;
-    margin-bottom: -55px;
+.btn-flat {
+    font-weight: bold!important;
 }
 
-.carousel .carousel-item { top: -40px; }
-
-.carousel .indicators .indicator-item { background-color: #C8E6C9; }
-
-.carousel .indicators .indicator-item.active { background-color: grey; }
-
-.carousel .indicators {
-    margin-top: 200px;
-    position: unset;
+.collapsible-body {
+    padding: 1rem !important;
+}
+.collapsible-body > div.row {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
 }
 
-.form-group > label { font-weight: bold !important }
+.collapsabile-secondary-header {
+    width: 79%;
+    text-align: right;
+}
+.collapsabile-secondary-header>div.chip {
+    min-width: unset !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    margin: unset !important;
+}
+
+.form-group > label {
+    font-weight: bold !important
+}
 
 .input-field > label { font-weight: bold !important }
 
@@ -49,6 +58,11 @@ main { margin-bottom: 150px; }
 }
 
 .modal { height: 70%; }
+.modal-DASI {
+    width: 90vw;
+    height: 90vh;
+    max-height: unset !important;
+}
 
 .modal .modal-footer { position: absolute; bottom: 10px; }
 

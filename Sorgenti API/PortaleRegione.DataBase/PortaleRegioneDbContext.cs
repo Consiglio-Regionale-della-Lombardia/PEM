@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Domain;
 using System.Data.Entity;
-using System.Threading.Tasks;
+using PortaleRegione.Domain;
 
 namespace PortaleRegione.DataBase
 {
@@ -30,7 +29,7 @@ namespace PortaleRegione.DataBase
         public PortaleRegioneDbContext()
             : base("name=PortaleRegioneDbContext")
         {
-            base.Configuration.LazyLoadingEnabled = false;
+            Configuration.LazyLoadingEnabled = false;
         }
 
         public virtual DbSet<ARTICOLI> ARTICOLI { get; set; }
@@ -81,6 +80,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
         public virtual DbSet<ATTI_DASI> DASI { get; set; }
         public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; }
+        public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

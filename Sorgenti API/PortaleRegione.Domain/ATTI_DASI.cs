@@ -35,13 +35,12 @@ namespace PortaleRegione.Domain
         public Guid? UIDSeduta { get; set; }
 
         public int Tipo { get; set; }
-        public int Progressivo { get; set; }
+        public int? Progressivo { get; set; }
+        public int? Contatore { get; set; }
 
         public string Oggetto { get; set; }
-        public string Oggetto_crypt { get; set; }
         public string Oggetto_Pubblico { get; set; }
         public string Testo { get; set; }
-        public string Testo_crypt { get; set; }
         public string Testo_Pubblico { get; set; }
         public string NAtto { get; set; }
         public DateTime DataCreazione { get; set; }
@@ -73,5 +72,9 @@ namespace PortaleRegione.Domain
         public bool Eliminato { get; set; } = false;
         public string chkf { get; set; }
         public DateTime? Timestamp { get; set; }
+        public string Atto_Certificato { get; set; }
+        public Guid? UIDPersonaElimina { get; set; }
+        public DateTime? DataElimina { get; set; }
+        public int Legislatura { get; set; }
     }
 }

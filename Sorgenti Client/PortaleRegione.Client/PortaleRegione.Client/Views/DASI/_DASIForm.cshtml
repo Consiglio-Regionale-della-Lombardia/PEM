@@ -24,7 +24,7 @@
         }
     }
 }
-<div id="modalAggiungiDASI" class="modal">
+<div id="modalAggiungiDASI" class="modal modal-DASI">
     <div class="modal-content">
         <input type="hidden" id="hdTipoAttoDasi" />
         <input type="hidden" id="hdProponenteAttoDasi" value="@Html.Raw(id)"/>
@@ -36,15 +36,15 @@
                 <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
                 <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)">Commissione</option>
             </select>
-            <label for="modalTipoDasi">Tipo</label>
+            <label for="modalTipoDasi">Tipo Risposta</label>
         </div>
-        <div class="input-field" style="margin-top: 30px">
+        <div class="form-group" style="margin-top: 30px">
             <label for="modalOggettoDasi">Oggetto</label>
-            <textarea id="modalOggettoDasi" class="materialize-textarea"></textarea>
+            <input id="modalOggettoDasi" class="form-control"/>
         </div>
         <div class="input-field">
-            <label for="modalTestoDasi">Testo</label>
-            <textarea id="modalTestoDasi" class="materialize-textarea"></textarea>
+            <label for="modalTestoDasi">Premessa e Testo</label>
+            <textarea id="modalTestoDasi" class="materialize-textarea trumbowyg"></textarea>
         </div>
         <div class="input-field">
             <label for="autocompleteSoggettoDestinatarioDasi">Soggetto interrogato</label>

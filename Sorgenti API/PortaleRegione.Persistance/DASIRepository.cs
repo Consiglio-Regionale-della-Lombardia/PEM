@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -86,11 +87,15 @@ namespace PortaleRegione.Persistance
                 .CountAsync();
         }
 
-        public async Task<int> GetEtichetta(ATTI_DASI atto)
+        public async Task<int> GetEtichetta(TipoAttoEnum tipo, int tipo_risposta)
         {
-            //TODO: CONTATORI PER TIPOLOGIA DI ATTO
-            var random = new Random();
-            return random.Next(9, 999);
+            var query = PRContext
+                .DASI_CONTATORI
+                .Where(atto => atto.Tipo == (int)tipo
+                             && atto.Risposta == tipo_risposta);
+            var result = await query.FirstAsync();
+
+            return result.Inizio + result.Contatore + 1;
         }
 
         public async Task<int> GetOrdine(int tipo)
@@ -99,6 +104,99 @@ namespace PortaleRegione.Persistance
             //ULTIMO DEI CONTATORI 
             var random = new Random();
             return random.Next(9, 999);
+        }
+
+        public async Task<bool> CheckIfDepositabile(AttoDASIDto dto, PersonaDto persona)
+        {
+            if (!string.IsNullOrEmpty(dto.DataDeposito)) return false;
+
+            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (dto.Firma_da_ufficio)
+                    return true;
+
+            // Se proponente non ha firmato non è possibile depositare
+            if (!dto.Firmato_Dal_Proponente) return false;
+
+            switch (persona.CurrentRole)
+            {
+                case RuoliIntEnum.Consigliere_Regionale:
+                case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
+                case RuoliIntEnum.Presidente_Regione:
+                    return dto.UIDPersonaProponente == persona.UID_persona;
+                case RuoliIntEnum.Amministratore_PEM:
+                case RuoliIntEnum.Segreteria_Assemblea:
+                    return true;
+            }
+
+            if (persona.Gruppo != null) return dto.id_gruppo == persona.Gruppo.id_gruppo;
+
+            return false;
+        }
+
+        public bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona)
+        {
+            if (persona.Gruppo == null) return false;
+
+            if (dto.id_gruppo != persona.Gruppo.id_gruppo) return false;
+
+            if (dto.DataRitiro.HasValue) return false;
+
+            if (dto.IDStato != (int) StatiAttoEnum.PRESENTATO) return false;
+
+            return persona.UID_persona == dto.UIDPersonaProponente
+                   || persona.CurrentRole == RuoliIntEnum.Presidente_Regione;
+        }
+
+        public bool CheckIfEliminabile(AttoDASIDto dto, PersonaDto persona)
+        {
+            if (persona.Gruppo == null) return false;
+
+            if (dto.id_gruppo != persona.Gruppo.id_gruppo) return false;
+
+            if (!string.IsNullOrEmpty(dto.DataDeposito)) return false;
+
+            return persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
+                   || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
+                   || persona.UID_persona == dto.UIDPersonaCreazione;
+        }
+
+        public async Task<bool> CheckIfModificabile(AttoDASIDto dto, PersonaDto persona)
+        {
+            if (string.IsNullOrEmpty(dto.Atto_Certificato))
+                return dto.UIDPersonaProponente == persona.UID_persona
+                       || dto.UIDPersonaCreazione == persona.UID_persona
+                       || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
+                       || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
+
+            return (dto.UIDPersonaProponente == persona.UID_persona || dto.UIDPersonaCreazione == persona.UID_persona)
+                   && (dto.IDStato == (int) StatiEnum.Bozza || dto.IDStato == (int) StatiEnum.Bozza_Riservata)
+                   && dto.ConteggioFirme == 1;
+        }
+
+        public async Task<int> GetProgressivo(TipoAttoEnum tipo, int gruppoId, int legislatura)
+        {
+            var query = PRContext.DASI
+                .Where(atto => atto.id_gruppo == gruppoId
+                               && atto.Tipo == (int) tipo
+                               && atto.Legislatura == legislatura);
+            query = query.OrderByDescending(em => em.Progressivo)
+                .Take(1);
+
+            var list = await query.ToListAsync();
+            if (list.Count == 0) return 1;
+
+            if (list[0].Progressivo.HasValue) return list[0].Progressivo.Value + 1;
+
+            return 1;
+        }
+
+        public async Task<bool> CheckProgressivo(string etichettaEncrypt)
+        {
+            var query = PRContext
+                .DASI
+                .Where(e => true);
+            return !await query.AnyAsync(e => e.NAtto == etichettaEncrypt);
         }
     }
 }

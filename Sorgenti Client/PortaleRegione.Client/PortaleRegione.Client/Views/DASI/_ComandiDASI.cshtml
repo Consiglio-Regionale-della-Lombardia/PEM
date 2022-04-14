@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
     <a class="btn-floating btn-large pink">
         <i class="large material-icons">playlist_add</i>
@@ -31,11 +32,11 @@
         <i class="large material-icons">add</i>
     </a>
     <ul>
-        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITL)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.ITL), false)">ITL</a></li>
-        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.ITR), false)">ITR</a></li>
-        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.IQT), false)">IQT</a></li>
-        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.MOZ), false)">MOZ</a></li>
-        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG)" onclick="openFormDASI(@Html.Raw((int)TipoAttoEnum.ODG), false)">ODG</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITL)" href="@Url.Action("Nuovo", new {tipo = TipoAttoEnum.ITL })">@Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR)" href="@Url.Action("Nuovo", new {tipo = TipoAttoEnum.ITR })">@Utility.GetText_TipoDASI((int)TipoAttoEnum.ITR)</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT)" href="@Url.Action("Nuovo", new {tipo = TipoAttoEnum.IQT })">@Utility.GetText_TipoDASI((int)TipoAttoEnum.IQT)</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ)" href="@Url.Action("Nuovo", new {tipo = TipoAttoEnum.MOZ })">@Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ)</a></li>
+        <li><a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG)" href="@Url.Action("Nuovo", new {tipo = TipoAttoEnum.ODG })">@Utility.GetText_TipoDASI((int)TipoAttoEnum.ODG)</a></li>
     </ul>
 </div>
 

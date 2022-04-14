@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Client.Helpers
 {
@@ -36,7 +37,7 @@ namespace PortaleRegione.Client.Helpers
         ///     Template chip
         /// </summary>
         private static readonly string _chipTemplate = @"
-            <div class='chip' style='margin: 5px'>
+            <div class='chip' style='margin: 5px; min-width: unset!important'>
                 <img src='http://intranet.consiglio.regione.lombardia.it/GC/foto/{{foto}}'>
                 {{DisplayName}}
                 {{OPZIONALE}}
@@ -241,6 +242,28 @@ namespace PortaleRegione.Client.Helpers
         }
 
         #endregion
+
+        public static string GetRelatori(IEnumerable<PersonaLightDto> persone)
+        {
+            try
+            {
+                var result = new List<string>();
+
+                foreach (var persona in persone)
+                {
+                    result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
+                        .Replace("{{DisplayName}}", $"{persona.DisplayName}")
+                        .Replace("{{OPZIONALE}}", ""));
+                }
+
+                return result.Aggregate((i, j) => i + j);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetRelatori", e);
+                throw e;
+            }
+        }
 
         #region GetDestinatariNotifica
 

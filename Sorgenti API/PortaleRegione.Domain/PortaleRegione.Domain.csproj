@@ -39,6 +39,7 @@
     <Compile Include="ARTICOLI.cs" />
     <Compile Include="ATTI.cs" />
     <Compile Include="ATTI_DASI.cs" />
+    <Compile Include="ATTI_DASI_CONTATORI.cs" />
     <Compile Include="ATTI_FIRME.cs" />
     <Compile Include="ATTI_RELATORI.cs" />
     <Compile Include="cariche.cs" />

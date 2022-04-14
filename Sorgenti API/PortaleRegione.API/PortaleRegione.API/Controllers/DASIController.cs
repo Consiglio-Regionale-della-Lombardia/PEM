@@ -45,18 +45,42 @@ namespace PortaleRegione.API.Controllers
         private readonly DASILogic _logic;
         private readonly PersoneLogic _logicPersone;
         private readonly AttiFirmeLogic _logicFirma;
+        private readonly SeduteLogic _logicPem;
 
         /// <summary>
         /// Controller per la gestione modulo DASI (Atti Sindacato Ispettivo)
         /// </summary>
         /// <param name="logic"></param>
         /// <param name="logicPersone"></param>
-        public DASIController(IUnitOfWork unitOfWork, DASILogic logic, PersoneLogic logicPersone, AttiFirmeLogic logicFirma)
+        public DASIController(IUnitOfWork unitOfWork, DASILogic logic, PersoneLogic logicPersone, AttiFirmeLogic logicFirma, SeduteLogic logicPEM)
         {
             _unitOfWork = unitOfWork;
             _logic = logic;
             _logicPersone = logicPersone;
             _logicFirma = logicFirma;
+            _logicPem = logicPEM;
+        }
+
+        /// <summary>
+        ///     Endpoint che restituisce il modello di Atto di Sindacato Ispettivo da creare
+        /// </summary>
+        /// <param name="tipo">Tipo di atto</param>
+        /// <returns></returns>
+        [Route("new")]
+        public async Task<IHttpActionResult> GetNuovoModello(TipoAttoEnum tipo)
+        {
+            try
+            {
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var result = await _logic.NuovoModello(tipo, persona);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetNuovoEmendamento", e);
+                return ErrorHandler(e);
+            }
         }
 
         /// <summary>
@@ -371,6 +395,141 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetFirmatari", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere il corpo dell'atto da template
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("template-body")]
+        public async Task<IHttpActionResult> GetBody(GetBodyModel model)
+        {
+            try
+            {
+                var atto = await _logic.Get(model.Id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+
+                var body = await _logic.GetBodyDASI(atto
+                    , await _logicFirma.GetFirme(atto, FirmeTipoEnum.TUTTE)
+                    , persona
+                    , model.Template
+                    , model.IsDeposito);
+
+                return Ok(body);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetBody - DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per scaricare il file allegato all'atto
+        /// </summary>
+        /// <param name="path">Percorso file</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file")]
+        [AllowAnonymous]
+        public async Task<IHttpActionResult> Download(string path)
+        {
+            try
+            {
+                var response = ResponseMessage(await _logic.Download(path));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Download Allegato Atto", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per eliminare un atto
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("elimina")]
+        public async Task<IHttpActionResult> Elimina(Guid id)
+        {
+            try
+            {
+                var atto = await _logic.Get(id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var firmatari = await _logicFirma.GetFirme(atto, FirmeTipoEnum.ATTIVI);
+                var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
+                if (firmatari_attivi.Any())
+                {
+                    return BadRequest("L'atto ha delle firme attive e non può essere eliminato");
+                }
+
+                var session = await GetSession();
+                await _logic.Elimina(atto, session._currentUId);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Elimina Atto - DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per ritirare un atto
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("ritira")]
+        public async Task<IHttpActionResult> Ritira(Guid id)
+        {
+            try
+            {
+                var atto = await _logic.Get(id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                if (atto.UIDSeduta.HasValue)
+                {
+                    var seduta = await _logicPem.GetSeduta(atto.UIDSeduta.Value);
+                    if (DateTime.Now > seduta.Data_seduta)
+                    {
+                        return BadRequest(
+                            "Non è possibile ritirare l'atto durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
+                    }
+                }
+
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+
+                await _logic.Ritira(atto, persona);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Ritira Atto - DASI", e);
                 return ErrorHandler(e);
             }
         }

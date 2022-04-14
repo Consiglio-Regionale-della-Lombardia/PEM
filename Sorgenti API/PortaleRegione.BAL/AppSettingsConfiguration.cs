@@ -63,6 +63,6 @@ namespace PortaleRegione.BAL
         public static string RootRepository => ConfigurationManager.AppSettings["RootRepository"];
         public static string PrefissoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PrefissoCompatibilitaDocumenti"];
         public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
-
+        public static string urlDASI_ViewATTO => ConfigurationManager.AppSettings["urlDASI_ViewATTO"];
     }
 }
