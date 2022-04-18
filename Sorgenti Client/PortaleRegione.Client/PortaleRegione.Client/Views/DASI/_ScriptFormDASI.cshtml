@@ -33,6 +33,7 @@
             form_data.append("Oggetto", editor_oggetto_originale.html());
             form_data.append("Testo", editor_testo_originale.html());
             form_data.append("Tipo", $("#Atto_Tipo").val());
+            form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
             
             $.ajax({
                 url: '@Url.Action("SalvaAtto")',

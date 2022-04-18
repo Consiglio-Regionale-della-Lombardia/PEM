@@ -64,5 +64,8 @@ namespace PortaleRegione.BAL
         public static string PrefissoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PrefissoCompatibilitaDocumenti"];
         public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
         public static string urlDASI_ViewATTO => ConfigurationManager.AppSettings["urlDASI_ViewATTO"];
+
+        //DASI
+        public static string LimitePresentazioneMassivo => ConfigurationManager.AppSettings["LimitePresentazioneMassivo"];
     }
 }

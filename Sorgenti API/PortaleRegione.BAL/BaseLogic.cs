@@ -574,10 +574,10 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{lblDepositoATTOView}",
                         firmeDtos.Any(s => s.ufficio)
                             ? "Atto presentato d'ufficio"
-                            : $"Atto presentato il {atto.DataDeposito}");
+                            : $"Atto presentato il {atto.DataPresentazione}");
 
-                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataDeposito));
-                    var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataDeposito));
+                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
+                    var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));
 
                     if (firmeAnte.Any())
                         body = body.Replace("{radGridFirmeView}", GetFirmatari(firmeAnte))

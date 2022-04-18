@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Caching;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
@@ -46,8 +47,8 @@ namespace PortaleRegione.Client.Controllers
             StatiAttoEnum stato = StatiAttoEnum.BOZZA, TipoAttoEnum tipo = TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.Get(page, size, stato, tipo);
-
+            var model = await apiGateway.DASI.Get(page, size, stato, tipo, _CurrentUser);
+            SetCache(page, size, tipo, stato);
             if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("RiepilogoDASI_Admin", model);
 
@@ -103,7 +104,11 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 var atto = await apiGateway.DASI.Get(id);
-                atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML);
+                if (string.IsNullOrEmpty(atto.Atto_Certificato))
+                    atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML);
+                else
+                    atto.BodyAtto = atto.Atto_Certificato;
+
                 atto.Firme = await Utility.GetFirmatari(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                     _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
@@ -152,7 +157,7 @@ namespace PortaleRegione.Client.Controllers
                                 }, JsonRequestBehavior.AllowGet);
                         break;
                     case ActionEnum.DEPOSITA:
-                        var resultDeposita = await apiGateway.DASI.Deposita(id, pin);
+                        var resultDeposita = await apiGateway.DASI.Presenta(id, pin);
                         var listaErroriDeposito = new List<string>();
                         foreach (var itemDeposito in resultDeposita)
                             listaErroriDeposito.Add(
@@ -198,9 +203,7 @@ namespace PortaleRegione.Client.Controllers
                 {
                     case ActionEnum.FIRMA:
                         var resultFirma = await apiGateway.DASI.Firma(model);
-                        var listaErroriFirma = new List<string>();
-                        foreach (var itemFirma in resultFirma)
-                            listaErroriFirma.Add($"{itemFirma.Value}");
+                        var listaErroriFirma = resultFirma.Select(itemFirma => $"{itemFirma.Value}").ToList();
                         if (listaErroriFirma.Count > 0)
                             return Json(
                                 new
@@ -216,11 +219,8 @@ namespace PortaleRegione.Client.Controllers
                                     "Nessuna firma effettuata"
                             }, JsonRequestBehavior.AllowGet);
                     case ActionEnum.DEPOSITA:
-                        var resultDeposita = await apiGateway.DASI.Deposita(model);
-                        var listaErroriDeposito = new List<string>();
-                        foreach (var itemDeposito in resultDeposita)
-                            listaErroriDeposito.Add(
-                                $"{itemDeposito.Value}");
+                        var resultDeposita = await apiGateway.DASI.Presenta(model);
+                        var listaErroriDeposito = resultDeposita.Select(itemDeposito => $"{itemDeposito.Value}").ToList();
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
@@ -234,7 +234,7 @@ namespace PortaleRegione.Client.Controllers
                             new
                             {
                                 message =
-                                    "Nessuna deposito effettuato"
+                                    "Nessuna presentazione effettuata"
                             }, JsonRequestBehavior.AllowGet);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(model.Azione), model.Azione, null);
@@ -328,6 +328,49 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetModificaModello(id);
             return View("DASIForm", model);
+        }
+
+        private void SetCache(int page, int size, TipoAttoEnum tipo, StatiAttoEnum stato)
+        {
+            HttpContext.Cache.Insert(
+                "TipoDASI",
+                (int) tipo,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
+
+            HttpContext.Cache.Insert(
+                "StatoDASI",
+                (int) stato,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
+
+            HttpContext.Cache.Insert(
+                "Page",
+                page,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
+
+            HttpContext.Cache.Insert(
+                "Size",
+                size,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
         }
     }
 }

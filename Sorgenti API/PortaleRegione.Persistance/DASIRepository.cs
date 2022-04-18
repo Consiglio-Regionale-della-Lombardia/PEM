@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -79,23 +78,26 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .Where(item => !item.Eliminato
-                               && item.IDStato == (int) stato);
+                .Where(item => !item.Eliminato);
+            
+            if (stato == StatiAttoEnum.PRESENTATO) query = query.Where(item => item.IDStato >= (int) stato);
+            else query = query.Where(item => item.IDStato == (int) stato);
+
             if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
 
             return await query
                 .CountAsync();
         }
 
-        public async Task<int> GetEtichetta(TipoAttoEnum tipo, int tipo_risposta)
+        public async Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta)
         {
             var query = PRContext
                 .DASI_CONTATORI
-                .Where(atto => atto.Tipo == (int)tipo
-                             && atto.Risposta == tipo_risposta);
+                .Where(atto => atto.Tipo == (int) tipo
+                               && atto.Risposta == tipo_risposta);
             var result = await query.FirstAsync();
 
-            return result.Inizio + result.Contatore + 1;
+            return result;
         }
 
         public async Task<int> GetOrdine(int tipo)
@@ -106,9 +108,9 @@ namespace PortaleRegione.Persistance
             return random.Next(9, 999);
         }
 
-        public async Task<bool> CheckIfDepositabile(AttoDASIDto dto, PersonaDto persona)
+        public async Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona)
         {
-            if (!string.IsNullOrEmpty(dto.DataDeposito)) return false;
+            if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
 
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
@@ -154,14 +156,14 @@ namespace PortaleRegione.Persistance
 
             if (dto.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
-            if (!string.IsNullOrEmpty(dto.DataDeposito)) return false;
+            if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
 
             return persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                    || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
                    || persona.UID_persona == dto.UIDPersonaCreazione;
         }
 
-        public async Task<bool> CheckIfModificabile(AttoDASIDto dto, PersonaDto persona)
+        public bool CheckIfModificabile(AttoDASIDto dto, PersonaDto persona)
         {
             if (string.IsNullOrEmpty(dto.Atto_Certificato))
                 return dto.UIDPersonaProponente == persona.UID_persona
@@ -197,6 +199,11 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(e => true);
             return !await query.AnyAsync(e => e.NAtto == etichettaEncrypt);
+        }
+
+        public void IncrementaContatore(ATTI_DASI_CONTATORI contatore)
+        {
+            contatore.Contatore += 1;
         }
     }
 }

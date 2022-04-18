@@ -105,7 +105,17 @@ namespace PortaleRegione.API.Controllers
                 else
                 {
                     //Modifica
-                    result = Mapper.Map<AttoDASIDto, ATTI_DASI>(attoDto);
+                    var attoInDb = await _unitOfWork.DASI.Get(attoDto.UIDAtto);
+                    if (attoInDb == null)
+                        throw new InvalidOperationException("Atto non trovato");
+
+                    attoInDb.UIDPersonaModifica = persona.UID_persona;
+                    attoInDb.DataModifica = DateTime.Now;
+                    attoInDb.Oggetto = attoDto.Oggetto;
+                    attoInDb.Testo = attoDto.Testo;
+                    attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+                    await _unitOfWork.CompleteAsync();
+                    return attoInDb;
                 }
 
                 await _unitOfWork.CompleteAsync();
@@ -145,6 +155,9 @@ namespace PortaleRegione.API.Controllers
                         model.size,
                         queryFilter);
                 if (!atti_in_db.Any())
+                {
+                    var defaultCounterBar =
+                        await GetResponseCountBar(persona, GetResponseStatusFromFilters(model.filtro), GetResponseTypeFromFilters(model.filtro));
                     return new RiepilogoDASIModel
                     {
                         Data = new BaseResponse<AttoDASIDto>(
@@ -156,8 +169,9 @@ namespace PortaleRegione.API.Controllers
                             , uri),
                         Stato = GetResponseStatusFromFilters(model.filtro),
                         Tipo = GetResponseTypeFromFilters(model.filtro),
-                        CountBarData = new CountBarData()
+                        CountBarData = defaultCounterBar
                     };
+                }
 
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -187,7 +201,7 @@ namespace PortaleRegione.API.Controllers
                 };
 
                 responseModel.CountBarData =
-                    await GetResponseCountBar(persona, responseModel.Stato);
+                    await GetResponseCountBar(persona, responseModel.Stato, responseModel.Tipo);
 
                 return responseModel;
             }
@@ -206,13 +220,12 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _unitOfWork.DASI.Get(attoUid);
                 var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
-                dto.NAtto = GetNome(dto.NAtto, dto.Progressivo);
+                dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo.Value);
 
-                if (!string.IsNullOrEmpty(dto.DataDeposito_crypt))
-                    //Atto certificato
-                    dto.DataDeposito = Decrypt(dto.DataDeposito_crypt);
-                if (!string.IsNullOrEmpty(dto.Atto_Certificato))
-                    dto.Atto_Certificato = Decrypt(dto.Atto_Certificato, dto.Hash);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                    dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
+                if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
+                    dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
                 if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                         persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
@@ -220,14 +233,14 @@ namespace PortaleRegione.API.Controllers
 
                 dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
                 dto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, dto.UIDPersonaProponente.Value);
+                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente.Value);
 
-                dto.PersonaCreazione = personeInDbLight.First(p => p.UID_persona == dto.UIDPersonaCreazione);
+                dto.PersonaCreazione = personeInDbLight.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
                 dto.PersonaProponente =
-                    personeInDbLight.First(p => p.UID_persona == dto.UIDPersonaProponente);
+                    personeInDbLight.First(p => p.UID_persona == attoInDb.UIDPersonaProponente);
                 if (dto.UIDPersonaModifica.HasValue)
                     dto.PersonaModifica =
-                        personeInDbLight.First(p => p.UID_persona == dto.UIDPersonaModifica);
+                        personeInDbLight.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
 
                 dto.ConteggioFirme = await _logicFirme.CountFirme(attoUid);
 
@@ -235,7 +248,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     var firme = await _logicFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
                     dto.Firme = firme
-                        .Where(f => f.UID_persona != dto.UIDPersonaProponente)
+                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
                         .Select(f => f.FirmaCert)
                         .Aggregate((i, j) => i + "<br>" + j);
                 }
@@ -244,10 +257,10 @@ namespace PortaleRegione.API.Controllers
                     Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                         await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
 
-                if (string.IsNullOrEmpty(dto.DataDeposito))
-                    dto.Depositabile = await _unitOfWork
+                if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                    dto.Presentabile = await _unitOfWork
                         .DASI
-                        .CheckIfDepositabile(dto,
+                        .CheckIfPresentabile(dto,
                             persona);
 
                 if (dto.IDStato <= (int) StatiAttoEnum.PRESENTATO)
@@ -262,13 +275,13 @@ namespace PortaleRegione.API.Controllers
                         .CheckIfRitirabile(dto,
                             persona);
 
-                if (string.IsNullOrEmpty(dto.DataDeposito))
+                if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.Eliminabile = _unitOfWork
                         .DASI
                         .CheckIfEliminabile(dto,
                             persona);
 
-                dto.Modificabile = await _unitOfWork
+                dto.Modificabile = _unitOfWork
                     .DASI
                     .CheckIfModificabile(dto,
                         persona);
@@ -282,7 +295,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato)
+        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo)
         {
             var result = new CountBarData
             {
@@ -315,7 +328,17 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.TUTTI
-                        , stato)
+                        , stato),
+                BOZZE = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        tipo
+                        , StatiAttoEnum.BOZZA), 
+                PRESENTATI = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        tipo
+                        , StatiAttoEnum.PRESENTATO)
             };
 
             return result;
@@ -461,7 +484,7 @@ namespace PortaleRegione.API.Controllers
                     //    await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(idGuid,
                     //        persona.UID_persona);
 
-                    results.Add(idGuid, $"{attoInDb.NAtto} - OK");
+                    results.Add(idGuid, $"{atto.NAtto} - OK");
                     counterFirme++;
                 }
 
@@ -580,7 +603,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel depositoModel,
+        public async Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model,
             PersonaDto persona)
         {
             try
@@ -588,14 +611,15 @@ namespace PortaleRegione.API.Controllers
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                ManagerLogic.BloccaDeposito = true;
-                var counterDepositi = 1;
+                var counterPresentazioni = 1;
                 var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
                 var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
+                
+                ManagerLogic.BloccaPresentazione = true;
 
-                foreach (var idGuid in depositoModel.Lista)
+                foreach (var idGuid in model.Lista)
                 {
-                    if (counterDepositi == Convert.ToInt32(AppSettingsConfiguration.LimiteDepositoMassivo) + 1) break;
+                    if (counterPresentazioni == Convert.ToInt32(AppSettingsConfiguration.LimitePresentazioneMassivo) + 1) break;
 
                     var atto = await _unitOfWork.DASI.Get(idGuid);
                     if (atto == null)
@@ -607,14 +631,16 @@ namespace PortaleRegione.API.Controllers
                     var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
 
-                    if (!attoDto.Depositabile)
+                    if (!attoDto.Presentabile)
                     {
                         results.Add(idGuid, $"ERROR: Atto {attoDto.NAtto} non presentabile");
                         continue;
                     }
 
+                    var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
+                    var contatore_progressivo = contatore.Inizio + contatore.Contatore;
                     var etichetta_progressiva =
-                        await _unitOfWork.DASI.GetEtichetta((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta) +
+                        contatore_progressivo +
                         $"_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
                         EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
@@ -624,16 +650,19 @@ namespace PortaleRegione.API.Controllers
 
                     if (!checkProgressivo_unique)
                     {
-                        results.Add(idGuid, $"ERROR: Progressivo {attoDto.NAtto} occupato");
+                        results.Add(idGuid, $"ERROR: Progressivo {etichetta_progressiva} occupato");
                         continue;
                     }
 
-                    atto.UIDPersonaDeposito = persona.UID_persona;
+                    atto.Etichetta = etichetta_progressiva;
+                    atto.UIDPersonaPresentazione = persona.UID_persona;
                     atto.OrdineVisualizzazione = await _unitOfWork.DASI.GetOrdine(atto.Tipo) + 1;
                     atto.Timestamp = DateTime.Now;
-                    atto.DataDeposito_crypt = EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
+                    atto.DataPresentazione = EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
                     atto.IDStato = (int) StatiAttoEnum.PRESENTATO;
+
+                    atto.NAtto = etichetta_encrypt;
 
                     var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     atto.chkf = count_firme.ToString();
@@ -645,14 +674,16 @@ namespace PortaleRegione.API.Controllers
                     //TODO: INSERIRE STAMPA
 
                     await _unitOfWork.CompleteAsync();
-                    counterDepositi++;
+                    _unitOfWork.DASI.IncrementaContatore(contatore);
+                    await _unitOfWork.CompleteAsync();
+                    counterPresentazioni++;
                 }
 
                 return results;
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Deposita - DASI", e);
+                Log.Error("Logic - Presenta - DASI", e);
                 throw e;
             }
         }
@@ -736,7 +767,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                atto.IDStato = (int) StatiEnum.Ritirato;
+                atto.IDStato = (int) StatiAttoEnum.RITIRATO;
                 atto.UIDPersonaRitiro = persona.UID_persona;
                 atto.DataRitiro = DateTime.Now;
 

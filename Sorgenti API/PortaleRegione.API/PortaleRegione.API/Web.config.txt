@@ -77,6 +77,10 @@
 
     <add key="MessaggioInizialeDeposito" value="Salve, {br}� stato depositato il seguente emendamento:" />
     <add key="MessaggioInizialeInvito" value="Gentile Consigliere/Assessore, {br}la invito a firmare il seguente emendamento:" />
+
+    <!--DASI-->
+    <add key="LimitePresentazioneMassivo" value="10" />
+
   </appSettings>
    <system.web>
     <compilation debug="true" targetFramework="4.7.2" />

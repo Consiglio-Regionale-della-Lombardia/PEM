@@ -4,12 +4,36 @@
 
 @{
     ViewBag.Title = "title";
+
+    var tipoFromCache = HttpContext.Current.Cache.Get("TipoDASI");
+    var statoFromCache = HttpContext.Current.Cache.Get("StatoDASI");
+    var pageFromCache = HttpContext.Current.Cache.Get("Page");
+    var sizeFromCache = HttpContext.Current.Cache.Get("Size");
+
+    object objParams = null;
+    objParams = new
+    {
+        page = pageFromCache,
+        size = sizeFromCache,
+        tipo = tipoFromCache,
+        stato = statoFromCache
+    };
+    var backUrl = Url.Action("RiepilogoDASI", objParams);
 }
+
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').hide();
+    });
+</script>
 
 <div class="row">
     <div class="col s12">
         <div class="card">
             <div class="card-action grey lighten-4 center">
+                <a class="grey-arrow-back" style="position: absolute; left: 10px; top: 18px; min-width: unset" onclick="go('@backUrl')">
+                    <i class="material-icons">arrow_back</i>
+                </a>
                 <div class="chip @Utility.GetCSS_StatoDASI(Model.IDStato) white-text" style="position: absolute;right: 10px;top: 18px;min-width: unset">@Utility.GetText_StatoDASI(Model.IDStato)</div>
                 <h6>
                     <b>
@@ -17,7 +41,7 @@
                     </b>
                 </h6>
             </div>
-            @if (Model.Firmabile || Model.Depositabile || Model.Eliminabile || Model.Ritirabile || Model.Modificabile)
+            @if (Model.Firmabile || Model.Presentabile || Model.Eliminabile || Model.Ritirabile || Model.Modificabile)
             {
                 <div class="card-action grey lighten-4 center" style="border-top: unset">
                     <div class="row" style="margin: 0 !important">
@@ -28,10 +52,10 @@
                                     <i class="icon material-icons">gavel</i> Firma
                                 </div>
                             }
-                            @if (Model.Depositabile)
+                            @if (Model.Presentabile)
                             {
                                 <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDepositoDASI('@Model.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                    <i class="icon material-icons">lock</i> Deposita
+                                    <i class="icon material-icons">lock</i> Presenta
                                 </div>
                             }
                             @if (Model.Modificabile)
@@ -94,7 +118,7 @@
                     <div class="col s12">
                         @Html.Raw(Model.Firme)
 
-                        @if (!string.IsNullOrEmpty(Model.DataDeposito_crypt))
+                        @if (!string.IsNullOrEmpty(Model.DataPresentazione))
                         {
                             var testoDeposito = "Emendamento presentato";
                             if (Model.Firma_da_ufficio)
@@ -102,7 +126,7 @@
                                 testoDeposito += " d'ufficio";
                             }
 
-                            <label class="green-text">@testoDeposito il @Html.Raw(Model.DataDeposito)</label>
+                            <label class="green-text">@testoDeposito il @Html.Raw(Model.DataPresentazione)</label>
                         }
 
                         @if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))

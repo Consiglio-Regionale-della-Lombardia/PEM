@@ -244,11 +244,11 @@ function ConfirmActionDASI(id, name, action) {
     $("#attoActionMessage").empty();
 
     if (action == 1) {
-        $("#btnConfermaAction").text("ELIMINA");
+        $("#btnConfermaActionDASI").text("ELIMINA");
         $("#attoActionMessage").append("Stai per eliminare l'atto selezionato. Sei sicuro?");
     } else if (action == 2) {
-        $("#btnConfermaAction").text("RITIRA");
-        $("#emActionMessage").append("Stai per ritirare l'atto selezionato. Sei sicuro?");
+        $("#btnConfermaActionDASI").text("RITIRA");
+        $("#attoActionMessage").append("Stai per ritirare l'atto selezionato. Sei sicuro?");
     }
     $("#btnConfermaActionDASI").on("click",
         function() {
@@ -413,8 +413,8 @@ function RevealFirmaDepositoDASI(id, action) {
         text = "Inserisci il PIN per firmare";
         button = "Firma";
     } else if (action == 4) {
-        text = "Inserisci il PIN per depositare";
-        button = "Deposita";
+        text = "Inserisci il PIN per presentare";
+        button = "Presenta";
     }
 
     swal(text,
@@ -440,7 +440,9 @@ function RevealFirmaDepositoDASI(id, action) {
                         icon: "info",
                         button: "OK"
                     }).then(() => {
-                        location.reload();
+                        if (data.message.includes("OK")) {
+                            location.reload();
+                        } 
                     });
                 } else {
                     go(data);

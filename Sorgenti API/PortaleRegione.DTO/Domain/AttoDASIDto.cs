@@ -51,11 +51,11 @@ namespace PortaleRegione.DTO.Domain
         public int idRuoloCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
         public Guid? UIDPersonaModifica { get; set; }
-        public string DataDeposito_crypt { get; set; }
+        public string DataPresentazione { get; set; }
         public Guid? UIDPersonaProponente { get; set; }
         public Guid? UIDPersonaPrimaFirma { get; set; }
         public DateTime DataPrimaFirma { get; set; }
-        public Guid? UIDPersonaDeposito { get; set; }
+        public Guid? UIDPersonaPresentazione { get; set; }
         public bool Proietta { get; set; } = false;
         public DateTime? DataProietta { get; set; }
         public Guid? UIDPersonaProietta { get; set; }
@@ -74,7 +74,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Firma_da_ufficio { get; set; } = false;
         public bool Firmato_Da_Me { get; set; } = false;
         public bool Firmato_Dal_Proponente { get; set; } = false;
-        public bool Depositabile { get; set; } = false;
+        public bool Presentabile { get; set; } = false;
         public int Progressivo { get; set; }
 
         public List<Guid> SoggettiInterrogati { get; set; }
@@ -90,7 +90,6 @@ namespace PortaleRegione.DTO.Domain
         public string Destinatari { get; set; }
         public PersonaLightDto PersonaModifica { get; set; }
         public PersonaLightDto PersonaProponente { get; set; }
-        public string DataDeposito { get; set; }
         public PersonaLightDto PersonaCreazione { get; set; }
         public int ConteggioFirme { get; set; }
         public GruppiDto gruppi_politici { get; set; }

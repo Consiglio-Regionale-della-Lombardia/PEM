@@ -32,13 +32,14 @@ namespace PortaleRegione.Contracts
         Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null);
         Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato);
-        Task<int> GetEtichetta(TipoAttoEnum tipo, int tipo_risposta);
+        Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta);
         Task<int> GetOrdine(int tipo);
-        Task<bool> CheckIfDepositabile(AttoDASIDto dto, PersonaDto persona);
+        Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfEliminabile(AttoDASIDto dto, PersonaDto persona);
-        Task<bool> CheckIfModificabile(AttoDASIDto dto, PersonaDto persona);
+        bool CheckIfModificabile(AttoDASIDto dto, PersonaDto persona);
         Task<int> GetProgressivo(TipoAttoEnum tipo, int gruppoId, int legislatura);
         Task<bool> CheckProgressivo(string etichettaEncrypt);
+        void IncrementaContatore(ATTI_DASI_CONTATORI contatore);
     }
 }

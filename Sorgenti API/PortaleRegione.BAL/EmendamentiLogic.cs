@@ -1401,7 +1401,7 @@ namespace PortaleRegione.BAL
                 if (enable_cmd)
                 {
                     if (string.IsNullOrEmpty(em.DataDeposito))
-                        emendamentoDto.Depositabile = await _unitOfWork
+                        emendamentoDto.Depositabile = _unitOfWork
                             .Emendamenti
                             .CheckIfDepositabile(emendamentoDto,
                                 persona);
@@ -1424,7 +1424,7 @@ namespace PortaleRegione.BAL
                             .CheckIfEliminabile(emendamentoDto,
                                 persona);
 
-                    emendamentoDto.Modificabile = await _unitOfWork
+                    emendamentoDto.Modificabile = _unitOfWork
                         .Emendamenti
                         .CheckIfModificabile(emendamentoDto,
                             persona);

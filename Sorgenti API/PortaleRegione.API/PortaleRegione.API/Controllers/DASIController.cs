@@ -347,35 +347,35 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per depositare gli Atto di Sindacato Ispettivo
+        ///     Endpoint per presentare gli Atto di Sindacato Ispettivo
         /// </summary>
-        /// <param name="depositoModel"></param>
+        /// <param name="presentazioneModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("deposita")]
-        public async Task<IHttpActionResult> Deposita(ComandiAzioneModel depositoModel)
+        [Route("presenta")]
+        public async Task<IHttpActionResult> Presenta(ComandiAzioneModel presentazioneModel)
         {
             try
             {
-                if (ManagerLogic.BloccaDeposito)
+                if (ManagerLogic.BloccaPresentazione)
                 {
                     return BadRequest(
-                        "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
+                        "E' in corso un'altra operazione di presentazione. Riprova tra qualche secondo.");
                 }
 
                 var session = await GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var depositoUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
+                var presentazioneUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                       persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
 
-                if (depositoUfficio)
+                if (presentazioneUfficio)
                 {
-                    if (depositoModel.Pin != AppSettingsConfiguration.MasterPIN)
+                    if (presentazioneModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
                         return BadRequest("Pin inserito non valido");
                     }
 
-                    return Ok(await _logic.Deposita(depositoModel, persona));
+                    return Ok(await _logic.Presenta(presentazioneModel, persona));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
@@ -389,21 +389,21 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("E' richiesto il reset del pin");
                 }
 
-                if (depositoModel.Pin != pinInDb.PIN_Decrypt)
+                if (presentazioneModel.Pin != pinInDb.PIN_Decrypt)
                 {
                     return BadRequest("Pin inserito non valido");
                 }
 
-                return Ok(await _logic.Deposita(depositoModel, persona));
+                return Ok(await _logic.Presenta(presentazioneModel, persona));
             }
             catch (Exception e)
             {
-                Log.Error("Deposita - DASI", e);
+                Log.Error("Presentazione - DASI", e);
                 return ErrorHandler(e);
             }
             finally
             {
-                ManagerLogic.BloccaDeposito = false;
+                ManagerLogic.BloccaPresentazione = false;
             }
         }
 

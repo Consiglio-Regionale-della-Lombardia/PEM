@@ -36,7 +36,7 @@ namespace PortaleRegione.Domain
 
         public int Tipo { get; set; }
         public int? Progressivo { get; set; }
-        public int? Contatore { get; set; }
+        public string Etichetta { get; set; }
 
         public string Oggetto { get; set; }
         public string Oggetto_Pubblico { get; set; }
@@ -48,11 +48,11 @@ namespace PortaleRegione.Domain
         public int idRuoloCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
         public Guid? UIDPersonaModifica { get; set; }
-        public string DataDeposito_crypt { get; set; }
+        public string DataPresentazione { get; set; }
         public Guid? UIDPersonaProponente { get; set; }
         public Guid? UIDPersonaPrimaFirma { get; set; }
         public DateTime? DataPrimaFirma { get; set; }
-        public Guid? UIDPersonaDeposito { get; set; }
+        public Guid? UIDPersonaPresentazione { get; set; }
         public bool Proietta { get; set; } = false;
         public DateTime? DataProietta { get; set; }
         public Guid? UIDPersonaProietta { get; set; }

@@ -96,7 +96,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo)
+        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, PersonaDto persona)
         {
             try
             {
@@ -107,10 +107,21 @@ namespace PortaleRegione.Gateway
                     page = page,
                     size = size
                 };
+                var operationStato = Operation.EqualTo;
+                if ((int)stato>(int)StatiAttoEnum.BOZZA)
+                {
+                    if (persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
+                        && persona.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                    {
+                        //cosi il consigliere può visualizzare tutti i suoi atti dallo stato presentato in poi
+                        operationStato = Operation.GreaterThanOrEqualTo;
+                    }
+                }
+
                 var filtroStato = new FilterStatement<AttoDASIDto>
                 {
                     PropertyId = nameof(AttoDASIDto.IDStato),
-                    Operation = Operation.EqualTo,
+                    Operation = operationStato,
                     Value = (int) stato,
                     Connector = FilterStatementConnector.And
                 };
@@ -354,21 +365,21 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<Dictionary<Guid, string>> Deposita(Guid attoUId, string pin)
+        public async Task<Dictionary<Guid, string>> Presenta(Guid attoUId, string pin)
         {
             var model = new ComandiAzioneModel
             {
                 Lista = new List<Guid> {attoUId},
                 Pin = pin
             };
-            return await Deposita(model);
+            return await Presenta(model);
         }
 
-        public async Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel model)
+        public async Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/dasi/deposita";
+                var requestUrl = $"{apiUrl}/dasi/presenta";
                 var body = JsonConvert.SerializeObject(model);
                 var result =
                     JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
@@ -377,12 +388,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Deposita - DASI", ex);
+                Log.Error("Presenta - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Deposita - DASI", ex);
+                Log.Error("Presenta - DASI", ex);
                 throw ex;
             }
         }

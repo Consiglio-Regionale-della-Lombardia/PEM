@@ -255,8 +255,21 @@ h5 > a { color: black !important; }
 
 div.input-field > label { line-height: initial; }
 
-/* NOTIFICHE */
+.grey-arrow-back {
+    color: #636363 !important;
+}
 
+.active-badge {
+    background-color: #4CAF50 !important;
+}
+
+.inactive-badge {
+    background-color: white !important;
+    color: #a5d6a7 !important;
+    border: solid 1px #a5d6a7 !important;
+}
+
+/* NOTIFICHE */
 .notifica-check {
     /*position: absolute;*/
     border-radius: 50%;
