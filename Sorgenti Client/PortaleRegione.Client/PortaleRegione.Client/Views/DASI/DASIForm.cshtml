@@ -36,7 +36,7 @@
             <div class="col s12 center">
                 <h5>
                     <b>
-                        <span>@Html.Raw(Model.Atto.NAtto)</span>
+                        <span>@Utility.GetText_TipoDASI(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
                     </b>
                 </h5>
             </div>
@@ -56,15 +56,25 @@
                     @Html.AntiForgeryToken()
 
                     @Html.HiddenFor(m => m.Atto.UIDAtto)
+                    @Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
+                    @Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
+                    @Html.HiddenFor(m => m.Atto.idRuoloCreazione)
+                    @Html.HiddenFor(m => m.Atto.Progressivo)
+                    @Html.HiddenFor(m => m.Atto.IDStato)
+                    @Html.HiddenFor(m => m.Atto.id_gruppo)
+                    @Html.HiddenFor(m => m.Atto.DataCreazione)
+                    @Html.HiddenFor(m => m.Atto.DataModifica)
+                    @Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
+                    @Html.HiddenFor(m => m.Atto.UID_QRCode)
                     @Html.HiddenFor(m => m.Atto.Tipo)
 
                     <div class="input-field">
-                        <select id='TipoDasi'>
+                        <select id='Atto_TipoRisposta'>
                             <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)">Orale</option>
                             <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
                             <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)">Commissione</option>
                         </select>
-                        <label for="TipoDasi">Tipo Risposta</label>
+                        <label for="Atto_TipoRisposta">Tipo Risposta</label>
                     </div>
 
                     <div class="form-group">
@@ -78,7 +88,7 @@
                 }
 
                 <div class="fixed-action-btn">
-                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva emendamento" onclick="SalvaDasi()">
+                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva emendamento">
                         <i class="large material-icons">save</i>
                     </button>
                 </div>

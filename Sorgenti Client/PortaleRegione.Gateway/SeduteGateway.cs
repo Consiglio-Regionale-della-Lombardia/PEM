@@ -170,7 +170,7 @@ namespace PortaleRegione.Gateway
                         {
                             PropertyId = nameof(SeduteDto.Data_effettiva_fine),
                             Operation = Operation.GreaterThan,
-                            Value = DateTime.Now
+                            Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                         }
                     }
                 };

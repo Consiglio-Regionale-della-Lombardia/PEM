@@ -46,5 +46,6 @@ namespace PortaleRegione.Gateway
         Task Elimina(Guid id);
         Task Ritira(Guid id);
         Task<DASIFormModel> GetNuovoModello(TipoAttoEnum tipo);
+        Task<DASIFormModel> GetModificaModello(Guid id);
     }
 }

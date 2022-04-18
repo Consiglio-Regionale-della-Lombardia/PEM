@@ -551,10 +551,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var firmeDtos = firme.ToList();
-                if (!string.IsNullOrEmpty(atto.Atto_Certificato))
-                    body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} {atto.NAtto}");
-                else
-                    body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} TEMP-{atto.Progressivo}");
+                body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} {atto.NAtto}");
 
 
                 if (string.IsNullOrEmpty(atto.Atto_Certificato))

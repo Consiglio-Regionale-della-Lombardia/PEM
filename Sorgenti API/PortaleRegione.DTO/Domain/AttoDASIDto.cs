@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
+using System.Web.Mvc;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain.Essentials;
 
@@ -29,11 +30,20 @@ namespace PortaleRegione.DTO.Domain
     {
         public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
+
+        [AllowHtml]
         public string Oggetto { get; set; }
+
+        [AllowHtml]
         public string Oggetto_Pubblico { get; set; }
+
+        [AllowHtml]
         [DisplayName("Premessa e Testo")]
         public string Testo { get; set; }
+
+        [AllowHtml]
         public string Testo_Pubblico { get; set; }
+
         public int Tipo { get; set; }
         public string NAtto { get; set; }
         public DateTime DataCreazione { get; set; }

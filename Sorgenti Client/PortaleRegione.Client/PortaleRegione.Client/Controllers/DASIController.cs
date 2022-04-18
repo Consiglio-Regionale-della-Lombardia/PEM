@@ -18,41 +18,39 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using System.Threading.Tasks;   
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
     /// <summary>
-    /// Controller per la gestione degli Atti di Sindacato Ispettivo
+    ///     Controller per la gestione degli Atti di Sindacato Ispettivo
     /// </summary>
     [Authorize]
     [RoutePrefix("dasi")]
     public class DASIController : BaseController
     {
         /// <summary>
-        /// Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, StatiAttoEnum stato = StatiAttoEnum.BOZZA, TipoAttoEnum tipo = TipoAttoEnum.TUTTI)
+        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50,
+            StatiAttoEnum stato = StatiAttoEnum.BOZZA, TipoAttoEnum tipo = TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.Get(page, size, stato, tipo);
 
-            if (CanAccess(new List<RuoliIntEnum> { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+            if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("RiepilogoDASI_Admin", model);
-            
+
             return View("RiepilogoDASI", model);
         }
 
@@ -70,7 +68,7 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        /// Endpoint per il salvataggio dell' atto
+        ///     Endpoint per il salvataggio dell' atto
         /// </summary>
         /// <returns></returns>
         [HttpPost]
@@ -94,7 +92,7 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        /// Endpoint per consultare l'atto per esteso
+        ///     Endpoint per consultare l'atto per esteso
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -132,7 +130,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 //TODO: ELIMINA E RITIRA MASSIVO
                 var apiGateway = new ApiGateway(_Token);
-                switch ((ActionEnum)azione)
+                switch ((ActionEnum) azione)
                 {
                     case ActionEnum.ELIMINA:
                         await apiGateway.DASI.Elimina(id);
@@ -193,9 +191,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
-                {
                     throw new NotImplementedException("Azione non funzionante");
-                }
 
                 //TODO: INVITO MASSIVO
                 switch (model.Azione)
@@ -217,7 +213,7 @@ namespace PortaleRegione.Client.Controllers
                             new
                             {
                                 message =
-                                    $"Nessuna firma effettuata"
+                                    "Nessuna firma effettuata"
                             }, JsonRequestBehavior.AllowGet);
                     case ActionEnum.DEPOSITA:
                         var resultDeposita = await apiGateway.DASI.Deposita(model);
@@ -238,7 +234,7 @@ namespace PortaleRegione.Client.Controllers
                             new
                             {
                                 message =
-                                    $"Nessuna deposito effettuato"
+                                    "Nessuna deposito effettuato"
                             }, JsonRequestBehavior.AllowGet);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(model.Azione), model.Azione, null);
@@ -330,7 +326,7 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> Modifica(Guid id)
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.Get(id);
+            var model = await apiGateway.DASI.GetModificaModello(id);
             return View("DASIForm", model);
         }
     }

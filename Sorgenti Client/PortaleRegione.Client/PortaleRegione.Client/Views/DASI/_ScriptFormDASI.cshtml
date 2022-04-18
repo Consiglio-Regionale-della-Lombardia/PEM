@@ -2,36 +2,61 @@
 <script>
     var instanceModalDasi;
 
-    function SalvaDasi() {
+    $("#btnSave").on("click",
+        function () {
+            $('#formDASI').submit();
+        });
+    $("#formDASI").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function (form) {
 
-        var form_data = new FormData();
-        form_data.append("Oggetto", $('textarea[id="modalOggettoDasi"]').val());
-        form_data.append("Testo", $('textarea[id="modalTestoDasi"]').val());
-        form_data.append("IDTipo_Risposta", $('select[id="modalTipoDasi"]').children("option:selected").val());
+            var proponente;
+            if ($('input[name="Atto.UIDPersonaProponente"]').val())
+                proponente = $('input[name="Atto.UIDPersonaProponente"]').val();
+            else {
+                //if ($('#chkProponentiConsiglieri').is(":checked"))
+                //    proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
+                //else if ($('#chkProponentiAssessori').is(":checked"))
+                //    proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
+                //else
+                //    proponente = $('select[id="Emendamento_UIDPersonaProponente"]').children("option:selected").val();
+            }
 
-        $.ajax({
-            url: baseUrl + "/dasi",
-            type: "POST",
-            data: form_data,
-            processData: false,
-            contentType: false
-        }).done(function(data) {
-            console.log(data);
+            var container_oggetto_originale = $("#Atto_Oggetto").parent();
+            var editor_oggetto_originale = $(container_oggetto_originale).find(".trumbowyg-editor");
+            var container_testo_originale = $("#Atto_Testo").parent();
+            var editor_testo_originale = $(container_testo_originale).find(".trumbowyg-editor");
+
+            var form_data = new FormData();
+            form_data.append("IDTipo_Risposta", $('select[id="Atto_TipoRisposta"]').children("option:selected").val());
+            form_data.append("Oggetto", editor_oggetto_originale.html());
+            form_data.append("Testo", editor_testo_originale.html());
+            form_data.append("Tipo", $("#Atto_Tipo").val());
+            
+            $.ajax({
+                url: '@Url.Action("SalvaAtto")',
+                type: "POST",
+                data: form_data,
+                processData: false,
+                contentType: false
+            }).done(function(data) {
+                console.log(data);
             
                 swal({
                     title: "Procedura completata",
                     text: "Atto inserito correttamente a sistema.",
                     icon: "success"
                 }).then((value) => {
-                    instanceModalDasi.close();
-                    location.reload();
+                    go(data);
                 });
             
-        }).fail(function(err) {
-            console.log("error", err);
-            ErrorAlert(err.message);
-        });
-    }
+            }).fail(function(err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        }
+    });
 
     function openFormDASI(tipo, edit) {
         var tipo_dasi = tipo;

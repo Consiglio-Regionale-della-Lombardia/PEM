@@ -84,6 +84,41 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///      Endpoint per avere l'oggetto atto da modificare
+        /// </summary>
+        /// <param name="id">Identificativo atto</param>
+        /// <returns></returns>
+        [Route("edit")]
+        public async Task<IHttpActionResult> GetModificaModello(Guid id)
+        {
+            try
+            {
+                var atto = await _logic.Get(id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var countFirme = await _logicFirma.CountFirme(id);
+                if (countFirme > 1)
+                {
+                    return BadRequest(
+                        $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
+                }
+
+                var session = await GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+
+                return Ok(await _logic.ModificaModello(atto, persona));
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetModificaModello", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         /// Endpoint per salvare un atto
         /// </summary>
         /// <param name="request"></param>

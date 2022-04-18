@@ -309,6 +309,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<DASIFormModel> GetModificaModello(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/edit?id={id}";
+
+                var lst = JsonConvert.DeserializeObject<DASIFormModel>(await Get(requestUrl, _token));
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetModificaEmendamentoModel", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetModificaEmendamentoModel", ex);
+                throw ex;
+            }
+        }
+
 
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)
         {

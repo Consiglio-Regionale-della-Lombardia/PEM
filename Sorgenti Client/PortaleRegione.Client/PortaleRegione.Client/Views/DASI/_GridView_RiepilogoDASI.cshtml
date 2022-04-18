@@ -101,9 +101,6 @@ else
                         @*<a class="amber-text tooltipped" data-tooltip="Invita">
                             <i class="icon material-icons">send</i>
                         </a>*@
-                        <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
-                            <i class="icon material-icons">edit</i>
-                        </a>
                         if(item.Firmabile)
                         {
                             <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
@@ -120,6 +117,9 @@ else
 
                     <a class="red-text tooltipped" data-tooltip="Elimina atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.ELIMINA))">
                         <i class="material-icons">close</i>
+                    </a>
+                    <a class="blue-text tooltipped" data-tooltip="Visualizza" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
+                        <i class="icon material-icons">chevron_right</i>
                     </a>
                 </td>
             </tr>
