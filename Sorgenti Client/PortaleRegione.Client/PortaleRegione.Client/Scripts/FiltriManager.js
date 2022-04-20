@@ -90,7 +90,7 @@ function GetLegislature() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/sedute/legislature",
+            url: baseUrl + "/sedute/legislature",
             type: "GET"
         }).done(function(result) {
             set_ListaLegislature(result);
@@ -105,7 +105,7 @@ function GetLegislature() {
 function GetGruppiInDb() {
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/adminpanel/gruppi-in-db",
+            url: baseUrl + "/adminpanel/gruppi-in-db",
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -262,7 +262,7 @@ function GetStatiEM() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/stati-em",
+            url: baseUrl + "/emendamenti/stati-em",
             type: "GET"
         }).done(function(result) {
             set_ListaStatiEM(result);
@@ -310,7 +310,7 @@ function GetTipiEM() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/tipi-em",
+            url: baseUrl + "/emendamenti/tipi-em",
             type: "GET"
         }).done(function(result) {
             set_ListaTipiEM(result);
@@ -550,7 +550,7 @@ function GetPartiEM() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/parti-em",
+            url: baseUrl + "/emendamenti/parti-em",
             type: "GET"
         }).done(function(result) {
             set_ListaPartiEM(result);
@@ -571,7 +571,7 @@ function GetArticoli(attoUId) {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/atti/articoli",
+            url: baseUrl + "/atti/articoli",
             data: { id: attoUId },
             type: "GET"
         }).done(function(result) {
@@ -594,7 +594,7 @@ function GetCommi(articoloUId) {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/atti/commi",
+            url: baseUrl + "/atti/commi",
             data: { id: articoloUId },
             type: "GET"
         }).done(function(result) {
@@ -617,7 +617,7 @@ function GetLettere(commaUId) {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/atti/lettere",
+            url: baseUrl + "/atti/lettere",
             data: { id: commaUId },
             type: "GET"
         }).done(function(result) {
@@ -638,7 +638,7 @@ function GetMissioni() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/missioni-em",
+            url: baseUrl + "/emendamenti/missioni-em",
             type: "GET"
         }).done(function(result) {
             set_ListaMissioniEM(result);
@@ -658,7 +658,7 @@ function GetTitoliMissioni() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/titoli-missioni-em",
+            url: baseUrl + "/emendamenti/titoli-missioni-em",
             type: "GET"
         }).done(function(result) {
             set_ListaTitoliMissioniEM(result);

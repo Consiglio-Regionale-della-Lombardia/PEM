@@ -68,7 +68,7 @@ async function openMetaDati(emendamentoUId) {
 async function GetEM(emUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/" + emUId + "/meta-data",
+            url: baseUrl + "/emendamenti/" + emUId + "/meta-data",
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -205,7 +205,7 @@ function ConfirmAction(id, name, action) {
     $("#btnConfermaAction").on("click",
         function() {
             $.ajax({
-                url: "/emendamenti/azioni?id=" + id + "&azione=" + action,
+                url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action,
                 method: "GET"
             }).done(function(data) {
                 $("#modalAction").modal("close");
@@ -239,7 +239,7 @@ function RitiraFirma(id) {
                 return;
 
             $.ajax({
-                url: "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
+                url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
                 console.log(data);
@@ -270,7 +270,7 @@ function EliminaFirma(id) {
                 return;
 
             $.ajax({
-                url: "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
+                url: baseUrl + "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -293,7 +293,7 @@ function RevealFirmatari(uidem) {
     $("#titleReveal").text("Firmatari");
     return new Promise(function(resolve, reject) {
         $.ajax({
-            url: "/emendamenti/firmatari",
+            url: baseUrl + "/emendamenti/firmatari",
             data: { id: uidem, tipo: 3, tag: true },
             type: "GET"
         }).done(function(data) {
@@ -336,7 +336,7 @@ function RevealFirmaDeposito(id, action) {
                 return;
 
             $.ajax({
-                url: "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+                url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -521,7 +521,7 @@ function DownloadStampa(stampaUId) {
 
 function ResetStampa(stampaUId, url) {
     $.ajax({
-        url: "/stampe/reset",
+        url: baseUrl + "/stampe/reset",
         data: { id: stampaUId },
         type: "GET"
     }).done(function(result) {
@@ -540,7 +540,7 @@ function CambioStato(uidem, stato) {
     obj.ListaEmendamenti.push(uidem);
 
     $.ajax({
-        url: "/emendamenti/modifica-stato",
+        url: baseUrl + "/emendamenti/modifica-stato",
         type: "POST",
         data: JSON.stringify(obj),
         contentType: "application/json; charset=utf-8",
@@ -613,7 +613,7 @@ function CambioStatoMassivo(stato, descr) {
             obj.AttoUId = $("#hdUIdAtto").val();
 
             $.ajax({
-                url: "/emendamenti/modifica-stato",
+                url: baseUrl + "/emendamenti/modifica-stato",
                 type: "POST",
                 data: JSON.stringify(obj),
                 contentType: "application/json; charset=utf-8",
@@ -631,7 +631,7 @@ function CambioStatoMassivo(stato, descr) {
 function GetPersoneFromDB() {
     return new Promise(function(resolve, reject) {
         $.ajax({
-            url: "/persone/all",
+            url: baseUrl + "/persone/all",
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -645,7 +645,7 @@ function GetPersoneFromDB() {
 function GetPersonePerInviti(attoUId, tipo) {
     return new Promise(function(resolve, reject) {
         $.ajax({
-            url: "/notifiche/destinatari?atto=" + attoUId + "&tipo=" + tipo,
+            url: baseUrl + "/notifiche/destinatari?atto=" + attoUId + "&tipo=" + tipo,
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -659,7 +659,7 @@ function GetPersonePerInviti(attoUId, tipo) {
 //SEGRETERIA
 function Ordina_EMTrattazione(attoUId) {
     $.ajax({
-        url: "/emendamenti/ordina?id=" + attoUId,
+        url: baseUrl + "/emendamenti/ordina?id=" + attoUId,
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -697,7 +697,7 @@ function SpostaUP_EMTrattazione() {
     }
 
     $.ajax({
-        url: "/emendamenti/ordina-up?id=" + listaEM[0],
+        url: baseUrl + "/emendamenti/ordina-up?id=" + listaEM[0],
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -726,7 +726,7 @@ function SpostaDOWN_EMTrattazione() {
     }
 
     $.ajax({
-        url: "/emendamenti/ordina-down?id=" + listaEM[0],
+        url: baseUrl + "/emendamenti/ordina-down?id=" + listaEM[0],
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -766,7 +766,7 @@ function Sposta_EMTrattazione() {
                 return;
 
             $.ajax({
-                url: "/emendamenti/sposta?id=" + listaEM[0] + "&pos=" + value,
+                url: baseUrl + "/emendamenti/sposta?id=" + listaEM[0] + "&pos=" + value,
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
@@ -785,7 +785,7 @@ function Sposta_EMTrattazione() {
 
 function OrdinamentoConcluso(attoUId) {
     $.ajax({
-        url: "/emendamenti/ordinamento-concluso?id=" + attoUId,
+        url: baseUrl + "/emendamenti/ordinamento-concluso?id=" + attoUId,
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -929,7 +929,7 @@ function CreaArticolo(attoUId) {
                 return;
 
             $.ajax({
-                url: "/atti/crea-articoli?id=" + attoUId + "&articoli=" + value,
+                url: baseUrl + "/atti/crea-articoli?id=" + attoUId + "&articoli=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -956,7 +956,7 @@ function CreaComma(articoloUId) {
                 return;
 
             $.ajax({
-                url: "/atti/crea-commi?id=" + articoloUId + "&commi=" + value,
+                url: baseUrl + "/atti/crea-commi?id=" + articoloUId + "&commi=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -983,7 +983,7 @@ function CreaLettera(commaUId) {
                 return;
 
             $.ajax({
-                url: "/atti/crea-lettere?id=" + commaUId + "&lettere=" + value,
+                url: baseUrl + "/atti/crea-lettere?id=" + commaUId + "&lettere=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1010,7 +1010,7 @@ function EliminaArticolo(articoloUId) {
             if (!willDelete) return;
 
             $.ajax({
-                url: "/atti/elimina-articolo?id=" + articoloUId,
+                url: baseUrl + "/atti/elimina-articolo?id=" + articoloUId,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1037,7 +1037,7 @@ function EliminaComma(commaUId) {
             if (!willDelete) return;
 
             $.ajax({
-                url: "/atti/elimina-comma?id=" + commaUId,
+                url: baseUrl + "/atti/elimina-comma?id=" + commaUId,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1065,7 +1065,7 @@ function EliminaLettera(letteraUId) {
             if (!willDelete) return;
 
             $.ajax({
-                url: "/atti/elimina-lettera?id=" + letteraUId,
+                url: baseUrl + "/atti/elimina-lettera?id=" + letteraUId,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1093,7 +1093,7 @@ function PubblicaFascicolo(attoUId, ordine) {
     }
 
     $.ajax({
-        url: "/atti/abilita-fascicolazione",
+        url: baseUrl + "/atti/abilita-fascicolazione",
         type: "POST",
         data: JSON.stringify(obj),
         contentType: "application/json; charset=utf-8",
@@ -1119,7 +1119,7 @@ function GetDestinatariNotifica(notificaId) {
     var panel = $("#pnlDestinatariNotifica_" + notificaId);
     panel.empty();
     $.ajax({
-        url: "/notifiche/" + notificaId + "/destinatari",
+        url: baseUrl + "/notifiche/" + notificaId + "/destinatari",
         type: "GET",
     }).done(function(data) {
         panel.append(data);

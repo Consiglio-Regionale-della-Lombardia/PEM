@@ -125,7 +125,6 @@ namespace PortaleRegione.BAL
                 else
                 {
                     Gruppi_Utente.AddRange(personaInDb.gruppi_autorizzazione.Split(';'));
-
                 }
 
                 if (Gruppi_Utente.Count == 0)

@@ -142,7 +142,7 @@
             obj.ListaDestinatari = listaDestinatari;
 
             $.ajax({
-                url: "/emendamenti/azioni-massive",
+                url: baseUrl + "/emendamenti/azioni-massive",
                 type: "POST",
                 data: JSON.stringify(obj),
                 contentType: "application/json; charset=utf-8",
