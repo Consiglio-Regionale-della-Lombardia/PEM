@@ -274,7 +274,7 @@
 
             //submit via ajax
             $.ajax({
-                    url: baseUrl + "/atti/salva",
+                    url: "/atti/salva",
                     type: "POST",
                     data: form_data,
                     processData: false,
@@ -291,7 +291,7 @@
                                 newRelatori.push(item.id);
                             });
                         $.ajax({
-                            url: baseUrl + "/atti/relatori",
+                            url: "/atti/relatori",
                             type: "POST",
                             data: JSON.stringify({
                                 id: dataResult.entity.UIDAtto,

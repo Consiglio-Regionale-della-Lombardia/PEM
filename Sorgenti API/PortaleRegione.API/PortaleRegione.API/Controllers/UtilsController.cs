@@ -39,6 +39,10 @@ namespace PortaleRegione.API.Controllers
     {
         private readonly UtilsLogic _logic;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logic"></param>
         public UtilsController(UtilsLogic logic)
         {
             _logic = logic;

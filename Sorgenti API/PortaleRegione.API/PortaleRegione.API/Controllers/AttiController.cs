@@ -44,6 +44,13 @@ namespace PortaleRegione.API.Controllers
         private readonly SeduteLogic _logicSedute;
         private readonly StampeLogic _logicStampe;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logicPersone"></param>
+        /// <param name="logicSedute"></param>
+        /// <param name="logic"></param>
+        /// <param name="logicStampe"></param>
         public AttiController(PersoneLogic logicPersone, SeduteLogic logicSedute, AttiLogic logic,
             StampeLogic logicStampe)
         {
@@ -99,7 +106,7 @@ namespace PortaleRegione.API.Controllers
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var result = await _logic.GetAtti(model, Convert.ToInt16(CLIENT_MODE), persona,
@@ -198,7 +205,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var nuovoAtto = await _logic.NuovoAtto(attoModel, persona);
                 return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI, AttiDto>(nuovoAtto));
@@ -234,7 +241,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.SalvaAtto(attoInDb, attoModel, persona);
 
@@ -564,7 +571,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.PubblicaFascicolo(attoInDb, model, persona);
 

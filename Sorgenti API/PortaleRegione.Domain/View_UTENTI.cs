@@ -54,5 +54,9 @@ namespace PortaleRegione.Domain
         public bool? attivo { get; set; }
 
         public bool? deleted { get; set; }
+
+        public string pass_locale_crypt { get; set; }
+
+        public string gruppi_autorizzazione { get; set; }
     }
 }

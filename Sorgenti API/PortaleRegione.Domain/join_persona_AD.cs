@@ -35,8 +35,9 @@ namespace PortaleRegione.Domain
 
         public DateTime? Data_ultima_modifica_PWD { get; set; }
 
-        [StringLength(100)]
         public string pass_locale_crypt { get; set; }
+
+        public string gruppi_autorizzazione { get; set; }
 
         public virtual persona persona { get; set; }
     }

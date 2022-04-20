@@ -165,7 +165,7 @@
 
                 //submit via ajax
                 $.ajax({
-                    url: baseUrl + "/emendamenti/raggruppa",
+                    url: "/emendamenti/raggruppa",
                     type: "POST",
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
@@ -256,7 +256,7 @@
 
                 //submit via ajax
                 $.ajax({
-                    url: baseUrl + "/emendamenti/assegna-nuovo-proponente",
+                    url: "/emendamenti/assegna-nuovo-proponente",
                     type: "POST",
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
@@ -342,7 +342,7 @@
                 obj.ListaDestinatari = destinatari;
 
                 $.ajax({
-                    url: baseUrl + "/emendamenti/azioni-massive",
+                    url: "/emendamenti/azioni-massive",
                     type: "POST",
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",

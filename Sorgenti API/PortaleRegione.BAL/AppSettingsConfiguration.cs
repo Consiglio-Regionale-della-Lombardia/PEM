@@ -36,7 +36,9 @@ namespace PortaleRegione.BAL
         public static string urlPEM => ConfigurationManager.AppSettings["URLPEM"];
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
         public static string SMTP => ConfigurationManager.AppSettings["SMTP"];
-        public static bool Invio_Notifiche => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["InvioNotifiche"]));
+
+        public static int AutenticazioneAD => Convert.ToInt16(ConfigurationManager.AppSettings["AutenticazioneAD"]);
+        public static int Invio_Notifiche => Convert.ToInt16(ConfigurationManager.AppSettings["InvioNotifiche"]);
         public static string FirmaUfficio => ConfigurationManager.AppSettings["UtenteFirmaUfficio"];
         public static string LimiteFirmaMassivo => ConfigurationManager.AppSettings["LimiteFirmaMassivo"];
         public static string LimiteDepositoMassivo => ConfigurationManager.AppSettings["LimiteDepositoMassivo"];
@@ -63,6 +65,5 @@ namespace PortaleRegione.BAL
         public static string RootRepository => ConfigurationManager.AppSettings["RootRepository"];
         public static string PrefissoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PrefissoCompatibilitaDocumenti"];
         public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
-
     }
 }

@@ -1401,7 +1401,7 @@ namespace PortaleRegione.BAL
                 if (enable_cmd)
                 {
                     if (string.IsNullOrEmpty(em.DataDeposito))
-                        emendamentoDto.Depositabile = await _unitOfWork
+                        emendamentoDto.Depositabile = _unitOfWork
                             .Emendamenti
                             .CheckIfDepositabile(emendamentoDto,
                                 persona);
@@ -1424,7 +1424,7 @@ namespace PortaleRegione.BAL
                             .CheckIfEliminabile(emendamentoDto,
                                 persona);
 
-                    emendamentoDto.Modificabile = await _unitOfWork
+                    emendamentoDto.Modificabile = _unitOfWork
                         .Emendamenti
                         .CheckIfModificabile(emendamentoDto,
                             persona);
@@ -1631,7 +1631,7 @@ namespace PortaleRegione.BAL
                             {
                                 if (firmeDto.Any(f =>
                                     f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
-                                    firmatari_opendata = await GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                    firmatari_opendata = GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                             f.Timestamp < Convert.ToDateTime(dto.DataDeposito)),
                                         persona.CurrentRole, personeInDbLight);
                             }
@@ -1911,9 +1911,9 @@ namespace PortaleRegione.BAL
                         f.Timestamp > Convert.ToDateTime(em.DataDeposito));
 
                     result +=
-                        $"{await GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM, personeInDbLight)}{separatore}";
+                        $"{GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM, personeInDbLight)}{separatore}";
                     result +=
-                        $"{await GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM, personeInDbLight)}{separatore}";
+                        $"{GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM, personeInDbLight)}{separatore}";
                 }
                 else
                 {
@@ -1933,7 +1933,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<string> GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo,
+        public string GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo,
             List<PersonaLightDto> personeInDbLight)
         {
             try

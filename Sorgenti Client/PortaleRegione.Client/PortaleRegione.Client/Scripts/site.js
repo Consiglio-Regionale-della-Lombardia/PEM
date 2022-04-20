@@ -4,20 +4,21 @@ document.addEventListener("DOMContentLoaded",
     function() {
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
-        
+
         var mode = getClientMode();
         if (mode == null)
             setClientMode(1);
 
         setTimeout(function() {
-            $('body').addClass('loaded');      
-        }, 200);
+                $("body").addClass("loaded");
+            },
+            200);
     });
 
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
     if (enable) {
-        $('#waiting_info_message').text(message);
+        $("#waiting_info_message").text(message);
         instance.options.dismissible = false;
         instance.options.preventScrolling = true;
         instance.open();
@@ -61,13 +62,13 @@ function openSearch() {
 async function openMetaDati(emendamentoUId) {
     var em = await GetEM(emendamentoUId);
     await LoadMetaDatiEM(em);
-    $('#modalMetaDati').modal("open");
+    $("#modalMetaDati").modal("open");
 }
 
 async function GetEM(emUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/emendamenti/" + emUId + "/meta-data",
+            url: "/emendamenti/" + emUId + "/meta-data",
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -103,9 +104,10 @@ function go(link, switchMode) {
         }
     }
 
-    setTimeout(function () {
-        $('body').removeClass('loaded');
-    }, 200);
+    setTimeout(function() {
+            $("body").removeClass("loaded");
+        },
+        200);
     document.location = link;
 }
 
@@ -133,19 +135,19 @@ function AbilitaComandiMassivi(uidEM) {
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
         var selezionaTutti = getSelezionaTutti();
-            if (chk[0].checked) {
-                if (selezionaTutti) {
-                    removeEM(uidEM); //listaEsclusiva
-                } else {
-                    addEM(uidEM); //listaInsclusiva
-                }
+        if (chk[0].checked) {
+            if (selezionaTutti) {
+                removeEM(uidEM); //listaEsclusiva
             } else {
-                if (selezionaTutti) {
-                    addEM(uidEM); //listaEsclusiva
-                } else {
-                    removeEM(uidEM); //listaInsclusiva
-                }
+                addEM(uidEM); //listaInsclusiva
             }
+        } else {
+            if (selezionaTutti) {
+                addEM(uidEM); //listaEsclusiva
+            } else {
+                removeEM(uidEM); //listaInsclusiva
+            }
+        }
     }
 
     var lchk = getListaEmendamenti();
@@ -203,12 +205,12 @@ function ConfirmAction(id, name, action) {
     $("#btnConfermaAction").on("click",
         function() {
             $.ajax({
-                url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action,
+                url: "/emendamenti/azioni?id=" + id + "&azione=" + action,
                 method: "GET"
             }).done(function(data) {
                 $("#modalAction").modal("close");
                 $("#btnConfermaAction").off("click");
-                console.log(data.message)
+                console.log(data.message);
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -237,10 +239,10 @@ function RitiraFirma(id) {
                 return;
 
             $.ajax({
-                url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
+                url: "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
-                console.log(data)
+                console.log(data);
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -268,7 +270,7 @@ function EliminaFirma(id) {
                 return;
 
             $.ajax({
-                url: baseUrl + "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
+                url: "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -291,7 +293,7 @@ function RevealFirmatari(uidem) {
     $("#titleReveal").text("Firmatari");
     return new Promise(function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/emendamenti/firmatari",
+            url: "/emendamenti/firmatari",
             data: { id: uidem, tipo: 3, tag: true },
             type: "GET"
         }).done(function(data) {
@@ -334,7 +336,7 @@ function RevealFirmaDeposito(id, action) {
                 return;
 
             $.ajax({
-                url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+                url: "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -391,7 +393,7 @@ function TestoEmendamento_ParteEM(value, text) {
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
     set_ListaCommiEM([]);
-    $('#ArticoliList').val(value);
+    $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
     M.FormSelect.init(elemsArt, null);
 
@@ -482,12 +484,12 @@ function EsportaXLS(attoUId) {
             if (value == null || value == "")
                 return;
 
-            go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
+            go("emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
         });
 }
 
 function EsportaXLS_Segreteria(attoUId) {
-    go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
+    go("emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
 }
 
 function EsportaDOC(attoUId) {
@@ -509,17 +511,17 @@ function EsportaDOC(attoUId) {
 
             if (value == null || value == "")
                 return;
-            window.open(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, '_blank');
+            window.open("emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, "_blank");
         });
 }
 
 function DownloadStampa(stampaUId) {
-    go(baseUrl + "/stampe/" + stampaUId);
+    go("/stampe/" + stampaUId);
 }
 
 function ResetStampa(stampaUId, url) {
     $.ajax({
-        url: baseUrl + "/stampe/reset",
+        url: "/stampe/reset",
         data: { id: stampaUId },
         type: "GET"
     }).done(function(result) {
@@ -538,7 +540,7 @@ function CambioStato(uidem, stato) {
     obj.ListaEmendamenti.push(uidem);
 
     $.ajax({
-        url: baseUrl + "/emendamenti/modifica-stato",
+        url: "/emendamenti/modifica-stato",
         type: "POST",
         data: JSON.stringify(obj),
         contentType: "application/json; charset=utf-8",
@@ -547,22 +549,22 @@ function CambioStato(uidem, stato) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            var label = $('#tdStato_' + uidem + '>label');
+            var label = $("#tdStato_" + uidem + ">label");
             var textStato = "";
             var cssStato = "";
             if (stato == 1) {
                 textStato = "Depositato";
                 cssStato = "depositatoT";
-            }else if (stato == 2) {
+            } else if (stato == 2) {
                 textStato = "Approvato";
                 cssStato = "approvatoT";
-            }else if (stato == 3) {
+            } else if (stato == 3) {
                 textStato = "Non approvato";
                 cssStato = "NOapprovatoT";
-            }else if (stato == 4) {
+            } else if (stato == 4) {
                 textStato = "Ritirato";
                 cssStato = "ritiratoT";
-            }else if (stato == 5) {
+            } else if (stato == 5) {
                 textStato = "Decaduto";
                 cssStato = "decadutoT";
             } else if (stato == 6) {
@@ -608,10 +610,10 @@ function CambioStatoMassivo(stato, descr) {
             obj.Stato = stato;
             obj.ListaEmendamenti = listaEM;
             obj.All = selezionaTutti;
-            obj.AttoUId = $('#hdUIdAtto').val();
+            obj.AttoUId = $("#hdUIdAtto").val();
 
             $.ajax({
-                url: baseUrl + "/emendamenti/modifica-stato",
+                url: "/emendamenti/modifica-stato",
                 type: "POST",
                 data: JSON.stringify(obj),
                 contentType: "application/json; charset=utf-8",
@@ -629,7 +631,7 @@ function CambioStatoMassivo(stato, descr) {
 function GetPersoneFromDB() {
     return new Promise(function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/persone/all",
+            url: "/persone/all",
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -643,7 +645,7 @@ function GetPersoneFromDB() {
 function GetPersonePerInviti(attoUId, tipo) {
     return new Promise(function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/notifiche/destinatari?atto=" + attoUId + "&tipo=" + tipo,
+            url: "/notifiche/destinatari?atto=" + attoUId + "&tipo=" + tipo,
             type: "GET"
         }).done(function(result) {
             resolve(result);
@@ -657,7 +659,7 @@ function GetPersonePerInviti(attoUId, tipo) {
 //SEGRETERIA
 function Ordina_EMTrattazione(attoUId) {
     $.ajax({
-        url: baseUrl + "/emendamenti/ordina?id=" + attoUId,
+        url: "/emendamenti/ordina?id=" + attoUId,
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -674,7 +676,7 @@ function Ordina_EMTrattazione(attoUId) {
                 .then((willDelete) => {
                     location.reload();
                 });
-            
+
         }
     }).fail(function(err) {
         console.log("error", err);
@@ -695,7 +697,7 @@ function SpostaUP_EMTrattazione() {
     }
 
     $.ajax({
-        url: baseUrl + "/emendamenti/ordina-up?id=" + listaEM[0],
+        url: "/emendamenti/ordina-up?id=" + listaEM[0],
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -724,7 +726,7 @@ function SpostaDOWN_EMTrattazione() {
     }
 
     $.ajax({
-        url: baseUrl + "/emendamenti/ordina-down?id=" + listaEM[0],
+        url: "/emendamenti/ordina-down?id=" + listaEM[0],
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -764,7 +766,7 @@ function Sposta_EMTrattazione() {
                 return;
 
             $.ajax({
-                url: baseUrl + "/emendamenti/sposta?id=" + listaEM[0] + "&pos=" + value,
+                url: "/emendamenti/sposta?id=" + listaEM[0] + "&pos=" + value,
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
@@ -783,7 +785,7 @@ function Sposta_EMTrattazione() {
 
 function OrdinamentoConcluso(attoUId) {
     $.ajax({
-        url: baseUrl + "/emendamenti/ordinamento-concluso?id=" + attoUId,
+        url: "/emendamenti/ordinamento-concluso?id=" + attoUId,
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -927,7 +929,7 @@ function CreaArticolo(attoUId) {
                 return;
 
             $.ajax({
-                url: baseUrl + "/atti/crea-articoli?id=" + attoUId + "&articoli=" + value,
+                url: "/atti/crea-articoli?id=" + attoUId + "&articoli=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -954,7 +956,7 @@ function CreaComma(articoloUId) {
                 return;
 
             $.ajax({
-                url: baseUrl + "/atti/crea-commi?id=" + articoloUId + "&commi=" + value,
+                url: "/atti/crea-commi?id=" + articoloUId + "&commi=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -981,7 +983,7 @@ function CreaLettera(commaUId) {
                 return;
 
             $.ajax({
-                url: baseUrl + "/atti/crea-lettere?id=" + commaUId + "&lettere=" + value,
+                url: "/atti/crea-lettere?id=" + commaUId + "&lettere=" + value,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1008,7 +1010,7 @@ function EliminaArticolo(articoloUId) {
             if (!willDelete) return;
 
             $.ajax({
-                url: baseUrl + "/atti/elimina-articolo?id=" + articoloUId,
+                url: "/atti/elimina-articolo?id=" + articoloUId,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1035,7 +1037,7 @@ function EliminaComma(commaUId) {
             if (!willDelete) return;
 
             $.ajax({
-                url: baseUrl + "/atti/elimina-comma?id=" + commaUId,
+                url: "/atti/elimina-comma?id=" + commaUId,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1063,7 +1065,7 @@ function EliminaLettera(letteraUId) {
             if (!willDelete) return;
 
             $.ajax({
-                url: baseUrl + "/atti/elimina-lettera?id=" + letteraUId,
+                url: "/atti/elimina-lettera?id=" + letteraUId,
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
@@ -1091,7 +1093,7 @@ function PubblicaFascicolo(attoUId, ordine) {
     }
 
     $.ajax({
-        url: baseUrl + "/atti/abilita-fascicolazione",
+        url: "/atti/abilita-fascicolazione",
         type: "POST",
         data: JSON.stringify(obj),
         contentType: "application/json; charset=utf-8",
@@ -1117,7 +1119,7 @@ function GetDestinatariNotifica(notificaId) {
     var panel = $("#pnlDestinatariNotifica_" + notificaId);
     panel.empty();
     $.ajax({
-        url: baseUrl + "/notifiche/" + notificaId + "/destinatari",
+        url: "/notifiche/" + notificaId + "/destinatari",
         type: "GET",
     }).done(function(data) {
         panel.append(data);
@@ -1136,9 +1138,10 @@ function SuccessModal(message, ctrl) {
         icon: "success",
         button: "OK"
     }).then((value) => {
-        $(ctrl).modal('close');
+        $(ctrl).modal("close");
     });
 }
+
 function SuccessAlert(message) {
     swal({
         title: "Bel lavoro!",
@@ -1168,9 +1171,10 @@ function ErrorAlert(message) {
         icon: "error",
         button: "Ooops!"
     });
-    setTimeout(function () {
-        $('body').addClass('loaded');
-    }, 200);
+    setTimeout(function() {
+            $("body").addClass("loaded");
+        },
+        200);
 }
 
 $.fn.serializeObject = function() {

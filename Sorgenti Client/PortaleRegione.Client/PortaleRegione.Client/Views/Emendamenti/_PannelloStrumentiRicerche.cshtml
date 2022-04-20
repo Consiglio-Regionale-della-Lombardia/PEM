@@ -485,7 +485,7 @@
 
         return new Promise(async function(resolve, reject) {
             $.ajax({
-                url: baseUrl + "/persone/gruppi-politici",
+                url: "/persone/gruppi-politici",
                 type: "GET"
             }).done(function(result) {
                 set_Gruppi(result);

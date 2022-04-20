@@ -36,6 +36,12 @@ namespace PortaleRegione.API.Controllers
         private readonly EMPublicLogic _logicPublic;
         private readonly FirmeLogic _logicFirme;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logicEm"></param>
+        /// <param name="logicPublic"></param>
+        /// <param name="logicFirme"></param>
         public EMPublicController(EmendamentiLogic logicEm, EMPublicLogic logicPublic, FirmeLogic logicFirme)
         {
             _logicEm = logicEm;

@@ -52,6 +52,15 @@ namespace PortaleRegione.API.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly PersoneLogic _logicPersone;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="logicPersone"></param>
+        /// <param name="logicAtti"></param>
+        /// <param name="logicEm"></param>
+        /// <param name="logicFirme"></param>
+        /// <param name="logicAdmin"></param>
         public EmendamentiController(
             IUnitOfWork unitOfWork,
             PersoneLogic logicPersone,
@@ -91,7 +100,7 @@ namespace PortaleRegione.API.Controllers
                 ViewModeEnum VIEW_MODE = ViewModeEnum.GRID;
                 if (viewMode != null)
                     Enum.TryParse(viewMode.ToString(), out VIEW_MODE);
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var ricerca_presidente_regione = await _logicAdmin.GetUtenti(new BaseRequest<PersonaDto>
                 {
@@ -143,7 +152,7 @@ namespace PortaleRegione.API.Controllers
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var results =
                     await _logicEm.GetEmendamenti_RichiestaPropriaFirma(model, persona, Convert.ToInt16(CLIENT_MODE));
@@ -202,7 +211,7 @@ namespace PortaleRegione.API.Controllers
         [Route("")]
         public async Task<IHttpActionResult> GetEmendamento(Guid id)
         {
-            ///TODO: implementare i controlli anche sull'atto
+            //TODO: implementare i controlli anche sull'atto
             try
             {
                 var em = await _logicEm.GetEM(id);
@@ -211,7 +220,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
@@ -250,7 +259,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var result = await _logicEm.ModelloNuovoEM(atti, em_riferimentoUId, persona);
                 return Ok(result);
@@ -284,7 +293,7 @@ namespace PortaleRegione.API.Controllers
                         $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} firme attive.");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 return Ok(await _logicEm.ModelloModificaEM(await _logicEm.GetEM(id), persona));
@@ -405,7 +414,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
                     && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
@@ -452,7 +461,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("L'emendamento ha delle firme attive e non può essere eliminato");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 await _logicEm.DeleteEmendamento(em, persona);
@@ -478,7 +487,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 var result = await _logicEm.GetEM_ByProietta(id, ordine, persona);
 
@@ -502,7 +511,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 var result = await _logicEm.GetEM_LiveProietta(id, persona);
 
@@ -533,7 +542,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 await _logicEm.Proietta(em, session._currentUId);
 
                 return Ok();
@@ -615,7 +624,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var body = await _logicEm.GetBodyEM(em
@@ -669,7 +678,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
@@ -720,7 +729,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
@@ -771,7 +780,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
@@ -829,7 +838,7 @@ namespace PortaleRegione.API.Controllers
                         "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var depositoUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                       persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
@@ -897,7 +906,7 @@ namespace PortaleRegione.API.Controllers
                         "Non è possibile ritirare l'emendamento durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 await _logicEm.RitiraEmendamento(em, persona);
@@ -935,7 +944,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("L'emendamento ha delle firme attive e non può essere eliminato");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 await _logicEm.EliminaEmendamento(em, session._currentUId);
 
                 return Ok();
@@ -958,7 +967,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 return Ok(await _logicEm.ModelloModificaEM(await _logicEm.GetEM(id), persona));
             }
@@ -988,7 +997,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 persona.CurrentRole = session._currentRole;
 
@@ -1015,7 +1024,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 persona.CurrentRole = session._currentRole;
                 return Ok(await _logicEm.ModificaStatoEmendamento(model, persona));
@@ -1141,7 +1150,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 persona.CurrentRole = session._currentRole;
 

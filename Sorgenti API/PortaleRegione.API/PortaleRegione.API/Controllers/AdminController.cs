@@ -16,28 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
     /// <summary>
     ///     Controller per endpoint di amministrazione
     /// </summary>
-    [System.Web.Http.Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
-    [System.Web.Http.RoutePrefix("admin")]
+    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
+    [RoutePrefix("admin")]
     public class AdminController : BaseApiController
     {
         private readonly AdminLogic _logic;
         private readonly PersoneLogic _logicPersone;
 
+        /// <summary>
+        /// </summary>
+        /// <param name="logic"></param>
+        /// <param name="logicPersone"></param>
         public AdminController(AdminLogic logic, PersoneLogic logicPersone)
         {
             _logic = logic;
@@ -49,8 +53,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpPut]
-        [System.Web.Http.Route("reset-pin")]
+        [HttpPut]
+        [Route("reset-pin")]
         public async Task<IHttpActionResult> ResetPin(ResetRequest request)
         {
             try
@@ -70,8 +74,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpPut]
-        [System.Web.Http.Route("reset-password")]
+        [HttpPut]
+        [Route("reset-password")]
         public async Task<IHttpActionResult> ResetPassword(ResetRequest request)
         {
             try
@@ -91,13 +95,13 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpPost]
-        [System.Web.Http.Route("users/view")]
+        [HttpPost]
+        [Route("users/view")]
         public async Task<IHttpActionResult> GetUtenti(BaseRequest<PersonaDto> model)
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var results = await _logic.GetUtenti(model, session, Request.RequestUri);
                 return Ok(results);
             }
@@ -113,8 +117,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("view/{id:guid}")]
+        [HttpGet]
+        [Route("view/{id:guid}")]
         public async Task<IHttpActionResult> GetUtente(Guid id)
         {
             try
@@ -134,13 +138,13 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per avere i ruoli AD disponibili
         /// </summary>
         /// <returns></returns>
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("ad/ruoli")]
+        [HttpGet]
+        [Route("ad/ruoli")]
         public async Task<IHttpActionResult> GetRuoliAD()
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var currentUser = await _logic.GetPersona(session);
                 var ruoli = await _logic.GetRuoliAD(currentUser.CurrentRole == RuoliIntEnum.Amministratore_Giunta);
 
@@ -157,13 +161,13 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per avere i gruppi politici AD disponibili
         /// </summary>
         /// <returns></returns>
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("ad/gruppi-politici")]
+        [HttpGet]
+        [Route("ad/gruppi-politici")]
         public async Task<IHttpActionResult> GetGruppiPoliticiAD()
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var gruppiPoliticiAD =
                     await _logic.GetGruppiPoliticiAD(
                         session._currentRole == RuoliIntEnum.Amministratore_Giunta);
@@ -181,8 +185,8 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per avere tutti i gruppi per la legislatura attuale
         /// </summary>
         /// <returns></returns>
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("gruppi-in-db")]
+        [HttpGet]
+        [Route("gruppi-in-db")]
         public async Task<IHttpActionResult> GetGruppiInDb()
         {
             try
@@ -201,17 +205,14 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpDelete]
-        [System.Web.Http.Route("user/{id:guid}")]
+        [HttpDelete]
+        [Route("user/{id:guid}")]
         public async Task<IHttpActionResult> DeleteUtente(Guid id)
         {
             try
             {
                 var persona = await _logic.GetPersona(id);
-                if (persona == null)
-                {
-                    return NotFound();
-                }
+                if (persona == null) return NotFound();
 
                 await _logicPersone.DeletePersona(persona.id_persona);
 
@@ -225,17 +226,17 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint per aggiornare i dati dell'utente
+        ///     Endpoint per aggiornare i dati dell'utente
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpPost]
-        [System.Web.Http.Route("salva")]
+        [HttpPost]
+        [Route("salva")]
         public async Task<IHttpActionResult> SalvaUtente(PersonaUpdateRequest request)
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var uid_persona = await _logic.SalvaUtente(request, session._currentRole);
                 return Ok(uid_persona);
             }
@@ -247,17 +248,16 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint per eliminare un utente
+        ///     Endpoint per eliminare un utente
         /// </summary>
-        /// <param name="request"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpDelete]
-        [System.Web.Http.Route("elimina")]
+        [HttpDelete]
+        [Route("elimina")]
         public async Task<IHttpActionResult> EliminaUtente(Guid id)
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 await _logic.EliminaUtente(id);
                 return Ok();
             }
@@ -269,12 +269,12 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint per aggiornare i dati del gruppo
+        ///     Endpoint per aggiornare i dati del gruppo
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpPost]
-        [System.Web.Http.Route("salva-gruppo")]
+        [HttpPost]
+        [Route("salva-gruppo")]
         public async Task<IHttpActionResult> SalvaGruppo(SalvaGruppoRequest request)
         {
             try
@@ -294,8 +294,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [System.Web.Http.HttpPost]
-        [System.Web.Http.Route("groups/view")]
+        [HttpPost]
+        [Route("groups/view")]
         public async Task<IHttpActionResult> GetGruppi(BaseRequest<GruppiDto> model)
         {
             try

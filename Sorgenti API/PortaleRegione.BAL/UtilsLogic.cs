@@ -48,7 +48,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (!AppSettingsConfiguration.Invio_Notifiche)
+                if (AppSettingsConfiguration.Invio_Notifiche == 0)
                 {
                     return;
                 }
