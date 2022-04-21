@@ -81,6 +81,8 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<ATTI_DASI> DASI { get; set; }
         public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; }
         public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; }
+        public virtual DbSet<View_cariche_assessori_in_carica> View_cariche_assessori_in_carica { get; set; } // DASI - Soggetti interrogati
+        public virtual DbSet<ATTI_SOGGETTI_INTERROGATI> ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

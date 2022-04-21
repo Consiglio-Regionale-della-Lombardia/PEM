@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
+    <Compile Include="Domain\AssessoreInCaricaDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
     <Compile Include="Domain\AttoDASIDto.cs" />

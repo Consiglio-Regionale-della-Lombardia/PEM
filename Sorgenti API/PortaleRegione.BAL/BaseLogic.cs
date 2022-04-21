@@ -345,9 +345,24 @@ namespace PortaleRegione.BAL
             try
             {
                 if (!string.IsNullOrEmpty(atto.Atto_Certificato)) return;
+                body = body.Replace("{lblTipoRispostaATTOView}", TipoRispostaHelper.GetDescrizioneRisposta((TipoRispostaEnum) atto.IDTipo_Risposta));
                 body = body.Replace("{lblSubTitoloATTOView}", atto.Oggetto);
 
                 body = body.Replace("{lblTestoATTOView}", atto.Testo);
+
+                var soggetti = string.Empty;
+
+                #region Soggetti Interrogati
+                if (atto.SoggettiInterrogati.Any())
+                {
+                    soggetti = atto
+                        .SoggettiInterrogati
+                        .Select(item => "<li>" + item.nome_carica + "</li>")
+                        .Aggregate((i, j) => i + j);
+                } 
+                #endregion
+
+                body = body.Replace("{ddlSoggettiInterrogatiATTOView}", soggetti);
 
                 var allegato_generico = string.Empty;
 
@@ -552,7 +567,6 @@ namespace PortaleRegione.BAL
             {
                 var firmeDtos = firme.ToList();
                 body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} {atto.NAtto}");
-
 
                 if (string.IsNullOrEmpty(atto.Atto_Certificato))
                 {

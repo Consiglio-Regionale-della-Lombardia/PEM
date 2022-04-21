@@ -71,14 +71,14 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var result = await _logic.NuovoModello(tipo, persona);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetNuovoEmendamento", e);
+                Log.Error("GetNuovoModello", e);
                 return ErrorHandler(e);
             }
         }
@@ -106,7 +106,7 @@ namespace PortaleRegione.API.Controllers
                         $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 return Ok(await _logic.ModificaModello(atto, persona));
@@ -129,7 +129,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var nuovoAtto = await _logic.Salva(request, persona);
 
@@ -153,7 +153,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -179,7 +179,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var response = await _logic.Get(request, persona, Request.RequestUri);
 
@@ -203,7 +203,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
@@ -254,7 +254,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
@@ -305,7 +305,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
@@ -363,7 +363,7 @@ namespace PortaleRegione.API.Controllers
                         "E' in corso un'altra operazione di presentazione. Riprova tra qualche secondo.");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var presentazioneUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                                       persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
@@ -451,7 +451,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var body = await _logic.GetBodyDASI(atto
@@ -516,7 +516,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("L'atto ha delle firme attive e non può essere eliminato");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 await _logic.Elimina(atto, session._currentUId);
 
                 return Ok();
@@ -555,7 +555,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 await _logic.Ritira(atto, persona);

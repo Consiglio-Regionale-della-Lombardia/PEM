@@ -16,17 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
+using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.Domain
 {
-    public class DASIFormModel
+    public class View_cariche_assessori_in_carica
     {
-        public AttoDASIDto Atto { get; set; }
-        public IEnumerable<PersonaDto> ListaGruppo { get; set; }
-        public IEnumerable<PersonaDto> ListaAssessori { get; set; }
-        public IEnumerable<PersonaDto> ListaConsiglieri { get; set; }
-        public List<AssessoreInCaricaDto> SoggettiInterrogabili { get; set; }
+        [Key] public Guid UID_persona { get; set; }
+        
+        public string DisplayName { get; set; }
+        public int id_carica { get; set; }
+        public string nome_carica { get; set; }
+        public int ordine { get; set; }
     }
 }

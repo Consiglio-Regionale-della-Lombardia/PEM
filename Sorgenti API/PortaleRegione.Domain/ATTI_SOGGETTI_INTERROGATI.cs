@@ -15,18 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using System;
+using System.ComponentModel.DataAnnotations;
 
-using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
-
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.Domain
 {
-    public class DASIFormModel
+    public class ATTI_SOGGETTI_INTERROGATI
     {
-        public AttoDASIDto Atto { get; set; }
-        public IEnumerable<PersonaDto> ListaGruppo { get; set; }
-        public IEnumerable<PersonaDto> ListaAssessori { get; set; }
-        public IEnumerable<PersonaDto> ListaConsiglieri { get; set; }
-        public List<AssessoreInCaricaDto> SoggettiInterrogabili { get; set; }
+        [Key]
+        public Guid Uid { get; set; }
+
+        public Guid UIDAtto { get; set; }
+        public int id_carica { get; set; }
     }
 }

@@ -76,9 +76,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Firmato_Dal_Proponente { get; set; } = false;
         public bool Presentabile { get; set; } = false;
         public int Progressivo { get; set; }
-
-        public List<Guid> SoggettiInterrogati { get; set; }
-
+        
         [JsonIgnore] public HttpPostedFileBase DocAllegatoGenerico { get; set; }
 
         public byte[] DocAllegatoGenerico_Stream { get; set; }
@@ -98,5 +96,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Ritirabile { get; set; }
         public bool Modificabile { get; set; }
         public int id_gruppo { get; set; }
+        public List<AssessoreInCaricaDto> SoggettiInterrogati { get; set; }
+        public string SoggettiInterrogati_client { get; set; }
     }
 }

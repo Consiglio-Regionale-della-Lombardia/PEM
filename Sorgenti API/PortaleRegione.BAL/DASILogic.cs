@@ -95,35 +95,68 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     result.UIDAtto = Guid.NewGuid();
+                    attoDto.UIDAtto = result.UIDAtto;
                     result.UID_QRCode = Guid.NewGuid();
                     result.Oggetto = attoDto.Oggetto;
                     result.Testo = attoDto.Testo;
                     result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
                     _unitOfWork.DASI.Add(result);
-                }
-                else
-                {
-                    //Modifica
-                    var attoInDb = await _unitOfWork.DASI.Get(attoDto.UIDAtto);
-                    if (attoInDb == null)
-                        throw new InvalidOperationException("Atto non trovato");
-
-                    attoInDb.UIDPersonaModifica = persona.UID_persona;
-                    attoInDb.DataModifica = DateTime.Now;
-                    attoInDb.Oggetto = attoDto.Oggetto;
-                    attoInDb.Testo = attoDto.Testo;
-                    attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
                     await _unitOfWork.CompleteAsync();
-                    return attoInDb;
+
+                    await GestioneSoggettiInterrogati(attoDto);
+                    return result;
                 }
 
+                //Modifica
+                var attoInDb = await _unitOfWork.DASI.Get(attoDto.UIDAtto);
+                if (attoInDb == null)
+                    throw new InvalidOperationException("Atto non trovato");
+
+                attoInDb.UIDPersonaModifica = persona.UID_persona;
+                attoInDb.DataModifica = DateTime.Now;
+                attoInDb.Oggetto = attoDto.Oggetto;
+                attoInDb.Testo = attoDto.Testo;
+                attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
                 await _unitOfWork.CompleteAsync();
-                return result;
+
+                await GestioneSoggettiInterrogati(attoDto, true);
+
+                return attoInDb;
             }
             catch (Exception e)
             {
                 Log.Error("Logic - SalvaAtto - DASI", e);
+                throw;
+            }
+        }
+
+        private async Task GestioneSoggettiInterrogati(AttoDASIDto attoDto, bool isUpdate = false)
+        {
+            try
+            {
+                if (isUpdate)
+                {
+                    await _unitOfWork.DASI.RimuoviSoggetti(attoDto.UIDAtto);
+                }
+
+                if (!string.IsNullOrEmpty(attoDto.SoggettiInterrogati_client))
+                {
+                    var soggetti = attoDto
+                        .SoggettiInterrogati_client
+                        .Split(',')
+                        .Select(item=> Convert.ToInt32(item));
+                    foreach (var soggetto in soggetti)
+                    {
+                        _unitOfWork.DASI.AggiungiSoggetto(attoDto.UIDAtto, soggetto);
+                    }
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 throw;
             }
         }
@@ -285,6 +318,8 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .CheckIfModificabile(dto,
                         persona);
+                var soggettiInterrogati = await _unitOfWork.DASI.GetSoggettiInterrogati(dto.UIDAtto);
+                dto.SoggettiInterrogati = soggettiInterrogati.Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>).ToList();
 
                 return dto;
             }
@@ -656,7 +691,7 @@ namespace PortaleRegione.API.Controllers
 
                     atto.Etichetta = etichetta_progressiva;
                     atto.UIDPersonaPresentazione = persona.UID_persona;
-                    atto.OrdineVisualizzazione = await _unitOfWork.DASI.GetOrdine(atto.Tipo) + 1;
+                    atto.OrdineVisualizzazione = contatore_progressivo;
                     atto.Timestamp = DateTime.Now;
                     atto.DataPresentazione = EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
@@ -735,13 +770,13 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("GetBodyEM", e);
+                    Log.Error("GetBodyDASI", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetBodyEM", e);
+                Log.Error("Logic - GetBodyDASI", e);
                 throw e;
             }
         }
@@ -789,7 +824,8 @@ namespace PortaleRegione.API.Controllers
                     Atto = new AttoDASIDto
                     {
                         Tipo = (int) tipo
-                    }
+                    },
+                    SoggettiInterrogabili = await GetSoggettiInterrogabili()
                 };
 
                 var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -827,7 +863,7 @@ namespace PortaleRegione.API.Controllers
                     && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
                     && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
                     result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
-
+                result.Atto.SoggettiInterrogati = new List<AssessoreInCaricaDto>();
                 return result;
             }
             catch (Exception e)
@@ -844,7 +880,7 @@ namespace PortaleRegione.API.Controllers
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var dto = await GetAttoDto(atto.UIDAtto, persona, personeInDbLight);
-                var result = new DASIFormModel {Atto = dto};
+                var result = new DASIFormModel {Atto = dto, SoggettiInterrogabili = await GetSoggettiInterrogabili() };
 
                 return result;
             }
@@ -852,6 +888,22 @@ namespace PortaleRegione.API.Controllers
             {
                 Log.Error("Logic - ModificaModello - DASI", e);
                 throw e;
+            }
+        }
+
+        public async Task<List<AssessoreInCaricaDto>> GetSoggettiInterrogabili()
+        {
+            try
+            {
+                var result = await _unitOfWork.DASI.GetSoggettiInterrogabili();
+                return result
+                    .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSoggettiInterrogabili - DASI", e);
+                throw;
             }
         }
     }

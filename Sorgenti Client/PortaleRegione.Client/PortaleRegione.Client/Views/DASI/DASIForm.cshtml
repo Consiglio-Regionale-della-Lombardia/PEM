@@ -77,13 +77,27 @@
                         <label for="Atto_TipoRisposta">Tipo Risposta</label>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Atto.Oggetto)
                         @Html.TextAreaFor(model => model.Atto.Oggetto, new { @class = "form-control trumbowyg" })
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Atto.Testo)
                         @Html.TextAreaFor(model => model.Atto.Testo, new { @class = "form-control trumbowyg" })
+                    </div>
+
+                    <div class="form-group" style="padding-top: 10px">
+                        <label for="">Soggetti interrogabili</label>
+                        @foreach (var soggetto in Model.SoggettiInterrogabili)
+                        {
+                            var soggettoInterrogatoSelezionato = Model.Atto.SoggettiInterrogati.FirstOrDefault(item => item.id_carica == soggetto.id_carica);
+                            <p>
+                                <label>
+                                    <input type="checkbox" id="chk_@soggetto.id_carica" value="@soggetto.id_carica" @Html.Raw(soggettoInterrogatoSelezionato == null ? "":"checked=\"checked\"")/>
+                                    <span>@soggetto.nome_carica</span>
+                                </label>
+                            </p>
+                        }
                     </div>
                 }
 

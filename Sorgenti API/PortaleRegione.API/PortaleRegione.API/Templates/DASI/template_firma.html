@@ -1,43 +1,53 @@
 ﻿<style>
-    tr, td {
-        border: unset !important
-    }
-
-    .left-border {
-        border-left: 1px solid !important;
-        border-right: 1px solid !important;
-    }
-
-    .parte {
-        border: solid !important;
-        font-size: 13px;
-        margin: 10px;
-        padding: 10px;
-        text-align: center;
-        width: 40%;
-    }
+    tr, td { border: unset !important }
 </style>
-<table style='width: 100%;'>
-    <tr class="left-border">
-        <td colspan='2' style='padding: 5px;'><br /></td>
+<table style="width: 100%;">
+    <tr>
+        <td colspan="2" style="padding: 10px; text-align: left !important;">
+            <span>
+                Tipo di risposta: <i>{lblTipoRispostaATTOView}</i>
+            </span>
+        </td>
     </tr>
-    <tr class="left-border">
-        <td colspan='2' style='padding: 10px; text-align: left !important'>
-            <b>Oggetto</b>
+    <tr>
+        <td colspan="2" style="padding: 10px; text-align: right !important;">
+            <span style="font-weight: bold;">
+                Al Presidente del Consiglio regionale della Lombardia
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="padding: 10px; text-align: left !important;">
+            <span style="font-weight: bold; text-decoration: underline;">
+                Oggetto: {lblSubTitoloATTOView}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="font-weight: bold; padding: 10px; text-align: left !important;">
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="padding: 10px; text-align: left !important;">
+            <span style="font-weight: bold;">
+                INTERROGA
+            </span>
+            <ul>
+                {ddlSoggettiInterrogatiATTOView}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="padding: 10px; text-align: left !important;">
+            <span>
+                {lblTestoATTOView}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="padding: 10px; text-align: left !important">
             <br/>
-            {lblSubTitoloATTOView}
-        </td>
-    </tr>
-    <tr class="left-border">
-        <td colspan='2' style='padding: 10px; text-align: left !important'>
-            <b>Premesse e Testo</b>
-            <br />
-            {lblTestoATTOView}
-        </td>
-    </tr>
-    <tr class="left-border">
-        <td colspan='2' style='padding: 10px; text-align: left !important'>
-            <br />
             {lblAllegati}
         </td>
     </tr>

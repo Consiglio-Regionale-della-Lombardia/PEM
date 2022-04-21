@@ -47,7 +47,16 @@ namespace PortaleRegione.API.Controllers
         private readonly StampeLogic _logicStampe;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AttiController(IUnitOfWork unitOfWork, PersoneLogic logicPersone, SeduteLogic logicSedute,
+        /// <summary>
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="logicPersone"></param>
+        /// <param name="logicSedute"></param>
+        /// <param name="logic"></param>
+        /// <param name="logicStampe"></param>
+        public AttiController(IUnitOfWork unitOfWork, 
+            PersoneLogic logicPersone, 
+            SeduteLogic logicSedute,
             AttiLogic logic,
             StampeLogic logicStampe)
         {

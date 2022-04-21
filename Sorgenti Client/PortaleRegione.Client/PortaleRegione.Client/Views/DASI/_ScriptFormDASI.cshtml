@@ -3,13 +3,13 @@
     var instanceModalDasi;
 
     $("#btnSave").on("click",
-        function () {
+        function() {
             $('#formDASI').submit();
         });
     $("#formDASI").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function (form) {
+        submitHandler: function(form) {
 
             var proponente;
             if ($('input[name="Atto.UIDPersonaProponente"]').val())
@@ -34,7 +34,15 @@
             form_data.append("Testo", editor_testo_originale.html());
             form_data.append("Tipo", $("#Atto_Tipo").val());
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
-            
+
+            var soggettiInterrogati = [];
+            var soggettiInterrogabiliCheckboxes = $('input[id^="chk_"]:checked');
+            soggettiInterrogabiliCheckboxes.each(function() {
+                soggettiInterrogati.push($(this).val());
+            });
+            console.log(soggettiInterrogati);
+            form_data.append("SoggettiInterrogati_client", soggettiInterrogati);
+
             $.ajax({
                 url: '@Url.Action("SalvaAtto")',
                 type: "POST",
@@ -43,7 +51,7 @@
                 contentType: false
             }).done(function(data) {
                 console.log(data);
-            
+
                 swal({
                     title: "Procedura completata",
                     text: "Atto inserito correttamente a sistema.",
@@ -51,7 +59,7 @@
                 }).then((value) => {
                     go(data);
                 });
-            
+
             }).fail(function(err) {
                 console.log("error", err);
                 ErrorAlert(err.message);
@@ -96,15 +104,15 @@
 
     function GetTitle(tipo_dasi, edit) {
         var prefix = edit ? "Modifica" : "Nuovo";
-        if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITL)) {
+        if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ITL)) {
             return prefix + " ITL";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITR)) {
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ITR)) {
             return prefix + " ITR";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.IQT)) {
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.IQT)) {
             return prefix + " IQT";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.MOZ)) {
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.MOZ)) {
             return prefix + " MOZ";
-        }else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ODG)) {
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ODG)) {
             return prefix + " ODG";
         }
     }

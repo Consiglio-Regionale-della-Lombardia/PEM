@@ -71,21 +71,22 @@ else
                     <div class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
                         @{
                             var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
-                            if (string.IsNullOrEmpty(item.Atto_Certificato))
-                            {
-                                title += $"TEMP - {item.Progressivo}";
-                            }
-                            else
-                            {
-                                title += item.NAtto;
-                            }
+                            title += item.NAtto;
                         }
                         @Html.Raw(title)
                     </div>
                 </td>
                 <td>@Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)</td>
                 <td>@Html.Raw(item.Oggetto)</td>
-                <td>I Commissione permanente - Economia e Bilancio</td>
+                <td>
+                    @if (item.SoggettiInterrogati.Any())
+                    {
+                        var soggettiGriglia = item.SoggettiInterrogati
+                            .Select(s => s.nome_carica)
+                            .Aggregate((i, j) => i + "<br/> " + j);
+                        @Html.Raw(soggettiGriglia)
+                    }
+                </td>
                 <td>
                     @{
                         var codice_gruppo = item.gruppi_politici.codice_gruppo;

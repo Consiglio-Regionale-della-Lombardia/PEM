@@ -79,7 +79,7 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .DASI
                 .Where(item => !item.Eliminato);
-            
+
             if (stato == StatiAttoEnum.PRESENTATO) query = query.Where(item => item.IDStato >= (int) stato);
             else query = query.Where(item => item.IDStato == (int) stato);
 
@@ -204,6 +204,48 @@ namespace PortaleRegione.Persistance
         public void IncrementaContatore(ATTI_DASI_CONTATORI contatore)
         {
             contatore.Contatore += 1;
+        }
+
+        public async Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogabili()
+        {
+            var result = await PRContext
+                .View_cariche_assessori_in_carica
+                .OrderBy(item => item.ordine)
+                .ThenBy(item => item.nome_carica)
+                .ToListAsync();
+            return result;
+        }
+
+        public async Task RimuoviSoggetti(Guid UidAtto)
+        {
+            var soggetti = await PRContext
+                .ATTI_SOGGETTI_INTERROGATI
+                .Where(item => item.UIDAtto == UidAtto)
+                .ToListAsync();
+            PRContext.ATTI_SOGGETTI_INTERROGATI.RemoveRange(soggetti);
+        }
+
+        public void AggiungiSoggetto(Guid UidAtto, int soggetto)
+        {
+            PRContext.ATTI_SOGGETTI_INTERROGATI.Add(new ATTI_SOGGETTI_INTERROGATI
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = UidAtto,
+                id_carica = soggetto
+            });
+        }
+
+        public async Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogati(Guid uidAtto)
+        {
+            var result = await PRContext
+                .ATTI_SOGGETTI_INTERROGATI
+                .Where(item => item.UIDAtto == uidAtto)
+                .Select(item=>item.id_carica)
+                .ToListAsync();
+            var query = PRContext
+                .View_cariche_assessori_in_carica
+                .Where(item => result.Contains(item.id_carica));
+            return await query.ToListAsync();
         }
     }
 }
