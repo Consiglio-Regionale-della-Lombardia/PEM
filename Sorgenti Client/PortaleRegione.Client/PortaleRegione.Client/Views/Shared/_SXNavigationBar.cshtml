@@ -247,19 +247,19 @@
     </div>
 </div>
 
-<div class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
-    @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
-    {
-        @Html.AntiForgeryToken()
-        <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
-            <i class="icon material-icons">lock_outline</i> Esci
-        </a>
-    }
-
-    <a class="grey-text" href="https://pem2.consiglio.regione.lombardia.it/" target="_blank" style="cursor: pointer; font-size: smaller; text-decoration: underline;">
-        Vai alla vecchia versione
-    </a>
-</div>
+    <div class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
+        @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
+        {
+            @Html.AntiForgeryToken()
+            <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
+                <i class="icon material-icons">lock_outline</i> Esci
+            </a>
+        }
+        
+        @*<a class="grey-text" href="https://pem2.consiglio.regione.lombardia.it/" target="_blank" style="cursor: pointer; text-decoration: underline;font-size: smaller">
+            Vai alla vecchia versione
+        </a>*@
+    </div>
 </div>
 
 <script>

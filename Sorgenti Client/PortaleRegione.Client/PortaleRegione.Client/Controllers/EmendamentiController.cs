@@ -74,7 +74,7 @@ namespace PortaleRegione.Client.Controllers
 
                             return View("RiepilogoEM", old_model);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             Session["RiepilogoEmendamenti"] = null;
                         }

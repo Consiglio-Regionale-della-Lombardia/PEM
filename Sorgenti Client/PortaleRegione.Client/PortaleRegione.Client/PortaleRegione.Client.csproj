@@ -119,6 +119,7 @@
     <Compile Include="Controllers\EMPublicController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
+    <Compile Include="Helpers\AppSettingsConfiguration.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />

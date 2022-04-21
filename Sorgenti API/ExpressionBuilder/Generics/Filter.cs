@@ -85,6 +85,12 @@ namespace ExpressionBuilder.Generics
             return new FilterStatementConnection<T>(this, statement);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <typeparam name="TPropertyType"></typeparam>
+        /// <returns></returns>
         public IFilterStatementConnection By<TPropertyType>(FilterStatement<TPropertyType> filter)
         {
             IFilterStatement statement = filter;
@@ -92,6 +98,11 @@ namespace ExpressionBuilder.Generics
             return new FilterStatementConnection<T>(this, statement);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filters"></param>
+        /// <typeparam name="TPropertyType"></typeparam>
         public void ImportStatements<TPropertyType>(ICollection<FilterStatement<TPropertyType>> filters)
         {
             if (filters == null)
@@ -190,6 +201,10 @@ namespace ExpressionBuilder.Generics
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="query"></param>
         public void BuildExpression(ref IQueryable<T> query)
         {
             query = Statements.Aggregate(query,

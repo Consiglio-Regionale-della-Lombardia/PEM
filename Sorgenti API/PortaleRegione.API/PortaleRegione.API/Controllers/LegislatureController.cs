@@ -32,6 +32,10 @@ namespace PortaleRegione.API.Controllers
     {
         private readonly LegislatureLogic _logic;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logic"></param>
         public LegislatureController(LegislatureLogic logic)
         {
             _logic = logic;

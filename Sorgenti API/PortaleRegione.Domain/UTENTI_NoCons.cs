@@ -74,6 +74,8 @@ namespace PortaleRegione.Domain
         [StringLength(100)]
         public string pass_locale_crypt { get; set; }
 
+        public string gruppi_autorizzazione { get; set; }
+
         public bool attivo { get; set; }
 
         public bool? deleted { get; set; }

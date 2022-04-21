@@ -180,7 +180,7 @@ function Filtri_EM_CaricaTextConnector(ctrlSelect) {
     if (filtri != null) {
         filterSelect = filtri.text_connector;
     }
-    
+
     var select = $("#" + ctrlSelect);
     select.empty();
     select.append("<option value='1'>AND</option>");
@@ -230,7 +230,7 @@ async function Filtri_EM_CaricaStatiEM(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_EM();
     if (filtri != null) {
-        console.log(filterSelect)
+        console.log(filterSelect);
         filterSelect = filtri.stato;
     }
 
@@ -565,7 +565,7 @@ function GetPartiEM() {
 function GetArticoli(attoUId) {
     var articoli = get_ListaArticoliEM();
     if (articoli.length > 0) {
-        console.log("Articoli", articoli)
+        console.log("Articoli", articoli);
         return articoli;
     }
 
@@ -587,7 +587,7 @@ function GetArticoli(attoUId) {
 function GetCommi(articoloUId) {
     var commi = get_ListaCommiEM();
     if (commi.length > 0) {
-        console.log("Commi", commi)
+        console.log("Commi", commi);
 
         return commi;
     }
@@ -610,7 +610,7 @@ function GetCommi(articoloUId) {
 function GetLettere(commaUId) {
     var lettere = get_ListaLettereEM();
     if (lettere.length > 0) {
-        console.log("Lettere", lettere)
+        console.log("Lettere", lettere);
 
         return lettere;
     }
@@ -850,12 +850,12 @@ function filter_em_gruppi_OnChange() {
     var filtri_em = get_Filtri_EM();
     if (filtri_em.gruppi == null)
         filtri_em.gruppi = [];
-    var nuovi_gruppi = []
+    var nuovi_gruppi = [];
     if ($("#filter_em_gruppi option").length != 0) {
         $("#filter_em_gruppi option").each(function(index, opt) {
             if ($(opt).is(":checked")) {
-                console.log("GRUPPO ATTIVO - ", $(opt).val())
-                nuovi_gruppi.push($(opt).val())
+                console.log("GRUPPO ATTIVO - ", $(opt).val());
+                nuovi_gruppi.push($(opt).val());
             }
         });
         filtri_em.gruppi = nuovi_gruppi;
@@ -867,12 +867,12 @@ function filter_em_proponenti_OnChange() {
     var filtri_em = get_Filtri_EM();
     if (filtri_em.proponenti == null)
         filtri_em.proponenti = [];
-    var nuovi_proponenti = []
+    var nuovi_proponenti = [];
     if ($("#filter_em_proponente option").length != 0) {
         $("#filter_em_proponente option").each(function(index, opt) {
             if ($(opt).is(":checked")) {
-                console.log("PROPONENTE ATTIVO - ", $(opt).val())
-                nuovi_proponenti.push($(opt).val())
+                console.log("PROPONENTE ATTIVO - ", $(opt).val());
+                nuovi_proponenti.push($(opt).val());
             }
         });
         filtri_em.proponenti = nuovi_proponenti;
@@ -884,12 +884,12 @@ function filter_em_firmatari_OnChange() {
     var filtri_em = get_Filtri_EM();
     if (filtri_em.firmatari == null)
         filtri_em.firmatari = [];
-    var nuovi_firmatari = []
+    var nuovi_firmatari = [];
     if ($("#filter_em_firmatari option").length != 0) {
         $("#filter_em_firmatari option").each(function(index, opt) {
             if ($(opt).is(":checked")) {
-                console.log("FIRMATARIO ATTIVO - ", $(opt).val())
-                nuovi_firmatari.push($(opt).val())
+                console.log("FIRMATARIO ATTIVO - ", $(opt).val());
+                nuovi_firmatari.push($(opt).val());
             }
         });
         filtri_em.firmatari = nuovi_firmatari;

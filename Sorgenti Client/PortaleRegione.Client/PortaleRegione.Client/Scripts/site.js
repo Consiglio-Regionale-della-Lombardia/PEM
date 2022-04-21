@@ -4,20 +4,21 @@ document.addEventListener("DOMContentLoaded",
     function() {
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
-        
+
         var mode = getClientMode();
         if (mode == null)
             setClientMode(1);
 
         setTimeout(function() {
-            $('body').addClass('loaded');      
-        }, 200);
+                $("body").addClass("loaded");
+            },
+            200);
     });
 
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
     if (enable) {
-        $('#waiting_info_message').text(message);
+        $("#waiting_info_message").text(message);
         instance.options.dismissible = false;
         instance.options.preventScrolling = true;
         instance.open();
@@ -61,7 +62,7 @@ function openSearch() {
 async function openMetaDati(emendamentoUId) {
     var em = await GetEM(emendamentoUId);
     await LoadMetaDatiEM(em);
-    $('#modalMetaDati').modal("open");
+    $("#modalMetaDati").modal("open");
 }
 
 async function GetEM(emUId) {
@@ -103,9 +104,10 @@ function go(link, switchMode) {
         }
     }
 
-    setTimeout(function () {
-        $('body').removeClass('loaded');
-    }, 200);
+    setTimeout(function() {
+            $("body").removeClass("loaded");
+        },
+        200);
     document.location = link;
 }
 
@@ -134,19 +136,19 @@ function AbilitaComandiMassivi(uidEM) {
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
         var selezionaTutti = getSelezionaTutti();
-            if (chk[0].checked) {
-                if (selezionaTutti) {
-                    removeEM(uidEM); //listaEsclusiva
-                } else {
-                    addEM(uidEM); //listaInsclusiva
-                }
+        if (chk[0].checked) {
+            if (selezionaTutti) {
+                removeEM(uidEM); //listaEsclusiva
             } else {
-                if (selezionaTutti) {
-                    addEM(uidEM); //listaEsclusiva
-                } else {
-                    removeEM(uidEM); //listaInsclusiva
-                }
+                addEM(uidEM); //listaInsclusiva
             }
+        } else {
+            if (selezionaTutti) {
+                addEM(uidEM); //listaEsclusiva
+            } else {
+                removeEM(uidEM); //listaInsclusiva
+            }
+        }
     }
 
     var lchk = getListaEmendamenti();
@@ -224,7 +226,7 @@ function ConfirmAction(id, name, action) {
             }).done(function(data) {
                 $("#modalAction").modal("close");
                 $("#btnConfermaAction").off("click");
-                console.log(data.message)
+                console.log(data.message);
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -290,7 +292,7 @@ function RitiraFirma(id) {
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
-                console.log(data)
+                console.log(data);
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -489,7 +491,7 @@ function TestoEmendamento_ParteEM(value, text) {
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
     set_ListaCommiEM([]);
-    $('#ArticoliList').val(value);
+    $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
     M.FormSelect.init(elemsArt, null);
 
@@ -580,12 +582,12 @@ function EsportaXLS(attoUId) {
             if (value == null || value == "")
                 return;
 
-            go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
+            go("emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
         });
 }
 
 function EsportaXLS_Segreteria(attoUId) {
-    go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
+    go("emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
 }
 
 function EsportaDOC(attoUId) {
@@ -607,12 +609,12 @@ function EsportaDOC(attoUId) {
 
             if (value == null || value == "")
                 return;
-            window.open(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, '_blank');
+            window.open("emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, "_blank");
         });
 }
 
 function DownloadStampa(stampaUId) {
-    go(baseUrl + "/stampe/" + stampaUId);
+    go("/stampe/" + stampaUId);
 }
 
 function ResetStampa(stampaUId, url) {
@@ -645,22 +647,22 @@ function CambioStato(uidem, stato) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            var label = $('#tdStato_' + uidem + '>label');
+            var label = $("#tdStato_" + uidem + ">label");
             var textStato = "";
             var cssStato = "";
             if (stato == 1) {
                 textStato = "Depositato";
                 cssStato = "depositatoT";
-            }else if (stato == 2) {
+            } else if (stato == 2) {
                 textStato = "Approvato";
                 cssStato = "approvatoT";
-            }else if (stato == 3) {
+            } else if (stato == 3) {
                 textStato = "Non approvato";
                 cssStato = "NOapprovatoT";
-            }else if (stato == 4) {
+            } else if (stato == 4) {
                 textStato = "Ritirato";
                 cssStato = "ritiratoT";
-            }else if (stato == 5) {
+            } else if (stato == 5) {
                 textStato = "Decaduto";
                 cssStato = "decadutoT";
             } else if (stato == 6) {
@@ -757,7 +759,7 @@ function CambioStatoMassivo(stato, descr) {
             obj.Stato = stato;
             obj.ListaEmendamenti = listaEM;
             obj.All = selezionaTutti;
-            obj.AttoUId = $('#hdUIdAtto').val();
+            obj.AttoUId = $("#hdUIdAtto").val();
 
             $.ajax({
                 url: baseUrl + "/emendamenti/modifica-stato",
@@ -823,7 +825,7 @@ function Ordina_EMTrattazione(attoUId) {
                 .then((willDelete) => {
                     location.reload();
                 });
-            
+
         }
     }).fail(function(err) {
         console.log("error", err);
@@ -1285,9 +1287,10 @@ function SuccessModal(message, ctrl) {
         icon: "success",
         button: "OK"
     }).then((value) => {
-        $(ctrl).modal('close');
+        $(ctrl).modal("close");
     });
 }
+
 function SuccessAlert(message) {
     swal({
         title: "Bel lavoro!",
@@ -1317,9 +1320,10 @@ function ErrorAlert(message) {
         icon: "error",
         button: "Ooops!"
     });
-    setTimeout(function () {
-        $('body').addClass('loaded');
-    }, 200);
+    setTimeout(function() {
+            $("body").addClass("loaded");
+        },
+        200);
 }
 
 $.fn.serializeObject = function() {

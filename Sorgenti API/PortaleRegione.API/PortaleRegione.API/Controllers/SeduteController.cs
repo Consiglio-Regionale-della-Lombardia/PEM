@@ -40,6 +40,11 @@ namespace PortaleRegione.API.Controllers
         private readonly SeduteLogic _logic;
         private readonly PersoneLogic _logicPersone;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logic"></param>
+        /// <param name="logicPersone"></param>
         public SeduteController(SeduteLogic logic, PersoneLogic logicPersone)
         {
             _logic = logic;
@@ -117,7 +122,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 await _logic.DeleteSeduta(Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb), persona);
@@ -148,7 +153,7 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("Manca la data seduta");
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var seduta =
@@ -187,7 +192,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.ModificaSeduta(sedutaDto, persona);
 

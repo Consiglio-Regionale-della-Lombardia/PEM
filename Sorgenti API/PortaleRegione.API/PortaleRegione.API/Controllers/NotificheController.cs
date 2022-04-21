@@ -40,6 +40,11 @@ namespace PortaleRegione.API.Controllers
         private readonly PersoneLogic _logicPersone;
         private readonly NotificheLogic _logic;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logicPersone"></param>
+        /// <param name="logic"></param>
         public NotificheController(PersoneLogic logicPersone, NotificheLogic logic)
         {
             _logicPersone = logicPersone;
@@ -59,7 +64,7 @@ namespace PortaleRegione.API.Controllers
             {
                 object Archivio;
                 model.param.TryGetValue("Archivio", out Archivio);
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var result = await _logic.GetNotificheInviate(model, persona, Convert.ToBoolean(Archivio));
 
@@ -81,7 +86,6 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per settare notifica vista
         /// </summary>
-        /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("vista/{notificaId:long}")]
@@ -89,7 +93,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 await _logic.NotificaVista(notificaId, session._currentUId);
 
                 return Ok();
@@ -116,7 +120,7 @@ namespace PortaleRegione.API.Controllers
                 model.param.TryGetValue("Archivio", out Archivio);
                 object Solo_Non_Viste;
                 model.param.TryGetValue("Solo_Non_Viste", out Solo_Non_Viste);
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var result = await _logic.GetNotificheRicevute(model, persona, Convert.ToBoolean(Archivio),Convert.ToBoolean(Solo_Non_Viste));
 
@@ -167,7 +171,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var invitoDaSegreteria =
                     persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
@@ -218,7 +222,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 return Ok(await _logic.GetListaDestinatari(atto, tipo, persona));
             }

@@ -34,6 +34,11 @@ namespace PortaleRegione.API.Controllers
         private readonly EsportaLogic _logicEsporta;
         private readonly PersoneLogic _logicPersone;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logicEsporta"></param>
+        /// <param name="logicPersone"></param>
         public EsportaController(EsportaLogic logicEsporta, PersoneLogic logicPersone)
         {
             _logicEsporta = logicEsporta;
@@ -45,6 +50,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <param name="ordine">ordinamento emendamenti atto</param>
+        /// <param name="mode"></param>
+        /// <param name="is_report"></param>
         /// <returns></returns>
         [Route("emendamenti/esporta-griglia-xls")]
         [HttpGet]
@@ -53,7 +60,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
 
                 if (session._currentRole != RuoliIntEnum.Amministratore_PEM
                     && session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
@@ -86,6 +93,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <param name="ordine">ordinamento emendamenti atto</param>
+        /// <param name="mode"></param>
         /// <returns></returns>
         [Route("emendamenti/esporta-griglia-doc")]
         [HttpGet]
@@ -93,7 +101,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var response =

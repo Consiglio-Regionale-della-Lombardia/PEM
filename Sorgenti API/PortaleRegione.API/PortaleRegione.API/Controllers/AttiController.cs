@@ -98,7 +98,7 @@ namespace PortaleRegione.API.Controllers
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
                 var personeInDb = await _unitOfWork.Persone.GetAll();
@@ -187,7 +187,7 @@ namespace PortaleRegione.API.Controllers
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var nuovoAtto = await _logic.NuovoAtto(attoModel, persona);
                 return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI, AttiDto>(nuovoAtto));
@@ -218,7 +218,7 @@ namespace PortaleRegione.API.Controllers
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
                     return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.SalvaAtto(attoInDb, attoModel, persona);
 
@@ -524,7 +524,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (attoInDb == null) return NotFound();
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.PubblicaFascicolo(attoInDb, model, persona);
 

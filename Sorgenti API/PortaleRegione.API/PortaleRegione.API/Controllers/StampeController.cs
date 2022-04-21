@@ -39,6 +39,11 @@ namespace PortaleRegione.API.Controllers
         private readonly StampeLogic _logic;
         private readonly PersoneLogic _logicPersone;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logic"></param>
+        /// <param name="logicPersone"></param>
         public StampeController(StampeLogic logic, PersoneLogic logicPersone)
         {
             _logic = logic;
@@ -56,7 +61,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var result = await _logic.GetStampe(model, persona, Request.RequestUri);
                 return Ok(result);
@@ -100,7 +105,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 await _logic.InserisciStampa(model, persona);
                 return Ok();
@@ -201,6 +206,7 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per aggiungere dei log info alla stampa
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="message"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("id/{id:guid}/add-info")]

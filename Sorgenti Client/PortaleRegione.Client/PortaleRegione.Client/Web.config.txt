@@ -31,6 +31,8 @@
     <add key="URL_API" value="YOUR_URL" />
     <add key="URL_CLIENT" value="YOUR_URL" />
     <add key="LimiteDocumentiDaProcessare" value="10" />
+    <add key="logo" value="YOUR_LOGO" />
+    <add key="title" value="YOUR_NAME" />
   </appSettings>
   <system.web>
     <authentication mode="Forms">

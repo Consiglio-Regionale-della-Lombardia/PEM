@@ -70,7 +70,7 @@ namespace PortaleRegione.API.Helpers
         ///     Metodo per avere l'utente loggato dal jwt
         /// </summary>
         /// <returns></returns>
-        protected async Task<SessionManager> GetSession()
+        protected SessionManager GetSession()
         {
             var identity = RequestContext.Principal.Identity as ClaimsIdentity;
             var session = new SessionManager();
