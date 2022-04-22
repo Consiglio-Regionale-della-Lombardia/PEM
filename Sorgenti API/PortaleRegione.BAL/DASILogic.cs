@@ -98,13 +98,15 @@ namespace PortaleRegione.API.Controllers
                     attoDto.UIDAtto = result.UIDAtto;
                     result.UID_QRCode = Guid.NewGuid();
                     result.Oggetto = attoDto.Oggetto;
-                    result.Testo = attoDto.Testo;
+                    result.Premesse = attoDto.Premesse;
+                    result.Richiesta = attoDto.Richiesta;
                     result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
                     _unitOfWork.DASI.Add(result);
                     await _unitOfWork.CompleteAsync();
 
                     await GestioneSoggettiInterrogati(attoDto);
+                    await GestioneCommissioni(attoDto);
                     return result;
                 }
 
@@ -116,11 +118,25 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.UIDPersonaModifica = persona.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
                 attoInDb.Oggetto = attoDto.Oggetto;
-                attoInDb.Testo = attoDto.Testo;
+                attoInDb.Premesse = attoDto.Premesse;
+                attoInDb.Richiesta = attoDto.Richiesta;
                 attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
                 await _unitOfWork.CompleteAsync();
 
                 await GestioneSoggettiInterrogati(attoDto, true);
+                await GestioneCommissioni(attoDto, true);
+
+                if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
+                {
+                    //Il proponente ha firmato l'atto, ed è l'unico firmatario,
+                    //in questo caso re-crypt del testo certificato
+                    var body = await GetBodyDASI(attoInDb, null, persona,
+                        TemplateTypeEnum.FIRMA);
+                    var body_encrypt = EncryptString(body, Decrypt(attoInDb.Hash));
+
+                    attoInDb.Atto_Certificato = body_encrypt;
+                    await _unitOfWork.CompleteAsync();
+                }
 
                 return attoInDb;
             }
@@ -131,32 +147,51 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        private async Task GestioneSoggettiInterrogati(AttoDASIDto attoDto, bool isUpdate = false)
+        private async Task GestioneCommissioni(AttoDASIDto attoDto, bool isUpdate = false)
         {
             try
             {
-                if (isUpdate)
-                {
-                    await _unitOfWork.DASI.RimuoviSoggetti(attoDto.UIDAtto);
-                }
+                if (isUpdate) await _unitOfWork.DASI.RimuoviCommissioni(attoDto.UIDAtto);
 
-                if (!string.IsNullOrEmpty(attoDto.SoggettiInterrogati_client))
+                if (!string.IsNullOrEmpty(attoDto.Commissioni_client))
                 {
-                    var soggetti = attoDto
-                        .SoggettiInterrogati_client
+                    var commissioni = attoDto
+                        .Commissioni_client
                         .Split(',')
-                        .Select(item=> Convert.ToInt32(item));
-                    foreach (var soggetto in soggetti)
-                    {
-                        _unitOfWork.DASI.AggiungiSoggetto(attoDto.UIDAtto, soggetto);
-                    }
+                        .Select(item => Convert.ToInt32(item));
+                    foreach (var commissione in commissioni)
+                        _unitOfWork.DASI.AggiungiCommissione(attoDto.UIDAtto, commissione);
                 }
 
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Error("Logic - GestioneCommissioni - DASI", e);
+                throw;
+            }
+        }
+
+        private async Task GestioneSoggettiInterrogati(AttoDASIDto attoDto, bool isUpdate = false)
+        {
+            try
+            {
+                if (isUpdate) await _unitOfWork.DASI.RimuoviSoggetti(attoDto.UIDAtto);
+
+                if (!string.IsNullOrEmpty(attoDto.SoggettiInterrogati_client))
+                {
+                    var soggetti = attoDto
+                        .SoggettiInterrogati_client
+                        .Split(',')
+                        .Select(item => Convert.ToInt32(item));
+                    foreach (var soggetto in soggetti) _unitOfWork.DASI.AggiungiSoggetto(attoDto.UIDAtto, soggetto);
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GestioneSoggettiInterrogati - DASI", e);
                 throw;
             }
         }
@@ -190,7 +225,8 @@ namespace PortaleRegione.API.Controllers
                 if (!atti_in_db.Any())
                 {
                     var defaultCounterBar =
-                        await GetResponseCountBar(persona, GetResponseStatusFromFilters(model.filtro), GetResponseTypeFromFilters(model.filtro));
+                        await GetResponseCountBar(persona, GetResponseStatusFromFilters(model.filtro),
+                            GetResponseTypeFromFilters(model.filtro));
                     return new RiepilogoDASIModel
                     {
                         Data = new BaseResponse<AttoDASIDto>(
@@ -251,6 +287,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var attoInDb = await _unitOfWork.DASI.Get(attoUid);
+
                 var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
                 dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo.Value);
@@ -258,7 +295,9 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
+                {
                     dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
+                }
 
                 if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                         persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
@@ -319,7 +358,12 @@ namespace PortaleRegione.API.Controllers
                     .CheckIfModificabile(dto,
                         persona);
                 var soggettiInterrogati = await _unitOfWork.DASI.GetSoggettiInterrogati(dto.UIDAtto);
-                dto.SoggettiInterrogati = soggettiInterrogati.Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>).ToList();
+                dto.SoggettiInterrogati = soggettiInterrogati
+                    .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>).ToList();
+
+                var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
+                dto.Commissioni = commissioni
+                    .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
 
                 return dto;
             }
@@ -368,7 +412,7 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.BOZZA), 
+                        , StatiAttoEnum.BOZZA),
                 PRESENTATI = await _unitOfWork
                     .DASI
                     .Count(persona,
@@ -649,12 +693,13 @@ namespace PortaleRegione.API.Controllers
                 var counterPresentazioni = 1;
                 var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
                 var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
-                
+
                 ManagerLogic.BloccaPresentazione = true;
 
                 foreach (var idGuid in model.Lista)
                 {
-                    if (counterPresentazioni == Convert.ToInt32(AppSettingsConfiguration.LimitePresentazioneMassivo) + 1) break;
+                    if (counterPresentazioni ==
+                        Convert.ToInt32(AppSettingsConfiguration.LimitePresentazioneMassivo) + 1) break;
 
                     var atto = await _unitOfWork.DASI.Get(idGuid);
                     if (atto == null)
@@ -825,7 +870,8 @@ namespace PortaleRegione.API.Controllers
                     {
                         Tipo = (int) tipo
                     },
-                    SoggettiInterrogabili = await GetSoggettiInterrogabili()
+                    SoggettiInterrogabili = await GetSoggettiInterrogabili(),
+                    CommissioniAttive = await GetCommissioniAttive()
                 };
 
                 var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -864,6 +910,7 @@ namespace PortaleRegione.API.Controllers
                     && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
                     result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
                 result.Atto.SoggettiInterrogati = new List<AssessoreInCaricaDto>();
+                result.Atto.Commissioni = new List<CommissioneDto>();
                 return result;
             }
             catch (Exception e)
@@ -880,7 +927,11 @@ namespace PortaleRegione.API.Controllers
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var dto = await GetAttoDto(atto.UIDAtto, persona, personeInDbLight);
-                var result = new DASIFormModel {Atto = dto, SoggettiInterrogabili = await GetSoggettiInterrogabili() };
+                var result = new DASIFormModel
+                {
+                    Atto = dto, SoggettiInterrogabili = await GetSoggettiInterrogabili(),
+                    CommissioniAttive = await GetCommissioniAttive()
+                };
 
                 return result;
             }
@@ -903,6 +954,22 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Logic - GetSoggettiInterrogabili - DASI", e);
+                throw;
+            }
+        }
+
+        public async Task<List<CommissioneDto>> GetCommissioniAttive()
+        {
+            try
+            {
+                var result = await _unitOfWork.DASI.GetCommissioniAttive();
+                return result
+                    .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetCommissioniAttive - DASI", e);
                 throw;
             }
         }

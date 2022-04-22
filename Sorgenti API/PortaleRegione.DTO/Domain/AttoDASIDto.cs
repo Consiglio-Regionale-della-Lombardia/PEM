@@ -30,19 +30,16 @@ namespace PortaleRegione.DTO.Domain
     {
         public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
-
-        [AllowHtml]
+        
         public string Oggetto { get; set; }
 
         [AllowHtml]
-        public string Oggetto_Pubblico { get; set; }
+        [DisplayName("Premesse")]
+        public string Premesse { get; set; }
 
         [AllowHtml]
-        [DisplayName("Premessa e Testo")]
-        public string Testo { get; set; }
-
-        [AllowHtml]
-        public string Testo_Pubblico { get; set; }
+        [DisplayName("Richiesta")]
+        public string Richiesta { get; set; }
 
         public int Tipo { get; set; }
         public string NAtto { get; set; }
@@ -98,5 +95,7 @@ namespace PortaleRegione.DTO.Domain
         public int id_gruppo { get; set; }
         public List<AssessoreInCaricaDto> SoggettiInterrogati { get; set; }
         public string SoggettiInterrogati_client { get; set; }
+        public List<CommissioneDto> Commissioni { get; set; }
+        public string Commissioni_client { get; set; }
     }
 }

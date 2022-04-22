@@ -51,6 +51,7 @@
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
     <Compile Include="Domain\AttoDASIDto.cs" />
+    <Compile Include="Domain\CommissioneDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />

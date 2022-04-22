@@ -216,6 +216,46 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<List<View_Commissioni_attive>> GetCommissioniAttive()
+        {
+            var result = await PRContext
+                .View_Commissioni_attive                                  
+                .ToListAsync();
+            return result;
+        }
+
+        public async Task RimuoviCommissioni(Guid UidAtto)
+        {
+            var commissioni = await PRContext
+                .ATTI_COMMISSIONI
+                .Where(item => item.UIDAtto == UidAtto)
+                .ToListAsync();
+            PRContext.ATTI_COMMISSIONI.RemoveRange(commissioni);
+        }
+
+        public void AggiungiCommissione(Guid UidAtto, int organo)
+        {
+            PRContext.ATTI_COMMISSIONI.Add(new ATTI_COMMISSIONI
+            {
+                Uid = Guid.NewGuid(),
+                UIDAtto = UidAtto,
+                id_organo = organo
+            });
+        }
+
+        public async Task<List<View_Commissioni_attive>> GetCommissioni(Guid uidAtto)
+        {
+            var result = await PRContext
+                .ATTI_COMMISSIONI
+                .Where(item => item.UIDAtto == uidAtto)
+                .Select(item => item.id_organo)
+                .ToListAsync();
+            var query = PRContext
+                .View_Commissioni_attive
+                .Where(item => result.Contains(item.id_organo));
+            return await query.ToListAsync();
+        }
+
         public async Task RimuoviSoggetti(Guid UidAtto)
         {
             var soggetti = await PRContext

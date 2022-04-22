@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.Gateway;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Gateway;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Helpers
 {
@@ -43,206 +43,6 @@ namespace PortaleRegione.Client.Helpers
                 {{OPZIONALE}}
             </div>";
 
-        #region GetFirmatari
-
-        /// <summary>
-        ///     Ritorna la lista dei firmatari per visualizzazione client
-        /// </summary>
-        /// <param name="firme"></param>
-        /// <param name="currentUId"></param>
-        /// <param name="tipo"></param>
-        /// <param name="tag"></param>
-        /// <returns></returns>
-        public static async Task<string> GetFirmatari(IEnumerable<FirmeDto> firme, Guid currentUId,
-            FirmeTipoEnum tipo,
-            string token,
-            bool tag = false)
-        {
-            try
-            {
-                if (firme == null)
-                    return string.Empty;
-                var firmeDtos = firme.ToList();
-                if (!firmeDtos.Any())
-                    return string.Empty;
-
-                var apiGateway = new ApiGateway(token);
-
-                if (tag)
-                {
-                    var result = new List<string>();
-
-                    var firmaProponente = firmeDtos.First();
-                    var proponente = await apiGateway.Persone.Get(firmaProponente.UID_persona);
-                    if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
-                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
-                        .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
-                        .Replace("{{OPZIONALE}}", ""));
-                    else
-                    {
-                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
-                            .Replace("{{DisplayName}}", $"<span style='text-decoration:line-through;color:grey'>{firmaProponente.FirmaCert}</span>")
-                            .Replace("{{OPZIONALE}}", ""));
-                    }
-                    firmeDtos.Remove(firmaProponente);
-
-                    foreach (var firmeDto in firmeDtos)
-                    {
-                        var persona = await apiGateway.Persone.Get(firmeDto.UID_persona);
-                        if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
-                            result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
-                                .Replace("{{DisplayName}}", $"{firmeDto.FirmaCert}").Replace("{{OPZIONALE}}", ""));
-                        else
-                            result.Add(
-                                $"<span style='text-decoration:line-through;color:grey'>{firmeDto.FirmaCert}</span>");
-                    }
-
-                    return result.Aggregate((i, j) => i + j);
-                }
-
-                var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
-                    ? "Firme aggiunte dopo il deposito"
-                    : "Firmatari dell'emendamento";
-                var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
-                var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
-                var em = await apiGateway.Emendamento.Get(firmeDtos.Select(f => f.UIDEM).First());
-                foreach (var firmeDto in firmeDtos)
-                {
-                    body += "<li class=\"collection-item with-header\">";
-
-                    if (!string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
-                    {
-                        body += $"<div><del>{firmeDto.FirmaCert}</del>";
-                        body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
-                        body += $"<br/><label>ritirato il </label>{firmeDto.Data_ritirofirma}</div>";
-                    }
-                    else
-                    {
-                        body += $"<div>{firmeDto.FirmaCert}";
-                        body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
-                        if (currentUId == firmeDto.UID_persona)
-                        {
-                            if (em.IDStato >= (int)StatiEnum.Depositato)
-                                body +=
-                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
-                            else
-                                body +=
-                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
-                        }
-                    }
-
-                    body += "</li>";
-                }
-
-                return table.Replace("{{titoloColonna}}", titoloColonna).Replace("{{BODY_FIRME}}", body);
-            }
-            catch (Exception e)
-            {
-                Log.Error("GetFirmatari", e);
-                throw e;
-            }
-        }
-        
-        /// <summary>
-        ///     Ritorna la lista dei firmatari per visualizzazione client
-        /// </summary>
-        /// <param name="firme"></param>
-        /// <param name="currentUId"></param>
-        /// <param name="tipo"></param>
-        /// <param name="tag"></param>
-        /// <returns></returns>
-        public static async Task<string> GetFirmatari(IEnumerable<AttiFirmeDto> firme, Guid currentUId,
-            FirmeTipoEnum tipo,
-            string token,
-            bool tag = false)
-        {
-            try
-            {
-                if (firme == null)
-                    return string.Empty;
-                var firmeDtos = firme.ToList();
-                if (!firmeDtos.Any())
-                    return string.Empty;
-
-                var apiGateway = new ApiGateway(token);
-
-                if (tag)
-                {
-                    var result = new List<string>();
-
-                    var firmaProponente = firmeDtos.First();
-                    var proponente = await apiGateway.Persone.Get(firmaProponente.UID_persona);
-                    if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
-                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
-                        .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
-                        .Replace("{{OPZIONALE}}", ""));
-                    else
-                    {
-                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
-                            .Replace("{{DisplayName}}", $"<span style='text-decoration:line-through;color:grey'>{firmaProponente.FirmaCert}</span>")
-                            .Replace("{{OPZIONALE}}", ""));
-                    }
-                    firmeDtos.Remove(firmaProponente);
-
-                    foreach (var firmeDto in firmeDtos)
-                    {
-                        var persona = await apiGateway.Persone.Get(firmeDto.UID_persona);
-                        if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
-                            result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
-                                .Replace("{{DisplayName}}", $"{firmeDto.FirmaCert}").Replace("{{OPZIONALE}}", ""));
-                        else
-                            result.Add(
-                                $"<span style='text-decoration:line-through;color:grey'>{firmeDto.FirmaCert}</span>");
-                    }
-
-                    return result.Aggregate((i, j) => i + j);
-                }
-
-                var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
-                    ? "Firme aggiunte dopo il deposito"
-                    : "Firmatari dell'emendamento";
-                var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
-                var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
-                var em = await apiGateway.DASI.Get(firmeDtos.Select(f => f.UIDAtto).First());
-                foreach (var firmeDto in firmeDtos)
-                {
-                    body += "<li class=\"collection-item with-header\">";
-
-                    if (!string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
-                    {
-                        body += $"<div><del>{firmeDto.FirmaCert}</del>";
-                        body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
-                        body += $"<br/><label>ritirato il </label>{firmeDto.Data_ritirofirma}</div>";
-                    }
-                    else
-                    {
-                        body += $"<div>{firmeDto.FirmaCert}";
-                        body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
-                        if (currentUId == firmeDto.UID_persona)
-                        {
-                            if (em.IDStato >= (int)StatiEnum.Depositato)
-                                body +=
-                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
-                            else
-                                body +=
-                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
-                        }
-                    }
-
-                    body += "</li>";
-                }
-
-                return table.Replace("{{titoloColonna}}", titoloColonna).Replace("{{BODY_FIRME}}", body);
-            }
-            catch (Exception e)
-            {
-                Log.Error("GetFirmatari - DASI", e);
-                throw e;
-            }
-        }
-
-        #endregion
-
         public static string GetRelatori(IEnumerable<PersonaLightDto> persone)
         {
             try
@@ -250,11 +50,9 @@ namespace PortaleRegione.Client.Helpers
                 var result = new List<string>();
 
                 foreach (var persona in persone)
-                {
                     result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
                         .Replace("{{DisplayName}}", $"{persona.DisplayName}")
                         .Replace("{{OPZIONALE}}", ""));
-                }
 
                 return result.Aggregate((i, j) => i + j);
             }
@@ -272,7 +70,8 @@ namespace PortaleRegione.Client.Helpers
         /// </summary>
         /// <param name="destinatari"></param>
         /// <returns></returns>
-        public static async Task<string> GetDestinatariNotifica(IEnumerable<DestinatariNotificaDto> destinatari, string token)
+        public static async Task<string> GetDestinatariNotifica(IEnumerable<DestinatariNotificaDto> destinatari,
+            string token)
         {
             try
             {
@@ -315,7 +114,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetCSS_TipoDASI(int tipoAtto)
         {
-            switch ((TipoAttoEnum)tipoAtto)
+            switch ((TipoAttoEnum) tipoAtto)
             {
                 case TipoAttoEnum.ITR:
                     return TipoAttoCSSConst.ITR;
@@ -338,7 +137,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetText_TipoDASI(int tipoAtto)
         {
-            switch ((TipoAttoEnum)tipoAtto)
+            switch ((TipoAttoEnum) tipoAtto)
             {
                 case TipoAttoEnum.ITR:
                     return TipoAttoEnum.ITR.ToString();
@@ -361,7 +160,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetTooltip_TipoDASI(int tipoAtto)
         {
-            switch ((TipoAttoEnum)tipoAtto)
+            switch ((TipoAttoEnum) tipoAtto)
             {
                 case TipoAttoEnum.ITR:
                     return "Interrogazione";
@@ -380,12 +179,11 @@ namespace PortaleRegione.Client.Helpers
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
             }
-
         }
 
         public static string GetCSS_StatoDASI(int stato)
         {
-            switch ((StatiAttoEnum)stato)
+            switch ((StatiAttoEnum) stato)
             {
                 case StatiAttoEnum.BOZZA:
                     return StatiAttoCSSConst.BOZZA;
@@ -420,7 +218,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetText_StatoDASI(int stato)
         {
-            switch ((StatiAttoEnum)stato)
+            switch ((StatiAttoEnum) stato)
             {
                 case StatiAttoEnum.BOZZA:
                     return "Bozza";
@@ -451,22 +249,233 @@ namespace PortaleRegione.Client.Helpers
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }
-
         }
 
         public static string GetText_TipoRispostaDASI(int IdTipoRisposta)
         {
-            switch ((TipoRispostaEnum)IdTipoRisposta)
+            switch ((TipoRispostaEnum) IdTipoRisposta)
             {
                 case TipoRispostaEnum.ORALE:
                     return "Orale";
                 case TipoRispostaEnum.SCRITTO:
                     return "Scritto";
                 case TipoRispostaEnum.COMMISSIONE:
-                    return "Commissione";
+                {
+                    return "In Commissione";
+                }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(IdTipoRisposta), IdTipoRisposta, null);
             }
         }
+        
+        public static string GetText_TipoRispostaCommissioneTooltipDASI(AttoDASIDto atto)
+        {
+            if (atto.IDTipo_Risposta != (int) TipoRispostaEnum.COMMISSIONE) return string.Empty;
+            return atto.Commissioni.First().nome_organo;
+        }
+
+        public static string GetText_TipoRispostaCommissioneCSSTooltipDASI(AttoDASIDto atto)
+        {
+            if (atto.IDTipo_Risposta != (int)TipoRispostaEnum.COMMISSIONE) return string.Empty;
+            return "tooltipped";
+        }
+
+        #region GetFirmatari
+
+        /// <summary>
+        ///     Ritorna la lista dei firmatari per visualizzazione client
+        /// </summary>
+        /// <param name="firme"></param>
+        /// <param name="currentUId"></param>
+        /// <param name="tipo"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static async Task<string> GetFirmatari(IEnumerable<FirmeDto> firme, Guid currentUId,
+            FirmeTipoEnum tipo,
+            string token,
+            bool tag = false)
+        {
+            try
+            {
+                if (firme == null)
+                    return string.Empty;
+                var firmeDtos = firme.ToList();
+                if (!firmeDtos.Any())
+                    return string.Empty;
+
+                var apiGateway = new ApiGateway(token);
+
+                if (tag)
+                {
+                    var result = new List<string>();
+
+                    var firmaProponente = firmeDtos.First();
+                    var proponente = await apiGateway.Persone.Get(firmaProponente.UID_persona);
+                    if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
+                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
+                            .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
+                            .Replace("{{OPZIONALE}}", ""));
+                    else
+                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
+                            .Replace("{{DisplayName}}",
+                                $"<span style='text-decoration:line-through;color:grey'>{firmaProponente.FirmaCert}</span>")
+                            .Replace("{{OPZIONALE}}", ""));
+                    firmeDtos.Remove(firmaProponente);
+
+                    foreach (var firmeDto in firmeDtos)
+                    {
+                        var persona = await apiGateway.Persone.Get(firmeDto.UID_persona);
+                        if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                            result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
+                                .Replace("{{DisplayName}}", $"{firmeDto.FirmaCert}").Replace("{{OPZIONALE}}", ""));
+                        else
+                            result.Add(
+                                $"<span style='text-decoration:line-through;color:grey'>{firmeDto.FirmaCert}</span>");
+                    }
+
+                    return result.Aggregate((i, j) => i + j);
+                }
+
+                var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
+                    ? "Firme aggiunte dopo il deposito"
+                    : "Firmatari dell'emendamento";
+                var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
+                var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
+                var em = await apiGateway.Emendamento.Get(firmeDtos.Select(f => f.UIDEM).First());
+                foreach (var firmeDto in firmeDtos)
+                {
+                    body += "<li class=\"collection-item with-header\">";
+
+                    if (!string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                    {
+                        body += $"<div><del>{firmeDto.FirmaCert}</del>";
+                        body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
+                        body += $"<br/><label>ritirato il </label>{firmeDto.Data_ritirofirma}</div>";
+                    }
+                    else
+                    {
+                        body += $"<div>{firmeDto.FirmaCert}";
+                        body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
+                        if (currentUId == firmeDto.UID_persona)
+                        {
+                            if (em.IDStato >= (int) StatiEnum.Depositato)
+                                body +=
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
+                            else
+                                body +=
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
+                        }
+                    }
+
+                    body += "</li>";
+                }
+
+                return table.Replace("{{titoloColonna}}", titoloColonna).Replace("{{BODY_FIRME}}", body);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetFirmatari", e);
+                throw e;
+            }
+        }
+
+        /// <summary>
+        ///     Ritorna la lista dei firmatari per visualizzazione client
+        /// </summary>
+        /// <param name="firme"></param>
+        /// <param name="currentUId"></param>
+        /// <param name="tipo"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static async Task<string> GetFirmatari(IEnumerable<AttiFirmeDto> firme, Guid currentUId,
+            FirmeTipoEnum tipo,
+            string token,
+            bool tag = false)
+        {
+            try
+            {
+                if (firme == null)
+                    return string.Empty;
+                var firmeDtos = firme.ToList();
+                if (!firmeDtos.Any())
+                    return string.Empty;
+
+                var apiGateway = new ApiGateway(token);
+
+                if (tag)
+                {
+                    var result = new List<string>();
+
+                    var firmaProponente = firmeDtos.First();
+                    var proponente = await apiGateway.Persone.Get(firmaProponente.UID_persona);
+                    if (string.IsNullOrEmpty(firmaProponente.Data_ritirofirma))
+                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
+                            .Replace("{{DisplayName}}", $"<b>{firmaProponente.FirmaCert}</b>")
+                            .Replace("{{OPZIONALE}}", ""));
+                    else
+                        result.Add(_chipTemplate.Replace("{{foto}}", proponente.foto)
+                            .Replace("{{DisplayName}}",
+                                $"<span style='text-decoration:line-through;color:grey'>{firmaProponente.FirmaCert}</span>")
+                            .Replace("{{OPZIONALE}}", ""));
+                    firmeDtos.Remove(firmaProponente);
+
+                    foreach (var firmeDto in firmeDtos)
+                    {
+                        var persona = await apiGateway.Persone.Get(firmeDto.UID_persona);
+                        if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                            result.Add(_chipTemplate.Replace("{{foto}}", persona.foto)
+                                .Replace("{{DisplayName}}", $"{firmeDto.FirmaCert}").Replace("{{OPZIONALE}}", ""));
+                        else
+                            result.Add(
+                                $"<span style='text-decoration:line-through;color:grey'>{firmeDto.FirmaCert}</span>");
+                    }
+
+                    return result.Aggregate((i, j) => i + j);
+                }
+
+                var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
+                    ? "Firme aggiunte dopo il deposito"
+                    : "Firmatari dell'emendamento";
+                var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
+                var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
+                var em = await apiGateway.DASI.Get(firmeDtos.Select(f => f.UIDAtto).First());
+                foreach (var firmeDto in firmeDtos)
+                {
+                    body += "<li class=\"collection-item with-header\">";
+
+                    if (!string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                    {
+                        body += $"<div><del>{firmeDto.FirmaCert}</del>";
+                        body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
+                        body += $"<br/><label>ritirato il </label>{firmeDto.Data_ritirofirma}</div>";
+                    }
+                    else
+                    {
+                        body += $"<div>{firmeDto.FirmaCert}";
+                        body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
+                        if (currentUId == firmeDto.UID_persona)
+                        {
+                            if (em.IDStato >= (int) StatiEnum.Depositato)
+                                body +=
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
+                            else
+                                body +=
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
+                        }
+                    }
+
+                    body += "</li>";
+                }
+
+                return table.Replace("{{titoloColonna}}", titoloColonna).Replace("{{BODY_FIRME}}", body);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetFirmatari - DASI", e);
+                throw e;
+            }
+        }
+
+        #endregion
     }
 }

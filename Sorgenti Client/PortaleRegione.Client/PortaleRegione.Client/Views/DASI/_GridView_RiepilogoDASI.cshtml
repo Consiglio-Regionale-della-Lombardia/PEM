@@ -76,7 +76,11 @@ else
                         @Html.Raw(title)
                     </div>
                 </td>
-                <td>@Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)</td>
+                <td>
+                    <span class="@Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
+                        @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
+                    </span>
+                </td>
                 <td>@Html.Raw(item.Oggetto)</td>
                 <td>
                     @if (item.SoggettiInterrogati.Any())

@@ -42,6 +42,10 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckProgressivo(string etichettaEncrypt);
         void IncrementaContatore(ATTI_DASI_CONTATORI contatore);
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogabili();
+        Task<List<View_Commissioni_attive>> GetCommissioniAttive();
+        Task RimuoviCommissioni(Guid UidAtto);
+        void AggiungiCommissione(Guid UidAtto, int organo);
+        Task<List<View_Commissioni_attive>> GetCommissioni(Guid uidAtto);
         Task RimuoviSoggetti(Guid UidAtto);
         void AggiungiSoggetto(Guid UidAtto, int soggetto);
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogati(Guid uidAtto);

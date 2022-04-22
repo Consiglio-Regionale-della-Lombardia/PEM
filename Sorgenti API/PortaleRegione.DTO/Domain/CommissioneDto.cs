@@ -16,18 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
-
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.DTO.Domain
 {
-    public class DASIFormModel
+    public class CommissioneDto
     {
-        public AttoDASIDto Atto { get; set; }
-        public IEnumerable<PersonaDto> ListaGruppo { get; set; }
-        public IEnumerable<PersonaDto> ListaAssessori { get; set; }
-        public IEnumerable<PersonaDto> ListaConsiglieri { get; set; }
-        public List<AssessoreInCaricaDto> SoggettiInterrogabili { get; set; }
-        public List<CommissioneDto> CommissioniAttive { get; set; }
+        public int id_organo { get; set; }
+        public string nome_organo { get; set; }
     }
 }

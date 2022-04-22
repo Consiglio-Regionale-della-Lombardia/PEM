@@ -70,20 +70,31 @@
 
                     <div class="input-field">
                         <select id='Atto_TipoRisposta'>
-                            <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)">Orale</option>
-                            <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
-                            <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)">Commissione</option>
+                            <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>Orale</option>
+                            <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO ? "selected=\"selected\"" : "")>Scritto</option>
+                            <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
                         </select>
                         <label for="Atto_TipoRisposta">Tipo Risposta</label>
                     </div>
+                    var displayCommissioni = Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "display: block;" : "display: none;";
 
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Oggetto)
-                        @Html.TextAreaFor(model => model.Atto.Oggetto, new { @class = "form-control trumbowyg" })
+                    <div class="input-field" style="padding-top: 10px; @displayCommissioni" id="pnlCommissioni">
+                        <select id="Atto_Commissioni">
+                            <option value="">Seleziona commissione</option>
+                            @foreach (var commissione in Model.CommissioniAttive)
+                            {
+                                var commissioneSelezionata = Model.Atto.Commissioni.FirstOrDefault(item => item.id_organo == commissione.id_organo);
+                                <option value="@commissione.id_organo" @Html.Raw(commissioneSelezionata == null ? "" : "selected")>@commissione.nome_organo</option>
+                            }
+                        </select>
                     </div>
                     <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Testo)
-                        @Html.TextAreaFor(model => model.Atto.Testo, new { @class = "form-control trumbowyg" })
+                        @Html.LabelFor(s => s.Atto.Oggetto)
+                        @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.LabelFor(s => s.Atto.Premesse)
+                        @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
                     </div>
 
                     <div class="form-group" style="padding-top: 10px">
@@ -93,11 +104,16 @@
                             var soggettoInterrogatoSelezionato = Model.Atto.SoggettiInterrogati.FirstOrDefault(item => item.id_carica == soggetto.id_carica);
                             <p>
                                 <label>
-                                    <input type="checkbox" id="chk_@soggetto.id_carica" value="@soggetto.id_carica" @Html.Raw(soggettoInterrogatoSelezionato == null ? "":"checked=\"checked\"")/>
+                                    <input type="checkbox" id="chk_Soggetto_@soggetto.id_carica" value="@soggetto.id_carica" @Html.Raw(soggettoInterrogatoSelezionato == null ? "" : "checked=\"checked\"") />
                                     <span>@soggetto.nome_carica</span>
                                 </label>
                             </p>
                         }
+                    </div>
+
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.LabelFor(s => s.Atto.Richiesta)
+                        @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
                     </div>
                 }
 
@@ -115,5 +131,14 @@
 
 <script>
     $(document).ready(function() {
+        $('#Atto_TipoRisposta').on("change",
+            function() {
+                var selected_option_value = $(this).find(":selected").val();
+                if (selected_option_value == @Html.Raw((int) TipoRispostaEnum.COMMISSIONE)) {
+                    $("#pnlCommissioni").show();
+                } else {
+                    $("#pnlCommissioni").hide();
+                }
+            });
     });
 </script>

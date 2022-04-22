@@ -78,11 +78,13 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_UTENTI> View_UTENTI { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }
         public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
-        public virtual DbSet<ATTI_DASI> DASI { get; set; }
-        public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; }
-        public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; }
+        public virtual DbSet<ATTI_DASI> DASI { get; set; } // DASI - Atti
+        public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; } // DASI - Firme
+        public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; } // DASI - Contatori per tipo atto e tipo risposta
         public virtual DbSet<View_cariche_assessori_in_carica> View_cariche_assessori_in_carica { get; set; } // DASI - Soggetti interrogati
         public virtual DbSet<ATTI_SOGGETTI_INTERROGATI> ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
+        public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
+        public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

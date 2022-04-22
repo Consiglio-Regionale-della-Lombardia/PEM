@@ -115,6 +115,7 @@
     <Compile Include="AttiFirmeLogic.cs" />
     <Compile Include="AttiLogic.cs" />
     <Compile Include="AuthLogic.cs" />
+    <Compile Include="DASIHelper.cs" />
     <Compile Include="DASILogic.cs" />
     <Compile Include="EmendamentiLogic.cs" />
     <Compile Include="EMPublicLogic.cs" />

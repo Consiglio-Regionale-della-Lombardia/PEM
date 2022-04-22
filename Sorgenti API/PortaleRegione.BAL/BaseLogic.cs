@@ -344,11 +344,12 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (!string.IsNullOrEmpty(atto.Atto_Certificato)) return;
-                body = body.Replace("{lblTipoRispostaATTOView}", TipoRispostaHelper.GetDescrizioneRisposta((TipoRispostaEnum) atto.IDTipo_Risposta));
+                body = body.Replace("{lblTipoRispostaATTOView}", DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum) atto.IDTipo_Risposta, atto.Commissioni));
                 body = body.Replace("{lblSubTitoloATTOView}", atto.Oggetto);
 
-                body = body.Replace("{lblTestoATTOView}", atto.Testo);
+                body = body.Replace("{lblPremesseATTOView}", atto.Premesse);
+                body = body.Replace("{lblRichiestaATTOView}", atto.Richiesta);
+                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}", DASIHelper.GetTipoAtto_TitoloParagrafo((TipoAttoEnum)atto.Tipo));
 
                 var soggetti = string.Empty;
 
