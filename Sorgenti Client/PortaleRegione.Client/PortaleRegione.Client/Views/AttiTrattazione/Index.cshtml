@@ -1,141 +1,172 @@
-﻿@{
-    ViewBag.Title = "Seduta 1";
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DashboardModel
+
+@{
+    ViewBag.Title = $"Seduta del {Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")}";
 }
 
 <div class="row">
     <div class="col s12">
         <h5>
+            <span class="chip red white-text" style="min-width: unset !important;">AULA</span>
             <b>@ViewBag.Title</b>
         </h5>
     </div>
 </div>
 
-<ul class="collapsible">
-    <li>
-        <div class="collapsible-header">
-            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
-                <div class="col s6">
-                    <i class="material-icons" style="position: relative; top: 5px; color: #2196f3 ">info_outline</i>
-                    <b>PDL 987</b>
+@if (Model.PEM.Any())
+{
+    <div class="row" style="margin: 0 !important">
+        <div class="col s12">
+            <h6>
+                <b>PEM</b>
+            </h6>
+        </div>
+    </div>
+    <hr/>
+    <ul class="collapsible">
+        @foreach (var attoPem in Model.PEM.First().Results)
+        {
+            var titolo_atto = $"{attoPem.TIPI_ATTO.Tipo_Atto} {attoPem.NAtto}";
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text">textsms</i>
+                    @titolo_atto
+                    <div class="collapsabile-secondary-header">
+                        <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
+                    </div>
                 </div>
-                <div class="col s6 right-align">
-                    <span class="chip white black-text chip-in-collection">
-                        EM:
-                        <span class="chip badgeCounterTrattazione chip-value-in-collection">44</span>
-                    </span>
-                    <span class="counterDivider">|</span>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12">
+                            <label>
+                                <b>Oggetto</b>
+                            </label>
+                            <br/>
+                            <p>@attoPem.Oggetto</p>
+                        </div>
+                        <div class="col s12">
+                            <label>
+                                <b>Assessore di Riferimento</b>
+                            </label>
+                            <br/>
+                            <div class="chip" style="margin-left: 5px; min-width: unset;">
+                                <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                @attoPem.PersonaAssessore.DisplayName
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <label>
+                                <b>Relatori</b>
+                            </label>
+                            <br/>
+                            @Html.Raw(Utility.GetRelatori(attoPem.Relatori))
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            <a class="btn-flat pink-text"
+                               href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
+                                <i class="material-icons left">download</i>
+                                Scarica
+                            </a>
+                        </div>
+                        <div class="col s6 right-align">
+                            @if (attoPem.Data_apertura.HasValue)
+                            {
+                                <a class="btn-flat blue-text"
+                                   onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = attoPem.UIDAtto})')" title="Riepilogo emendamenti">
+                                    <i class="material-icons right">chevron_right</i>
+                                    Entra in Aula
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}
 
-                    <span class="chip white black-text chip-in-collection">
-                        SUBEM:
-                        <span class="chip badgeCounterTrattazione chip-value-in-collection">2</span>
-                    </span>
-                    <span class="counterDivider">|</span>
-                    <a class="blue-text" href="#!">
-                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
-                    </a>
-                </div>
-            </div>
+@if (Model.DASI.Any())
+{
+    <div class="row" style="margin: 0 !important">
+        <div class="col s12">
+            <h6>
+                <b>DASI</b>
+            </h6>
         </div>
-        <div class="collapsible-body">
-            <div class="input-field">
-                <label>Oggetto</label>
-                <textarea class="materialize-textarea" readonly="readonly" rows="4">
-                    Lorem ipsum
-                </textarea>
-            </div>
-            <div class="input-field">
-                <label>Assessore di riferimento</label>
-                <input type="text" readonly="readonly" value="Mario Biondi"/>
-            </div>
-            <div class="input-field">
-                <label>Relatori</label>
-                <input type="text" readonly="readonly" value="Giovanni Ingarsia, Matt Bianco"/>
-            </div>
-            <div class="col s12 right-align">
-                <a class="btn chip pink white-text">
-                    <i class="icon material-icons">download</i> Scarica documento atto
-                </a>
-            </div>
-        </div>
-    </li>
-    <li>
-        <div class="collapsible-header">
-            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
-                <div class="col s6">
-                    <i class="material-icons" style="position: relative; top: 5px; color: #2196f3 ">info_outline</i>
-                    <b>PDL 123</b>
+    </div>
+    <hr/>
+    <ul class="collapsible">
+        @{
+            var dasiData = Model.DASI.First();
+            var counterBar = dasiData.CountBarData;
+        }
+        @if (counterBar.ITL > 0)
+        {
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text">textsms</i>
+                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)
+                    <div class="collapsabile-secondary-header">
+                        <div class="chip">@counterBar.ITL</div>
+                    </div>
                 </div>
-                <div class="col s6 right-align">
-                    <span class="chip white black-text chip-in-collection">
-                        EM:
-                        <span class="chip badgeCounterTrattazione chip-value-in-collection">25</span>
-                    </span>
-                    <span class="counterDivider">|</span>
-                    <a class="blue-text" href="#!">
-                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
-                    </a>
+            </li>
+        }
+        @if (counterBar.IQT > 0)
+        {
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text">textsms</i>
+                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)
+                    <div class="collapsabile-secondary-header">
+                        <div class="chip">@counterBar.IQT</div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="collapsible-body">
-            <div class="input-field">
-                <label>Oggetto</label>
-                <textarea class="materialize-textarea" readonly="readonly" rows="4">
-                    Lorem ipsum
-                </textarea>
-            </div>
-            <div class="input-field">
-                <label>Assessore di riferimento</label>
-                <input type="text" readonly="readonly" value="Mario Biondi" />
-            </div>
-            <div class="input-field">
-                <label>Relatori</label>
-                <input type="text" readonly="readonly" value="Giovanni Ingarsia, Matt Bianco" />
-            </div>
-            <div class="col s12 right-align">
-                <a class="btn chip pink white-text">
-                    <i class="icon material-icons">download</i> Scarica documento atto
-                </a>
-            </div>
-        </div>
-    </li>
-    <li>
-        <div class="collapsible-header">
-            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
-                <div class="col s6">
-                    <b>ITR</b>
+            </li>
+        }
+        @if (counterBar.ITR > 0)
+        {
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text">textsms</i>
+                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)
+                    <div class="collapsabile-secondary-header">
+                        <div class="chip">@counterBar.ITR</div>
+                    </div>
                 </div>
-                <div class="col s6 right-align">
-                    <span class="chip badgeCounterTrattazione chip-in-collection">
-                        32
-                    </span>
-                    <span class="counterDivider">|</span>
-                    <a class="blue-text" href="#!">
-                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
-                    </a>
+            </li>
+        }
+        @if (counterBar.MOZ > 0)
+        {
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text">textsms</i>
+                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)
+                    <div class="collapsabile-secondary-header">
+                        <div class="chip">@counterBar.MOZ</div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </li>
-    <li>
-        <div class="collapsible-header">
-            <div class="row valign-wrapper" style="margin: 0 !important; width: 100%">
-                <div class="col s6">
-                    <b>IQT</b>
+            </li>
+        }
+        @if (counterBar.ODG > 0)
+        {
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text">textsms</i>
+                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)
+                    <div class="collapsabile-secondary-header">
+                        <div class="chip">@counterBar.ODG</div>
+                    </div>
                 </div>
-                <div class="col s6 right-align">
-                    <span class="chip badgeCounterTrattazione chip-in-collection">
-                        45
-                    </span>
-                    <span class="counterDivider">|</span>
-                    <a class="blue-text" href="#!">
-                        <i class="material-icons icon-in-collection tooltipped" data-tooltip="Visualizza">chevron_right</i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </li>
-</ul>
+            </li>
+        }
+    </ul>
+}
+
 
 <script>
     $(document).ready(function() {

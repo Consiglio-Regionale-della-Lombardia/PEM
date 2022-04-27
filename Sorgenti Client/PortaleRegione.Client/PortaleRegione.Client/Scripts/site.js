@@ -634,8 +634,8 @@ function ResetStampa(stampaUId, url) {
 function CambioStato(uidem, stato) {
     var obj = {};
     obj.Stato = stato;
-    obj.ListaEmendamenti = [];
-    obj.ListaEmendamenti.push(uidem);
+    obj.Lista = [];
+    obj.Lista.push(uidem);
 
     $.ajax({
         url: baseUrl + "/emendamenti/modifica-stato",
@@ -682,55 +682,29 @@ function CambioStato(uidem, stato) {
     });
 }
 
-function CambioStatoDASI(uidem, stato) {
+function CambioStatoDASI(uidatto, stato) {
+    console.log('uidatto', uidatto)
     var obj = {};
     obj.Stato = stato;
-    obj.ListaEmendamenti = [];
-    obj.ListaEmendamenti.push(uidem);
+    obj.Lista = [];
+    obj.Lista.push(uidatto);
 
-    //$.ajax({
-    //    url: baseUrl + "/emendamenti/modifica-stato",
-    //    type: "POST",
-    //    data: JSON.stringify(obj),
-    //    contentType: "application/json; charset=utf-8",
-    //    dataType: "json"
-    //}).done(function(data) {
-    //    if (data.message) {
-    //        ErrorAlert(data.message);
-    //    } else {
-    //        var label = $('#tdStato_' + uidem + '>label');
-    //        var textStato = "";
-    //        var cssStato = "";
-    //        if (stato == 1) {
-    //            textStato = "Depositato";
-    //            cssStato = "depositatoT";
-    //        }else if (stato == 2) {
-    //            textStato = "Approvato";
-    //            cssStato = "approvatoT";
-    //        }else if (stato == 3) {
-    //            textStato = "Non approvato";
-    //            cssStato = "NOapprovatoT";
-    //        }else if (stato == 4) {
-    //            textStato = "Ritirato";
-    //            cssStato = "ritiratoT";
-    //        }else if (stato == 5) {
-    //            textStato = "Decaduto";
-    //            cssStato = "decadutoT";
-    //        } else if (stato == 6) {
-    //            textStato = "Inammissibile";
-    //            cssStato = "inammissibileT";
-    //        } else if (stato == 7) {
-    //            textStato = "Approvato con modifiche";
-    //            cssStato = "approvatomodT";
-    //        }
-    //        $(label).removeClass();
-    //        $(label).text(textStato);
-    //        $(label).addClass(cssStato);
-    //    }
-    //}).fail(function(err) {
-    //    console.log("error", err);
-    //    ErrorAlert(err.message);
-    //});
+    $.ajax({
+        url: baseUrl + "/dasi/modifica-stato",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            ErrorAlert(data.message);
+        } else {
+            go(data);
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        ErrorAlert(err.message);
+    });
 }
 
 function CambioStatoMassivo(stato, descr) {
@@ -1276,6 +1250,17 @@ function GetDestinatariNotifica(notificaId) {
         console.log("error", err);
         ErrorAlert(err.message);
     });
+}
+
+function GetFormattedDate(value) {
+    var splitted_date_arr = value.split('(');
+    var splitted_date = splitted_date_arr[splitted_date_arr.length - 1]
+        .replace("/", "")
+        .replace(";", "")
+        .replace(')', '');
+    var dateX = new Date(parseInt(splitted_date));
+    var date = moment(dateX);
+    return date.format("DD/MM/YYYY HH:mm");
 }
 
 // NOTIFICATION SWEETALERT.JS

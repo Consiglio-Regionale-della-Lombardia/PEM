@@ -120,6 +120,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificheController.cs" />
     <Compile Include="Helpers\AppSettingsConfiguration.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Models\ClientJsonResponse.cs" />
     <Compile Include="Controllers\EmendamentiController.cs" />
     <Compile Include="Controllers\PersoneController.cs" />
@@ -306,6 +307,7 @@
     <Content Include="fonts\text-security-disc.eot" />
     <Content Include="fonts\text-security-disc.ttf" />
     <Content Include="fonts\text-security-disc.woff" />
+    <Content Include="Scripts\moment.js" />
     <Content Include="Web.config.txt" />
     <Content Include="Content\editor\plugins\colors\ui\sass\trumbowyg.colors.scss" />
     <Content Include="Content\editor\plugins\emoji\ui\sass\trumbowyg.emoji.scss" />
@@ -409,7 +411,6 @@
     <Content Include="Views\DASI\_ComandiDASI_Admin.cshtml" />
     <Content Include="Views\DASI\_ScriptRiepilogoDASI.cshtml" />
     <Content Include="Views\DASI\_ScriptFormDASI.cshtml" />
-    <Content Include="Views\Home\Index_Admin.cshtml" />
     <Content Include="Views\AttiTrattazione\Index.cshtml" />
     <Content Include="Views\AttiTrattazione\Archivio.cshtml" />
     <Content Include="Views\AttiTrattazione\_SeduteFiltri.cshtml" />
@@ -417,6 +418,7 @@
     <Content Include="Views\DASI\_GridView_RiepilogoDASI.cshtml" />
     <Content Include="Views\DASI\_CounterBar_RiepilogoDASI.cshtml" />
     <Content Include="Views\DASI\DASIForm.cshtml" />
+    <Content Include="Views\DASI\_GridView_RiepilogoDASI_Admin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

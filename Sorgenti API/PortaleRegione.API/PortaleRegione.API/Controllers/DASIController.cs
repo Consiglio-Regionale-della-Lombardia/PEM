@@ -568,5 +568,76 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per modificare lo stato di una lista di atti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPut]
+        [Route("modifica-stato")]
+        public async Task<IHttpActionResult> ModificaStato(ModificaStatoAttoModel model)
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+                return Ok(await _logic.ModificaStato(model, persona));
+            }
+            catch (Exception e)
+            {
+                Log.Error("ModificaStatoEmendamento", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per aggiungere una seduta all'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route("iscrizione-seduta")]
+        public async Task<IHttpActionResult> IscrizioneSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+                await _logic.IscrizioneSeduta(model, persona);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("IscrizioneSeduta", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per rimuovere un atto dalla seduta
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route("rimuovi-seduta")]
+        public async Task<IHttpActionResult> RimuoviSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                await _logic.RimuoviSeduta(model);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("RimuoviSeduta", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

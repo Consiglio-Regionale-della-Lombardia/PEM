@@ -146,7 +146,7 @@ namespace PortaleRegione.Client.Controllers
         private void SetCache(int page, int size, OrdinamentoEnum ordine, ViewModeEnum view)
         {
             HttpContext.Cache.Insert(
-                "OrdinamentoEM",
+                CacheHelper.ORDINAMENTO_PEM,
                 (int)ordine,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -156,7 +156,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                "ViewMode",
+                CacheHelper.VIEW_MODE_PEM,
                 view,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -166,7 +166,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                "Page",
+                CacheHelper.PAGE_PEM,
                 page,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -176,7 +176,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                "Size",
+                CacheHelper.SIZE_PEM,
                 size,
                 null,
                 Cache.NoAbsoluteExpiration,

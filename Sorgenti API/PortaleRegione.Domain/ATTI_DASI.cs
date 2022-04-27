@@ -78,5 +78,7 @@ namespace PortaleRegione.Domain
         public int Legislatura { get; set; }
         public string Richiesta { get; set; }
         public string Richiesta_Pubblica { get; set; }
+        public DateTime? DataIscrizioneSeduta { get; set; }
+        public Guid? UIDPersonaIscrizioneSeduta { get; set; }
     }
 }

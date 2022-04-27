@@ -47,5 +47,8 @@ namespace PortaleRegione.Gateway
         Task Ritira(Guid id);
         Task<DASIFormModel> GetNuovoModello(TipoAttoEnum tipo);
         Task<DASIFormModel> GetModificaModello(Guid id);
+        Task CambioStato(ModificaStatoAttoModel model);
+        Task IscriviSeduta(IscriviSedutaDASIModel model);
+        Task RimuoviSeduta(IscriviSedutaDASIModel model);
     }
 }

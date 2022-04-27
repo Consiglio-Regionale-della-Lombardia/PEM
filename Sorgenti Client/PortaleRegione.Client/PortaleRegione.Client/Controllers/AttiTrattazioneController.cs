@@ -16,8 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
@@ -29,9 +35,25 @@ namespace PortaleRegione.Client.Controllers
     [RoutePrefix("attitrattazione")]
     public class AttiTrattazioneController : BaseController
     {
-        public async Task<ActionResult> Index()
+        [HttpGet]
+        [Route("view")]
+        public async Task<ActionResult> Index(Guid id)
         {
-            return View("Index");
+            var apiGateway = new ApiGateway(_Token);
+            var seduta = await apiGateway.Sedute.Get(id);
+            var model = new DashboardModel
+            {
+                Seduta = seduta
+            };
+            var attiPEM = await apiGateway.Atti.Get(id, ClientModeEnum.GRUPPI, 1, 99);
+            if (attiPEM.Results.Any())
+                model.PEM.Add(attiPEM);
+
+            var attiDASI = await apiGateway.DASI.GetBySeduta(id);
+            if (attiDASI.Data.Results.Any())
+                model.DASI.Add(attiDASI);
+
+            return View("Index", model);
         }
         
         public async Task<ActionResult> Archivio(int page = 1, int size = 50)

@@ -112,6 +112,22 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        [HttpGet]
+        [Route("sedute-attive")]
+        public async Task<ActionResult> SeduteAttive()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Sedute.GetActive(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpPost]
         [Route("filtra")]

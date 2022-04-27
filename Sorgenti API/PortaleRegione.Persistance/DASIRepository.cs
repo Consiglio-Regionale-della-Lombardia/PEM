@@ -62,6 +62,18 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<int> Count(Filter<ATTI_DASI> filtro)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato);
+
+            filtro?.BuildExpression(ref query);
+
+            return await query
+                .CountAsync();
+        }
+
         public async Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> filtro)
         {
             var query = PRContext
@@ -80,7 +92,9 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(item => !item.Eliminato);
 
-            if (stato == StatiAttoEnum.PRESENTATO) query = query.Where(item => item.IDStato >= (int) stato);
+            if (stato == StatiAttoEnum.PRESENTATO
+            && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale) 
+                query = query.Where(item => item.IDStato >= (int) stato);
             else query = query.Where(item => item.IDStato == (int) stato);
 
             if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);

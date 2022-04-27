@@ -97,5 +97,8 @@ namespace PortaleRegione.DTO.Domain
         public string SoggettiInterrogati_client { get; set; }
         public List<CommissioneDto> Commissioni { get; set; }
         public string Commissioni_client { get; set; }
+        public SeduteDto Seduta { get; set; }
+
+        public DateTime? DataIscrizioneSeduta { get; set; }
     }
 }

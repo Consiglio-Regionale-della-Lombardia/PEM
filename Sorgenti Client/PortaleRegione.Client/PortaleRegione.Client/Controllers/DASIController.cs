@@ -220,7 +220,8 @@ namespace PortaleRegione.Client.Controllers
                             }, JsonRequestBehavior.AllowGet);
                     case ActionEnum.DEPOSITA:
                         var resultDeposita = await apiGateway.DASI.Presenta(model);
-                        var listaErroriDeposito = resultDeposita.Select(itemDeposito => $"{itemDeposito.Value}").ToList();
+                        var listaErroriDeposito =
+                            resultDeposita.Select(itemDeposito => $"{itemDeposito.Value}").ToList();
                         if (listaErroriDeposito.Count > 0)
                             return Json(
                                 new
@@ -330,10 +331,93 @@ namespace PortaleRegione.Client.Controllers
             return View("DASIForm", model);
         }
 
+        /// <summary>
+        ///     Controller per modificare lo stato di una lista di atti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("modifica-stato")]
+        public async Task<ActionResult> ModificaStato(ModificaStatoAttoModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                model.CurrentStatus = (StatiAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI));
+                model.CurrentType = (TipoAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI));
+                await apiGateway.DASI.CambioStato(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = (StatiAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = (TipoAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per iscrivere una o più sedute ad un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("iscrivi-seduta")]
+        public async Task<ActionResult> IscriviSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.IscriviSeduta(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = (StatiAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = (TipoAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per rimuovere una atto da una seduta
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-seduta")]
+        public async Task<ActionResult> RimuoviSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.RimuoviSeduta(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         private void SetCache(int page, int size, TipoAttoEnum tipo, StatiAttoEnum stato)
         {
             HttpContext.Cache.Insert(
-                "TipoDASI",
+                CacheHelper.TIPO_DASI,
                 (int) tipo,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -343,7 +427,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                "StatoDASI",
+                CacheHelper.STATO_DASI,
                 (int) stato,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -353,7 +437,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                "Page",
+                CacheHelper.PAGE_DASI,
                 page,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -363,7 +447,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                "Size",
+                CacheHelper.SIZE_DASI,
                 size,
                 null,
                 Cache.NoAbsoluteExpiration,

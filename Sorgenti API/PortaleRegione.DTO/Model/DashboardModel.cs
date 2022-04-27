@@ -14,5 +14,6 @@ namespace PortaleRegione.DTO.Model
         public BaseResponse<SeduteDto> Sedute { get; set; }
         public List<RiepilogoDASIModel> DASI { get; set; }
         public List<BaseResponse<AttiDto>> PEM { get; set; }
+        public SeduteFormUpdateDto Seduta { get; set; }
     }
 }

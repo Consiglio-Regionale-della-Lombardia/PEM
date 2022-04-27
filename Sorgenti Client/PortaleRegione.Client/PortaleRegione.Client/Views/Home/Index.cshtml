@@ -149,7 +149,7 @@
                             <b>@Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)</b>
                         </span>
                         <p>
-                            Presentato:
+                            In Trattazione:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -161,7 +161,10 @@
                                 }
                             </b>
                         </p>
-                        <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
+                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
+                                                                                tipo = TipoAttoEnum.ITL,
+                                                                                stato = StatiAttoEnum.IN_TRATTAZIONE
+                                                                            })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </li>
@@ -171,7 +174,7 @@
                             <b>@Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)</b>
                         </span>
                         <p>
-                            Presentato:
+                            In Trattazione:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -183,7 +186,10 @@
                                 }
                             </b>
                         </p>
-                        <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
+                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
+                                                                                tipo = TipoAttoEnum.ITR,
+                                                                                stato = StatiAttoEnum.IN_TRATTAZIONE
+                                                                            })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </li>
@@ -193,7 +199,7 @@
                             <b>@Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)</b>
                         </span>
                         <p>
-                            Presentato:
+                            In Trattazione:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -205,7 +211,10 @@
                                 }
                             </b>
                         </p>
-                        <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
+                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
+                                                                                tipo = TipoAttoEnum.IQT,
+                                                                                stato = StatiAttoEnum.IN_TRATTAZIONE
+                                                                            })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </li>
@@ -215,7 +224,7 @@
                             <b>@Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)</b>
                         </span>
                         <p>
-                            Presentato:
+                            In Trattazione:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -227,7 +236,10 @@
                                 }
                             </b>
                         </p>
-                        <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
+                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
+                                                                                tipo = TipoAttoEnum.MOZ,
+                                                                                stato = StatiAttoEnum.IN_TRATTAZIONE
+                                                                            })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </li>
@@ -237,7 +249,7 @@
                             <b>@Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)</b>
                         </span>
                         <p>
-                            Presentato:
+                            In Trattazione:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -249,7 +261,10 @@
                                 }
                             </b>
                         </p>
-                        <a href="#!" class="secondary-content" onclick="go('/dasi/riepilogodasi')">
+                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
+                                                                                tipo = TipoAttoEnum.ODG,
+                                                                                stato = StatiAttoEnum.IN_TRATTAZIONE
+                                                                            })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </li>

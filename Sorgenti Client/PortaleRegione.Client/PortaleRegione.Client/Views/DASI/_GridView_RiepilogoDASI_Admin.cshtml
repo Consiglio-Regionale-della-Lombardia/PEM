@@ -1,0 +1,283 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+}
+
+@if (!Model.Data.Results.Any())
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel panel-warning center">
+                <span class="center">
+                    @{
+                        var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+                        if (require_my_sign)
+                        {
+                            <p>Non ci sono atti dove è richiesta la tua firma</p>
+                        }
+                        else
+                        {
+                            <p>Non ci sono atti al momento</p>
+                        }
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <table class="responsive-table highlight">
+        <thead>
+        <tr>
+            <th class="center">
+
+                <label>
+                    <input type="checkbox" id="checkAll"/>
+                    <span for="checkAll"></span>
+                </label>
+            </th>
+            <th>Atto</th>
+            <th>Tipo</th>
+            <th>Oggetto</th>
+            @*<th>Soggetto</th>*@
+            <th>Firmatari</th>
+            <th>Stato</th>
+            <th>Seduta</th>
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var item in Model.Data.Results)
+        {
+            <tr>
+                <td class="center">
+
+                    <p>
+                        <label>
+                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+                <td>
+                    <div id="txtNomeAtto_@item.UIDAtto" class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
+                        @{
+                            var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
+                            title += item.NAtto;
+                        }
+                        @Html.Raw(title)
+                    </div>
+                </td>
+                <td>
+                    <span class="@Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
+                        @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
+                    </span>
+                </td>
+                <td>@Html.Raw(item.Oggetto)</td>
+                @*<td>
+                    @if (item.SoggettiInterrogati.Any())
+                    {
+                        var soggettiGriglia = item.SoggettiInterrogati
+                            .Select(s => s.nome_carica)
+                            .Aggregate((i, j) => i + "<br/> " + j);
+                        @Html.Raw(soggettiGriglia)
+                    }
+                </td>*@
+                <td>
+                    @{
+                        var codice_gruppo = item.gruppi_politici.codice_gruppo;
+
+                        var proponente = $"{item.PersonaProponente.DisplayName} ({codice_gruppo})";
+                    }
+                    @if (!item.Firmato_Dal_Proponente)
+                    {
+                        <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
+                            @Html.Raw(proponente)
+                        </span>
+                    }
+                    else
+                    {
+                        <b>
+                            @Html.Raw(proponente)
+                        </b>
+                    }
+
+                    @if (item.ConteggioFirme > 1)
+                    {
+                        <br/>
+                        <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
+                            + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
+                        </a>
+                    }
+                </td>
+                <td>
+                    <span id="lblStato_@item.UIDAtto" class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
+                        @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                    </span>
+                    <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
+                        <i class="icon material-icons">refresh</i>
+                    </a>
+
+                    <!-- Dropdown Structure -->
+                    <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
+                        <li>
+                            <a class="@Html.Raw(Utility.GetCSS_StatoDASI((int) StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.PRESENTATO))">
+                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
+                            </a>
+                        </li>
+                        <li>
+                            <a class="@Html.Raw(Utility.GetCSS_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.IN_TRATTAZIONE))">
+                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
+                            </a>
+                        </li>
+                        <li>
+                            <a class="@Html.Raw(Utility.GetCSS_StatoDASI((int) StatiAttoEnum.CHIUSO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.CHIUSO))">
+                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
+                            </a>
+                        </li>
+                    </ul>
+                </td>
+                <td>
+                    @if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                    {
+                        var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
+                        var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
+                        <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
+                            @textSeduta
+                        </div>
+                        <a class="red-text tooltipped" data-tooltip="Rimuovi dalla seduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
+                            <i class="material-icons">close</i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="green-text tooltipped" data-tooltip="Iscrivi ad una seduta attiva" onclick="IscriviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
+                            <i class="material-icons">insert_link</i>
+                        </a>
+                    }
+
+                </td>
+                <td class="center">
+                    <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@item.Tipo')">
+                        <i class="icon material-icons">edit</i>
+                    </a>
+                    <a class="black-text tooltipped" data-tooltip="Visualizza" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
+                        <i class="icon material-icons">chevron_right</i>
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<!-- Modal Structure -->
+<div id="modalIscriviSeduta" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>Iscrivi <b id="txtIscriviSeduta_NomeAtto"></b> ad una delle seguenti sedute</h4>
+        <ul class="collection with-header" id="lstSeduteAttive">
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
+    </div>
+</div>
+
+<script>
+    var sedute = [];
+    $(document).ready(async function() {
+        if (sedute.length == 0) {
+            $('#lstSeduteAttive').empty();
+            var data = await GetSeduteAttive();
+            sedute = data.Results;
+            $.each(sedute,
+                function(i, item) {
+                    var resultDate = GetFormattedDate(item.Data_seduta);
+                    var text = "Seduta del " + resultDate;
+                    $('#lstSeduteAttive').append(templateSeduteAttive
+                        .replace("{TEXT}", text)
+                        .replace("{VALUE}", item.UIDSeduta));
+                });
+        }
+    });
+
+    function RimuoviSedutaDASI(uidAtto, nomeAtto) {
+
+        swal({
+            title: "Rimozione atto dalla seduta",
+            text: "Sei sicuro di voler rimuovere " + nomeAtto + " dalla seduta associata?",
+            icon: "warning",
+            buttons: ["Annulla", "Rimuovi"],
+            dangerMode: true
+        }).then((willDelete) => {
+            if (willDelete) {
+                var obj = {};
+                obj.UidAtto = uidAtto;
+
+                $.ajax({
+                    url: '@Url.Action("RimuoviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalRimuoviSeduta").modal("close");
+                    $("#btnRimuoviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            } 
+        });
+    }
+
+    function IscriviSedutaDASI(uidAtto, nomeAtto) {
+        $('#txtIscriviSeduta_NomeAtto').html(nomeAtto);
+        $("#btnIscriviSeduta_Salva").on("click",
+            function () {
+
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    ErrorAlert("Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto);
+                    return;
+                }
+
+                var obj = {};
+                obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                obj.UidAtto = uidAtto;
+
+                $.ajax({
+                    url: '@Url.Action("IscriviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalIscriviSeduta").modal("close");
+                    $("#btnIscriviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
+    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}'/><span>{TEXT}</span></label></p></div></li>";
+</script>

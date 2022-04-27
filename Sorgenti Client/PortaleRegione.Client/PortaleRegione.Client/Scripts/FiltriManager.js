@@ -102,6 +102,20 @@ function GetLegislature() {
     });
 }
 
+function GetSeduteAttive() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/sedute-attive",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 function GetGruppiInDb() {
     return new Promise(async function(resolve, reject) {
         $.ajax({

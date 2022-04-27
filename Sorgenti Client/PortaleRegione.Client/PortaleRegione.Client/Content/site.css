@@ -23,8 +23,12 @@ main { margin-bottom: 150px; }
     }
 }
 
+.sidenav li > a {
+    padding: 0 16px !important;
+}
+
 .btn-flat {
-    font-weight: bold!important;
+    font-weight: bold !important;
 }
 
 .collapsible-body {
@@ -387,6 +391,11 @@ div.input-field > label { line-height: initial; }
 }
 
 .altroT {
+    color: #546e7a !important;
+    font-weight: bold !important;
+}
+
+.chiusoT {
     color: #546e7a !important;
     font-weight: bold !important;
 }

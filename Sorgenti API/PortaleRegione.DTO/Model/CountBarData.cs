@@ -10,5 +10,7 @@
         public int TUTTI { get; set; } = 0;
         public int BOZZE { get; set; } = 0;
         public int PRESENTATI { get; set; } = 0;
+        public int IN_TRATTAZIONE { get; set; } = 0;
+        public int CHIUSO { get; set; } = 0;
     }
 }

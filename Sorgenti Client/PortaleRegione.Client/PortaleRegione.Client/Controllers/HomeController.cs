@@ -17,9 +17,7 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PortaleRegione.DTO.Enum;
@@ -37,8 +35,10 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                var model = new DashboardModel();
-                model.Sedute = await apiGateway.Sedute.GetActive();
+                var model = new DashboardModel
+                {
+                    Sedute = await apiGateway.Sedute.GetActive()
+                };
                 foreach (var seduta in model.Sedute.Results)
                 {
                     var attiPEM = await apiGateway.Atti.Get(seduta.UIDSeduta, ClientModeEnum.GRUPPI, 1, 99);
@@ -46,11 +46,9 @@ namespace PortaleRegione.Client.Controllers
                         model.PEM.Add(attiPEM);
 
                     var attiDASI = await apiGateway.DASI.GetBySeduta(seduta.UIDSeduta);
-                    if(attiDASI.Data.Results.Any())
+                    if (attiDASI.Data.Results.Any())
                         model.DASI.Add(attiDASI);
                 }
-                if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
-                    return View("Index_Admin", model);
 
                 return View("Index", model);
             }

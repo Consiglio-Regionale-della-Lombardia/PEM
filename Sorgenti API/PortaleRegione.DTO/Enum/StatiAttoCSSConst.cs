@@ -15,5 +15,6 @@
         public const string DECADUTO_FINE_MANDATO = "decadutoT";
         public const string DECADUTO_FINE_LEGISLATURA = "decadutoT";
         public const string ALTRO = "altroT";
+        public const string CHIUSO = "chiusoT";
     }
 }

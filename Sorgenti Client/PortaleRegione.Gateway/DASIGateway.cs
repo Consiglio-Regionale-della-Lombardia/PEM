@@ -117,6 +117,16 @@ namespace PortaleRegione.Gateway
                         operationStato = Operation.GreaterThanOrEqualTo;
                     }
                 }
+                else if ((int) stato <= (int)StatiAttoEnum.BOZZA)
+                {
+                    if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
+                        || persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
+                    {
+                        //Imposto stato di default per le segreteria e amministratori
+                        operationStato = Operation.EqualTo;
+                        stato = StatiAttoEnum.PRESENTATO;
+                    }
+                }
 
                 var filtroStato = new FilterStatement<AttoDASIDto>
                 {
@@ -172,6 +182,8 @@ namespace PortaleRegione.Gateway
                 var requestUrl = $"{apiUrl}/dasi/riepilogo";
 
                 var model = new BaseRequest<AttoDASIDto>();
+                model.page = 1;
+                model.size = 50;
                 var filtroSeduta = new FilterStatement<AttoDASIDto>
                 {
                     PropertyId = nameof(AttoDASIDto.UIDSeduta),
@@ -183,7 +195,7 @@ namespace PortaleRegione.Gateway
                 {
                     PropertyId = nameof(AttoDASIDto.IDStato),
                     Operation = Operation.GreaterThanOrEqualTo,
-                    Value = (int) StatiAttoEnum.PRESENTATO
+                    Value = (int) StatiAttoEnum.IN_TRATTAZIONE
                 };
                 model.filtro.Add(filtroStato);
 
@@ -460,6 +472,69 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("RitiraFirma - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task CambioStato(ModificaStatoAttoModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/modifica-stato";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Put(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("CambioStato - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CambioStato - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task IscriviSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/iscrizione-seduta";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("IscriviSeduta - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("IscriviSeduta - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/rimuovi-seduta";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("RimuoviSeduta - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("RimuoviSeduta - DASI", ex);
                 throw ex;
             }
         }

@@ -174,9 +174,6 @@
             </div>
         </div>
     </li>
-    @{
-
-    }
     <li class="menuItem_Home bold" style="margin-top: -8px">
         <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
     </li>
@@ -215,19 +212,18 @@
         </li>
     }
 
-    <li class="menuTrattazione bold">
-        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 18/10/2022</a>
+    <li class="menuTrattazione itemSeduteAttive bold">
+        <a class="collapsible-header waves-effect"><i class="material-icons">event</i>Sedute Attive</a>
+        <div class="collapsible-body" style="display: block;">
+            <ul id="lstSeduteAttive">
+                
+            </ul>
+        </div>
     </li>
-    <li class="menuTrattazione bold">
-        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 11/10/2022</a>
-    </li>
-    <li class="menuTrattazione bold">
-        <a class="waves-effect" href="@Url.Action("Index", "AttiTrattazione")"><i class="material-icons">event</i>Seduta del 8/10/2022</a>
-    </li>
-    <li class="menuTrattazione bold">
+    <li class="menuTrattazione itemArchivio bold">
         <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
     </li>
-    <li class="menuTrattazione bold">
+    <li class="menuTrattazione itemStampe bold">
         <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
     </li>
 </ul>
@@ -263,16 +259,21 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(async function() {
         var url = '@Request.Url';
         if (url.includes("notifiche")) {
             $('.menuItem_Notifiche').addClass("active");
         } else if (url.includes("stampe")) {
             $('.menuItem_Stampe').addClass("active");
+            $('.itemStampe').addClass("active");
         } else if (url.includes("adminpanel")) {
             $('.menuItem_Amministrazione').addClass("active");
         } else if (url.includes("riepilogodasi")) {
             $('.menuItem_DASI').addClass("active");
+        } else if (url.includes("attitrattazione/archivio")) {
+            $('.itemArchivio').addClass("active");
+        }else if (url.includes("attitrattazione/view")) {
+            $('.itemSeduteAttive').addClass("active");
         } else if (url.includes("pem") || url.includes("atti") || url.includes("emendamenti")) {
             $('.menuItem_PEM').addClass("active");
         } else {
@@ -282,6 +283,16 @@
         if (mode == 2) {
             $('#switchTrattazione').prop("checked", true);
             $('li[class*="menuItem"]').hide();
+            var data = await GetSeduteAttive();
+            var seduteAttive = data.Results;
+            var url = '@Html.Raw(Url.Action("Index", "AttiTrattazione"))';
+            $.each(seduteAttive, function(i, item) {
+                var resultDate = GetFormattedDate(item.Data_seduta);
+                var text = "Seduta del " + resultDate;
+                $('#lstSeduteAttive').append(templateSXSeduteAttive
+                    .replace("{TEXT}", text)
+                    .replace("{URL}", url + "?id=" + item.UIDSeduta));
+            });
         } else {
             $('li[class*="menuTrattazione"]').hide();
         }
@@ -387,4 +398,6 @@
         setClientMode(1);
         $('#formLogout').submit();
     }
+
+    var templateSXSeduteAttive = "<li><a href='{URL}'>{TEXT}</a></li>";
 </script>

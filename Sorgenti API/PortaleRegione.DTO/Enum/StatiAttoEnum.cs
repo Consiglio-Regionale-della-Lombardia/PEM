@@ -14,7 +14,8 @@
         DECADUTO = 9,
         DECADUTO_FINE_MANDATO = 10,
         DECADUTO_FINE_LEGISLATURA = 11,
-        ALTRO = 12,
-        BOZZA_RISERVATA = -1
+        ALTRO = 99,
+        BOZZA_RISERVATA = -1,
+        CHIUSO = 12
     }
 }

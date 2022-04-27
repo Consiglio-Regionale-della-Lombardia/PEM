@@ -1143,7 +1143,7 @@ namespace PortaleRegione.BAL
                     if (string.IsNullOrEmpty(em.DataDeposito))
                         continue;
 
-                    em.IDStato = (int) model.Stato;
+                    em.IDStato = (int)model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
                     try

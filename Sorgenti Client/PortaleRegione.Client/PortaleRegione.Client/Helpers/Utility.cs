@@ -209,6 +209,8 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.DECADUTO_FINE_MANDATO;
                 case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
                     return StatiAttoCSSConst.DECADUTO_FINE_LEGISLATURA;
+                case StatiAttoEnum.CHIUSO:
+                    return StatiAttoCSSConst.CHIUSO;
                 case StatiAttoEnum.ALTRO:
                     return StatiAttoCSSConst.ALTRO;
                 default:
@@ -246,6 +248,8 @@ namespace PortaleRegione.Client.Helpers
                     return "Decadenza per fine legislatura";
                 case StatiAttoEnum.ALTRO:
                     return "Chiusura per motivi diversi";
+                case StatiAttoEnum.CHIUSO:
+                    return "Chiuso";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }

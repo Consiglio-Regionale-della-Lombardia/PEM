@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -38,14 +39,16 @@ namespace PortaleRegione.API.Controllers
     public class DASILogic : BaseLogic
     {
         private readonly AttiFirmeLogic _logicFirme;
+        private readonly SeduteLogic _logicSedute;
         private readonly PersoneLogic _logicPersona;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme)
+        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme, SeduteLogic logicSedute)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
             _logicFirme = logicFirme;
+            _logicSedute = logicSedute;
         }
 
         public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto persona)
@@ -365,6 +368,12 @@ namespace PortaleRegione.API.Controllers
                 dto.Commissioni = commissioni
                     .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
 
+                if (attoInDb.UIDSeduta.HasValue)
+                {
+                    var sedutaInDb = await _logicSedute.GetSeduta(attoInDb.UIDSeduta.Value);
+                    dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+                }
+
                 return dto;
             }
             catch (Exception e)
@@ -417,7 +426,17 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.PRESENTATO)
+                        , StatiAttoEnum.PRESENTATO),
+                IN_TRATTAZIONE = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        tipo
+                        , StatiAttoEnum.IN_TRATTAZIONE),
+                CHIUSO = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        tipo
+                        , StatiAttoEnum.CHIUSO)
             };
 
             return result;
@@ -973,5 +992,157 @@ namespace PortaleRegione.API.Controllers
                 throw;
             }
         }
+
+        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model,
+    PersonaDto personaDto)
+        {
+            try
+            {
+                var results = new Dictionary<Guid, string>();
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                if (model.All && !model.Lista.Any())
+                {
+                    model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
+                }
+                else if (model.All && model.Lista.Any())
+                {
+                    var attiInDb =
+                        await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
+                    attiInDb.RemoveAll(guid => model.Lista.Contains(guid));
+                    model.Lista = attiInDb;
+                }
+                
+                foreach (var idGuid in model.Lista)
+                {
+                    var atto = await Get(idGuid);
+                    if (atto == null)
+                    {
+                        results.Add(idGuid, "ERROR: NON TROVATO");
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(atto.DataPresentazione))
+                        continue;
+
+                    atto.IDStato = (int)model.Stato;
+                    await _unitOfWork.CompleteAsync();
+                    results.Add(idGuid, "OK");
+                }
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - ModificaStato", e);
+                throw e;
+            }
+        }
+        
+        public async Task IscrizioneSeduta(IscriviSedutaDASIModel model,
+    PersonaDto personaDto)
+        {
+            try
+            {
+                var atto = await Get(model.UidAtto);
+                if (atto == null)
+                {
+                    throw new Exception("ERROR: NON TROVATO");
+                }
+
+                atto.UIDSeduta = model.UidSeduta;
+                atto.DataIscrizioneSeduta = DateTime.Now;
+                atto.UIDPersonaIscrizioneSeduta = personaDto.UID_persona;
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - IscrizioneSeduta", e);
+                throw e;
+            }
+        }
+
+        public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
+        {
+            try
+            {
+                var atto = await Get(model.UidAtto);
+                if (atto == null)
+                {
+                    throw new Exception("ERROR: NON TROVATO");
+                }
+
+                atto.UIDSeduta = null;
+                atto.DataIscrizioneSeduta = null;
+                atto.UIDPersonaIscrizioneSeduta = null;
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - RimuoviSeduta", e);
+                throw e;
+            }
+        }
+
+        public async Task<List<Guid>> ScaricaAtti_UID(StatiAttoEnum stato, TipoAttoEnum tipo,PersonaDto persona)
+        {
+            var result = new List<Guid>();
+            var filtro = new List<FilterStatement<AttoDASIDto>>();
+            var filtroStato = new FilterStatement<AttoDASIDto>
+            {
+                PropertyId = nameof(AttoDASIDto.IDStato),
+                Operation = Operation.EqualTo,
+                Value = (int)stato,
+                Connector = FilterStatementConnector.And
+            };
+            filtro.Add(filtroStato);
+            if (tipo != TipoAttoEnum.TUTTI)
+            {
+                var filtroTipo = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.Tipo),
+                    Operation = Operation.EqualTo,
+                    Value = (int)tipo
+                };
+                filtro.Add(filtroTipo);
+            }
+
+            var queryFilter = new Filter<ATTI_DASI>();
+            queryFilter.ImportStatements(filtro);
+
+            var counter_dasi = await _unitOfWork.DASI.Count(queryFilter);
+
+            var dasiList = await GetDASI_UID_RawChunk(new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = counter_dasi
+                },
+                queryFilter,
+                persona);
+
+            result.AddRange(dasiList);
+
+            return result;
+        }
+
+        public async Task<List<Guid>> GetDASI_UID_RawChunk(BaseRequest<AttoDASIDto> model, Filter<ATTI_DASI> filtro, PersonaDto persona)
+        {
+            try
+            {
+                var em_in_db = await _unitOfWork
+                    .DASI
+                    .GetAll(persona
+                    , model.page
+                    ,model.size
+                    , filtro);
+                return em_in_db;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetDASI_UID_RawChunk", e);
+                throw e;
+            }
+        }
+
     }
 }

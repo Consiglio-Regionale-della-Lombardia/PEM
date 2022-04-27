@@ -1020,7 +1020,7 @@ namespace PortaleRegione.API.Controllers
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
         [Route("modifica-stato")]
-        public async Task<IHttpActionResult> ModificaStatoEmendamento(ModificaStatoModel model)
+        public async Task<IHttpActionResult> ModificaStato(ModificaStatoModel model)
         {
             try
             {
