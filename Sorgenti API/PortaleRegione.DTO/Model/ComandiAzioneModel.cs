@@ -29,7 +29,6 @@ namespace PortaleRegione.DTO.Model
         public string Pin { get; set; }
         public ActionEnum Azione { get; set; }
         public Guid AttoUId { get; set; }
-        public int ClientMode { get; set; }
         public bool Richiesta_Firma { get; set; }
     }
 }

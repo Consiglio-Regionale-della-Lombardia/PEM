@@ -19,7 +19,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Caching;
 using System.Web.Mvc;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -52,6 +54,16 @@ namespace PortaleRegione.Client.Controllers
             var attiDASI = await apiGateway.DASI.GetBySeduta(id);
             if (attiDASI.Data.Results.Any())
                 model.DASI.Add(attiDASI);
+
+            HttpContext.Cache.Insert(
+                CacheHelper.CLIENT_MODE,
+                (int)ClientModeEnum.TRATTAZIONE,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
 
             return View("Index", model);
         }

@@ -20,6 +20,7 @@ namespace PortaleRegione.Client.Helpers
 {
     public class CacheHelper
     {
+        public static string CLIENT_MODE => "ClientMode";
         public static string ORDINAMENTO_PEM => "OrdinamentoPEM";
         public static string VIEW_MODE_PEM => "ViewModePEM";
         public static string PAGE_PEM => "PagePEM";
