@@ -106,7 +106,7 @@
         }
         @if (counterBar.ITL > 0)
         {
-            <li onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { tipo = TipoAttoEnum.ITL})')">
+            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.ITL })')">
                 <div class="collapsible-header">
                     <i class="material-icons pink-text">textsms</i>
                     @Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)
@@ -118,7 +118,7 @@
         }
         @if (counterBar.IQT > 0)
         {
-            <li>
+            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.IQT })')">
                 <div class="collapsible-header">
                     <i class="material-icons pink-text">textsms</i>
                     @Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)
@@ -130,7 +130,7 @@
         }
         @if (counterBar.ITR > 0)
         {
-            <li>
+            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.ITR })')">
                 <div class="collapsible-header">
                     <i class="material-icons pink-text">textsms</i>
                     @Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)
@@ -142,7 +142,7 @@
         }
         @if (counterBar.MOZ > 0)
         {
-            <li>
+            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.MOZ })')">
                 <div class="collapsible-header">
                     <i class="material-icons pink-text">textsms</i>
                     @Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)
@@ -154,7 +154,7 @@
         }
         @if (counterBar.ODG > 0)
         {
-            <li onclick="go('@Url.Action("RiepilogoDASI", "DASI", new { tipo = TipoAttoEnum.ODG})')">
+            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.ODG })')">
                 <div class="collapsible-header">
                     <i class="material-icons pink-text">textsms</i>
                     @Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)

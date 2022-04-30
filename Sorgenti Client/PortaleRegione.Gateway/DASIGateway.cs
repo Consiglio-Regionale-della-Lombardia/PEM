@@ -105,7 +105,8 @@ namespace PortaleRegione.Gateway
                 var model = new BaseRequest<AttoDASIDto>
                 {
                     page = page,
-                    size = size
+                    size = size,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
                 };
                 var operationStato = Operation.EqualTo;
                 if ((int)stato>(int)StatiAttoEnum.BOZZA)
@@ -181,14 +182,18 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/dasi/riepilogo";
 
-                var model = new BaseRequest<AttoDASIDto>();
-                model.page = 1;
-                model.size = 50;
+                var model = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 50,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.TRATTAZIONE } }
+                };
                 var filtroSeduta = new FilterStatement<AttoDASIDto>
                 {
                     PropertyId = nameof(AttoDASIDto.UIDSeduta),
                     Operation = Operation.EqualTo,
-                    Value = sedutaUId
+                    Value = sedutaUId,
+                    Connector = FilterStatementConnector.And
                 };
                 model.filtro.Add(filtroSeduta);
                 var filtroStato = new FilterStatement<AttoDASIDto>
@@ -207,12 +212,66 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetRiepilogoAttoDasi -  Per Seduta", ex);
+                Log.Error("GetRiepilogoAttoDasi - Per Seduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetRiepilogoAttoDasi -  Per Seduta", ex);
+                Log.Error("GetRiepilogoAttoDasi - Per Seduta", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, int page = 1,
+            int size = 50)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/riepilogo";
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = page,
+                    size = size,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.TRATTAZIONE } }
+                };
+                var filtroSeduta = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UIDSeduta),
+                    Operation = Operation.EqualTo,
+                    Value = id,
+                    Connector = FilterStatementConnector.And
+                };
+                request.filtro.Add(filtroSeduta);
+                var filtroTipo = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.Tipo),
+                    Operation = Operation.EqualTo,
+                    Value = (int)tipoAtto,
+                    Connector = FilterStatementConnector.And
+                };
+                request.filtro.Add(filtroTipo);
+                var filtroStato = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = Operation.GreaterThanOrEqualTo,
+                    Value = (int)StatiAttoEnum.IN_TRATTAZIONE
+                };
+                request.filtro.Add(filtroStato);
+
+                var body = JsonConvert.SerializeObject(request);
+
+                var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetBySeduta_Trattazione - Per Seduta", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetBySeduta_Trattazione - Per Seduta", ex);
                 throw ex;
             }
         }

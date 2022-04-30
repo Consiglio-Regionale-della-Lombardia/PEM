@@ -28,5 +28,6 @@ namespace PortaleRegione.DTO.Model
         public StatiAttoEnum Stato { get; set; }
         public TipoAttoEnum Tipo { get; set; }
         public CountBarData CountBarData { get; set; }
+        public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
     }
 }

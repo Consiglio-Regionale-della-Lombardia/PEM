@@ -27,6 +27,7 @@ using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 
@@ -44,11 +45,28 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <returns></returns>
         public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50,
-            StatiAttoEnum stato = StatiAttoEnum.BOZZA, TipoAttoEnum tipo = TipoAttoEnum.TUTTI)
+            int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.Get(page, size, stato, tipo, _CurrentUser);
-            SetCache(page, size, tipo, stato);
+            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo, _CurrentUser);
+            SetCache(page, size, (TipoAttoEnum)tipo, (StatiAttoEnum)stato);
+            if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
+                return View("RiepilogoDASI_Admin", model);
+
+            return View("RiepilogoDASI", model);
+        }
+
+        /// <summary>
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base alla seduta
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("seduta")]
+        public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo, int page = 1, int size = 50)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, page , size);
+            model.ClientMode = ClientModeEnum.TRATTAZIONE;
             if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("RiepilogoDASI_Admin", model);
 
@@ -61,10 +79,10 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("new")]
-        public async Task<ActionResult> Nuovo(TipoAttoEnum tipo)
+        public async Task<ActionResult> Nuovo(int tipo)
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.GetNuovoModello(tipo);
+            var model = await apiGateway.DASI.GetNuovoModello((TipoAttoEnum)tipo);
             return View("DASIForm", model);
         }
 

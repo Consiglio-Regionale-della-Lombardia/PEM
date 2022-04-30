@@ -86,18 +86,29 @@ namespace PortaleRegione.Persistance
                 .CountAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato)
+        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
+            ClientModeEnum clientMode)
         {
             var query = PRContext
                 .DASI
                 .Where(item => !item.Eliminato);
 
-            if (stato == StatiAttoEnum.PRESENTATO
-            && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale) 
-                query = query.Where(item => item.IDStato >= (int) stato);
-            else query = query.Where(item => item.IDStato == (int) stato);
+            if (clientMode == ClientModeEnum.GRUPPI)
+            {
+                if (stato == StatiAttoEnum.PRESENTATO
+                    && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale)
+                    query = query.Where(item => item.IDStato >= (int) stato);
+                else query = query.Where(item => item.IDStato == (int) stato);
 
-            if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+            }
+            else
+            {
+                query = query.Where(item => item.UIDSeduta == sedutaId
+                                            && item.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE);
+                if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+            }
+
 
             return await query
                 .CountAsync();
@@ -233,7 +244,7 @@ namespace PortaleRegione.Persistance
         public async Task<List<View_Commissioni_attive>> GetCommissioniAttive()
         {
             var result = await PRContext
-                .View_Commissioni_attive                                  
+                .View_Commissioni_attive
                 .ToListAsync();
             return result;
         }
@@ -294,7 +305,7 @@ namespace PortaleRegione.Persistance
             var result = await PRContext
                 .ATTI_SOGGETTI_INTERROGATI
                 .Where(item => item.UIDAtto == uidAtto)
-                .Select(item=>item.id_carica)
+                .Select(item => item.id_carica)
                 .ToListAsync();
             var query = PRContext
                 .View_cariche_assessori_in_carica

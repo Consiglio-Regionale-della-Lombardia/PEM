@@ -217,6 +217,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                model.param.TryGetValue("CLIENT_MODE", out object CLIENT_MODE); // per trattazione aula
+                var filtro_seduta =
+                    model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
+                var sedutaId = Guid.Empty;
+                if (filtro_seduta != null)
+                {
+                    sedutaId = new Guid(filtro_seduta.Value.ToString());
+                }
+
                 var queryFilter = new Filter<ATTI_DASI>();
                 queryFilter.ImportStatements(model.filtro);
                 var atti_in_db = await _unitOfWork
@@ -229,7 +238,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     var defaultCounterBar =
                         await GetResponseCountBar(persona, GetResponseStatusFromFilters(model.filtro),
-                            GetResponseTypeFromFilters(model.filtro));
+                            GetResponseTypeFromFilters(model.filtro), sedutaId, CLIENT_MODE);
                     return new RiepilogoDASIModel
                     {
                         Data = new BaseResponse<AttoDASIDto>(
@@ -273,7 +282,7 @@ namespace PortaleRegione.API.Controllers
                 };
 
                 responseModel.CountBarData =
-                    await GetResponseCountBar(persona, responseModel.Stato, responseModel.Tipo);
+                    await GetResponseCountBar(persona, responseModel.Stato, responseModel.Tipo, sedutaId, CLIENT_MODE);
 
                 return responseModel;
             }
@@ -383,60 +392,63 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo)
+        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
+           Guid sedutaId, object _clientMode)
         {
+            var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
+
             var result = new CountBarData
             {
                 ITL = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITL
-                        , stato),
+                        , stato, sedutaId, clientMode),
                 ITR = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITR
-                        , stato),
+                        , stato, sedutaId, clientMode),
                 IQT = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.IQT
-                        , stato),
+                        , stato, sedutaId, clientMode),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.MOZ
-                        , stato),
+                        , stato, sedutaId, clientMode),
                 ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG
-                        , stato),
+                        , stato, sedutaId, clientMode),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.TUTTI
-                        , stato),
+                        , stato, sedutaId, clientMode),
                 BOZZE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.BOZZA),
+                        , StatiAttoEnum.BOZZA, sedutaId, clientMode),
                 PRESENTATI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.PRESENTATO),
+                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.IN_TRATTAZIONE),
+                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.CHIUSO)
+                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode)
             };
 
             return result;

@@ -236,11 +236,19 @@
         default:
             throw new ArgumentOutOfRangeException();
     }
+    var url = Url.Action("RiepilogoAtti", "Atti", new
+    {
+        id = Model.Atto.UIDSeduta
+    });
+    if (Model.Mode == ClientModeEnum.TRATTAZIONE)
+    {
+        url = Url.Action("Index", "AttiTrattazione", new { id = Model.Atto.UIDSeduta });
+    }
 }
 
 <div class="row">
     <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new { id = Model.Atto.UIDSeduta })">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
