@@ -300,7 +300,7 @@
             </ul>
         }
         Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoEMModel { view = Model.ViewMode, mode = Model.Mode, IsAdmin = false, Atto = Model.Atto });
+        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoModel { view = Model.ViewMode, mode = Model.Mode, IsAdmin = false, Atto = Model.Atto });
 
         <div class="row">
             @if (Model.ViewMode == ViewModeEnum.GRID)

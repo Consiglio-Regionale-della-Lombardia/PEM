@@ -106,7 +106,7 @@
     <Compile Include="Enum\TipoAttoEnum.cs" />
     <Compile Include="Model\AttoRelatoriModel.cs" />
     <Compile Include="Model\CambioPinModel.cs" />
-    <Compile Include="Model\CommandRiepilogoEMModel.cs" />
+    <Compile Include="Model\CommandRiepilogoModel.cs" />
     <Compile Include="Model\CopertinaModel.cs" />
     <Compile Include="Model\CountBarData.cs" />
     <Compile Include="Model\DashboardModel.cs" />

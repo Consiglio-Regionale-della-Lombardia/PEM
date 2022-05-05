@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 @{
@@ -31,53 +32,85 @@
             classTabPresentati_Badge = "inactive-badge";
             break;
     }
+    var url = Url.Action("Index", "Home");
+
+    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+    {
+        url = Url.Action("Index", "AttiTrattazione", new { id = Model.Data.Results.First().UIDSeduta });
+    }
 }
 
 <div class="row">
-    <div class="col s12">
-        <h5>
-            <b>Riepilogo Atti Sindacato Ispettivo</b>
-        </h5>
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
+            <i class="material-icons">arrow_back</i>
+        </a>
     </div>
+    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+    {
+        <div class="col l11 s10">
+            <h5>
+                <b>Riepilogo Atti Sindacato Ispettivo</b>
+            </h5>
+        </div>
+    }
+    else
+    {
+        var qtipo = HttpUtility.ParseQueryString(Request.Url.Query).Get("tipo");
+        var tipo = Convert.ToInt16(qtipo);
+        <div class="col l11 s10">
+            <h5>
+                <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
+                    @Utility.GetText_TipoDASI(tipo)
+                </div>
+                <b> - Aula Atti Sindacato Ispettivo</b>
+            </h5>
+        </div>
+    }
 </div>
 <hr />
-<div class="row center">
-    <div class="col s12">
+@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+{
+    <div class="row center">
         @{
             Html.RenderPartial("_CounterBar_RiepilogoDASI", Model);
         }
     </div>
-</div>
+}
 
 <div class="row">
-    <div class="col s12">
-        <ul class="tabs">
-            <li class="tab col s4">
-                <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO})');">
-                    Presentati
-                    <span class="new badge @classTabPresentati_Badge" data-badge-caption=" ">
-                        @Model.CountBarData.PRESENTATI
-                    </span>
-                </a>
-            </li>
-            <li class="tab col s4">
-                <a class="@classTabInTrattazione" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.IN_TRATTAZIONE})');">
-                    In Trattazione
-                    <span class="new badge @classTabInTrattazione_Badge" data-badge-caption=" ">
-                        @Model.CountBarData.IN_TRATTAZIONE
-                    </span>
-                </a>
-            </li>
-            <li class="tab col s4">
-                <a class="@classTabChiuso" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.CHIUSO})');">
-                    CHIUSI
-                    <span class="new badge @classTabChiuso_Badge" data-badge-caption=" ">
-                        @Model.CountBarData.CHIUSO 
-                    </span>
-                </a>
-            </li>
-        </ul>
-    </div>
+    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+    {
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s4">
+                    <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO})');">
+                        Presentati
+                        <span class="new badge @classTabPresentati_Badge" data-badge-caption=" ">
+                            @Model.CountBarData.PRESENTATI
+                        </span>
+                    </a>
+                </li>
+                <li class="tab col s4">
+                    <a class="@classTabInTrattazione" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.IN_TRATTAZIONE})');">
+                        In Trattazione
+                        <span class="new badge @classTabInTrattazione_Badge" data-badge-caption=" ">
+                            @Model.CountBarData.IN_TRATTAZIONE
+                        </span>
+                    </a>
+                </li>
+                <li class="tab col s4">
+                    <a class="@classTabChiuso" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.CHIUSO})');">
+                        CHIUSI
+                        <span class="new badge @classTabChiuso_Badge" data-badge-caption=" ">
+                            @Model.CountBarData.CHIUSO
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    }
+    
     <div class="col s12">
         @{
             Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);

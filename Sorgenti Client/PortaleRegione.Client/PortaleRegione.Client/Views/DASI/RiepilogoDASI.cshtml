@@ -22,10 +22,10 @@
             break;
     }
     var url = Url.Action("Index", "Home");
-    
+
     if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
     {
-        url = Url.Action("Index", "AttiTrattazione", new { id = Model.Data.Results.First().UIDSeduta });
+        url = Url.Action("Index", "AttiTrattazione", new {id = Model.Data.Results.First().UIDSeduta});
     }
 }
 
@@ -56,7 +56,6 @@
             </h5>
         </div>
     }
-
 </div>
 <hr/>
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
@@ -92,11 +91,14 @@
             </ul>
         </div>
     }
-    <div class="col s12">
-        @{
-            Html.RenderPartial("_GridView_RiepilogoDASI", Model);
-        }
-    </div>
+    else
+    {
+        <div class="col s12">
+            @{
+                Html.RenderPartial("_GridView_RiepilogoDASI", Model);
+            }
+        </div>
+    }
 </div>
 
 @{

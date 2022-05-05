@@ -46,7 +46,10 @@ else
             @*<th>Soggetto</th>*@
             <th>Firmatari</th>
             <th>Stato</th>
-            <th>Seduta</th>
+            @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+            {
+                <th>Seduta</th>
+            }
             <th></th>
         </tr>
         </thead>
@@ -80,14 +83,14 @@ else
                 </td>
                 <td>@Html.Raw(item.Oggetto)</td>
                 @*<td>
-                    @if (item.SoggettiInterrogati.Any())
-                    {
-                        var soggettiGriglia = item.SoggettiInterrogati
-                            .Select(s => s.nome_carica)
-                            .Aggregate((i, j) => i + "<br/> " + j);
-                        @Html.Raw(soggettiGriglia)
-                    }
-                </td>*@
+            @if (item.SoggettiInterrogati.Any())
+            {
+                var soggettiGriglia = item.SoggettiInterrogati
+                    .Select(s => s.nome_carica)
+                    .Aggregate((i, j) => i + "<br/> " + j);
+                @Html.Raw(soggettiGriglia)
+            }
+        </td>*@
                 <td>
                     @{
                         var codice_gruppo = item.gruppi_politici.codice_gruppo;
@@ -142,26 +145,28 @@ else
                         </li>
                     </ul>
                 </td>
-                <td>
-                    @if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
-                    {
-                        var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
-                        var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                        <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
-                            @textSeduta
-                        </div>
-                        <a class="red-text tooltipped" data-tooltip="Rimuovi dalla seduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
-                            <i class="material-icons">close</i>
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="green-text tooltipped" data-tooltip="Iscrivi ad una seduta attiva" onclick="IscriviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
-                            <i class="material-icons">insert_link</i>
-                        </a>
-                    }
-
-                </td>
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    <td>
+                        @if (item.IDStato != (int) StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                        {
+                            var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
+                            var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
+                            <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
+                                @textSeduta
+                            </div>
+                            <a class="red-text tooltipped" data-tooltip="Rimuovi dalla seduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
+                                <i class="material-icons">close</i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="green-text tooltipped" data-tooltip="Iscrivi ad una seduta attiva" onclick="IscriviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
+                                <i class="material-icons">insert_link</i>
+                            </a>
+                        }
+                    </td>
+                }
                 <td class="center">
                     <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="ModificaMetaDASI('@item.Tipo')">
                         <i class="icon material-icons">edit</i>
@@ -238,14 +243,14 @@ else
                     console.log("error", err);
                     ErrorAlert(err.message);
                 });
-            } 
+            }
         });
     }
 
     function IscriviSedutaDASI(uidAtto, nomeAtto) {
         $('#txtIscriviSeduta_NomeAtto').html(nomeAtto);
         $("#btnIscriviSeduta_Salva").on("click",
-            function () {
+            function() {
 
                 if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
                     ErrorAlert("Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto);

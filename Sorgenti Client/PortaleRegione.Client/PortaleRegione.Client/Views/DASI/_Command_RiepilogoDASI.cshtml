@@ -1,0 +1,50 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.CommandRiepilogoModel
+
+<div class="row valign-wrapper">
+    <div class="col s3 left">
+        <label>
+            <input type="checkbox" id="checkAll" />
+            <span for="checkAll">Seleziona tutti</span>
+        </label>
+    </div>
+    <div class="col s5 left">
+        
+    </div>
+    <div class="col s6">
+        <div class="right">
+            <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+                <i class="material-icons">print</i>
+            </a>
+            @{
+                var text = "";
+                var icon = "";
+                var new_view = (int)ViewModeEnum.GRID;
+
+                if (Model.view == ViewModeEnum.PREVIEW)
+                {
+                    text = "Visualizza Atti in griglia";
+                    icon = "developer_board";
+                }
+                else if (Model.view == ViewModeEnum.GRID)
+                {
+                    new_view = (int)ViewModeEnum.PREVIEW;
+                    text = "Visualizza Atti in preview";
+                    icon = "desktop_windows";
+                }
+            }
+
+
+            <a class="blue-text tooltipped" onclick="gotoPreviewMode(@new_view)" data-tooltip="@text" data-position="left">
+                <i class="icon material-icons">@icon</i>
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function gotoPreviewMode(mode) {
+        go('@Url.Action("Preview", "DASI")' + '?mode=' + mode);
+    }
+</script>

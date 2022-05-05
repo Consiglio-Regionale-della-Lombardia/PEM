@@ -4,6 +4,7 @@
 
 @{
     Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+    Html.RenderPartial("_Command_RiepilogoDASI", Model.CommandRiepilogo);
 }
 
 @if (!Model.Data.Results.Any())
@@ -34,20 +35,18 @@ else
         <thead>
         <tr>
             <th class="center">
-
-                <label>
-                    <input type="checkbox" id="checkAll"/>
-                    <span for="checkAll"></span>
-                </label>
             </th>
             <th>Atto</th>
             <th>Tipo</th>
             <th>Oggetto</th>
             <th>Firmatari</th>
             <th>Stato</th>
-            @if (Model.Stato != StatiAttoEnum.BOZZA)
+            @if (Model.ClientMode == ClientModeEnum.GRUPPI)
             {
-                <th>Seduta</th>
+                if (Model.Stato != StatiAttoEnum.BOZZA)
+                {
+                    <th>Seduta</th>
+                }
             }
             <th></th>
         </tr>
@@ -61,7 +60,7 @@ else
 
                     <p>
                         <label>
-                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');" />
+                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
                             <span></span>
                         </label>
                     </p>
@@ -102,7 +101,7 @@ else
 
                     @if (item.ConteggioFirme > 1)
                     {
-                        <br />
+                        <br/>
                         <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
                             + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
                         </a>
@@ -111,59 +110,66 @@ else
                 <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
                     @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
                 </td>
-                @if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-                    var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
-                    var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                    <td>
-                        <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
-                            @textSeduta
-                        </div>
-                    </td>
-                }
-                else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
-                {
-                    <td>
-                    </td>
+                    if (item.IDStato != (int) StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                    {
+                        var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
+                        var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
+                        <td>
+                            <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
+                                @textSeduta
+                            </div>
+                        </td>
+                    }
+                    else if (item.IDStato != (int) StatiAttoEnum.BOZZA)
+                    {
+                        <td>
+                        </td>
+                    }
                 }
                 <td class="center">
-                    @if (item.IDStato == (int)StatiAttoEnum.BOZZA)
+                    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                     {
+                        if (item.IDStato == (int) StatiAttoEnum.BOZZA)
+                        {
                         @*<a class="amber-text tooltipped" data-tooltip="Invita">
                     <i class="icon material-icons">send</i>
                 </a>*@
-                        if (item.Firmabile)
+                            if (item.Firmabile)
+                            {
+                                <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                    <i class="icon material-icons">gavel</i>
+                                </a>
+                            }
+                            if (item.Presentabile)
+                            {
+                                <a class="purple-text tooltipped" data-tooltip="Presenta" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                    <i class="material-icons">lock</i>
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme">
+                                    <i class="material-icons">lock</i>
+                                </a>
+                            }
+                        }
+
+                        if (item.Eliminabile)
                         {
-                            <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
-                                <i class="icon material-icons">gavel</i>
+                            <a class="red-text tooltipped" data-tooltip="Elimina atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <i class="material-icons">close</i>
                             </a>
                         }
-                        if (item.Presentabile)
+                        if (item.Ritirabile)
                         {
-                            <a class="purple-text tooltipped" data-tooltip="Presenta" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                <i class="material-icons">lock</i>
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="ritiratoT tooltipped" data-tooltip="Mancano delle firme">
-                                <i class="material-icons">lock</i>
+                            <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <i class="material-icons">close</i>
                             </a>
                         }
                     }
 
-                    @if (item.Eliminabile)
-                    {
-                        <a class="red-text tooltipped" data-tooltip="Elimina atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.ELIMINA))">
-                            <i class="material-icons">close</i>
-                        </a>
-                    }
-                    @if (item.Ritirabile)
-                    {
-                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.RITIRA))">
-                            <i class="material-icons">close</i>
-                        </a>
-                    }
                     <a class="black-text tooltipped" data-tooltip="Visualizza" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
                         <i class="icon material-icons">chevron_right</i>
                     </a>

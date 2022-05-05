@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
@@ -29,5 +30,6 @@ namespace PortaleRegione.DTO.Model
         public TipoAttoEnum Tipo { get; set; }
         public CountBarData CountBarData { get; set; }
         public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
+        public CommandRiepilogoModel CommandRiepilogo { get; set; }
     }
 }
