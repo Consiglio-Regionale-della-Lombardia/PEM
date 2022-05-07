@@ -98,30 +98,38 @@ else
 
                                         @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
                                         {
-                                            <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 35px; min-width: unset;">
-                                                Firmato dal proponente:
-                                                @if (itemEM.Firmato_Dal_Proponente)
-                                                {
+                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 35px; min-width: unset;">
+                                        @if (itemEM.Firma_da_ufficio)
+                                        {
+                                            <b>@itemEM.Firma_ufficio.FirmaCert</b>
+                                        }
+                                        else
+                                        {
+                                            <span>Firmato dal proponente:</span>
+                                            if (itemEM.Firmato_Dal_Proponente)
+                                            {
+                                                @itemEM.PersonaProponente.DisplayName
+                                            }
+                                            else
+                                            {
+                                                <span style="color: grey; text-decoration: line-through;">
                                                     @itemEM.PersonaProponente.DisplayName
-                                                }
-                                                else
-                                                {
-                                                    <span style="color: grey; text-decoration: line-through;">
-                                                        @itemEM.PersonaProponente.DisplayName
-                                                    </span>
-                                                }
-                                                @if (itemEM.Proponente_Relatore)
-                                                {
-                                                    <b>(RELATORE)</b>
-                                                }
+                                                </span>
+                                            }
 
-                                                @if (itemEM.ConteggioFirme > 1)
-                                                {
-                                                    <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
-                                                        + @(itemEM.ConteggioFirme - 1)
-                                                    </span>
-                                                }
-                                            </div>
+                                            if (itemEM.Proponente_Relatore)
+                                            {
+                                                <b>(RELATORE)</b>
+                                            }
+                                        }
+
+                                        @if (itemEM.ConteggioFirme > 1)
+                                        {
+                                            <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
+                                                + @(itemEM.ConteggioFirme - 1)
+                                            </span>
+                                        }
+                                    </div>
                                         }
                                     </div>
                                 </div>

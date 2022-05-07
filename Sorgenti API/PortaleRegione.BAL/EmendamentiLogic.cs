@@ -1366,6 +1366,12 @@ namespace PortaleRegione.BAL
                     emendamentoDto.Firmato_Da_Me = await _unitOfWork.Firme.CheckFirmato(em.UIDEM, persona.UID_persona);
 
                 emendamentoDto.Firma_da_ufficio = await _unitOfWork.Firme.CheckFirmatoDaUfficio(emendamentoDto.UIDEM);
+                if (emendamentoDto.Firma_da_ufficio)
+                {
+                    var firmaUfficio = await _logicFirme.GetFirmaUfficio(emendamentoDto);
+                    emendamentoDto.Firma_ufficio = firmaUfficio;
+                }
+
                 emendamentoDto.Firmato_Dal_Proponente =
                     await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
                 emendamentoDto.PersonaProponente =
