@@ -392,6 +392,7 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
+    console.log('Articoli_OnChange', value, valueCommaSelected, valueLetteraSelected);
     set_ListaCommiEM([]);
     $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
