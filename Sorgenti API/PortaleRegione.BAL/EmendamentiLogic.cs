@@ -1112,21 +1112,26 @@ namespace PortaleRegione.BAL
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                if (model.All && !model.ListaEmendamenti.Any())
+                
+                model.ListaEmendamenti ??= new List<Guid>();
+                switch (model.All)
                 {
-                    model.ListaEmendamenti =
-                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto,
-                            personeInDbLight))
-                        .Select(em => em.UIDEM).ToList();
-                }
-                else if (model.All && model.ListaEmendamenti.Any())
-                {
-                    var emendamentiInDb =
-                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto,
-                            personeInDbLight))
-                        .Select(em => em.UIDEM).ToList();
-                    emendamentiInDb.RemoveAll(em => model.ListaEmendamenti.Contains(em));
-                    model.ListaEmendamenti = emendamentiInDb;
+                    case true when !model.ListaEmendamenti.Any():
+                        model.ListaEmendamenti =
+                            (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto,
+                                personeInDbLight))
+                            .Select(em => em.UIDEM).ToList();
+                        break;
+                    case true when model.ListaEmendamenti.Any():
+                    {
+                        var emendamentiInDb =
+                            (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto,
+                                personeInDbLight))
+                            .Select(em => em.UIDEM).ToList();
+                        emendamentiInDb.RemoveAll(em => model.ListaEmendamenti.Contains(em));
+                        model.ListaEmendamenti = emendamentiInDb;
+                        break;
+                    }
                 }
 
                 var firstEM = await _unitOfWork.Emendamenti.Get(model.ListaEmendamenti.First());
