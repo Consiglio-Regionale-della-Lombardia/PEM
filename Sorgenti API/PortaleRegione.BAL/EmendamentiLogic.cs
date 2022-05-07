@@ -623,12 +623,6 @@ namespace PortaleRegione.BAL
 
                 try
                 {
-                    if (template == TemplateTypeEnum.PDF)
-                    {
-                        if (em.IDStato < (int) StatiEnum.Depositato)
-                            template = TemplateTypeEnum.HTML;
-                    }
-
                     var body = GetTemplate(template);
 
                     switch (template)
