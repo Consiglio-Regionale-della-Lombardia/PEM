@@ -148,7 +148,8 @@ namespace PortaleRegione.Common
                 {
                     PropertyId = nameof(EmendamentiDto.N_EM),
                     Operation = Operation.EqualTo,
-                    Value = numero_em
+                    Value = numero_em,
+                    Connector = FilterStatementConnector.And
                 });
             }
         }
@@ -337,13 +338,33 @@ namespace PortaleRegione.Common
         {
             if (!string.IsNullOrEmpty(statoId))
             {
-                model.filtro.Add(new FilterStatement<EmendamentiDto>
+                if (statoId.Equals(((int)StatiEnum.Approvato).ToString()))
                 {
-                    PropertyId = nameof(EmendamentiDto.IDStato),
-                    Operation = Operation.EqualTo,
-                    Value = statoId,
-                    Connector = FilterStatementConnector.And
-                });
+                    model.filtro.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.IDStato),
+                        Operation = Operation.EqualTo,
+                        Value = statoId,
+                        Connector = FilterStatementConnector.Or
+                    });
+                    model.filtro.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.IDStato),
+                        Operation = Operation.EqualTo,
+                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+                else
+                {
+                    model.filtro.Add(new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.IDStato),
+                        Operation = Operation.EqualTo,
+                        Value = statoId,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
             }
         }
         /// <summary>

@@ -230,7 +230,6 @@ async function Filtri_EM_CaricaStatiEM(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_EM();
     if (filtri != null) {
-        console.log(filterSelect);
         filterSelect = filtri.stato;
     }
 
