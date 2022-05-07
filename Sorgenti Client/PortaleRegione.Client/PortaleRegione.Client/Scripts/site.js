@@ -111,14 +111,14 @@ function go(link, switchMode) {
     document.location = link;
 }
 
-function AbilitaTrattazione() {
+function AbilitaTrattazione(url) {
     var mode = getClientMode();
     if (mode == 1) {
         setClientMode(2);
     } else {
         setClientMode(1);
     }
-    location.reload();
+    go(url);
 }
 
 //EVENTI EMENDAMENTO
