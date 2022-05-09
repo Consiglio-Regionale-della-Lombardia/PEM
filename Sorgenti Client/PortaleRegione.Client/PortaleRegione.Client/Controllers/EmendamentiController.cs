@@ -55,8 +55,6 @@ namespace PortaleRegione.Client.Controllers
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
             int size = 50)
         {
-            var apiGateway = new ApiGateway(_Token);
-            EmendamentiViewModel model;
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             if (Session["RicaricaFiltri"] is bool)
@@ -76,7 +74,7 @@ namespace PortaleRegione.Client.Controllers
 
                             return View("RiepilogoEM", old_model);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             Session["RiepilogoEmendamenti"] = null;
                         }
@@ -272,6 +270,14 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             var emModel = await apiGateway.Emendamento.GetNuovoModel(id, ref_em);
+            if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                return View("EmendamentoFormAdmin", emModel);
+            if (HttpContext.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale) ||
+                HttpContext.User.IsInRole(RuoliExt.Segreteria_Politica) ||
+                HttpContext.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta) ||
+                HttpContext.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica))
+                return View("EmendamentoFormSegreteria", emModel);
             return View("EmendamentoForm", emModel);
         }
 

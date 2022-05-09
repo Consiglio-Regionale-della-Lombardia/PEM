@@ -299,5 +299,15 @@ namespace PortaleRegione.Persistance
         {
             PRContext.UTENTI_NoCons.Add(newUser);
         }
+
+        public async Task<bool> Autentica(string username, string password)
+        {
+            var user = await PRContext
+                .View_UTENTI
+                .Where(item => item.userAD.EndsWith(username)
+                               && item.pass_locale_crypt == password)
+                .FirstOrDefaultAsync();
+            return user != null;
+        }
     }
 }

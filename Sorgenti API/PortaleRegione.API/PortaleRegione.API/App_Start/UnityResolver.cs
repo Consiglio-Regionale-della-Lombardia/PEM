@@ -28,13 +28,26 @@ namespace PortaleRegione.API
     /// </summary>
     public class UnityResolver : IDependencyResolver
     {
+        /// <summary>
+        /// 
+        /// </summary>
         protected IUnityContainer container;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="container"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public UnityResolver(IUnityContainer container)
         {
             this.container = container ?? throw new ArgumentNullException("container");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceType"></param>
+        /// <returns></returns>
         public object GetService(Type serviceType)
         {
             try
@@ -47,6 +60,11 @@ namespace PortaleRegione.API
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceType"></param>
+        /// <returns></returns>
         public IEnumerable<object> GetServices(Type serviceType)
         {
             try
@@ -59,17 +77,28 @@ namespace PortaleRegione.API
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IDependencyScope BeginScope()
         {
             var child = container.CreateChildContainer();
             return new UnityResolver(child);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             container.Dispose();

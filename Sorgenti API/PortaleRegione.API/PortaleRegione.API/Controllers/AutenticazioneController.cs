@@ -36,6 +36,10 @@ namespace PortaleRegione.API.Controllers
     {
         private readonly AuthLogic _logic;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logic"></param>
         public AutenticazioneController(AuthLogic logic)
         {
             _logic = logic;
@@ -75,7 +79,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.CambioRuolo(ruolo, await GetSession());
+                var result = await _logic.CambioRuolo(ruolo, GetSession());
 
                 return Ok(result);
             }
@@ -98,7 +102,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.CambioGruppo(gruppo, await GetSession());
+                var result = await _logic.CambioGruppo(gruppo, GetSession());
 
                 return Ok(result);
             }

@@ -4,20 +4,21 @@ document.addEventListener("DOMContentLoaded",
     function() {
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/
         M.AutoInit();
-        
+
         var mode = getClientMode();
         if (mode == null)
             setClientMode(1);
 
         setTimeout(function() {
-            $('body').addClass('loaded');      
-        }, 200);
+                $("body").addClass("loaded");
+            },
+            200);
     });
 
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
     if (enable) {
-        $('#waiting_info_message').text(message);
+        $("#waiting_info_message").text(message);
         instance.options.dismissible = false;
         instance.options.preventScrolling = true;
         instance.open();
@@ -61,7 +62,87 @@ function openSearch() {
 async function openMetaDati(emendamentoUId) {
     var em = await GetEM(emendamentoUId);
     await LoadMetaDatiEM(em);
-    $('#modalMetaDati').modal("open");
+    $("#modalMetaDati").modal("open");
+
+    $("#btnSposta_MetaDatiPartial").on("click", function() {
+        Sposta_EMTrattazione(em);
+    });
+    $("#btnSpostaUP_MetaDatiPartial").on("click", function () {
+        SpostaUP_EMTrattazione(em);
+    });
+    $("#btnSpostaDOWN_MetaDatiPartial").on("click", function () {
+        SpostaDOWN_EMTrattazione(em);
+    });
+}
+
+function Sposta_EMTrattazione(em) {
+    
+    swal("Sposta emendamento selezionato in una posizione precisa",
+            {
+                content: {
+                    element: "input",
+                    attributes: { type: "number" }
+                },
+                buttons: { cancel: "Annulla", confirm: "Ok" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            $.ajax({
+                url: baseUrl + "/emendamenti/sposta?id=" + em.UIDEM + "&pos=" + value,
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function (data) {
+                if (data.message) {
+                    ErrorAlert(data.message);
+                } else {
+                    location.reload();
+                }
+            }).fail(function (err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+}
+
+function SpostaUP_EMTrattazione(em) {
+    
+    $.ajax({
+        url: baseUrl + "/emendamenti/ordina-up?id=" + em.UIDEM,
+        type: "GET",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function (data) {
+        if (data.message) {
+            ErrorAlert(data.message);
+        } else {
+            location.reload();
+        }
+    }).fail(function (err) {
+        console.log("error", err);
+        ErrorAlert(err.message);
+    });
+}
+
+function SpostaDOWN_EMTrattazione(em) {
+    
+    $.ajax({
+        url: baseUrl + "/emendamenti/ordina-down?id=" + em.UIDEM,
+        type: "GET",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function (data) {
+        if (data.message) {
+            ErrorAlert(data.message);
+        } else {
+            location.reload();
+        }
+    }).fail(function (err) {
+        console.log("error", err);
+        ErrorAlert(err.message);
+    });
 }
 
 async function GetEM(emUId) {
@@ -103,20 +184,21 @@ function go(link, switchMode) {
         }
     }
 
-    setTimeout(function () {
-        $('body').removeClass('loaded');
-    }, 200);
+    setTimeout(function() {
+            $("body").removeClass("loaded");
+        },
+        200);
     document.location = link;
 }
 
-function AbilitaTrattazione() {
+function AbilitaTrattazione(url) {
     var mode = getClientMode();
     if (mode == 1) {
         setClientMode(2);
     } else {
         setClientMode(1);
     }
-    location.reload();
+    go(url);
 }
 
 //EVENTI EMENDAMENTO
@@ -133,19 +215,19 @@ function AbilitaComandiMassivi(uidEM) {
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
         var selezionaTutti = getSelezionaTutti();
-            if (chk[0].checked) {
-                if (selezionaTutti) {
-                    removeEM(uidEM); //listaEsclusiva
-                } else {
-                    addEM(uidEM); //listaInsclusiva
-                }
+        if (chk[0].checked) {
+            if (selezionaTutti) {
+                removeEM(uidEM); //listaEsclusiva
             } else {
-                if (selezionaTutti) {
-                    addEM(uidEM); //listaEsclusiva
-                } else {
-                    removeEM(uidEM); //listaInsclusiva
-                }
+                addEM(uidEM); //listaInsclusiva
             }
+        } else {
+            if (selezionaTutti) {
+                addEM(uidEM); //listaEsclusiva
+            } else {
+                removeEM(uidEM); //listaInsclusiva
+            }
+        }
     }
 
     var lchk = getListaEmendamenti();
@@ -208,7 +290,7 @@ function ConfirmAction(id, name, action) {
             }).done(function(data) {
                 $("#modalAction").modal("close");
                 $("#btnConfermaAction").off("click");
-                console.log(data.message)
+                console.log(data.message);
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -240,7 +322,7 @@ function RitiraFirma(id) {
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
-                console.log(data)
+                console.log(data);
                 if (data.message) {
                     ErrorAlert(data.message);
                 } else {
@@ -390,8 +472,9 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
+    console.log('Articoli_OnChange', value, valueCommaSelected, valueLetteraSelected);
     set_ListaCommiEM([]);
-    $('#ArticoliList').val(value);
+    $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
     M.FormSelect.init(elemsArt, null);
 
@@ -482,12 +565,12 @@ function EsportaXLS(attoUId) {
             if (value == null || value == "")
                 return;
 
-            go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
+            go("emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
         });
 }
 
 function EsportaXLS_Segreteria(attoUId) {
-    go(baseUrl + "/emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
+    go("emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
 }
 
 function EsportaDOC(attoUId) {
@@ -509,12 +592,12 @@ function EsportaDOC(attoUId) {
 
             if (value == null || value == "")
                 return;
-            window.open(baseUrl + "/emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, '_blank');
+            window.open("emendamenti/esportaDOC?id=" + attoUId + "&ordine=" + value, "_blank");
         });
 }
 
 function DownloadStampa(stampaUId) {
-    go(baseUrl + "/stampe/" + stampaUId);
+    go("/stampe/" + stampaUId);
 }
 
 function ResetStampa(stampaUId, url) {
@@ -547,22 +630,22 @@ function CambioStato(uidem, stato) {
         if (data.message) {
             ErrorAlert(data.message);
         } else {
-            var label = $('#tdStato_' + uidem + '>label');
+            var label = $("#tdStato_" + uidem + ">label");
             var textStato = "";
             var cssStato = "";
             if (stato == 1) {
                 textStato = "Depositato";
                 cssStato = "depositatoT";
-            }else if (stato == 2) {
+            } else if (stato == 2) {
                 textStato = "Approvato";
                 cssStato = "approvatoT";
-            }else if (stato == 3) {
+            } else if (stato == 3) {
                 textStato = "Non approvato";
                 cssStato = "NOapprovatoT";
-            }else if (stato == 4) {
+            } else if (stato == 4) {
                 textStato = "Ritirato";
                 cssStato = "ritiratoT";
-            }else if (stato == 5) {
+            } else if (stato == 5) {
                 textStato = "Decaduto";
                 cssStato = "decadutoT";
             } else if (stato == 6) {
@@ -608,7 +691,7 @@ function CambioStatoMassivo(stato, descr) {
             obj.Stato = stato;
             obj.ListaEmendamenti = listaEM;
             obj.All = selezionaTutti;
-            obj.AttoUId = $('#hdUIdAtto').val();
+            obj.AttoUId = $("#hdUIdAtto").val();
 
             $.ajax({
                 url: baseUrl + "/emendamenti/modifica-stato",
@@ -674,7 +757,7 @@ function Ordina_EMTrattazione(attoUId) {
                 .then((willDelete) => {
                     location.reload();
                 });
-            
+
         }
     }).fail(function(err) {
         console.log("error", err);
@@ -682,104 +765,6 @@ function Ordina_EMTrattazione(attoUId) {
     });
 }
 
-function SpostaUP_EMTrattazione() {
-    var selezionaTutti = getSelezionaTutti();
-    var listaEM = getListaEmendamenti();
-    if (listaEM.length > 1 || selezionaTutti) {
-        ErrorAlert("Puoi spostare solo 1 emendamento alla volta");
-        return;
-    }
-    if (listaEM.length == 0) {
-        ErrorAlert("Seleziona 1 emendamento da spostare");
-        return;
-    }
-
-    $.ajax({
-        url: baseUrl + "/emendamenti/ordina-up?id=" + listaEM[0],
-        type: "GET",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json"
-    }).done(function(data) {
-        if (data.message) {
-            ErrorAlert(data.message);
-        } else {
-            location.reload();
-        }
-    }).fail(function(err) {
-        console.log("error", err);
-        ErrorAlert(err.message);
-    });
-}
-
-function SpostaDOWN_EMTrattazione() {
-    var selezionaTutti = getSelezionaTutti();
-    var listaEM = getListaEmendamenti();
-    if (listaEM.length > 1 || selezionaTutti) {
-        ErrorAlert("Puoi spostare solo 1 emendamento alla volta");
-        return;
-    }
-    if (listaEM.length == 0) {
-        ErrorAlert("Seleziona 1 emendamento da spostare");
-        return;
-    }
-
-    $.ajax({
-        url: baseUrl + "/emendamenti/ordina-down?id=" + listaEM[0],
-        type: "GET",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json"
-    }).done(function(data) {
-        if (data.message) {
-            ErrorAlert(data.message);
-        } else {
-            location.reload();
-        }
-    }).fail(function(err) {
-        console.log("error", err);
-        ErrorAlert(err.message);
-    });
-}
-
-function Sposta_EMTrattazione() {
-    var selezionaTutti = getSelezionaTutti();
-    var listaEM = getListaEmendamenti();
-    if (listaEM.length > 1 || selezionaTutti) {
-        ErrorAlert("Puoi spostare solo 1 emendamento alla volta");
-        return;
-    }
-    if (listaEM.length == 0) {
-        ErrorAlert("Seleziona 1 emendamento da spostare");
-        return;
-    }
-    swal("Sposta emendamento selezionato in una posizione precisa",
-            {
-                content: {
-                    element: "input",
-                    attributes: { type: "number" }
-                },
-                buttons: { cancel: "Annulla", confirm: "Ok" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-
-            $.ajax({
-                url: baseUrl + "/emendamenti/sposta?id=" + listaEM[0] + "&pos=" + value,
-                type: "GET",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                if (data.message) {
-                    ErrorAlert(data.message);
-                } else {
-                    location.reload();
-                }
-            }).fail(function(err) {
-                console.log("error", err);
-                ErrorAlert(err.message);
-            });
-        });
-}
 
 function OrdinamentoConcluso(attoUId) {
     $.ajax({
@@ -1136,9 +1121,10 @@ function SuccessModal(message, ctrl) {
         icon: "success",
         button: "OK"
     }).then((value) => {
-        $(ctrl).modal('close');
+        $(ctrl).modal("close");
     });
 }
+
 function SuccessAlert(message) {
     swal({
         title: "Bel lavoro!",
@@ -1168,9 +1154,10 @@ function ErrorAlert(message) {
         icon: "error",
         button: "Ooops!"
     });
-    setTimeout(function () {
-        $('body').addClass('loaded');
-    }, 200);
+    setTimeout(function() {
+            $("body").addClass("loaded");
+        },
+        200);
 }
 
 $.fn.serializeObject = function() {

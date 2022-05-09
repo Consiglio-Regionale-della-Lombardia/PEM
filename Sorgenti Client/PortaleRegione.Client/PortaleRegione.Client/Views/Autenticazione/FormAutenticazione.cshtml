@@ -1,4 +1,6 @@
-﻿@model PortaleRegione.DTO.Autenticazione.LoginRequest
+﻿@using System.Configuration
+@using PortaleRegione.Client.Helpers
+@model PortaleRegione.DTO.Autenticazione.LoginRequest
 
 @{
     Layout = null;
@@ -10,7 +12,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewBag.Title - Portale Regione Lombardia</title>
+    <title>@ViewBag.Title - Portale @Html.Raw(AppSettingsConfiguration.Title)</title>
 
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -39,11 +41,11 @@
         <div style="text-align: center;">
             <div class="row">
                 <div class="col s12" style="padding-top: 40px">
-                    <img src="https://pem.consiglio.regione.lombardia.it/images/logo.png" alt="Regione Lombardia logo" style="width: 50px;"/>
+                    <img src="@Html.Raw(AppSettingsConfiguration.Logo)" alt="@Html.Raw(AppSettingsConfiguration.Title) logo" style="width: 50px;"/>
                 </div>
                 <div class="col s12">
                     <h4>
-                        <b>Regione Lombardia</b>
+                        <b>@Html.Raw(AppSettingsConfiguration.Title)</b>
                     </h4>
                 </div>
                 <div class="col s12">

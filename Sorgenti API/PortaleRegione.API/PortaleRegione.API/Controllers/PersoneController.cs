@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -24,9 +27,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.Logger;
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -39,6 +39,9 @@ namespace PortaleRegione.API.Controllers
     {
         private readonly PersoneLogic _logicPersone;
 
+        /// <summary>
+        /// </summary>
+        /// <param name="logicPersone"></param>
         public PersoneController(PersoneLogic logicPersone)
         {
             _logicPersone = logicPersone;
@@ -76,7 +79,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var ruolo = await _logicPersone.GetRuolo((RuoliIntEnum)id);
+                var ruolo = await _logicPersone.GetRuolo((RuoliIntEnum) id);
                 return Ok(Mapper.Map<RUOLI, RuoliDto>(ruolo));
             }
             catch (Exception e)
@@ -244,23 +247,14 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var currentPin = await _logicPersone.GetPin(persona);
-                if (currentPin == null)
-                {
-                    return BadRequest("Pin non impostato");
-                }
+                if (currentPin == null) return BadRequest("Pin non impostato");
 
-                if (currentPin.RichiediModificaPIN)
-                {
-                    return BadRequest("E' richiesto il reset del pin");
-                }
+                if (currentPin.RichiediModificaPIN) return BadRequest("E' richiesto il reset del pin");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin)
-                {
-                    return BadRequest("Il vecchio PIN non è corretto!!!");
-                }
+                if (currentPin.PIN_Decrypt != model.vecchio_pin) return BadRequest("Il vecchio PIN non è corretto!!!");
 
                 return Ok("OK");
             }
@@ -283,34 +277,20 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (model.conferma_pin != model.nuovo_pin)
-                {
                     return BadRequest("Il nuovo PIN non combacia con quello di conferma!!!");
-                }
 
-                var session = await GetSession();
+                var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var currentPin = await _logicPersone.GetPin(persona);
-                if (currentPin == null)
-                {
-                    return BadRequest("Pin non impostato");
-                }
+                if (currentPin == null) return BadRequest("Pin non impostato");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin)
-                {
-                    return BadRequest("Il vecchio PIN non è corretto!!!");
-                }
+                if (currentPin.PIN_Decrypt != model.vecchio_pin) return BadRequest("Il vecchio PIN non è corretto!!!");
 
                 int valuePin;
                 var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
-                if (!checkTry)
-                {
-                    return BadRequest("Il pin deve contenere solo cifre numeriche");
-                }
+                if (!checkTry) return BadRequest("Il pin deve contenere solo cifre numeriche");
 
-                if (model.nuovo_pin.Length != 4)
-                {
-                    return BadRequest("Il PIN dev'essere un numero di massimo 4 cifre!");
-                }
+                if (model.nuovo_pin.Length != 4) return BadRequest("Il PIN dev'essere un numero di massimo 4 cifre!");
 
                 model.PersonaUId = persona.UID_persona;
 
@@ -347,6 +327,10 @@ namespace PortaleRegione.API.Controllers
         }
 
 
+        /// <summary>
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM)]
         [HttpPost]
         [Route("reset-pin")]
@@ -356,15 +340,9 @@ namespace PortaleRegione.API.Controllers
             {
                 int valuePin;
                 var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
-                if (!checkTry)
-                {
-                    return BadRequest("Il pin deve contenere solo cifre numeriche");
-                }
+                if (!checkTry) return BadRequest("Il pin deve contenere solo cifre numeriche");
 
-                if (model.nuovo_pin.Length != 4)
-                {
-                    return BadRequest("Il PIN dev'essere un numero di massimo 4 cifre!");
-                }
+                if (model.nuovo_pin.Length != 4) return BadRequest("Il PIN dev'essere un numero di massimo 4 cifre!");
 
                 await _logicPersone.ResetPin(model);
 

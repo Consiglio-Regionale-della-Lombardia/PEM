@@ -7,8 +7,14 @@ using WebActivatorEx;
 
 namespace PortaleRegione.API
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SwaggerConfig
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static void Register()
         {
             var thisAssembly = typeof(SwaggerConfig).Assembly;
@@ -36,7 +42,7 @@ namespace PortaleRegione.API
 
                         // If you want the output Swagger docs to be indented properly, enable the "PrettyPrint" option.
                         //
-                        //c.PrettyPrint();
+                        c.PrettyPrint();
 
                         // If your API has multiple versions, use "MultipleApiVersions" instead of "SingleApiVersion".
                         // In this case, you must provide a lambda that tells Swashbuckle which actions should be
@@ -79,7 +85,7 @@ namespace PortaleRegione.API
                         //    });
 
                         // Set this flag to omit descriptions for any actions decorated with the Obsolete attribute
-                        //c.IgnoreObsoleteActions();
+                        c.IgnoreObsoleteActions();
 
                         // Each operation be assigned one or more tags which are then used by consumers for various reasons.
                         // For example, the swagger-ui groups operations according to the first tag of each operation.
@@ -101,7 +107,8 @@ namespace PortaleRegione.API
                         // those comments into the generated docs and UI. You can enable this by providing the path to one or
                         // more Xml comment files.
                         //PortaleRegione.API.xml
-                        c.IncludeXmlComments(string.Format(@"{0}\bin\PortaleRegione.API.xml", System.AppDomain.CurrentDomain.BaseDirectory));
+                        c.IncludeXmlComments(
+                            $@"{System.AppDomain.CurrentDomain.BaseDirectory}\bin\PortaleRegione.API.xml");
 
                         // Swashbuckle makes a best attempt at generating Swagger compliant JSON schemas for the various types
                         // exposed in your API. However, there may be occasions when more control of the output is needed.
@@ -136,7 +143,7 @@ namespace PortaleRegione.API
 
                         // Set this flag to omit schema property descriptions for any type properties decorated with the
                         // Obsolete attribute
-                        //c.IgnoreObsoleteProperties();
+                        c.IgnoreObsoleteProperties();
 
                         // In accordance with the built in JsonSerializer, Swashbuckle will, by default, describe enums as integers.
                         // You can change the serializer behavior by configuring the StringToEnumConverter globally or for a given
@@ -182,7 +189,7 @@ namespace PortaleRegione.API
                         // Use the "DocumentTitle" option to change the Document title.
                         // Very helpful when you have multiple Swagger pages open, to tell them apart.
                         //
-                        //c.DocumentTitle("My Swagger UI");
+                        c.DocumentTitle("Portale Regione API");
 
                         // Use the "InjectStylesheet" option to enrich the UI with one or more additional CSS stylesheets.
                         // The file must be included in your project as an "Embedded Resource", and then the resource's

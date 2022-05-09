@@ -201,12 +201,6 @@
     <Content Include="Templates\template_pdf_copertina.html" />
     <Content Include="Web.config" />
     <Content Include="Web.config.txt" />
-    <Content Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

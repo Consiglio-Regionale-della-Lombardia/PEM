@@ -758,7 +758,7 @@ namespace PortaleRegione.Persistance
         /// <param name="em"></param>
         /// <param name="persona"></param>
         /// <returns></returns>
-        public async Task<bool> CheckIfDepositabile(EmendamentiDto em, PersonaDto persona)
+        public bool CheckIfDepositabile(EmendamentiDto em, PersonaDto persona)
         {
             if (!string.IsNullOrEmpty(em.DataDeposito))
             {
@@ -805,7 +805,7 @@ namespace PortaleRegione.Persistance
         /// <param name="em"></param>
         /// <param name="persona"></param>
         /// <returns></returns>
-        public async Task<bool> CheckIfModificabile(EmendamentiDto em, PersonaDto persona)
+        public bool CheckIfModificabile(EmendamentiDto em, PersonaDto persona)
         {
             if (string.IsNullOrEmpty(em.EM_Certificato))
             {

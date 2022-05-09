@@ -181,7 +181,7 @@ namespace PortaleRegione.BAL
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
-                                firmatari_opendata_ante = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                firmatari_opendata_ante = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole, personeInDbLight);
                         }
@@ -195,7 +195,7 @@ namespace PortaleRegione.BAL
                         {
                             if (firmeDto.Any(f =>
                                 f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
-                                firmatari_opendata_post = await _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                firmatari_opendata_post = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole, personeInDbLight);
                         }

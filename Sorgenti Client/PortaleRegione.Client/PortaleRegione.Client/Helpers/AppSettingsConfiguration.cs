@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2019 Consiglio Regionale della Lombardia
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,29 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 
-namespace PortaleRegione.Domain
+namespace PortaleRegione.Client.Helpers
 {
-    public partial class join_persona_AD
+    public class AppSettingsConfiguration
     {
-        [Key]
-        public Guid UID_persona { get; set; }
-
-        public int id_persona { get; set; }
-
-        [StringLength(50)]
-        public string UserAD { get; set; }
-
-        public bool RichiediModificaPWD { get; set; }
-
-        public DateTime? Data_ultima_modifica_PWD { get; set; }
-
-        public string pass_locale_crypt { get; set; }
-
-        public string gruppi_autorizzazione { get; set; }
-
-        public virtual persona persona { get; set; }
+        public static string Logo => ConfigurationManager.AppSettings["logo"];
+        public static string Title => ConfigurationManager.AppSettings["title"];
     }
 }

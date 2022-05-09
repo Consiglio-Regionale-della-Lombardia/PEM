@@ -81,7 +81,7 @@
                             </div>
                         </div>
                     </div>
-                    @Html.Partial("_MetaDatiPanelAdmin", Model)
+                    @Html.Partial("_MetaDatiPanel", Model)
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
                         @Html.TextAreaFor(model => model.Emendamento.TestoEM_originale, new { @class = "form-control trumbowyg" })
@@ -114,8 +114,6 @@
 @Html.Partial("_EMFormScript")
 <script>
     $(document).ready(function() {
-        ClearMetaDati();
-
         EffettiFinanziari_OnChange(@effetti_finanziari_visible);
         PartiTestoEmendamento_OnChange(@Model.Emendamento.IDParte);
         TestoEmendamento_TipoEM(@Model.Emendamento.IDTipo_EM);

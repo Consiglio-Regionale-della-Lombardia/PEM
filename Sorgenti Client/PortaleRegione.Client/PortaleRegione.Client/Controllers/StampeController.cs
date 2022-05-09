@@ -77,7 +77,7 @@ namespace PortaleRegione.Client.Controllers
                         {
                             model.filtro = old_model.Data.Filters;
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                         }
 

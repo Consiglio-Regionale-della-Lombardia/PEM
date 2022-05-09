@@ -10,6 +10,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -74,21 +75,39 @@ namespace PortaleRegione.BAL
                     //    AppSettingsConfiguration.TOKEN_R);
                     //Console.WriteLine($"Ingresso --> la password dell'utente scadrà tra {passwordExpire} giorni");
 
-                    var authResult = intranetAdService.Authenticate(
-                        loginModel.Username,
-                        loginModel.Password,
-                        "CONSIGLIO",
-                        AppSettingsConfiguration.TOKEN_R);
-                    //var authResult = true;
-                    if (!authResult)
+                    if (AppSettingsConfiguration.AutenticazioneAD == 1)
                     {
-                        throw new Exception( 
-                            "Nome Utente o Password non validi! Utilizza le credenziali di accesso al pc ([nome.cognome] - [propriapassword])");
+                        var authResult = intranetAdService.Authenticate(
+                            loginModel.Username,
+                            loginModel.Password,
+                            "CONSIGLIO",
+                            AppSettingsConfiguration.TOKEN_R);
+                        //var authResult = true;
+                        if (!authResult)
+                        {
+                            throw new Exception( 
+                                "Nome Utente o Password non validi! Utilizza le credenziali di accesso al pc ([nome.cognome] - [propriapassword])");
+                        }
+                    }
+                    else
+                    {
+                        var authResult_NoAD = await _unitOfWork
+                            .Persone
+                            .Autentica(
+                                loginModel.Username, 
+                                EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
+                            );
+                        if (!authResult_NoAD)
+                        {
+                            throw new Exception(
+                                "Nome Utente o Password non validi!");
+                        }
                     }
 #if DEBUG == true
                 }
 #endif
-                var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(@"CONSIGLIO\" + loginModel.Username));
+                var personaInDb = await _unitOfWork.Persone.Get(@"CONSIGLIO\" + loginModel.Username);
+                var persona = Mapper.Map<View_UTENTI, PersonaDto>(personaInDb);
 
                 if (persona == null)
                 {
@@ -96,19 +115,24 @@ namespace PortaleRegione.BAL
                         "Autenticazione corretta, ma l'utente non risulta presente nel sistema. Contattare l'amministratore di sistema.");
                 }
 
-                var lRuoli = new List<string>();
-                var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
-                    loginModel.Username.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
+                var Gruppi_Utente = new List<string>();
+
+                if (AppSettingsConfiguration.AutenticazioneAD == 1)
+                {
+                    Gruppi_Utente.AddRange(intranetAdService.GetGroups(
+                        loginModel.Username.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
+                }
+                else
+                {
+                    Gruppi_Utente.AddRange(personaInDb.gruppi_autorizzazione.Split(';'));
+                }
 
                 if (Gruppi_Utente.Count == 0)
                 {
                     throw new Exception( "Utente non configurato correttamente.");
                 }
 
-                foreach (var group in Gruppi_Utente)
-                {
-                    lRuoli.Add($"CONSIGLIO\\{group}");
-                }
+                var lRuoli = Gruppi_Utente.Select(@group => $"CONSIGLIO\\{@group}").ToList();
 
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 

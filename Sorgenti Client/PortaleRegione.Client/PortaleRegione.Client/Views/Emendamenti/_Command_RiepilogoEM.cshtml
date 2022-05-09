@@ -2,6 +2,22 @@
 @model PortaleRegione.DTO.Model.CommandRiepilogoEMModel
 @{
     var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+    var q_ordine = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
+    var ordine = OrdinamentoEnum.Presentazione;
+    if (!string.IsNullOrEmpty(q_ordine))
+    {
+        switch ((OrdinamentoEnum) Convert.ToInt16(q_ordine))
+        {
+            case OrdinamentoEnum.Presentazione:
+            case OrdinamentoEnum.Default:
+                ordine = OrdinamentoEnum.Presentazione;
+                break;
+            case OrdinamentoEnum.Votazione:
+                ordine = OrdinamentoEnum.Votazione;
+                break;
+        }
+    }
+
 }
 <div class="row valign-wrapper">
     <div class="col s3 left">
@@ -21,24 +37,39 @@
     </div>
     <div class="col s6">
         <div class="right">
+
             @if (Model.mode == ClientModeEnum.TRATTAZIONE)
             {
-                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione) && Model.Atto.OrdinePresentazione == true)
+                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione)
+                    && Model.Atto.OrdinePresentazione == true
+                    && ordine == OrdinamentoEnum.Presentazione)
                 {
-                    <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloPresentazione" data-position="bottom" data-tooltip="Scarica fascicolo presentazione" target="">
-                        <i class="material-icons">file_download</i>
+                    <a class="btn-flat pink-text tooltipped"
+                       href="@Model.Atto.LinkFascicoloPresentazione"
+                       data-position="bottom"
+                       data-tooltip="Scarica fascicolo presentazione"
+                       target="_blank"
+                       style="margin-top: -10px;">
+                        <i class="material-icons right">file_download</i>
+                        Fascicolo presentazione
+                    </a>
+                }
+                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione)
+                    && Model.Atto.OrdineVotazione == true
+                    && ordine == OrdinamentoEnum.Votazione)
+                {
+                    <a class="btn-flat pink-text tooltipped"
+                       href="@Model.Atto.LinkFascicoloVotazione"
+                       data-position="bottom"
+                       data-tooltip="Scarica fascicolo votazione"
+                       target="_blank"
+                       style="margin-top: -10px;">
+                        <i class="material-icons right">file_download</i>
+                        Fascicolo votazione
                     </a>
                 }
             }
-            @if (Model.mode == ClientModeEnum.TRATTAZIONE)
-            {
-                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione) && Model.Atto.OrdineVotazione == true)
-                {
-                    <a class="blue-text tooltipped" href="@Model.Atto.LinkFascicoloVotazione" data-position="bottom" data-tooltip="Scarica fascicolo votazione" target="">
-                        <i class="material-icons">file_download</i>
-                    </a>
-                }
-            }
+
             <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
                 <i class="material-icons">print</i>
             </a>
@@ -71,7 +102,7 @@
 
 <script>
     function filtraEM_RichiestaFirma(enable) {
-        var url = '@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = Model.Atto.UIDAtto, Model.mode, Model.view })';
+        var url = '@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = Model.Atto.UIDAtto, Model.mode, Model.view})';
         if (enable) {
             go(url + '&require_my_sign=true');
         } else {
