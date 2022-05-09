@@ -269,15 +269,8 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{lblEffettiFinanziari}",
                     Utility.EffettiFinanziariEM(emendamento.EffettiFinanziari));
 
-                var body_orig = emendamento.TestoEM_originale;
-                body_orig = Regex.Replace(body_orig, "<p.*?>", "<br>");
-                body_orig = Regex.Replace(body_orig, "</p.*?>", string.Empty);
-                body_orig = Regex.Replace(body_orig, "<td.*?>", "<td>");
-                
-                var body_rel_orig = emendamento.TestoREL_originale;
-                body_rel_orig = Regex.Replace(body_rel_orig, "<p.*?>", "<br>");
-                body_rel_orig = Regex.Replace(body_rel_orig, "</p.*?>", string.Empty);
-                body_rel_orig = Regex.Replace(body_rel_orig, "<td.*?>", "<td>");
+                var body_orig = Utility.CleanWordText(emendamento.TestoEM_originale);
+                var body_rel_orig = Utility.CleanWordText(emendamento.TestoREL_originale);
 
                 body = body.Replace("{lblTestoEMView}", body_orig);
                 body = !string.IsNullOrEmpty(emendamento.TestoREL_originale)
@@ -343,11 +336,7 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    var body_cert = emendamento.EM_Certificato;
-                    body_cert = Regex.Replace(body_cert, "<p.*?>", "<br>");
-                    body_cert = Regex.Replace(body_cert, "</p.*?>", string.Empty);
-                    body_cert = Regex.Replace(body_cert, "<td.*?>", "<td>");
-
+                    var body_cert = Utility.CleanWordText(emendamento.TestoEM_originale);
                     body = body.Replace("{ltEMView}", body_cert);
 
                     #region Emendamento Fatto Proprio Da

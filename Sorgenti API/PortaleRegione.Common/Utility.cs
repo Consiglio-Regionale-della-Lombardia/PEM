@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace PortaleRegione.Common
 {
@@ -61,32 +61,24 @@ namespace PortaleRegione.Common
                 case PartiEMEnum.Capo:
                     return $"Capo: {em.NCapo}";
                 case PartiEMEnum.Articolo:
+                {
+                    var strArticolo = string.Empty;
+                    if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
+
+                    if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
+                        strArticolo += $", Comma: {em.COMMI.Comma}";
+
+                    if (!string.IsNullOrEmpty(em.NLettera))
                     {
-                        var strArticolo = string.Empty;
-                        if (em.UIDArticolo.HasValue)
-                        {
-                            strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
-                        }
-
-                        if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
-                        {
-                            strArticolo += $", Comma: {em.COMMI.Comma}";
-                        }
-
-                        if (!string.IsNullOrEmpty(em.NLettera))
-                        {
-                            strArticolo += $", Lettera: {em.NLettera}";
-                        }
-                        else
-                        {
-                            if (em.UIDLettera.HasValue)
-                            {
-                                strArticolo += $", Lettera: {em.LETTERE.Lettera}";
-                            }
-                        }
-
-                        return strArticolo;
+                        strArticolo += $", Lettera: {em.NLettera}";
                     }
+                    else
+                    {
+                        if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
+                    }
+
+                    return strArticolo;
+                }
                 case PartiEMEnum.Missione:
                     return $"Missione: {em.NMissione} Programma: {em.NProgramma} titolo: {em.NTitoloB}";
                 case PartiEMEnum.Allegato_Tabella:
@@ -106,17 +98,17 @@ namespace PortaleRegione.Common
             switch (effetti_finanziari)
             {
                 case 0:
-                    {
-                        return "NO";
-                    }
+                {
+                    return "NO";
+                }
                 case 1:
-                    {
-                        return "SI";
-                    }
+                {
+                    return "SI";
+                }
                 default:
-                    {
-                        return "NON SPECIFICATO";
-                    }
+                {
+                    return "NON SPECIFICATO";
+                }
             }
         }
 
@@ -128,22 +120,21 @@ namespace PortaleRegione.Common
         public static List<KeyValueDto> GetEnumList<T>()
         {
             return (from object e in Enum.GetValues(typeof(T))
-                    select new KeyValueDto
-                    {
-                        id = (int)e,
-                        descr = e.ToString().Replace("_", " ")
-                    }).ToList();
+                select new KeyValueDto
+                {
+                    id = (int) e,
+                    descr = e.ToString().Replace("_", " ")
+                }).ToList();
         }
 
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="numero_em"></param>
         public static void AddFilter_ByNUM(ref BaseRequest<EmendamentiDto> model, string numero_em)
         {
             if (!string.IsNullOrEmpty(numero_em))
-            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.N_EM),
@@ -151,16 +142,17 @@ namespace PortaleRegione.Common
                     Value = numero_em,
                     Connector = FilterStatementConnector.And
                 });
-            }
         }
+
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="stringa1"></param>
         /// <param name="stringa2"></param>
         /// <param name="connettore"></param>
-        public static void AddFilter_ByText(ref BaseRequest<EmendamentiDto> model, string stringa1, string stringa2 = "", int connettore = 0)
+        public static void AddFilter_ByText(ref BaseRequest<EmendamentiDto> model, string stringa1,
+            string stringa2 = "", int connettore = 0)
         {
             if (!string.IsNullOrEmpty(stringa1))
             {
@@ -170,10 +162,7 @@ namespace PortaleRegione.Common
                     Operation = Operation.Contains,
                     Value = stringa1
                 };
-                if (connettore > 0)
-                {
-                    filtro1.Connector = (FilterStatementConnector)connettore;
-                }
+                if (connettore > 0) filtro1.Connector = (FilterStatementConnector) connettore;
 
                 model.filtro.Add(filtro1);
             }
@@ -186,16 +175,14 @@ namespace PortaleRegione.Common
                     Operation = Operation.Contains,
                     Value = stringa2
                 };
-                if (connettore > 0)
-                {
-                    filtro2.Connector = (FilterStatementConnector)connettore;
-                }
+                if (connettore > 0) filtro2.Connector = (FilterStatementConnector) connettore;
 
                 model.filtro.Add(filtro2);
             }
         }
+
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="q_parte"></param>
@@ -207,7 +194,8 @@ namespace PortaleRegione.Common
         /// <param name="q_parte_letteraOLD"></param>
         /// <param name="q_parte_missione"></param>
         /// <param name="q_parte_programma"></param>
-        public static void AddFilter_ByPart(ref BaseRequest<EmendamentiDto> model, string q_parte, string q_parte_titolo,
+        public static void AddFilter_ByPart(ref BaseRequest<EmendamentiDto> model, string q_parte,
+            string q_parte_titolo,
             string q_parte_capo,
             string q_parte_articolo, string q_parte_comma, string q_parte_lettera, string q_parte_letteraOLD,
             string q_parte_missione, string q_parte_programma)
@@ -222,13 +210,12 @@ namespace PortaleRegione.Common
                     Connector = FilterStatementConnector.And
                 });
                 var filtro_parte_enum = Convert.ToInt16(q_parte);
-                switch ((PartiEMEnum)filtro_parte_enum)
+                switch ((PartiEMEnum) filtro_parte_enum)
                 {
                     case PartiEMEnum.Titolo_PDL:
                         break;
                     case PartiEMEnum.Titolo:
                         if (!string.IsNullOrEmpty(q_parte_titolo))
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NTitolo),
@@ -236,12 +223,10 @@ namespace PortaleRegione.Common
                                 Value = q_parte_titolo,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         break;
                     case PartiEMEnum.Capo:
                         if (!string.IsNullOrEmpty(q_parte_capo))
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NCapo),
@@ -249,12 +234,10 @@ namespace PortaleRegione.Common
                                 Value = q_parte_capo,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         break;
                     case PartiEMEnum.Articolo:
                         if (!string.IsNullOrEmpty(q_parte_articolo) && q_parte_articolo != "0")
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDArticolo),
@@ -262,10 +245,8 @@ namespace PortaleRegione.Common
                                 Value = q_parte_articolo,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         if (!string.IsNullOrEmpty(q_parte_comma) && q_parte_comma != "0")
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDComma),
@@ -273,10 +254,8 @@ namespace PortaleRegione.Common
                                 Value = q_parte_comma,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         if (!string.IsNullOrEmpty(q_parte_lettera) && q_parte_lettera != "0")
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.UIDLettera),
@@ -284,10 +263,8 @@ namespace PortaleRegione.Common
                                 Value = q_parte_lettera,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         if (!string.IsNullOrEmpty(q_parte_letteraOLD))
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NLettera),
@@ -295,12 +272,10 @@ namespace PortaleRegione.Common
                                 Value = q_parte_letteraOLD,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         break;
                     case PartiEMEnum.Missione:
                         if (!string.IsNullOrEmpty(q_parte_missione) && q_parte_missione != "0")
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NMissione),
@@ -308,10 +283,8 @@ namespace PortaleRegione.Common
                                 Value = q_parte_missione,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         if (!string.IsNullOrEmpty(q_parte_programma))
-                        {
                             model.filtro.Add(new FilterStatement<EmendamentiDto>
                             {
                                 PropertyId = nameof(EmendamentiDto.NProgramma),
@@ -319,7 +292,6 @@ namespace PortaleRegione.Common
                                 Value = q_parte_programma,
                                 Connector = FilterStatementConnector.And
                             });
-                        }
 
                         break;
                     case PartiEMEnum.Allegato_Tabella:
@@ -329,8 +301,9 @@ namespace PortaleRegione.Common
                 }
             }
         }
+
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="statoId"></param>
@@ -338,7 +311,7 @@ namespace PortaleRegione.Common
         {
             if (!string.IsNullOrEmpty(statoId))
             {
-                if (statoId.Equals(((int)StatiEnum.Approvato).ToString()))
+                if (statoId.Equals(((int) StatiEnum.Approvato).ToString()))
                 {
                     model.filtro.Add(new FilterStatement<EmendamentiDto>
                     {
@@ -351,7 +324,7 @@ namespace PortaleRegione.Common
                     {
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
-                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
+                        Value = (int) StatiEnum.Approvato_Con_Modifiche,
                         Connector = FilterStatementConnector.And
                     });
                 }
@@ -367,15 +340,15 @@ namespace PortaleRegione.Common
                 }
             }
         }
+
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="tipoId"></param>
         public static void AddFilter_ByType(ref BaseRequest<EmendamentiDto> model, string tipoId)
         {
             if (!string.IsNullOrEmpty(tipoId) && tipoId != "0")
-            {
                 model.filtro.Add(new FilterStatement<EmendamentiDto>
                 {
                     PropertyId = nameof(EmendamentiDto.IDTipo_EM),
@@ -383,26 +356,23 @@ namespace PortaleRegione.Common
                     Value = tipoId,
                     Connector = FilterStatementConnector.And
                 });
-            }
         }
+
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="personaUID"></param>
         /// <param name="solo_miei"></param>
         public static void AddFilter_My(ref BaseRequest<EmendamentiDto> model, Guid personaUID, string solo_miei)
         {
-            if (solo_miei != "on")
-            {
-                return;
-            }
+            if (solo_miei != "on") return;
 
             var filtro1 = new FilterStatement<EmendamentiDto>
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.NotEqualTo,
-                Value = (int)StatiEnum.Bozza_Riservata,
+                Value = (int) StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro1);
@@ -410,7 +380,7 @@ namespace PortaleRegione.Common
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.EqualTo,
-                Value = (int)StatiEnum.Bozza_Riservata,
+                Value = (int) StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtro2);
@@ -431,17 +401,15 @@ namespace PortaleRegione.Common
             };
             model.filtro.Add(filtro4);
         }
+
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="solo_effetti_finanziari"></param>
         public static void AddFilter_Financials(ref BaseRequest<EmendamentiDto> model, string solo_effetti_finanziari)
         {
-            if (solo_effetti_finanziari != "on")
-            {
-                return;
-            }
+            if (solo_effetti_finanziari != "on") return;
 
             var filtro1 = new FilterStatement<EmendamentiDto>
             {
@@ -454,22 +422,16 @@ namespace PortaleRegione.Common
         }
 
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="gruppi"></param>
         public static void AddFilter_Groups(ref BaseRequest<EmendamentiDto> model, string gruppi)
         {
-            if (string.IsNullOrEmpty(gruppi))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(gruppi)) return;
 
             var gruppi_split = gruppi.Split(',');
-            if (gruppi_split.Length <= 0)
-            {
-                return;
-            }
+            if (gruppi_split.Length <= 0) return;
 
             foreach (var groupId in gruppi_split)
             {
@@ -485,22 +447,16 @@ namespace PortaleRegione.Common
         }
 
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="proponenti"></param>
         public static void AddFilter_Proponents(ref BaseRequest<EmendamentiDto> model, string proponenti)
         {
-            if (string.IsNullOrEmpty(proponenti))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(proponenti)) return;
 
             var prop_split = proponenti.Split(',');
-            if (prop_split.Length <= 0)
-            {
-                return;
-            }
+            if (prop_split.Length <= 0) return;
 
             foreach (var personaUId in prop_split)
             {
@@ -516,22 +472,16 @@ namespace PortaleRegione.Common
         }
 
         /// <summary>
-        /// Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
         /// <param name="firmatari"></param>
         public static void AddFilter_Signers(ref BaseRequest<EmendamentiDto> model, string firmatari)
         {
-            if (string.IsNullOrEmpty(firmatari))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(firmatari)) return;
 
             var firma_split = firmatari.Split(',');
-            if (firma_split.Length <= 0)
-            {
-                return;
-            }
+            if (firma_split.Length <= 0) return;
 
             foreach (var personaUId in firma_split)
             {
@@ -547,7 +497,25 @@ namespace PortaleRegione.Common
 
         public static string StripHTML(string input)
         {
-            return Regex.Replace(input, "<.*?>", String.Empty).Replace("&nbsp;", " ");
+            return Regex.Replace(input, "<.*?>", string.Empty).Replace("&nbsp;", " ");
         }
+
+        private static string RegexPatterSubstitute(string text, string substitute, string regex_pattern)
+        {
+            var regex = new Regex(regex_pattern);
+            return regex.Replace(text, substitute);
+        }
+
+        public static string CleanWordText(string text)
+        {
+            text = RegexPatterSubstitute(text, "<br />", WORD_OPEN_P);
+            text = text.Replace("</p>", string.Empty);
+            text = RegexPatterSubstitute(text, "<td>", WORD_OPEN_TD);
+
+            return text;
+        }
+
+        public const string WORD_OPEN_P = "<p[^>]*>";
+        public const string WORD_OPEN_TD = "<td[^>]*>";
     }
 }
