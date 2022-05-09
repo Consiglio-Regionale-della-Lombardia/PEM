@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -268,10 +269,20 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{lblEffettiFinanziari}",
                     Utility.EffettiFinanziariEM(emendamento.EffettiFinanziari));
 
-                body = body.Replace("{lblTestoEMView}", emendamento.TestoEM_originale);
+                var body_orig = emendamento.TestoEM_originale;
+                body_orig = Regex.Replace(body_orig, "<p.*?>", "<br>");
+                body_orig = Regex.Replace(body_orig, "</p.*?>", string.Empty);
+                body_orig = Regex.Replace(body_orig, "<td.*?>", "<td>");
+                
+                var body_rel_orig = emendamento.TestoREL_originale;
+                body_rel_orig = Regex.Replace(body_rel_orig, "<p.*?>", "<br>");
+                body_rel_orig = Regex.Replace(body_rel_orig, "</p.*?>", string.Empty);
+                body_rel_orig = Regex.Replace(body_rel_orig, "<td.*?>", "<td>");
+
+                body = body.Replace("{lblTestoEMView}", body_orig);
                 body = !string.IsNullOrEmpty(emendamento.TestoREL_originale)
                     ? body.Replace("{lblTestoRelEMView}",
-                        "<b>RELAZIONE ILLUSTRATIVA</b><br />" + emendamento.TestoREL_originale)
+                        "<b>RELAZIONE ILLUSTRATIVA</b><br />" + body_rel_orig)
                     : body.Replace("{lblTestoRelEMView}", string.Empty);
 
                 var allegato_generico = string.Empty;
@@ -332,7 +343,12 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    body = body.Replace("{ltEMView}", emendamento.EM_Certificato);
+                    var body_cert = emendamento.EM_Certificato;
+                    body_cert = Regex.Replace(body_cert, "<p.*?>", "<br>");
+                    body_cert = Regex.Replace(body_cert, "</p.*?>", string.Empty);
+                    body_cert = Regex.Replace(body_cert, "<td.*?>", "<td>");
+
+                    body = body.Replace("{ltEMView}", body_cert);
 
                     #region Emendamento Fatto Proprio Da
 

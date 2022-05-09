@@ -46,6 +46,11 @@ namespace PortaleRegione.BAL
                     .Firme
                     .GetFirmatari(em, tipo);
 
+                if (firmeInDb == null)
+                {
+                    return new List<FirmeDto>();
+                }
+
                 var firme = firmeInDb.ToList();
 
                 if (!firme.Any())

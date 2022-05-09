@@ -626,9 +626,10 @@ namespace PortaleRegione.API.Controllers
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
+                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
 
                 var body = await _logicEm.GetBodyEM(em
-                    , await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE)
+                    , firme
                     , persona
                     , model.Template
                     , model.IsDeposito);
