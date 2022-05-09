@@ -169,7 +169,15 @@ else
                         }
                     </td>
                     <td id="tdFirmatari_@itemEM.UIDEM">
-                        @{
+
+                        @if (itemEM.Firma_da_ufficio)
+                        {
+                            <b class="tooltipped" data-tooltip="@itemEM.Firma_ufficio.FirmaCert">
+                                Firmato d'ufficio
+                            </b>
+                        }
+                        else
+                        {
                             var codice_gruppo = string.Empty;
                             if (itemEM.id_gruppo > 10000)
                             {
@@ -181,22 +189,24 @@ else
                             }
 
                             var proponente = string.Format("{0} ({1})", itemEM.PersonaProponente.DisplayName, codice_gruppo);
-                        }
-                        @if (!itemEM.Firmato_Dal_Proponente)
-                        {
-                            <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
-                                @Html.Raw(proponente)
-                            </span>
-                        }
-                        else
-                        {
-                            if (itemEM.Proponente_Relatore)
+
+                            if (!itemEM.Firmato_Dal_Proponente)
                             {
-                                <b>RELATORE</b>
-                                <br />
+                                <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
+                                    @Html.Raw(proponente)
+                                </span>
                             }
-                            @Html.Raw(proponente)
+                            else
+                            {
+                                if (itemEM.Proponente_Relatore)
+                                {
+                                    <b>RELATORE</b>
+                                    <br />
+                                }
+                                @Html.Raw(proponente)
+                            }
                         }
+
                         @if (itemEM.ConteggioFirme > 1)
                         {
                             <br />

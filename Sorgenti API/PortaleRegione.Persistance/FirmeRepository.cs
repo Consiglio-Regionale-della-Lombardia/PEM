@@ -204,5 +204,13 @@ namespace PortaleRegione.Persistance
                 .FindAsync(emendamentoUId, personaUId);
 
         }
+
+        public async Task<FIRME> GetFirmaUfficio(Guid uidEM)
+        {
+            var firma = await PRContext
+                .FIRME
+                .FirstAsync(item => item.UIDEM == uidEM && item.ufficio == true);
+            return firma;
+        }
     }
 }

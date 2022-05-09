@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NPOI.OpenXmlFormats.Dml;
 
 namespace PortaleRegione.BAL
 {
@@ -44,6 +45,11 @@ namespace PortaleRegione.BAL
                 var firmeInDb = await _unitOfWork
                     .Firme
                     .GetFirmatari(em, tipo);
+
+                if (firmeInDb == null)
+                {
+                    return new List<FirmeDto>();
+                }
 
                 var firme = firmeInDb.ToList();
 
@@ -89,6 +95,34 @@ namespace PortaleRegione.BAL
             catch (Exception e)
             {
                 Log.Error("Logic - CountFirme", e);
+                throw e;
+            }
+        }
+
+        public async Task<FirmeDto> GetFirmaUfficio(EmendamentiDto em)
+        {
+            try
+            {
+                var firmaInDb = await _unitOfWork
+                    .Firme
+                    .GetFirmaUfficio(em.UIDEM);
+
+                var firmaDto = new FirmeDto
+                {
+                    UIDEM = firmaInDb.UIDEM,
+                    UID_persona = firmaInDb.UID_persona,
+                    FirmaCert = Decrypt(firmaInDb.FirmaCert),
+                    Data_firma = Decrypt(firmaInDb.Data_firma),
+                    Data_ritirofirma = string.IsNullOrEmpty(firmaInDb.Data_ritirofirma)
+                        ? null
+                        : Decrypt(firmaInDb.Data_ritirofirma)
+                };
+
+                return firmaDto;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetFirmaUfficio", e);
                 throw e;
             }
         }

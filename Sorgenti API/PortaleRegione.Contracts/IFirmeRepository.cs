@@ -38,5 +38,6 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckIfFirmabile(EmendamentiDto em, PersonaDto persona);
         Task<bool> CheckFirmatoDaUfficio(Guid emendamentoUId);
         Task<FIRME> Get(Guid emendamentoUId, Guid personaUId);
+        Task<FIRME> GetFirmaUfficio(Guid uidEM);
     }
 }

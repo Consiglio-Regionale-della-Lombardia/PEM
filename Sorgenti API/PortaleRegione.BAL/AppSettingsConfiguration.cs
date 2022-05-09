@@ -39,7 +39,7 @@ namespace PortaleRegione.BAL
 
         public static int AutenticazioneAD => Convert.ToInt16(ConfigurationManager.AppSettings["AutenticazioneAD"]);
         public static int Invio_Notifiche => Convert.ToInt16(ConfigurationManager.AppSettings["InvioNotifiche"]);
-        public static string FirmaUfficio => ConfigurationManager.AppSettings["UtenteFirmaUfficio"];
+        public static string FirmaUfficio => ConfigurationManager.AppSettings["FirmaUfficio"];
         public static string LimiteFirmaMassivo => ConfigurationManager.AppSettings["LimiteFirmaMassivo"];
         public static string LimiteDepositoMassivo => ConfigurationManager.AppSettings["LimiteDepositoMassivo"];
         public static string GiorniValiditaLink => ConfigurationManager.AppSettings["GiorniValiditaLink"];
