@@ -510,7 +510,7 @@ namespace PortaleRegione.Common
         {
             text = RegexPatterSubstitute(text, "<br />", WORD_OPEN_P);
             text = text.Replace("</p>", string.Empty);
-            text = RegexPatterSubstitute(text, "<td>", WORD_OPEN_TD);
+            //text = RegexPatterSubstitute(text, "<td>", WORD_OPEN_TD);
 
             return text;
         }

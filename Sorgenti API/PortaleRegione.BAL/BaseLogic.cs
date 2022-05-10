@@ -336,7 +336,7 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    var body_cert = Utility.CleanWordText(emendamento.TestoEM_originale);
+                    var body_cert = Utility.CleanWordText(emendamento.EM_Certificato);
                     body = body.Replace("{ltEMView}", body_cert);
 
                     #region Emendamento Fatto Proprio Da
