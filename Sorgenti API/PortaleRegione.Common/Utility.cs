@@ -508,14 +508,14 @@ namespace PortaleRegione.Common
 
         public static string CleanWordText(string text)
         {
-            text = RegexPatterSubstitute(text, "<br />", WORD_OPEN_P);
+            text = RegexPatterSubstitute(text, "<br/>", WORD_OPEN_P);
             text = text.Replace("</p>", string.Empty);
-            //text = RegexPatterSubstitute(text, "<td>", WORD_OPEN_TD);
+            text = RegexPatterSubstitute(text, "<a>", WORD_OPEN_A);
 
             return text;
         }
 
         public const string WORD_OPEN_P = "<p[^>]*>";
-        public const string WORD_OPEN_TD = "<td[^>]*>";
+        public const string WORD_OPEN_A = "<a name[^>]*>";
     }
 }
