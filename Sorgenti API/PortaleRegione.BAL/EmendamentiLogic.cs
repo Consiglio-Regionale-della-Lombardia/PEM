@@ -434,6 +434,8 @@ namespace PortaleRegione.BAL
                     em.NLettera = lettera.Lettera;
                 }
 
+                CleanMetaDatiInEccesso(em);
+
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -506,7 +508,6 @@ namespace PortaleRegione.BAL
                     CleanParteMissione(em);
                     CleanParteTitolo(em);
                     CleanParteCapo(em);
-
                     break;
                 case PartiEMEnum.Missione:
                     CleanParteArticolo(em);
