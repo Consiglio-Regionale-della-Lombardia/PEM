@@ -318,7 +318,7 @@ namespace PortaleRegione.Common
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
                         Value = Convert.ToInt32(statoId),
-                        Connector = FilterStatementConnector.And
+                        Connector = FilterStatementConnector.Or
                     });
                     model.filtro.Add(new FilterStatement<EmendamentiDto>
                     {
