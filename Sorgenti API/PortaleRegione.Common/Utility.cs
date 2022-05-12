@@ -317,14 +317,14 @@ namespace PortaleRegione.Common
                     {
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
-                        Value = statoId,
+                        Value = Convert.ToInt32(statoId),
                         Connector = FilterStatementConnector.And
                     });
                     model.filtro.Add(new FilterStatement<EmendamentiDto>
                     {
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
-                        Value = (int) StatiEnum.Approvato_Con_Modifiche,
+                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
                         Connector = FilterStatementConnector.And
                     });
                 }

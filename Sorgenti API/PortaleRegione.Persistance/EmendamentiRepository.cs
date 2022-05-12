@@ -29,6 +29,9 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Interfaces;
+using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -340,7 +343,7 @@ namespace PortaleRegione.Persistance
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
                 }
             }
-
+            
             filtro?.BuildExpression(ref query);
 
             if (firmatari != null)
