@@ -91,14 +91,13 @@
             </ul>
         </div>
     }
-    else
-    {
-        <div class="col s12">
-            @{
-                Html.RenderPartial("_GridView_RiepilogoDASI", Model);
-            }
-        </div>
-    }
+
+    <div class="col s12">
+        @{
+            Html.RenderPartial("_GridView_RiepilogoDASI", Model);
+        }
+    </div>
+
 </div>
 
 @{
