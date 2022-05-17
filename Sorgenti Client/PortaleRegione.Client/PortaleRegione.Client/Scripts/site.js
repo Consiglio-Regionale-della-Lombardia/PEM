@@ -86,8 +86,11 @@ function Sposta_EMTrattazione(em) {
                 buttons: { cancel: "Annulla", confirm: "Ok" }
             })
         .then((value) => {
-            if (value == null || value == "")
+            console.log('response', value)
+            if (value == null || value == "") {
+                $('#modalMetaDati').modal("open");
                 return;
+            }
 
             $.ajax({
                 url: baseUrl + "/emendamenti/sposta?id=" + em.UIDEM + "&pos=" + value,
