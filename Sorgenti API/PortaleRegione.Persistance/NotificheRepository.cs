@@ -63,6 +63,7 @@ namespace PortaleRegione.Persistance
                 persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                 return true;
 
+            if (persona.Gruppo == null) return false;
             if (em.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
             if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||

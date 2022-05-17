@@ -434,7 +434,6 @@ namespace PortaleRegione.BAL
                             .Replace("{FIRME_COMMENTO_START}", "<!--")
                             .Replace("{FIRME_COMMENTO_END}", "-->");
                     }
-
                 }
 
                 #endregion

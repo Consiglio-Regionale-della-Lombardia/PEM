@@ -619,7 +619,7 @@ namespace PortaleRegione.BAL
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var emendamentoDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
+                var emendamentoDto = await GetEM_DTO(em.UIDEM, atto, persona, personeInDbLight);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try

@@ -33,7 +33,7 @@ namespace PortaleRegione.BAL
 
                 var persona = personeInDb.First(p => p.UID_persona == em.UIDPersonaProponente);
                 var personaDto = Mapper.Map<View_UTENTI, PersonaDto>(persona);
-                var emendamentoDto = await _logicEm.GetEM_DTO(em, atto, personaDto, personeInDbLight);
+                var emendamentoDto = await _logicEm.GetEM_DTO(em.UIDEM, atto, personaDto, personeInDbLight);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try
