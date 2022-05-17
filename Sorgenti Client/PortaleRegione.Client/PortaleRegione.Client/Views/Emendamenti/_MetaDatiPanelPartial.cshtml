@@ -85,6 +85,12 @@
 
         await SetupMetaDati(em);
 
+        $("#btnSposta_MetaDatiPartial").on("click",
+            function () {
+                $('#modalMetaDati').modal("close");
+                Sposta_EMTrattazione(em.UIDEM);
+            });
+
         $("input[type=radio][name='Parte']").change(async function () {
             em.IDParte = this.value;
             set_ListaArticoliEM([]);

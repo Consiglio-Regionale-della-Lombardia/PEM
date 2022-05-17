@@ -508,6 +508,7 @@ namespace PortaleRegione.Common
 
         public static string CleanWordText(string text)
         {
+            if (string.IsNullOrEmpty(text)) return text;
             text = RegexPatterSubstitute(text, "<br/>", WORD_OPEN_P);
             text = text.Replace("</p>", string.Empty);
             text = RegexPatterSubstitute(text, "<a>", WORD_OPEN_A);

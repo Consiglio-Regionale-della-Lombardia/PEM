@@ -86,8 +86,11 @@ function Sposta_EMTrattazione(em) {
                 buttons: { cancel: "Annulla", confirm: "Ok" }
             })
         .then((value) => {
-            if (value == null || value == "")
+            console.log('response', value)
+            if (value == null || value == "") {
+                $('#modalMetaDati').modal("open");
                 return;
+            }
 
             $.ajax({
                 url: baseUrl + "/emendamenti/sposta?id=" + em.UIDEM + "&pos=" + value,
@@ -404,7 +407,14 @@ function EliminaFirma(id) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Esito ritiro firma",
+                        text: data.message,
+                        icon: "info",
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
                     go(data);
                 }
