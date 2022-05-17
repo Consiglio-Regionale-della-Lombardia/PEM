@@ -375,12 +375,14 @@ function RitiraFirma(id) {
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
-                console.log(data);
-                if (data.message) {
-                    ErrorAlert(data.message);
-                } else {
-                    go(data);
-                }
+                swal({
+                    title: "Esito ritiro firma",
+                    text: data.message,
+                    icon: "info",
+                    button: "OK"
+                }).then(() => {
+                    location.reload();
+                });
             }).fail(function(err) {
                 console.log("error", err);
                 ErrorAlert(err.message);
