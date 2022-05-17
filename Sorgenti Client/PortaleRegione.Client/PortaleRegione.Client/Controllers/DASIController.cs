@@ -436,16 +436,16 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="mode"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("preview")]
-        public async Task<ActionResult> Preview(int mode)
-        {
-            var _mode = (ViewModeEnum) mode;
-            if (_mode == ViewModeEnum.GRID)
-            {
-                //Ritorna la griglia
-            }
-        }
+        //[HttpGet]
+        //[Route("preview")]
+        //public async Task<ActionResult> Preview(int mode)
+        //{
+        //    var _mode = (ViewModeEnum) mode;
+        //    if (_mode == ViewModeEnum.GRID)
+        //    {
+        //        //Ritorna la griglia
+        //    }
+        //}
 
         private void SetCache(int page, int size, TipoAttoEnum tipo, StatiAttoEnum stato)
         {
