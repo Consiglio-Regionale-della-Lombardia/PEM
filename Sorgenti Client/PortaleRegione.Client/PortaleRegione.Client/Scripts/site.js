@@ -357,7 +357,14 @@ function EliminaFirma(id) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Esito ritiro firma",
+                        text: data.message,
+                        icon: "info",
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
                     go(data);
                 }
