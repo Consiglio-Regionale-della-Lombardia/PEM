@@ -16,8 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using PortaleRegione.API.Controllers;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -26,19 +31,15 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using PortaleRegione.API.Controllers;
 
 namespace PortaleRegione.BAL
 {
     public class NotificheLogic : BaseLogic
     {
+        private readonly DASILogic _logicDasi;
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
-        private readonly DASILogic _logicDasi;
+        private readonly AttiFirmeLogic _logicFirmeDasi;
         private readonly PersoneLogic _logicPersone;
         private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
@@ -46,7 +47,7 @@ namespace PortaleRegione.BAL
         #region ctor
 
         public NotificheLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM, PersoneLogic logicPersone,
-            UtilsLogic logicUtil, FirmeLogic logicFirme, DASILogic logicDASI)
+            UtilsLogic logicUtil, FirmeLogic logicFirme, DASILogic logicDASI, AttiFirmeLogic logicFirmeDASI)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
@@ -54,6 +55,7 @@ namespace PortaleRegione.BAL
             _logicUtil = logicUtil;
             _logicFirme = logicFirme;
             _logicDasi = logicDASI;
+            _logicFirmeDasi = logicFirmeDASI;
         }
 
         #endregion
@@ -80,10 +82,7 @@ namespace PortaleRegione.BAL
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
-                if (!notifiche.Any())
-                {
-                    return new List<NotificaDto>();
-                }
+                if (!notifiche.Any()) return new List<NotificaDto>();
 
                 var result = new List<NotificaDto>();
                 var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM, false);
@@ -128,14 +127,12 @@ namespace PortaleRegione.BAL
                     idGruppo = currentUser.Gruppo.id_gruppo;
 
                 var notifiche = (await _unitOfWork.Notifiche
-                        .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size, queryFilter))
+                        .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size,
+                            queryFilter))
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
-                if (!notifiche.Any())
-                {
-                    return new List<NotificaDto>();
-                }
+                if (!notifiche.Any()) return new List<NotificaDto>();
 
                 var result = new List<NotificaDto>();
                 var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM, false);
@@ -176,17 +173,13 @@ namespace PortaleRegione.BAL
                 {
                     var dto = Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
                     if (destinatario.NOTIFICHE.UIDEM != null)
-                    {
                         dto.Firmato = await _unitOfWork
                             .Firme
                             .CheckFirmato(destinatario.NOTIFICHE.UIDEM.Value, destinatario.UIDPersona);
-                    }
                     else
-                    {
                         dto.Firmato = await _unitOfWork
                             .Atti_Firme
                             .CheckFirmato(destinatario.NOTIFICHE.UIDAtto, destinatario.UIDPersona);
-                    }
 
 
                     result.Add(dto);
@@ -251,7 +244,7 @@ namespace PortaleRegione.BAL
 
                         var n_atto = atto.NAtto;
 
-                        if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO)
                         {
                             results.Add(idGuid,
                                 $"ERROR: Non è possibile creare notifiche per l'atto {n_atto} essendo già stato presentato");
@@ -269,10 +262,9 @@ namespace PortaleRegione.BAL
                         {
                             UIDAtto = atto.UIDAtto,
                             Mittente = currentUser.UID_persona,
-                            RuoloMittente = (int)currentUser.CurrentRole,
+                            RuoloMittente = (int) currentUser.CurrentRole,
                             IDTipo = 1,
                             Messaggio = string.Empty,
-                            //DataScadenza = atto.ATTI.SEDUTE.Scadenza_presentazione,
                             DataCreazione = DateTime.Now,
                             IdGruppo = atto.id_gruppo,
                             SyncGUID = Guid.NewGuid()
@@ -281,28 +273,39 @@ namespace PortaleRegione.BAL
                         var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
                         foreach (var destinatario in listaDestinatari)
                         {
-                            //var existDestinatario =
-                            //    await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(atto.UIDEM,
-                            //        destinatario.UID_persona);
+                            var existDestinatario =
+                                await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotificaDASI(atto.UIDAtto,
+                                    destinatario.UID_persona);
 
-                            //if (!existDestinatario)
-                            //    destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
-                            //    {
-                            //        NOTIFICHE = newNotifica,
-                            //        UIDPersona = destinatario.UID_persona,
-                            //        IdGruppo = atto.id_gruppo,
-                            //        UID = Guid.NewGuid()
-                            //    });
+                            if (!existDestinatario)
+                                destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
+                                {
+                                    NOTIFICHE = newNotifica,
+                                    UIDPersona = destinatario.UID_persona,
+                                    IdGruppo = atto.id_gruppo,
+                                    UID = Guid.NewGuid()
+                                });
                         }
 
                         if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
                         await _unitOfWork.CompleteAsync();
-                        //var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-                        //bodyMail += await _logicEm.GetBodyEM(atto, firme, currentUser, TemplateTypeEnum.HTML);
-                        //bodyMail += $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{atto.UID_QRCode}'>Vedi online</a>";
+                        var attoInDb = await _logicDasi.Get(atto.UIDAtto);
+                        var firme = await _logicFirmeDasi.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+                        bodyMail += await _logicDasi.GetBodyDASI(attoInDb, firme, currentUser, TemplateTypeEnum.HTML);
+                        bodyMail +=
+                            $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{atto.UID_QRCode}'>Vedi online</a>";
                         results.Add(idGuid, $"{n_atto} - OK");
                     }
+
+                    if (!string.IsNullOrEmpty(bodyMail))
+                        await _logicUtil.InvioMail(new MailModel
+                        {
+                            OGGETTO = "Invito a firmare i seguenti atti",
+                            DA = currentUser.email,
+                            A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
+                            MESSAGGIO = bodyMail
+                        });
 
                     #endregion
                 }
@@ -323,7 +326,7 @@ namespace PortaleRegione.BAL
 
                         var n_em = em.N_EM;
 
-                        if (em.IDStato >= (int)StatiEnum.Depositato)
+                        if (em.IDStato >= (int) StatiEnum.Depositato)
                         {
                             results.Add(idGuid,
                                 $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
@@ -342,7 +345,7 @@ namespace PortaleRegione.BAL
                             UIDEM = em.UIDEM,
                             UIDAtto = em.UIDAtto,
                             Mittente = currentUser.UID_persona,
-                            RuoloMittente = (int)currentUser.CurrentRole,
+                            RuoloMittente = (int) currentUser.CurrentRole,
                             IDTipo = 1,
                             Messaggio = string.Empty,
                             DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
@@ -373,21 +376,23 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.CompleteAsync();
                         var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                         bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
-                        bodyMail += $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
+                        bodyMail +=
+                            $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
                         results.Add(idGuid, $"{n_em} - OK");
                     }
+
+                    if (!string.IsNullOrEmpty(bodyMail))
+                        await _logicUtil.InvioMail(new MailModel
+                        {
+                            OGGETTO = "Invito a firmare i seguenti emendamenti",
+                            DA = currentUser.email,
+                            A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
+                            MESSAGGIO = bodyMail
+                        });
 
                     #endregion
                 }
 
-                if (!string.IsNullOrEmpty(bodyMail))
-                    await _logicUtil.InvioMail(new MailModel
-                    {
-                        OGGETTO = "Invito a firmare i seguenti emendamenti",
-                        DA = currentUser.email,
-                        A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
-                        MESSAGGIO = bodyMail
-                    });
 
                 return results;
             }
@@ -402,7 +407,8 @@ namespace PortaleRegione.BAL
 
         #region CountRicevute
 
-        public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio, bool Solo_Non_Viste)
+        public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio,
+            bool Solo_Non_Viste)
         {
             var queryFilter = new Filter<NOTIFICHE>();
             queryFilter.ImportStatements(model.filtro);
@@ -411,7 +417,8 @@ namespace PortaleRegione.BAL
                 || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
                 idGruppo = currentUser.Gruppo.id_gruppo;
 
-            return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, queryFilter);
+            return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste,
+                queryFilter);
         }
 
         #endregion
@@ -475,40 +482,43 @@ namespace PortaleRegione.BAL
                     case TipoDestinatarioNotificaEnum.CONSIGLIERI:
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                        {
                             result = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                        {
                             result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else
                         {
                             var consiglieri_In_Db = (await _logicPersone.GetConsiglieri())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
                             foreach (var consigliere in consiglieri_In_Db)
-                            {
                                 result.Add(consigliere.Key, consigliere.Value);
-                            }
                         }
 
                         break;
                     case TipoDestinatarioNotificaEnum.ASSESSORI:
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                        {
                             result = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                        {
                             result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else
                         {
                             var assessori_In_Db = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                            foreach (var assessori in assessori_In_Db)
-                            {
-                                result.Add(assessori.Key, assessori.Value);
-                            }
+                            foreach (var assessori in assessori_In_Db) result.Add(assessori.Key, assessori.Value);
                         }
 
                         break;
@@ -532,7 +542,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo,
             PersonaDto persona)
         {
@@ -551,20 +561,22 @@ namespace PortaleRegione.BAL
                     case TipoDestinatarioNotificaEnum.CONSIGLIERI:
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                        {
                             result = (await _logicPersone.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                        {
                             result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        }
                         else
                         {
                             var consiglieri_In_Db = (await _logicPersone.GetConsiglieri())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
                             foreach (var consigliere in consiglieri_In_Db)
-                            {
                                 result.Add(consigliere.Key, consigliere.Value);
-                            }
                         }
 
                         break;

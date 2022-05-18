@@ -130,6 +130,10 @@ namespace PortaleRegione.Client.Controllers
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                     _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
 
+                if (atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                    atto.Destinatari =
+                        await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), _Token);
+
                 return View("AttoDASIView", atto);
             }
             catch (Exception e)

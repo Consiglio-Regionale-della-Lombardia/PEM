@@ -45,13 +45,22 @@ namespace PortaleRegione.Persistance
 
         public async Task<bool> ExistDestinatarioNotifica(Guid emendamentoUId, Guid personaUId)
         {
-
             var listaDestinatariEM = await PRContext
                 .NOTIFICHE_DESTINATARI
                 .Where(nd => nd.NOTIFICHE.UIDEM == emendamentoUId && nd.UIDPersona == personaUId)
                 .ToListAsync();
 
             return listaDestinatariEM.Any();
+        }
+
+        public async Task<bool> ExistDestinatarioNotificaDASI(Guid attoUId, Guid personaUId)
+        {
+            var listaDestinatariDASI = await PRContext
+                .NOTIFICHE_DESTINATARI
+                .Where(nd => nd.NOTIFICHE.UIDAtto == attoUId && nd.UIDPersona == personaUId)
+                .ToListAsync();
+
+            return listaDestinatariDASI.Any();
         }
 
         public async Task SetSeen_DestinatarioNotifica(Guid emendamentoUId, Guid personaUId)

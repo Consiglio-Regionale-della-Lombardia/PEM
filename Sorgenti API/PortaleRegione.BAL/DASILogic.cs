@@ -1161,5 +1161,33 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(ATTI_DASI atto)
+        {
+            try
+            {
+                var invitati = await _unitOfWork
+                    .DASI
+                    .GetInvitati(atto.UIDAtto);
+                var destinatari = invitati
+                    .Select(Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>)
+                    .ToList();
+                var result = new List<DestinatariNotificaDto>();
+                foreach (var destinatario in destinatari)
+                {
+                    destinatario.Firmato = await _unitOfWork
+                        .Atti_Firme
+                        .CheckFirmato(atto.UIDAtto, destinatario.UIDPersona);
+                    result.Add(destinatario);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetInvitati", e);
+                throw e;
+            }
+        }
+
     }
 }

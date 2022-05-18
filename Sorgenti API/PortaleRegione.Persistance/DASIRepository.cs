@@ -312,5 +312,48 @@ namespace PortaleRegione.Persistance
                 .Where(item => result.Contains(item.id_carica));
             return await query.ToListAsync();
         }
+
+        /// <summary>
+        ///     Riepilogo inviti
+        /// </summary>
+        /// <param name="attoUId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetInvitati(Guid attoUId)
+        {
+            try
+            {
+                var query = PRContext
+                    .NOTIFICHE
+                    .Where(n => n.UIDAtto == attoUId)
+                    .Join(PRContext.NOTIFICHE_DESTINATARI,
+                        n => n.UIDNotifica,
+                        nd => nd.UIDNotifica,
+                        (n, nd) => nd);
+
+                var result = await query.ToListAsync();
+                if (result.Any())
+                {
+                    var notificaUId = result.First().UIDNotifica;
+                    var notifica = await PRContext
+                        .NOTIFICHE
+                        .SingleAsync(n => n.UIDNotifica == notificaUId);
+                    var new_result = new List<NOTIFICHE_DESTINATARI>();
+                    foreach (var destinatario in result)
+                    {
+                        destinatario.NOTIFICHE = notifica;
+                        new_result.Add(destinatario);
+                    }
+
+                    return new_result;
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 }

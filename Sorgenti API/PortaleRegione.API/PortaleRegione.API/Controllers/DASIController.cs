@@ -639,5 +639,32 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per avere gli invitati di un atto
+        /// </summary>
+        /// <param name="id">Guid</param>
+        /// <returns></returns>
+        [Route("invitati")]
+        public async Task<IHttpActionResult> GetInvitati(Guid id)
+        {
+            try
+            {
+                var atto = await _logic.Get(id);
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _logic.GetInvitati(atto);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetInvitati", e);
+                return ErrorHandler(e);
+            }
+        }
+
     }
 }

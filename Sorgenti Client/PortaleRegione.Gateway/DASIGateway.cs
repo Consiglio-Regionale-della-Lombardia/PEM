@@ -597,5 +597,27 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/invitati?id={emendamentoUId}";
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetInvitati", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetInvitati", ex);
+                throw ex;
+            }
+        }
     }
 }

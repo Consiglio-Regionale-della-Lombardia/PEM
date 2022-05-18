@@ -51,5 +51,6 @@ namespace PortaleRegione.Contracts
         Task RimuoviSoggetti(Guid UidAtto);
         void AggiungiSoggetto(Guid UidAtto, int soggetto);
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogati(Guid uidAtto);
+        Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetInvitati(Guid attoUId);
     }
 }
