@@ -1,5 +1,6 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
+@using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Domain.AttoDASIDto
 
 @{
@@ -64,7 +65,12 @@
                                     <i class="icon material-icons">edit</i> Modifica
                                 </div>
                             }
-                            
+                            @if (Model.Invito_Abilitato)
+                            {
+                                <div class="btn chip hoverable amber center" onclick="NotificaA(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))">
+                                    <i class="icon material-icons">share</i> Invita
+                                </div>
+                            }
                             @if (Model.Eliminabile)
                             {
                                 <div class="btn chip hoverable red center white-text" onclick="ConfirmActionDASI('@Model.UIDAtto', '', @Html.Raw((int) ActionEnum.ELIMINA))">
@@ -178,3 +184,8 @@
         </div>
     </div>
 </div>
+
+@Html.Partial("_InvitoPanel", new InvitoPanelModel
+{
+    UIDAtto = Model.UIDAtto
+})

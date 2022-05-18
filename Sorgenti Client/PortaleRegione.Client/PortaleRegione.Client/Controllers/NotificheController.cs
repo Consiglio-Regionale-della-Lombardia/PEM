@@ -93,5 +93,14 @@ namespace PortaleRegione.Client.Controllers
             var destinatari = await apiGateway.Notifiche.GetListaDestinatari(atto, tipo);
             return Json(destinatari, JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpGet]
+        [Route("destinatari-dasi")]
+        public async Task<ActionResult> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var destinatari = await apiGateway.Notifiche.GetListaDestinatari(tipo);
+            return Json(destinatari, JsonRequestBehavior.AllowGet);
+        }
     }
 }

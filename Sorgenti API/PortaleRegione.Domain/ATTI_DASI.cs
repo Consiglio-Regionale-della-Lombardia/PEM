@@ -39,9 +39,9 @@ namespace PortaleRegione.Domain
         public string Etichetta { get; set; }
 
         public string Oggetto { get; set; }
-        public string Oggetto_Pubblico { get; set; }
+        //public string Oggetto_Pubblico { get; set; }
         public string Premesse { get; set; }
-        public string Premesse_Pubbliche { get; set; }
+        //public string Premesse_Pubbliche { get; set; }
         public string NAtto { get; set; }
         public DateTime DataCreazione { get; set; }
         public Guid UIDPersonaCreazione { get; set; }
@@ -77,7 +77,7 @@ namespace PortaleRegione.Domain
         public DateTime? DataElimina { get; set; }
         public int Legislatura { get; set; }
         public string Richiesta { get; set; }
-        public string Richiesta_Pubblica { get; set; }
+        //public string Richiesta_Pubblica { get; set; }
         public DateTime? DataIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaIscrizioneSeduta { get; set; }
     }

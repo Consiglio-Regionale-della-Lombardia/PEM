@@ -369,6 +369,11 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .CheckIfModificabile(dto,
                         persona);
+
+                dto.Invito_Abilitato = _unitOfWork
+                    .Notifiche
+                    .CheckIfNotificabile(dto,
+                        persona);
                 var soggettiInterrogati = await _unitOfWork.DASI.GetSoggettiInterrogati(dto.UIDAtto);
                 dto.SoggettiInterrogati = soggettiInterrogati
                     .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>).ToList();

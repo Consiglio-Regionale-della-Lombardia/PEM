@@ -81,6 +81,32 @@ namespace PortaleRegione.Persistance
             return true;
         }
 
+        public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
+        {
+            if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) return false;
+            
+            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
+                persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                return true;
+
+            if (persona.Gruppo == null) return false;
+            if (atto.id_gruppo != persona.Gruppo.id_gruppo) return false;
+
+            if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
+                persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+            {
+                if (atto.UIDPersonaProponente.Value != persona.UID_persona) return false;
+
+                var firma = PRContext.ATTI_FIRME.Find(atto.UIDAtto, persona.UID_persona);
+                if (firma == null) return false;
+
+                if (!string.IsNullOrEmpty(firma.Data_ritirofirma)) return false;
+            }
+
+            return true;
+        }
+
         public async Task<int> CountInviate(PersonaDto currentUser, int idGruppo, bool Archivio,
             Filter<NOTIFICHE> filtro = null)
         {

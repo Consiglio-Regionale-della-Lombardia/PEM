@@ -167,7 +167,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("invita")]
-        public async Task<IHttpActionResult> InvitaAFirmareEmendamento(ComandiAzioneModel model)
+        public async Task<IHttpActionResult> InvitaAFirmare(ComandiAzioneModel model)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (invitoDaSegreteria)
                 {
-                    return Ok(await _logic.InvitaAFirmareEmendamento(model, persona));
+                    return Ok(await _logic.InvitaAFirmare(model, persona));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
@@ -201,11 +201,11 @@ namespace PortaleRegione.API.Controllers
                     return BadRequest("Pin inserito non valido");
                 }
 
-                return Ok(await _logic.InvitaAFirmareEmendamento(model, persona));
+                return Ok(await _logic.InvitaAFirmare(model, persona));
             }
             catch (Exception e)
             {
-                Log.Error("InvitaAFirmareEmendamento", e);
+                Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }
@@ -225,6 +225,28 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 return Ok(await _logic.GetListaDestinatari(atto, tipo, persona));
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetListaDestinatari", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere i destinatari da invitare alla firma
+        /// </summary>
+        /// <param name="tipo"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("destinatari-dasi")]
+        public async Task<IHttpActionResult> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                return Ok(await _logic.GetListaDestinatari(tipo, persona));
             }
             catch (Exception e)
             {

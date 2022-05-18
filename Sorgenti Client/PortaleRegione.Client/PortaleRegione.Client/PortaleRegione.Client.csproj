@@ -420,6 +420,7 @@
     <Content Include="Views\DASI\DASIForm.cshtml" />
     <Content Include="Views\DASI\_GridView_RiepilogoDASI_Admin.cshtml" />
     <Content Include="Views\DASI\_Command_RiepilogoDASI.cshtml" />
+    <Content Include="Views\DASI\_InvitoPanel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

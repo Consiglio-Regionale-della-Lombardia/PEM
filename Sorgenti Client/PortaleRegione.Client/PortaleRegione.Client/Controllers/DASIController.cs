@@ -214,8 +214,7 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
                     throw new NotImplementedException("Azione non funzionante");
-
-                //TODO: INVITO MASSIVO
+                
                 switch (model.Azione)
                 {
                     case ActionEnum.FIRMA:
@@ -253,6 +252,28 @@ namespace PortaleRegione.Client.Controllers
                             {
                                 message =
                                     "Nessuna presentazione effettuata"
+                            }, JsonRequestBehavior.AllowGet);
+
+                    case ActionEnum.INVITA:
+                        var resultInvita = await apiGateway.Notifiche.NotificaDASI(model);
+                        var listaErroriInvita = new List<string>();
+                        foreach (var itemInvito in resultInvita)
+                            listaErroriInvita.Add(
+                                $"{itemInvito.Value}");
+                        if (listaErroriInvita.Count > 0)
+                            return Json(
+                                new
+                                {
+                                    message =
+                                        $"{listaErroriInvita.Aggregate((i, j) => i + ", " + j)}"
+                                }, JsonRequestBehavior.AllowGet);
+
+
+                        return Json(
+                            new
+                            {
+                                message =
+                                    "Nessuna invito effettuato"
                             }, JsonRequestBehavior.AllowGet);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(model.Azione), model.Azione, null);

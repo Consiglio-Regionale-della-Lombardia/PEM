@@ -1,10 +1,10 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.InvitoPanelModel
 
-<div id="modalEmendamentiNotificaA" class="modal modal-fixed-footer">
+<div id="modalDASINotificaA" class="modal modal-fixed-footer">
     <div class="modal-content">
-        <h5 id="emProponenteDisplayName"></h5>
-        @using (Html.BeginForm("EseguiAzione", "Emendamenti", FormMethod.Post, new { id = "formNotificaA" }))
+        <h5 id="attoProponenteDisplayName"></h5>
+        @using (Html.BeginForm("EseguiAzione", "DASI", FormMethod.Post, new { id = "formNotificaA" }))
         {
             @Html.AntiForgeryToken()
 
@@ -23,22 +23,14 @@
             <div class="row">
                 <div class="col s12">
                     <label class="black-text" style="margin-left: 20px">
-                        <input name="rdDestinatari" type="radio" checked value="@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))"/>
+                        <input name="rdDestinatari" type="radio" checked value="@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))" onclick="LoadDestinatari(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))"/>
                         <span>Consiglieri</span>
-                    </label>
-                    <label class="black-text" style="margin-left: 20px">
-                        <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.ASSESSORI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.ASSESSORI))"/>
-                        <span>Assessori</span>
                     </label>
                     @if (!isSegreteria)
                     {
                         <label class="black-text" style="margin-left: 20px">
-                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.GRUPPI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.GRUPPI))"/>
+                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.GRUPPI))" onclick="LoadDestinatari(@((int) TipoDestinatarioNotificaEnum.GRUPPI))"/>
                             <span>Gruppi</span>
-                        </label>
-                        <label class="black-text" style="margin-left: 20px">
-                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.RELATORI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.RELATORI))"/>
-                            <span>Relatori</span>
                         </label>
                     }
                 </div>
@@ -59,8 +51,8 @@
 <script>
     var chipInstanceNotificaA = null;
 
-    async function LoadDestinatari(attoUId, tipo) {
-        var personeInDB = await GetPersonePerInviti(attoUId, tipo);
+    async function LoadDestinatari(tipo) {
+        var personeInDB = await GetPersonePerInviti(tipo);
 
         var persone = [];
         for (let [key, value] of Object.entries(personeInDB)) {
@@ -71,10 +63,6 @@
         }
 
         var data_preload = [];
-        if (@((int) TipoDestinatarioNotificaEnum.RELATORI) == tipo) {
-            data_preload = persone;
-        }
-
         var elems = document.querySelector("#autocompleteInvitati");
 
         var autocompleteDataOptions = {
@@ -94,21 +82,16 @@
 
     async function NotificaA(attoUId, tipo) {
 
-        var documentiTotali = $("#hdTotaleDocumenti").val();
-        var selezionaTutti = getSelezionaTutti();
-        var listaEM = getListaEmendamenti();
-        var totaleDoc = selezionaTutti ? documentiTotali - listaEM.length : listaEM.length;
-
         waiting(true);
         await LoadDestinatari(attoUId, tipo);
-        $("#modalEmendamentiNotificaA").modal("open");
+        $("#modalDASINotificaA").modal("open");
         waiting(false);
 
         $("#btnConfermaNotificaA").on("click",
             function() {
                 setTimeout(function() {
                         $('body').removeClass('loaded');
-                        $("#modalEmendamentiNotificaA").modal("close");
+                        $("#modalDASINotificaA").modal("close");
                     },
                     200);
                 $("#formNotificaA").submit();
@@ -118,11 +101,13 @@
     $("#formNotificaA").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function(form) {
-            var listaEM = getListaEmendamenti();
-            if ('@Model.UIDEM' != '@Guid.Empty') {
-                listaEM.push('@Model.UIDEM');
+        submitHandler: function (form) {
+
+            var listaAtti = getListaAtti();
+            if ('@Model.UIDAtto' != '@Guid.Empty') {
+                listaAtti.push('@Model.UIDAtto');
             }
+
             var destinatari = chipInstanceNotificaA.getData();
             if (destinatari.length == 0) {
                 ErrorAlert("Seleziona almeno un destinatario");
@@ -137,12 +122,11 @@
             var obj = {};
             obj.Pin = $('#txtPinNotificheInviti').val();
             obj.Azione = @((int)ActionEnum.INVITA);
-            obj.AttoUId = '@Model.UIDAtto';
-            obj.Lista = listaEM.length > 0 ? listaEM : [];
+            obj.Lista = listaAtti.length > 0 ? listaAtti : [];
             obj.ListaDestinatari = listaDestinatari;
 
             $.ajax({
-                url: baseUrl + "/emendamenti/azioni-massive",
+                url: baseUrl + "/dasi/azioni-massive",
                 type: "POST",
                 data: JSON.stringify(obj),
                 contentType: "application/json; charset=utf-8",

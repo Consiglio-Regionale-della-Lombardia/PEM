@@ -39,6 +39,7 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetDestinatariNotifica(long notificaId);
 
         bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona);
+        bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona);
         Task<IEnumerable<NOTIFICHE>> GetNotificheRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, bool Solo_Non_Viste, int pageIndex, int pageSize, Filter<NOTIFICHE> filtro = null);
     }
 }

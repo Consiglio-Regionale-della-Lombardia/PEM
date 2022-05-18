@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PortaleRegione.API.Controllers;
 
 namespace PortaleRegione.BAL
 {
@@ -37,6 +38,7 @@ namespace PortaleRegione.BAL
     {
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
+        private readonly DASILogic _logicDasi;
         private readonly PersoneLogic _logicPersone;
         private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
@@ -44,13 +46,14 @@ namespace PortaleRegione.BAL
         #region ctor
 
         public NotificheLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM, PersoneLogic logicPersone,
-            UtilsLogic logicUtil, FirmeLogic logicFirme)
+            UtilsLogic logicUtil, FirmeLogic logicFirme, DASILogic logicDASI)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
             _logicPersone = logicPersone;
             _logicUtil = logicUtil;
             _logicFirme = logicFirme;
+            _logicDasi = logicDASI;
         }
 
         #endregion
@@ -172,9 +175,20 @@ namespace PortaleRegione.BAL
                 foreach (var destinatario in destinatari)
                 {
                     var dto = Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
-                    dto.Firmato = await _unitOfWork
-                        .Firme
-                        .CheckFirmato(destinatario.NOTIFICHE.UIDEM, destinatario.UIDPersona);
+                    if (destinatario.NOTIFICHE.UIDEM != null)
+                    {
+                        dto.Firmato = await _unitOfWork
+                            .Firme
+                            .CheckFirmato(destinatario.NOTIFICHE.UIDEM.Value, destinatario.UIDPersona);
+                    }
+                    else
+                    {
+                        dto.Firmato = await _unitOfWork
+                            .Atti_Firme
+                            .CheckFirmato(destinatario.NOTIFICHE.UIDAtto, destinatario.UIDPersona);
+                    }
+
+
                     result.Add(dto);
                 }
 
@@ -189,9 +203,9 @@ namespace PortaleRegione.BAL
 
         #endregion
 
-        #region InvitaAFirmareEmendamento
+        #region InvitaAFirmare
 
-        public async Task<Dictionary<Guid, string>> InvitaAFirmareEmendamento(ComandiAzioneModel model,
+        public async Task<Dictionary<Guid, string>> InvitaAFirmare(ComandiAzioneModel model,
             PersonaDto currentUser)
         {
             try
@@ -219,73 +233,151 @@ namespace PortaleRegione.BAL
                 }
 
                 var bodyMail = string.Empty;
-                var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First(), false);
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                foreach (var idGuid in model.Lista)
+
+                if (model.IsDASI)
                 {
-                    var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser, personeInDbLight);
-                    if (em == null)
+                    #region DASI
+
+                    foreach (var idGuid in model.Lista)
                     {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
-                        continue;
+                        var atto = await _logicDasi.GetAttoDto(idGuid, currentUser, personeInDbLight);
+                        if (atto == null)
+                        {
+                            results.Add(idGuid, "ERROR: NON TROVATO");
+                            continue;
+                        }
+
+                        var n_atto = atto.NAtto;
+
+                        if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        {
+                            results.Add(idGuid,
+                                $"ERROR: Non è possibile creare notifiche per l'atto {n_atto} essendo già stato presentato");
+                            continue;
+                        }
+
+                        var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
+                        if (check == false)
+                        {
+                            results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per l'atto {n_atto}");
+                            continue;
+                        }
+
+                        var newNotifica = new NOTIFICHE
+                        {
+                            UIDAtto = atto.UIDAtto,
+                            Mittente = currentUser.UID_persona,
+                            RuoloMittente = (int)currentUser.CurrentRole,
+                            IDTipo = 1,
+                            Messaggio = string.Empty,
+                            //DataScadenza = atto.ATTI.SEDUTE.Scadenza_presentazione,
+                            DataCreazione = DateTime.Now,
+                            IdGruppo = atto.id_gruppo,
+                            SyncGUID = Guid.NewGuid()
+                        };
+
+                        var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
+                        foreach (var destinatario in listaDestinatari)
+                        {
+                            //var existDestinatario =
+                            //    await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(atto.UIDEM,
+                            //        destinatario.UID_persona);
+
+                            //if (!existDestinatario)
+                            //    destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
+                            //    {
+                            //        NOTIFICHE = newNotifica,
+                            //        UIDPersona = destinatario.UID_persona,
+                            //        IdGruppo = atto.id_gruppo,
+                            //        UID = Guid.NewGuid()
+                            //    });
+                        }
+
+                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+                        //var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+                        //bodyMail += await _logicEm.GetBodyEM(atto, firme, currentUser, TemplateTypeEnum.HTML);
+                        //bodyMail += $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{atto.UID_QRCode}'>Vedi online</a>";
+                        results.Add(idGuid, $"{n_atto} - OK");
                     }
 
-                    var n_em = em.N_EM;
+                    #endregion
+                }
+                else
+                {
+                    #region EMENDAMENTI
 
-                    if (em.IDStato >= (int)StatiEnum.Depositato)
+                    var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First(), false);
+                    var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                    foreach (var idGuid in model.Lista)
                     {
-                        results.Add(idGuid,
-                            $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
-                        continue;
+                        var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser, personeInDbLight);
+                        if (em == null)
+                        {
+                            results.Add(idGuid, "ERROR: NON TROVATO");
+                            continue;
+                        }
+
+                        var n_em = em.N_EM;
+
+                        if (em.IDStato >= (int)StatiEnum.Depositato)
+                        {
+                            results.Add(idGuid,
+                                $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
+                            continue;
+                        }
+
+                        var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
+                        if (check == false)
+                        {
+                            results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
+                            continue;
+                        }
+
+                        var newNotifica = new NOTIFICHE
+                        {
+                            UIDEM = em.UIDEM,
+                            UIDAtto = em.UIDAtto,
+                            Mittente = currentUser.UID_persona,
+                            RuoloMittente = (int)currentUser.CurrentRole,
+                            IDTipo = 1,
+                            Messaggio = string.Empty,
+                            DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
+                            DataCreazione = DateTime.Now,
+                            IdGruppo = em.id_gruppo,
+                            SyncGUID = Guid.NewGuid()
+                        };
+
+                        var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
+                        foreach (var destinatario in listaDestinatari)
+                        {
+                            var existDestinatario =
+                                await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(em.UIDEM,
+                                    destinatario.UID_persona);
+
+                            if (!existDestinatario)
+                                destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
+                                {
+                                    NOTIFICHE = newNotifica,
+                                    UIDPersona = destinatario.UID_persona,
+                                    IdGruppo = em.id_gruppo,
+                                    UID = Guid.NewGuid()
+                                });
+                        }
+
+                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                        bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
+                        bodyMail += $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
+                        results.Add(idGuid, $"{n_em} - OK");
                     }
 
-                    var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
-                    if (check == false)
-                    {
-                        results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
-                        continue;
-                    }
-
-                    var newNotifica = new NOTIFICHE
-                    {
-                        UIDEM = em.UIDEM,
-                        UIDAtto = em.UIDAtto,
-                        Mittente = currentUser.UID_persona,
-                        RuoloMittente = (int)currentUser.CurrentRole,
-                        IDTipo = 1,
-                        Messaggio = string.Empty,
-                        DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
-                        DataCreazione = DateTime.Now,
-                        IdGruppo = em.id_gruppo,
-                        SyncGUID = Guid.NewGuid()
-                    };
-
-                    var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
-                    foreach (var destinatario in listaDestinatari)
-                    {
-                        var existDestinatario =
-                            await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(em.UIDEM,
-                                destinatario.UID_persona);
-
-                        if (!existDestinatario)
-                            destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
-                            {
-                                NOTIFICHE = newNotifica,
-                                UIDPersona = destinatario.UID_persona,
-                                IdGruppo = em.id_gruppo,
-                                UID = Guid.NewGuid()
-                            });
-                    }
-
-                    if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
-
-                    await _unitOfWork.CompleteAsync();
-                    var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                    bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
-                    bodyMail += $"<br/> <a href='{$"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}"}'>Vedi online</a>";
-                    results.Add(idGuid, $"{n_em} - OK");
+                    #endregion
                 }
 
                 if (!string.IsNullOrEmpty(bodyMail))
@@ -301,7 +393,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InvitaAFirmareEmendamento", e);
+                Log.Error("Logic - InvitaAFirmare", e);
                 throw e;
             }
         }
@@ -427,6 +519,58 @@ namespace PortaleRegione.BAL
                     case TipoDestinatarioNotificaEnum.RELATORI:
                         result = (await _logicPersone.GetRelatori(atto))
                             .ToDictionary(k => k.UID_persona.ToString(), z => z.DisplayName);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetListaDestinatari", e);
+                throw;
+            }
+        }
+        
+        public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo,
+            PersonaDto persona)
+        {
+            try
+            {
+                var result = new Dictionary<string, string>();
+
+                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM) tipo = TipoDestinatarioNotificaEnum.TUTTI;
+
+                switch (tipo)
+                {
+                    case TipoDestinatarioNotificaEnum.TUTTI:
+                        result = (await _logicPersone.GetProponenti())
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        break;
+                    case TipoDestinatarioNotificaEnum.CONSIGLIERI:
+                        if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                            persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                            result = (await _logicPersone.GetAssessoriRiferimento())
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                                 persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                            result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        else
+                        {
+                            var consiglieri_In_Db = (await _logicPersone.GetConsiglieri())
+                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
+                            foreach (var consigliere in consiglieri_In_Db)
+                            {
+                                result.Add(consigliere.Key, consigliere.Value);
+                            }
+                        }
+
+                        break;
+                    case TipoDestinatarioNotificaEnum.GRUPPI:
+                        result = (await _logicPersone.GetGruppiAttivi())
+                            .ToDictionary(k => k.id.ToString(), z => z.descr);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);

@@ -30,5 +30,6 @@ namespace PortaleRegione.DTO.Model
         public ActionEnum Azione { get; set; }
         public Guid AttoUId { get; set; }
         public bool Richiesta_Firma { get; set; }
+        public bool IsDASI { get; set; } = false;
     }
 }

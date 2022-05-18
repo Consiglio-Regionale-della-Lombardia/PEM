@@ -30,7 +30,7 @@ namespace PortaleRegione.Domain
 
         public DateTime DataCreazione { get; set; }
 
-        public Guid UIDEM { get; set; }
+        public Guid? UIDEM { get; set; }
 
         public Guid UIDAtto { get; set; }
 

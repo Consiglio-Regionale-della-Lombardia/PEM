@@ -872,6 +872,20 @@ function GetPersonePerInviti(attoUId, tipo) {
     });
 }
 
+function GetPersonePerInviti(tipo) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/notifiche/destinatari-dasi?tipo=" + tipo,
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 //SEGRETERIA
 function Ordina_EMTrattazione(attoUId) {
     $.ajax({

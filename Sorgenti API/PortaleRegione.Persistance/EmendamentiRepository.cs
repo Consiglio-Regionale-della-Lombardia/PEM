@@ -201,13 +201,14 @@ namespace PortaleRegione.Persistance
 
                 foreach (var emUid in my_em_notifiche.Select(n => n.NOTIFICHE.UIDEM))
                 {
+                    if (emUid == null) continue;
                     var check_firmato = await PRContext.FIRME.AnyAsync(f =>
                         f.UIDEM == emUid
                         && f.UID_persona == persona.UID_persona
                         && string.IsNullOrEmpty(f.Data_ritirofirma));
                     if (!check_firmato)
                     {
-                        emendamenti_da_firmare.Add(emUid);
+                        emendamenti_da_firmare.Add(emUid.Value);
                     }
                 }
             }

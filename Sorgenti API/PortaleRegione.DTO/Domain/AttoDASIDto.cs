@@ -100,5 +100,6 @@ namespace PortaleRegione.DTO.Domain
         public SeduteDto Seduta { get; set; }
 
         public DateTime? DataIscrizioneSeduta { get; set; }
+        public bool Invito_Abilitato { get; set; } = false;
     }
 }
