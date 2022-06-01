@@ -17,11 +17,14 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
@@ -80,6 +83,40 @@ namespace PortaleRegione.Client.Controllers
                         catch (Exception)
                         {
                         }
+
+            var apiGateway = new ApiGateway(_Token);
+            await apiGateway.Stampe.InserisciStampa(model);
+            return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [Route("nuova-dasi")]
+        public async Task<ActionResult> NuovaStampaDasi(BaseRequest<AttoDASIDto, StampaDto> model)
+        {
+            object DA;
+            model.param.TryGetValue("Da", out DA);
+            object A;
+            model.param.TryGetValue("A", out A);
+
+            model.entity = new StampaDto
+            {
+                Da = Convert.ToInt16(DA),
+                A = Convert.ToInt16(A)
+            };
+
+            if (model.filtro == null)
+            {
+                model.filtro = new List<FilterStatement<AttoDASIDto>>();
+            }
+
+            if (Session["RiepilogoDASI"] is RiepilogoDASIModel old_model)
+                try
+                {
+                    model.filtro.AddRange(old_model.Data.Filters);
+                }
+                catch (Exception)
+                {
+                }
 
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Stampe.InserisciStampa(model);

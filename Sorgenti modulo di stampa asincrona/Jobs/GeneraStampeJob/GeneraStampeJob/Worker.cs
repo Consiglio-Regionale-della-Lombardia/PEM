@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using PortaleRegione.Common;
+using ByQueryModel = PortaleRegione.DTO.Model.ByQueryModel;
 
 namespace GeneraStampeJob
 {
@@ -130,7 +132,17 @@ namespace GeneraStampeJob
                 {
                     lista = lista.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
                 }
-                
+
+                var bodyCopertina = await apiGateway.DASI.GetCopertina(new ByQueryModel
+                {
+                    Query = _stampa.Query
+                });
+
+                var nameFilePDFCopertina = $"COPERTINA_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                var DirCopertina = Path.Combine(path, nameFilePDFCopertina);
+                PdfStamper.CreaPDFCopertina(bodyCopertina, DirCopertina);
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
+
                 var attiGenerati = await GeneraPDFAtti(lista, path);
 
                 var countNonGenerati = attiGenerati.Count(item => !File.Exists(item.Value.Path));
@@ -221,63 +233,17 @@ namespace GeneraStampeJob
             var dasiDto = listaAtti.First();
             var legislatura = await apiGateway.Legislature.GetLegislatura(dasiDto.Legislatura);
             //Legislatura/Tipo
-            var dirSeduta = $"Seduta_{dasiDto.Seduta.Data_seduta:yyyyMMdd}";
-            var pathRepository = $"{_model.RootRepository}/{dirSeduta}";
+            var dir = $"{legislatura.num_legislatura}/{Utility.GetText_TipoDASI(dasiDto.Tipo)}";
+            var pathRepository = $"{_model.RootRepository}/{dir}";
 
             if (!Directory.Exists(pathRepository))
                 Directory.CreateDirectory(pathRepository);
 
             var destinazioneDeposito = Path.Combine(pathRepository, Path.GetFileName(pdfAtti.First().Value.Path));
             SpostaFascicolo(pdfAtti.First().Value.Path, destinazioneDeposito);
-            _stampa.PathFile = Path.Combine($"{dirSeduta}", Path.GetFileName(pdfAtti.First().Value.Path));
+            _stampa.PathFile = Path.Combine($"{dir}", Path.GetFileName(pdfAtti.First().Value.Path));
             _stampa.UIDAtto = dasiDto.UIDAtto;
             await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
-            
-            var email_destinatari = $"{persona.email};pem@consiglio.regione.lombardia.it";
-            var email_destinatariGruppo = string.Empty;
-            var email_destinatariGiunta = string.Empty;
-            
-                Log.Debug(
-                    $"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Capo Gruppo e Segreteria Politica");
-                var capoGruppo = await apiGateway.Persone.GetCapoGruppo(dasiDto.id_gruppo);
-                var segreteriaPolitica = await apiGateway.Persone
-                    .GetSegreteriaPolitica(dasiDto.id_gruppo, false, true);
-
-                if (segreteriaPolitica.Any())
-                    email_destinatariGruppo = segreteriaPolitica.Select(u => u.email)
-                        .Aggregate((i, j) => $"{i};{j}");
-                if (capoGruppo != null)
-                    email_destinatariGruppo += $";{capoGruppo.email}";
-
-            if (!string.IsNullOrEmpty(email_destinatariGruppo))
-                email_destinatari += ";" + email_destinatariGruppo;
-            if (!string.IsNullOrEmpty(email_destinatariGiunta))
-                email_destinatari += ";" + email_destinatariGiunta;
-
-            var body = await apiGateway.DASI.GetBody(dasiDto.UIDAtto, TemplateTypeEnum.PDF);
-
-            try
-            {
-                var resultInvio = await BaseGateway.SendMail(new MailModel
-                {
-                    DA = _model.EmailFrom,
-                    A = email_destinatari,
-                    OGGETTO =
-                            $"{PortaleRegione.Common.Utility.GetText_TipoDASI(dasiDto.Tipo)} {dasiDto.NAtto}: Presentato alla seduta del {dasiDto.Seduta.Data_seduta.Value:dd/MM/yyyy}",
-                    MESSAGGIO = body,
-                    pathAttachment = destinazioneDeposito,
-                    IsDeposito = true
-                },
-                    _auth.jwt);
-
-                if (resultInvio)
-                    await apiGateway.Stampe.JobSetInvioStampa(_stampa);
-            }
-            catch (Exception e)
-            {
-                Log.Debug($"[{_stampa.UIDStampa}] Invio mail presentazione", e);
-                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail presentazione ERRORE. Motivo: {e.Message}");
-            }
         }
 
         private async Task<List<AttoDASIDto>> GetListaAtti()

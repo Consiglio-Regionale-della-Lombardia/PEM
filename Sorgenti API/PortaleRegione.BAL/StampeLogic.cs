@@ -99,6 +99,46 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
+        
+        public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
+        {
+            try
+            {
+                var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+
+                var queryFilter = new Filter<ATTI_DASI>();
+                queryFilter.ImportStatements(model.filtro);
+
+                var query =
+                    _unitOfWork.DASI.GetAll_Query(queryFilter);
+                stampa.Query = query;
+
+                stampa.DataRichiesta = DateTime.Now;
+                stampa.CurrentRole = (int)persona.CurrentRole;
+                stampa.UIDStampa = Guid.NewGuid();
+                stampa.UIDUtenteRichiesta = persona.UID_persona;
+                stampa.Lock = false;
+                stampa.Tentativi = 0;
+                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+                {
+                    stampa.Scadenza = null;
+                }
+                else
+                {
+                    stampa.Scadenza =
+                        DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+                }
+
+                stampa.DASI = true;
+                _unitOfWork.Stampe.Add(stampa);
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - InserisciStampa", e);
+                throw;
+            }
+        }
 
         public async Task LockStampa(IEnumerable<StampaDto> listaStampe)
         {

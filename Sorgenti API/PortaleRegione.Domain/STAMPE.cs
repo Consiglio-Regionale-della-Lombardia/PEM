@@ -68,7 +68,7 @@ namespace PortaleRegione.Domain
 
         public bool Notifica { get; set; }
 
-        public bool DASI { get; set; }
+        public bool DASI { get; set; } = false;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ATTI ATTI { get; set; }

@@ -49,6 +49,8 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser);
             SetCache(page, size, (TipoAttoEnum) tipo, (StatiAttoEnum) stato);
+            Session["RiepilogoDASI"] = model;
+
             if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("RiepilogoDASI_Admin", model);
 

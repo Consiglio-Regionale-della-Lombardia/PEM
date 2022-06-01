@@ -116,6 +116,29 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per accodare una stampa DASI
+        /// </summary>
+        /// <param name="model">Modello specifico per richiesta stampa</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("dasi")]
+        public async Task<IHttpActionResult> InserisciStampaDifferitaDASI(BaseRequest<AttoDASIDto, StampaDto> model)
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                await _logic.InserisciStampa(model, persona);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("InserisciStampaDifferita DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per scaricare il file generato

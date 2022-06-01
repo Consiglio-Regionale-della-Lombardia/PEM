@@ -21,6 +21,6 @@ namespace PortaleRegione.DTO.Model
     public class ByQueryModel
     {
         public string Query { get; set; }
-        public int page { get; set; }
+        public int page { get; set; } = 1;
     }
 }

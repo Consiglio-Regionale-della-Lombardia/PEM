@@ -619,5 +619,34 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public async Task<string> GetCopertina(ByQueryModel model)
+        {
+            var result = string.Empty;
+            var body = string.Empty;
+
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/template/copertina";
+                body = JsonConvert.SerializeObject(model);
+
+                result = await Post(requestUrl, body, _token);
+                var lst = JsonConvert.DeserializeObject<string>(result);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetCopertina", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"DASI - GetCopertina PARAMS: [{body}]");
+                Log.Error($"DASI - GetCopertina RESULT: [{result}]");
+                Log.Error("DASI - GetCopertina", ex);
+                throw ex;
+            }
+
+        }
     }
 }

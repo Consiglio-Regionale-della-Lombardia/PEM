@@ -19,11 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.BAL;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -39,11 +41,12 @@ namespace PortaleRegione.API.Controllers
     public class DASILogic : BaseLogic
     {
         private readonly AttiFirmeLogic _logicFirme;
-        private readonly SeduteLogic _logicSedute;
         private readonly PersoneLogic _logicPersona;
+        private readonly SeduteLogic _logicSedute;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme, SeduteLogic logicSedute)
+        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme,
+            SeduteLogic logicSedute)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
@@ -217,14 +220,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                model.param.TryGetValue("CLIENT_MODE", out object CLIENT_MODE); // per trattazione aula
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
                 var filtro_seduta =
                     model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
                 var sedutaId = Guid.Empty;
-                if (filtro_seduta != null)
-                {
-                    sedutaId = new Guid(filtro_seduta.Value.ToString());
-                }
+                if (filtro_seduta != null) sedutaId = new Guid(filtro_seduta.Value.ToString());
 
                 var queryFilter = new Filter<ATTI_DASI>();
                 queryFilter.ImportStatements(model.filtro);
@@ -307,9 +307,7 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
-                {
                     dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
-                }
 
                 if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                         persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
@@ -340,40 +338,43 @@ namespace PortaleRegione.API.Controllers
                 dto.gruppi_politici =
                     Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                         await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+                if (persona != null)
+                {
+                    if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                        dto.Presentabile = await _unitOfWork
+                            .DASI
+                            .CheckIfPresentabile(dto,
+                                persona);
 
-                if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                    dto.Presentabile = await _unitOfWork
+                    if (dto.IDStato <= (int) StatiAttoEnum.PRESENTATO)
+                        dto.Firmabile = await _unitOfWork
+                            .Atti_Firme
+                            .CheckIfFirmabile(dto,
+                                persona);
+
+                    if (!dto.DataRitiro.HasValue && dto.IDStato == (int) StatiAttoEnum.PRESENTATO)
+                        dto.Ritirabile = _unitOfWork
+                            .DASI
+                            .CheckIfRitirabile(dto,
+                                persona);
+
+                    if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                        dto.Eliminabile = _unitOfWork
+                            .DASI
+                            .CheckIfEliminabile(dto,
+                                persona);
+
+                    dto.Modificabile = _unitOfWork
                         .DASI
-                        .CheckIfPresentabile(dto,
+                        .CheckIfModificabile(dto,
                             persona);
 
-                if (dto.IDStato <= (int) StatiAttoEnum.PRESENTATO)
-                    dto.Firmabile = await _unitOfWork
-                        .Atti_Firme
-                        .CheckIfFirmabile(dto,
+                    dto.Invito_Abilitato = _unitOfWork
+                        .Notifiche
+                        .CheckIfNotificabile(dto,
                             persona);
+                }
 
-                if (!dto.DataRitiro.HasValue && dto.IDStato == (int) StatiAttoEnum.PRESENTATO)
-                    dto.Ritirabile = _unitOfWork
-                        .DASI
-                        .CheckIfRitirabile(dto,
-                            persona);
-
-                if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                    dto.Eliminabile = _unitOfWork
-                        .DASI
-                        .CheckIfEliminabile(dto,
-                            persona);
-
-                dto.Modificabile = _unitOfWork
-                    .DASI
-                    .CheckIfModificabile(dto,
-                        persona);
-
-                dto.Invito_Abilitato = _unitOfWork
-                    .Notifiche
-                    .CheckIfNotificabile(dto,
-                        persona);
                 var soggettiInterrogati = await _unitOfWork.DASI.GetSoggettiInterrogati(dto.UIDAtto);
                 dto.SoggettiInterrogati = soggettiInterrogati
                     .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>).ToList();
@@ -398,9 +399,9 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
-           Guid sedutaId, object _clientMode)
+            Guid sedutaId, object _clientMode)
         {
-            var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
+            var clientMode = (ClientModeEnum) Convert.ToInt16(_clientMode);
 
             var result = new CountBarData
             {
@@ -786,8 +787,21 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
 
                     results.Add(idGuid, $"{attoDto.NAtto} - OK");
-                    
+
                     _unitOfWork.DASI.IncrementaContatore(contatore);
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = atto.UIDPersonaPresentazione.Value,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = atto.UIDAtto,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        DASI = true
+                    });
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
                 }
@@ -1008,7 +1022,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model,
-    PersonaDto personaDto)
+            PersonaDto personaDto)
         {
             try
             {
@@ -1026,7 +1040,7 @@ namespace PortaleRegione.API.Controllers
                     attiInDb.RemoveAll(guid => model.Lista.Contains(guid));
                     model.Lista = attiInDb;
                 }
-                
+
                 foreach (var idGuid in model.Lista)
                 {
                     var atto = await Get(idGuid);
@@ -1039,7 +1053,7 @@ namespace PortaleRegione.API.Controllers
                     if (string.IsNullOrEmpty(atto.DataPresentazione))
                         continue;
 
-                    atto.IDStato = (int)model.Stato;
+                    atto.IDStato = (int) model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
                 }
@@ -1052,36 +1066,19 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
         }
-        
+
         public async Task IscrizioneSeduta(IscriviSedutaDASIModel model,
-    PersonaDto personaDto)
+            PersonaDto personaDto)
         {
             try
             {
                 var atto = await Get(model.UidAtto);
-                if (atto == null)
-                {
-                    throw new Exception("ERROR: NON TROVATO");
-                }
+                if (atto == null) throw new Exception("ERROR: NON TROVATO");
 
                 atto.UIDSeduta = model.UidSeduta;
                 atto.DataIscrizioneSeduta = DateTime.Now;
                 atto.UIDPersonaIscrizioneSeduta = personaDto.UID_persona;
                 await _unitOfWork.CompleteAsync();
-
-                _unitOfWork.Stampe.Add(new STAMPE
-                {
-                    UIDStampa = Guid.NewGuid(),
-                    UIDUtenteRichiesta = atto.UIDPersonaPresentazione.Value,
-                    DataRichiesta = DateTime.Now,
-                    UIDAtto = atto.UIDAtto,
-                    Da = 1,
-                    A = 1,
-                    Ordine = 1,
-                    Notifica = true,
-                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
-                    DASI = true
-                });
             }
             catch (Exception e)
             {
@@ -1095,10 +1092,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var atto = await Get(model.UidAtto);
-                if (atto == null)
-                {
-                    throw new Exception("ERROR: NON TROVATO");
-                }
+                if (atto == null) throw new Exception("ERROR: NON TROVATO");
 
                 atto.UIDSeduta = null;
                 atto.DataIscrizioneSeduta = null;
@@ -1112,7 +1106,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<List<Guid>> ScaricaAtti_UID(StatiAttoEnum stato, TipoAttoEnum tipo,PersonaDto persona)
+        public async Task<List<Guid>> ScaricaAtti_UID(StatiAttoEnum stato, TipoAttoEnum tipo, PersonaDto persona)
         {
             var result = new List<Guid>();
             var filtro = new List<FilterStatement<AttoDASIDto>>();
@@ -1120,7 +1114,7 @@ namespace PortaleRegione.API.Controllers
             {
                 PropertyId = nameof(AttoDASIDto.IDStato),
                 Operation = Operation.EqualTo,
-                Value = (int)stato,
+                Value = (int) stato,
                 Connector = FilterStatementConnector.And
             };
             filtro.Add(filtroStato);
@@ -1130,7 +1124,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     PropertyId = nameof(AttoDASIDto.Tipo),
                     Operation = Operation.EqualTo,
-                    Value = (int)tipo
+                    Value = (int) tipo
                 };
                 filtro.Add(filtroTipo);
             }
@@ -1153,16 +1147,17 @@ namespace PortaleRegione.API.Controllers
             return result;
         }
 
-        public async Task<List<Guid>> GetDASI_UID_RawChunk(BaseRequest<AttoDASIDto> model, Filter<ATTI_DASI> filtro, PersonaDto persona)
+        public async Task<List<Guid>> GetDASI_UID_RawChunk(BaseRequest<AttoDASIDto> model, Filter<ATTI_DASI> filtro,
+            PersonaDto persona)
         {
             try
             {
                 var em_in_db = await _unitOfWork
                     .DASI
                     .GetAll(persona
-                    , model.page
-                    ,model.size
-                    , filtro);
+                        , model.page
+                        , model.size
+                        , filtro);
                 return em_in_db;
             }
             catch (Exception e)
@@ -1200,5 +1195,92 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task<int> CountByQuery(string query)
+        {
+            try
+            {
+                return await _unitOfWork.DASI.CountByQuery(query);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Count DASI By Query", e);
+                throw e;
+            }
+        }
+
+        public async Task<IEnumerable<AttoDASIDto>> GetByQuery(ByQueryModel model)
+        {
+            try
+            {
+                var atti = _unitOfWork
+                    .DASI
+                    .GetByQuery(model);
+                var result = new List<AttoDASIDto>();
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                foreach (var idAtto in atti)
+                {
+                    var dto = await GetAttoDto(idAtto, null, personeInDbLight);
+                    result.Add(dto);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetByQuery", e);
+                throw e;
+            }
+        }
+
+        public async Task<string> GetCopertina(ByQueryModel model)
+        {
+            try
+            {
+
+                var count = await CountByQuery(model.Query);
+                var atti = new List<AttoDASIDto>();
+                atti.AddRange(await GetByQuery(model));
+                while (atti.Count < count)
+                {
+                    model.page += 1;
+                    atti.AddRange(await GetByQuery(model));
+                }
+
+                var legislatura = await _unitOfWork.Legislature.Get(atti.First().Legislatura);
+                var body = GetTemplate(TemplateTypeEnum.PDF_COPERTINA, true);
+                body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
+
+                var templateItemIndice = "<div style='text-align:left;'>" +
+                                         "<b>{TipoAtto}{NAtto}</b><br/>" +
+                                         "Data Presentazione: {DataPresentazione}<br/>" +
+                                         "<p>{Oggetto}</p><br/>" +
+                                         "Iniziativa: {Firmatari}<br/>" +
+                                         "Stato: {Stato}<br/>" +
+                                         "</div><br/>";
+
+                var bodyIndice = new StringBuilder();
+                foreach (var dasiDto in atti)
+                {
+                    bodyIndice.Append(templateItemIndice
+                        .Replace("TipoAtto", Utility.GetText_TipoDASI(dasiDto.Tipo))
+                        .Replace("NAtto", dasiDto.NAtto)
+                        .Replace("DataPresentazione", dasiDto.DataPresentazione)
+                        .Replace("Oggetto", dasiDto.Oggetto)
+                        .Replace("Firmatari", $"{dasiDto.PersonaProponente.DisplayName}, {dasiDto.Firme.Replace("<br>", ", ")}")
+                        .Replace("Stato", Utility.GetText_StatoDASI(dasiDto.IDStato)));
+                }
+
+                body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
+
+                return body;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetCopertina", e);
+                throw e;
+            }
+
+        }
     }
 }

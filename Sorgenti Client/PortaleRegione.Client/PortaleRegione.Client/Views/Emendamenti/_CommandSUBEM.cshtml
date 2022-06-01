@@ -3,10 +3,12 @@
 @if (Model.AbilitaSUBEM)
 {
     <div class="row">
-        <div class="col s12 center">
-            <div class="btn chip hoverable pink right white-text" onclick="go('@Url.Action("NuovoSUBEmendamento", "Emendamenti", new {id=Model.UIDAtto, ref_em=Model.UIDEM})')">
-                <i class="icon material-icons">add</i> Crea SUBEM
-            </div>
+        <div class="col s12 right-align">
+            <a class="btn-flat pink-text"
+               href="@Url.Action("NuovoSUBEmendamento", "Emendamenti", new {id = Model.UIDAtto, ref_em = Model.UIDEM})" title="Crea Subemendamento">
+                <i class="material-icons right pink-text">add</i>
+                CREA SUBEM
+            </a>
         </div>
     </div>   
 }

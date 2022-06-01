@@ -273,6 +273,10 @@ div.input-field > label { line-height: initial; }
     border: solid 1px #a5d6a7 !important;
 }
 
+.swal-button--confirm {
+    background-color: #2196f3 !important;
+}
+
 /* NOTIFICHE */
 .notifica-check {
     /*position: absolute;*/
@@ -288,51 +292,59 @@ div.input-field > label { line-height: initial; }
 /* STILI STATO EMENDAMENTI*/
 
 .bozza {
-    /*font-weight: bold;
-    color: black;*/
-    background-color: black;
+    font-weight: bold;
+    color: black;
+    background-color: white;
+    border: 1px solid black;
 }
 
 .depositato {
-    /*font-weight: bold;
-    color: #2196F3;*/
-    background-color: #2196F3;
+    font-weight: bold;
+    color: #2196F3;
+    background-color: white;
+    border: 1px solid #2196F3;
 }
 
 .approvato {
-    /* font-weight: bold;
-    color: #4CAF50;*/
-    background-color: #4CAF50;
+    font-weight: bold;
+    color: #4CAF50;
+    background-color: white;
+    border: 1px solid #4CAF50;
 }
 
 .approvatomod {
-    /*font-weight: bold;
-    color: #00796b;*/
-    background-color: #00796b;
+    font-weight: bold;
+    color: #00796b;
+    background-color: white;
+    border: 1px solid #00796b;
 }
 
 .NOapprovato {
-    /*font-weight: bold;
-    color: #F44336;*/
-    background-color: #F44336;
+    font-weight: bold;
+    color: #F44336;
+    background-color: white;
+    border: 1px solid #F44336;
 }
 
 .ritirato {
-    /*font-weight: bold;
-    color: #9E9E9E;*/
-    background-color: #9E9E9E;
+    font-weight: bold;
+    color: #9E9E9E;
+    background-color: white;
+    border: 1px solid #9E9E9E;
 }
 
 .decaduto {
-    /*font-weight: bold;
-    color: #9C27B0;*/
-    background-color: #9C27B0;
+    font-weight: bold;
+    color: #9C27B0;
+    background-color: white;
+    border: 1px solid #9C27B0;
 }
 
 .inammissibile {
-    /*font-weight: bold;
-    color: #FFC107;*/
-    background-color: #FFC107;
+    font-weight: bold;
+    color: #FFC107;
+    background-color: white;
+    border: 1px solid #FFC107;
 }
 
 .bozzaT {
@@ -423,44 +435,65 @@ div.input-field > label { line-height: initial; }
 ------------------------------------------*/
 
 .badgeIQT {
-    background-color: #f8bbd0;
+    font-weight: bold;
     color: #e91e63;
+    background-color: white;
+    border: 1px solid #e91e63;
+    background-color: white;
     min-width: unset !important;
 }
 
 .badgeITL {
-    background-color: #bbdefb;
+    font-weight: bold;
     color: #2196f3;
+    background-color: white;
+    border: 1px solid #2196f3;
+    background-color: white;
     min-width: unset !important;
 }
 
 .badgeMOZ {
-    background-color: #ffccbc;
+    font-weight: bold;
     color: #ff5722;
+    background-color: white;
+    border: 1px solid #ff5722;
+    background-color: white;
     min-width: unset !important;
 }
 
 .badgeITR {
-    background-color: #d1c4e9;
+    font-weight: bold;
     color: #673ab7;
+    background-color: white;
+    border: 1px solid #673ab7;
+    background-color: white;
     min-width: unset !important;
 }
 
 .badgeODG {
-    background-color: #c8e6c9;
+    font-weight: bold;
     color: #4caf50;
+    background-color: white;
+    border: 1px solid #4caf50;
+    background-color: white;
     min-width: unset !important;
 }
 
 .badgeALL {
-    background-color: #f5f5f5;
+    font-weight: bold;
     color: #9e9e9e;
+    background-color: white;
+    border: 1px solid #9e9e9e;
+    background-color: white;
     min-width: unset !important;
 }
 
 .badgeSeduta {
-    background-color: #c8e6c9;
+    font-weight: bold;
     color: #4caf50;
+    background-color: white;
+    border: 1px solid #4caf50;
+    background-color: white;
     min-width: unset !important;
 }
 

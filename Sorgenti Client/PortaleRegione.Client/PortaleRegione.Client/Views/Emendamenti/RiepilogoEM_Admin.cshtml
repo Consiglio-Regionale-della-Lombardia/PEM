@@ -33,31 +33,40 @@
     }
 }
 
-<div class="row valign-wrapper">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@url" style="top: 0px !important;">
+<div class="row">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
             <i class="material-icons">arrow_back</i>
         </a>
-    </div>
-    <div class="col l11 s10" style="display: inline-flex">
-        <h5>
-            <b>@ViewBag.Title</b>
-        </h5>
-        @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
-        {
-            <a href="@Url.Action("Download", "Atti", new {path = Model.Atto.Path_Testo_Atto})" class="hoverable">
-                <i class="material-icons pink-text medium tooltipped" data-tooltip="Scarica documento atto" style="padding-left: 20px">cloud_download</i>
-            </a>
-        }
-        @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
-        {
-            if (classActiveTabVotazione == "active")
-            {
-                <a target="_blank" href="@Url.Action("ViewerProietta", "Emendamenti", new {id = Model.Atto.UIDAtto})" class="btn chip hoverable purple white-text" style="margin-left: 20px; margin-top: 15px;">
-                    <i class="icon material-icons">subscriptions</i> Proietta
-                </a>
-            }
-        }
+        <div class="row valign-wrapper" style="margin-bottom: 0px!important">
+            <div class="col s6">
+                <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta</p>
+                <h3>
+                    <b>@ViewBag.Title</b>
+                </h3>
+            </div>
+            <div class="col s6 right-align">
+                @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
+                {
+                    <a class="btn-flat pink-text"
+                       href="@Url.Action("Download", "Atti", new {path = Model.Atto.Path_Testo_Atto})" title="Scarica documento">
+                        <i class="material-icons right pink-text">cloud_download</i>
+                        SCARICA DOCUMENTO
+                    </a>
+                }
+                @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
+                {
+                    if (classActiveTabVotazione == "active")
+                    {
+                        <a class="btn-flat purple-text"
+                           href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" title="Proietta">
+                            <i class="material-icons right purple-text">subscriptions</i>
+                            PROIETTA
+                        </a>
+                    }
+                }
+            </div>
+        </div>
     </div>
 </div>
 

@@ -1,8 +1,12 @@
-﻿.user-view { background-color: #BBDEFB !important; }
+﻿.user-view {
+    background-color: #43a4f4 !important;
+}
 
-.nav-wrapper { background-color: #BBDEFB !important; }
+.nav-wrapper {
+    background-color: #43a4f4 !important;
+}
 
-.page-footer { background-color: #BBDEFB !important; }
+.page-footer { background-color: #43a4f4 !important; }
 
 .tabs .tab a:hover, .tabs .tab a.active {
     background-color: #BBDEFB !important;

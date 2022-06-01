@@ -58,6 +58,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/stampe/dasi";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("InserisciStampa", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("InserisciStampa", ex);
+                throw ex;
+            }
+        }
+
         public async Task EliminaStampa(Guid id)
         {
             try

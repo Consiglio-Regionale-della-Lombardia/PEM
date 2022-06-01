@@ -1,5 +1,5 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model PortaleRegione.DTO.Model.CommandRiepilogoModel
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 <div class="row valign-wrapper">
     <div class="col s3 left">
@@ -21,12 +21,12 @@
                 var icon = "";
                 var new_view = (int)ViewModeEnum.GRID;
 
-                if (Model.view == ViewModeEnum.PREVIEW)
+                if (Model.ViewMode == ViewModeEnum.PREVIEW)
                 {
                     text = "Visualizza Atti in griglia";
                     icon = "developer_board";
                 }
-                else if (Model.view == ViewModeEnum.GRID)
+                else if (Model.ViewMode == ViewModeEnum.GRID)
                 {
                     new_view = (int)ViewModeEnum.PREVIEW;
                     text = "Visualizza Atti in preview";
@@ -45,6 +45,6 @@
 
 <script>
     function gotoPreviewMode(mode) {
-        go('@Url.Action("Preview", "DASI")' + '?mode=' + mode);
+        //go('@Url.Action("Preview", "DASI")' + '?mode=' + mode);
     }
 </script>

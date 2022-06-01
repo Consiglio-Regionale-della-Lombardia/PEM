@@ -470,6 +470,29 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere la copertina del fascicolo
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("template/copertina")]
+        public async Task<IHttpActionResult> GetBodyCopertina(ByQueryModel model)
+        {
+            try
+            {
+                var body = await _logic.GetCopertina(model);
+
+                return Ok(body);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetBodyCopertina", e);
+                return ErrorHandler(e);
+            }
+        }
+
+
+        /// <summary>
         ///     Endpoint per scaricare il file allegato all'atto
         /// </summary>
         /// <param name="path">Percorso file</param>

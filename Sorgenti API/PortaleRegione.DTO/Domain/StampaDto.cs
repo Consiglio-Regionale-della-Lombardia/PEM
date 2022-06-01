@@ -64,7 +64,7 @@ namespace PortaleRegione.DTO.Domain
         public string Query { get; set; }
 
         public int CLIENT_MODE { get; set; }
-        public bool DASI { get; set; }
+        public bool DASI { get; set; } = false;
 
         public virtual AttiDto ATTI { get; set; }
 

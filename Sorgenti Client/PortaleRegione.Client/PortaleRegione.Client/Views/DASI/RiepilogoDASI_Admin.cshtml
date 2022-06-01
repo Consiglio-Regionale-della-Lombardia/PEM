@@ -41,32 +41,32 @@
 }
 
 <div class="row">
-    <div class="col l1 s2">
+    <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
             <i class="material-icons">arrow_back</i>
         </a>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                <h5>
+                    <b>Riepilogo Atti Sindacato Ispettivo</b>
+                </h5>
+                }
+                else
+                {
+                    var qtipo = HttpUtility.ParseQueryString(Request.Url.Query).Get("tipo");
+                    var tipo = Convert.ToInt16(qtipo);
+                <h5>
+                    <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
+                        @PortaleRegione.Common.Utility.GetText_TipoDASI(tipo)
+                    </div>
+                    <b> - Aula Atti Sindacato Ispettivo</b>
+                </h5>
+                }
+            </div>
+        </div>
     </div>
-    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-    {
-        <div class="col l11 s10">
-            <h5>
-                <b>Riepilogo Atti Sindacato Ispettivo</b>
-            </h5>
-        </div>
-    }
-    else
-    {
-        var qtipo = HttpUtility.ParseQueryString(Request.Url.Query).Get("tipo");
-        var tipo = Convert.ToInt16(qtipo);
-        <div class="col l11 s10">
-            <h5>
-                <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
-                    @PortaleRegione.Common.Utility.GetText_TipoDASI(tipo)
-                </div>
-                <b> - Aula Atti Sindacato Ispettivo</b>
-            </h5>
-        </div>
-    }
 </div>
 <hr />
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
@@ -85,26 +85,17 @@
             <ul class="tabs">
                 <li class="tab col s4">
                     <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO})');">
-                        Presentati
-                        <span class="new badge @classTabPresentati_Badge" data-badge-caption=" ">
-                            @Model.CountBarData.PRESENTATI
-                        </span>
+                        Presentati (@Model.CountBarData.PRESENTATI)
                     </a>
                 </li>
                 <li class="tab col s4">
                     <a class="@classTabInTrattazione" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.IN_TRATTAZIONE})');">
-                        In Trattazione
-                        <span class="new badge @classTabInTrattazione_Badge" data-badge-caption=" ">
-                            @Model.CountBarData.IN_TRATTAZIONE
-                        </span>
+                        In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
                     </a>
                 </li>
                 <li class="tab col s4">
                     <a class="@classTabChiuso" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.CHIUSO})');">
-                        CHIUSI
-                        <span class="new badge @classTabChiuso_Badge" data-badge-caption=" ">
-                            @Model.CountBarData.CHIUSO
-                        </span>
+                        CHIUSI (@Model.CountBarData.CHIUSO)
                     </a>
                 </li>
             </ul>

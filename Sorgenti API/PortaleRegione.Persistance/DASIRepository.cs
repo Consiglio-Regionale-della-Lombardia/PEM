@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -27,6 +28,7 @@ using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Persistance
 {
@@ -354,6 +356,39 @@ namespace PortaleRegione.Persistance
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        public async Task<int> CountByQuery(string query)
+        {
+            return await PRContext
+                .DASI
+                .SqlQuery(query)
+                .CountAsync();
+        }
+
+        public List<Guid> GetByQuery(ByQueryModel model)
+        {
+            var query = PRContext
+                .DASI
+                .SqlQuery(model.Query)
+                .Skip((model.page - 1) * 100)
+                .Take(100);
+
+            return query
+                .Select(item=>item.UIDAtto)
+                .ToList();
+        }
+
+        public string GetAll_Query(Filter<ATTI_DASI> filtro)
+        {
+            var query = PRContext
+               .DASI
+               .Where(em => !em.Eliminato);
+            
+            filtro?.BuildExpression(ref query);
+            
+            var sql = query.ToTraceQuery();
+            return sql;
         }
     }
 }

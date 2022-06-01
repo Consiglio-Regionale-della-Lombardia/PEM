@@ -17,12 +17,14 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Contracts
 {
@@ -52,5 +54,8 @@ namespace PortaleRegione.Contracts
         void AggiungiSoggetto(Guid UidAtto, int soggetto);
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogati(Guid uidAtto);
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetInvitati(Guid attoUId);
+        Task<int> CountByQuery(string query);
+        List<Guid> GetByQuery(ByQueryModel model);
+        string GetAll_Query(Filter<ATTI_DASI> queryFilter);
     }
 }

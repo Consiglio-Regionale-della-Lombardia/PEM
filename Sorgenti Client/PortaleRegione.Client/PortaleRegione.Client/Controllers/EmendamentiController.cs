@@ -55,7 +55,13 @@ namespace PortaleRegione.Client.Controllers
             OrdinamentoEnum ordine = OrdinamentoEnum.Presentazione, ViewModeEnum view = ViewModeEnum.GRID, int page = 1,
             int size = 50)
         {
-            var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var mode = ClientModeEnum.GRUPPI;
+            var contextMode = HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            if (contextMode != null)
+            {
+                mode = (ClientModeEnum) Convert.ToInt16(contextMode);
+            }
+
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             if (Session["RicaricaFiltri"] is bool)

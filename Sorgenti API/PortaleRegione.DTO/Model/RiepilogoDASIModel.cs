@@ -30,6 +30,7 @@ namespace PortaleRegione.DTO.Model
         public TipoAttoEnum Tipo { get; set; }
         public CountBarData CountBarData { get; set; }
         public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
+        public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
         public CommandRiepilogoModel CommandRiepilogo { get; set; }
     }
 }

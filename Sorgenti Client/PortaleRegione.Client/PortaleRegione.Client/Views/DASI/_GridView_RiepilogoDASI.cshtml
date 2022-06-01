@@ -4,7 +4,7 @@
 
 @{
     Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-    //Html.RenderPartial("_Command_RiepilogoDASI", Model.CommandRiepilogo);
+    Html.RenderPartial("_Command_RiepilogoDASI", Model);
 }
 
 @if (!Model.Data.Results.Any())
@@ -36,7 +36,7 @@ else
         <tr>
             <th class="center">
             </th>
-            <th>Atto</th>
+            <th width="150">Atto</th>
             <th>Tipo</th>
             <th>Oggetto</th>
             <th>Firmatari</th>
@@ -48,7 +48,7 @@ else
                     <th>Seduta</th>
                 }
             }
-            <th></th>
+            <th width="100"></th>
         </tr>
         </thead>
 

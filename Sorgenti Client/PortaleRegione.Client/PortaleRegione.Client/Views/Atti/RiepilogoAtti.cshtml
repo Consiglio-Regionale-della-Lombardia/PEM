@@ -11,15 +11,17 @@
 </script>
 
 <div class="row">
-    <div class="col l1 s2">
+    <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
-    </div>
-    <div class="col l11 s10">
-        <h5>
-            <b>@ViewBag.Title</b>
-        </h5>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                <h5>
+                    <b>@ViewBag.Title</b>
+                </h5>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -87,40 +89,41 @@
         }
 
         <div class="col s12">
-            <div class="card green lighten-4 hoverable">
+            <div class="card hoverable">
                 <div class="card-content">
                     <div class="card-title">
-                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
-                            <div class="col s12">
-                                <span>
-                                    <b>@titolo_atto</b>
-                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
-                                    {
-                                        <a href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})">
-                                            <i class="material-icons pink-text">cloud_download</i>
-                                        </a>
-                                    }
-                                </span>
+                        <div class="row" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s8">
+                                <h5><b>@titolo_atto</b></h5>
                                 <h6 class="active">
                                     <i>@Html.Raw(atto.Oggetto)</i>
                                 </h6>
                             </div>
-                        </div>
-                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
-                            <div class="col s12">
+                            <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
-                                    <div class="chip white-text @coloreStatoAtto" style="min-width: unset">@statoAtto</div>
+                                    <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
                                 }
                             </div>
                         </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
-                            <div class="col s6">
+                            <div class="col s4">
+                                @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                {
+                                    <a class="btn-flat pink-text"
+                                       href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})" title="Scarica documento">
+                                        <i class="material-icons right pink-text">cloud_download</i>
+                                        SCARICA DOCUMENTO
+                                    </a>
+                                }
+                                
+                            </div>
+                            <div class="col s7 right-align">
                                 <h6 class="black-text">
-                                    <b>@atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM</b>
+                                    @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
                                 </h6>
                             </div>
-                            <div class="col s6 right-align">
+                            <div class="col s1 right-align">
                                 @if (atto.Data_apertura.HasValue)
                                 {
                                     <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
