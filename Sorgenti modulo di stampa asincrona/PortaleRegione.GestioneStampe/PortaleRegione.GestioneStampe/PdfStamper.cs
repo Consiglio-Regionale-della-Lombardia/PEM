@@ -166,7 +166,7 @@ namespace PortaleRegione.GestioneStampe
         }
 
         public static void CreateMergedPDF(string targetPDF, string pathcopertina,
-            Dictionary<Guid, string> listaEmendamentiGenerati)
+            Dictionary<Guid, string> lista)
         {
             try
             {
@@ -175,13 +175,21 @@ namespace PortaleRegione.GestioneStampe
                     var pdfDoc = new Document(PageSize.A4);
                     var pdf = new PdfCopy(pdfDoc, stream);
                     pdfDoc.Open();
-                    //Aggiungo la copertina
-                    pdf.AddDocument(new PdfReader(pathcopertina));
+                    if (!string.IsNullOrEmpty(pathcopertina))
+                    {
+                        if (File.Exists(pathcopertina))
+                        {
+                            //Aggiungo la copertina
+                            pdf.AddDocument(new PdfReader(pathcopertina));
+                        }
+                    }
 
-                    foreach (var item in listaEmendamentiGenerati) pdf.AddDocument(new PdfReader(item.Value));
+                    foreach (var item in lista)
+                    {
+                        pdf.AddDocument(new PdfReader(item.Value));
+                    }
 
-                    if (pdfDoc != null)
-                        pdfDoc.Close();
+                    pdfDoc.Close();
 
                     Log.Debug("PDF merge complete.");
                 }

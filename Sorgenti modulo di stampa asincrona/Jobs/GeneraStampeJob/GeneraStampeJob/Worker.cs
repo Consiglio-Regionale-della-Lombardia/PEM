@@ -44,16 +44,15 @@ namespace GeneraStampeJob
                     //GetFascicolo
                     var path = string.Empty;
                     GetFascicolo(ref path);
-                    //
 
-                    //GetListEM
-                    var listaEMendamenti = await GetListaEM();
-                    //
-
-                    if (_stampa.NotificaDepositoEM)
-                        await DepositoDifferito(listaEMendamenti, path, utenteRichiedente);
+                    if (_stampa.DASI)
+                    {
+                        await ExecuteStampaDASI(utenteRichiedente, path);
+                    }
                     else
-                        await Stampa(listaEMendamenti, path, utenteRichiedente);
+                    {
+                        await ExecuteStampaEmendamenti(utenteRichiedente, path);
+                    }
 
                     PulisciCartellaLavoroTemporanea(path);
                 }
@@ -66,7 +65,7 @@ namespace GeneraStampeJob
                             DA = _model.EmailFrom,
                             A = utenteRichiedente.email,
                             OGGETTO = "Errore generazione stampa",
-                            MESSAGGIO = $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]"
+                            MESSAGGIO = $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]. Motivo: [{_stampa.MessaggioErrore}]"
                         },
                             _auth.jwt);
                     }
@@ -112,12 +111,238 @@ namespace GeneraStampeJob
             }
         }
 
+        private async Task ExecuteStampaDASI(PersonaDto persona, string path)
+        {
+            //GetListEM
+            var listaAtti = await GetListaAtti();
+
+            if (_stampa.Notifica)
+                await PresentazioneDifferita(listaAtti, path, persona);
+            else
+                await StampaDASI(listaAtti, path, persona);
+        }
+
+        private async Task StampaDASI(List<AttoDASIDto> lista, string path, PersonaDto persona)
+        {
+            try
+            {
+                if (_stampa.Da > 0 && _stampa.A > 0)
+                {
+                    lista = lista.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
+                }
+                
+                var attiGenerati = await GeneraPDFAtti(lista, path);
+
+                var countNonGenerati = attiGenerati.Count(item => !File.Exists(item.Value.Path));
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
+
+                //Funzione che fascicola i PDF creati prima
+                var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                var FilePathTarget = Path.Combine(path, nameFileTarget);
+                PdfStamper.CreateMergedPDF(FilePathTarget, string.Empty,
+                    attiGenerati.ToDictionary(item => item.Key, item => item.Value.Path));
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
+                var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
+                Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
+                SpostaFascicolo(FilePathTarget, _pathStampe);
+
+                var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
+                _stampa.PathFile = nameFileTarget;
+                await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
+                
+                try
+                {
+                    var bodyMail = $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
+                    var resultInvio = await BaseGateway.SendMail(new MailModel
+                        {
+                            DA = _model.EmailFrom,
+                            A = persona.email,
+                            OGGETTO = "Link download fascicolo",
+                            MESSAGGIO = bodyMail
+                        },
+                        _auth.jwt);
+                    if (resultInvio)
+                        await apiGateway.Stampe.JobSetInvioStampa(_stampa);
+                }
+                catch (Exception e)
+                {
+                    Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
+                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
+        }
+
+        private async Task<Dictionary<Guid, BodyModel>> GeneraPDFAtti(List<AttoDASIDto> lista, string path)
+        {
+            var listaPercorsi = new Dictionary<Guid, BodyModel>();
+            try
+            {
+                listaPercorsi = lista.ToDictionary(atto => atto.UIDAtto, atto => new BodyModel());
+                foreach (var item in lista)
+                {
+                    var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF);
+                    var nameFilePDF =
+                        $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)}{item.NAtto}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                    var FilePathComplete = Path.Combine(path, nameFilePDF);
+
+                    var dettagliCreaPDF = new BodyModel
+                    {
+                        Path = FilePathComplete,
+                        Body = bodyPDF,
+                        Atto = item
+                    };
+                    listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
+                    await CreaPDF(dettagliCreaPDF, listaPercorsi.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPDFAtti Error-->", ex);
+            }
+
+            return listaPercorsi;
+        }
+
+        private async Task PresentazioneDifferita(List<AttoDASIDto> listaAtti, string path, PersonaDto persona)
+        {
+            //STAMPA PDF PRESENTATO (BACKGROUND MODE)
+            Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Atto presentato");
+
+            var pdfAtti =
+                await GeneraPDFAtti(listaAtti, path);
+
+            Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva Atti nel repository");
+
+            var dasiDto = listaAtti.First();
+            var legislatura = await apiGateway.Legislature.GetLegislatura(dasiDto.Legislatura);
+            //Legislatura/Tipo
+            var dirSeduta = $"Seduta_{dasiDto.Seduta.Data_seduta:yyyyMMdd}";
+            var pathRepository = $"{_model.RootRepository}/{dirSeduta}";
+
+            if (!Directory.Exists(pathRepository))
+                Directory.CreateDirectory(pathRepository);
+
+            var destinazioneDeposito = Path.Combine(pathRepository, Path.GetFileName(pdfAtti.First().Value.Path));
+            SpostaFascicolo(pdfAtti.First().Value.Path, destinazioneDeposito);
+            _stampa.PathFile = Path.Combine($"{dirSeduta}", Path.GetFileName(pdfAtti.First().Value.Path));
+            _stampa.UIDAtto = dasiDto.UIDAtto;
+            await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
+            
+            var email_destinatari = $"{persona.email};pem@consiglio.regione.lombardia.it";
+            var email_destinatariGruppo = string.Empty;
+            var email_destinatariGiunta = string.Empty;
+            
+                Log.Debug(
+                    $"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Capo Gruppo e Segreteria Politica");
+                var capoGruppo = await apiGateway.Persone.GetCapoGruppo(dasiDto.id_gruppo);
+                var segreteriaPolitica = await apiGateway.Persone
+                    .GetSegreteriaPolitica(dasiDto.id_gruppo, false, true);
+
+                if (segreteriaPolitica.Any())
+                    email_destinatariGruppo = segreteriaPolitica.Select(u => u.email)
+                        .Aggregate((i, j) => $"{i};{j}");
+                if (capoGruppo != null)
+                    email_destinatariGruppo += $";{capoGruppo.email}";
+
+            if (!string.IsNullOrEmpty(email_destinatariGruppo))
+                email_destinatari += ";" + email_destinatariGruppo;
+            if (!string.IsNullOrEmpty(email_destinatariGiunta))
+                email_destinatari += ";" + email_destinatariGiunta;
+
+            var body = await apiGateway.DASI.GetBody(dasiDto.UIDAtto, TemplateTypeEnum.PDF);
+
+            try
+            {
+                var resultInvio = await BaseGateway.SendMail(new MailModel
+                {
+                    DA = _model.EmailFrom,
+                    A = email_destinatari,
+                    OGGETTO =
+                            $"{PortaleRegione.Common.Utility.GetText_TipoDASI(dasiDto.Tipo)} {dasiDto.NAtto}: Presentato alla seduta del {dasiDto.Seduta.Data_seduta.Value:dd/MM/yyyy}",
+                    MESSAGGIO = body,
+                    pathAttachment = destinazioneDeposito,
+                    IsDeposito = true
+                },
+                    _auth.jwt);
+
+                if (resultInvio)
+                    await apiGateway.Stampe.JobSetInvioStampa(_stampa);
+            }
+            catch (Exception e)
+            {
+                Log.Debug($"[{_stampa.UIDStampa}] Invio mail presentazione", e);
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail presentazione ERRORE. Motivo: {e.Message}");
+            }
+        }
+
+        private async Task<List<AttoDASIDto>> GetListaAtti()
+        {
+            if (_stampa.UIDAtto.HasValue)
+            {
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Scarica atto..");
+
+                var item = await apiGateway.DASI.Get(_stampa.UIDAtto.Value);
+                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Scarica atto.. OK");
+                return new List<AttoDASIDto>
+                {
+                    item
+                };
+            }
+
+            var result = await apiGateway.Stampe.JobGetDASI(_stampa.Query, 1);
+            var currentPaging = result.Paging;
+            await Scarica_Log(currentPaging);
+            var has_next = currentPaging.Has_Next;
+            var lista = result.Results.ToList();
+            while (has_next)
+            {
+                result =
+                    await apiGateway.Stampe.JobGetDASI(_stampa.Query, result.Paging.Page + 1);
+                await Scarica_Log(currentPaging, result.Paging);
+                foreach (var item in result.Results)
+                {
+                    lista.Add(item);
+                    if (lista.Count >= currentPaging.Total)
+                    {
+                        has_next = false;
+                        break;
+                    }
+                }
+            }
+
+            return lista;
+        }
+
+        private async Task ExecuteStampaEmendamenti(PersonaDto persona, string path)
+        {
+            try
+            {
+                //GetListEM
+                var listaEMendamenti = await GetListaEM();
+
+                if (_stampa.Notifica)
+                    await DepositoDifferito(listaEMendamenti, path, persona);
+                else
+                    await Stampa(listaEMendamenti, path, persona);
+            }
+            catch (Exception e)
+            {
+                Log.Error("StampaEmendamenti ERROR", e);
+                throw e;
+            }
+        }
+
         private async Task Stampa(List<EmendamentiDto> listaEMendamenti, string path,
             PersonaDto utenteRichiedente)
         {
             try
             {
-                var atto = await apiGateway.Atti.Get(_stampa.UIDAtto);
+                var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
                 if (_stampa.Da > 0 && _stampa.A > 0)
                 {
                     listaEMendamenti = listaEMendamenti.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
@@ -126,7 +351,7 @@ namespace GeneraStampeJob
                 var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
                 {
                     Atto = atto,
-                    TotaleEM = listaEMendamenti.Count,
+                    Totale = listaEMendamenti.Count,
                     Ordinamento = _stampa.Ordine.HasValue
                         ? (OrdinamentoEnum)_stampa.Ordine.Value
                         : OrdinamentoEnum.Presentazione
@@ -209,7 +434,7 @@ namespace GeneraStampeJob
             Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva EM nel repository");
 
             var em = listaEMendamenti.First();
-            var atto = await apiGateway.Atti.Get(_stampa.UIDAtto);
+            var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
             var dirSeduta = $"Seduta_{atto.SEDUTE.Data_seduta:yyyyMMdd}";
             var dirPDL = Regex.Replace($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}", @"[^0-9a-zA-Z]+",
                 "_");
@@ -339,16 +564,16 @@ namespace GeneraStampeJob
                 };
             }
 
-            var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.QueryEM, 1);
+            var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, 1);
             var currentPaging = resultEmendamenti.Paging;
-            await ScaricaEM_Log(currentPaging);
+            await Scarica_Log(currentPaging);
             var has_next = currentPaging.Has_Next;
             var listaEMendamenti = resultEmendamenti.Results.ToList();
             while (has_next)
             {
                 resultEmendamenti =
-                    await apiGateway.Stampe.JobGetEmendamenti(_stampa.QueryEM, resultEmendamenti.Paging.Page + 1);
-                await ScaricaEM_Log(currentPaging, resultEmendamenti.Paging);
+                    await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, resultEmendamenti.Paging.Page + 1);
+                await Scarica_Log(currentPaging, resultEmendamenti.Paging);
                 foreach (var item in resultEmendamenti.Results)
                 {
                     listaEMendamenti.Add(item);
@@ -363,19 +588,19 @@ namespace GeneraStampeJob
             return listaEMendamenti;
         }
 
-        private async Task ScaricaEM_Log(Paging currentPaging, Paging paging)
+        private async Task Scarica_Log(Paging currentPaging, Paging paging)
         {
-            var partial_em = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
+            var partial = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
             await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-                $"Scarica emendamenti.. Blocco [{paging.Page}/{paging.Last_Page}] - EM [{partial_em}/{currentPaging.Total}]");
+                $"Scaricamento Blocco [{paging.Page}/{paging.Last_Page}] - [{partial}/{currentPaging.Total}]");
 
         }
 
-        private async Task ScaricaEM_Log(Paging paging)
+        private async Task Scarica_Log(Paging paging)
         {
-            var partial_em = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
+            var partial = paging.Limit * paging.Page - (paging.Limit - paging.Entities);
             await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
-                $"Scarica emendamenti.. Blocco [{paging.Page}/{paging.Last_Page}] - EM [{partial_em}/{paging.Total}]");
+                $"Scaricamento Blocco [{paging.Page}/{paging.Last_Page}] - [{partial}/{paging.Total}]");
         }
 
         private void GetFascicolo(ref string path)

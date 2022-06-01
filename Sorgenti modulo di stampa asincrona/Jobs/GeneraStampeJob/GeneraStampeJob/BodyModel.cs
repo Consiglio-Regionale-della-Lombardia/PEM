@@ -7,5 +7,6 @@ namespace GeneraStampeJob
         public string Path { get; set; }
         public string Body { get; set; }
         public EmendamentiDto EM { get; set; }
+        public AttoDASIDto Atto { get; set; }
     }
 }

@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.GestioneStam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneraStampeJob.Test", "GeneraStampeJob.Test\GeneraStampeJob.Test.csproj", "{D4290510-EEFA-49BB-A16E-EC767420796B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Common", "..\..\..\Sorgenti API\PortaleRegione.Common\PortaleRegione.Common.csproj", "{4948DD2A-A842-46A9-B987-A537894487BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{D4290510-EEFA-49BB-A16E-EC767420796B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4290510-EEFA-49BB-A16E-EC767420796B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4290510-EEFA-49BB-A16E-EC767420796B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

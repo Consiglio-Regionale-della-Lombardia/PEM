@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Sorgenti API\PortaleRegione.Common\PortaleRegione.Common.csproj" />
     <ProjectReference Include="..\..\..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj" />
     <ProjectReference Include="..\..\..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj" />
     <ProjectReference Include="..\..\..\..\Sorgenti Client\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj" />
