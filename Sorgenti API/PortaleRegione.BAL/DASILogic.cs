@@ -786,10 +786,7 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
 
                     results.Add(idGuid, $"{attoDto.NAtto} - OK");
-
-                    //TODO: INSERIRE STAMPA
-
-                    await _unitOfWork.CompleteAsync();
+                    
                     _unitOfWork.DASI.IncrementaContatore(contatore);
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
@@ -1071,6 +1068,20 @@ namespace PortaleRegione.API.Controllers
                 atto.DataIscrizioneSeduta = DateTime.Now;
                 atto.UIDPersonaIscrizioneSeduta = personaDto.UID_persona;
                 await _unitOfWork.CompleteAsync();
+
+                _unitOfWork.Stampe.Add(new STAMPE
+                {
+                    UIDStampa = Guid.NewGuid(),
+                    UIDUtenteRichiesta = atto.UIDPersonaPresentazione.Value,
+                    DataRichiesta = DateTime.Now,
+                    UIDAtto = atto.UIDAtto,
+                    Da = 1,
+                    A = 1,
+                    Ordine = 1,
+                    Notifica = true,
+                    Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                    DASI = true
+                });
             }
             catch (Exception e)
             {

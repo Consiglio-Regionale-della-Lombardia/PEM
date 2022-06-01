@@ -34,6 +34,9 @@ namespace PortaleRegione.Common
     /// </summary>
     public static class Utility
     {
+        public const string WORD_OPEN_P = "<p[^>]*>";
+        public const string WORD_OPEN_A = "<a name[^>]*>";
+
         /// <summary>
         ///     Metodo per avere i metadati dell'emendamento in formato visualizzabile
         /// </summary>
@@ -109,6 +112,66 @@ namespace PortaleRegione.Common
                 {
                     return "NON SPECIFICATO";
                 }
+            }
+        }
+
+        public static string GetText_TipoDASI(int tipoAtto)
+        {
+            switch ((TipoAttoEnum) tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return TipoAttoEnum.ITR.ToString();
+                case TipoAttoEnum.IQT:
+                    return TipoAttoEnum.IQT.ToString();
+                case TipoAttoEnum.ITL:
+                    return TipoAttoEnum.ITL.ToString();
+                case TipoAttoEnum.MOZ:
+                    return TipoAttoEnum.MOZ.ToString();
+                case TipoAttoEnum.ODG:
+                    return TipoAttoEnum.ODG.ToString();
+                case TipoAttoEnum.PDL:
+                    return TipoAttoEnum.PDL.ToString();
+                case TipoAttoEnum.PDA:
+                    return TipoAttoEnum.PDA.ToString();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
+        public static string GetText_StatoDASI(int stato)
+        {
+            switch ((StatiAttoEnum) stato)
+            {
+                case StatiAttoEnum.BOZZA:
+                    return "Bozza";
+                case StatiAttoEnum.PRESENTATO:
+                    return "Presentato";
+                case StatiAttoEnum.IN_TRATTAZIONE:
+                    return "In Trattazione";
+                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
+                    return "Comunicazione all’Assemblea";
+                case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
+                    return "Trattazione all’Assemblea";
+                case StatiAttoEnum.APPROVATO:
+                    return "Approvato";
+                case StatiAttoEnum.RESPINTO:
+                    return "Respinto";
+                case StatiAttoEnum.INAMMISSIBILE:
+                    return "Inammissibile";
+                case StatiAttoEnum.RITIRATO:
+                    return "Ritirato";
+                case StatiAttoEnum.DECADUTO:
+                    return "Decaduto";
+                case StatiAttoEnum.DECADUTO_FINE_MANDATO:
+                    return "Decadenza per fine mandato consigliere";
+                case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
+                    return "Decadenza per fine legislatura";
+                case StatiAttoEnum.ALTRO:
+                    return "Chiusura per motivi diversi";
+                case StatiAttoEnum.CHIUSO:
+                    return "Chiuso";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }
         }
 
@@ -324,7 +387,7 @@ namespace PortaleRegione.Common
                     {
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
-                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
+                        Value = (int) StatiEnum.Approvato_Con_Modifiche,
                         Connector = FilterStatementConnector.And
                     });
                 }
@@ -515,8 +578,5 @@ namespace PortaleRegione.Common
 
             return text;
         }
-
-        public const string WORD_OPEN_P = "<p[^>]*>";
-        public const string WORD_OPEN_A = "<a name[^>]*>";
     }
 }

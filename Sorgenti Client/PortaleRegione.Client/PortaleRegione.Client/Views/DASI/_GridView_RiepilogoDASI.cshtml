@@ -68,7 +68,7 @@ else
                 <td>
                     <div class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
                         @{
-                            var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
+                            var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
                             title += item.NAtto;
                         }
                         @Html.Raw(title)
@@ -108,7 +108,7 @@ else
                     }
                 </td>
                 <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
-                    @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                    @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato))
                 </td>
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {

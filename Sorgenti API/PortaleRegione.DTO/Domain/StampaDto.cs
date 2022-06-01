@@ -25,7 +25,7 @@ namespace PortaleRegione.DTO.Domain
     {
         public Guid UIDStampa { get; set; }
 
-        public Guid UIDAtto { get; set; }
+        public Guid? UIDAtto { get; set; }
 
         public Guid? UIDEM { get; set; }
 
@@ -59,11 +59,12 @@ namespace PortaleRegione.DTO.Domain
 
         public int? Ordine { get; set; }
 
-        public bool NotificaDepositoEM { get; set; }
+        public bool Notifica { get; set; }
 
-        public string QueryEM { get; set; }
+        public string Query { get; set; }
 
         public int CLIENT_MODE { get; set; }
+        public bool DASI { get; set; }
 
         public virtual AttiDto ATTI { get; set; }
 

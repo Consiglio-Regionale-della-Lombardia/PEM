@@ -456,7 +456,7 @@ namespace PortaleRegione.DataBase
                 .IsUnicode(false);
 
             modelBuilder.Entity<STAMPE>()
-                .Property(e => e.QueryEM)
+                .Property(e => e.Query)
                 .IsUnicode(false);
 
             modelBuilder.Entity<tbl_recapiti>()

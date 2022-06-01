@@ -15,23 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
-using System;
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain;
 
 namespace PortaleRegione.Gateway
 {
-    public interface ISeduteGateway
+    public interface ILegislatureGateway
     {
-        Task Elimina(Guid id);
-        Task<BaseResponse<SeduteDto>> Get(BaseRequest<SeduteDto> model);
-        Task<SeduteFormUpdateDto> Get(Guid id);
-        Task<BaseResponse<SeduteDto>> Get(int page, int size);
-        Task Modifica(SeduteFormUpdateDto seduta);
-        Task Salva(SeduteFormUpdateDto seduta);
-        Task<BaseResponse<SeduteDto>> GetActive();
+        Task<LegislaturaDto> GetLegislatura(int idLegislatura);
+        Task<IEnumerable<LegislaturaDto>> GetLegislature();
     }
 }

@@ -206,6 +206,33 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<BaseResponse<AttoDASIDto>> JobGetDASI(string query, int page, int size = 20)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/job/stampe/dasi";
+                var body = JsonConvert.SerializeObject(new ByQueryModel
+                {
+                    Query = query,
+                    page = page
+                });
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<AttoDASIDto>>(await Post(requestUrl, body, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("JobGetDASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("JobGetDASI", ex);
+                throw ex;
+            }
+        }
+
         public async Task<BaseResponse<StampaDto>> JobGetStampe(int page, int size)
         {
             try
@@ -328,7 +355,7 @@ namespace PortaleRegione.Gateway
             try
             {
                 var requestUrl = $"{apiUrl}/job/stampe/emendamenti";
-                var body = JsonConvert.SerializeObject(new EmendamentiByQueryModel
+                var body = JsonConvert.SerializeObject(new ByQueryModel
                 {
                     Query = queryEM,
                     page = page

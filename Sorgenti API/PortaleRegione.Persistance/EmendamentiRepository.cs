@@ -397,7 +397,7 @@ namespace PortaleRegione.Persistance
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public IEnumerable<EM> GetAll(EmendamentiByQueryModel model)
+        public IEnumerable<EM> GetAll(ByQueryModel model)
         {
             var query = PRContext
                 .EM

@@ -57,10 +57,12 @@
     <Compile Include="IEMGateway.cs" />
     <Compile Include="IEMGateway_Pubblico.cs" />
     <Compile Include="IEsportaGateway.cs" />
+    <Compile Include="ILegislatureGateway.cs" />
     <Compile Include="INotificheGateway.cs" />
     <Compile Include="IPersoneGateway.cs" />
     <Compile Include="ISeduteGateway.cs" />
     <Compile Include="IStampeGateway.cs" />
+    <Compile Include="LegislatureGateway.cs" />
     <Compile Include="NotificheGateway.cs" />
     <Compile Include="PersoneGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

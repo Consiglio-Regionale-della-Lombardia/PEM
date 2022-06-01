@@ -23,6 +23,7 @@
             Atti = new AttiGateway(_token);
             Admin = new AdminGateway(_token);
             DASI = new DASIGateway(_token);
+            Legislature = new LegislatureGateway(_token);
         }
 
         public void SetToken(string token)
@@ -40,5 +41,6 @@
         public IAttiGateway Atti { get; }
         public IAdminGateway Admin { get; }
         public IDASIGateway DASI { get; set; }
+        public ILegislatureGateway Legislature { get; set; }
     }
 }

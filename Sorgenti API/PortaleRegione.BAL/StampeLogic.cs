@@ -70,8 +70,8 @@ namespace PortaleRegione.BAL
                     queryFilter.ImportStatements(model.filtro);
 
                     var queryEM =
-                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
-                    stampa.QueryEM = queryEM;
+                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto.Value, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
+                    stampa.Query = queryEM;
                 }
 
                 stampa.DataRichiesta = DateTime.Now;
@@ -214,7 +214,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var _pathTemp = string.Empty;
-                _pathTemp = stampa.NotificaDepositoEM
+                _pathTemp = stampa.Notifica
                     ? AppSettingsConfiguration.RootRepository
                     : AppSettingsConfiguration.CartellaLavoroStampe;
 

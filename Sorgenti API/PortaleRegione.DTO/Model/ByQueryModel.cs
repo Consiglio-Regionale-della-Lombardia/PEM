@@ -18,7 +18,7 @@
 
 namespace PortaleRegione.DTO.Model
 {
-    public class EmendamentiByQueryModel
+    public class ByQueryModel
     {
         public string Query { get; set; }
         public int page { get; set; }

@@ -73,6 +73,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Firmato_Dal_Proponente { get; set; } = false;
         public bool Presentabile { get; set; } = false;
         public int Progressivo { get; set; }
+        public int Legislatura { get; set; }
         
         [JsonIgnore] public HttpPostedFileBase DocAllegatoGenerico { get; set; }
 

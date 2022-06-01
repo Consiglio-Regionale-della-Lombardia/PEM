@@ -673,9 +673,9 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{OggettoProgettoLegge}", model.Atto.Oggetto);
                 body = body.Replace("{DataOdierna}", DateTime.Now.ToString("dd/MM/yyyy"));
 
-                if (countEM_Atto + countSUBEM_Atto != model.TotaleEM)
+                if (countEM_Atto + countSUBEM_Atto != model.Totale)
                 {
-                    body = body.Replace("{CountEM}", $"EM/SUBEM estratti: {model.TotaleEM}");
+                    body = body.Replace("{CountEM}", $"EM/SUBEM estratti: {model.Totale}");
                     body = body.Replace("{CountSUBEM}", string.Empty);
                 }
                 else
@@ -1050,7 +1050,7 @@ namespace PortaleRegione.BAL
                         Da = 1,
                         A = 1,
                         Ordine = 1,
-                        NotificaDepositoEM = true,
+                        Notifica = true,
                         Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
                         UIDEM = idGuid
                     });
@@ -1737,7 +1737,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<List<EmendamentiDto>> GetEmendamenti(EmendamentiByQueryModel model)
+        public async Task<List<EmendamentiDto>> GetEmendamenti(ByQueryModel model)
         {
             try
             {

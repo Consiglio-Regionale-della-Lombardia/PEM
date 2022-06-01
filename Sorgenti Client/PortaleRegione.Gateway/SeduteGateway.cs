@@ -38,27 +38,6 @@ namespace PortaleRegione.Gateway
             _token = token;
         }
 
-        public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/legislature";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<LegislaturaDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("GetLegislature", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetLegislature", ex);
-                throw ex;
-            }
-        }
-
         public async Task<BaseResponse<SeduteDto>> Get(int page, int size)
         {
             try
@@ -183,6 +162,8 @@ namespace PortaleRegione.Gateway
                 throw;
             }
         }
+
+        
 
         public async Task Modifica(SeduteFormUpdateDto seduta)
         {

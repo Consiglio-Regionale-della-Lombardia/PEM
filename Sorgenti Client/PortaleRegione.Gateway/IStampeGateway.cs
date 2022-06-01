@@ -36,7 +36,8 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<Stampa_InfoDto>> GetInfo(Guid id);
         Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model);
         Task JobErrorStampa(Guid stampaUId, string errorMessage);
-        Task<BaseResponse<EmendamentiDto>> JobGetEmendamenti(string queryEM, int page, int size = 20);
+        Task<BaseResponse<EmendamentiDto>> JobGetEmendamenti(string query, int page, int size = 20);
+        Task<BaseResponse<AttoDASIDto>> JobGetDASI(string query, int page, int size = 20);
         Task<BaseResponse<StampaDto>> JobGetStampe(int page, int size);
         Task JobSetInvioStampa(StampaDto stampa);
         Task JobUnLockStampa(Guid stampaUId);

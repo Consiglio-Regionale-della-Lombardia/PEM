@@ -40,7 +40,7 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<Guid>> GetAll(Guid attoUId, PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
             int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null);
 
-        IEnumerable<EM> GetAll(EmendamentiByQueryModel model);
+        IEnumerable<EM> GetAll(ByQueryModel model);
 
         Task<EM> Get(Guid emendamentoUId, bool includes = true);
         Task<EM> Get(string emendamentoUId);

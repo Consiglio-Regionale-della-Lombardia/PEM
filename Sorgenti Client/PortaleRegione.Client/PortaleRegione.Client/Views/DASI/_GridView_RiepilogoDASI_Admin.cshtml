@@ -70,7 +70,7 @@ else
                 <td>
                     <div id="txtNomeAtto_@item.UIDAtto" class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
                         @{
-                            var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
+                            var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
                             title += item.NAtto;
                         }
                         @Html.Raw(title)
@@ -120,7 +120,7 @@ else
                 </td>
                 <td>
                     <span id="lblStato_@item.UIDAtto" class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
-                        @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                        @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato))
                     </span>
                     <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
                         <i class="icon material-icons">refresh</i>
@@ -130,17 +130,17 @@ else
                     <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
                         <li>
                             <a class="@Html.Raw(Utility.GetCSS_StatoDASI((int) StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.PRESENTATO))">
-                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
+                                <i class="material-icons">check</i> @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
                             </a>
                         </li>
                         <li>
                             <a class="@Html.Raw(Utility.GetCSS_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.IN_TRATTAZIONE))">
-                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
+                                <i class="material-icons">check</i> @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
                             </a>
                         </li>
                         <li>
                             <a class="@Html.Raw(Utility.GetCSS_StatoDASI((int) StatiAttoEnum.CHIUSO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.CHIUSO))">
-                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
+                                <i class="material-icons">check</i> @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
                             </a>
                         </li>
                     </ul>

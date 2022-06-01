@@ -111,7 +111,7 @@
     <Compile Include="Model\CountBarData.cs" />
     <Compile Include="Model\DashboardModel.cs" />
     <Compile Include="Model\DASIFormModel.cs" />
-    <Compile Include="Model\EmendamentiByQueryModel.cs" />
+    <Compile Include="Model\ByQueryModel.cs" />
     <Compile Include="Model\EmendamentiFormModel.cs" />
     <Compile Include="Model\ComandiAzioneModel.cs" />
     <Compile Include="Model\GetBodyModel.cs" />

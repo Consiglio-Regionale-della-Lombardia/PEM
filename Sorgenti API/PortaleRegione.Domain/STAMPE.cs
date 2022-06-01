@@ -28,7 +28,7 @@ namespace PortaleRegione.Domain
         [Key]
         public Guid UIDStampa { get; set; }
 
-        public Guid UIDAtto { get; set; }
+        public Guid? UIDAtto { get; set; }
 
         public Guid? UIDEM { get; set; }
 
@@ -64,9 +64,11 @@ namespace PortaleRegione.Domain
 
         public int? Ordine { get; set; }
 
-        public string QueryEM { get; set; }
+        public string Query { get; set; }
 
-        public bool NotificaDepositoEM { get; set; }
+        public bool Notifica { get; set; }
+
+        public bool DASI { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ATTI ATTI { get; set; }

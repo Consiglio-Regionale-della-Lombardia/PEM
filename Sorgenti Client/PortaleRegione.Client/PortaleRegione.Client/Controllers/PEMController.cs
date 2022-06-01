@@ -104,7 +104,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                return Json(await apiGateway.Sedute.GetLegislature(), JsonRequestBehavior.AllowGet);
+                return Json(await apiGateway.Legislature.GetLegislature(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
