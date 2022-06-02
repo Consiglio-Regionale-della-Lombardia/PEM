@@ -4,6 +4,7 @@
 
 @{
     Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+    Html.RenderPartial("_Command_RiepilogoDASI", Model);
 }
 
 @if (!Model.Data.Results.Any())

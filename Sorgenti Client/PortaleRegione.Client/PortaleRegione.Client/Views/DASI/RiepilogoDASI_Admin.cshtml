@@ -104,7 +104,13 @@
     
     <div class="col s12">
         @{
-            Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
+            if (Model.ViewMode == ViewModeEnum.GRID)
+            {
+                Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
+            }else
+            {
+                Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
+            }
         }
     </div>
 </div>

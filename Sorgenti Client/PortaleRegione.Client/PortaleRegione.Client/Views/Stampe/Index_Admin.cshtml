@@ -47,27 +47,40 @@
     {
         <table>
             <thead>
-            <tr>
-                <th width="20">ID</th>
-                <th>Utente</th>
-                <th>Atto</th>
-                <th>Data stampa</th>
-                <th>Da</th>
-                <th>A</th>
-                <th>Stato</th>
-                <th>Stato Invio</th>
-                <th width="100">Scarica</th>
-                <th></th>
-            </tr>
+                <tr>
+                    <th width="5"></th>
+                    <th width="20">ID</th>
+                    <th>Utente</th>
+                    <th>Atto</th>
+                    <th>Data stampa</th>
+                    <th>Da</th>
+                    <th>A</th>
+                    <th>Stato</th>
+                    <th>Stato Invio</th>
+                    <th width="100">Scarica</th>
+                    <th></th>
+                </tr>
             </thead>
 
             <tbody>
             @foreach (var stampa in Model.Results)
             {
                 <tr>
+                    @if (!stampa.DASI)
+                    {
+                        <td>
+                            <div class="chip blue-text white" style="min-width: unset; border: 1px solid #7EADF3 ">PEM</div>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <div class="chip red-text white" style="min-width: unset; border: 1px solid #F4433C">DASI</div>
+                        </td>
+                    }
                     <td>
                         <i class="IDSTAMPA icon material-icons tooltipped" data-position="bottom" data-tooltip="@stampa.UIDStampa" onclick="copy_to_clipboard('@stampa.UIDStampa')">fingerprint</i>
-                        <input id="fingerprint_@stampa.UIDStampa" value="@stampa.UIDStampa" style="opacity: .01; height: 0; z-index: -1"/>
+                        <input id="fingerprint_@stampa.UIDStampa" value="@stampa.UIDStampa" style="opacity: .01; height: 0; z-index: -1" />
                     </td>
                     <td>
                         @if (stampa.Richiedente != null)
@@ -75,54 +88,85 @@
                             <b>@stampa.Richiedente.DisplayName</b>
                         }
                     </td>
-                    <td>
-                        @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
-                        <a class="blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = (int)ClientModeEnum.GRUPPI})')" data-position="bottom" data-tooltip="Vai all'atto">
-                            <i class="material-icons">call_made</i>
-                        </a>
-                    </td>
-                    <td>
-                        @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
-                    </td>
-                    @if (stampa.UIDEM.HasValue)
+
+                    @if (!stampa.DASI)
                     {
-                        <td colspan="2">
-                            <div class="chip center purple lighten-5" style="min-width: unset">
-                                Stampa singola
-                            </div>
+                        <td>
+                            @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
+                            <a class="blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = (int) ClientModeEnum.GRUPPI})')" data-position="bottom" data-tooltip="Vai all'atto">
+                                <i class="material-icons">call_made</i>
+                            </a>
                         </td>
-                    }
-                    else if (stampa.Da == 0 && stampa.A == 0)
-                    {
-                        <td colspan="2">
-                            @switch ((OrdinamentoEnum) stampa.Ordine.Value)
-                            {
-                                case OrdinamentoEnum.Presentazione:
-                                    <div class="chip center" style="min-width: unset">
-                                        Fascicolo Presentazione
-                                    </div>
-                                    break;
-                                case OrdinamentoEnum.Votazione:
-                                    <div class="chip center" style="min-width: unset">
-                                        Fascicolo Votazione
-                                    </div>
-                                    break;
-                                case OrdinamentoEnum.Default:
-                                    break;
-                                default:
-                                    throw new ArgumentOutOfRangeException();
-                            }
+                        <td>
+                            @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
                         </td>
+                        if (stampa.UIDEM.HasValue)
+                        {
+                            <td colspan="2">
+                                <div class="chip center purple lighten-5" style="min-width: unset">
+                                    Stampa singola
+                                </div>
+                            </td>
+                        }
+                        else if (stampa.Da == 0 && stampa.A == 0)
+                        {
+                            <td colspan="2">
+                                @switch ((OrdinamentoEnum)stampa.Ordine.Value)
+                                {
+                                    case OrdinamentoEnum.Presentazione:
+                                        <div class="chip center" style="min-width: unset">
+                                            Fascicolo Presentazione
+                                        </div>
+                                        break;
+                                    case OrdinamentoEnum.Votazione:
+                                        <div class="chip center" style="min-width: unset">
+                                            Fascicolo Votazione
+                                        </div>
+                                        break;
+                                    case OrdinamentoEnum.Default:
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @stampa.Da
+                            </td>
+                            <td>
+                                @stampa.A
+                            </td>
+                        }
                     }
                     else
                     {
+
                         <td>
-                            @stampa.Da
                         </td>
                         <td>
-                            @stampa.A
+                            @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
                         </td>
+                        if (stampa.UIDAtto.HasValue)
+                        {
+                            <td colspan="2">
+                                <div class="chip center purple lighten-5" style="min-width: unset">
+                                    Stampa singola
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @stampa.Da
+                            </td>
+                            <td>
+                                @stampa.A
+                            </td>
+                        }
                     }
+
                     <td>
                         @{
                             var abilitaReset = false;

@@ -140,7 +140,7 @@ namespace PortaleRegione.API.Controllers
                 if (attoDto.DocAllegatoGenerico_Stream != null)
                 {
                     var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
-                    result.PATH_AllegatoGenerico =
+                    attoInDb.PATH_AllegatoGenerico =
                         Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                 }
 
