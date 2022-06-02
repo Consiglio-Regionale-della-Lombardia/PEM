@@ -34,13 +34,14 @@ else
     <table class="responsive-table highlight">
         <thead>
         <tr>
-            <th class="center">
-            </th>
+        <th width="5" class="center">
+            
+        </th>
             <th width="150">Atto</th>
             <th>Tipo</th>
             <th>Oggetto</th>
-            <th>Firmatari</th>
-            <th>Stato</th>
+            <th width="150">Firmatari</th>
+            <th width="150">Stato</th>
             @if (Model.ClientMode == ClientModeEnum.GRUPPI)
             {
                 if (Model.Stato != StatiAttoEnum.BOZZA)

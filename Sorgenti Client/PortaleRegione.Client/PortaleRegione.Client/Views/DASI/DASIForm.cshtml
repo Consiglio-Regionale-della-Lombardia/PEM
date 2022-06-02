@@ -115,10 +115,13 @@
                         @Html.LabelFor(s => s.Atto.Richiesta)
                         @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
                     </div>
+
+                    @Html.Partial("_DocsPanel", Model)
+
                 }
 
                 <div class="fixed-action-btn">
-                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva emendamento">
+                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
                         <i class="large material-icons">save</i>
                     </button>
                 </div>

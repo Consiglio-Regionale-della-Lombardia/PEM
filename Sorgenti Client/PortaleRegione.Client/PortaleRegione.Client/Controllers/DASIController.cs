@@ -43,12 +43,20 @@ namespace PortaleRegione.Client.Controllers
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50,
+        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
             int stato = (int) StatiAttoEnum.BOZZA, int tipo = (int) TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser);
-            SetCache(page, size, (TipoAttoEnum) tipo, (StatiAttoEnum) stato);
+            SetCache(page, size, tipo, stato, view);
+            if (view == (int)ViewModeEnum.PREVIEW)
+            {
+                model.ViewMode = ViewModeEnum.PREVIEW;
+                foreach (var atti in model.Data.Results)
+                    atti.BodyAtto =
+                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+            }
+
             Session["RiepilogoDASI"] = model;
 
             if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
@@ -461,6 +469,11 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per andare nella pagina preview degli atti
         /// </summary>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <param name="tipo"></param>
+        /// <param name="stato"></param>
+        /// <param name="viewModeEnum"></param>
         /// <param name="mode"></param>
         /// <returns></returns>
         //[HttpGet]
@@ -474,7 +487,7 @@ namespace PortaleRegione.Client.Controllers
         //    }
         //}
 
-        private void SetCache(int page, int size, TipoAttoEnum tipo, StatiAttoEnum stato)
+        private void SetCache(int page, int size, int tipo, int stato, int viewModeEnum)
         {
             HttpContext.Cache.Insert(
                 CacheHelper.TIPO_DASI,
@@ -509,6 +522,16 @@ namespace PortaleRegione.Client.Controllers
             HttpContext.Cache.Insert(
                 CacheHelper.SIZE_DASI,
                 size,
+                null,
+                Cache.NoAbsoluteExpiration,
+                Cache.NoSlidingExpiration,
+                CacheItemPriority.NotRemovable,
+                (key, value, reason) => { Console.WriteLine("Cache removed"); }
+            );
+            
+            HttpContext.Cache.Insert(
+                CacheHelper.VIEW_MODE_DASI,
+                viewModeEnum,
                 null,
                 Cache.NoAbsoluteExpiration,
                 Cache.NoSlidingExpiration,

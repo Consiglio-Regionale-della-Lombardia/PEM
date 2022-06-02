@@ -61,7 +61,10 @@ namespace PortaleRegione.DTO.Domain
         public string Hash { get; set; }
         public int IDTipo_Risposta { get; set; }
         public int OrdineVisualizzazione { get; set; }
+        
+        [DisplayName("Allegato")]
         public string PATH_AllegatoGenerico { get; set; }
+        
         public string Note_Pubbliche { get; set; }
         public string Note_Private { get; set; }
         public int IDStato { get; set; }

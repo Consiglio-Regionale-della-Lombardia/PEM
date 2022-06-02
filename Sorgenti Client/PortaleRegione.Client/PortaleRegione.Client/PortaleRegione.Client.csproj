@@ -138,6 +138,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="android-chrome-192x192.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="android-chrome-512x512.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="apple-touch-icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\editor\langs\ar.js" />
     <Content Include="Content\editor\langs\ar.min.js" />
     <Content Include="Content\editor\langs\bg.js" />
@@ -300,6 +309,12 @@
     <Content Include="Content\gruppi-theme.css" />
     <Content Include="Content\jquery-hex-picker.css" />
     <Content Include="Content\trattazione-theme.css" />
+    <Content Include="favicon-16x16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="favicon-32x32.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="favicon.ico" />
     <Content Include="fonts\text-security-disc.svg" />
     <Content Include="Global.asax" />
@@ -422,6 +437,11 @@
     <Content Include="Views\DASI\_Command_RiepilogoDASI.cshtml" />
     <Content Include="Views\DASI\_InvitoPanel.cshtml" />
     <Content Include="Views\DASI\_StampaModal.cshtml" />
+    <Content Include="Views\DASI\_DocsPanel.cshtml" />
+    <Content Include="site.webmanifest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\DASI\_ZoomView_RiepilogoDASI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

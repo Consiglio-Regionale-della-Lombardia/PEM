@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -108,7 +109,15 @@ namespace PortaleRegione.API.Controllers
                     result.Richiesta = attoDto.Richiesta;
                     result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
 
+                    if (attoDto.DocAllegatoGenerico_Stream != null)
+                    {
+                        var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
+                        result.PATH_AllegatoGenerico =
+                            Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                    }
+
                     _unitOfWork.DASI.Add(result);
+
                     await _unitOfWork.CompleteAsync();
 
                     await GestioneSoggettiInterrogati(attoDto);
@@ -127,6 +136,14 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.Premesse = attoDto.Premesse;
                 attoInDb.Richiesta = attoDto.Richiesta;
                 attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+
+                if (attoDto.DocAllegatoGenerico_Stream != null)
+                {
+                    var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
+                    result.PATH_AllegatoGenerico =
+                        Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                }
+
                 await _unitOfWork.CompleteAsync();
 
                 await GestioneSoggettiInterrogati(attoDto, true);

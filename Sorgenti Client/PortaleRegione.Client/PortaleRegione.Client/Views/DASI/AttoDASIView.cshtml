@@ -4,12 +4,13 @@
 @model PortaleRegione.DTO.Domain.AttoDASIDto
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(Model.Tipo)} {Model.NAtto}";
 
-    var tipoFromCache = HttpContext.Current.Cache.Get("TipoDASI");
-    var statoFromCache = HttpContext.Current.Cache.Get("StatoDASI");
-    var pageFromCache = HttpContext.Current.Cache.Get("Page");
-    var sizeFromCache = HttpContext.Current.Cache.Get("Size");
+    var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
+    var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
+    var pageFromCache = HttpContext.Current.Cache.Get(CacheHelper.PAGE_DASI);
+    var sizeFromCache = HttpContext.Current.Cache.Get(CacheHelper.SIZE_DASI);
+    var viewFromCache = HttpContext.Current.Cache.Get(CacheHelper.VIEW_MODE_DASI);
 
     object objParams = null;
     objParams = new
@@ -17,7 +18,8 @@
         page = pageFromCache,
         size = sizeFromCache,
         tipo = tipoFromCache,
-        stato = statoFromCache
+        stato = statoFromCache,
+        view = viewFromCache
     };
     var backUrl = Url.Action("RiepilogoDASI", objParams);
 }

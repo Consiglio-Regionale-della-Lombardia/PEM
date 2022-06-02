@@ -30,5 +30,6 @@ namespace PortaleRegione.Client.Helpers
         public static string TIPO_DASI => "TipoDASI";
         public static string PAGE_DASI => "PageDASI";
         public static string SIZE_DASI => "SizeDASI";
+        public static string VIEW_MODE_DASI=> "ViewModeDASI";
     }
 }

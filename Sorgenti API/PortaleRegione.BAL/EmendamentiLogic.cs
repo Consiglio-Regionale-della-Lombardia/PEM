@@ -434,7 +434,7 @@ namespace PortaleRegione.BAL
                     em.NLettera = lettera.Lettera;
                 }
 
-                CleanMetaDatiInEccesso(em);
+                PuliziaMetaDati(em);
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -473,7 +473,7 @@ namespace PortaleRegione.BAL
                     em.NLettera = lettera.Lettera;
                 }
 
-                CleanMetaDatiInEccesso(em);
+                PuliziaMetaDati(em);
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -484,7 +484,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private void CleanMetaDatiInEccesso(EM em)
+        private void PuliziaMetaDati(EM em)
         {
             switch ((PartiEMEnum) em.IDParte)
             {

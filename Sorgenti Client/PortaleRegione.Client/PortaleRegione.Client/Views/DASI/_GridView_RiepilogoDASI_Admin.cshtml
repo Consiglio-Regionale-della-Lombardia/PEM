@@ -32,26 +32,21 @@ else
 {
     <table class="responsive-table highlight">
         <thead>
-        <tr>
-            <th class="center">
-
-                <label>
-                    <input type="checkbox" id="checkAll"/>
-                    <span for="checkAll"></span>
-                </label>
-            </th>
-            <th>Atto</th>
-            <th>Tipo</th>
-            <th>Oggetto</th>
-            @*<th>Soggetto</th>*@
-            <th>Firmatari</th>
-            <th>Stato</th>
-            @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-            {
-                <th>Seduta</th>
-            }
-            <th></th>
-        </tr>
+            <tr>
+                <th width="5" class="center">
+                </th>
+                <th>Atto</th>
+                <th>Tipo</th>
+                <th>Oggetto</th>
+                @*<th>Soggetto</th>*@
+                <th width="150">Firmatari</th>
+                <th width="150">Stato</th>
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    <th>Seduta</th>
+                }
+                <th></th>
+            </tr>
         </thead>
 
         <tbody>

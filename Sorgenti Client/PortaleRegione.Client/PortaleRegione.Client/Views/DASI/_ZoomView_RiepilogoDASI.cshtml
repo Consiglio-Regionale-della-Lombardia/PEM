@@ -1,0 +1,107 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+    Html.RenderPartial("_Command_RiepilogoDASI", Model);
+}
+
+@if (!Model.Data.Results.Any())
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel panel-warning center">
+                <span class="center">
+                    @{
+                        var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+                        if (require_my_sign)
+                        {
+                            <p>Non ci sono atti dove è richiesta la tua firma</p>
+                        }
+                        else
+                        {
+                            <p>Non ci sono atti al momento</p>
+                        }
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    foreach (var item in Model.Data.Results)
+    {
+        <div class="col s12 m12 l12">
+            <div class="card hoverable">
+                <div class='row'>
+                    <div class='col s4'>
+                        <div class='card-action left'>
+                            <label>
+                                <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                                <span></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class='col s4'>
+                        <div class='card-action center'>
+                            <div class="chip center white-text @Utility.GetCSS_StatoDASI(item.IDStato)" style="min-width: 180px">
+                                @PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato)
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col s4'>
+                        <div class='card-action right'>
+                            @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
+                            {
+                        @*@Html.Partial("_MetaDatiFormPartial", item)*@
+
+                                <a class="blue-text tooltipped" onclick="openMetaDati('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                    <i class="material-icons">edit</i>
+                                </a>
+                            }
+
+                            @if (item.Invito_Abilitato)
+                            {
+                                <a class='amber-text' style='margin: 5px' onclick="Invita('@item.UIDAtto')">
+                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Invita">send</i>
+                                </a>
+                            }
+
+                            <a class="green-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')" style="margin: 2px"
+                               data-position="left" data-tooltip="Visualizza atto">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class='card-content' style="padding: 0">
+                    @Html.Raw(item.BodyAtto)
+                </div>
+                @if (item.Firmabile || item.Presentabile)
+                {
+                    <div class='row'>
+                        <div class='col s12'>
+                            <div class='card-action right'>
+
+                                @if (item.Firmabile)
+                                {
+                                    <a class='green-text' style='margin: 5px' onclick="RevealFirmaDeposito('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                        <i class="icon material-icons" title="Firma">gavel</i>
+                                    </a>
+                                }
+                                @if (item.Presentabile)
+                                {
+                                    <a class='purple-text' style='margin: 5px' onclick="RevealFirmaDeposito('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                        <i class="icon material-icons" title="Presenta">lock</i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

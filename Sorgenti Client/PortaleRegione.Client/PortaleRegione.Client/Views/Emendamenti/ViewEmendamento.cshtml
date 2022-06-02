@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Domain.EmendamentiDto
 
@@ -6,10 +7,10 @@
     var displayAtto = string.Format("{0} {1}", Model.ATTI.TIPI_ATTO.Tipo_Atto, Model.ATTI.NAtto);
     ViewBag.Title = string.Format("{0}", displayAtto);
 
-    var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
-    var viewFromCache = HttpContext.Current.Cache.Get("ViewMode");
-    var pageFromCache = HttpContext.Current.Cache.Get("Page");
-    var sizeFromCache = HttpContext.Current.Cache.Get("Size");
+    var ordineFromCache = HttpContext.Current.Cache.Get(CacheHelper.ORDINAMENTO_PEM);
+    var viewFromCache = HttpContext.Current.Cache.Get(CacheHelper.VIEW_MODE_PEM);
+    var pageFromCache = HttpContext.Current.Cache.Get(CacheHelper.PAGE_PEM);
+    var sizeFromCache = HttpContext.Current.Cache.Get(CacheHelper.SIZE_PEM);
     object objParams = null;
     objParams = new
     {
