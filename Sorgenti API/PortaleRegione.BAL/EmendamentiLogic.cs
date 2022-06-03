@@ -1114,30 +1114,30 @@ namespace PortaleRegione.BAL
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 
-                model.ListaEmendamenti ??= new List<Guid>();
+                model.Lista ??= new List<Guid>();
                 switch (model.All)
                 {
-                    case true when !model.ListaEmendamenti.Any():
-                        model.ListaEmendamenti =
+                    case true when !model.Lista.Any():
+                        model.Lista =
                             (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto,
                                 personeInDbLight))
                             .Select(em => em.UIDEM).ToList();
                         break;
-                    case true when model.ListaEmendamenti.Any():
+                    case true when model.Lista.Any():
                     {
                         var emendamentiInDb =
                             (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto,
                                 personeInDbLight))
                             .Select(em => em.UIDEM).ToList();
-                        emendamentiInDb.RemoveAll(em => model.ListaEmendamenti.Contains(em));
-                        model.ListaEmendamenti = emendamentiInDb;
+                        emendamentiInDb.RemoveAll(em => model.Lista.Contains(em));
+                        model.Lista = emendamentiInDb;
                         break;
                     }
                 }
 
-                var firstEM = await _unitOfWork.Emendamenti.Get(model.ListaEmendamenti.First());
+                var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First());
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
-                foreach (var idGuid in model.ListaEmendamenti)
+                foreach (var idGuid in model.Lista)
                 {
                     var em = await GetEM(idGuid);
                     if (em == null)

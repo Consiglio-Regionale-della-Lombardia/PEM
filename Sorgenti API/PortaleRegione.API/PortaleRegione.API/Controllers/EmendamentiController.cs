@@ -1050,7 +1050,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var results = new Dictionary<Guid, string>();
 
-                foreach (var idGuid in model.ListaEmendamenti)
+                foreach (var idGuid in model.Lista)
                 {
                     var em = await _logicEm.GetEM(idGuid);
                     if (em == null)
@@ -1093,7 +1093,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var results = new Dictionary<Guid, string>();
 
-                foreach (var idGuid in model.ListaEmendamenti)
+                foreach (var idGuid in model.Lista)
                 {
                     var em = await _logicEm.GetEM(idGuid);
                     if (em == null)

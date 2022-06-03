@@ -31,6 +31,10 @@ main { margin-bottom: 150px; }
     font-weight: bold !important;
 }
 
+.btn-floating>i {
+    color:unset;
+}
+
 .collapsible-body {
     padding: 1rem !important;
 }
@@ -287,7 +291,29 @@ div.input-field > label { line-height: initial; }
     width: 10px;
 }
 
+.btn-firma {
+    font-weight: bold;
+    color: #4CAF50;
+    border: 1px solid #4CAF50;
+    background-color: white;
+    min-width: unset !important;
+}
 
+.btn-presenta {
+    font-weight: bold;
+    color: #2196f3;
+    border: 1px solid #2196f3;
+    background-color: white;
+    min-width: unset !important;
+}
+
+.btn-invita {
+    font-weight: bold;
+    color: #FFC107;
+    border: 1px solid #FFC107;
+    background-color: white;
+    min-width: unset !important;
+}
 
 /* STILI STATO EMENDAMENTI*/
 
@@ -439,14 +465,12 @@ div.input-field > label { line-height: initial; }
     color: #e91e63;
     background-color: white;
     border: 1px solid #e91e63;
-    background-color: white;
     min-width: unset !important;
 }
 
 .badgeITL {
     font-weight: bold;
     color: #2196f3;
-    background-color: white;
     border: 1px solid #2196f3;
     background-color: white;
     min-width: unset !important;
@@ -455,7 +479,6 @@ div.input-field > label { line-height: initial; }
 .badgeMOZ {
     font-weight: bold;
     color: #ff5722;
-    background-color: white;
     border: 1px solid #ff5722;
     background-color: white;
     min-width: unset !important;
@@ -464,7 +487,6 @@ div.input-field > label { line-height: initial; }
 .badgeITR {
     font-weight: bold;
     color: #673ab7;
-    background-color: white;
     border: 1px solid #673ab7;
     background-color: white;
     min-width: unset !important;
@@ -473,7 +495,6 @@ div.input-field > label { line-height: initial; }
 .badgeODG {
     font-weight: bold;
     color: #4caf50;
-    background-color: white;
     border: 1px solid #4caf50;
     background-color: white;
     min-width: unset !important;
@@ -482,7 +503,6 @@ div.input-field > label { line-height: initial; }
 .badgeALL {
     font-weight: bold;
     color: #9e9e9e;
-    background-color: white;
     border: 1px solid #9e9e9e;
     background-color: white;
     min-width: unset !important;
@@ -491,7 +511,6 @@ div.input-field > label { line-height: initial; }
 .badgeSeduta {
     font-weight: bold;
     color: #4caf50;
-    background-color: white;
     border: 1px solid #4caf50;
     background-color: white;
     min-width: unset !important;

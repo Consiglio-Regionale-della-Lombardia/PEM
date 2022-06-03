@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -55,7 +55,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.IDStato >= (int)StatiEnum.Depositato) return false;
+            if (em.IDStato >= (int) StatiEnum.Depositato) return false;
 
             if (em.ATTI.Chiuso) return false;
 
@@ -83,8 +83,8 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) return false;
-            
+            if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) return false;
+
             if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
                 persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
                 return true;
@@ -200,27 +200,13 @@ namespace PortaleRegione.Persistance
             int pageSize,
             Filter<NOTIFICHE> filtro = null)
         {
-            await PRContext.ATTI
-                .Include(a => a.SEDUTE)
-                .Include(a => a.TIPI_ATTO)
-                .Where(a => a.Eliminato == false)
-                .LoadAsync();
-
             var query = PRContext
                 .NOTIFICHE
-                .Include(n => n.ATTI)
-                .Include(n => n.EM)
-                .Include(n => n.TIPI_NOTIFICA)
-                .Where(n => n.ATTI.Eliminato == false);
-
-            query = query.Where(n => n.Mittente == currentUser.UID_persona);
+                .Where(n => n.Mittente == currentUser.UID_persona);
 
             if (idGruppo > 0) query = query.Where(nd => nd.IdGruppo == idGruppo);
 
-            if (Archivio == false)
-                query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
-            else
-                query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            query = query.Where(n => n.Chiuso == Archivio);
 
             if (currentUser.CurrentRole == RuoliIntEnum.Consigliere_Regionale
                 || currentUser.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta
@@ -237,7 +223,7 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            return await query.OrderByDescending(n => n.ATTI.SEDUTE.Scadenza_presentazione)
+            return await query.OrderByDescending(n => n.DataCreazione)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -268,28 +254,15 @@ namespace PortaleRegione.Persistance
                     .Select(n => n.UIDNotifica)
                     .ToListAsync();
 
-                await PRContext.ATTI
-                    .Include(a => a.SEDUTE)
-                    .Include(a => a.TIPI_ATTO)
-                    .Where(a => a.Eliminato == false)
-                    .LoadAsync();
-
                 var query = PRContext
                     .NOTIFICHE
                     .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
-                if (Archivio == false)
-                    query = query.Where(n =>
-                        !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value &&
-                        (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
-                else
-                    query = query.Where(n =>
-                        !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value &&
-                        n.ATTI.Data_chiusura <= DateTime.Now);
+                query = query.Where(n => n.Chiuso == Archivio);
 
                 filtro?.BuildExpression(ref query);
 
-                return await query.OrderByDescending(n => n.ATTI.SEDUTE.Scadenza_presentazione)
+                return await query.OrderByDescending(n => n.DataCreazione)
                     .Skip((pageIndex - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -303,9 +276,7 @@ namespace PortaleRegione.Persistance
             var resultNotificheNonViste = await queryDestinatari.Select(nd => nd.UIDNotifica).ToListAsync();
             var query2 = PRContext
                 .NOTIFICHE
-                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && !n.ATTI.SEDUTE.Eliminato.Value &&
-                            !n.ATTI.Eliminato.Value &&
-                            (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
+                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && n.Chiuso == false);
             filtro?.BuildExpression(ref query2);
 
             var result = await query2.ToListAsync();

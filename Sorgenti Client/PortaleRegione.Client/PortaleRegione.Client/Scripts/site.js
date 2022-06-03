@@ -261,6 +261,20 @@ function checkSelectedEM() {
     AbilitaComandiMassivi(null);
 }
 
+function checkSelectedDASI() {
+    var selezionaTutti = getSelezionaTutti();
+    var lista = getListaAtti();
+
+    $("#checkAll").prop("checked", selezionaTutti);
+    $('input[id^="chk_Atto_"]').not(this).prop("checked", selezionaTutti);
+    $.each(lista,
+        function(index, item) {
+            $("#chk_Atto_" + item).prop("checked", selezionaTutti ? false : true);
+        });
+
+    AbilitaComandiMassivi_DASI(null);
+}
+
 function addEM(uidEM) {
     var lista = getListaEmendamenti();
     lista.push(uidEM);
@@ -824,7 +838,7 @@ function CambioStatoMassivo(stato, descr) {
 
             var obj = {};
             obj.Stato = stato;
-            obj.ListaEmendamenti = listaEM;
+            obj.Lista = listaEM;
             obj.All = selezionaTutti;
             obj.AttoUId = $("#hdUIdAtto").val();
 

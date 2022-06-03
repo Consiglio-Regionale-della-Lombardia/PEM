@@ -87,7 +87,7 @@ else
 
                                 @if (item.Firmabile)
                                 {
-                                    <a class="btn-flat green-text" onclick="RevealFirmaDeposito('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                    <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
                                         <i class="material-icons right green-text">gavel</i>
                                         FIRMA
                                     </a>
@@ -95,7 +95,7 @@ else
                                 @if (item.Presentabile)
                                 {
                                     <a class="btn-flat purple-text"
-                                       onclick="RevealFirmaDeposito('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                       onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
                                         <i class="material-icons right purple-text">lock</i>
                                         PRESENTA
                                     </a>

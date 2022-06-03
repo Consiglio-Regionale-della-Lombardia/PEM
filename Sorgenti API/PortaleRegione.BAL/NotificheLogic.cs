@@ -85,15 +85,26 @@ namespace PortaleRegione.BAL
                 if (!notifiche.Any()) return new List<NotificaDto>();
 
                 var result = new List<NotificaDto>();
-                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM, false);
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var notifica in notifiche)
                 {
-                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
+                    var idgruppo = 0;
+                    if (notifica.UIDEM == Guid.Empty)
+                    {
+                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser, personeInDbLight);
+                        notifica.ATTO_DASI = atto_dasi;
+                        idGruppo = notifica.ATTO_DASI.id_gruppo;
+                    }
+                    else
+                    {
+                        var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
+                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
+                        idGruppo = notifica.EM.id_gruppo;
+                    }
+
                     notifica.UTENTI_NoCons = await _logicPersone.GetPersona(notifica.Mittente,
-                        notifica.EM.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                        idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                     result.Add(notifica);
                 }
 
@@ -135,15 +146,27 @@ namespace PortaleRegione.BAL
                 if (!notifiche.Any()) return new List<NotificaDto>();
 
                 var result = new List<NotificaDto>();
-                var firstEM = await _unitOfWork.Emendamenti.Get(notifiche.First().UIDEM, false);
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var notifica in notifiche)
                 {
-                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
+                    var idgruppo = 0;
+                    if (notifica.UIDEM == Guid.Empty)
+                    {
+                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser, personeInDbLight);
+                        notifica.ATTO_DASI = atto_dasi;
+                        idGruppo = notifica.ATTO_DASI.id_gruppo;
+                    }
+                    else
+                    {
+                        var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
+                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
+                        idGruppo = notifica.EM.id_gruppo;
+                    }
+
                     notifica.UTENTI_NoCons = await _logicPersone.GetPersona(notifica.Mittente,
-                        notifica.EM.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                        idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                     result.Add(notifica);
                 }
 
@@ -392,7 +415,6 @@ namespace PortaleRegione.BAL
 
                     #endregion
                 }
-
 
                 return results;
             }

@@ -164,7 +164,6 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                //TODO: ELIMINA E RITIRA MASSIVO
                 var apiGateway = new ApiGateway(_Token);
                 switch ((ActionEnum) azione)
                 {
@@ -289,6 +288,10 @@ namespace PortaleRegione.Client.Controllers
                                 message =
                                     "Nessuna invito effettuato"
                             }, JsonRequestBehavior.AllowGet);
+                    case ActionEnum.RITIRA:
+                        throw new InvalidOperationException("Azione non abilitata");
+                    case ActionEnum.ELIMINA:
+                        throw new InvalidOperationException("Azione non abilitata");
                     default:
                         throw new ArgumentOutOfRangeException(nameof(model.Azione), model.Azione, null);
                 }

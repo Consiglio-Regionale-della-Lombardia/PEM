@@ -347,7 +347,7 @@
             var listaEM = getListaEmendamenti();
             var obj = {};
             obj.Colore = $("#txtColore").val();
-            obj.ListaEmendamenti = listaEM;
+            obj.Lista = listaEM;
 
             //submit via ajax
             $.ajax({
@@ -438,7 +438,7 @@
             var obj = {};
             obj.NuovoProponente = proponenti[0].id;
             obj.IsAssessore = $("#chkAssegnaComeAssessore").checked;
-            obj.ListaEmendamenti = listaEM;
+            obj.Lista = listaEM;
 
             //submit via ajax
             $.ajax({
@@ -524,7 +524,7 @@
             var obj = {};
             obj.Pin = value;
             obj.Azione = 5;
-            obj.ListaEmendamenti = listaEM;
+            obj.Lista = listaEM;
             obj.ListaDestinatari = destinatari;
 
             $.ajax({

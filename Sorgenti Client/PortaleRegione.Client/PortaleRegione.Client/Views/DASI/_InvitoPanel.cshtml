@@ -1,5 +1,4 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model PortaleRegione.DTO.Model.InvitoPanelModel
 
 <div id="modalDASINotificaA" class="modal modal-fixed-footer">
     <div class="modal-content">
@@ -89,8 +88,12 @@
         submitHandler: function (form) {
 
             var listaAtti = getListaAtti();
-            if ('@Model.UIDAtto' != '@Guid.Empty') {
-                listaAtti.push('@Model.UIDAtto');
+            @if (Model.GetType() == typeof(PortaleRegione.DTO.Domain.AttoDASIDto))
+            {
+                if (Model.UIDAtto != Guid.Empty)
+                {
+                    Html.Raw($"listaAtti.push('{Model.UIDAtto}');");
+                }
             }
 
             var destinatari = chipInstanceNotificaA.getData();
