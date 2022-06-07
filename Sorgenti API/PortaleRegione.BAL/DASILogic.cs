@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -419,7 +420,7 @@ namespace PortaleRegione.API.Controllers
             Guid sedutaId, object _clientMode, Filter<ATTI_DASI> filtro)
         {
             var clientMode = (ClientModeEnum) Convert.ToInt16(_clientMode);
-
+            PulisciFiltro(ref filtro);
             var result = new CountBarData
             {
                 ITL = await _unitOfWork
@@ -475,6 +476,24 @@ namespace PortaleRegione.API.Controllers
             };
 
             return result;
+        }
+
+        private void PulisciFiltro(ref Filter<ATTI_DASI> filtro)
+        {
+            var filtro_pulito = new List<FilterStatement<ATTI_DASI>>();
+            var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.IDStato));
+            foreach (var filterStatement in filtri_da_rimuovere)
+            {
+                filtro_pulito.Add(new FilterStatement<ATTI_DASI>
+                {
+                    PropertyId = filterStatement.PropertyId,
+                    Value = filterStatement.Value,
+                    Connector = filterStatement.Connector
+                });
+            }
+
+            filtro = new Filter<ATTI_DASI>();
+            filtro.ImportStatements(filtro_pulito);
         }
 
         private TipoAttoEnum GetResponseTypeFromFilters(List<FilterStatement<AttoDASIDto>> modelFiltro)
@@ -1298,6 +1317,22 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
 
+        }
+
+        public IEnumerable<StatiDto> GetStati()
+        {
+            var result = new List<StatiDto>();
+            var stati = Enum.GetValues(typeof(StatiAttoEnum));
+            foreach (var stato in stati)
+            {
+                result.Add(new StatiDto()
+                {
+                    IDStato = (int)stato,
+                    Stato = Utility.GetText_StatoDASI((int)stato)
+                });
+            }
+
+            return result;
         }
     }
 }

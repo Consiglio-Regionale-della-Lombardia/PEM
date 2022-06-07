@@ -142,6 +142,8 @@ namespace PortaleRegione.Common
         {
             switch ((StatiAttoEnum) stato)
             {
+                case StatiAttoEnum.BOZZA_RISERVATA:
+                    return "Bozza Ris.";
                 case StatiAttoEnum.BOZZA:
                     return "Bozza";
                 case StatiAttoEnum.PRESENTATO:
@@ -163,13 +165,15 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.DECADUTO:
                     return "Decaduto";
                 case StatiAttoEnum.DECADUTO_FINE_MANDATO:
-                    return "Decadenza per fine mandato consigliere";
+                    return "Decadenza FMC";
                 case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
-                    return "Decadenza per fine legislatura";
+                    return "Decadenza FL";
                 case StatiAttoEnum.ALTRO:
-                    return "Chiusura per motivi diversi";
+                    return "Chiusura Altro";
                 case StatiAttoEnum.CHIUSO:
                     return "Chiuso";
+                case StatiAttoEnum.TUTTI:
+                    return "Tutti";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }
@@ -588,6 +592,20 @@ namespace PortaleRegione.Common
                     PropertyId = nameof(AttoDASIDto.Oggetto),
                     Operation = Operation.Contains,
                     Value = filtroOggetto,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+        }
+
+        public static void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato)
+        {
+            if (!string.IsNullOrEmpty(filtroStato))
+            {
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    Operation = Operation.EqualTo,
+                    Value = filtroStato,
                     Connector = FilterStatementConnector.And
                 });
             }

@@ -81,6 +81,17 @@ function set_ListaStatiEM(obj) {
     sessionStorage.setItem("ListaStatiEM", JSON.stringify(obj));
 }
 
+function get_ListaStatiDASI() {
+    var session_raw = sessionStorage.getItem("ListaStatiDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function set_ListaStatiDASI(obj) {
+    sessionStorage.setItem("ListaStatiDASI", JSON.stringify(obj));
+}
+
 function get_ListaTipiEM() {
     var session_raw = sessionStorage.getItem("ListaTipiEM");
     if (session_raw == null)

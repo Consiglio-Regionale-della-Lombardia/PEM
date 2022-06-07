@@ -1,6 +1,6 @@
 ﻿@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <script>
-    $(window).on('load', function () {
+    $(window).on('load', async function () {
         setSelezionaTutti_DASI(false);
 
         $('#btnSearch').on("click", function () {
@@ -15,6 +15,7 @@
         }
 
         Filtri_DASI_CaricaOggetto("qOggetto");
+        await Filtri_DASI_CaricaStato("qStato");
 
         checkSelectedDASI();
     });

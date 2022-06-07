@@ -92,7 +92,7 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (atto.IDStato > (int)StatiEnum.Depositato)
+            if (atto.IDStato > (int)StatiAttoEnum.PRESENTATO)
             {
                 return false;
             }

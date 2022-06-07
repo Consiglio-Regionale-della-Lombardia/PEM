@@ -26,17 +26,7 @@
                             <label>Tipo</label>
                         </div>
                         <div class="input-field col s12">
-                            <select>
-                                <option value="@Html.Raw((int) StatiAttoEnum.TUTTI)" selected>Tutti</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.PRESENTATO)">Presentato</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.APPROVATO)">Approvato</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA)">Comunicazione Assemblea</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.IN_TRATTAZIONE)">In Trattazione</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.INAMMISSIBILE)">Inammissibile</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO)">Decaduto</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_LEGISLATURA)">Decaduto FL</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_MANDATO)">Decaduto FM</option>
-                                <option value="@Html.Raw((int) StatiAttoEnum.RITIRATO)">Ritirato</option>
+                            <select id="qStato" name="filtro_stato" onchange="filter_dasi_stato_OnChange()">
                             </select>
                             <label>Stato</label>
                         </div>
@@ -89,11 +79,14 @@
         CaricaSoggettiInterrogati();
     });
 
-    function reset() {
+    async function reset() {
         set_Filtri_DASI({});
         $('#inputFilterPage').val(1);
         $('#inputFilterReset').val(1);
+
         Filtri_DASI_CaricaOggetto("qOggetto");
+        await Filtri_DASI_CaricaStato("qStato");
+
         setTimeout(function () {
                 $('body').removeClass('loaded');
             },

@@ -2,21 +2,21 @@
 {
     public enum StatiAttoEnum
     {
-        BOZZA = 0,
-        PRESENTATO = 1,
-        IN_TRATTAZIONE = 2,
-        COMUNICAZIONE_ASSEMBLEA = 3,
-        TRATTAZIONE_ASSEMBLEA = 4,
-        APPROVATO = 5,
-        RESPINTO = 6,
-        INAMMISSIBILE = 7,
-        RITIRATO = 8,
-        DECADUTO = 9,
-        DECADUTO_FINE_MANDATO = 10,
-        DECADUTO_FINE_LEGISLATURA = 11,
+        TUTTI = 0,
+        BOZZA_RISERVATA = 1,
+        BOZZA = 2,
+        PRESENTATO = 3,
+        IN_TRATTAZIONE = 4,
+        COMUNICAZIONE_ASSEMBLEA = 5,
+        TRATTAZIONE_ASSEMBLEA = 6,
+        APPROVATO = 7,
+        RESPINTO = 8,
+        INAMMISSIBILE = 9,
+        RITIRATO = 10,
+        DECADUTO = 11,
+        DECADUTO_FINE_MANDATO = 12,
+        DECADUTO_FINE_LEGISLATURA = 13,
+        CHIUSO = 14,
         ALTRO = 99,
-        BOZZA_RISERVATA = -1,
-        CHIUSO = 12,
-        TUTTI = 100
     }
 }

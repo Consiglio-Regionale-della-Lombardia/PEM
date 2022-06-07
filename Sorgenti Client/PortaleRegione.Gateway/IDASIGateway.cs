@@ -55,5 +55,6 @@ namespace PortaleRegione.Gateway
         Task RimuoviSeduta(IscriviSedutaDASIModel model);
         Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId);
         Task<string> GetCopertina(ByQueryModel model);
+        Task<IEnumerable<StatiDto>> GetStati();
     }
 }

@@ -688,6 +688,24 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-
+        
+        /// <summary>
+        ///     Endpoint per avere gli stati
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("stati")]
+        public async Task<IHttpActionResult> GetStati()
+        {
+            try
+            {
+                return Ok(_logic.GetStati());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetStati", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

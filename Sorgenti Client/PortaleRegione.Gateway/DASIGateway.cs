@@ -671,5 +671,26 @@ namespace PortaleRegione.Gateway
             }
 
         }
+
+        public async Task<IEnumerable<StatiDto>> GetStati()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/stati";
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<StatiDto>>(await Get(requestUrl, _token));
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetStati", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetStati", ex);
+                throw ex;
+            }
+        }
     }
 }

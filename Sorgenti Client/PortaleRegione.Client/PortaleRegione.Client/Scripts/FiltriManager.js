@@ -287,6 +287,27 @@ function GetStatiEM() {
     });
 }
 
+function GetStatiDASI() {
+    var stati = get_ListaStatiDASI();
+    if (stati.length > 0) {
+        return stati;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/stati",
+            type: "GET"
+        }).done(function (result) {
+            console.log(result)
+            set_ListaStatiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 async function Filtri_EM_CaricaTipiEM(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_EM();
@@ -696,10 +717,44 @@ function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     select.val(filterSelect);
 }
 
+async function Filtri_DASI_CaricaStato(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.stato;
+    }
+
+    var stati = await GetStatiDASI();
+    if (stati.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+        $.each(stati,
+            function (index, item) {
+                var template = "";
+                if (item.IDStato == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.IDStato).html(item.Stato));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
 function filter_dasi_oggetto_OnChange() {
     var value = $("#qOggetto").val();
     var filtri = get_Filtri_DASI();
     filtri.oggetto = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_stato_OnChange() {
+    var value = $("#qStato").val();
+    console.log('val', value)
+    var filtri = get_Filtri_DASI();
+    filtri.stato = value;
     set_Filtri_DASI(filtri);
 }
 

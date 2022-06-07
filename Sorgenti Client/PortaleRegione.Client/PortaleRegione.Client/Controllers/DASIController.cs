@@ -108,6 +108,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 var result = await apiGateway.DASI.Salva(request);
+                Session["RiepilogoDASI"] = null;
                 return Json(Url.Action("ViewAtto", "DASI", new
                 {
                     id = result.UIDAtto
@@ -580,6 +581,7 @@ namespace PortaleRegione.Client.Controllers
             int.TryParse(Request.Form["size"], out var filtro_size);
             var view = Request.Form["view"];
             var filtro_oggetto = Request.Form["filtro_oggetto"];
+            var filtro_stato = Request.Form["filtro_stato"];
             
             var model = new BaseRequest<AttoDASIDto>
             {
@@ -589,9 +591,27 @@ namespace PortaleRegione.Client.Controllers
             };
 
             Common.Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
+            Common.Utility.AddFilter_ByStato(ref model, filtro_stato);
             
             return model;
         }
 
+        //FILTRI
+
+        [HttpGet]
+        [Route("stati")]
+        public async Task<ActionResult> Filtri_GetStati()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.DASI.GetStati(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
