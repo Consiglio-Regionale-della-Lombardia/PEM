@@ -166,8 +166,20 @@ td { border: 1px solid #ddd; }
     margin-top: 20px !important;
 }
 
-/* Carousel */
+.rimuovi-seduta:hover {
+    color: #F4433C !important;
+}
+.rimuovi-seduta:before {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+    .rimuovi-seduta:hover:before {
+        opacity: 1;
+        visibility: visible;
+    }
 
+/* Carousel */
 .carousel-caption p {
     font-size: 20px;
     line-height: 1.4;
@@ -277,9 +289,9 @@ div.input-field > label { line-height: initial; }
     border: solid 1px #a5d6a7 !important;
 }
 
-.swal-button--confirm {
+/*.swal-button--confirm {
     background-color: #2196f3 !important;
-}
+}*/
 
 /* NOTIFICHE */
 .notifica-check {

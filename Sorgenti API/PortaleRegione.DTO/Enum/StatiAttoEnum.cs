@@ -16,6 +16,7 @@
         DECADUTO_FINE_LEGISLATURA = 11,
         ALTRO = 99,
         BOZZA_RISERVATA = -1,
-        CHIUSO = 12
+        CHIUSO = 12,
+        TUTTI = 100
     }
 }

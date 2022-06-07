@@ -7,7 +7,7 @@
 @section scripts
 {
     <script>
-        $(document).ready(async function () {
+        $(window).on('load', async function () {
             $('#btnSearch').on("click", function () {
                 openSearch();
             });

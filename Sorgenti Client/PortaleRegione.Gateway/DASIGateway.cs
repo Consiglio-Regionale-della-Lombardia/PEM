@@ -166,6 +166,29 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/riepilogo";
+                var body = JsonConvert.SerializeObject(model);
+
+                var lst = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("Get", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Get", ex);
+                throw ex;
+            }
+        }
+
         public async Task<Dictionary<Guid, string>> Firma(Guid attoUId, string pin)
         {
             var model = new ComandiAzioneModel

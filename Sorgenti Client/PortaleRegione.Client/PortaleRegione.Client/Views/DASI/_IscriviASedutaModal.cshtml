@@ -1,0 +1,108 @@
+﻿<!-- Modal Structure -->
+<div id="modalIscriviSeduta" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>Iscrivi <b id="txtIscriviSeduta_NomeAtto"></b> ad una delle seguenti sedute</h4>
+        <ul class="collection with-header" id="lstSeduteAttive">
+            <li>ciaso</li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
+    </div>
+</div>
+
+<script>
+    var sedute = [];
+    $(window).on('load', async function () {
+        if (sedute.length == 0) {
+            $('#modalIscriviSeduta>div>ul').empty();
+            var data = await GetSeduteAttive();
+            sedute = data.Results;
+            var checked = sedute.length == 1;
+            $.each(sedute,
+                function(i, item) {
+                    var resultDate = GetFormattedDate(item.Data_seduta);
+                    var text = "Seduta del " + resultDate;
+                    $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
+                        .replace("{TEXT}", text)
+                        .replace("{VALUE}", item.UIDSeduta)
+                        .replace("{CHECKED}", checked ? "checked='checked'": ""));
+                });
+        }
+    });
+
+    function RimuoviSedutaDASI(uidAtto, nomeAtto) {
+
+        swal({
+            title: "Rimozione atto dalla seduta",
+            text: "Sei sicuro di voler rimuovere " + nomeAtto + " dalla seduta associata?",
+            icon: "warning",
+            buttons: ["Annulla", "Rimuovi"],
+            dangerMode: true
+        }).then((willDelete) => {
+            if (willDelete) {
+                var obj = {};
+                obj.UidAtto = uidAtto;
+
+                $.ajax({
+                    url: '@Url.Action("RimuoviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalRimuoviSeduta").modal("close");
+                    $("#btnRimuoviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            }
+        });
+    }
+
+    function IscriviSedutaDASI(uidAtto, nomeAtto) {
+        $('#txtIscriviSeduta_NomeAtto').html(nomeAtto);
+        $("#btnIscriviSeduta_Salva").on("click",
+            function() {
+
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    ErrorAlert("Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto);
+                    return;
+                }
+
+                var obj = {};
+                obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                obj.UidAtto = uidAtto;
+
+                $.ajax({
+                    url: '@Url.Action("IscriviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalIscriviSeduta").modal("close");
+                    $("#btnIscriviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
+    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+</script>

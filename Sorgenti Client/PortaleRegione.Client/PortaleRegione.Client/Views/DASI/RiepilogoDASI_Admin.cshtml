@@ -116,8 +116,9 @@
 </div>
 
 @{
+    Html.RenderPartial("_IscriviASedutaModal");
     Html.RenderPartial("_PannelloRicerche");
     Html.RenderPartial("_ComandiDASI_Admin");
-    Html.RenderPartial("_ScriptRiepilogoDASI");
+    Html.RenderPartial("_ScriptRiepilogoDASI", Model);
 }
 

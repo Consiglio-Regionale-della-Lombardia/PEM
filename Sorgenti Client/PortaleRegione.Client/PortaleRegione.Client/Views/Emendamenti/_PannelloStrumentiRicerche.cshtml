@@ -279,7 +279,7 @@
 }
 
 <script>
-    $(document).ready(async function() {
+    $(window).on('load', async function() {
         var mode = getClientMode();
         $("#hdMode").val(mode);
         var load_gruppi = @Html.Raw(load_gruppi.ToString().ToLower());

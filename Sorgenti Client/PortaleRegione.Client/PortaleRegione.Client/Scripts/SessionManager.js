@@ -198,3 +198,15 @@ function get_Filtri_EM() {
 function set_Filtri_EM(obj) {
     sessionStorage.setItem("Filtri_EM", JSON.stringify(obj));
 }
+
+//DASI
+function get_Filtri_DASI() {
+    var session_raw = sessionStorage.getItem("Filtri_DASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function set_Filtri_DASI(obj) {
+    sessionStorage.setItem("Filtri_DASI", JSON.stringify(obj));
+}

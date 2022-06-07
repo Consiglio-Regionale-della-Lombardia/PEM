@@ -56,12 +56,36 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
+            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            {
+                query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
+            }
+
             return await query
                 .OrderByDescending(item => item.OrdineVisualizzazione)
                 .Select(item => item.UIDAtto)
                 .Skip((page - 1) * size)
                 .Take(size)
                 .ToListAsync();
+        }
+
+        public async Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> filtro = null)
+        {
+            var query = PRContext
+                .DASI
+                .Where(item => !item.Eliminato);
+
+            filtro?.BuildExpression(ref query);
+
+            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            {
+                query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+            }
+
+            return await query
+                .CountAsync();
         }
 
         public async Task<int> Count(Filter<ATTI_DASI> filtro)
@@ -75,8 +99,9 @@ namespace PortaleRegione.Persistance
             return await query
                 .CountAsync();
         }
-
-        public async Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> filtro)
+        
+        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null)
         {
             var query = PRContext
                 .DASI
@@ -84,23 +109,18 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            return await query
-                .CountAsync();
-        }
-
-        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode)
-        {
-            var query = PRContext
-                .DASI
-                .Where(item => !item.Eliminato);
-
             if (clientMode == ClientModeEnum.GRUPPI)
             {
-                if (stato == StatiAttoEnum.PRESENTATO
-                    && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale)
-                    query = query.Where(item => item.IDStato >= (int) stato);
-                else query = query.Where(item => item.IDStato == (int) stato);
+                if (stato != StatiAttoEnum.TUTTI)
+                {
+                    if (stato == StatiAttoEnum.PRESENTATO
+                        && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale)
+                        query = query.Where(item => item.IDStato >= (int)stato);
+                    else
+                    {
+                        query = query.Where(item => item.IDStato == (int)stato);
+                    }
+                }
 
                 if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
             }

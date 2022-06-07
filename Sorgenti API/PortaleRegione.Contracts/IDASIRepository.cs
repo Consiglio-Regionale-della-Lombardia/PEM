@@ -35,7 +35,7 @@ namespace PortaleRegione.Contracts
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
         Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode);
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null);
         Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta);
         Task<int> GetOrdine(int tipo);
         Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);

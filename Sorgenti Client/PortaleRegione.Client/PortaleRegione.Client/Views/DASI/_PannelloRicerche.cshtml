@@ -4,50 +4,61 @@
         <li class="active">
             <div class="collapsible-header teal white-text"><i class="material-icons">search</i>Ricerca</div>
             <div class="collapsible-body">
-                <div class="row">
-                    <div class="input-field col s12">
-                        <select>
-                            <option value="" disabled selected>Seleziona</option>
-                            <option value="@Html.Raw((int) TipoAttoEnum.ITL)">ITL</option>
-                            <option value="@Html.Raw((int) TipoAttoEnum.ITR)">ITR</option>
-                            <option value="@Html.Raw((int) TipoAttoEnum.IQT)">IQT</option>
-                            <option value="@Html.Raw((int) TipoAttoEnum.MOZ)">MOZ</option>
-                            <option value="@Html.Raw((int) TipoAttoEnum.ODG)">ODG</option>
-                        </select>
-                        <label>Tipo</label>
+                @using (Html.BeginForm("Filtri_Riepilogo", "DASI", FormMethod.Post, new { id = "formFiltraDASI" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input id="inputFilterReset" type="hidden" name="reset" value="0" />
+                    <input id="inputFilterView" type="hidden" name="view" value="@Model.ViewMode" />
+                    <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page" />
+                    <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit" />
+                    <input type="hidden" id="hdMode" name="mode" value="@((int)Model.ClientMode)" />
+
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select>
+                                <option value="" disabled selected>Seleziona</option>
+                                <option value="@Html.Raw((int) TipoAttoEnum.ITL)">ITL</option>
+                                <option value="@Html.Raw((int) TipoAttoEnum.ITR)">ITR</option>
+                                <option value="@Html.Raw((int) TipoAttoEnum.IQT)">IQT</option>
+                                <option value="@Html.Raw((int) TipoAttoEnum.MOZ)">MOZ</option>
+                                <option value="@Html.Raw((int) TipoAttoEnum.ODG)">ODG</option>
+                            </select>
+                            <label>Tipo</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <select>
+                                <option value="@Html.Raw((int) StatiAttoEnum.TUTTI)" selected>Tutti</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.PRESENTATO)">Presentato</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.APPROVATO)">Approvato</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA)">Comunicazione Assemblea</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.IN_TRATTAZIONE)">In Trattazione</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.INAMMISSIBILE)">Inammissibile</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO)">Decaduto</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_LEGISLATURA)">Decaduto FL</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_MANDATO)">Decaduto FM</option>
+                                <option value="@Html.Raw((int) StatiAttoEnum.RITIRATO)">Ritirato</option>
+                            </select>
+                            <label>Stato</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <input placeholder="Lorem ipsum" id="qOggetto" name="filtro_oggetto" type="text" onchange="filter_dasi_oggetto_OnChange()">
+                            <label for="qOggetto">Oggetto</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <label for="qSoggettoDestinatarioDasi">Soggetto interrogato</label>
+                            <div id="qSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
+                        </div>
+                        <div class="input-field col s12 center" style="padding-top: 30px">
+                            <a class="btn chip hoverable blue center white-text" style="min-width: unset !important" onclick="filtra(1)">
+                                <i class="icon material-icons">search</i> Filtra
+                            </a>
+                            <a class="btn chip hoverable grey center white-text" style="min-width: unset !important" onclick="reset()">
+                                <i class="icon material-icons">close</i> Reset
+                            </a>
+                        </div>
                     </div>
-                    <div class="input-field col s12">
-                        <select>
-                            <option value="" disabled selected>Seleziona</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.PRESENTATO)">Presentato</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.APPROVATO)">Approvato</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA)">Comunicazione Assemblea</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.IN_TRATTAZIONE)">In Trattazione</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.INAMMISSIBILE)">Inammissibile</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO)">Decaduto</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_LEGISLATURA)">Decaduto FL</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.DECADUTO_FINE_MANDATO)">Decaduto FM</option>
-                            <option value="@Html.Raw((int) StatiAttoEnum.RITIRATO)">Ritirato</option>
-                        </select>
-                        <label>Stato</label>
-                    </div>
-                    <div class="input-field col s12">
-                        <input placeholder="Lorem ipsum" id="qOggetto" type="text">
-                        <label for="qOggetto">Oggetto</label>
-                    </div>
-                    <div class="input-field col s12">
-                        <label for="qSoggettoDestinatarioDasi">Soggetto interrogato</label>
-                        <div id="qSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
-                    </div>
-                    <div class="input-field col s12 center" style="padding-top: 30px">
-                        <a class="btn chip hoverable blue center white-text" style="min-width: unset !important">
-                            <i class="icon material-icons">search</i> Filtra
-                        </a>
-                        <a class="btn chip hoverable grey center white-text" style="min-width: unset !important">
-                            <i class="icon material-icons">close</i> Reset
-                        </a>
-                    </div>
-                </div>
+                }
+
             </div>
         </li>
         <li>
@@ -73,10 +84,58 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(window).on('load', function () {
         /*$('#btnSearch>i').html('more_vert');*/
         CaricaSoggettiInterrogati();
     });
+
+    function reset() {
+        set_Filtri_DASI({});
+        $('#inputFilterPage').val(1);
+        $('#inputFilterReset').val(1);
+        Filtri_DASI_CaricaOggetto("qOggetto");
+        setTimeout(function () {
+                $('body').removeClass('loaded');
+            },
+            200);
+        $('#formFiltraDASI').submit();
+    }
+
+    function filtra() {
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        },
+            200);
+        $('#formFiltraDASI').submit();
+    }
+
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        },
+            200);
+        $('#formFiltraDASI').submit();
+    }
+
+    function filtra_Paginazione(size) {
+        $('#inputFilterPage').val(1);
+        $('#inputFilterSize').val(size);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        },
+            200);
+        $('#formFiltraDASI').submit();
+    }
+
+    function filtra_View(view) {
+        $('#inputFilterView').val(view);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        },
+            200);
+        $('#formFiltraDASI').submit();
+    }
 
     function CaricaSoggettiInterrogati() {
         var elemAutocomplete = document.querySelector('#qSoggettoDestinatarioDasi');

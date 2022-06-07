@@ -683,6 +683,27 @@ function GetTitoliMissioni() {
     });
 }
 
+//DASI
+function Filtri_DASI_CaricaOggetto(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.oggetto;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function filter_dasi_oggetto_OnChange() {
+    var value = $("#qOggetto").val();
+    var filtri = get_Filtri_DASI();
+    filtri.oggetto = value;
+    set_Filtri_DASI(filtri);
+}
+
+//EM
 function filter_em_text1_OnChange() {
     var value = $("#filter_em_text1").val();
     var filtri_em = get_Filtri_EM();

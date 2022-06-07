@@ -578,5 +578,19 @@ namespace PortaleRegione.Common
 
             return text;
         }
+
+        public static void AddFilter_ByOggetto(ref BaseRequest<AttoDASIDto> model, string filtroOggetto)
+        {
+            if (!string.IsNullOrEmpty(filtroOggetto))
+            {
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.Oggetto),
+                    Operation = Operation.Contains,
+                    Value = filtroOggetto,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+        }
     }
 }

@@ -255,7 +255,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     var defaultCounterBar =
                         await GetResponseCountBar(persona, GetResponseStatusFromFilters(model.filtro),
-                            GetResponseTypeFromFilters(model.filtro), sedutaId, CLIENT_MODE);
+                            GetResponseTypeFromFilters(model.filtro), sedutaId, CLIENT_MODE,queryFilter);
                     return new RiepilogoDASIModel
                     {
                         Data = new BaseResponse<AttoDASIDto>(
@@ -299,7 +299,7 @@ namespace PortaleRegione.API.Controllers
                 };
 
                 responseModel.CountBarData =
-                    await GetResponseCountBar(persona, responseModel.Stato, responseModel.Tipo, sedutaId, CLIENT_MODE);
+                    await GetResponseCountBar(persona, responseModel.Stato, responseModel.Tipo, sedutaId, CLIENT_MODE, queryFilter);
 
                 return responseModel;
             }
@@ -416,7 +416,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode)
+            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> filtro)
         {
             var clientMode = (ClientModeEnum) Convert.ToInt16(_clientMode);
 
@@ -426,42 +426,42 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITL
-                        , stato, sedutaId, clientMode),
+                        , stato, sedutaId, clientMode, filtro),
                 ITR = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITR
-                        , stato, sedutaId, clientMode),
+                        , stato, sedutaId, clientMode, filtro),
                 IQT = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.IQT
-                        , stato, sedutaId, clientMode),
+                        , stato, sedutaId, clientMode, filtro),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.MOZ
-                        , stato, sedutaId, clientMode),
+                        , stato, sedutaId, clientMode, filtro),
                 ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG
-                        , stato, sedutaId, clientMode),
+                        , stato, sedutaId, clientMode, filtro),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.TUTTI
-                        , stato, sedutaId, clientMode),
+                        , stato, sedutaId, clientMode, filtro),
                 BOZZE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.BOZZA, sedutaId, clientMode),
+                        , StatiAttoEnum.BOZZA, sedutaId, clientMode, filtro),
                 PRESENTATI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode),
+                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
@@ -471,7 +471,7 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode)
+                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro)
             };
 
             return result;
@@ -494,13 +494,13 @@ namespace PortaleRegione.API.Controllers
         private StatiAttoEnum GetResponseStatusFromFilters(List<FilterStatement<AttoDASIDto>> modelFiltro)
         {
             if (modelFiltro == null)
-                return StatiAttoEnum.BOZZA;
-            if (!modelFiltro.Any()) return StatiAttoEnum.BOZZA;
+                return StatiAttoEnum.TUTTI;
+            if (!modelFiltro.Any()) return StatiAttoEnum.TUTTI;
 
             var statusFilter = modelFiltro
                 .FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.IDStato));
             if (statusFilter == null)
-                return StatiAttoEnum.BOZZA;
+                return StatiAttoEnum.TUTTI;
 
             return (StatiAttoEnum) Convert.ToInt16(statusFilter.Value);
         }

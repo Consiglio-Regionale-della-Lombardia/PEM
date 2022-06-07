@@ -27,6 +27,7 @@ using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 
@@ -542,5 +543,55 @@ namespace PortaleRegione.Client.Controllers
                 (key, value, reason) => { Console.WriteLine("Cache removed"); }
             );
         }
+
+        [HttpPost]
+        [Route("filtra")]
+        public async Task<ActionResult> Filtri_Riepilogo()
+        {
+            Session["RiepilogoDASI"] = null;
+            int.TryParse(Request.Form["reset"], out var reset_enabled);
+
+            if (reset_enabled == 1)
+                return RedirectToAction("RiepilogoDASI", "DASI");
+            var model = ElaboraFiltri();
+
+            var apiGateway = new ApiGateway(_Token);
+            var modelResult = await apiGateway.DASI.Get(model);
+            
+            if (modelResult.ViewMode == ViewModeEnum.PREVIEW)
+            {
+                foreach (var atti in modelResult.Data.Results)
+                    atti.BodyAtto =
+                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+            }
+
+            Session["RiepilogoDASI"] = modelResult;
+
+            if (CanAccess(new List<RuoliIntEnum> { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                return View("RiepilogoDASI_Admin", modelResult);
+
+            return View("RiepilogoDASI", modelResult);
+        }
+
+        private BaseRequest<AttoDASIDto> ElaboraFiltri()
+        {
+            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            int.TryParse(Request.Form["page"], out var filtro_page);
+            int.TryParse(Request.Form["size"], out var filtro_size);
+            var view = Request.Form["view"];
+            var filtro_oggetto = Request.Form["filtro_oggetto"];
+            
+            var model = new BaseRequest<AttoDASIDto>
+            {
+                page = filtro_page,
+                size = filtro_size,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode }, { "VIEW_MODE", view } },
+            };
+
+            Common.Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
+            
+            return model;
+        }
+
     }
 }

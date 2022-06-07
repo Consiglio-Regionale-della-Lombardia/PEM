@@ -1,10 +1,20 @@
-﻿<script>
-    $(document).ready(function () {
+﻿@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+<script>
+    $(window).on('load', function () {
         setSelezionaTutti_DASI(false);
 
         $('#btnSearch').on("click", function () {
             openDasiSearch();
         });
+
+        var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
+        if (filters == 0) {
+            set_Filtri_DASI({});
+        } else {
+
+        }
+
+        Filtri_DASI_CaricaOggetto("qOggetto");
 
         checkSelectedDASI();
     });

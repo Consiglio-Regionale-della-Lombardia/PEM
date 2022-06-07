@@ -34,6 +34,7 @@ namespace PortaleRegione.Gateway
         Task Modifica(AttoDASIDto request);
         Task<AttoDASIDto> Get(Guid id);
         Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, PersonaDto persona);
+        Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model);
         Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> Presenta(Guid attoUId, string pin);
         Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model);
