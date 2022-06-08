@@ -38,6 +38,9 @@
     {
         url = Url.Action("Index", "AttiTrattazione", new { id = Model.Data.Results.First().UIDSeduta });
     }
+
+    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
+    var textTitoloRicerca = filtri_attivi? " - Ricerca": string.Empty;
 }
 
 <div class="row">
@@ -50,7 +53,7 @@
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
                 <h5>
-                    <b>Riepilogo Atti Sindacato Ispettivo</b>
+                    <b>Riepilogo Atti Sindacato Ispettivo @textTitoloRicerca</b>
                 </h5>
                 }
                 else
@@ -61,7 +64,7 @@
                     <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
                         @PortaleRegione.Common.Utility.GetText_TipoDASI(tipo)
                     </div>
-                    <b> - Aula Atti Sindacato Ispettivo</b>
+                    <b> - Aula Atti Sindacato Ispettivo @textTitoloRicerca</b>
                 </h5>
                 }
             </div>
@@ -79,7 +82,7 @@
 }
 
 <div class="row">
-    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+    @if (Model.ClientMode == ClientModeEnum.GRUPPI && filtri_attivi == false)
     {
         <div class="col s12">
             <ul class="tabs">

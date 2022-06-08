@@ -48,7 +48,8 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null)
+        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null,
+            List<int> soggetti = null)
         {
             var query = PRContext
                 .DASI
@@ -62,6 +63,21 @@ namespace PortaleRegione.Persistance
                 query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
             }
 
+            if (soggetti != null)
+            {
+                if (soggetti.Count > 0)
+                {
+                    //Avvio ricerca soggetti
+                    var list = await PRContext
+                        .ATTI_SOGGETTI_INTERROGATI
+                        .Where(f => soggetti.Contains(f.id_carica))
+                        .Select(f => f.UIDAtto)
+                        .ToListAsync();
+                    query = query
+                        .Where(item => list.Contains(item.UIDAtto));
+                }
+            }
+
             return await query
                 .OrderByDescending(item => item.OrdineVisualizzazione)
                 .Select(item => item.UIDAtto)
@@ -70,7 +86,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> filtro = null)
+        public async Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> filtro, List<int> soggetti)
         {
             var query = PRContext
                 .DASI
@@ -82,6 +98,21 @@ namespace PortaleRegione.Persistance
                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
             {
                 query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+            }
+
+            if (soggetti != null)
+            {
+                if (soggetti.Count > 0)
+                {
+                    //Avvio ricerca soggetti
+                    var list = await PRContext
+                        .ATTI_SOGGETTI_INTERROGATI
+                        .Where(f => soggetti.Contains(f.id_carica))
+                        .Select(f => f.UIDAtto)
+                        .ToListAsync();
+                    query = query
+                        .Where(item => list.Contains(item.UIDAtto));
+                }
             }
 
             return await query
@@ -101,39 +132,61 @@ namespace PortaleRegione.Persistance
         }
         
         public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null)
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null)
         {
-            var query = PRContext
-                .DASI
-                .Where(item => !item.Eliminato);
-
-            filtro?.BuildExpression(ref query);
-
-            if (clientMode == ClientModeEnum.GRUPPI)
+            try
             {
-                if (stato != StatiAttoEnum.TUTTI)
+                var query = PRContext
+                    .DASI
+                    .Where(item => !item.Eliminato);
+
+                filtro?.BuildExpression(ref query);
+
+                if (clientMode == ClientModeEnum.GRUPPI)
                 {
-                    if (stato == StatiAttoEnum.PRESENTATO
-                        && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale)
-                        query = query.Where(item => item.IDStato >= (int)stato);
-                    else
+                    if (stato != StatiAttoEnum.TUTTI)
                     {
-                        query = query.Where(item => item.IDStato == (int)stato);
+                        if (stato == StatiAttoEnum.PRESENTATO
+                            && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale)
+                            query = query.Where(item => item.IDStato >= (int)stato);
+                        else
+                        {
+                            query = query.Where(item => item.IDStato == (int)stato);
+                        }
+                    }
+
+                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                }
+                else
+                {
+                    query = query.Where(item => item.UIDSeduta == sedutaId
+                                                && item.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE);
+                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                }
+
+                if (soggetti != null)
+                {
+                    if (soggetti.Count > 0)
+                    {
+                        //Avvio ricerca soggetti
+                        var list = await PRContext
+                            .ATTI_SOGGETTI_INTERROGATI
+                            .Where(f => soggetti.Contains(f.id_carica))
+                            .Select(f => f.UIDAtto)
+                            .ToListAsync();
+                        query = query
+                            .Where(item => list.Contains(item.UIDAtto));
                     }
                 }
 
-                if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                return await query
+                    .CountAsync();
             }
-            else
+            catch (Exception e)
             {
-                query = query.Where(item => item.UIDSeduta == sedutaId
-                                            && item.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE);
-                if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                Console.WriteLine(e);
+                throw;
             }
-
-
-            return await query
-                .CountAsync();
         }
 
         public async Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta)

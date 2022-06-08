@@ -88,8 +88,30 @@ function get_ListaStatiDASI() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaTipiDASI() {
+    var session_raw = sessionStorage.getItem("ListaTipiDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaSoggettiIterrogabiliDASI() {
+    var session_raw = sessionStorage.getItem("ListaSoggettiInterrogabiliDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function set_ListaStatiDASI(obj) {
     sessionStorage.setItem("ListaStatiDASI", JSON.stringify(obj));
+}
+
+function set_ListaTipiDASI(obj) {
+    sessionStorage.setItem("ListaTipiDASI", JSON.stringify(obj));
+}
+
+function set_ListaSoggettiInterrogabiliDASI(obj) {
+    sessionStorage.setItem("ListaSoggettiInterrogabiliDASI", JSON.stringify(obj));
 }
 
 function get_ListaTipiEM() {

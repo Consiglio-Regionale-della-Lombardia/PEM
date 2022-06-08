@@ -26,7 +26,6 @@ namespace PortaleRegione.DTO.Domain
         public int IDTipoAtto { get; set; }
 
         [Required]
-        [StringLength(20)]
         public string Tipo_Atto { get; set; }
     }
 }

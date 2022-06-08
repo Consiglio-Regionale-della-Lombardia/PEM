@@ -15,13 +15,7 @@
 
                     <div class="row">
                         <div class="input-field col s12">
-                            <select>
-                                <option value="" disabled selected>Seleziona</option>
-                                <option value="@Html.Raw((int) TipoAttoEnum.ITL)">ITL</option>
-                                <option value="@Html.Raw((int) TipoAttoEnum.ITR)">ITR</option>
-                                <option value="@Html.Raw((int) TipoAttoEnum.IQT)">IQT</option>
-                                <option value="@Html.Raw((int) TipoAttoEnum.MOZ)">MOZ</option>
-                                <option value="@Html.Raw((int) TipoAttoEnum.ODG)">ODG</option>
+                            <select id="qTipo" name="filtro_tipo" onchange="filter_dasi_tipo_OnChange()">
                             </select>
                             <label>Tipo</label>
                         </div>
@@ -35,8 +29,8 @@
                             <label for="qOggetto">Oggetto</label>
                         </div>
                         <div class="input-field col s12">
-                            <label for="qSoggettoDestinatarioDasi">Soggetto interrogato</label>
-                            <div id="qSoggettoDestinatarioDasi" class="chips chips-autocomplete"></div>
+                            <select multiple id="qSoggettoDestinatarioDasi" name="filtro_soggetto_dest" onchange="filter_dasi_soggetti_dest_OnChange()"></select>
+                            <label>Soggetto interrogato</label>
                         </div>
                         <div class="input-field col s12 center" style="padding-top: 30px">
                             <a class="btn chip hoverable blue center white-text" style="min-width: unset !important" onclick="filtra(1)">
@@ -76,7 +70,6 @@
 <script>
     $(window).on('load', function () {
         /*$('#btnSearch>i').html('more_vert');*/
-        CaricaSoggettiInterrogati();
     });
 
     async function reset() {
@@ -86,6 +79,14 @@
 
         Filtri_DASI_CaricaOggetto("qOggetto");
         await Filtri_DASI_CaricaStato("qStato");
+        await Filtri_DASI_CaricaTipo("qTipo");
+        await SetupFiltriSoggettiDestinatari();
+
+        $('#qSoggettoDestinatarioDasi option').each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                $(opt).attr("selected", false);
+            }
+        });
 
         setTimeout(function () {
                 $('body').removeClass('loaded');
@@ -128,30 +129,6 @@
         },
             200);
         $('#formFiltraDASI').submit();
-    }
-
-    function CaricaSoggettiInterrogati() {
-        var elemAutocomplete = document.querySelector('#qSoggettoDestinatarioDasi');
-
-        var autocompleteDataOptions = {
-            data: [
-                { tag: 'I Commissione permanente - Economia e Bilancio', id: '1' },
-                { tag: 'II Commissione', id: '2' },
-                { tag: 'III Commissione', id: '3' }
-            ],
-            limit: 10,
-            minLength: 1
-        };
-        M.Chips.init(elemAutocomplete,
-            {
-                autocompleteOptions: autocompleteDataOptions,
-                onChipAdd: function(e, chip) {
-                },
-                onChipSelect: function(e, chip) {
-                },
-                onChipDelete: function(e, chip) {
-                }
-            });
     }
 
     function openDasiSearch() {

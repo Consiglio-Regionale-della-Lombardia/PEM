@@ -133,6 +133,8 @@ namespace PortaleRegione.Common
                     return TipoAttoEnum.PDL.ToString();
                 case TipoAttoEnum.PDA:
                     return TipoAttoEnum.PDA.ToString();
+                case TipoAttoEnum.TUTTI:
+                    return "Tutti";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
             }
@@ -601,13 +603,52 @@ namespace PortaleRegione.Common
         {
             if (!string.IsNullOrEmpty(filtroStato))
             {
-                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
                 {
-                    PropertyId = nameof(AttoDASIDto.IDStato),
+                    model.filtro.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = nameof(AttoDASIDto.IDStato),
+                        Operation = Operation.EqualTo,
+                        Value = filtroStato,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+        }
+
+        public static void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo)
+        {
+            if (!string.IsNullOrEmpty(filtroTipo))
+            {
+                if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
+                {
+                    model.filtro.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = nameof(AttoDASIDto.Tipo),
+                        Operation = Operation.EqualTo,
+                        Value = filtroTipo,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+            }
+        }
+
+        public static void AddFilter_BySoggetto(ref BaseRequest<AttoDASIDto> model, string filtroSoggettoDest)
+        {
+            if (string.IsNullOrEmpty(filtroSoggettoDest)) return;
+
+            var filtro_split = filtroSoggettoDest.Split(',');
+            if (filtro_split.Length <= 0) return;
+
+            foreach (var id_Carica in filtro_split)
+            {
+                var filtro = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = "SoggettiDestinatari",
                     Operation = Operation.EqualTo,
-                    Value = filtroStato,
-                    Connector = FilterStatementConnector.And
-                });
+                    Value = id_Carica
+                };
+                model.filtro.Add(filtro);
             }
         }
     }

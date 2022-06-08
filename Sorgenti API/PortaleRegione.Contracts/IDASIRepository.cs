@@ -31,11 +31,11 @@ namespace PortaleRegione.Contracts
     public interface IDASIRepository : IRepository<ATTI_DASI>
     {
         Task<ATTI_DASI> Get(Guid attoUId);
-        Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null);
+        Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
-        Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter);
+        Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter, List<int> soggetti);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null);
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
         Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta);
         Task<int> GetOrdine(int tipo);
         Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);

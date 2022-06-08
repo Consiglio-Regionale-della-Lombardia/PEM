@@ -238,11 +238,24 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var requestStato = GetResponseStatusFromFilters(model.filtro);
+                var requestTipo = GetResponseTypeFromFilters(model.filtro);
+
                 model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
                 var filtro_seduta =
                     model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
                 var sedutaId = Guid.Empty;
                 if (filtro_seduta != null) sedutaId = new Guid(filtro_seduta.Value.ToString());
+                var soggetti = new List<int>();
+                var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
+                {
+                    soggetti_request =
+                        new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "SoggettiDestinatari"));
+                    soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                    foreach (var s in soggetti_request) model.filtro.Remove(s);
+                }
 
                 var queryFilter = new Filter<ATTI_DASI>();
                 queryFilter.ImportStatements(model.filtro);
@@ -251,12 +264,27 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona,
                         model.page,
                         model.size,
-                        queryFilter);
+                        queryFilter,
+                        soggetti);
+
+                var stati_request = new List<FilterStatement<AttoDASIDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
+                {
+                    stati_request =
+                        new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(AttoDASIDto.IDStato)));
+                    foreach (var s in stati_request) model.filtro.Remove(s);
+                }
+
                 if (!atti_in_db.Any())
                 {
+                    queryFilter.ImportStatements(model.filtro);
                     var defaultCounterBar =
-                        await GetResponseCountBar(persona, GetResponseStatusFromFilters(model.filtro),
-                            GetResponseTypeFromFilters(model.filtro), sedutaId, CLIENT_MODE,queryFilter);
+                        await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE, queryFilter, soggetti);
+                    if (soggetti_request.Any())
+                        model.filtro.AddRange(soggetti_request);
+                    if (stati_request.Any())
+                        model.filtro.AddRange(stati_request);
                     return new RiepilogoDASIModel
                     {
                         Data = new BaseResponse<AttoDASIDto>(
@@ -266,8 +294,8 @@ namespace PortaleRegione.API.Controllers
                             , model.filtro
                             , 0
                             , uri),
-                        Stato = GetResponseStatusFromFilters(model.filtro),
-                        Tipo = GetResponseTypeFromFilters(model.filtro),
+                        Stato = requestStato,
+                        Tipo = requestTipo,
                         CountBarData = defaultCounterBar
                     };
                 }
@@ -284,8 +312,10 @@ namespace PortaleRegione.API.Controllers
                 var totaleAtti = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        queryFilter);
+                        queryFilter,
+                        soggetti);
 
+                queryFilter.ImportStatements(model.filtro);
                 var responseModel = new RiepilogoDASIModel
                 {
                     Data = new BaseResponse<AttoDASIDto>(
@@ -295,12 +325,15 @@ namespace PortaleRegione.API.Controllers
                         , model.filtro
                         , totaleAtti
                         , uri),
-                    Stato = GetResponseStatusFromFilters(model.filtro),
-                    Tipo = GetResponseTypeFromFilters(model.filtro)
+                    Stato = requestStato,
+                    Tipo = requestTipo,
+                    CountBarData = await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE, queryFilter, soggetti)
                 };
 
-                responseModel.CountBarData =
-                    await GetResponseCountBar(persona, responseModel.Stato, responseModel.Tipo, sedutaId, CLIENT_MODE, queryFilter);
+                if (soggetti_request.Any())
+                    model.filtro.AddRange(soggetti_request);
+                if (stati_request.Any())
+                    model.filtro.AddRange(stati_request);
 
                 return responseModel;
             }
@@ -417,71 +450,72 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> filtro)
+            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti)
         {
             var clientMode = (ClientModeEnum) Convert.ToInt16(_clientMode);
-            PulisciFiltro(ref filtro);
+            //var newiltro = PulisciFiltro(filtro);
             var result = new CountBarData
             {
                 ITL = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITL
-                        , stato, sedutaId, clientMode, filtro),
+                        , stato, sedutaId, clientMode, filtro, soggetti),
                 ITR = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITR
-                        , stato, sedutaId, clientMode, filtro),
+                        , stato, sedutaId, clientMode, filtro, soggetti),
                 IQT = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.IQT
-                        , stato, sedutaId, clientMode, filtro),
+                        , stato, sedutaId, clientMode, filtro,soggetti),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.MOZ
-                        , stato, sedutaId, clientMode, filtro),
+                        , stato, sedutaId, clientMode, filtro,soggetti),
                 ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG
-                        , stato, sedutaId, clientMode, filtro),
+                        , stato, sedutaId, clientMode, filtro,soggetti),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.TUTTI
-                        , stato, sedutaId, clientMode, filtro),
+                        , stato, sedutaId, clientMode, filtro, soggetti),
                 BOZZE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.BOZZA, sedutaId, clientMode, filtro),
+                        , StatiAttoEnum.BOZZA, sedutaId, clientMode, filtro, soggetti),
                 PRESENTATI = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        tipo
-                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro),
+                        TipoAttoEnum.TUTTI
+                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        tipo
-                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode),
+                        TipoAttoEnum.TUTTI
+                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        tipo
-                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro)
+                        TipoAttoEnum.TUTTI
+                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro, soggetti)
             };
 
             return result;
         }
 
-        private void PulisciFiltro(ref Filter<ATTI_DASI> filtro)
+        private Filter<ATTI_DASI> PulisciFiltro(Filter<ATTI_DASI> filtro)
         {
             var filtro_pulito = new List<FilterStatement<ATTI_DASI>>();
-            var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.IDStato));
+            var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.IDStato)
+                                                                   && f.PropertyId != nameof(AttoDASIDto.Tipo));
             foreach (var filterStatement in filtri_da_rimuovere)
             {
                 filtro_pulito.Add(new FilterStatement<ATTI_DASI>
@@ -492,8 +526,9 @@ namespace PortaleRegione.API.Controllers
                 });
             }
 
-            filtro = new Filter<ATTI_DASI>();
-            filtro.ImportStatements(filtro_pulito);
+            var result = new Filter<ATTI_DASI>();
+            result.ImportStatements(filtro_pulito);
+            return result;
         }
 
         private TipoAttoEnum GetResponseTypeFromFilters(List<FilterStatement<AttoDASIDto>> modelFiltro)
@@ -1325,10 +1360,26 @@ namespace PortaleRegione.API.Controllers
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
             {
-                result.Add(new StatiDto()
+                result.Add(new StatiDto
                 {
                     IDStato = (int)stato,
                     Stato = Utility.GetText_StatoDASI((int)stato)
+                });
+            }
+
+            return result;
+        }
+
+        public IEnumerable<Tipi_AttoDto> GetTipi()
+        {
+            var result = new List<Tipi_AttoDto>();
+            var tipi = Enum.GetValues(typeof(TipoAttoEnum));
+            foreach (var tipo in tipi)
+            {
+                result.Add(new Tipi_AttoDto
+                {
+                    IDTipoAtto = (int)tipo,
+                    Tipo_Atto = Utility.GetText_TipoDASI((int)tipo)
                 });
             }
 

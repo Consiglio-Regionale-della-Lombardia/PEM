@@ -707,5 +707,43 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per avere i tipi
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("tipi")]
+        public async Task<IHttpActionResult> GetTipi()
+        {
+            try
+            {
+                return Ok(_logic.GetTipi());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetTipi", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere i soggetti interrogabili
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("soggetti-interrogabili")]
+        public async Task<IHttpActionResult> GetSoggettiInterrogabili()
+        {
+            try
+            {
+                return Ok(await _logic.GetSoggettiInterrogabili());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSoggettiInterrogabili", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

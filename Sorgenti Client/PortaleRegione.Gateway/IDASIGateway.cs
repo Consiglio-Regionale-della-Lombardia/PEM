@@ -56,5 +56,7 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId);
         Task<string> GetCopertina(ByQueryModel model);
         Task<IEnumerable<StatiDto>> GetStati();
+        Task<IEnumerable<Tipi_AttoDto>> GetTipi();
+        Task<IEnumerable<AssessoreInCaricaDto>> GetSoggettiInterrogabili();
     }
 }

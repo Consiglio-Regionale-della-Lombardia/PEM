@@ -105,6 +105,7 @@ namespace ExpressionBuilder.Generics
         /// <typeparam name="TPropertyType"></typeparam>
         public void ImportStatements<TPropertyType>(ICollection<FilterStatement<TPropertyType>> filters)
         {
+            Clear();
             if (filters == null)
             {
                 return;

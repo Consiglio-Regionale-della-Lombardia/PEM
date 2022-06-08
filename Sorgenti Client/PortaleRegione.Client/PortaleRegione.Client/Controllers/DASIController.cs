@@ -582,6 +582,8 @@ namespace PortaleRegione.Client.Controllers
             var view = Request.Form["view"];
             var filtro_oggetto = Request.Form["filtro_oggetto"];
             var filtro_stato = Request.Form["filtro_stato"];
+            var filtro_tipo = Request.Form["filtro_tipo"];
+            var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             
             var model = new BaseRequest<AttoDASIDto>
             {
@@ -592,6 +594,8 @@ namespace PortaleRegione.Client.Controllers
 
             Common.Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
             Common.Utility.AddFilter_ByStato(ref model, filtro_stato);
+            Common.Utility.AddFilter_ByTipo(ref model, filtro_tipo);
+            Common.Utility.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             
             return model;
         }
@@ -606,6 +610,38 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 return Json(await apiGateway.DASI.GetStati(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
+        [Route("tipi")]
+        public async Task<ActionResult> Filtri_GetTipi()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.DASI.GetTipi(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
+        [Route("soggetti-interrogabili")]
+        public async Task<ActionResult> Filtri_GetSoggettiInterrogabili()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.DASI.GetSoggettiInterrogabili(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

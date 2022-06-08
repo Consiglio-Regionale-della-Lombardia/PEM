@@ -18,12 +18,14 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PortaleRegione.Domain
 {
-    public class View_cariche_assessori_in_carica
+    public partial class View_cariche_assessori_in_carica
     {
-        [Key] public Guid UID_persona { get; set; }
+        [Key] 
+        public Guid UID_persona { get; set; }
         
         public string DisplayName { get; set; }
         public int id_carica { get; set; }

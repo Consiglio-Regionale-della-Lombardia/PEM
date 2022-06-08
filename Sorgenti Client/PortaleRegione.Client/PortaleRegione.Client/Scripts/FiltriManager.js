@@ -298,8 +298,47 @@ function GetStatiDASI() {
             url: baseUrl + "/dasi/stati",
             type: "GET"
         }).done(function (result) {
-            console.log(result)
             set_ListaStatiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
+function GetTipiDASI() {
+    var tipi = get_ListaTipiDASI();
+    if (tipi.length > 0) {
+        return tipi;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/tipi",
+            type: "GET"
+        }).done(function (result) {
+            set_ListaTipiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
+function GetSoggettiInterrogabiliDASI() {
+    var soggetti = get_ListaSoggettiIterrogabiliDASI();
+    if (soggetti.length > 0) {
+        return soggetti;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/soggetti-interrogabili",
+            type: "GET"
+        }).done(function (result) {
+            set_ListaSoggettiInterrogabiliDASI(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
@@ -743,6 +782,90 @@ async function Filtri_DASI_CaricaStato(ctrlSelect) {
     }
 }
 
+async function Filtri_DASI_CaricaTipo(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.tipo;
+    }
+
+    var tipi = await GetTipiDASI();
+    if (tipi.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+        $.each(tipi,
+            function (index, item) {
+                var template = "";
+                if (item.IDTipoAtto == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+async function Filtri_DASI_CaricaSoggetti(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.tipo;
+    }
+
+    var tipi = await GetTipiDASI();
+    if (tipi.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+        $.each(tipi,
+            function (index, item) {
+                var template = "";
+                if (item.IDTipoAtto == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+async function SetupFiltriSoggettiDestinatari() {
+    var filterSelect = [];
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        if (filtri.soggetti_dest)
+            filterSelect = filtri.soggetti_dest;
+    }
+    var soggetti = await GetSoggettiInterrogabiliDASI();
+    var select = $("#qSoggettoDestinatarioDasi");
+    select.empty();
+
+    $.each(soggetti,
+        function (index, item) {
+            var template = "";
+            var find_user = false;
+            for (var i = 0; i < filterSelect.length; i++) {
+                if (filterSelect[i].toString() == item.id_carica.toString()) {
+                    find_user = true;
+                    break;
+                }
+            }
+            if (find_user) {
+                template = "<option selected='selected'></option>";
+            }
+            else
+                template = "<option></option>";
+            select.append($(template).val(item.id_carica).html(item.nome_carica));
+        });
+    var elems = document.querySelectorAll("#qSoggettoDestinatarioDasi");
+    M.FormSelect.init(elems, null);
+}
+
 function filter_dasi_oggetto_OnChange() {
     var value = $("#qOggetto").val();
     var filtri = get_Filtri_DASI();
@@ -752,11 +875,35 @@ function filter_dasi_oggetto_OnChange() {
 
 function filter_dasi_stato_OnChange() {
     var value = $("#qStato").val();
-    console.log('val', value)
     var filtri = get_Filtri_DASI();
     filtri.stato = value;
     set_Filtri_DASI(filtri);
 }
+
+function filter_dasi_tipo_OnChange() {
+    var value = $("#qTipo").val();
+    var filtri = get_Filtri_DASI();
+    filtri.tipo = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_soggetti_dest_OnChange() {
+    var filtri = get_Filtri_DASI();
+    if (filtri.soggetti_dest == null)
+        filtri.soggetti_dest = [];
+    var nuovi_soggetti = [];
+    if ($("#qSoggettoDestinatarioDasi option").length != 0) {
+        $("#qSoggettoDestinatarioDasi option").each(function (index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("SOGGETTO SELEZIONATO - ", $(opt).val());
+                nuovi_soggetti.push($(opt).val());
+            }
+        });
+        filtri.soggetti_dest = nuovi_soggetti;
+    }
+    set_Filtri_DASI(filtri);
+}
+
 
 //EM
 function filter_em_text1_OnChange() {
