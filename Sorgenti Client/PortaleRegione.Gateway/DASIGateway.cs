@@ -735,5 +735,27 @@ namespace PortaleRegione.Gateway
             }
 
         }
+
+        public async Task ModificaMetaDati(AttoDASIDto model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/meta-dati";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Put(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("ModificaMetaDati", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ModificaMetaDati", ex);
+                throw ex;
+            }
+        }
+
     }
 }

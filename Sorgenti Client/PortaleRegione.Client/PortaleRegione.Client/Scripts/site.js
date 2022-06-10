@@ -75,6 +75,12 @@ async function openMetaDati(emendamentoUId) {
     });
 }
 
+async function openMetaDatiDASI(attoUId) {
+    var atto = await GetAtto(attoUId);
+    await LoadMetaDatiAtto(atto);
+    $("#modalMetaDati").modal("open");
+}
+
 function Sposta_EMTrattazione(em) {
     
     swal("Sposta emendamento selezionato in una posizione precisa",
@@ -152,6 +158,20 @@ async function GetEM(emUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/emendamenti/" + emUId + "/meta-data",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
+async function GetAtto(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/" + attoUId + "/meta-data",
             type: "GET"
         }).done(function(result) {
             resolve(result);

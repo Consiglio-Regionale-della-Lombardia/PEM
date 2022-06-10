@@ -85,6 +85,9 @@
 
         await SetupMetaDati(em);
 
+        var container_testo = $('#EditorTesto').parent();
+        var editor_testo = $(container_testo).find(".trumbowyg-editor");
+
         $("#btnSposta_MetaDatiPartial").on("click",
             function () {
                 $('#modalMetaDati').modal("close");
@@ -157,8 +160,6 @@
             $('#modalMetaDati').modal("close");
             waiting(true);
 
-            var container_testo = $('#EditorTesto').parent();
-            var editor_testo = $(container_testo).find(".trumbowyg-editor");
             var testo_modificabile = $("input[type=radio][name='Testo']:checked")[0];
             if ($(testo_modificabile).val() == 1) {
                 em.TestoEM_Modificabile = editor_testo.html();

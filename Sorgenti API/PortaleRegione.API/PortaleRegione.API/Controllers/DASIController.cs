@@ -745,5 +745,40 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per modificare i metadati di un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("meta-dati")]
+        [HttpPut]
+        public async Task<IHttpActionResult> ModificaMetaDati(AttoDASIDto model)
+        {
+            try
+            {
+                var atto = await _logic.Get(model.UIDAtto);
+
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+
+                await _logic.ModificaMetaDati(model, atto, persona);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("ModificaMetaDati", e);
+                return ErrorHandler(e);
+            }
+        }
+
     }
 }

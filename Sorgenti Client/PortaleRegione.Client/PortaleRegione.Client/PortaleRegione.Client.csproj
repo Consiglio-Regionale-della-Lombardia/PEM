@@ -443,6 +443,7 @@
     </Content>
     <Content Include="Views\DASI\_ZoomView_RiepilogoDASI.cshtml" />
     <Content Include="Views\DASI\_IscriviASedutaModal.cshtml" />
+    <Content Include="Views\DASI\_MetaDatiPanelPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

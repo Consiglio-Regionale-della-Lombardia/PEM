@@ -492,6 +492,46 @@ namespace PortaleRegione.Client.Controllers
         //    }
         //}
 
+        [HttpGet]
+        [Route("{id:guid}/meta-data")]
+        public async Task<ActionResult> GetMetaData(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var atto = await apiGateway.DASI.Get(id);
+                
+                return Json(atto, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per modificare i metadati di un atto
+        /// </summary>
+        /// <param name="model">Modello atto</param>
+        /// <returns></returns>
+        [Route("meta-dati")]
+        [HttpPost]
+        public async Task<ActionResult> SalvaMetaDati(AttoDASIDto model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.ModificaMetaDati(model);
+                return Json(Url.Action("RiepilogoDASI", "DASI"), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         private void SetCache(int page, int size, int tipo, int stato, int viewModeEnum)
         {
             HttpContext.Cache.Insert(

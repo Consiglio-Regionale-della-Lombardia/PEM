@@ -58,5 +58,6 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<StatiDto>> GetStati();
         Task<IEnumerable<Tipi_AttoDto>> GetTipi();
         Task<IEnumerable<AssessoreInCaricaDto>> GetSoggettiInterrogabili();
+        Task ModificaMetaDati(AttoDASIDto model);
     }
 }

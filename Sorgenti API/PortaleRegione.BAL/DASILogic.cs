@@ -1385,5 +1385,53 @@ namespace PortaleRegione.API.Controllers
 
             return result;
         }
+
+        public async Task ModificaMetaDati(AttoDASIDto model, ATTI_DASI atto, PersonaDto persona)
+        {
+            try
+            {
+                atto.UIDPersonaModifica = persona.UID_persona;
+                atto.DataModifica = DateTime.Now;
+                if (!string.IsNullOrEmpty(model.Oggetto_Modificato))
+                {
+                    atto.Oggetto_Modificato = model.Oggetto_Modificato;
+                }
+                else if (string.IsNullOrEmpty(model.Oggetto_Modificato) &&
+                         !string.IsNullOrEmpty(atto.Oggetto_Modificato))
+                {
+                    //caso in cui l'utente voglia tornare allo stato precedente
+                    atto.Oggetto_Modificato = string.Empty;
+                }
+                if (!string.IsNullOrEmpty(model.Premesse_Modificato))
+                {
+                    atto.Premesse_Modificato = model.Premesse_Modificato;
+                }
+                else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&
+                         !string.IsNullOrEmpty(atto.Premesse_Modificato))
+                {
+                    //caso in cui l'utente voglia tornare allo stato precedente
+                    atto.Premesse_Modificato = string.Empty;
+                }
+
+                if (!string.IsNullOrEmpty(model.Richiesta_Modificata))
+                {
+                    atto.Richiesta_Modificata = model.Richiesta_Modificata;
+                }
+                else if (string.IsNullOrEmpty(model.Richiesta_Modificata) &&
+                         !string.IsNullOrEmpty(atto.Richiesta_Modificata))
+                {
+                    //caso in cui l'utente voglia tornare allo stato precedente
+                    atto.Richiesta_Modificata = string.Empty;
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - ModificaMetaDati", e);
+                throw e;
+            }
+
+        }
     }
 }
