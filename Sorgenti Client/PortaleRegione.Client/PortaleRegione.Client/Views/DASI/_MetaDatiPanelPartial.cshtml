@@ -47,7 +47,7 @@
                                 </label>
                             </p>
                         </span>
-                        <textarea id="EditorOggetto" class="form-control trumbowyg"></textarea>
+                        <input id="EditorOggetto" class="form-control"/>
                     </div>
                 </div>
                 <div id="metaDatiPremesse" class="col s12 left-align">
@@ -99,9 +99,7 @@
 <script>
     async function LoadMetaDatiAtto(atto) {
         await SetupMetaDati(atto);
-
-        var container_oggetto = $('#EditorOggetto').parent();
-        var editor_oggetto = $(container_oggetto).find(".trumbowyg-editor");
+        
         var container_premesse = $('#EditorPremesse').parent();
         var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
         var container_richiesta = $('#EditorRichiesta').parent();
@@ -109,7 +107,7 @@
 
         //EVENTI TESTO
         var carica_oggetto = true;
-        $('#EditorOggetto').parent().keyup(function () {
+        $('#EditorOggetto').keyup(function () {
             if (carica_oggetto) {
                 if ($("input[type=radio][name='Oggetto']:checked").val() == 0) {
                     carica_oggetto = false;
@@ -120,19 +118,19 @@
         $("input[type=radio][name='Oggetto']").change(function () {
             if (carica_oggetto) {
                 if (this.value == 0) {
-                    editor_oggetto.html(atto.Oggetto);
+                    $('#EditorOggetto').val(atto.Oggetto);
                     $('#metaDatiOggetto> .form-group > p').hide();
                 } else if (this.value == 1) {
                     if (atto.Oggetto_Modificato == null || atto.Oggetto_Modificato == "")
-                        editor_oggetto.html(atto.Oggetto);
+                        $('#EditorOggetto').val(atto.Oggetto);
                     else
-                        editor_oggetto.html(atto.Oggetto_Modificato);
+                        $('#EditorOggetto').val(atto.Oggetto_Modificato);
                     $('#metaDatiOggetto> .form-group > p').show();
                 }
             } else {
                 if (this.value == 0) {
                     $('#metaDatiOggetto> .form-group > p').hide();
-                    editor_oggetto.html(atto.Oggetto);
+                    $('#EditorOggetto').val(atto.Oggetto);
                     carica_oggetto = true;
                 } else {
                     $('#metaDatiOggetto> .form-group > p').show();
@@ -207,7 +205,7 @@
 
             var oggetto_modificabile = $("input[type=radio][name='Oggetto']:checked")[0];
             if ($(oggetto_modificabile).val() == 1) {
-                atto.Oggetto_Modificato = editor_oggetto.html();
+                atto.Oggetto_Modificato = $('#EditorOggetto').val();
             } else {
                 atto.Oggetto_Modificato = "";
             }
@@ -245,7 +243,7 @@
 
     async function SetupMetaDati(atto) {
         waiting(true);
-        $('#NAtto').text($('div[id*="txtNomeAtto_"]').data("nome-atto"));
+        $('#NAtto').text($('div[id*="atto_"]').data("nome-atto"));
         LoadMetaDati_Oggetto(atto);
         LoadMetaDati_Premesse(atto);
         LoadMetaDati_Richiesta(atto);
@@ -260,14 +258,12 @@
             $("input[type=radio][name='Oggetto'][value=0]").prop("checked", true);
         }
 
-        var container_oggetto = $('#EditorOggetto').parent();
-        var editor_oggetto = $(container_oggetto).find(".trumbowyg-editor");
         var oggetto_checked = $("input[type=radio][name='Oggetto']:checked");
         if ($(oggetto_checked).val() == 0) {
-            editor_oggetto.html(atto.Oggetto);
+            $('#EditorOggetto').val(atto.Oggetto);
             $('#metaDatiOggetto' + '> .form-group > p').hide();
         } else if ($(oggetto_checked).val() == 1) {
-            editor_oggetto.html(atto.Oggetto_Modificato);
+            $('#EditorOggetto').val(atto.Oggetto_Modificato);
             $('#metaDatiOggetto' + '> .form-group > p').show();
         }
     }

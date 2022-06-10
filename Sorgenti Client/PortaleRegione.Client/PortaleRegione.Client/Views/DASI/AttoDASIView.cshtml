@@ -1,10 +1,11 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Domain.AttoDASIDto
 
 @{
-    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(Model.Tipo)} {Model.NAtto}";
+    ViewBag.Title = $"{Utility.GetText_TipoDASI(Model.Tipo)} {Model.NAtto}";
 
     var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
     var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
@@ -25,7 +26,7 @@
 }
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>
@@ -34,10 +35,10 @@
     <div class="col s12">
         <div class="card">
             <div class="card-action grey lighten-4 center">
-                <a class="grey-arrow-back" style="position: absolute; left: 10px; top: 18px; min-width: unset" onclick="go('@backUrl')">
+                <a class="grey-arrow-back" style="left: 10px; min-width: unset; position: absolute; top: 18px;" onclick="go('@backUrl')">
                     <i class="material-icons">arrow_back</i>
                 </a>
-                <div class="chip @Utility.GetCSS_StatoDASI(Model.IDStato) white-text" style="position: absolute;right: 10px;top: 18px;min-width: unset">@PortaleRegione.Common.Utility.GetText_StatoDASI(Model.IDStato)</div>
+                <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(Model.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: 18px;">@Utility.GetText_StatoDASI(Model.IDStato)</div>
                 <h6>
                     <b>
                         <span>@Html.Raw(Model.gruppi_politici.nome_gruppo)</span>
@@ -96,7 +97,7 @@
                         @if (Model.UIDPersonaModifica.HasValue)
                         {
                             <label style="font-size: small !important">Ultima modifica: </label>
-                            <br />
+                            <br/>
                             <b>[@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @Model.PersonaModifica.DisplayName</b>
                         }
                         @if (!string.IsNullOrEmpty(Model.Note_Pubbliche))
@@ -111,17 +112,21 @@
                     </div>
                     <div class="col s6 right-align">
                         <label style="font-size: small !important">Proponente: </label>
-                        <br />
+                        <br/>
                         <b>@Model.PersonaProponente.DisplayName</b>
                     </div>
                 </div>
-                @if (!string.IsNullOrEmpty(Model.Atto_Certificato))
+                @if (!string.IsNullOrEmpty(Model.Atto_Certificato)
+                     && string.IsNullOrEmpty(Model.Oggetto_Modificato)
+                     && string.IsNullOrEmpty(Model.Premesse_Modificato)
+                     && string.IsNullOrEmpty(Model.Richiesta_Modificata))
+
                 {
                     @* NAtto *@
                     <div class="row">
                         <div class="col s12 center">
                             <h3>
-                                <b>@Html.Raw($"{PortaleRegione.Common.Utility.GetText_TipoDASI(Model.Tipo)} {Model.NAtto}")</b>
+                                <b>@Html.Raw($"{Utility.GetText_TipoDASI(Model.Tipo)} {Model.NAtto}")</b>
                             </h3>
                         </div>
                     </div>
@@ -162,7 +167,7 @@
                     <div class="row">
                         <div class="col s12">
                             <h5>Invitati</h5>
-                            <hr />
+                            <hr/>
                             @Html.Raw(Model.Destinatari)
                         </div>
                     </div>

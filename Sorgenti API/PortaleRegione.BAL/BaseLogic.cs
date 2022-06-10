@@ -27,7 +27,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using AutoMapper;
@@ -348,23 +347,29 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                body = body.Replace("{lblTipoRispostaATTOView}", DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum) atto.IDTipo_Risposta, atto.Commissioni));
-                body = body.Replace("{lblSubTitoloATTOView}", atto.Oggetto);
+                body = body.Replace("{lblTipoRispostaATTOView}",
+                    DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum) atto.IDTipo_Risposta, atto.Commissioni));
 
-                body = body.Replace("{lblPremesseATTOView}", atto.Premesse);
-                body = body.Replace("{lblRichiestaATTOView}", atto.Richiesta);
-                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}", DASIHelper.GetTipoAtto_TitoloParagrafo((TipoAttoEnum)atto.Tipo));
+                body = body.Replace("{lblSubTitoloATTOView}",
+                    string.IsNullOrEmpty(atto.Oggetto_Modificato) ? atto.Oggetto : atto.Oggetto_Modificato);
+                body = body.Replace("{lblPremesseATTOView}",
+                    string.IsNullOrEmpty(atto.Premesse_Modificato) ? atto.Premesse : atto.Premesse_Modificato);
+                body = body.Replace("{lblRichiestaATTOView}",
+                    string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
+
+                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}",
+                    DASIHelper.GetTipoAtto_TitoloParagrafo((TipoAttoEnum) atto.Tipo));
 
                 var soggetti = string.Empty;
 
                 #region Soggetti Interrogati
+
                 if (atto.SoggettiInterrogati.Any())
-                {
                     soggetti = atto
                         .SoggettiInterrogati
                         .Select(item => "<li>" + item.nome_carica + "</li>")
                         .Aggregate((i, j) => i + j);
-                } 
+
                 #endregion
 
                 body = body.Replace("{ddlSoggettiInterrogatiATTOView}", soggetti);
@@ -574,7 +579,10 @@ namespace PortaleRegione.BAL
                 var firmeDtos = firme.ToList();
                 body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} {atto.NAtto}");
 
-                if (string.IsNullOrEmpty(atto.Atto_Certificato))
+                if (!string.IsNullOrEmpty(atto.Oggetto_Modificato)
+                    || !string.IsNullOrEmpty(atto.Premesse_Modificato)
+                    || !string.IsNullOrEmpty(atto.Richiesta_Modificata)
+                    || string.IsNullOrEmpty(atto.Atto_Certificato))
                 {
                     //ATTO TEMPORANEO
                     var bodyTemp = GetTemplate(TemplateTypeEnum.FIRMA, true);

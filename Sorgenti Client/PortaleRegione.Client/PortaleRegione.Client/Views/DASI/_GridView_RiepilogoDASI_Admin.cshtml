@@ -69,7 +69,7 @@ else
                             title += item.NAtto;
                         }
                         
-                        <div id="txtNomeAtto_@item.UIDAtto" class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title">
+                        <div id="atto_@item.UIDAtto" class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title">
                             @Html.Raw(title)
                         </div>
                     </td>
@@ -78,16 +78,16 @@ else
                             @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
                         </span>
                     </td>
-                    <td>@Html.Raw(item.Oggetto)</td>
-                    @*<td>
-                            @if (item.SoggettiInterrogati.Any())
-                            {
-                                var soggettiGriglia = item.SoggettiInterrogati
-                                    .Select(s => s.nome_carica)
-                                    .Aggregate((i, j) => i + "<br/> " + j);
-                                @Html.Raw(soggettiGriglia)
-                            }
-                        </td>*@
+                    <td>
+                        @if (string.IsNullOrEmpty(item.Oggetto_Modificato))
+                        {
+                            @Html.Raw(item.Oggetto)
+                        }
+                        else
+                        {
+                            @Html.Raw(item.Oggetto_Modificato)
+                        }
+                    </td>
                     <td>
                         @{
                             var codice_gruppo = item.gruppi_politici.codice_gruppo;

@@ -79,7 +79,16 @@ else
                         @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
                     </span>
                 </td>
-                <td>@Html.Raw(item.Oggetto)</td>
+                <td>
+                    @if (string.IsNullOrEmpty(item.Oggetto_Modificato))
+                    {
+                        @Html.Raw(item.Oggetto)
+                    }
+                    else
+                    {
+                        @Html.Raw(item.Oggetto_Modificato)
+                    }
+                </td>
                 <td>
                     @{
                         var codice_gruppo = item.gruppi_politici.codice_gruppo;

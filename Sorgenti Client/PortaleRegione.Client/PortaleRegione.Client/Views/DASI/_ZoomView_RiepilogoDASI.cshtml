@@ -33,7 +33,11 @@ else
 {
     foreach (var item in Model.Data.Results)
     {
-        <div class="col s12 m12 l12">
+        
+        var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
+        title += item.NAtto;
+
+        <div class="col s12 m12 l12" id="atto_@item.UIDAtto" data-nome-atto="@title">
             <div class="card hoverable">
                 <div class='row'>
                     <div class='col s4'>
@@ -55,9 +59,7 @@ else
                         <div class='card-action right'>
                             @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
-                        @*@Html.Partial("_MetaDatiFormPartial", item)*@
-
-                                <a class="blue-text tooltipped" onclick="openMetaDati('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                <a class="blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
                                     <i class="material-icons">edit</i>
                                 </a>
                             }

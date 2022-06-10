@@ -31,16 +31,16 @@ namespace PortaleRegione.DTO.Domain
         public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
 
-        [AllowHtml]
         public string Oggetto { get; set; }
+        public string Oggetto_Modificato { get; set; }
+
         [AllowHtml]
         public string Premesse { get; set; }
         [AllowHtml]
-        public string Richiesta { get; set; }
-        [AllowHtml]
-        public string Oggetto_Modificato { get; set; }
-        [AllowHtml]
         public string Premesse_Modificato { get; set; }
+
+        [AllowHtml]
+        public string Richiesta { get; set; }
         [AllowHtml]
         public string Richiesta_Modificata { get; set; }
 
