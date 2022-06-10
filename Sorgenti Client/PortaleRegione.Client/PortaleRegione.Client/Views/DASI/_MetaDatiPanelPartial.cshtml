@@ -5,6 +5,7 @@
         <div class="row" style="margin: unset !important">
             <div class="col l6 left-align">
                 <h5 style="margin: unset !important">
+                    Meta Dati
                     <b>
                         <span id="NAtto">N_ATTO</span>
                     </b>
@@ -228,7 +229,7 @@
             $.ajax({
                 url: '@Url.Action("SalvaMetaDati")',
                 type: "POST",
-                data: JSON.stringify(em),
+                data: JSON.stringify(atto),
                 contentType: "application/json",
                 dataType: "json"
             }).done(function(result) {
@@ -244,8 +245,7 @@
 
     async function SetupMetaDati(atto) {
         waiting(true);
-
-        $('#NAtto').text(atto.NAtto);
+        $('#NAtto').text($('div[id*="txtNomeAtto_"]').data("nome-atto"));
         LoadMetaDati_Oggetto(atto);
         LoadMetaDati_Premesse(atto);
         LoadMetaDati_Richiesta(atto);

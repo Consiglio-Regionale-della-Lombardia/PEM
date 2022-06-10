@@ -64,11 +64,12 @@ else
                         </p>
                     </td>
                     <td>
-                        <div id="txtNomeAtto_@item.UIDAtto" class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
-                            @{
-                                var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
-                                title += item.NAtto;
-                            }
+                        @{
+                            var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
+                            title += item.NAtto;
+                        }
+                        
+                        <div id="txtNomeAtto_@item.UIDAtto" class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title">
                             @Html.Raw(title)
                         </div>
                     </td>
