@@ -264,6 +264,7 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona,
                         model.page,
                         model.size,
+                        (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                         queryFilter,
                         soggetti);
 
@@ -481,10 +482,10 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti)
+            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti)
         {
             var clientMode = (ClientModeEnum) Convert.ToInt16(_clientMode);
-            //var newiltro = PulisciFiltro(filtro);
+            var filtro = PulisciFiltro(_filtro);
             var result = new CountBarData
             {
                 ITL = await _unitOfWork
@@ -545,8 +546,7 @@ namespace PortaleRegione.API.Controllers
         private Filter<ATTI_DASI> PulisciFiltro(Filter<ATTI_DASI> filtro)
         {
             var filtro_pulito = new List<FilterStatement<ATTI_DASI>>();
-            var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.IDStato)
-                                                                   && f.PropertyId != nameof(AttoDASIDto.Tipo));
+            var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.Tipo));
             foreach (var filterStatement in filtri_da_rimuovere)
                 filtro_pulito.Add(new FilterStatement<ATTI_DASI>
                 {
@@ -1261,6 +1261,7 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona
                         , model.page
                         , model.size
+                        , ClientModeEnum.GRUPPI
                         , filtro);
                 return atti_in_db;
             }

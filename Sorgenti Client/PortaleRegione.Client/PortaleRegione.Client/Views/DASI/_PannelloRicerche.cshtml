@@ -1,4 +1,7 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using System.Linq;
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <div id="slide-dasi-DX" class="sidenav" style="overflow: auto !important">
     <ul class="collapsible">
         <li class="active">
@@ -7,18 +10,25 @@
                 @using (Html.BeginForm("Filtri_Riepilogo", "DASI", FormMethod.Post, new { id = "formFiltraDASI" }))
                 {
                     @Html.AntiForgeryToken()
-                    <input id="inputFilterReset" type="hidden" name="reset" value="0" />
-                    <input id="inputFilterView" type="hidden" name="view" value="@Model.ViewMode" />
+                    var sedutaFilter = Model.Data.Filters.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
+                    var uidSeduta = sedutaFilter != null ? sedutaFilter.Value : Guid.Empty;
+                        <input id="inputFilterReset" type="hidden" name="reset" value="0" />
+                    <input id="inputFilterSeduta" type="hidden" name="UIDSeduta" value="@uidSeduta" />
+                    <input id="inputFilterSeduta" type="hidden" name="Tipo" value="@((int)Model.Tipo)" />
+                    <input id="inputFilterView" type="hidden" name="view" value="@((int)Model.ViewMode)" />
                     <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page" />
                     <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit" />
                     <input type="hidden" id="hdMode" name="mode" value="@((int)Model.ClientMode)" />
 
                     <div class="row">
-                        <div class="input-field col s12">
-                            <select id="qTipo" name="filtro_tipo" onchange="filter_dasi_tipo_OnChange()">
-                            </select>
-                            <label>Tipo</label>
-                        </div>
+                        @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                        {
+                            <div class="input-field col s12">
+                                <select id="qTipo" name="filtro_tipo" onchange="filter_dasi_tipo_OnChange()">
+                                </select>
+                                <label>Tipo</label>
+                            </div>
+                        }
                         <div class="input-field col s12">
                             <select id="qStato" name="filtro_stato" onchange="filter_dasi_stato_OnChange()">
                             </select>
@@ -59,9 +69,9 @@
                                     Esporta Excel
                                 </a>
                                 @*<a href="#!" class="collection-item">
-                                <i class="icon material-icons left">download</i>
-                                Esporta Word
-                            </a>*@
+                                        <i class="icon material-icons left">download</i>
+                                        Esporta Word
+                                    </a>*@
                             </div>
                         </div>
                     </div>
@@ -114,15 +124,15 @@
         await Filtri_DASI_CaricaTipo("qTipo");
         await SetupFiltriSoggettiDestinatari();
 
-        $('#qSoggettoDestinatarioDasi option').each(function(index, opt) {
+        $('#qSoggettoDestinatarioDasi option').each(function (index, opt) {
             if ($(opt).is(":checked")) {
                 $(opt).attr("selected", false);
             }
         });
 
         setTimeout(function () {
-                $('body').removeClass('loaded');
-            },
+            $('body').removeClass('loaded');
+        },
             200);
         $('#formFiltraDASI').submit();
     }
@@ -169,11 +179,11 @@
             {
                 edge: "right",
                 draggable: true,
-                onOpenStart: function() {
+                onOpenStart: function () {
                     // Menu laterale SX sotto a layer opaco
                     $("#slide-out").css("z-index", 997);
                 },
-                onCloseEnd: function() {
+                onCloseEnd: function () {
                     // Ripristino menu laterale SX
                     $("#slide-out").css("z-index", 999);
                 }

@@ -73,11 +73,22 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("seduta")]
-        public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo, int page = 1, int size = 50)
+        public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI, int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+            int stato = (int)StatiAttoEnum.PRESENTATO)
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum) tipo, page, size);
             model.ClientMode = ClientModeEnum.TRATTAZIONE;
+            SetCache(page, size, tipo, stato, view);
+            if (view == (int)ViewModeEnum.PREVIEW)
+            {
+                model.ViewMode = ViewModeEnum.PREVIEW;
+                foreach (var atti in model.Data.Results)
+                    atti.BodyAtto =
+                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+            }
+            Session["RiepilogoDASI"] = model;
+
             if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("RiepilogoDASI_Admin", model);
 
@@ -621,27 +632,38 @@ namespace PortaleRegione.Client.Controllers
         {
             Session["RiepilogoDASI"] = null;
             int.TryParse(Request.Form["reset"], out var reset_enabled);
+            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var view = Request.Form["view"];
 
             if (reset_enabled == 1)
-                return RedirectToAction("RiepilogoDASI", "DASI");
-            var model = ElaboraFiltri();
+            {
+                if (mode == ClientModeEnum.GRUPPI)
+                    return RedirectToAction("RiepilogoDASI", "DASI");
+                
+                var filtro_tipo_trattazione = Request.Form["Tipo"];
+                var filtro_seduta = Request.Form["UIDSeduta"];
+                return RedirectToAction("RiepilogoDASI_BySeduta", "DASI", new {id = filtro_seduta, tipo = filtro_tipo_trattazione} );
+            }
 
             var apiGateway = new ApiGateway(_Token);
-            var modelResult = await apiGateway.DASI.Get(model);
-            
-            if (modelResult.ViewMode == ViewModeEnum.PREVIEW)
+            var model = ElaboraFiltri();
+            var result = await apiGateway.DASI.Get(model);
+
+
+            result.ClientMode = mode;
+            if (Convert.ToInt16(view) == (int)ViewModeEnum.PREVIEW)
             {
-                foreach (var atti in modelResult.Data.Results)
+                foreach (var atti in result.Data.Results)
                     atti.BodyAtto =
                         await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
             }
 
-            Session["RiepilogoDASI"] = modelResult;
+            Session["RiepilogoDASI"] = result;
 
             if (CanAccess(new List<RuoliIntEnum> { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
-                return View("RiepilogoDASI_Admin", modelResult);
+                return View("RiepilogoDASI_Admin", result);
 
-            return View("RiepilogoDASI", modelResult);
+            return View("RiepilogoDASI", result);
         }
 
         private BaseRequest<AttoDASIDto> ElaboraFiltri()
@@ -653,8 +675,10 @@ namespace PortaleRegione.Client.Controllers
             var filtro_oggetto = Request.Form["filtro_oggetto"];
             var filtro_stato = Request.Form["filtro_stato"];
             var filtro_tipo = Request.Form["filtro_tipo"];
+            var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
-            
+            var filtro_seduta = Request.Form["UIDSeduta"];
+
             var model = new BaseRequest<AttoDASIDto>
             {
                 page = filtro_page,
@@ -664,8 +688,9 @@ namespace PortaleRegione.Client.Controllers
 
             Common.Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
             Common.Utility.AddFilter_ByStato(ref model, filtro_stato);
-            Common.Utility.AddFilter_ByTipo(ref model, filtro_tipo);
+            Common.Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione);
             Common.Utility.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
+            Common.Utility.AddFilter_BySeduta(ref model, filtro_seduta);
             
             return model;
         }

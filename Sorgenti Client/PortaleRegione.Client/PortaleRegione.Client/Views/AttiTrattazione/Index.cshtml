@@ -100,69 +100,71 @@
     </div>
     <hr/>
     <ul class="collapsible">
-        @{
-            var dasiData = Model.DASI.First();
-            var counterBar = dasiData.CountBarData;
-        }
-        @if (counterBar.ITL > 0)
+
+        @foreach (var attoModel in Model.DASI)
         {
-            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.ITL })')">
-                <div class="collapsible-header">
-                    <i class="material-icons pink-text">textsms</i>
-                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)
-                    <div class="collapsabile-secondary-header">
-                        <div class="chip">@counterBar.ITL</div>
+            var counterBar = attoModel.CountBarData;
+
+            if (counterBar.ITL > 0)
+            {
+                <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = Model.Seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITL})')">
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@counterBar.ITL</div>
+                        </div>
                     </div>
-                </div>
-            </li>
-        }
-        @if (counterBar.IQT > 0)
-        {
-            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.IQT })')">
-                <div class="collapsible-header">
-                    <i class="material-icons pink-text">textsms</i>
-                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)
-                    <div class="collapsabile-secondary-header">
-                        <div class="chip">@counterBar.IQT</div>
+                </li>
+            }
+            if (counterBar.IQT > 0)
+            {
+                <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = Model.Seduta.UIDSeduta, tipo = (int) TipoAttoEnum.IQT})')">
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.IQT)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@counterBar.IQT</div>
+                        </div>
                     </div>
-                </div>
-            </li>
-        }
-        @if (counterBar.ITR > 0)
-        {
-            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.ITR })')">
-                <div class="collapsible-header">
-                    <i class="material-icons pink-text">textsms</i>
-                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)
-                    <div class="collapsabile-secondary-header">
-                        <div class="chip">@counterBar.ITR</div>
+                </li>
+            }
+            if (counterBar.ITR > 0)
+            {
+                <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = Model.Seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITR})')">
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.ITR)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@counterBar.ITR</div>
+                        </div>
                     </div>
-                </div>
-            </li>
-        }
-        @if (counterBar.MOZ > 0)
-        {
-            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.MOZ })')">
-                <div class="collapsible-header">
-                    <i class="material-icons pink-text">textsms</i>
-                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)
-                    <div class="collapsabile-secondary-header">
-                        <div class="chip">@counterBar.MOZ</div>
+                </li>
+            }
+            if (counterBar.MOZ > 0)
+            {
+                <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = Model.Seduta.UIDSeduta, tipo = (int) TipoAttoEnum.MOZ})')">
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@counterBar.MOZ</div>
+                        </div>
                     </div>
-                </div>
-            </li>
-        }
-        @if (counterBar.ODG > 0)
-        {
-            <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.Seduta.UIDSeduta, tipo = (int)TipoAttoEnum.ODG })')">
-                <div class="collapsible-header">
-                    <i class="material-icons pink-text">textsms</i>
-                    @Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)
-                    <div class="collapsabile-secondary-header">
-                        <div class="chip">@counterBar.ODG</div>
+                </li>
+            }
+            if (counterBar.ODG > 0)
+            {
+                <li onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = Model.Seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ODG})')">
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.ODG)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@counterBar.ODG</div>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
         }
     </ul>
 }

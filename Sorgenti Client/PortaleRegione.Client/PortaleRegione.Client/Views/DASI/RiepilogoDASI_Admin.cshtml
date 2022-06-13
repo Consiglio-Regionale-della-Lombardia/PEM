@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -36,7 +37,8 @@
 
     if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
     {
-        url = Url.Action("Index", "AttiTrattazione", new { id = Model.Data.Results.First().UIDSeduta });
+        var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+        url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
     }
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
@@ -58,8 +60,7 @@
                 }
                 else
                 {
-                    var qtipo = HttpUtility.ParseQueryString(Request.Url.Query).Get("tipo");
-                    var tipo = Convert.ToInt16(qtipo);
+                    var tipo = Convert.ToInt16(Model.Tipo);
                 <h5>
                     <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
                         @PortaleRegione.Common.Utility.GetText_TipoDASI(tipo)
@@ -120,7 +121,7 @@
 
 @{
     Html.RenderPartial("_IscriviASedutaModal");
-    Html.RenderPartial("_PannelloRicerche");
+    Html.RenderPartial("_PannelloRicerche", Model);
     Html.RenderPartial("_ComandiDASI_Admin");
     Html.RenderPartial("_MetaDatiPanelPartial");
     Html.RenderPartial("_ScriptRiepilogoDASI", Model);

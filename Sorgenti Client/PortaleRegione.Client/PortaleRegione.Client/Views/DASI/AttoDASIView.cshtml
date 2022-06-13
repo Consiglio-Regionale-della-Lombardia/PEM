@@ -12,6 +12,7 @@
     var pageFromCache = HttpContext.Current.Cache.Get(CacheHelper.PAGE_DASI);
     var sizeFromCache = HttpContext.Current.Cache.Get(CacheHelper.SIZE_DASI);
     var viewFromCache = HttpContext.Current.Cache.Get(CacheHelper.VIEW_MODE_DASI);
+    var modeFromCache = HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE);
 
     object objParams = null;
     objParams = new
@@ -23,6 +24,10 @@
         view = viewFromCache
     };
     var backUrl = Url.Action("RiepilogoDASI", objParams);
+    if (Convert.ToInt16(modeFromCache)  == (int)ClientModeEnum.TRATTAZIONE)
+    {
+        backUrl = Url.Action("Index", "AttiTrattazione", new { id = Model.UIDSeduta });
+    }
 }
 
 <script>

@@ -183,7 +183,7 @@ namespace PortaleRegione.Common
 
         public static string GetText_TipoRispostaDASI(int IdTipoRisposta)
         {
-            switch ((TipoRispostaEnum)IdTipoRisposta)
+            switch ((TipoRispostaEnum) IdTipoRisposta)
             {
                 case TipoRispostaEnum.ORALE:
                     return "Orale";
@@ -605,7 +605,6 @@ namespace PortaleRegione.Common
         public static void AddFilter_ByOggetto(ref BaseRequest<AttoDASIDto> model, string filtroOggetto)
         {
             if (!string.IsNullOrEmpty(filtroOggetto))
-            {
                 model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
                     PropertyId = nameof(AttoDASIDto.Oggetto),
@@ -613,15 +612,12 @@ namespace PortaleRegione.Common
                     Value = filtroOggetto,
                     Connector = FilterStatementConnector.And
                 });
-            }
         }
 
         public static void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato)
         {
             if (!string.IsNullOrEmpty(filtroStato))
-            {
                 if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
-                {
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.IDStato),
@@ -629,16 +625,22 @@ namespace PortaleRegione.Common
                         Value = filtroStato,
                         Connector = FilterStatementConnector.And
                     });
-                }
-            }
         }
 
-        public static void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo)
+        public static void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo,
+            string filtroTipoTrattazione)
         {
-            if (!string.IsNullOrEmpty(filtroTipo))
+            if (filtroTipoTrattazione != "0")
             {
-                if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
+                    PropertyId = nameof(AttoDASIDto.Tipo),
+                    Operation = Operation.EqualTo,
+                    Value = filtroTipoTrattazione,
+                    Connector = FilterStatementConnector.And
+                });
+            }else if (filtroTipo != "0")
+                if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.Tipo),
@@ -646,8 +648,6 @@ namespace PortaleRegione.Common
                         Value = filtroTipo,
                         Connector = FilterStatementConnector.And
                     });
-                }
-            }
         }
 
         public static void AddFilter_BySoggetto(ref BaseRequest<AttoDASIDto> model, string filtroSoggettoDest)
@@ -666,6 +666,24 @@ namespace PortaleRegione.Common
                     Value = id_Carica
                 };
                 model.filtro.Add(filtro);
+            }
+        }
+
+        public static void AddFilter_BySeduta(ref BaseRequest<AttoDASIDto> model, string filtroSeduta)
+        {
+            if (!string.IsNullOrEmpty(filtroSeduta))
+            {
+                var guid = new Guid(filtroSeduta);
+                if (guid == Guid.Empty)
+                    return;
+
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UIDSeduta),
+                    Operation = Operation.EqualTo,
+                    Value = guid.ToString(),
+                    Connector = FilterStatementConnector.And
+                });
             }
         }
     }

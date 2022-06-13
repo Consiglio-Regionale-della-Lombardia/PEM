@@ -48,7 +48,7 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, Filter<ATTI_DASI> filtro = null,
+        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode, Filter<ATTI_DASI> filtro = null,
             List<int> soggetti = null)
         {
             var query = PRContext
@@ -57,10 +57,13 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (mode == ClientModeEnum.GRUPPI)
             {
-                query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
+                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                {
+                    query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
+                }
             }
 
             if (soggetti != null)
@@ -159,8 +162,8 @@ namespace PortaleRegione.Persistance
                 }
                 else
                 {
-                    query = query.Where(item => item.UIDSeduta == sedutaId
-                                                && item.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE);
+                    query = query.Where(item => item.UIDSeduta == sedutaId);
+                    if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int) stato);
                     if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
                 }
 

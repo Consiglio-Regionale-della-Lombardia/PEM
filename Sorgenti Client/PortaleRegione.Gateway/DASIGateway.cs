@@ -219,13 +219,6 @@ namespace PortaleRegione.Gateway
                     Connector = FilterStatementConnector.And
                 };
                 model.filtro.Add(filtroSeduta);
-                var filtroStato = new FilterStatement<AttoDASIDto>
-                {
-                    PropertyId = nameof(AttoDASIDto.IDStato),
-                    Operation = Operation.GreaterThanOrEqualTo,
-                    Value = (int) StatiAttoEnum.IN_TRATTAZIONE
-                };
-                model.filtro.Add(filtroStato);
 
                 var body = JsonConvert.SerializeObject(model);
 
@@ -273,13 +266,6 @@ namespace PortaleRegione.Gateway
                     Connector = FilterStatementConnector.And
                 };
                 request.filtro.Add(filtroTipo);
-                var filtroStato = new FilterStatement<AttoDASIDto>
-                {
-                    PropertyId = nameof(AttoDASIDto.IDStato),
-                    Operation = Operation.GreaterThanOrEqualTo,
-                    Value = (int)StatiAttoEnum.IN_TRATTAZIONE
-                };
-                request.filtro.Add(filtroStato);
 
                 var body = JsonConvert.SerializeObject(request);
 

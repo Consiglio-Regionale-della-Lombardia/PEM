@@ -1,15 +1,16 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 <div class="row valign-wrapper">
     <div class="col s3 left">
         <label>
-            <input type="checkbox" id="checkAll" />
+            <input type="checkbox" id="checkAll"/>
             <span for="checkAll">Seleziona tutti</span>
         </label>
     </div>
     <div class="col s5 left">
-        
+
     </div>
     <div class="col s6">
         <div class="right">
@@ -19,7 +20,7 @@
             @{
                 var text = "";
                 var icon = "";
-                var new_view = (int)ViewModeEnum.GRID;
+                var new_view = (int) ViewModeEnum.GRID;
 
                 if (Model.ViewMode == ViewModeEnum.PREVIEW)
                 {
@@ -28,14 +29,22 @@
                 }
                 else if (Model.ViewMode == ViewModeEnum.GRID)
                 {
-                    new_view = (int)ViewModeEnum.PREVIEW;
+                    new_view = (int) ViewModeEnum.PREVIEW;
                     text = "Visualizza Atti in preview";
                     icon = "desktop_windows";
                 }
+
+                var url = Url.Action("RiepilogoDASI", "DASI", new {view = new_view});
+                if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+                {
+                    var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+                    url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = uidSeduta, tipo = Model.Tipo, view = new_view});
+                }
+
             }
 
 
-            <a class="blue-text tooltipped" onclick="gotoPreviewMode(@new_view)" data-tooltip="@text" data-position="left">
+            <a class="blue-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="left">
                 <i class="icon material-icons">@icon</i>
             </a>
 
@@ -45,6 +54,6 @@
 
 <script>
     function gotoPreviewMode(view) {
-        go('@Url.Action("RiepilogoDASI", "DASI")' + '?view=' + view);
+        go('@Html.Raw(url)');
     }
 </script>
