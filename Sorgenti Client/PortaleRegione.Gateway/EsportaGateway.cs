@@ -21,6 +21,8 @@ using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Gateway
 {
@@ -53,6 +55,30 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("EsportaXLS", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<FileResponse> EsportaXLSDASI(RiepilogoDASIModel model)
+        {
+            try
+            {
+                var requestUrl =
+                    $"{apiUrl}/dasi/esporta-griglia-xls";
+
+                var body = JsonConvert.SerializeObject(model);
+                var lst = await GetFile(requestUrl, body, _token);
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("EsportaXLSDASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("EsportaXLSDASI", ex);
                 throw ex;
             }
         }

@@ -23,6 +23,7 @@ using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -45,6 +46,40 @@ namespace PortaleRegione.API.Controllers
             _logicPersone = logicPersone;
         }
 
+        /// <summary>
+        ///     Endpoint per esportare la griglia emendamenti in formato excel
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <param name="ordine">ordinamento emendamenti atto</param>
+        /// <param name="mode"></param>
+        /// <param name="is_report"></param>
+        /// <returns></returns>
+        [Route("dasi/esporta-griglia-xls")]
+        [HttpPost]
+        public async Task<IHttpActionResult> EsportaGrigliaExcelDASI(RiepilogoDASIModel model)
+        {
+            try
+            {
+                var session = GetSession();
+
+                if (session._currentRole != RuoliIntEnum.Amministratore_PEM
+                    && session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
+                {
+                    return BadRequest("Operazione non eseguibile per il ruolo assegnato");
+                }
+
+                var persona = await _logicPersone.GetPersona(session);
+
+                var file = await _logicEsporta.EsportaGrigliaExcelDASI(model, persona);
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("EsportaGrigliaXLS", e);
+                return ErrorHandler(e);
+            }
+        }
+        
         /// <summary>
         ///     Endpoint per esportare la griglia emendamenti in formato excel
         /// </summary>

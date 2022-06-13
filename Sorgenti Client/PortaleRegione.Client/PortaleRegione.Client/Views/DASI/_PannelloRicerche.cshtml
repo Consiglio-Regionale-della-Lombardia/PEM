@@ -45,31 +45,63 @@
 
             </div>
         </li>
-        <li>
-            <div class="collapsible-header white black-text"><i class="material-icons">settings</i>Strumenti</div>
-            <div class="collapsible-body">
-                <div class="row">
-                    <div class="col s12">
-                        <div class="collection">
-                            <a href="#!" class="collection-item">
-                                <i class="icon material-icons left">download</i>
-                                Esporta Excel
-                            </a>
-                            <a href="#!" class="collection-item">
+        @if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM)
+            || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+        {
+            <li>
+                <div class="collapsible-header white black-text"><i class="material-icons">settings</i>Strumenti</div>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="collection">
+                                <a id="btnExportXLS" class="collection-item" data-href="@Url.Action("EsportaXLS", "DASI")">
+                                    <i class="icon material-icons left">grid_on</i>
+                                    Esporta Excel
+                                </a>
+                                @*<a href="#!" class="collection-item">
                                 <i class="icon material-icons left">download</i>
                                 Esporta Word
-                            </a>
+                            </a>*@
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </li>
+            </li>
+        }
     </ul>
 </div>
 
 <script>
     $(window).on('load', function () {
         /*$('#btnSearch>i').html('more_vert');*/
+
+        $('#btnExportXLS').on("click", function () {
+            var url = $('#btnExportXLS').data("href");
+            $.ajax({
+                url: url,
+                type: "GET",
+                beforeSend: function () {
+                    console.log("RICHIESTA INVIATA");
+                    waiting(true, "Elaborazione in corso..");
+                },
+                success: function (response) {
+                    var blob = new Blob([s2ab(atob(response))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    var link = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = link;
+                    a.download = "Esportazione_DASI.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                complete: function () {
+                    console.log("OK");
+                    waiting(false);
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
     });
 
     async function reset() {

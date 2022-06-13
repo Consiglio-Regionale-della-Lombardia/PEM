@@ -41,6 +41,9 @@ namespace PortaleRegione.DTO.Domain
 
         public bool ufficio { get; set; }
 
+        public bool PrimoFirmatario { get; set; } = false;
+        public int id_gruppo { get; set; } = 0;
+
         public virtual PersonaDto UTENTI_NoCons { get; set; }
     }
 }

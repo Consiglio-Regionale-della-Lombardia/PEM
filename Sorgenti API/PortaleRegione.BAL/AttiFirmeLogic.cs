@@ -60,6 +60,48 @@ namespace PortaleRegione.BAL
                         UIDAtto = firma.UIDAtto,
                         UID_persona = firma.UID_persona,
                         FirmaCert = Decrypt(firma.FirmaCert),
+                        PrimoFirmatario = firma.PrimoFirmatario,
+                        id_gruppo = firma.id_gruppo,
+                        Data_firma = Decrypt(firma.Data_firma),
+                        Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
+                            ? null
+                            : Decrypt(firma.Data_ritirofirma)
+                    };
+
+                    result.Add(firmaDto);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetFirme - DASI", e);
+                throw e;
+            }
+        }
+        
+        public async Task<IEnumerable<AttiFirmeDto>> GetFirme(Guid attoUId)
+        {
+            try
+            {
+                var firmeInDb = await _unitOfWork
+                    .Atti_Firme
+                    .GetFirmatari(attoUId);
+
+                var firme = firmeInDb.ToList();
+
+                if (!firme.Any()) return new List<AttiFirmeDto>();
+
+                var result = new List<AttiFirmeDto>();
+                foreach (var firma in firme)
+                {
+                    var firmaDto = new AttiFirmeDto
+                    {
+                        UIDAtto = firma.UIDAtto,
+                        UID_persona = firma.UID_persona,
+                        PrimoFirmatario = firma.PrimoFirmatario,
+                        id_gruppo = firma.id_gruppo,
+                        FirmaCert = Decrypt(firma.FirmaCert),
                         Data_firma = Decrypt(firma.Data_firma),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null

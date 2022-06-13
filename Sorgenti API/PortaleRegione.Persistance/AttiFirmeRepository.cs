@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Security.Permissions;
 using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
@@ -40,12 +41,17 @@ namespace PortaleRegione.Persistance
         /// <summary>
         ///     Firma atto
         /// </summary>
-        /// <param name="em"></param>
+        /// <param name="attoUId"></param>
         /// <param name="personaUId"></param>
+        /// <param name="gruppoIdGruppo"></param>
         /// <param name="firmaCert"></param>
         /// <param name="dataFirmaCert"></param>
-        public async Task Firma(Guid attoUId, Guid personaUId, string firmaCert, string dataFirmaCert,
-            bool ufficio = false)
+        /// <param name="ufficio"></param>
+        /// <param name="primoFirmatario"></param>
+        /// <param name="em"></param>
+        public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
+            string dataFirmaCert,
+            bool ufficio = false, bool primoFirmatario = false)
         {
             PRContext
                 .ATTI_FIRME
@@ -56,7 +62,9 @@ namespace PortaleRegione.Persistance
                     FirmaCert = firmaCert,
                     Data_firma = dataFirmaCert,
                     Timestamp = DateTime.Now,
-                    ufficio = ufficio
+                    ufficio = ufficio,
+                    PrimoFirmatario = primoFirmatario,
+                    id_gruppo = id_gruppo
                 });
             await PRContext.SaveChangesAsync();
         }
@@ -71,6 +79,22 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .ATTI_FIRME
                 .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma));
+        }
+
+        /// <summary>
+        ///     Riepilogo firmatari
+        /// </summary>
+        /// <param name="attoUId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ATTI_FIRME>> GetFirmatari(Guid attoUId)
+        {
+            var result = await PRContext
+                .ATTI_FIRME
+                .Where(f => f.UIDAtto == attoUId)
+                .OrderBy(f => f.Timestamp)
+                .ToListAsync();
+
+            return result;
         }
 
         public async Task CancellaFirme(Guid attoUId)

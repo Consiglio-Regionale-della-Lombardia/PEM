@@ -43,10 +43,12 @@ namespace PortaleRegione.Domain
 
         public int? id_AreaPolitica { get; set; }
 
-
         public DateTime Timestamp { get; set; }
 
         public bool ufficio { get; set; }
+
+        public bool PrimoFirmatario { get; set; } = false;
+        public int id_gruppo { get; set; } = 0;
 
         public virtual UTENTI_NoCons UTENTI_NoCons { get; set; }
     }

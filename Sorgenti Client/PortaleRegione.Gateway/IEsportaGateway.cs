@@ -20,6 +20,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Gateway
 {
@@ -27,5 +28,6 @@ namespace PortaleRegione.Gateway
     {
         Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode);
         Task<FileResponse> EsportaXLS(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, bool is_report = false);
+        Task<FileResponse> EsportaXLSDASI(RiepilogoDASIModel model);
     }
 }

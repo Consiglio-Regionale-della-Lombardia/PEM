@@ -20,12 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
-using ExpressionBuilder.Interfaces;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -280,7 +280,8 @@ namespace PortaleRegione.API.Controllers
                 {
                     queryFilter.ImportStatements(model.filtro);
                     var defaultCounterBar =
-                        await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE, queryFilter, soggetti);
+                        await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE,
+                            queryFilter, soggetti);
                     if (soggetti_request.Any())
                         model.filtro.AddRange(soggetti_request);
                     if (stati_request.Any())
@@ -327,7 +328,8 @@ namespace PortaleRegione.API.Controllers
                         , uri),
                     Stato = requestStato,
                     Tipo = requestTipo,
-                    CountBarData = await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE, queryFilter, soggetti)
+                    CountBarData = await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE,
+                        queryFilter, soggetti)
                 };
 
                 if (soggetti_request.Any())
@@ -449,6 +451,35 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
+        {
+            try
+            {
+                var attoInDb = await _unitOfWork.DASI.Get(attoUid);
+
+                var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+
+                dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo.Value);
+
+                dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
+                dto.Firmato_Dal_Proponente =
+                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente.Value);
+
+                dto.ConteggioFirme = await _logicFirme.CountFirme(attoUid);
+
+                dto.gruppi_politici =
+                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+                return dto;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Get DTO Atto - DASI", e);
+                throw;
+            }
+        }
+
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
             Guid sedutaId, object _clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti)
         {
@@ -470,17 +501,17 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.IQT
-                        , stato, sedutaId, clientMode, filtro,soggetti),
+                        , stato, sedutaId, clientMode, filtro, soggetti),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.MOZ
-                        , stato, sedutaId, clientMode, filtro,soggetti),
+                        , stato, sedutaId, clientMode, filtro, soggetti),
                 ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG
-                        , stato, sedutaId, clientMode, filtro,soggetti),
+                        , stato, sedutaId, clientMode, filtro, soggetti),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
@@ -517,14 +548,12 @@ namespace PortaleRegione.API.Controllers
             var filtri_da_rimuovere = filtro.Statements.Where(f => f.PropertyId != nameof(AttoDASIDto.IDStato)
                                                                    && f.PropertyId != nameof(AttoDASIDto.Tipo));
             foreach (var filterStatement in filtri_da_rimuovere)
-            {
                 filtro_pulito.Add(new FilterStatement<ATTI_DASI>
                 {
                     PropertyId = filterStatement.PropertyId,
                     Value = filterStatement.Value,
                     Connector = filterStatement.Connector
                 });
-            }
 
             var result = new Filter<ATTI_DASI>();
             result.ImportStatements(filtro_pulito);
@@ -590,6 +619,7 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     var firmaCert = string.Empty;
+                    var primoFirmatario = false;
 
                     if (firmaUfficio)
                     {
@@ -660,9 +690,10 @@ namespace PortaleRegione.API.Controllers
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
                         attoInDb.Atto_Certificato = body_encrypt;
+                        primoFirmatario = true;
                     }
 
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
+                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, persona.Gruppo.id_gruppo, firmaCert, dataFirma, firmaUfficio, primoFirmatario);
 
                     //TODO: DESTINATARI DASI
                     //var is_destinatario_notifica =
@@ -1189,16 +1220,13 @@ namespace PortaleRegione.API.Controllers
                 Connector = FilterStatementConnector.And
             };
             filtro.Add(filtroStato);
-            if (tipo != TipoAttoEnum.TUTTI)
+            var filtroTipo = new FilterStatement<AttoDASIDto>
             {
-                var filtroTipo = new FilterStatement<AttoDASIDto>
-                {
-                    PropertyId = nameof(AttoDASIDto.Tipo),
-                    Operation = Operation.EqualTo,
-                    Value = (int) tipo
-                };
-                filtro.Add(filtroTipo);
-            }
+                PropertyId = nameof(AttoDASIDto.Tipo),
+                Operation = Operation.EqualTo,
+                Value = (int) tipo
+            };
+            filtro.Add(filtroTipo);
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(filtro);
@@ -1218,22 +1246,49 @@ namespace PortaleRegione.API.Controllers
             return result;
         }
 
+        public async Task<List<AttiFirmeDto>> ScaricaAtti_Firmatari(List<AttoDASIDto> attiList)
+        {
+            return await GetDASI_Firmatari_RawChunk(attiList);
+        }
+
         public async Task<List<Guid>> GetDASI_UID_RawChunk(BaseRequest<AttoDASIDto> model, Filter<ATTI_DASI> filtro,
             PersonaDto persona)
         {
             try
             {
-                var em_in_db = await _unitOfWork
+                var atti_in_db = await _unitOfWork
                     .DASI
                     .GetAll(persona
                         , model.page
                         , model.size
                         , filtro);
-                return em_in_db;
+                return atti_in_db;
             }
             catch (Exception e)
             {
                 Log.Error("Logic - GetDASI_UID_RawChunk", e);
+                throw e;
+            }
+        }
+
+        public async Task<List<AttiFirmeDto>> GetDASI_Firmatari_RawChunk(List<AttoDASIDto> attiList)
+        {
+            try
+            {
+                var result = new List<AttiFirmeDto>();
+                foreach (var atto in attiList)
+                {
+                    var firmatari = await _logicFirme
+                        .GetFirme(atto.UIDAtto);
+
+                    result.AddRange(firmatari);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
                 throw e;
             }
         }
@@ -1308,7 +1363,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-
                 var count = await CountByQuery(model.Query);
                 var atti = new List<AttoDASIDto>();
                 atti.AddRange(await GetByQuery(model));
@@ -1332,15 +1386,14 @@ namespace PortaleRegione.API.Controllers
 
                 var bodyIndice = new StringBuilder();
                 foreach (var dasiDto in atti)
-                {
                     bodyIndice.Append(templateItemIndice
                         .Replace("TipoAtto", Utility.GetText_TipoDASI(dasiDto.Tipo))
                         .Replace("NAtto", dasiDto.NAtto)
                         .Replace("DataPresentazione", dasiDto.DataPresentazione)
                         .Replace("Oggetto", dasiDto.Oggetto)
-                        .Replace("Firmatari", $"{dasiDto.PersonaProponente.DisplayName}, {dasiDto.Firme.Replace("<br>", ", ")}")
+                        .Replace("Firmatari",
+                            $"{dasiDto.PersonaProponente.DisplayName}, {dasiDto.Firme.Replace("<br>", ", ")}")
                         .Replace("Stato", Utility.GetText_StatoDASI(dasiDto.IDStato)));
-                }
 
                 body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -1351,7 +1404,6 @@ namespace PortaleRegione.API.Controllers
                 Log.Error("Logic - GetCopertina", e);
                 throw e;
             }
-
         }
 
         public IEnumerable<StatiDto> GetStati()
@@ -1359,13 +1411,11 @@ namespace PortaleRegione.API.Controllers
             var result = new List<StatiDto>();
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
-            {
                 result.Add(new StatiDto
                 {
-                    IDStato = (int)stato,
-                    Stato = Utility.GetText_StatoDASI((int)stato)
+                    IDStato = (int) stato,
+                    Stato = Utility.GetText_StatoDASI((int) stato)
                 });
-            }
 
             return result;
         }
@@ -1375,13 +1425,11 @@ namespace PortaleRegione.API.Controllers
             var result = new List<Tipi_AttoDto>();
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
-            {
                 result.Add(new Tipi_AttoDto
                 {
-                    IDTipoAtto = (int)tipo,
-                    Tipo_Atto = Utility.GetText_TipoDASI((int)tipo)
+                    IDTipoAtto = (int) tipo,
+                    Tipo_Atto = Utility.GetText_TipoDASI((int) tipo)
                 });
-            }
 
             return result;
         }
@@ -1393,36 +1441,24 @@ namespace PortaleRegione.API.Controllers
                 atto.UIDPersonaModifica = persona.UID_persona;
                 atto.DataModifica = DateTime.Now;
                 if (!string.IsNullOrEmpty(model.Oggetto_Modificato))
-                {
                     atto.Oggetto_Modificato = model.Oggetto_Modificato;
-                }
                 else if (string.IsNullOrEmpty(model.Oggetto_Modificato) &&
                          !string.IsNullOrEmpty(atto.Oggetto_Modificato))
-                {
                     //caso in cui l'utente voglia tornare allo stato precedente
                     atto.Oggetto_Modificato = string.Empty;
-                }
                 if (!string.IsNullOrEmpty(model.Premesse_Modificato))
-                {
                     atto.Premesse_Modificato = model.Premesse_Modificato;
-                }
                 else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&
                          !string.IsNullOrEmpty(atto.Premesse_Modificato))
-                {
                     //caso in cui l'utente voglia tornare allo stato precedente
                     atto.Premesse_Modificato = string.Empty;
-                }
 
                 if (!string.IsNullOrEmpty(model.Richiesta_Modificata))
-                {
                     atto.Richiesta_Modificata = model.Richiesta_Modificata;
-                }
                 else if (string.IsNullOrEmpty(model.Richiesta_Modificata) &&
                          !string.IsNullOrEmpty(atto.Richiesta_Modificata))
-                {
                     //caso in cui l'utente voglia tornare allo stato precedente
                     atto.Richiesta_Modificata = string.Empty;
-                }
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -1431,7 +1467,6 @@ namespace PortaleRegione.API.Controllers
                 Log.Error("Logic - ModificaMetaDati", e);
                 throw e;
             }
-
         }
     }
 }

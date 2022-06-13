@@ -30,6 +30,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -535,6 +536,28 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("esportaXLS")]
+        public async Task<ActionResult> EsportaXLS()
+        {
+            try
+            {
+                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.Esporta.EsportaXLSDASI(model);
+                return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Log.Error("EsportaXLSDASI", e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }

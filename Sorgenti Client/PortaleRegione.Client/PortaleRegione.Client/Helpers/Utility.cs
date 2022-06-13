@@ -195,23 +195,6 @@ namespace PortaleRegione.Client.Helpers
             }
         }
 
-        public static string GetText_TipoRispostaDASI(int IdTipoRisposta)
-        {
-            switch ((TipoRispostaEnum) IdTipoRisposta)
-            {
-                case TipoRispostaEnum.ORALE:
-                    return "Orale";
-                case TipoRispostaEnum.SCRITTO:
-                    return "Scritto";
-                case TipoRispostaEnum.COMMISSIONE:
-                {
-                    return "In Commissione";
-                }
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(IdTipoRisposta), IdTipoRisposta, null);
-            }
-        }
-
         public static string GetText_TipoRispostaCommissioneTooltipDASI(AttoDASIDto atto)
         {
             if (atto.IDTipo_Risposta != (int) TipoRispostaEnum.COMMISSIONE) return string.Empty;

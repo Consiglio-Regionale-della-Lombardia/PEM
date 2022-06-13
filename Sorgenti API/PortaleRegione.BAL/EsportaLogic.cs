@@ -33,11 +33,14 @@ using NPOI.HSSF.Util;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
+using PortaleRegione.API.Controllers;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.Logger;
 using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
 
@@ -45,16 +48,19 @@ namespace PortaleRegione.BAL
 {
     public class EsportaLogic : BaseLogic
     {
+        private readonly DASILogic _logicDasi;
         private readonly EmendamentiLogic _logicEm;
         private readonly FirmeLogic _logicFirme;
         private readonly PersoneLogic _logicPersone;
         private readonly IUnitOfWork _unitOfWork;
 
-        public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, FirmeLogic logicFirme,
+        public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
+            FirmeLogic logicFirme,
             PersoneLogic logicPersone)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
+            _logicDasi = logicDASI;
             _logicFirme = logicFirme;
             _logicPersone = logicPersone;
         }
@@ -70,7 +76,7 @@ namespace PortaleRegione.BAL
 
 
                 IWorkbook workbook = new XSSFWorkbook();
-                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto.Replace('/','-')}");
+                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto.Replace('/', '-')}");
 
                 var row = excelSheet.CreateRow(0);
                 SetColumnValue(ref row, "Ordine");
@@ -227,6 +233,94 @@ namespace PortaleRegione.BAL
             {
                 Log.Error("Logic - EsportaGrigliaXLS", e);
                 throw e;
+            }
+        }
+
+        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(RiepilogoDASIModel model, PersonaDto persona)
+        {
+            try
+            {
+                var FilePathComplete = GetLocalPath("xlsx");
+
+                IWorkbook workbook = new XSSFWorkbook();
+                var style = workbook.CreateCellStyle();
+                style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
+                style.FillPattern = FillPattern.SolidForeground;
+                var styleReport = workbook.CreateCellStyle();
+                styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
+                styleReport.FillPattern = FillPattern.SolidForeground;
+                styleReport.Alignment = HorizontalAlignment.Center;
+
+                var attiList = model.Data.Results.ToList();
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+                var dasiSheet =
+                    await NewSheetDASI_Atti(
+                        workbook.CreateSheet(
+                            "Atti"),
+                        attiList,
+                        persona,
+                        personeInDbLight,
+                        style,
+                        styleReport);
+                var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
+                var firmatariSheet =
+                    await NewSheetDASI_Firmatari(
+                        workbook.CreateSheet(
+                            "Firmatari"),
+                        firmatariList,
+                        style,
+                        styleReport);
+
+                return await Response(FilePathComplete, workbook);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - EsportaGrigliaXLSDASI", e);
+                throw e;
+            }
+        }
+
+        private async Task<ISheet> NewSheetDASI_Firmatari(ISheet sheet, List<AttiFirmeDto> firmatariList,
+            ICellStyle style, ICellStyle styleReport)
+        {
+            //HEADER
+            try
+            {
+                var row = sheet.CreateRow(0);
+                SetColumnValue(ref row, "TIPO ATTO");
+                SetColumnValue(ref row, "NUMERO ATTO");
+                SetColumnValue(ref row, "FIRMATARIO");
+                SetColumnValue(ref row, "GRUPPO");
+                SetColumnValue(ref row, "DATA FIRMA");
+                SetColumnValue(ref row, "DATA RITIRO FIRMA");
+                SetColumnValue(ref row, "PRIMO FIRMATARIO");
+
+                View_gruppi_politici_con_giunta gruppo = new View_gruppi_politici_con_giunta();
+                foreach (var firma in firmatariList)
+                {
+                    var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
+                    if (gruppo.id_gruppo != firma.id_gruppo)
+                        gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
+                    var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
+                    SetColumnValue(ref rowBody, Utility.GetText_TipoDASI(atto.Tipo)); // tipo atto
+                    SetColumnValue(ref rowBody, atto.NAtto); // numero atto
+                    var firmacert = firma.FirmaCert;
+                    var indiceParentesiApertura = firmacert.IndexOf('(');
+                    firmacert = firmacert.Remove(indiceParentesiApertura - 1);
+                    SetColumnValue(ref rowBody, firmacert); // firmatario
+                    SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
+                    SetColumnValue(ref rowBody, firma.Data_firma); // data firma
+                    SetColumnValue(ref rowBody, firma.Data_ritirofirma); // data ritiro firma
+                    SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
+                }
+
+                return sheet;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
 
@@ -557,6 +651,83 @@ namespace PortaleRegione.BAL
             return sheet;
         }
 
+        private async Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList,
+            PersonaDto persona, List<PersonaLightDto> personeInDbLight, ICellStyle style, ICellStyle styleR)
+        {
+            //HEADER
+            try
+            {
+                var rowH = sheet.CreateRow(0);
+                var row = sheet.CreateRow(1);
+                SetColumnValue(ref row, "TIPO ATTO");
+                SetColumnValue(ref row, "TIPO MOZIONE");
+                SetColumnValue(ref row, "NUMERO ATTO");
+                SetColumnValue(ref row, "STATO");
+                SetColumnValue(ref row, "PROTOCOLLO");
+                SetColumnValue(ref row, "CODICE MATERIA");
+                SetColumnValue(ref row, "DATA PRESENTAZIONE");
+                SetColumnValue(ref row, "OGGETTO");
+                SetColumnValue(ref row, "OGGETTO PRESENTATO/OGGETTO COMMISSIONE");
+                SetColumnValue(ref row, "OGGETTO APPROVATO/OGGETTO ASSEMBLEA");
+                SetColumnValue(ref row, "RISPOSTA RICHIESTA");
+                SetColumnValue(ref row, "AREA");
+                SetColumnValue(ref row, "DATA ANNUNZIO");
+                SetColumnValue(ref row, "PUBBLICATO");
+                SetColumnValue(ref row, "RISPOSTA FORNITA");
+                SetColumnValue(ref row, "ITER MULTIPLO");
+                SetColumnValue(ref row, "NOTE RISPOSTA");
+                SetColumnValue(ref row, "ANNOTAZIONI");
+                SetColumnValue(ref row, "TIPO CHIUSURA ITER");
+                SetColumnValue(ref row, "DATA CHIUSURA ITER");
+                SetColumnValue(ref row, "NOTE CHIUSURA ITER");
+                SetColumnValue(ref row, "RISULTATO VOTAZIONE");
+                SetColumnValue(ref row, "DATA TRASMISSIONE");
+                SetColumnValue(ref row, "TIPO CHIUSURA ITER");
+                SetColumnValue(ref row, "DATA CHIUSURA ITER");
+                SetColumnValue(ref row, "NOTE CHIUSURA ITER");
+                SetColumnValue(ref row, "TIPO VOTAZIONE");
+                SetColumnValue(ref row, "DCR");
+                SetColumnValue(ref row, "NUMERO DCR");
+                SetColumnValue(ref row, "NUMERO DCRC");
+                SetColumnValue(ref row, "BURL");
+                SetColumnValue(ref row, "EMENDATO");
+                SetColumnValue(ref row, "DATA COMUNICAZIONE ASSEMBLEA");
+                SetColumnValue(ref row, "AREA TEMATICA");
+                SetColumnValue(ref row, "DATA TRASMISSIONE");
+                SetColumnValue(ref row, "ALTRI SOGGETTI");
+                SetColumnValue(ref row, "COMPETENZA");
+                SetColumnValue(ref row, "IMPEGNI E SCADENZE");
+                SetColumnValue(ref row, "STATO DI ATTUAZIONE");
+                SetColumnValue(ref row, "CONCLUSO");
+
+                foreach (var atto in attiList)
+                {
+                    var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
+                    SetColumnValue(ref rowBody, Utility.GetText_TipoDASI(atto.Tipo)); // tipo atto
+                    SetColumnValue(ref rowBody, ""); // tipo mozione
+                    SetColumnValue(ref rowBody, atto.NAtto); // numero atto
+                    SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
+                    SetColumnValue(ref rowBody, ""); // protocollo
+                    SetColumnValue(ref rowBody, ""); // codice materia
+                    SetColumnValue(ref rowBody, atto.DataPresentazione); // data presentazione
+                    SetColumnValue(ref rowBody,
+                        string.IsNullOrEmpty(atto.Oggetto_Modificato)
+                            ? atto.Oggetto
+                            : atto.Oggetto_Modificato); // oggetto
+                    SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione
+                    SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea
+                    SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
+                }
+
+                return sheet;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         private void SetColumnValue(ref IRow row, string val)
         {
             row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(val);
@@ -628,7 +799,9 @@ namespace PortaleRegione.BAL
         {
             UOLA = 1,
             PCR = 2,
-            PROGRESSIVO = 3
+            PROGRESSIVO = 3,
+            DASI = 4,
+            DASI_FIRMATARI = 5
         }
     }
 }
