@@ -1,5 +1,4 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model PortaleRegione.DTO.Domain.AttoDASIDto
 
 <div id="modalDASINotificaA" class="modal modal-fixed-footer">
     <div class="modal-content">
@@ -65,7 +64,7 @@
             });
     }
 
-    async function NotificaA(attoUId, tipo) {
+    async function NotificaA() {
         waiting(true);
         await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
@@ -88,14 +87,6 @@
         submitHandler: function (form) {
 
             var listaAtti = getListaAtti();
-            @{
-                var type = Model.GetType();
-                if (type == typeof(PortaleRegione.DTO.Domain.AttoDASIDto))
-                {
-                    @Html.Raw($"listaAtti.push('{Model.UIDAtto}');")
-                }
-            }
-            
             console.log("listaAtti", listaAtti)
             var destinatari = chipInstanceNotificaA.getData();
             if (destinatari.length == 0) {

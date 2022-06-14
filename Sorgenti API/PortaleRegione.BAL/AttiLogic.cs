@@ -79,7 +79,8 @@ namespace PortaleRegione.BAL
                     }
 
                     appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
-                    appoggio.PersonaAssessore = personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
+                    if (appoggio.UIDAssessoreRiferimento.HasValue)
+                        appoggio.PersonaAssessore = personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
 
                     result.Add(appoggio);
                 }

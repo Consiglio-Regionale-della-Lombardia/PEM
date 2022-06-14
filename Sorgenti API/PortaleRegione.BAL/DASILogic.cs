@@ -492,32 +492,32 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITL
-                        , stato, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
                 ITR = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITR
-                        , stato, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
                 IQT = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.IQT
-                        , stato, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.MOZ
-                        , stato, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
                 ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG
-                        , stato, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.TUTTI
-                        , stato, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
                 BOZZE = await _unitOfWork
                     .DASI
                     .Count(persona,

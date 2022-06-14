@@ -75,7 +75,7 @@
                             }
                             @if (Model.Invito_Abilitato)
                             {
-                                <div class="btn chip hoverable amber center" onclick="NotificaA(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))">
+                                <div class="btn chip hoverable amber center" onclick="NotificaA('@Model.UIDAtto', @Model.Tipo)">
                                     <i class="icon material-icons">share</i> Invita
                                 </div>
                             }
@@ -197,7 +197,4 @@
     </div>
 </div>
 
-@Html.Partial("_InvitoPanel", new InvitoPanelModel
-{
-    UIDAtto = Model.UIDAtto
-})
+@Html.Partial("_InvitoPanel", Model)

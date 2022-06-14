@@ -7,19 +7,13 @@
     ViewBag.Title = "DASI";
     var classTabBozza = "";
     var classTabPresentati = "";
-    var classTabBozza_Badge = "";
-    var classTabPresentati_Badge = "";
     switch (Model.Stato)
     {
         case StatiAttoEnum.BOZZA:
             classTabBozza = "active";
-            classTabBozza_Badge = "active-badge";
-            classTabPresentati_Badge = "inactive-badge";
             break;
         case StatiAttoEnum.PRESENTATO:
             classTabPresentati = "active";
-            classTabBozza_Badge = "inactive-badge";
-            classTabPresentati_Badge = "active-badge";
             break;
     }
     var url = Url.Action("Index", "Home");
@@ -79,12 +73,12 @@
         <div class="col s12">
             <ul class="tabs">
                 <li class="tab col s6">
-                    <a class="@classTabBozza" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.BOZZA})');">
+                    <a class="@classTabBozza" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.BOZZA, view = (int)Model.ViewMode})');">
                         Bozza (@Model.CountBarData.BOZZE)
                     </a>
                 </li>
                 <li class="tab col s6">
-                    <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO})');">
+                    <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO, view = (int)Model.ViewMode})');">
                         Presentati (@Model.CountBarData.PRESENTATI)
                     </a>
                 </li>

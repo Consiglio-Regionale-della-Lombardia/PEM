@@ -75,16 +75,19 @@
                                             <br/>
                                             <p>@attoPem.Oggetto</p>
                                         </div>
-                                        <div class="col s12">
-                                            <label>
-                                                <b>Assessore di Riferimento</b>
-                                            </label>
-                                            <br/>
-                                            <div class="chip" style="min-width: unset; margin-left: 5px;">
-                                                <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
-                                                @attoPem.PersonaAssessore.DisplayName
+                                        @if(attoPem.UIDAssessoreRiferimento.HasValue)
+                                        {
+                                            <div class="col s12">
+                                                <label>
+                                                    <b>Assessore di Riferimento</b>
+                                                </label>
+                                                <br/>
+                                                <div class="chip" style="min-width: unset; margin-left: 5px;">
+                                                    <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                                    @attoPem.PersonaAssessore.DisplayName
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
                                         <div class="col s12">
                                             <label>
                                                 <b>Relatori</b>
@@ -149,7 +152,7 @@
                             <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)</b>
                         </span>
                         <p>
-                            In Trattazione:
+                            Iscritti alla seduta:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -163,7 +166,7 @@
                         </p>
                         <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
                                                                                 tipo = (int)TipoAttoEnum.ITL,
-                                                                                stato = (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                                                stato = (int)StatiAttoEnum.PRESENTATO
                                                                             })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
@@ -174,7 +177,7 @@
                             <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)</b>
                         </span>
                         <p>
-                            In Trattazione:
+                            Iscritti alla seduta:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -188,7 +191,7 @@
                         </p>
                         <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
                                                                                 tipo = (int)TipoAttoEnum.ITR,
-                                                                                stato = (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                                                stato = (int)StatiAttoEnum.PRESENTATO
                                                                             })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
@@ -199,7 +202,7 @@
                             <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)</b>
                         </span>
                         <p>
-                            In Trattazione:
+                            Iscritti alla seduta:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -213,7 +216,7 @@
                         </p>
                         <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
                                                                                 tipo = (int)TipoAttoEnum.IQT,
-                                                                                stato = (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                                                stato = (int)StatiAttoEnum.PRESENTATO
                                                                             })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
@@ -224,7 +227,7 @@
                             <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)</b>
                         </span>
                         <p>
-                            In Trattazione:
+                            Iscritti alla seduta:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -238,7 +241,7 @@
                         </p>
                         <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
                                                                                 tipo = (int)TipoAttoEnum.MOZ,
-                                                                                stato = (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                                                stato = (int)StatiAttoEnum.PRESENTATO
                                                                             })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
@@ -249,7 +252,7 @@
                             <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)</b>
                         </span>
                         <p>
-                            In Trattazione:
+                            Iscritti alla seduta:
                             <b>
                                 @if (attoDasi != null)
                                 {
@@ -263,7 +266,7 @@
                         </p>
                         <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
                                                                                 tipo = (int)TipoAttoEnum.ODG,
-                                                                                stato = (int)StatiAttoEnum.IN_TRATTAZIONE
+                                                                                stato = (int)StatiAttoEnum.PRESENTATO
                                                                             })')">
                             <i class="material-icons">chevron_right</i>
                         </a>
