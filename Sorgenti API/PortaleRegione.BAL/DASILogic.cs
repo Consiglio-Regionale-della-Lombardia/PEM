@@ -526,17 +526,17 @@ namespace PortaleRegione.API.Controllers
                 PRESENTATI = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.TUTTI
+                        tipo
                         , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.TUTTI
+                        tipo
                         , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
-                        TipoAttoEnum.TUTTI
+                        tipo
                         , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro, soggetti)
             };
 
