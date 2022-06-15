@@ -5,19 +5,19 @@
     <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ITL)" style="min-width: unset" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {tipo = (int) TipoAttoEnum.ITL})')">
         ITL (@Model.CountBarData.ITL)
     </div>
-    <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ITR)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {tipo = (int) TipoAttoEnum.ITR})')">
+    <div class="chip badgeDISABLED">
         ITR (@Model.CountBarData.ITR)
     </div>
-    <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.IQT)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {tipo = (int) TipoAttoEnum.IQT})')">
+    <div class="chip badgeDISABLED">
         IQT (@Model.CountBarData.IQT)
     </div>
-    <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {tipo = (int) TipoAttoEnum.MOZ})')">
+    <div class="chip badgeDISABLED">
         MOZ (@Model.CountBarData.MOZ)
     </div>
-    <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ODG)" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {tipo = (int) TipoAttoEnum.ODG})')">
+    <div class="chip badgeDISABLED">
         ODG (@Model.CountBarData.ODG)
     </div>
-    <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="go('@Url.Action("RiepilogoDASI", "DASI")')">
+    <div class="chip @Html.Raw(TipoAttoCSSConst.TUTTI)">
         Tutti (@Model.CountBarData.TUTTI)
     </div>
 </div>

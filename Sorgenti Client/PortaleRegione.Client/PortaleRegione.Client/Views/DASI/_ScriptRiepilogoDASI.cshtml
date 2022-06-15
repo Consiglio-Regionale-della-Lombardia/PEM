@@ -1,4 +1,6 @@
-﻿@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+﻿@using Newtonsoft.Json
+@using PortaleRegione.DTO.Domain
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <script>
     $(window).on('load', async function () {
         setSelezionaTutti_DASI(false);
@@ -11,7 +13,19 @@
         if (filters == 0) {
             set_Filtri_DASI({});
         } else {
-
+            var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters));
+            console.log("filtri", filtri)
+            var filtri_cache = get_Filtri_DASI();
+            $.each(filtri,
+                function(i, item) {
+                    if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
+                        filtri_cache.stato = item.Value;
+                        set_Filtri_DASI(filtri_cache);
+                    }else if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
+                        filtri_cache.tipo = item.Value;
+                        set_Filtri_DASI(filtri_cache);
+                    }
+            });
         }
 
         Filtri_DASI_CaricaOggetto("qOggetto");

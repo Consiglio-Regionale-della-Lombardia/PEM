@@ -552,7 +552,9 @@ namespace PortaleRegione.API.Controllers
                 {
                     PropertyId = filterStatement.PropertyId,
                     Value = filterStatement.Value,
-                    Connector = filterStatement.Connector
+                    Value2 = filterStatement.Value2,
+                    Connector = filterStatement.Connector,
+                    Operation = filterStatement.Operation
                 });
 
             var result = new Filter<ATTI_DASI>();
@@ -1426,11 +1428,16 @@ namespace PortaleRegione.API.Controllers
             var result = new List<Tipi_AttoDto>();
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
-                result.Add(new Tipi_AttoDto
+            {
+                if ((int)tipo == (int)TipoAttoEnum.ITL)
                 {
-                    IDTipoAtto = (int) tipo,
-                    Tipo_Atto = Utility.GetText_TipoDASI((int) tipo)
-                });
+                    result.Add(new Tipi_AttoDto
+                    {
+                        IDTipoAtto = (int) tipo,
+                        Tipo_Atto = Utility.GetText_TipoDASI((int) tipo)
+                    });
+                }
+            }
 
             return result;
         }

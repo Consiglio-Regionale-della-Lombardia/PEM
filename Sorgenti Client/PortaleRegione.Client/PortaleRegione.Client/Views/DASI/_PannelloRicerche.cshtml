@@ -12,9 +12,11 @@
                     @Html.AntiForgeryToken()
                     var sedutaFilter = Model.Data.Filters.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
                     var uidSeduta = sedutaFilter != null ? sedutaFilter.Value : Guid.Empty;
+                    var tipoFilter = Model.Data.Filters.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.Tipo));
+                    var tipo = tipoFilter != null ? Convert.ToInt16(tipoFilter.Value) : (int)Model.Tipo;
                         <input id="inputFilterReset" type="hidden" name="reset" value="0" />
                     <input id="inputFilterSeduta" type="hidden" name="UIDSeduta" value="@uidSeduta" />
-                    <input id="inputFilterSeduta" type="hidden" name="Tipo" value="@((int)Model.Tipo)" />
+                    <input id="inputFilterSeduta" type="hidden" name="Tipo" value="@tipo" />
                     <input id="inputFilterView" type="hidden" name="view" value="@((int)Model.ViewMode)" />
                     <input id="inputFilterPage" type="hidden" name="page" value="@Model.Data.Paging.Page" />
                     <input id="inputFilterSize" type="hidden" name="size" value="@Model.Data.Paging.Limit" />

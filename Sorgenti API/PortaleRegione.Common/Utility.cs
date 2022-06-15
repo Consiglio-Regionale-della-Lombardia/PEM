@@ -628,9 +628,10 @@ namespace PortaleRegione.Common
         }
 
         public static void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo,
-            string filtroTipoTrattazione)
+            string filtroTipoTrattazione, ClientModeEnum mode)
         {
-            if (filtroTipoTrattazione != "0")
+
+            if (filtroTipoTrattazione != "0" && mode == ClientModeEnum.TRATTAZIONE)
             {
                 model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
@@ -639,7 +640,7 @@ namespace PortaleRegione.Common
                     Value = filtroTipoTrattazione,
                     Connector = FilterStatementConnector.And
                 });
-            }else if (filtroTipo != "0")
+            }else if (filtroTipo != "0" && mode == ClientModeEnum.GRUPPI)
                 if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {

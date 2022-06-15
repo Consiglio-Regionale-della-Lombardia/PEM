@@ -688,7 +688,7 @@ namespace PortaleRegione.Client.Controllers
 
             Common.Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
             Common.Utility.AddFilter_ByStato(ref model, filtro_stato);
-            Common.Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione);
+            Common.Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
             Common.Utility.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             Common.Utility.AddFilter_BySeduta(ref model, filtro_seduta);
             
