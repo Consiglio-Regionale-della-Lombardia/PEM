@@ -36,6 +36,8 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                CheckCacheClientMode();
+
                 var apiGateway = new ApiGateway(_Token);
                 var model = new DashboardModel
                 {
@@ -52,6 +54,20 @@ namespace PortaleRegione.Client.Controllers
                         model.DASI.Add(attiDASI);
                 }
 
+                return View("Index", model);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private void CheckCacheClientMode()
+        {
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            if (mode != (int)ClientModeEnum.GRUPPI)
+            {
                 HttpContext.Cache.Insert(
                     CacheHelper.CLIENT_MODE,
                     (int)ClientModeEnum.GRUPPI,
@@ -61,13 +77,6 @@ namespace PortaleRegione.Client.Controllers
                     CacheItemPriority.NotRemovable,
                     (key, value, reason) => { Console.WriteLine("Cache removed"); }
                 );
-
-                return View("Index", model);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
             }
         }
     }

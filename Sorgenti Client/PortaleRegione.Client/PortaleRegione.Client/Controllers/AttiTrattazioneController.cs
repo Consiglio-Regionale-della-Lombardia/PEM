@@ -41,13 +41,15 @@ namespace PortaleRegione.Client.Controllers
         [Route("view")]
         public async Task<ActionResult> Index(Guid id)
         {
+            CheckCacheClientMode();
+            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
             var apiGateway = new ApiGateway(_Token);
             var seduta = await apiGateway.Sedute.Get(id);
             var model = new DashboardModel
             {
                 Seduta = seduta
             };
-            var attiPEM = await apiGateway.Atti.Get(id, ClientModeEnum.GRUPPI, 1, 99);
+            var attiPEM = await apiGateway.Atti.Get(id, mode, 1, 99);
             if (attiPEM.Results.Any())
                 model.PEM.Add(attiPEM);
 
@@ -55,24 +57,33 @@ namespace PortaleRegione.Client.Controllers
             if (attiDASI.Data.Results.Any())
                 model.DASI.Add(attiDASI);
 
-            HttpContext.Cache.Insert(
-                CacheHelper.CLIENT_MODE,
-                (int)ClientModeEnum.TRATTAZIONE,
-                null,
-                Cache.NoAbsoluteExpiration,
-                Cache.NoSlidingExpiration,
-                CacheItemPriority.NotRemovable,
-                (key, value, reason) => { Console.WriteLine("Cache removed"); }
-            );
-
             return View("Index", model);
         }
         
         public async Task<ActionResult> Archivio(int page = 1, int size = 50)
         {
+            CheckCacheClientMode();
+
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.Sedute.Get(page, size);
             return View("Archivio", model);
+        }
+
+        private void CheckCacheClientMode()
+        {
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            if (mode != (int)ClientModeEnum.TRATTAZIONE)
+            {
+                HttpContext.Cache.Insert(
+                    CacheHelper.CLIENT_MODE,
+                    (int)ClientModeEnum.TRATTAZIONE,
+                    null,
+                    Cache.NoAbsoluteExpiration,
+                    Cache.NoSlidingExpiration,
+                    CacheItemPriority.NotRemovable,
+                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
+                );
+            }
         }
     }
 }
