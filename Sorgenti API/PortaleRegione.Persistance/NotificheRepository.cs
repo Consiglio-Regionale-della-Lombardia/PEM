@@ -112,15 +112,11 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .NOTIFICHE
-                .Where(n => n.ATTI.Eliminato == false);
-            query = query.Where(n => n.Mittente == currentUser.UID_persona);
+                .Where(n => n.Mittente == currentUser.UID_persona);
 
             if (idGruppo > 0) query = query.Where(nd => nd.IdGruppo == idGruppo);
 
-            if (Archivio == false)
-                query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
-            else
-                query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            query = query.Where(n => n.Chiuso == Archivio);
 
             if (currentUser.CurrentRole == RuoliIntEnum.Consigliere_Regionale
                 || currentUser.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta
@@ -145,7 +141,7 @@ namespace PortaleRegione.Persistance
         {
             var queryDestinatari = PRContext
                 .NOTIFICHE_DESTINATARI
-                .Where(n => n.NOTIFICHE.ATTI.Eliminato == false);
+                .Where(n => true);
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
@@ -165,10 +161,7 @@ namespace PortaleRegione.Persistance
                     .NOTIFICHE
                     .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
-                if (Archivio == false)
-                    query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
-                else
-                    query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+                query = query.Where(n => n.Chiuso == Archivio);
 
                 filtro?.BuildExpression(ref query);
 
@@ -185,9 +178,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
             var query2 = PRContext
                 .NOTIFICHE
-                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && !n.ATTI.SEDUTE.Eliminato.Value &&
-                            !n.ATTI.Eliminato.Value &&
-                            (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
+                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && n.Chiuso == false);
             filtro?.BuildExpression(ref query2);
 
             var result = await query2.CountAsync();

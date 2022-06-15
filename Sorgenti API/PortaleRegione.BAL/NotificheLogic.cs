@@ -456,7 +456,8 @@ namespace PortaleRegione.BAL
                 || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
                 idGruppo = currentUser.Gruppo.id_gruppo;
 
-            return await _unitOfWork.Notifiche.CountInviate(currentUser, idGruppo, Archivio, queryFilter);
+            var result = await _unitOfWork.Notifiche.CountInviate(currentUser, idGruppo, Archivio, queryFilter);
+            return result;
         }
 
         #endregion
