@@ -26,7 +26,7 @@
     var backUrl = Url.Action("RiepilogoDASI", objParams);
     if (Convert.ToInt16(modeFromCache)  == (int)ClientModeEnum.TRATTAZIONE)
     {
-        backUrl = Url.Action("Index", "AttiTrattazione", new { id = Model.UIDSeduta });
+        backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.UIDSeduta, tipo = Model.Tipo });
     }
 }
 
