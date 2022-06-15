@@ -64,14 +64,7 @@ else
                                 </a>
                             }
 
-                            @if (item.Invito_Abilitato)
-                            {
-                                <a class='amber-text' style='margin: 5px' onclick="Invita('@item.UIDAtto')">
-                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Invita">send</i>
-                                </a>
-                            }
-
-                            <a class="green-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')" style="margin: 2px"
+                            <a class="black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')" style="margin: 2px"
                                data-position="left" data-tooltip="Visualizza atto">
                                 <i class="material-icons">chevron_right</i>
                             </a>
