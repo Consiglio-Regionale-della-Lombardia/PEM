@@ -130,7 +130,7 @@ namespace PortaleRegione.Persistance
                                           || em.IDStato == (int)StatiEnum.Bozza
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                 {
                     //Solo segreteria
                     query = query.Where(e => !string.IsNullOrEmpty(e.DataDeposito));

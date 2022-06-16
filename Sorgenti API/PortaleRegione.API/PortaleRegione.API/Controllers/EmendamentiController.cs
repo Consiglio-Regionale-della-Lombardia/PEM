@@ -416,8 +416,7 @@ namespace PortaleRegione.API.Controllers
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+                if (!persona.IsSegreteriaAssemblea)
                 {
                     var countFirme = await _logicFirme.CountFirme(model.UIDEM);
                     if (countFirme > 1)
@@ -680,8 +679,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -731,8 +729,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -783,8 +780,7 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -840,8 +836,7 @@ namespace PortaleRegione.API.Controllers
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var depositoUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                      persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var depositoUfficio = persona.IsSegreteriaAssemblea;
 
                 if (depositoUfficio)
                 {

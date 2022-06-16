@@ -23,6 +23,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
@@ -59,8 +60,7 @@ namespace PortaleRegione.Persistance
 
             if (mode == ClientModeEnum.GRUPPI)
             {
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                 {
                     query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
                 }
@@ -97,8 +97,7 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (persona.IsSegreteriaAssemblea)
             {
                 query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
             }
@@ -150,11 +149,18 @@ namespace PortaleRegione.Persistance
                     if (stato != StatiAttoEnum.TUTTI)
                     {
                         if (stato == StatiAttoEnum.PRESENTATO
-                            && persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale)
+                            && persona.IsConsigliereRegionale)
                             query = query.Where(item => item.IDStato >= (int)stato);
                         else
                         {
                             query = query.Where(item => item.IDStato == (int)stato);
+                        }
+                    }
+                    else
+                    {
+                        if (persona.IsSegreteriaAssemblea)
+                        {
+                            query = query.Where(item => !Utility.statiNonVisibili_Segreteria.Contains(item.IDStato));
                         }
                     }
 
@@ -215,8 +221,7 @@ namespace PortaleRegione.Persistance
         {
             if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (persona.IsSegreteriaAssemblea)
                 if (dto.Firma_da_ufficio)
                     return true;
 

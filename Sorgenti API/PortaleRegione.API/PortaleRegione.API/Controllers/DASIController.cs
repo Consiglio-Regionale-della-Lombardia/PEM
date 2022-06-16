@@ -205,8 +205,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -256,8 +255,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -308,8 +306,7 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -365,8 +362,7 @@ namespace PortaleRegione.API.Controllers
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var presentazioneUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                      persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var presentazioneUfficio = persona.IsSegreteriaAssemblea;
 
                 if (presentazioneUfficio)
                 {
@@ -699,7 +695,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(_logic.GetStati());
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+
+                return Ok(_logic.GetStati(persona));
             }
             catch (Exception e)
             {

@@ -523,7 +523,7 @@ namespace PortaleRegione.BAL
 
                 if (currentUser != null)
                 {
-                    if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea &&
+                    if (currentUser.IsSegreteriaAssemblea &&
                         !string.IsNullOrEmpty(emendamento.NOTE_EM))
                         body = body.Replace("{lblNotePrivateEMView}",
                                 $"Note Riservate: {emendamento.NOTE_EM}")
@@ -670,7 +670,7 @@ namespace PortaleRegione.BAL
 
                 if (currentUser != null)
                 {
-                    if (currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea &&
+                    if (currentUser.IsSegreteriaAssemblea &&
                         !string.IsNullOrEmpty(atto.Note_Private))
                         body = body.Replace("{lblNotePrivateATTOView}",
                                 $"Note Riservate: {atto.Note_Private}")

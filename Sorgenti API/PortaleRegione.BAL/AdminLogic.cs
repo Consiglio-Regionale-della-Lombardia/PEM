@@ -342,7 +342,7 @@ namespace PortaleRegione.BAL
 
             if (gruppi_utente.Any())
             {
-                persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(gruppi_utente, persona.IsGiunta());
+                persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(gruppi_utente, persona.IsGiunta);
                 persona.Gruppi = gruppi_utente.Aggregate((i, j) => i + "; " + j);
             }
 

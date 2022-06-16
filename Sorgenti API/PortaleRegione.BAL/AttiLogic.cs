@@ -65,8 +65,7 @@ namespace PortaleRegione.BAL
                     appoggio.Conteggio_SubEM = await _unitOfWork.Emendamenti.Count(appoggio.UIDAtto,
                         currentUser, CounterEmendamentiEnum.SUB_EM, CLIENT_MODE);
 
-                    if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    if (currentUser.IsSegreteriaAssemblea)
                     {
                         appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
                         appoggio.CanMoveDown =

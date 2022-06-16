@@ -72,17 +72,16 @@ namespace PortaleRegione.API.Controllers
                             legislatura);
                     result.Progressivo = progressivo;
 
-                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+                    if (persona.IsSegreteriaAssemblea
+                        || persona.IsPresidente)
                         result.IDStato = (int) StatiAttoEnum.BOZZA;
                     else
                         result.IDStato = persona.Gruppo.abilita_em_privati
                             ? (int) StatiAttoEnum.BOZZA_RISERVATA
                             : (int) StatiAttoEnum.BOZZA;
 
-                    if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                        persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
+                    if (persona.IsConsigliereRegionale ||
+                        persona.IsAssessore)
                         result.UIDPersonaProponente = persona.UID_persona;
                     else
                         result.UIDPersonaProponente = attoDto.UIDPersonaProponente;
@@ -90,9 +89,8 @@ namespace PortaleRegione.API.Controllers
                     result.UIDPersonaCreazione = persona.UID_persona;
                     result.DataCreazione = DateTime.Now;
                     result.idRuoloCreazione = (int) persona.CurrentRole;
-                    if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                        && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                        && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                    if (!persona.IsSegreteriaAssemblea
+                        && !persona.IsPresidente)
                     {
                         result.id_gruppo = persona.Gruppo.id_gruppo;
                     }
@@ -754,11 +752,9 @@ namespace PortaleRegione.API.Controllers
                         .Atti_Firme
                         .GetFirmatari(atto, FirmeTipoEnum.ATTIVI);
                     ATTI_FIRME firma_utente;
-                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-                        firma_utente = firmeAttive.Single(f => f.ufficio);
-                    else
-                        firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
+                    firma_utente = persona.IsSegreteriaAssemblea ? 
+                        firmeAttive.Single(f => f.ufficio) : 
+                        firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
 
                     firma_utente.Data_ritirofirma =
                         EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
@@ -1031,9 +1027,8 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.DASI.GetProgressivo(tipo, persona.Gruppo.id_gruppo, legislatura);
                 result.Atto.Progressivo = progressivo;
 
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                    || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+                if (persona.IsSegreteriaAssemblea
+                    || persona.IsPresidente)
                     result.Atto.IDStato = (int) StatiAttoEnum.BOZZA;
                 else
                     result.Atto.IDStato = persona.Gruppo.abilita_em_privati
@@ -1042,8 +1037,8 @@ namespace PortaleRegione.API.Controllers
 
                 result.Atto.NAtto = GetNome(result.Atto.NAtto, progressivo);
 
-                if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
+                if (persona.IsConsigliereRegionale ||
+                    persona.IsAssessore)
                 {
                     result.Atto.UIDPersonaProponente = persona.UID_persona;
                     result.Atto.PersonaProponente = new PersonaLightDto
@@ -1057,9 +1052,8 @@ namespace PortaleRegione.API.Controllers
                 result.Atto.UIDPersonaCreazione = persona.UID_persona;
                 result.Atto.DataCreazione = DateTime.Now;
                 result.Atto.idRuoloCreazione = (int) persona.CurrentRole;
-                if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                    && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                if (!persona.IsSegreteriaAssemblea
+                    && !persona.IsPresidente)
                     result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
                 result.Atto.SoggettiInterrogati = new List<AssessoreInCaricaDto>();
                 result.Atto.Commissioni = new List<CommissioneDto>();
@@ -1410,16 +1404,24 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public IEnumerable<StatiDto> GetStati()
+        public IEnumerable<StatiDto> GetStati(PersonaDto persona)
         {
             var result = new List<StatiDto>();
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
+            {
+                if (persona.IsSegreteriaAssemblea)
+                {
+                    if (Utility.statiNonVisibili_Segreteria.Contains(Convert.ToInt16(stato)))
+                        continue;
+                }
+
                 result.Add(new StatiDto
                 {
                     IDStato = (int) stato,
                     Stato = Utility.GetText_StatoDASI((int) stato)
                 });
+            }
 
             return result;
         }

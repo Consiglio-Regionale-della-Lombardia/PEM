@@ -78,7 +78,7 @@ namespace PortaleRegione.BAL
             var result = new List<PersonaDto>();
             foreach (var persona in persone)
             {
-                persona.Gruppo = await GetGruppoAttualePersona(persona.UID_persona, persona.IsGiunta());
+                persona.Gruppo = await GetGruppoAttualePersona(persona.UID_persona, persona.IsGiunta);
                 result.Add(persona);
             }
 

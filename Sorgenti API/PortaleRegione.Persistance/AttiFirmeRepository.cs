@@ -133,8 +133,7 @@ namespace PortaleRegione.Persistance
                 return true;
             }
 
-            if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM &&
-                persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+            if (!persona.IsSegreteriaAssemblea)
             {
                 return false;
             }

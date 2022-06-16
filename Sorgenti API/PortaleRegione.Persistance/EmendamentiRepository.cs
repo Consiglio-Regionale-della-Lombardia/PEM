@@ -72,20 +72,19 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
-                if (persona.IsGiunta())
+                if (persona.IsGiunta)
                 {
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                 }
-                else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                         && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                else if (!persona.IsSegreteriaAssemblea
+                         && !persona.IsPresidente)
                 {
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
                 }
 
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                 {
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
@@ -117,7 +116,7 @@ namespace PortaleRegione.Persistance
                         return await query.CountAsync();
                     }
                 case CounterEmendamentiEnum.EM:
-                    if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    if (persona.IsSegreteriaAssemblea)
                     {
                         return await query.CountAsync(e =>
                             !string.IsNullOrEmpty(e.N_EM) && string.IsNullOrEmpty(e.N_SUBEM));
@@ -128,7 +127,7 @@ namespace PortaleRegione.Persistance
                     }
 
                 case CounterEmendamentiEnum.SUB_EM:
-                    if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    if (persona.IsSegreteriaAssemblea)
                     {
                         return await query.CountAsync(e => string.IsNullOrEmpty(e.N_EM));
                     }
@@ -324,20 +323,19 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
-                if (persona.IsGiunta())
+                if (persona.IsGiunta)
                 {
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                 }
-                else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                         && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                else if (!persona.IsSegreteriaAssemblea
+                         && !persona.IsPresidente)
                 {
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
                 }
 
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                 {
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
@@ -363,9 +361,8 @@ namespace PortaleRegione.Persistance
             }
 
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
-                (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                 || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                 || persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
+                (persona.IsSegreteriaAssemblea
+                 || persona.IsPresidente))
             {
                 switch (ordine)
                 {
@@ -446,20 +443,19 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
-                if (persona.IsGiunta())
+                if (persona.IsGiunta)
                 {
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                 }
-                else if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                         && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                         && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                else if (!persona.IsSegreteriaAssemblea
+                         && !persona.IsPresidente)
                 {
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
                 }
 
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                 {
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
@@ -769,8 +765,7 @@ namespace PortaleRegione.Persistance
                 return false;
             }
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (persona.IsSegreteriaAssemblea)
             {
                 if (em.Firma_da_ufficio)
                 {

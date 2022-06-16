@@ -278,9 +278,8 @@ namespace PortaleRegione.BAL
 
                 var stampe = await _unitOfWork.Stampe.GetAll(persona, model.page, model.size, queryFilter);
                 var result = new List<StampaDto>();
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    || persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta
-                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea
+                    || persona.IsAmministratoreGiunta)
                 {
                     foreach (var stampa in stampe)
                     {

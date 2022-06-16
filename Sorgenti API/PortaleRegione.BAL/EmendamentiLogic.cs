@@ -137,11 +137,10 @@ namespace PortaleRegione.BAL
                 var result = new EmendamentiFormModel();
                 var emendamento = new EmendamentiDto();
 
-                var isGiunta = persona.IsGiunta();
+                var isGiunta = persona.IsGiunta;
 
-                var progressivo = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                                  || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                                  || persona.CurrentRole == RuoliIntEnum.Presidente_Regione
+                var progressivo = persona.IsSegreteriaAssemblea
+                                  || persona.IsPresidente
                     ? 1
                     : await _unitOfWork.Emendamenti.GetProgressivo(atto.UIDAtto,
                         persona.Gruppo.id_gruppo, sub_em);
@@ -197,9 +196,8 @@ namespace PortaleRegione.BAL
                 else
                 {
                     emendamento.Progressivo = progressivo;
-                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+                    if (persona.IsSegreteriaAssemblea
+                        || persona.IsPresidente)
                         emendamento.IDStato = (int) StatiEnum.Bozza;
                     else
                         emendamento.IDStato = persona.Gruppo.abilita_em_privati
@@ -209,8 +207,8 @@ namespace PortaleRegione.BAL
                     emendamento.N_EM = GetNomeEM(emendamento, null);
                 }
 
-                if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta)
+                if (persona.IsConsigliereRegionale ||
+                    persona.IsAssessore)
                 {
                     emendamento.UIDPersonaProponente = persona.UID_persona;
                     emendamento.PersonaProponente = new PersonaLightDto
@@ -222,9 +220,8 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                        || persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+                    if (persona.IsSegreteriaAssemblea
+                        || persona.IsPresidente)
                     {
                         result.ListaConsiglieri =
                             await _logicPersone.GetConsiglieri();
@@ -244,9 +241,8 @@ namespace PortaleRegione.BAL
                 emendamento.UIDPersonaCreazione = persona.UID_persona;
                 emendamento.DataCreazione = DateTime.Now;
                 emendamento.idRuoloCreazione = (int) persona.CurrentRole;
-                if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                    && persona.CurrentRole != RuoliIntEnum.Presidente_Regione)
+                if (!persona.IsSegreteriaAssemblea
+                    && !persona.IsPresidente)
                     emendamento.id_gruppo = persona.Gruppo.id_gruppo;
 
                 emendamento.UIDAtto = atto.UIDAtto;
@@ -261,8 +257,7 @@ namespace PortaleRegione.BAL
                 result.Emendamento = emendamento;
                 result.Atto = Mapper.Map<ATTI, AttiDto>(atto);
 
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                     result.Emendamento.TestoEM_originale = AppSettingsConfiguration.TestoEMCartaceo;
 
                 return result;
@@ -286,8 +281,7 @@ namespace PortaleRegione.BAL
                 if (persona.CurrentRole != RuoliIntEnum.Consigliere_Regionale &&
                     persona.CurrentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta)
                 {
-                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    if (persona.IsSegreteriaAssemblea)
                     {
                         result.ListaConsiglieri =
                             (await _unitOfWork.Persone.GetConsiglieri(
@@ -891,8 +885,7 @@ namespace PortaleRegione.BAL
                         .Firme
                         .GetFirmatari(em, FirmeTipoEnum.ATTIVI);
                     FIRME firma_utente;
-                    if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    if (persona.IsSegreteriaAssemblea)
                         firma_utente = firmeAttive.Single(f => f.ufficio);
                     else
                         firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
@@ -1395,12 +1388,10 @@ namespace PortaleRegione.BAL
                 emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int) StatiEnum.Depositato
                                               && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
                                               && !emendamentoDto.ATTI.Chiuso ||
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_PEM &&
                                               persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
-                                              persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                                              persona.IsSegreteriaAssemblea;
 
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                    persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                     if (emendamentoDto.ConteggioFirme > 1)
                     {
                         var firme = await _logicFirme.GetFirme(emendamentoDto, FirmeTipoEnum.ATTIVI);

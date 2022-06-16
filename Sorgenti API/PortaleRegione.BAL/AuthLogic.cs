@@ -178,7 +178,7 @@ namespace PortaleRegione.BAL
                 }
 
                 persona.CurrentRole = ruolo;
-                persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli, persona.IsGiunta());
+                persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli, persona.IsGiunta);
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
                 persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
 

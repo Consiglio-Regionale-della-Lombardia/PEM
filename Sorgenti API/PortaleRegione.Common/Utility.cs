@@ -37,6 +37,13 @@ namespace PortaleRegione.Common
         public const string WORD_OPEN_P = "<p[^>]*>";
         public const string WORD_OPEN_A = "<a name[^>]*>";
 
+        public static List<int> statiNonVisibili_Segreteria = new List<int>()
+        {
+            (int)StatiAttoEnum.BOZZA,
+            (int)StatiAttoEnum.BOZZA_RISERVATA,
+            (int)StatiAttoEnum.RITIRATO,
+        };
+
         /// <summary>
         ///     Metodo per avere i metadati dell'emendamento in formato visualizzabile
         /// </summary>

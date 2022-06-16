@@ -59,16 +59,15 @@ namespace PortaleRegione.Persistance
 
             if (em.ATTI.Chiuso) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (persona.IsSegreteriaAssemblea)
                 return true;
 
             if (persona.Gruppo == null) return false;
             if (em.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
-                persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+            if (persona.IsConsigliereRegionale ||
+                persona.IsAssessore ||
+                persona.IsPresidente)
             {
                 if (em.UIDPersonaProponente.Value != persona.UID_persona) return false;
 
@@ -85,16 +84,15 @@ namespace PortaleRegione.Persistance
         {
             if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (persona.IsSegreteriaAssemblea)
                 return true;
 
             if (persona.Gruppo == null) return false;
             if (atto.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
-                persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+            if (persona.IsConsigliereRegionale ||
+                persona.IsAssessore ||
+                persona.IsPresidente)
             {
                 if (atto.UIDPersonaProponente.Value != persona.UID_persona) return false;
 
@@ -168,8 +166,7 @@ namespace PortaleRegione.Persistance
                 return await query.CountAsync();
             }
 
-            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (currentUser.IsSegreteriaAssemblea)
                 return 0;
 
             var resultNotificheNonViste = await queryDestinatari
@@ -234,7 +231,7 @@ namespace PortaleRegione.Persistance
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                currentUser.IsAmministratorePEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
             if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
@@ -259,8 +256,7 @@ namespace PortaleRegione.Persistance
                     .ToListAsync();
             }
 
-            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (currentUser.IsSegreteriaAssemblea)
                 return new List<NOTIFICHE>();
             queryDestinatari = queryDestinatari
                 .Where(nd => nd.Visto == false);
