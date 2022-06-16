@@ -50,7 +50,12 @@
                     </b>
                 </h6>
             </div>
-            @if (Model.Firmabile || Model.Presentabile || Model.Eliminabile || Model.Ritirabile || Model.Modificabile)
+            @if (Model.Firmabile 
+                 || Model.Presentabile 
+                 || Model.Eliminabile 
+                 || Model.Ritirabile 
+                 || Model.Modificabile 
+                 && Convert.ToInt16(modeFromCache) != (int)ClientModeEnum.TRATTAZIONE)
             {
                 <div class="card-action grey lighten-4 center" style="border-top: unset">
                     <div class="row" style="margin: 0 !important">

@@ -1,99 +1,32 @@
-﻿@using PortaleRegione.DTO.Enum
-<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
-    <a class="btn-floating btn-large pink">
-        <i class="large material-icons">playlist_add</i>
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: block">
+    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
+        <i class="large material-icons">add</i>
     </a>
     <ul>
         <li>
-            <a class="btn-floating approvatoT tooltipped" onclick="IscriviASeduta()" data-position="left" data-tooltip="Iscrivi alla seduta">
-                <i class="material-icons">assignment_turned_in</i> Assegna a seduta
-            </a>
+            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITL)" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ITL})">@Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)</a>
         </li>
-        <li>
-            <a class="btn-floating approvatoT tooltipped" onclick="" data-position="left" data-tooltip="Approva">
-                <i class="material-icons">check</i> Approva
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
-                <i class="material-icons">undo</i>
-            </a>
-        </li>
+
+        @*<li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR)" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ITR})">@Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)</a>
+            </li>
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT)" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.IQT})">@Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)</a>
+            </li>
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ)" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.MOZ})">@Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)</a>
+            </li>
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG)" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ODG})">@Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)</a>
+            </li>*@
     </ul>
-</div>
-
-<div id="modalIscriviASeduta" class="modal">
-    <div class="modal-content">
-        <h4>Seleziona seduta</h4>
-        <div class="row">
-            <div class="col s12 carousel-item">
-                <div class="card hoverable green lighten-4 black-text">
-                    <div class="card-content">
-                        <h5 class="card-title">
-                            <span>Seduta del 6/12/2021 10:45</span>
-                        </h5>
-                        <div class="row valign-wrapper">
-                            <div class="col s10">
-                                <p>
-
-                                    Scadenza presentazione: 10/12/2021 09:45
-                                </p>
-                            </div>
-                            <div class="col s2">
-                                <p>
-                                    <label>
-                                        <input type="checkbox" />
-                                        <span></span>
-                                    </label>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 carousel-item">
-                <div class="card hoverable green lighten-4 black-text">
-                    <div class="card-content">
-                        <h5 class="card-title">
-                            <span>Seduta del 6/12/2021 10:45</span>
-                        </h5>
-                        <div class="row valign-wrapper">
-                            <div class="col s10">
-                                <p>
-
-                                    Scadenza presentazione: 10/12/2021 09:45
-                                </p>
-                            </div>
-                            <div class="col s2">
-                                <p>
-                                    <label>
-                                        <input type="checkbox" />
-                                        <span></span>
-                                    </label>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="SalvaIscriviASeduta()">Salva</a>
-    </div>
 </div>
 
 <script>
 
-    function SalvaIscriviASeduta() {
-        SuccessAlert("Atti iscritti");
-    }
-
-    function IscriviASeduta() {
-        //Nuova modal
-        $('#modalIscriviASeduta').modal("open");
-    }
-        function ModificaMetaDASI(tipo) {
+    function ModificaMetaDASI(tipo) {
         openFormDASI(tipo, true);
     }
 

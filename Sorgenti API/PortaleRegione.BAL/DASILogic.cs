@@ -695,7 +695,8 @@ namespace PortaleRegione.API.Controllers
                         primoFirmatario = true;
                     }
 
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, persona.Gruppo.id_gruppo, firmaCert, dataFirma, firmaUfficio, primoFirmatario);
+                    var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
+                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma, firmaUfficio, primoFirmatario);
 
                     //TODO: DESTINATARI DASI
                     //var is_destinatario_notifica =

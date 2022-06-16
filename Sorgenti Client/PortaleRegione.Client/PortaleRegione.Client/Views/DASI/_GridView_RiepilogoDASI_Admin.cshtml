@@ -150,9 +150,10 @@ else
                         var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
                         var textTooltipSeduta = textSeduta + $"<br>Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
                         var tooltipSeduta = textTooltipSeduta + "<br><br><i>Premi per rimuovere</i>";
-                        <div class="tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
-                            <i class="material-icons green-text rimuovi-seduta">wifi_tethering</i>
-                        </div>
+                    <div class="tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', $('#txtNomeAtto_@item.UIDAtto').html())">
+                        @Html.Raw($"{item.Seduta.Data_seduta.Value:dd/MM/yyyy}")
+                        <i class="material-icons green-text rimuovi-seduta">wifi_tethering</i>
+                    </div>
                     }
                     else
                     {
