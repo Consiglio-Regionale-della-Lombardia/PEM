@@ -722,7 +722,6 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
-                var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
                 var jumpMail = false;
 
                 foreach (var idGuid in firmaModel.Lista)
@@ -734,12 +733,18 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    var countFirme = await _unitOfWork.Firme.CountFirme(idGuid);
+                    var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     if (countFirme == 1)
                     {
                         //TODO: BLOCCO RITIRO FIRMA
+                        if (atto.IDStato >= (int)StatiAttoEnum.IN_TRATTAZIONE)
+                        {
+                            results.Add(idGuid,
+                                "ERROR: Non è possibile ritirare l'ultima firma, in quanto equivale al ritiro dell'atto: annuncia in Aula l'intenzione di ritiro della firma");
+                            continue;
+                        }
 
-                        //RITIRA EM
+                        //RITIRA ATTO
                         atto.IDStato = (int) StatiAttoEnum.RITIRATO;
                         atto.UIDPersonaRitiro = persona.UID_persona;
                         atto.DataRitiro = DateTime.Now;

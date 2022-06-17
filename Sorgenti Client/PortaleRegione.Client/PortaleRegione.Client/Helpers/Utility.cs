@@ -360,9 +360,7 @@ namespace PortaleRegione.Client.Helpers
                     return result.Aggregate((i, j) => i + j);
                 }
 
-                var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
-                    ? "Firme aggiunte dopo il deposito"
-                    : "Firmatari dell'emendamento";
+                var titoloColonna = "Firmatari dell'atto";
                 var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
                 var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
                 var em = await apiGateway.DASI.Get(firmeDtos.Select(f => f.UIDAtto).First());
@@ -382,12 +380,12 @@ namespace PortaleRegione.Client.Helpers
                         body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                         if (currentUId == firmeDto.UID_persona)
                         {
-                            if (em.IDStato >= (int) StatiEnum.Depositato)
+                            if (em.IDStato >= (int) StatiAttoEnum.PRESENTATO)
                                 body +=
-                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                             else
                                 body +=
-                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirma('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
+                                    $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
                         }
                     }
 

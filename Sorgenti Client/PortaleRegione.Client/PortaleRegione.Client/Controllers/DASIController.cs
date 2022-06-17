@@ -337,7 +337,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                var resultRitiro = await apiGateway.Emendamento.RitiraFirma(id, pin);
+                var resultRitiro = await apiGateway.DASI.RitiraFirma(id, pin);
                 var listaErroriRitiroFirma = new List<string>();
                 foreach (var itemRitiroFirma in resultRitiro)
                     listaErroriRitiroFirma.Add(
@@ -743,6 +743,11 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
             }
+        }
+
+        public ActionResult NuovoCartaceo(int tipo)
+        {
+            throw new NotImplementedException();
         }
     }
 }

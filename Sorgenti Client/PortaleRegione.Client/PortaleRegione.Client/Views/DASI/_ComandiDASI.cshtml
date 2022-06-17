@@ -109,11 +109,17 @@
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
-                }).done(function(data) {
+                }).done(function (data) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito procedura:",
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "Ok"
                     }).then(() => {
                         DeselectALLEM();

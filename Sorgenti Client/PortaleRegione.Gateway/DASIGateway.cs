@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -510,40 +511,7 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
-
-        public async Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin)
-        {
-            var model = new ComandiAzioneModel
-            {
-                Lista = new List<Guid> {attoUId},
-                Pin = pin
-            };
-            return await RitiraFirma(model);
-        }
-
-        public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/dasi/ritiro-firma";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("RitiraFirma - DASI", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("RitiraFirma - DASI", ex);
-                throw ex;
-            }
-        }
-
+        
         public async Task CambioStato(ModificaStatoAttoModel model)
         {
             try
@@ -743,5 +711,36 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin)
+        {
+            var model = new ComandiAzioneModel
+            {
+                Lista = new List<Guid> { attoUId },
+                Pin = pin
+            };
+            return await RitiraFirma(model);
+        }
+
+        public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/ritiro-firma";
+                var body = JsonConvert.SerializeObject(model);
+                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("RitiraFirma", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("RitiraFirma", ex);
+                throw ex;
+            }
+        }
     }
 }

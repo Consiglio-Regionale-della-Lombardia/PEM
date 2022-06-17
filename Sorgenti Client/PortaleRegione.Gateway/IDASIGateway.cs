@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PortaleRegione.DTO.Domain;
@@ -59,5 +60,7 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<Tipi_AttoDto>> GetTipi();
         Task<IEnumerable<AssessoreInCaricaDto>> GetSoggettiInterrogabili();
         Task ModificaMetaDati(AttoDASIDto model);
+        Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model);
+        Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin);
     }
 }

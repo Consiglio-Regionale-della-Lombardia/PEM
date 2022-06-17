@@ -30,7 +30,7 @@
                 displayName = data.DisplayName;
                 foto = data.foto;
                 gruppo = data.Gruppo;
-                carica = data.IsGiunta() ? data.Carica : string.Empty;
+                carica = data.IsGiunta ? data.Carica : string.Empty;
                 if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                 {
                     var gCookie1 = Request.Cookies["GCookies1"];

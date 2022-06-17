@@ -122,10 +122,16 @@
                 dataType: "json"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito Inviti",
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         location.reload();

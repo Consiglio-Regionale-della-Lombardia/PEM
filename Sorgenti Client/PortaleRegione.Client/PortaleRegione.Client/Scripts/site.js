@@ -320,8 +320,6 @@ function removeAtto(uidAtto) {
     setListaAtti(lista);
 }
 
-
-
 function ConfirmAction(id, name, action) {
     $("#emActionDisplayName").empty();
     $("#emActionDisplayName").append(name);
@@ -398,7 +396,8 @@ function RitiraFirma(id) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
-                buttons: { cancel: "Annulla", confirm: "Si" }
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Ritira" }
             })
         .then((value) => {
             if (value == null || value == "")
@@ -407,11 +406,17 @@ function RitiraFirma(id) {
             $.ajax({
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
-            }).done(function(data) {
+            }).done(function (data) {
+                var typeMessage = "error";
+                var str = data.message;
+                var pos = str.indexOf('OK');
+                if (pos > 0) {
+                    typeMessage = "success";
+                }
                 swal({
                     title: "Esito ritiro firma",
                     text: data.message,
-                    icon: "info",
+                    icon: typeMessage,
                     button: "OK"
                 }).then(() => {
                     location.reload();
@@ -431,7 +436,8 @@ function EliminaFirma(id) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
-                buttons: { cancel: "Annulla", confirm: "Si" }
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Elimina" }
             })
         .then((value) => {
             if (value == null || value == "")
@@ -442,10 +448,99 @@ function EliminaFirma(id) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito ritiro firma",
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+}
+
+function RitiraFirmaDASI(id) {
+    swal("Inserisci il pin per ritirare la firma",
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Ritira" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            $.ajax({
+                url: baseUrl + "/dasi/ritiro-firma?id=" + id + "&pin=" + value,
+                method: "GET"
+            }).done(function (data) {
+                var typeMessage = "error";
+                var str = data.message;
+                var pos = str.indexOf('OK');
+                if (pos > 0) {
+                    typeMessage = "success";
+                }
+                swal({
+                    title: "Esito ritiro firma",
+                    text: data.message,
+                    icon: typeMessage,
+                    button: "OK"
+                }).then(() => {
+                    location.reload();
+                });
+            }).fail(function(err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+}
+
+function EliminaFirmaDASI(id) {
+
+    swal("Inserisci il pin per eliminare la firma",
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Elimina" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            $.ajax({
+                url: baseUrl + "/dasi/elimina-firma?id=" + id + "&pin=" + value,
+                method: "GET"
+            }).done(function (data) {
+                if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
+                    swal({
+                        title: "Esito ritiro firma",
+                        text: data.message,
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         location.reload();
@@ -504,6 +599,7 @@ function RevealFirmaDeposito(id, action) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
+                icon: "info",
                 buttons: { cancel: "Annulla", confirm: button }
             })
         .then((value) => {
@@ -515,10 +611,16 @@ function RevealFirmaDeposito(id, action) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito " + button,
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         location.reload();
@@ -550,6 +652,7 @@ function RevealFirmaDepositoDASI(id, action) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
+                icon: "info",
                 buttons: { cancel: "Annulla", confirm: button }
             })
         .then((value) => {
@@ -561,10 +664,16 @@ function RevealFirmaDepositoDASI(id, action) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito " + button,
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         if (data.message.includes("OK")) {
