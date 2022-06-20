@@ -68,22 +68,5 @@ namespace PortaleRegione.Client.Controllers
             var model = await apiGateway.Sedute.Get(page, size);
             return View("Archivio", model);
         }
-
-        private void CheckCacheClientMode()
-        {
-            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
-            if (mode != (int)ClientModeEnum.TRATTAZIONE)
-            {
-                HttpContext.Cache.Insert(
-                    CacheHelper.CLIENT_MODE,
-                    (int)ClientModeEnum.TRATTAZIONE,
-                    null,
-                    Cache.NoAbsoluteExpiration,
-                    Cache.NoSlidingExpiration,
-                    CacheItemPriority.NotRemovable,
-                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
-                );
-            }
-        }
     }
 }

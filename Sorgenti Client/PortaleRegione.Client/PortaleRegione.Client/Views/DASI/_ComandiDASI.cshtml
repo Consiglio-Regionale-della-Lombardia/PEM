@@ -1,6 +1,7 @@
 ﻿@using System.Configuration
-@using PortaleRegione.Common
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
     <a class="btn-floating btn-large pink">
         <i class="large material-icons">playlist_add</i>
@@ -28,7 +29,11 @@
         </li>
     </ul>
 </div>
-<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: block">
+@{
+    var mode = Convert.ToInt16(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE));
+    var block = mode == (int) ClientModeEnum.GRUPPI || mode == 0 ? "block" : "none";
+}
+<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: @Html.Raw(block)">
     <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
         <i class="large material-icons">add</i>
     </a>
@@ -109,7 +114,7 @@
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
-                }).done(function (data) {
+                }).done(function(data) {
                     var typeMessage = "error";
                     var str = data.message;
                     var pos = str.indexOf('OK');
@@ -173,7 +178,13 @@
             $("#pnlNuovoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
-            $("#pnlNuovoDASI").show();
+            var mode = getClientMode();
+            if (mode == @((int) ClientModeEnum.GRUPPI)) {
+                $("#pnlNuovoDASI").show();
+            } else {
+                $("#pnlNuovoDASI").hide();
+
+            }
         }
     }
 

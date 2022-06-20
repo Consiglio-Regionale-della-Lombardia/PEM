@@ -37,11 +37,11 @@ namespace PortaleRegione.Common
         public const string WORD_OPEN_P = "<p[^>]*>";
         public const string WORD_OPEN_A = "<a name[^>]*>";
 
-        public static List<int> statiNonVisibili_Segreteria = new List<int>()
+        public static List<int> statiNonVisibili_Segreteria = new List<int>
         {
-            (int)StatiAttoEnum.BOZZA,
-            (int)StatiAttoEnum.BOZZA_RISERVATA,
-            (int)StatiAttoEnum.RITIRATO,
+            (int) StatiAttoEnum.BOZZA,
+            (int) StatiAttoEnum.BOZZA_RISERVATA,
+            (int) StatiAttoEnum.RITIRATO
         };
 
         /// <summary>
@@ -625,21 +625,27 @@ namespace PortaleRegione.Common
         {
             if (!string.IsNullOrEmpty(filtroStato))
                 if (filtroStato != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
+                {
+                    var operation = Operation.EqualTo;
+                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.PRESENTATO).ToString())
+                    {
+                        operation = Operation.GreaterThanOrEqualTo;
+                    }
+
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = Operation.EqualTo,
+                        Operation = operation,
                         Value = filtroStato,
                         Connector = FilterStatementConnector.And
                     });
+                }
         }
 
         public static void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo,
             string filtroTipoTrattazione, ClientModeEnum mode)
         {
-
             if (filtroTipoTrattazione != "0" && mode == ClientModeEnum.TRATTAZIONE)
-            {
                 model.filtro.Add(new FilterStatement<AttoDASIDto>
                 {
                     PropertyId = nameof(AttoDASIDto.Tipo),
@@ -647,7 +653,7 @@ namespace PortaleRegione.Common
                     Value = filtroTipoTrattazione,
                     Connector = FilterStatementConnector.And
                 });
-            }else if (filtroTipo != "0" && mode == ClientModeEnum.GRUPPI)
+            else if (filtroTipo != "0" && mode == ClientModeEnum.GRUPPI)
                 if (filtroTipo != Convert.ToInt32(TipoAttoEnum.TUTTI).ToString())
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {

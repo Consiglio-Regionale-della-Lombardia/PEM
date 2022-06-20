@@ -15,277 +15,187 @@
 </div>
 
 <div class="row">
-<div class="col s12">
-<div class="row">
     <div class="col s12">
-        <h6>
-            <b>PROSSIME SEDUTE</b>
-        </h6>
-    </div>
-</div>
-<hr/>
-<div class="row">
-<div class="col s12">
-<ul class="collapsible">
-@foreach (var seduta in Model.Sedute.Results)
-{
-    <li class="active">
-    <div class="collapsible-header">
-        <i class="material-icons">event</i>
-        Seduta del @seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")
-        @if (seduta.Scadenza_presentazione.HasValue)
-        {
-            <label style="position: absolute; right: 50px;"> Scadenza presentazione: @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")</label>
-        }
-    </div>
-    <div class="collapsible-body">
-        <div class="row" style="margin: 0 !important">
-            <div class="col l6 s12">
-                <div class="row" style="margin: 0 !important">
-                    <div class="col s12">
-                        <h6>
-                            <b>PEM</b>
-                        </h6>
-                    </div>
-                </div>
-                <hr/>
-                @{
-                    var pemList = Model.PEM.FirstOrDefault(a => a.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
-                }
-                @if (pemList != null)
-                {
-                    <ul class="collapsible">
-                        @foreach (var attoPem in pemList.Results)
-                        {
-                            var titolo_atto = string.Format("{0} {1}", attoPem.TIPI_ATTO.Tipo_Atto, attoPem.NAtto);
-                            <li>
-                                <div class="collapsible-header">
-                                    <i class="material-icons pink-text">textsms</i>
-                                    @titolo_atto
-                                <div class="collapsabile-secondary-header">
-                                    <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
-                                </div>
-                                </div>
-                                <div class="collapsible-body">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <label>
-                                                <b>Oggetto</b>
-                                            </label>
-                                            <br/>
-                                            <p>@attoPem.Oggetto</p>
-                                        </div>
-                                        @if(attoPem.UIDAssessoreRiferimento.HasValue)
-                                        {
+        <div class="row">
+            <div class="col s12">
+                <h6>
+                    <b>PROSSIME SEDUTE</b>
+                </h6>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col s12">
+                <ul class="collapsible">
+                    @foreach (var seduta in Model.Sedute.Results)
+                    {
+                        <li class="active">
+                            <div class="collapsible-header">
+                                <i class="material-icons">event</i>
+                                Seduta del @seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")
+                                @if (seduta.Scadenza_presentazione.HasValue)
+                                {
+                                    <label style="position: absolute; right: 50px;"> Scadenza presentazione: @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")</label>
+                                }
+                            </div>
+                            <div class="collapsible-body">
+                                <div class="row" style="margin: 0 !important">
+                                    <div class="col l6 s12">
+                                        <div class="row" style="margin: 0 !important">
                                             <div class="col s12">
-                                                <label>
-                                                    <b>Assessore di Riferimento</b>
-                                                </label>
-                                                <br/>
-                                                <div class="chip" style="min-width: unset; margin-left: 5px;">
-                                                    <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
-                                                    @attoPem.PersonaAssessore.DisplayName
+                                                <h6>
+                                                    <b>PEM</b>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                        @{
+                                            var pemList = Model.PEM.FirstOrDefault(a => a.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
+                                        }
+                                        @if (pemList != null)
+                                        {
+                                            <ul class="collapsible">
+                                                @foreach (var attoPem in pemList.Results)
+                                                {
+                                                    var titolo_atto = string.Format("{0} {1}", attoPem.TIPI_ATTO.Tipo_Atto, attoPem.NAtto);
+                                                    <li>
+                                                        <div class="collapsible-header">
+                                                            <i class="material-icons pink-text">textsms</i>
+                                                            @titolo_atto
+                                                            <div class="collapsabile-secondary-header">
+                                                                <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="collapsible-body">
+                                                            <div class="row">
+                                                                <div class="col s12">
+                                                                    <label>
+                                                                        <b>Oggetto</b>
+                                                                    </label>
+                                                                    <br/>
+                                                                    <p>@attoPem.Oggetto</p>
+                                                                </div>
+                                                                @if (attoPem.UIDAssessoreRiferimento.HasValue)
+                                                                {
+                                                                    <div class="col s12">
+                                                                        <label>
+                                                                            <b>Assessore di Riferimento</b>
+                                                                        </label>
+                                                                        <br/>
+                                                                        <div class="chip" style="margin-left: 5px; min-width: unset;">
+                                                                            <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                                                            @attoPem.PersonaAssessore.DisplayName
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                                <div class="col s12">
+                                                                    <label>
+                                                                        <b>Relatori</b>
+                                                                    </label>
+                                                                    <br/>
+                                                                    @Html.Raw(Utility.GetRelatori(attoPem.Relatori))
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col s6">
+                                                                    <a class="btn-flat pink-text"
+                                                                       href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
+                                                                        <i class="material-icons left">download</i>
+                                                                        Scarica
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col s6 right-align">
+                                                                    @if (attoPem.Data_apertura.HasValue)
+                                                                    {
+                                                                        <a class="btn-flat blue-text"
+                                                                           onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = attoPem.UIDAtto})')" title="Riepilogo emendamenti">
+                                                                            <i class="material-icons right">chevron_right</i>
+                                                                            Riepilogo EM
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <div class="row" style="margin: 0 !important">
+                                                <div class="col s12">
+                                                    <div class="card-panel panel-warning center">
+                                                        <span class="center">
+                                                            Non ci sono atti al momento
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         }
-                                        <div class="col s12">
-                                            <label>
-                                                <b>Relatori</b>
-                                            </label>
-                                            <br/>
-                                            @Html.Raw(Utility.GetRelatori(attoPem.Relatori))
-                                        </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col s6">
-                                            <a class="btn-flat pink-text"
-                                               href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
-                                                <i class="material-icons left">download</i>
-                                                Scarica
-                                            </a>
+                                    <div class="col l6 s12">
+                                        <div class="row" style="margin: 0 !important">
+                                            <div class="col s12">
+                                                <h6>
+                                                    <b>DASI</b>
+                                                </h6>
+                                            </div>
                                         </div>
-                                        <div class="col s6 right-align">
-                                            @if (attoPem.Data_apertura.HasValue)
-                                            {
-                                                <a class="btn-flat blue-text"
-                                                   onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = attoPem.UIDAtto})')" title="Riepilogo emendamenti">
-                                                    <i class="material-icons right">chevron_right</i>
-                                                    Riepilogo EM
-                                                </a>
-                                            }
-                                        </div>
+                                        <hr/>
+                                        @{
+                                            var attoDasi = Model.DASI.FirstOrDefault(a => a.Data.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
+                                        }
+                                        @if (attoDasi != null)
+                                        {
+                                            <ul class="collection">
+                                                @if (attoDasi.CountBarData.ITL > 0)
+                                                {
+                                                    <li class="collection-item avatar">
+                                                        <i class="material-icons circle green">textsms</i>
+                                                        <span class="title">
+                                                            <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)</b>
+                                                        </span>
+                                                        <p>
+                                                            Iscritti alla seduta:
+                                                            <b>
+                                                                @Html.Raw(attoDasi.CountBarData.ITL)
+                                                            </b>
+                                                        </p>
+                                                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITL})')">
+                                                            <i class="material-icons">chevron_right</i>
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <div class="row" style="margin: 0 !important">
+                                                <div class="col s12">
+                                                    <div class="card-panel panel-warning center">
+                                                        <span class="center">
+                                                            Non ci sono atti di sindacato ispettivo iscritti al momento
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+
                                     </div>
                                 </div>
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <div class="row" style="margin: 0 !important">
-                        <div class="col s12">
-                            <div class="card-panel panel-warning center">
-                                <span class="center">
-                                    Non ci sono atti al momento
-                                </span>
                             </div>
-                        </div>
-                    </div>
-                }
-            </div>
-            <div class="col l6 s12">
-                <div class="row" style="margin: 0 !important">
-                    <div class="col s12">
-                        <h6>
-                            <b>DASI</b>
-                        </h6>
-                    </div>
-                </div>
-                <hr/>
-                @{
-                    var attoDasi = Model.DASI.FirstOrDefault(a => a.Data.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
-                }
-                <ul class="collection">
-                    <li class="collection-item avatar">
-                        <i class="material-icons circle green">textsms</i>
-                        <span class="title">
-                            <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ITL)</b>
-                        </span>
-                        <p>
-                            Iscritti alla seduta:
-                            <b>
-                                @if (attoDasi != null)
-                                {
-                                    @Html.Raw(attoDasi.CountBarData.ITL)
-                                }
-                                else
-                                {
-                                    @Html.Raw("0")
-                                }
-                            </b>
-                        </p>
-                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
-                                                                                tipo = (int)TipoAttoEnum.ITL,
-                                                                                stato = (int)StatiAttoEnum.PRESENTATO
-                                                                            })')">
-                            <i class="material-icons">chevron_right</i>
-                        </a>
-                    </li>
-                    <li class="collection-item avatar">
-                        <i class="material-icons circle blue">textsms</i>
-                        <span class="title">
-                            <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ITR)</b>
-                        </span>
-                        <p>
-                            Iscritti alla seduta:
-                            <b>
-                                @if (attoDasi != null)
-                                {
-                                    @Html.Raw(attoDasi.CountBarData.ITR)
-                                }
-                                else
-                                {
-                                    @Html.Raw("0")
-                                }
-                            </b>
-                        </p>
-                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
-                                                                                tipo = (int)TipoAttoEnum.ITR,
-                                                                                stato = (int)StatiAttoEnum.PRESENTATO
-                                                                            })')">
-                            <i class="material-icons">chevron_right</i>
-                        </a>
-                    </li>
-                    <li class="collection-item avatar">
-                        <i class="material-icons circle orange">textsms</i>
-                        <span class="title">
-                            <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.IQT)</b>
-                        </span>
-                        <p>
-                            Iscritti alla seduta:
-                            <b>
-                                @if (attoDasi != null)
-                                {
-                                    @Html.Raw(attoDasi.CountBarData.IQT)
-                                }
-                                else
-                                {
-                                    @Html.Raw("0")
-                                }
-                            </b>
-                        </p>
-                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
-                                                                                tipo = (int)TipoAttoEnum.IQT,
-                                                                                stato = (int)StatiAttoEnum.PRESENTATO
-                                                                            })')">
-                            <i class="material-icons">chevron_right</i>
-                        </a>
-                    </li>
-                    <li class="collection-item avatar">
-                        <i class="material-icons circle red">textsms</i>
-                        <span class="title">
-                            <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.MOZ)</b>
-                        </span>
-                        <p>
-                            Iscritti alla seduta:
-                            <b>
-                                @if (attoDasi != null)
-                                {
-                                    @Html.Raw(attoDasi.CountBarData.MOZ)
-                                }
-                                else
-                                {
-                                    @Html.Raw("0")
-                                }
-                            </b>
-                        </p>
-                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
-                                                                                tipo = (int)TipoAttoEnum.MOZ,
-                                                                                stato = (int)StatiAttoEnum.PRESENTATO
-                                                                            })')">
-                            <i class="material-icons">chevron_right</i>
-                        </a>
-                    </li>
-                    <li class="collection-item avatar">
-                        <i class="material-icons circle">textsms</i>
-                        <span class="title">
-                            <b>@PortaleRegione.Common.Utility.GetText_TipoDASI((int) TipoAttoEnum.ODG)</b>
-                        </span>
-                        <p>
-                            Iscritti alla seduta:
-                            <b>
-                                @if (attoDasi != null)
-                                {
-                                    @Html.Raw(attoDasi.CountBarData.ODG)
-                                }
-                                else
-                                {
-                                    @Html.Raw("0")
-                                }
-                            </b>
-                        </p>
-                        <a href="#!" class="secondary-content" onclick="go('@Url.Action("RiepilogoDASI", "DASI", new {
-                                                                                tipo = (int)TipoAttoEnum.ODG,
-                                                                                stato = (int)StatiAttoEnum.PRESENTATO
-                                                                            })')">
-                            <i class="material-icons">chevron_right</i>
-                        </a>
-                    </li>
+                        </li>
+                    }
                 </ul>
             </div>
+
+
         </div>
     </div>
-    </li>
-}
-</ul>
 </div>
 
-
-</div>
-</div>
-</div>
-
-<div id="slide-dashboard-DX" class="sidenav" style="overflow: auto !important">
+@*<div id="slide-dashboard-DX" class="sidenav" style="overflow: auto !important">
     <div class="row">
         <h5>Notifiche</h5>
         <hr/>
@@ -336,7 +246,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 
 <script>
@@ -348,11 +258,7 @@
         set_ListaLettereEM([]);
         setListaAtti([]);
 
-        $('#btnSearch>i').html('notifications_active');
-        $('#btnSearch').on("click",
-            function() {
-                openDashboardNotification();
-            });
+        $('#btnSearch').hide();
     });
 
     $(".secondary-content.blue-text.add").on("click",
@@ -361,22 +267,22 @@
             openFormDASI(tipo);
         });
 
-    function openDashboardNotification() {
-        var elems = document.querySelector("#slide-dashboard-DX");
-        var instances = M.Sidenav.init(elems,
-            {
-                edge: "right",
-                draggable: true,
-                onOpenStart: function() {
-                    // Menu laterale SX sotto a layer opaco
-                    $("#slide-out").css("z-index", 997);
-                },
-                onCloseEnd: function() {
-                    // Ripristino menu laterale SX
-                    $("#slide-out").css("z-index", 999);
-                }
-            });
+    //function openDashboardNotification() {
+    //    var elems = document.querySelector("#slide-dashboard-DX");
+    //    var instances = M.Sidenav.init(elems,
+    //        {
+    //            edge: "right",
+    //            draggable: true,
+    //            onOpenStart: function() {
+    //                // Menu laterale SX sotto a layer opaco
+    //                $("#slide-out").css("z-index", 997);
+    //            },
+    //            onCloseEnd: function() {
+    //                // Ripristino menu laterale SX
+    //                $("#slide-out").css("z-index", 999);
+    //            }
+    //        });
 
-        instances.open();
-    }
+    //    instances.open();
+    //}
 </script>

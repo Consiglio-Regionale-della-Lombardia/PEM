@@ -79,6 +79,8 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum) tipo, page, size);
             model.ClientMode = ClientModeEnum.TRATTAZIONE;
+            CheckCacheClientMode();
+
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)
             {
@@ -159,7 +161,7 @@ namespace PortaleRegione.Client.Controllers
 
                 atto.Firme = await Utility.GetFirmatari(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
-                    _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
+                    _CurrentUser.UID_persona, _Token);
 
                 if (atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
                     atto.Destinatari =
@@ -371,7 +373,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                var resultEliminaFirma = await apiGateway.Emendamento.EliminaFirma(id, pin);
+                var resultEliminaFirma = await apiGateway.DASI.EliminaFirma(id, pin);
                 var listaErroriEliminaFirma = new List<string>();
                 foreach (var itemEliminaFirma in resultEliminaFirma)
                     listaErroriEliminaFirma.Add(

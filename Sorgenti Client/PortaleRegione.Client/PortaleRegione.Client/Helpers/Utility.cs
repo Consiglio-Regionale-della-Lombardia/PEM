@@ -315,7 +315,6 @@ namespace PortaleRegione.Client.Helpers
         /// <param name="tag"></param>
         /// <returns></returns>
         public static async Task<string> GetFirmatari(IEnumerable<AttiFirmeDto> firme, Guid currentUId,
-            FirmeTipoEnum tipo,
             string token,
             bool tag = false)
         {

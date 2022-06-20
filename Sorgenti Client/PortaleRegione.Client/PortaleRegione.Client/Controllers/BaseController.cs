@@ -16,15 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.Gateway;
 using System.Configuration;
 using System.Linq;
+using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Client.Controllers
@@ -93,6 +96,23 @@ namespace PortaleRegione.Client.Controllers
         {
             base.Initialize(requestContext);
             BaseGateway.apiUrl = ConfigurationManager.AppSettings["URL_API"];
+        }
+
+        internal void CheckCacheClientMode()
+        {
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            if (mode != (int)ClientModeEnum.TRATTAZIONE)
+            {
+                HttpContext.Cache.Insert(
+                    CacheHelper.CLIENT_MODE,
+                    (int)ClientModeEnum.TRATTAZIONE,
+                    null,
+                    Cache.NoAbsoluteExpiration,
+                    Cache.NoSlidingExpiration,
+                    CacheItemPriority.NotRemovable,
+                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
+                );
+            }
         }
 
         protected void SliceBy3(string bodyMessage, ref string str1, ref string str2, ref string str3)
