@@ -18,7 +18,7 @@ namespace Scheduler
         private readonly LogLogic _logLogic;
 
         private ViewTypeEnum _gridTypeEnumNow; //Jobs, Triggers, Logs
-        private bool _refreshGrid;
+        public static bool _refreshGrid;
         private bool _running;
 
         public List<Job> Jobs;
