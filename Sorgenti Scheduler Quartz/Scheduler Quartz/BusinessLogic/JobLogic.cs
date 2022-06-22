@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Ionic.Zip;
 using Newtonsoft.Json;
 using Scheduler.Exceptions;
-using Scheduler.Forms;
 using Scheduler.Models;
 
 namespace Scheduler.BusinessLogic
@@ -96,7 +94,10 @@ namespace Scheduler.BusinessLogic
 
                     var path_to_delete = $"CustomJobs/{jobName}";
                     var dirInfo = new DirectoryInfo(path_to_delete);
-                    if (dirInfo.Exists) dirInfo.Delete(true);
+                    if (dirInfo.Exists)
+                    {
+                        dirInfo.Delete(true);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -113,52 +114,21 @@ namespace Scheduler.BusinessLogic
         {
             foreach (var subDir in dir.GetDirectories())
                 setAttributesNormal(subDir);
-            foreach (var file in dir.GetFiles()) file.Attributes = FileAttributes.Normal;
+            foreach (var file in dir.GetFiles())
+            {
+                file.Attributes = FileAttributes.Normal;
+            }
         }
 
         /// <summary>
-        ///     Load jobs in grid gridView
+        ///     Load jobs in grid view
         /// </summary>
-        /// <param name="gridView">DataGridView</param>
-        public void LoadGrid(DataGridView gridView)
+        /// <param name="view">DataGridView</param>
+        public void LoadGrid(DataGridView view)
         {
             try
             {
-                gridView.DataSource = GetJobs();
-                gridView.MouseClick += (sender, args) =>
-                {
-                    if (args.Button == MouseButtons.Right)
-                    {
-                        var my_menu = new ContextMenuStrip();
-                        var pos = gridView.HitTest(args.X, args.Y).RowIndex;
-
-                        if (pos >= 0) my_menu.Items.Add("Clona").Name = "Clona Job";
-
-                        my_menu.Show(gridView, new Point(args.X, args.Y));
-                        my_menu.ItemClicked += (o, eventArgs) =>
-                        {
-                            var jobName = gridView.Rows[pos].Cells[0].Value;
-
-                            var job = appoggio.First(item => item.name == (string) jobName);
-
-                            switch (eventArgs.ClickedItem.Name.ToString())
-                            {
-                                case "Clona Job":
-                                {
-                                    var newLogic = new JobLogic();
-                                    job.name = job.name + " - CLONE";
-                                    var jobPage = new JobDetail(job, newLogic, true);
-                                    MainPage._refreshGrid = true;
-                                    jobPage.Show();
-                                    break;
-                                }
-                            }
-
-                            my_menu.Close(ToolStripDropDownCloseReason.ItemClicked);
-                            //Load();
-                        };
-                    }
-                };
+                view.DataSource = GetJobs();
             }
             catch (PathNotFoundException ex)
             {
