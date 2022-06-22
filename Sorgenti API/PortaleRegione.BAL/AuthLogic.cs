@@ -70,11 +70,6 @@ namespace PortaleRegione.BAL
                 {
 #endif
 
-                    //var passwordExpire = intranetAdService.PasswordExpire(loginModel.Username, loginModel.Password,
-                    //    "CONSIGLIO",
-                    //    AppSettingsConfiguration.TOKEN_R);
-                    //Console.WriteLine($"Ingresso --> la password dell'utente scadrà tra {passwordExpire} giorni");
-
                     if (AppSettingsConfiguration.AutenticazioneAD == 1)
                     {
                         var authResult = intranetAdService.Authenticate(
