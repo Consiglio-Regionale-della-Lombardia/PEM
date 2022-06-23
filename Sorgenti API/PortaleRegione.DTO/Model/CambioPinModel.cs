@@ -33,5 +33,7 @@ namespace PortaleRegione.DTO.Model
         
         [Display(Name = "Conferma PIN")]
         public string conferma_pin { get; set; }
+
+        public bool Cambio { get; set; } = false;
     }
 }
