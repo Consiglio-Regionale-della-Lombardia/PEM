@@ -90,7 +90,7 @@ function GetLegislature() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "sedute/legislature",
+            url: baseUrl + "/pem/legislature",
             type: "GET"
         }).done(function(result) {
             set_ListaLegislature(result);
