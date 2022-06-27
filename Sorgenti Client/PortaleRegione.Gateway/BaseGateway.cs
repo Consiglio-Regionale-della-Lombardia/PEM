@@ -62,12 +62,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Post", e);
+                Log.Error($"Post [{requestUrl}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Post", e);
+                Log.Error($"Post [{requestUrl}][{body}]", e);
                 throw e;
             }
         }
@@ -94,12 +94,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Put", e);
+                Log.Error($"Put  [{requestUrl}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Put", e);
+                Log.Error($"Put [{requestUrl}][{body}]", e);
                 throw e;
             }
         }
@@ -123,12 +123,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
         }
@@ -152,12 +152,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
         }
@@ -181,12 +181,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{url}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{url}][{body}]", e);
                 throw e;
             }
         }
@@ -210,12 +210,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Delete", e);
+                Log.Error($"Delete [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Delete", e);
+                Log.Error($"Delete [{requestUrl}]", e);
                 throw e;
             }
         }
