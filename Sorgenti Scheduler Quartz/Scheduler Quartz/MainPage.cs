@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace Scheduler
         private bool _running;
 
         public List<Job> Jobs;
-        private readonly ServiceController service = new ServiceController("SchedulerService");
+        private readonly ServiceController service = new ServiceController(ConfigurationManager.AppSettings["ServiceName"]);
         private Timer timerStatusService = new Timer();
         public List<Trigger> Triggers;
 
