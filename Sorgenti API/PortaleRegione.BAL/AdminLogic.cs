@@ -612,7 +612,7 @@ namespace PortaleRegione.BAL
                     else
                     {
                         await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                            request.userAD.Replace(@"CONSIGLIO\", ""));
+                            request.userAD);
                     }
                 }
 
