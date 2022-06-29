@@ -78,8 +78,8 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum) tipo, page, size);
-            model.ClientMode = ClientModeEnum.TRATTAZIONE;
             CheckCacheClientMode();
+            model.ClientMode = ClientModeEnum.TRATTAZIONE;
 
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)

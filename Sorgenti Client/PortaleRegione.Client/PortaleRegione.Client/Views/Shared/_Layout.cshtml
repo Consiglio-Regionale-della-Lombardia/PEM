@@ -29,7 +29,12 @@
         baseUrl = '@Html.Raw(ConfigurationManager.AppSettings["URL_CLIENT"])';
         AggiornaPosizioneTemi(baseUrl);
         var cssTheme = "";
+        var modeFromCache = @Html.Raw(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE));
         var mode = getClientMode();
+        if (mode != modeFromCache) {
+            setClientMode(modeFromCache);
+            mode = modeFromCache;
+        }
         if (mode == 2) {
             cssTheme = trattazione_theme;
         } else {
