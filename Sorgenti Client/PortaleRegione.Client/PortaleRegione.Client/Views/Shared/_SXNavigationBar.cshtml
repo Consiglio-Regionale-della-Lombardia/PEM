@@ -55,199 +55,195 @@
 }
 
 <div id="slide-out" class="sidenav sidenav-fixed">
-@if (!string.IsNullOrEmpty(carica))
-{
-    <div class="row green darken-3 center" style="margin: 0 !important">
-        <div class="col s12">
-            <label class="white-text" style="padding: 10px">@carica</label>
-        </div>
-    </div>
-}
-<ul class="collapsible collapsible-accordion" style="margin: 0">
-    <li>
-        <div class="user-view" style="padding: 10px">
-            <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
-                <div class="col s1 center">
-                    <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 15px">
-                        <i class="material-icons">more_vert</i>
-                    </a>
-                    <ul class="dropdown-content" id="ddlSubMenu">
-                        <li>
-                            <a onclick="CambioPin()">
-                                <i class="material-icons">settings</i>Reimposta Pin
-                            </a>
-                        </li>
-                        <li>
-                            <a href="@Url.Action("Index", "VideoTutorial")">
-                                <i class="material-icons">music_video</i>Video Tutorial
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col s3 center">
-                    <img class="responsive-img circle" style="height: 50px; width: 50px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto">
-                </div>
-                <div class="col s8" style="padding-left: 0">
-                    <h6 class="black-text">
-                        <b>@displayName</b>
-                    </h6>
-                </div>
+    @if (!string.IsNullOrEmpty(carica))
+    {
+        <div class="row green darken-3 center" style="margin: 0 !important">
+            <div class="col s12">
+                <label class="white-text" style="padding: 10px">@carica</label>
             </div>
-            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
-                <div class="col s12">
-                    @if (ruoli.Any())
-                    {
-                        var testo = string.Empty;
-                        var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int)currentRole);
+        </div>
+    }
+    <ul class="collapsible collapsible-accordion" style="margin: 0">
+        <li>
+            <div class="user-view" style="padding: 10px">
+                <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important">
+                    <div class="col s1 center">
+                        <a class="dropdown-trigger waves-effect black-text" data-target="ddlSubMenu" style="margin-top: 15px">
+                            <i class="material-icons">more_vert</i>
+                        </a>
+                        <ul class="dropdown-content" id="ddlSubMenu">
+                            <li>
+                                <a onclick="CambioPin()">
+                                    <i class="material-icons">settings</i>Reimposta Pin
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Index", "VideoTutorial")">
+                                    <i class="material-icons">music_video</i>Video Tutorial
+                                </a>
+                            </li>
+                            <li>
+                                <a class="red-text" onclick="logout()">
+                                    <i class="material-icons red-text">exit_to_app</i> Esci
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col s3 center">
+                        <img class="responsive-img circle" style="height: 50px; width: 50px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto">
+                    </div>
+                    <div class="col s8" style="padding-left: 0">
+                        <h6 class="black-text">
+                            <b>@displayName</b>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+                    <div class="col s12">
+                        @if (ruoli.Any())
+                        {
+                            var testo = string.Empty;
+                            var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int) currentRole);
 
-                        if (ruoliDto != null)
-                        {
-                            testo = ruoliDto.Ruolo;
-                        }
-                        else
-                        {
-                            testo = "Responsabile Segreteria Politica";
-                        }
+                            if (ruoliDto != null)
+                            {
+                                testo = ruoliDto.Ruolo;
+                            }
+                            else
+                            {
+                                testo = "Responsabile Segreteria Politica";
+                            }
 
-                        var triggerClass = "";
-                        var iconClassSwapRuoli = "";
-                        if (ruoli.Count() > 1)
-                        {
-                            //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
-                            triggerClass = "dropdown-trigger";
-                            iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
-                            <ul id='ddlCambioRuolo' class='dropdown-content'>
-                                @foreach (var ruolo in ruoli)
-                                {
-                                    if (ruolo.IDruolo != (int)currentRole)
+                            var triggerClass = "";
+                            var iconClassSwapRuoli = "";
+                            if (ruoli.Count() > 1)
+                            {
+                                //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
+                                triggerClass = "dropdown-trigger";
+                                iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
+                                <ul id='ddlCambioRuolo' class='dropdown-content'>
+                                    @foreach (var ruolo in ruoli)
+                                    {
+                                        if (ruolo.IDruolo != (int) currentRole)
+                                        {
+                                            <li>
+                                                <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            }
+
+                            <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
+                                @testo @Html.Raw(iconClassSwapRuoli)
+                            </a>
+                        }
+                    </div>
+                    <div class="col s12" style="margin-top: -15px">
+                        @{
+                            var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
+                            if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
+                                || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
+                            {
+                                testoGruppo = "Giunta";
+                            }
+                            var triggerClassGruppi = "";
+                            var iconClassSwapGruppi = "";
+                            if (gruppiAdmin.Any())
+                            {
+                                triggerClassGruppi = "dropdown-trigger";
+                                iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
+                                <ul id='ddlCambioGruppo' class='dropdown-content'>
+                                    @foreach (var gruppiDto in gruppiAdmin)
                                     {
                                         <li>
-                                            <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
+                                            <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
+                                               href="@Url.Action("CambioGruppo", "Autenticazione", new {gruppo = gruppiDto.id, returnUrl = Request.Url})">
+                                                <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
+                                            </a>
                                         </li>
                                     }
-                                }
-                            </ul>
-                        }
+                                </ul>
+                            }
 
-                        <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
-                            @testo @Html.Raw(iconClassSwapRuoli)
-                        </a>
-                    }
-                </div>
-                <div class="col s12" style="margin-top: -15px">
-                    @{
-                        var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
-                        if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
-                            || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
-                            || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
-                            || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
-                        {
-                            testoGruppo = "Giunta";
+                            if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                            {
+                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
+                                    @testoGruppo @Html.Raw(iconClassSwapGruppi)
+                                </a>
+                            }
                         }
-                        var triggerClassGruppi = "";
-                        var iconClassSwapGruppi = "";
-                        if (gruppiAdmin.Any())
-                        {
-                            triggerClassGruppi = "dropdown-trigger";
-                            iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
-                            <ul id='ddlCambioGruppo' class='dropdown-content'>
-                                @foreach (var gruppiDto in gruppiAdmin)
-                                {
-                                    <li>
-                                        <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
-                                           href="@Url.Action("CambioGruppo", "Autenticazione", new {gruppo = gruppiDto.id, returnUrl = Request.Url})">
-                                            <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
-                                        </a>
-                                    </li>
-                                }
-                            </ul>
-                        }
-
-                        if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                        {
-                            <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
-                                @testoGruppo @Html.Raw(iconClassSwapGruppi)
-                            </a>
-                        }
-                    }
+                    </div>
                 </div>
             </div>
-        </div>
-    </li>
-    <li class="menuItem_Home bold" style="margin-top: -8px">
-        <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Cruscotto</a>
-    </li>
-    <li class="menuItem_PEM bold">
-        <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
-    </li>
-    @if (currentRole != RuoliIntEnum.Utente
-         && currentRole != RuoliIntEnum.Amministratore_Giunta
-         && currentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta
-         && currentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta
-         && currentRole != RuoliIntEnum.Segreteria_Giunta_Regionale)
-    {
-        <li class="menuItem_DASI bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
         </li>
-    }
-    <li class="menuItem_Notifiche bold">
-        <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
-            <i class="material-icons">email</i>Notifiche
-            <div id="counterNotifiche" class="chip pink white-text right" style="margin-top: 8px; min-width: unset;"></div>
-        </a>
-    </li>
-    <li class="menuItem_Stampe bold">
-        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
-    </li>
-    @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
-    {
-        <li class="menuItem_Amministrazione_Utenti bold">
-            <a class="waves-effect purple-text" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons purple-text">person</i>Utenti</a>
+        <li class="menuItem_Home bold" style="margin-top: -8px">
+            <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Cruscotto</a>
         </li>
-    }
-    @if (currentRole == RuoliIntEnum.Amministratore_PEM)
-    {
-        <li class="menuItem_Amministrazione_Gruppi bold">
-            <a class="waves-effect purple-text" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons purple-text">group</i>Gruppi</a>
+        <li class="menuItem_PEM bold">
+            <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
         </li>
-    }
-
-    <li class="menuItem_Trattazione bold">
-        <a class="waves-effect blue-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons blue-text">settings_input_antenna</i>Entra in Aula</a>
-    </li>
-
-    <li class="menuTrattazione itemSeduteAttive bold">
-        <a class="collapsible-header waves-effect"><i class="material-icons">event</i>Sedute Attive</a>
-        <div class="collapsible-body" style="display: block;">
-            <ul id="lstSeduteAttive">
-            </ul>
-        </div>
-    </li>
-    <li class="menuTrattazione itemArchivio bold">
-        <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
-    </li>
-    <li class="menuTrattazione itemStampe bold">
-        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
-    </li>
-    <li class="menuTrattazione itemAreaGruppi bold">
-        <a class="waves-effect red-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons red-text">exit_to_app</i>Esci dall' Aula</a>
-    </li>
-</ul>
-
-<div id="pnlLogout" class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
-        @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
+        @if (currentRole != RuoliIntEnum.Utente
+             && currentRole != RuoliIntEnum.Amministratore_Giunta
+             && currentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta
+             && currentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta
+             && currentRole != RuoliIntEnum.Segreteria_Giunta_Regionale)
         {
-            @Html.AntiForgeryToken()
-            <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
-                <i class="icon material-icons">exit_to_app</i> Chiudi sessione
-            </a>
+            <li class="menuItem_DASI bold">
+                <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
+            </li>
         }
-        
-        @*<a class="grey-text" href="https://pem2.consiglio.regione.lombardia.it/" target="_blank" style="cursor: pointer; text-decoration: underline;font-size: smaller">
-            Vai alla vecchia versione
-        </a>*@
-    </div>
+        <li class="menuItem_Notifiche bold">
+            <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})">
+                <i class="material-icons">email</i>Notifiche
+                <div id="counterNotifiche" class="chip pink white-text right" style="margin-top: 8px; min-width: unset;"></div>
+            </a>
+        </li>
+        <li class="menuItem_Stampe bold">
+            <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
+        </li>
+        @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
+        {
+            <li class="menuItem_Amministrazione_Utenti bold">
+                <a class="waves-effect purple-text" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons purple-text">person</i>Utenti</a>
+            </li>
+        }
+        @if (currentRole == RuoliIntEnum.Amministratore_PEM)
+        {
+            <li class="menuItem_Amministrazione_Gruppi bold">
+                <a class="waves-effect purple-text" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons purple-text">group</i>Gruppi</a>
+            </li>
+        }
+
+        <li class="menuItem_Trattazione bold">
+            <a class="waves-effect blue-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons blue-text">settings_input_antenna</i>Entra in Aula</a>
+        </li>
+
+        <li class="menuTrattazione itemSeduteAttive bold">
+            <a class="collapsible-header waves-effect"><i class="material-icons">event</i>Sedute Attive</a>
+            <div class="collapsible-body" style="display: block;">
+                <ul id="lstSeduteAttive">
+                </ul>
+            </div>
+        </li>
+        <li class="menuTrattazione itemArchivio bold">
+            <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
+        </li>
+        <li class="menuTrattazione itemStampe bold">
+            <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
+        </li>
+        <li class="menuTrattazione itemAreaGruppi bold">
+            <a class="waves-effect red-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons red-text">exit_to_app</i>Esci dall' Aula</a>
+        </li>
+    </ul>
 </div>
+
+@using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
+{
+    @Html.AntiForgeryToken()
+}
 
 <script>
     $(document).ready(async function() {
@@ -263,7 +259,7 @@
             $('.menuItem_DASI').addClass("active");
         } else if (url.includes("attitrattazione/archivio")) {
             $('.itemArchivio').addClass("active");
-        }else if (url.includes("attitrattazione/view")) {
+        } else if (url.includes("attitrattazione/view")) {
             $('.itemSeduteAttive').addClass("active");
         } else if (url.includes("pem") || url.includes("atti") || url.includes("emendamenti")) {
             $('.menuItem_PEM').addClass("active");
@@ -277,13 +273,14 @@
             var data = await GetSeduteAttive();
             var seduteAttive = data.Results;
             var url = '@Html.Raw(Url.Action("Index", "AttiTrattazione"))';
-            $.each(seduteAttive, function(i, item) {
-                var resultDate = GetFormattedDate(item.Data_seduta);
-                var text = "Seduta del " + resultDate;
-                $('#lstSeduteAttive').append(templateSXSeduteAttive
-                    .replace("{TEXT}", text)
-                    .replace("{URL}", url + "?id=" + item.UIDSeduta));
-            });
+            $.each(seduteAttive,
+                function(i, item) {
+                    var resultDate = GetFormattedDate(item.Data_seduta);
+                    var text = "Seduta del " + resultDate;
+                    $('#lstSeduteAttive').append(templateSXSeduteAttive
+                        .replace("{TEXT}", text)
+                        .replace("{URL}", url + "?id=" + item.UIDSeduta));
+                });
         } else {
             $('li[class*="menuTrattazione"]').hide();
             $('#pnlLogout').show();

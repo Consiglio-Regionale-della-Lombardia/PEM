@@ -29,8 +29,8 @@
                 <ul class="collapsible">
                     @foreach (var seduta in Model.Sedute.Results)
                     {
-                        <li class="active">
-                            <div class="collapsible-header">
+                        <li class="active grey lighten-4">
+                            <div class="collapsible-header black-text">
                                 <i class="material-icons">event</i>
                                 Seduta del @seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")
                                 @if (seduta.Scadenza_presentazione.HasValue)

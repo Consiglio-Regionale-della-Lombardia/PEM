@@ -129,7 +129,7 @@
                 <p>
                     <label>
                         <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
-                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"" : "")>
+                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "" : "checked=\"checked\"")>
                         <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
                     </label>
                 </p>

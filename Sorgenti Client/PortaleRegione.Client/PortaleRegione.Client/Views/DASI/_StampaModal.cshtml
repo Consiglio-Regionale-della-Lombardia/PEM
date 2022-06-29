@@ -36,16 +36,11 @@
         $("#attiStampaDisplayName").empty();
 
         var documentiTotali = $("#hdTotaleDocumenti").val();
-        console.log("documentiTotali", documentiTotali);
         var selezionaTutti = getSelezionaTutti();
-        console.log("selezionaTutti", selezionaTutti);
 
         var lista = getListaAtti();
-        console.log("list", lista);
 
         var totaleDoc = selezionaTutti || lista.length == 0 ? documentiTotali - lista.length : lista.length;
-        console.log("totaleDoc", totaleDoc);
-
         if (totaleDoc <= 0) {
             ErrorAlert("Seleziona almeno un atto da stampare");
             return;
@@ -92,8 +87,6 @@
                     });
                 }
             }
-            console.log("STampa", obj);
-
             //submit via ajax
             $.ajax({
                 url: baseUrl + "/stampe/nuova-dasi",
@@ -106,11 +99,12 @@
                     ErrorAlert(data.message);
                 else {
                     $("#modalStampa").modal("close");
+                    $("#btnConfermaStampa").off("click");
                     waiting(false);
                     M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
                 }
 
-                setListaEmendamenti([]);
+                setListaAtti([]);
                 setSelezionaTutti(false);
             }).fail(function(err) {
                 console.log("error", err);
