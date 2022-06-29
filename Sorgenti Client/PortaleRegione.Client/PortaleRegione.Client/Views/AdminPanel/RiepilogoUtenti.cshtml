@@ -32,7 +32,7 @@
     Html.RenderPartial("_PaginationBar", Model.Paging);
 }
 
-<div id="utentiTable" class="row">
+<div id="contentTable" class="row">
 
     @if (!Model.Results.Any())
     {
@@ -139,8 +139,8 @@
             @using (Html.BeginForm("SearchUsers", "AdminPanel", FormMethod.Post, new { id = "formSearchUsers" }))
             {
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="page" value="@Model.Paging.Page" />
-                <input type="hidden" name="size" value="@Model.Paging.Limit" />
+                <input type="hidden" id="hfPage" name="page" value="@Model.Paging.Page" />
+                <input type="hidden" id="hfSize" name="size" value="@Model.Paging.Limit" />
 
                 <div class="form-group">
                     <label>Ricerca per persona</label>
@@ -186,7 +186,7 @@
     </div>
     <div class="row">
         <div class="col s12 center">
-            <a class="btn chip blue white-text" style="min-width: unset" onclick="$('#formSearchUsers').submit();">Cerca</a>
+            <a class="btn chip blue white-text" style="min-width: unset" onclick="$('#hfPage').val(1);$('#formSearchUsers').submit();">Cerca</a>
             <a href="@Url.Action("RiepilogoUtenti")" class="btn chip grey white-text" style="min-width: unset">Reset</a>
         </div>
     </div>
@@ -237,8 +237,18 @@
 
 <script>
 
+    function filtra(page) {
+        $('#hfPage').val(page);
+        $('#formSearchUsers').submit();
+    }
+
+    function filtra_Paginazione (size) {
+        $('#hfSize').val(size);
+        $('#formSearchUsers').submit();
+    }
+
     async function loadLegislature() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f=> f.PropertyId == nameof(PersonaDto.legislature))));
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f => f.PropertyId == nameof(PersonaDto.legislature))));
         var legislature = await GetLegislature();
         if (legislature.length > 0) {
             var select = $("#filter_legislature");
@@ -254,11 +264,12 @@
             var elems = document.querySelectorAll("#filter_legislature");
             M.FormSelect.init(elems, null);
 
-            if(currentFilter.length > 0) {
+            if (currentFilter.length > 0) {
                 var selected_filter = [];
-                $.each(currentFilter, function(index, item) {
-                    selected_filter.push(item.Value.replace(/-/g, ""));
-                });
+                $.each(currentFilter,
+                    function(index, item) {
+                        selected_filter.push(item.Value.replace(/-/g, ""));
+                    });
                 $('#filter_legislature').val(selected_filter);
                 $('#filter_legislature').formSelect();
             }
@@ -388,6 +399,9 @@
         await loadLegislature();
         await loadGruppi();
         loadRuoli();
+
+        var text = $("#txtQ").val();
+        highlight(text);
 
         $('#btnSearch').on("click",
             function () {

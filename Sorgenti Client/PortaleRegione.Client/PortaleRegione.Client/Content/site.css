@@ -704,3 +704,7 @@ div.input-field > label { line-height: initial; }
 .no-js #loader-wrapper { display: none; }
 
 label { color: #424242 !important; }
+
+.highlight {
+    background-color: yellow;
+}

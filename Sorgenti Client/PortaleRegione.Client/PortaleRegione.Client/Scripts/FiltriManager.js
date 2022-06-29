@@ -169,6 +169,7 @@ function Filtri_EM_CaricaText1(ctrlSelect) {
     var filtri = get_Filtri_EM();
     if (filtri != null) {
         filterSelect = filtri.text1;
+        highlight(filterSelect);
     }
 
     var select = $("#" + ctrlSelect);
@@ -181,6 +182,7 @@ function Filtri_EM_CaricaText2(ctrlSelect) {
     var filtri = get_Filtri_EM();
     if (filtri != null) {
         filterSelect = filtri.text2;
+        highlight(filterSelect);
     }
 
     var select = $("#" + ctrlSelect);
@@ -749,6 +751,7 @@ function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     var filtri = get_Filtri_DASI();
     if (filtri != null) {
         filterSelect = filtri.oggetto;
+        highlight(filterSelect);
     }
 
     var select = $("#" + ctrlSelect);

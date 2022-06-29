@@ -154,6 +154,18 @@ function SpostaDOWN_EMTrattazione(em) {
     });
 }
 
+function highlight(text) {
+    if (isEmptyOrSpaces(text))
+        return;
+    var regex = new RegExp(text, "g");
+    var innerHTML = $('#contentTable').html().replace(regex, "<span class='highlight'>" + text + "</span>");
+    $('#contentTable').html(innerHTML);
+}
+
+function isEmptyOrSpaces(str) {
+    return str === null || str.match(/^ *$/) !== null;
+}
+
 async function GetEM(emUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
