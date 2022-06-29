@@ -443,7 +443,7 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .DASI
-                .SqlQuery(query)
+                .SqlQuery(query.Replace(@"\r\n", " "))
                 .CountAsync();
         }
 

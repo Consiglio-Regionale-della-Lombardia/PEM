@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -262,7 +261,7 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona,
                         model.page,
                         model.size,
-                        (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                        (ClientModeEnum) Convert.ToInt16(CLIENT_MODE),
                         queryFilter,
                         soggetti);
 
@@ -694,7 +693,8 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma, firmaUfficio, primoFirmatario);
+                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
+                        firmaUfficio, primoFirmatario);
 
                     //TODO: DESTINATARI DASI
                     //var is_destinatario_notifica =
@@ -737,7 +737,7 @@ namespace PortaleRegione.API.Controllers
                     if (countFirme == 1)
                     {
                         //TODO: BLOCCO RITIRO FIRMA
-                        if (atto.IDStato >= (int)StatiAttoEnum.IN_TRATTAZIONE)
+                        if (atto.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE)
                         {
                             results.Add(idGuid,
                                 "ERROR: Non è possibile ritirare l'ultima firma, in quanto equivale al ritiro dell'atto: annuncia in Aula l'intenzione di ritiro della firma");
@@ -757,9 +757,9 @@ namespace PortaleRegione.API.Controllers
                         .Atti_Firme
                         .GetFirmatari(atto, FirmeTipoEnum.ATTIVI);
                     ATTI_FIRME firma_utente;
-                    firma_utente = persona.IsSegreteriaAssemblea ? 
-                        firmeAttive.Single(f => f.ufficio) : 
-                        firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
+                    firma_utente = persona.IsSegreteriaAssemblea
+                        ? firmeAttive.Single(f => f.ufficio)
+                        : firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
 
                     firma_utente.Data_ritirofirma =
                         EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
@@ -1380,7 +1380,7 @@ namespace PortaleRegione.API.Controllers
                 body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
 
                 var templateItemIndice = "<div style='text-align:left;'>" +
-                                         "<b>{TipoAtto}{NAtto}</b><br/>" +
+                                         "<b>{TipoAtto} {NAtto}</b><br/>" +
                                          "Data Presentazione: {DataPresentazione}<br/>" +
                                          "<p>{Oggetto}</p><br/>" +
                                          "Iniziativa: {Firmatari}<br/>" +
@@ -1390,13 +1390,13 @@ namespace PortaleRegione.API.Controllers
                 var bodyIndice = new StringBuilder();
                 foreach (var dasiDto in atti)
                     bodyIndice.Append(templateItemIndice
-                        .Replace("TipoAtto", Utility.GetText_TipoDASI(dasiDto.Tipo))
-                        .Replace("NAtto", dasiDto.NAtto)
-                        .Replace("DataPresentazione", dasiDto.DataPresentazione)
-                        .Replace("Oggetto", dasiDto.Oggetto)
-                        .Replace("Firmatari",
-                            $"{dasiDto.PersonaProponente.DisplayName}, {dasiDto.Firme.Replace("<br>", ", ")}")
-                        .Replace("Stato", Utility.GetText_StatoDASI(dasiDto.IDStato)));
+                        .Replace("{TipoAtto}", Utility.GetText_TipoDASI(dasiDto.Tipo))
+                        .Replace("{NAtto}", dasiDto.NAtto)
+                        .Replace("{DataPresentazione}", dasiDto.DataPresentazione)
+                        .Replace("{Oggetto}", dasiDto.Oggetto)
+                        .Replace("{Firmatari}",
+                            $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                        .Replace("{Stato}", Utility.GetText_StatoDASI(dasiDto.IDStato)));
 
                 body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -1416,10 +1416,8 @@ namespace PortaleRegione.API.Controllers
             foreach (var stato in stati)
             {
                 if (persona.IsSegreteriaAssemblea)
-                {
                     if (Utility.statiNonVisibili_Segreteria.Contains(Convert.ToInt16(stato)))
                         continue;
-                }
 
                 result.Add(new StatiDto
                 {
@@ -1436,16 +1434,12 @@ namespace PortaleRegione.API.Controllers
             var result = new List<Tipi_AttoDto>();
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
-            {
-                if ((int)tipo == (int)TipoAttoEnum.ITL)
-                {
+                if ((int) tipo == (int) TipoAttoEnum.ITL)
                     result.Add(new Tipi_AttoDto
                     {
                         IDTipoAtto = (int) tipo,
                         Tipo_Atto = Utility.GetText_TipoDASI((int) tipo)
                     });
-                }
-            }
 
             return result;
         }

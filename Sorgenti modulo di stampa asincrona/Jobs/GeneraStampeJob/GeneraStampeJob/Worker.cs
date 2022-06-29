@@ -151,7 +151,7 @@ namespace GeneraStampeJob
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                PdfStamper.CreateMergedPDF(FilePathTarget, string.Empty,
+                PdfStamper.CreateMergedPDF(FilePathTarget, DirCopertina,
                     attiGenerati.ToDictionary(item => item.Key, item => item.Value.Path));
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
@@ -612,7 +612,15 @@ namespace GeneraStampeJob
 
         private async Task CreaPDF(BodyModel item, long total)
         {
-            PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/em?id={item.EM.UID_QRCode}"));
+            if (item.EM != null)
+            {
+                PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/em?id={item.EM.UID_QRCode}"));
+            }
+            else
+            {
+                PdfStamper.CreaPDF(item.Body, item.Path, item.Atto, Path.Combine(_model.UrlCLIENT, $"public/a?id={item.Atto.UID_QRCode}"));
+            }
+
             var dirInfo = new DirectoryInfo(Path.GetDirectoryName(item.Path));
             var files = dirInfo.GetFiles().Where(f => !f.Name.ToLower().Contains("copertina"));
             await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {files.Count()}/{total}");

@@ -50,5 +50,16 @@ namespace PortaleRegione.API.Controllers
         {
             return Ok(await _logic.GetLegislature());
         }
+        
+        /// <summary>
+        ///     Endpoint per avere la singola legislatura
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id:int}")]
+        public async Task<IHttpActionResult> GetLegislatura(int id)
+        {
+            return Ok(await _logic.GetLegislatura(id));
+        }
     }
 }
