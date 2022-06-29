@@ -65,7 +65,7 @@
                     @if (!stampa.DASI)
                     {
                         <td>
-                            <div class="chip blue-text white" style="min-width: unset; border: 1px solid #7EADF3 ">PEM</div>
+                            <div class="chip blue-text white" style="border: 1px solid #7EADF3; min-width: unset;">PEM</div>
                         </td>
                         <td>
                             @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
@@ -119,7 +119,7 @@
                     else
                     {
                         <td>
-                            <div class="chip red-text white" style="min-width: unset; border: 1px solid #F4433C">DASI</div>
+                            <div class="chip red-text white" style="border: 1px solid #F4433C; min-width: unset;">DASI</div>
                         </td>
                         <td>
                         </td>
@@ -216,6 +216,18 @@
 }
 
 <script>
+    var url = '@Url.Action("Index", "Stampe")';
+    var currentPage = @Html.Raw(Model.Paging.Page);
+    var currentSize = @Html.Raw(Model.Paging.Limit);
+
+    function filtra_Paginazione(size) {
+        go(url + "?page=" + currentPage + "&size=" + size);
+    }
+
+    function filtra(page) {
+        go(url + "?page=" + page + "&size=" + currentSize);
+    }
+
     var interval = null;
     var initial_start = 30;
     $(document).ready(function() {
@@ -240,7 +252,8 @@
 
                 if (parseInt(seconds) - 1 == 0) {
                     clearInterval(interval);
-                    location.reload();
+                    var redirectUrl = url + "?page=" + currentPage + "&size=" + currentSize;
+                    go(redirectUrl);
                 }
             },
             1000);
