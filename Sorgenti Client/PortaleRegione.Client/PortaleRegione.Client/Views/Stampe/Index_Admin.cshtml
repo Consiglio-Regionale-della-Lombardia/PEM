@@ -259,6 +259,18 @@
 }
 
 <script>
+    var url = '@Url.Action("Index", "Stampe")';
+    var currentPage = @Html.Raw(Model.Paging.Page);
+    var currentSize = @Html.Raw(Model.Paging.Limit);
+
+    function filtra_Paginazione(size) {
+        go(url + "?page=" + currentPage + "&size=" + size);
+    }
+
+    function filtra(page) {
+        go(url + "?page=" + page + "&size=" + currentSize);
+    }
+
     var interval = null;
     var initial_start = 30;
     $(document).ready(function() {
@@ -283,7 +295,8 @@
 
             if (parseInt(seconds) - 1 == 0) {
                 clearInterval(interval);
-                location.reload();
+                var redirectUrl = url + "?page=" + currentPage + "&size=" + currentSize;
+                go(redirectUrl);
             }
         }, 1000);
     }
@@ -297,7 +310,7 @@
             url: url,
             type: "GET"
         }).done(function(result) {
-            
+
             M.toast({ html: 'Stampa eliminata <i class="icon material-icons yellow-text" onclick="location.reload()" style="margin-left:20px">sync</i>', classes: 'rounded', displayLength: 5000});
 
         }).fail(function(err) {
