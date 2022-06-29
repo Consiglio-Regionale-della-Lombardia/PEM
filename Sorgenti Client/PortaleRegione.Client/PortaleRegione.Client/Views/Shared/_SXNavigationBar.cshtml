@@ -175,7 +175,7 @@
         </div>
     </li>
     <li class="menuItem_Home bold" style="margin-top: -8px">
-        <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
+        <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Cruscotto</a>
     </li>
     <li class="menuItem_PEM bold">
         <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
@@ -197,26 +197,29 @@
         </a>
     </li>
     <li class="menuItem_Stampe bold">
-        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
+        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
     </li>
     @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
     {
         <li class="menuItem_Amministrazione_Utenti bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons">person</i>Utenti</a>
+            <a class="waves-effect purple-text" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons purple-text">person</i>Utenti</a>
         </li>
     }
     @if (currentRole == RuoliIntEnum.Amministratore_PEM)
     {
         <li class="menuItem_Amministrazione_Gruppi bold">
-            <a class="waves-effect" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons">group</i>Gruppi</a>
+            <a class="waves-effect purple-text" href="@Url.Action("RiepilogoGruppi", "AdminPanel")"><i class="material-icons purple-text">group</i>Gruppi</a>
         </li>
     }
+
+    <li class="menuItem_Trattazione bold">
+        <a class="waves-effect blue-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons blue-text">settings_input_antenna</i>Entra in Aula</a>
+    </li>
 
     <li class="menuTrattazione itemSeduteAttive bold">
         <a class="collapsible-header waves-effect"><i class="material-icons">event</i>Sedute Attive</a>
         <div class="collapsible-body" style="display: block;">
             <ul id="lstSeduteAttive">
-                
             </ul>
         </div>
     </li>
@@ -224,31 +227,19 @@
         <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
     </li>
     <li class="menuTrattazione itemStampe bold">
-        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Gestione stampe</a>
+        <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
+    </li>
+    <li class="menuTrattazione itemAreaGruppi bold">
+        <a class="waves-effect red-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons red-text">exit_to_app</i>Esci dall' Aula</a>
     </li>
 </ul>
-<div class="fixed-action-btn" style="bottom: 200px !important; left: 23px; right: unset !important;">
-    <div class="row valign-wrapper">
-        <div class="col s9">
-            <p>Trattazione aula</p>
-        </div>
-        <div class="col s3">
-            <div class="switch">
-                <label>
-                    <input id="switchTrattazione" type="checkbox" onclick="AbilitaTrattazione()">
-                    <span class="lever"></span>
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
 
-    <div class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
+<div id="pnlLogout" class="fixed-action-btn center" style="bottom: 150px !important; left: 23px; right: unset !important;">
         @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
         {
             @Html.AntiForgeryToken()
             <a class="btn chip hoverable red center white-text" onclick="logout()" style="width: 255px;">
-                <i class="icon material-icons">lock_outline</i> Esci
+                <i class="icon material-icons">exit_to_app</i> Chiudi sessione
             </a>
         }
         
@@ -281,7 +272,7 @@
         }
         var mode = getClientMode();
         if (mode == 2) {
-            $('#switchTrattazione').prop("checked", true);
+            $('#pnlLogout').hide();
             $('li[class*="menuItem"]').hide();
             var data = await GetSeduteAttive();
             var seduteAttive = data.Results;
@@ -295,6 +286,7 @@
             });
         } else {
             $('li[class*="menuTrattazione"]').hide();
+            $('#pnlLogout').show();
         }
         LoadCounterNotifiche();
     });

@@ -163,7 +163,10 @@ function highlight(text) {
 }
 
 function isEmptyOrSpaces(str) {
-    return str === null || str.match(/^ *$/) !== null;
+    if (str) {
+        return str === null || str.match(/^ *$/) !== null;
+    } else
+        return true;
 }
 
 async function GetEM(emUId) {
@@ -225,7 +228,7 @@ function go(link, switchMode) {
     document.location = link;
 }
 
-function AbilitaTrattazione(url) {
+function AbilitaTrattazione() {
     var mode = getClientMode();
     if (mode == 1) {
         setClientMode(2);

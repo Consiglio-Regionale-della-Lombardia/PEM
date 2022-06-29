@@ -705,6 +705,6 @@ div.input-field > label { line-height: initial; }
 
 label { color: #424242 !important; }
 
-.highlight {
+span.highlight {
     background-color: yellow;
 }
