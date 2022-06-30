@@ -109,16 +109,80 @@
     </div>
 </div>
 
+@if (HttpContext.Current.IsDebuggingEnabled) {
+    <div id="pnlAccount" class="sidenav" style="overflow: auto !important">
+        <div class="row">
+            <div class="col s12">
+                <h5>Account</h5>
+                <hr/>
+                <div class="card horizontal">
+                    <div class="card-stacked">
+                        <div class="card-content">
+                            <p>UOLA</p>
+                        </div>
+                        <div class="card-action">
+                            <a class="btn-flat blue-text"
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id=new Guid("ac98da99-862d-4cff-90e7-d5b324aaa7ae")})')" title="Entra">
+                                <i class="material-icons right">lock_open</i>
+                                Entra
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card horizontal">
+                    <div class="card-stacked">
+                        <div class="card-content">
+                            <p>Pizzul (PD)</p>
+                        </div>
+                        <div class="card-action">
+                            <a class="btn-flat blue-text"
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id=new Guid("8870e6d1-fe1b-4038-a185-d8f26cb07044")})')" title="Entra">
+                                <i class="material-icons right">lock_open</i>
+                                Entra
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 
 @RenderSection("scripts", false)
 
 <script>
     $('.trumbowyg').trumbowyg();
-
+    var devPanelCounter = 0;
     $("body").on("keyup",
         function(event) {
             // Cancel the default action, if needed
             event.preventDefault();
+            if (event.keyCode === 83) {
+                if (devPanelCounter === 2) {
+                    var elems = document.querySelector("#pnlAccount");
+                    var instances = M.Sidenav.init(elems,
+                        {
+                            edge: "right",
+                            draggable: true,
+                            onOpenStart: function() {
+                                // Menu laterale SX sotto a layer opaco
+                                $("#slide-out").css("z-index", 997);
+                            },
+                            onCloseEnd: function() {
+                                // Ripristino menu laterale SX
+                                $("#slide-out").css("z-index", 999);
+                                devPanelCounter = 0;
+                            }
+                        });
+
+                    instances.open();
+                } else {
+                    devPanelCounter = devPanelCounter + 1;
+                }
+                
+            }
             // Number 13 is the "Enter" key on the keyboard
             if (event.keyCode === 27) {
                 // Trigger the button element with a click

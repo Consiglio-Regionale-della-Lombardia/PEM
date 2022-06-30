@@ -220,6 +220,12 @@ namespace PortaleRegione.Client.Controllers
         [HttpPost]
         public ActionResult Logout()
         {
+            LogoutFlow();
+            return RedirectToAction("FormAutenticazione", "Autenticazione");
+        }
+
+        private void LogoutFlow()
+        {
             if (Response != null)
             {
                 if (Response.Cookies.AllKeys.Contains("PRCookies1"))
@@ -243,7 +249,34 @@ namespace PortaleRegione.Client.Controllers
             }
 
             FormsAuthentication.SignOut();
-            return RedirectToAction("FormAutenticazione", "Autenticazione");
         }
+
+#if DEBUG == true
+        [Authorize]
+        [HttpGet]
+        [Route("cambio-utente")]
+        public async Task<ActionResult> CambiaUtente(Guid id)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var persona = await apiGateway.Persone.Get(id);
+
+            LogoutFlow();
+
+            return RedirectToAction("FormAutenticazioneDEBUG", new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx"});
+        }
+
+        [AllowAnonymous]
+        [Route("login-debug")]
+        public ActionResult FormAutenticazioneDEBUG(string username, string password)
+        {
+            return View("FormAutenticazione", new LoginRequest
+            {
+                Username = username,
+                Password = password
+            });
+        }
+#endif
+
+
     }
 }
