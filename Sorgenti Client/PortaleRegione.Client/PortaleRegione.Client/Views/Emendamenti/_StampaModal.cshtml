@@ -93,7 +93,6 @@
                         });
                     }
                 }
-                console.log("STampa", obj)
 
                 //submit via ajax
                 $.ajax({
@@ -107,6 +106,7 @@
                         ErrorAlert(data.message);
                     else {
                         $("#modalStampa").modal("close");
+                        $("#btnConfermaStampa").off("click");
                         waiting(false);
                         M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
                     }

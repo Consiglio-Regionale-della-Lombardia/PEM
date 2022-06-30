@@ -1194,7 +1194,10 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
                         $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                    listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione.Value, nomeAtto);
+                    listaRichieste.Add(
+                        atto.UIDPersonaRichiestaIscrizione.HasValue
+                            ? atto.UIDPersonaRichiestaIscrizione.Value
+                            : atto.UIDPersonaPresentazione.Value, nomeAtto);
                 }
 
                 try

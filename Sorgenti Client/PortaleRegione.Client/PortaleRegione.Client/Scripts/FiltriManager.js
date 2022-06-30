@@ -102,6 +102,20 @@ function GetLegislature() {
     });
 }
 
+function GetSedutaByData(dataSeduta) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/seduta-by-data?data=" + dataSeduta,
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            ErrorAlert(err.message);
+        });
+    });
+}
+
 function GetSeduteAttive() {
     return new Promise(async function(resolve, reject) {
         $.ajax({
@@ -299,7 +313,7 @@ function GetStatiDASI() {
         $.ajax({
             url: baseUrl + "/dasi/stati",
             type: "GET"
-        }).done(function (result) {
+        }).done(function(result) {
             set_ListaStatiDASI(result);
             resolve(result);
         }).fail(function(err) {
@@ -319,7 +333,7 @@ function GetTipiDASI() {
         $.ajax({
             url: baseUrl + "/dasi/tipi",
             type: "GET"
-        }).done(function (result) {
+        }).done(function(result) {
             set_ListaTipiDASI(result);
             resolve(result);
         }).fail(function(err) {
@@ -339,7 +353,7 @@ function GetSoggettiInterrogabiliDASI() {
         $.ajax({
             url: baseUrl + "/dasi/soggetti-interrogabili",
             type: "GET"
-        }).done(function (result) {
+        }).done(function(result) {
             set_ListaSoggettiInterrogabiliDASI(result);
             resolve(result);
         }).fail(function(err) {
@@ -771,7 +785,7 @@ async function Filtri_DASI_CaricaStato(ctrlSelect) {
         var select = $("#" + ctrlSelect);
         select.empty();
         $.each(stati,
-            function (index, item) {
+            function(index, item) {
                 var template = "";
                 if (item.IDStato == filterSelect)
                     template = "<option selected='selected'></option>";
@@ -797,7 +811,7 @@ async function Filtri_DASI_CaricaTipo(ctrlSelect) {
         var select = $("#" + ctrlSelect);
         select.empty();
         $.each(tipi,
-            function (index, item) {
+            function(index, item) {
                 var template = "";
                 if (item.IDTipoAtto == filterSelect)
                     template = "<option selected='selected'></option>";
@@ -823,7 +837,7 @@ async function Filtri_DASI_CaricaSoggetti(ctrlSelect) {
         var select = $("#" + ctrlSelect);
         select.empty();
         $.each(tipi,
-            function (index, item) {
+            function(index, item) {
                 var template = "";
                 if (item.IDTipoAtto == filterSelect)
                     template = "<option selected='selected'></option>";
@@ -849,7 +863,7 @@ async function SetupFiltriSoggettiDestinatari() {
     select.empty();
 
     $.each(soggetti,
-        function (index, item) {
+        function(index, item) {
             var template = "";
             var find_user = false;
             for (var i = 0; i < filterSelect.length; i++) {
@@ -860,8 +874,7 @@ async function SetupFiltriSoggettiDestinatari() {
             }
             if (find_user) {
                 template = "<option selected='selected'></option>";
-            }
-            else
+            } else
                 template = "<option></option>";
             select.append($(template).val(item.id_carica).html(item.nome_carica));
         });
@@ -896,7 +909,7 @@ function filter_dasi_soggetti_dest_OnChange() {
         filtri.soggetti_dest = [];
     var nuovi_soggetti = [];
     if ($("#qSoggettoDestinatarioDasi option").length != 0) {
-        $("#qSoggettoDestinatarioDasi option").each(function (index, opt) {
+        $("#qSoggettoDestinatarioDasi option").each(function(index, opt) {
             if ($(opt).is(":checked")) {
                 console.log("SOGGETTO SELEZIONATO - ", $(opt).val());
                 nuovi_soggetti.push($(opt).val());

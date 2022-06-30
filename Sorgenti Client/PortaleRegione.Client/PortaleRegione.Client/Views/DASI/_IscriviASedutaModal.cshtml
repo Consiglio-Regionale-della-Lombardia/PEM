@@ -1,10 +1,17 @@
 ﻿<!-- Modal Structure -->
 <div id="modalIscriviSeduta" class="modal bottom-sheet">
     <div class="modal-content">
+        <input type="hidden" id="hfUidAtto">
         <h4 id="txtIscriviSeduta"></h4>
         <ul class="collection with-header" id="lstSeduteAttive">
-            
-            </ul>
+        </ul>
+
+        <a id="btnNuovaSedutaDASI" class="btn-flat blue-text"
+           onclick="NuovaSedutaDASI()" title="Crea nuova seduta">
+            <i class="material-icons right">plus</i>
+            Crea nuova seduta
+        </a>
+        <input id="dtSeduta" class="form-control" type="datetime-local" style="display: none"/>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
@@ -13,23 +20,24 @@
 
 <script>
     var sedute = [];
-    $(window).on('load', async function () {
-        if (sedute.length == 0) {
-            $('#modalIscriviSeduta>div>ul').empty();
-            var data = await GetSeduteAttive();
-            sedute = data.Results;
-            var checked = sedute.length == 1;
-            $.each(sedute,
-                function(i, item) {
-                    var resultDate = GetFormattedDate(item.Data_seduta);
-                    var text = "Seduta del " + resultDate;
-                    $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
-                        .replace("{TEXT}", text)
-                        .replace("{VALUE}", item.UIDSeduta)
-                        .replace("{CHECKED}", checked ? "checked='checked'": ""));
-                });
-        }
-    });
+    $(window).on('load',
+        async function() {
+            if (sedute.length == 0) {
+                $('#modalIscriviSeduta>div>ul').empty();
+                var data = await GetSeduteAttive();
+                sedute = data.Results;
+                var checked = sedute.length == 1;
+                $.each(sedute,
+                    function(i, item) {
+                        var resultDate = GetFormattedDate(item.Data_seduta);
+                        var text = "Seduta del " + resultDate;
+                        $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
+                            .replace("{TEXT}", text)
+                            .replace("{VALUE}", item.UIDSeduta)
+                            .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+                    });
+            }
+        });
 
     function RimuoviSedutaDASI(uidAtto, nomeAtto) {
 
@@ -72,7 +80,13 @@
     }
 
     function IscriviSedutaDASI(uidAtto, nomeAtto) {
+        $('#hfUidAtto').val(uidAtto);
+        $('#btnNuovaSedutaDASI').show();
+        $('#dtSeduta').hide();
+        $('#dtSeduta').val("");
         $('#txtIscriviSeduta').html("Iscrivi <b>" + nomeAtto + "</b> ad una delle seguenti sedute");
+        $('#btnIscriviSeduta_Salva').text("Iscrivi");
+        $('#btnIscriviSeduta_Salva').off("click");
         $("#btnIscriviSeduta_Salva").on("click",
             function() {
 
@@ -111,6 +125,65 @@
             });
         $('#modalIscriviSeduta').modal("open");
     }
-    
+
     var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+
+    function NuovaSedutaDASI() {
+        $('#btnNuovaSedutaDASI').hide();
+        $('#dtSeduta').show();
+        $('#btnIscriviSeduta_Salva').text("Iscrivi a nuova seduta");
+        $('#btnIscriviSeduta_Salva').off("click");
+        $('#btnIscriviSeduta_Salva').on("click", function () {
+
+            var body = {};
+            body.Data_seduta = $('#dtSeduta').val();
+
+            $.ajax({
+                url: baseUrl + "/pem/salva",
+                type: "POST",
+                data: JSON.stringify(body),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(async function (data) {
+                
+                if (data.message)
+                    ErrorAlert(data.message);
+                else {
+                    var seduta = await GetSedutaByData(body.Data_seduta);
+                    
+                    var listaAtti = [];
+
+                    listaAtti.push($('#hfUidAtto').val());
+
+                    var obj = {};
+                    obj.UidSeduta = seduta.UIDSeduta;
+                    obj.Lista = listaAtti;
+
+                    $.ajax({
+                        url: '@Url.Action("IscriviSeduta")',
+                        method: "POST",
+                        data: JSON.stringify(obj),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json"
+                    }).done(function(data) {
+                        $("#modalIscriviSeduta").modal("close");
+                        $("#btnIscriviSeduta_Salva").off("click");
+                        console.log(data.message);
+                        if (data.message) {
+                            ErrorAlert(data.message);
+                        } else {
+                            go(data);
+                        }
+                    }).fail(function(err) {
+                        console.log("error", err);
+                        ErrorAlert(err.message);
+                    });
+                }
+            }).fail(function (err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+    }
+    
 </script>

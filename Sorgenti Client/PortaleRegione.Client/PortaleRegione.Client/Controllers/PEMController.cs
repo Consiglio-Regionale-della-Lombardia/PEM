@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -121,6 +122,41 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 return Json(await apiGateway.Sedute.GetActive(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("seduta-by-data")]
+        public async Task<ActionResult> SedutaByData(DateTime data)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var model = new BaseRequest<SeduteDto>
+                {
+                    filtro = new List<FilterStatement<SeduteDto>>
+                    {
+                        new FilterStatement<SeduteDto>
+                        {
+                            PropertyId = nameof(SeduteDto.Data_seduta),
+                            Operation = Operation.EqualTo,
+                            Value = data.ToString("yyyy-MM-dd HH:mm:ss")
+                        }
+                    }
+                };
+                var seduta = await apiGateway.Sedute.Get(model);
+
+                if (seduta.Paging.Entities > 1)
+                {
+                    throw new Exception($"Seduta [{data}] duplicata");
+                }
+
+                return Json(seduta.Results.First(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

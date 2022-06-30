@@ -624,6 +624,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (model.UidSeduta == Guid.Empty)
+                {
+                    return BadRequest($"Guid [{model.UidSeduta}]");
+                }
+
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session._currentUId);
                 persona.CurrentRole = session._currentRole;
