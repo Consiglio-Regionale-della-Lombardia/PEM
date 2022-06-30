@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 30/06/2022 09:29:24 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 30/06/2022 11:19:53 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -27,6 +27,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDPersonaModifica] [uniqueidentifier] NULL,
 	[DataPresentazione] [varchar](255) NULL,
 	[DataRichiestaIscrizioneSeduta] [varchar](255) NULL,
+	[UIDPersonaRichiestaIscrizione] [uniqueidentifier] NULL,
 	[UIDPersonaPresentazione] [uniqueidentifier] NULL,
 	[UIDPersonaProponente] [uniqueidentifier] NULL,
 	[UIDPersonaPrimaFirma] [uniqueidentifier] NULL,
