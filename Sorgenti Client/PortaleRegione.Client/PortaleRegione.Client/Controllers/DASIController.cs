@@ -453,8 +453,35 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.IscriviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = (StatiAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = (TipoAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per richiedere l'iscrizione ad una seduta futura
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("richiedi-iscrizione")]
+        public async Task<ActionResult> RichiediIscrizione(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.RichiediIscrizione(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -480,8 +507,35 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.RimuoviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = (StatiAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = (TipoAttoEnum) Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per rimuovere la richiesta di iscrizione ad una data seduta
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-richiesta")]
+        public async Task<ActionResult> RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.RimuoviRichiestaIscrizione(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }

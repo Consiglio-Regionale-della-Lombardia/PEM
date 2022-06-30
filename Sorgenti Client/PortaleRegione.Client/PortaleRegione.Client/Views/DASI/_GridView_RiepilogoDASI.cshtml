@@ -34,9 +34,9 @@ else
     <table class="responsive-table highlight">
         <thead>
         <tr>
-        <th width="5" class="center">
-            
-        </th>
+            <th width="5" class="center">
+
+            </th>
             <th width="150">Atto</th>
             <th>Tipo</th>
             <th>Oggetto</th>
@@ -60,7 +60,7 @@ else
                 <td>
                     <p>
                         <label>
-                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');" />
                             <span></span>
                         </label>
                     </p>
@@ -110,7 +110,7 @@ else
 
                     @if (item.ConteggioFirme > 1)
                     {
-                        <br/>
+                        <br />
                         <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
                             + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
                         </a>
@@ -121,7 +121,18 @@ else
                 </td>
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-                    if (item.IDStato != (int) StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                    if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && !item.UIDSeduta.HasValue)
+                    {
+                        var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
+                        var tooltipSeduta = $"Richiesta in attesa di elaborazione";
+                        <td>
+                            <div class="chip badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta">
+                                @textSeduta
+                                <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
+                            </div>
+                        </td>
+                    }
+                    else if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
                     {
                         var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
                         var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
@@ -131,7 +142,16 @@ else
                             </div>
                         </td>
                     }
-                    else if (item.IDStato != (int) StatiAttoEnum.BOZZA)
+                    else if (item.IDStato > (int)StatiAttoEnum.BOZZA && item.IDStato != (int)StatiAttoEnum.RITIRATO)
+                    {
+                        <td>
+                            <a class="btn-flat blue-text" title="Richiedi iscrizione a seduta" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                <i class="material-icons right">chevron_right</i>
+                                Richiedi iscrizione
+                            </a>
+                        </td>
+                    }
+                    else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
                     {
                         <td>
                         </td>
@@ -140,11 +160,11 @@ else
                 <td class="center">
                     @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                     {
-                        if (item.IDStato == (int) StatiAttoEnum.BOZZA)
+                        if (item.IDStato == (int)StatiAttoEnum.BOZZA)
                         {
-                        @*<a class="amber-text tooltipped" data-tooltip="Invita">
-                    <i class="icon material-icons">send</i>
-                </a>*@
+                            @*<a class="amber-text tooltipped" data-tooltip="Invita">
+                        <i class="icon material-icons">send</i>
+                    </a>*@
                             if (item.Firmabile)
                             {
                                 <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">

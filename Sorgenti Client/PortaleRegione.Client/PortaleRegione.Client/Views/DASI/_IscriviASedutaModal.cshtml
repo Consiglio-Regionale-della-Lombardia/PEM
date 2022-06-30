@@ -1,10 +1,10 @@
 ﻿<!-- Modal Structure -->
 <div id="modalIscriviSeduta" class="modal bottom-sheet">
     <div class="modal-content">
-        <h4>Iscrivi <b id="txtIscriviSeduta_NomeAtto"></b> ad una delle seguenti sedute</h4>
+        <h4 id="txtIscriviSeduta"></h4>
         <ul class="collection with-header" id="lstSeduteAttive">
-            <li>ciaso</li>
-        </ul>
+            
+            </ul>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
@@ -41,8 +41,12 @@
             dangerMode: true
         }).then((willDelete) => {
             if (willDelete) {
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
                 var obj = {};
-                obj.UidAtto = uidAtto;
+                obj.Lista = listaAtti;
 
                 $.ajax({
                     url: '@Url.Action("RimuoviSeduta")',
@@ -68,7 +72,7 @@
     }
 
     function IscriviSedutaDASI(uidAtto, nomeAtto) {
-        $('#txtIscriviSeduta_NomeAtto').html(nomeAtto);
+        $('#txtIscriviSeduta').html("Iscrivi <b>" + nomeAtto + "</b> ad una delle seguenti sedute");
         $("#btnIscriviSeduta_Salva").on("click",
             function() {
 
@@ -77,9 +81,13 @@
                     return;
                 }
 
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
                 var obj = {};
                 obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
-                obj.UidAtto = uidAtto;
+                obj.Lista = listaAtti;
 
                 $.ajax({
                     url: '@Url.Action("IscriviSeduta")',
@@ -103,6 +111,6 @@
             });
         $('#modalIscriviSeduta').modal("open");
     }
-
+    
     var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
 </script>

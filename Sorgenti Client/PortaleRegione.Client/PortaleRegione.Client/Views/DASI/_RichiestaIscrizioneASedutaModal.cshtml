@@ -1,0 +1,91 @@
+﻿<!-- Modal Structure -->
+<div id="modalIscriviSeduta" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="txtIscriviSeduta"></h4>
+        <input id="dtRichiestaIscrizione" class="form-control" type="datetime-local"/>
+        <p><b>info:</b> L'orario verrà scartato dal sistema tenendo solamente la data da voi indicata</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Richiedi</a>
+    </div>
+</div>
+
+<script>
+
+    function RichiediIscrizioneSedutaDASI(uidAtto, nomeAtto) {
+        $('#txtIscriviSeduta').html("Richiedi iscrizione dell'atto <b>" + nomeAtto + "</b> in data:");
+        $('#dtRichiestaIscrizione').val("");
+        $("#btnIscriviSeduta_Salva").on("click",
+            function() {
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
+                var obj = {};
+                obj.DataRichiesta = $('#dtRichiestaIscrizione').val();
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("RichiediIscrizione")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalIscriviSeduta").modal("close");
+                    $("#btnIscriviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
+    function RimuoviRichiestaIscrizioneDASI(uidAtto, nomeAtto) {
+
+        swal({
+            title: "Rimozione richiesta",
+            text: "Sei sicuro di voler rimuovere la richiesta per l'atto " + nomeAtto + "?",
+            icon: "warning",
+            buttons: ["Annulla", "Rimuovi"],
+            dangerMode: true
+        }).then((willDelete) => {
+            if (willDelete) {
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
+                var obj = {};
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("RimuoviRichiestaIscrizione")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalRimuoviSeduta").modal("close");
+                    $("#btnRimuoviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            }
+        });
+    }
+
+</script>

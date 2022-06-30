@@ -554,6 +554,28 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task RichiediIscrizione(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/richiedi-iscrizione";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("RichiediIscrizione - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("RichiediIscrizione - DASI", ex);
+                throw ex;
+            }
+
+        }
+
         public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
         {
             try
@@ -573,6 +595,28 @@ namespace PortaleRegione.Gateway
                 Log.Error("RimuoviSeduta - DASI", ex);
                 throw ex;
             }
+        }
+
+        public async Task RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/rimuovi-richiesta";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
+                throw ex;
+            }
+
         }
 
         public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId)

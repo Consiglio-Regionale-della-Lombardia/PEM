@@ -445,6 +445,7 @@
     <Content Include="Views\DASI\_IscriviASedutaModal.cshtml" />
     <Content Include="Views\DASI\_MetaDatiPanelPartial.cshtml" />
     <Content Include="Views\DASI\_InvitoPanelMassivo.cshtml" />
+    <Content Include="Views\DASI\_RichiestaIscrizioneASedutaModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
