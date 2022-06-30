@@ -44,15 +44,17 @@ namespace PortaleRegione.API.Controllers
         private readonly AttiFirmeLogic _logicFirme;
         private readonly PersoneLogic _logicPersona;
         private readonly SeduteLogic _logicSedute;
+        private readonly UtilsLogic _logicUtil;
         private readonly IUnitOfWork _unitOfWork;
 
         public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme,
-            SeduteLogic logicSedute)
+            SeduteLogic logicSedute, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
             _logicFirme = logicFirme;
             _logicSedute = logicSedute;
+            _logicUtil = logicUtil;
         }
 
         public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto persona)
@@ -357,6 +359,9 @@ namespace PortaleRegione.API.Controllers
 
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
+                if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
+                    dto.DataRichiestaIscrizioneSeduta = Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
+
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
                     dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
@@ -1172,17 +1177,50 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task IscrizioneSeduta(IscriviSedutaDASIModel model,
-            PersonaDto personaDto)
+            PersonaDto persona)
         {
             try
             {
-                var atto = await Get(model.UidAtto);
-                if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                var listaRichieste = new Dictionary<Guid, string>();
+                var dataSeduta = "";
 
-                atto.UIDSeduta = model.UidSeduta;
-                atto.DataIscrizioneSeduta = DateTime.Now;
-                atto.UIDPersonaIscrizioneSeduta = personaDto.UID_persona;
-                await _unitOfWork.CompleteAsync();
+                foreach (var guid in model.Lista)
+                {
+                    var atto = await Get(guid);
+                    if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                    atto.UIDSeduta = model.UidSeduta;
+                    atto.DataIscrizioneSeduta = DateTime.Now;
+                    atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
+                    await _unitOfWork.CompleteAsync();
+                    var nomeAtto =
+                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                    listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione.Value, nomeAtto);
+                }
+
+                try
+                {
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
+
+                    var gruppiMail = listaRichieste.GroupBy(item => item.Key);
+                    foreach (var gruppo in gruppiMail)
+                    {
+                        var personaMail = await _unitOfWork.Persone.Get(gruppo.Key);
+                        var mailModel = new MailModel
+                        {
+                            DA = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                            A = personaMail.email,
+                            OGGETTO =
+                                "[ISCRIZIONE ATTI]",
+                            MESSAGGIO =
+                                $"La segreteria ha iscritto i seguenti atti alla seduta del {dataSeduta}: <br> {gruppo.Select(item=>item.Value).Aggregate((i, j) => i + "<br>" + j)}."
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Logic - IscrizioneSeduta - Invio Mail", e);
+                }
             }
             catch (Exception e)
             {
@@ -1191,21 +1229,95 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task RichiediIscrizione(RichiestaIscrizioneDASIModel model, PersonaDto persona)
+        {
+            try
+            {
+                var dataRichiesta = EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
+                    AppSettingsConfiguration.masterKey);
+                var listaRichieste = new List<string>();
+                foreach (var guid in model.Lista)
+                {
+                    var atto = await Get(guid);
+                    if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                    atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                    atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+                    await _unitOfWork.CompleteAsync();
+
+                    var nomeAtto =
+                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                    listaRichieste.Add(nomeAtto);
+                }
+
+                try
+                {
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
+
+                    var mailModel = new MailModel
+                    {
+                        DA = persona.email,
+                        A =
+                            $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                        OGGETTO =
+                            "[RICHIESTA ISCRIZIONE]",
+                        MESSAGGIO =
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {dataRichiesta}."
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Logic - RichiediIscrizione - Invio Mail", e);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - RichiediIscrizione", e);
+                throw e;
+            }
+        }
+
         public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
         {
             try
             {
-                var atto = await Get(model.UidAtto);
-                if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                foreach (var guid in model.Lista)
+                {
+                    var atto = await Get(guid);
+                    if (atto == null) throw new Exception("ERROR: NON TROVATO");
 
-                atto.UIDSeduta = null;
-                atto.DataIscrizioneSeduta = null;
-                atto.UIDPersonaIscrizioneSeduta = null;
-                await _unitOfWork.CompleteAsync();
+                    atto.UIDSeduta = null;
+                    atto.DataIscrizioneSeduta = null;
+                    atto.UIDPersonaIscrizioneSeduta = null;
+                    await _unitOfWork.CompleteAsync();
+                }
             }
             catch (Exception e)
             {
                 Log.Error("Logic - RimuoviSeduta", e);
+                throw e;
+            }
+        }
+        
+        public async Task RimuoviRichiesta(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                foreach (var guid in model.Lista)
+                {
+                    var atto = await Get(guid);
+                    if (atto == null) throw new Exception("ERROR: NON TROVATO");
+
+                    if (atto.UIDSeduta.HasValue) throw new Exception("ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
+
+                    atto.DataRichiestaIscrizioneSeduta = null;
+                    atto.UIDPersonaRichiestaIscrizione = null;
+                    await _unitOfWork.CompleteAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - RimuoviRichiesta", e);
                 throw e;
             }
         }

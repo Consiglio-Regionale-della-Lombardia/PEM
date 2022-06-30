@@ -636,6 +636,29 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        /// <summary>
+        ///     Endpoint per richiedere l'iscrizione ad una seduta futura
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("richiedi-iscrizione")]
+        public async Task<IHttpActionResult> RichiediIscrizione(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+                await _logic.RichiediIscrizione(model, persona);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("RichiediIscrizione", e);
+                return ErrorHandler(e);
+            }
+        }
         
         /// <summary>
         ///     Endpoint per rimuovere un atto dalla seduta
@@ -655,6 +678,27 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("RimuoviSeduta", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere la richiesta di iscrizione ad una data seduta
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("rimuovi-richiesta")]
+        public async Task<IHttpActionResult> RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model)
+        {
+            try
+            {
+                await _logic.RimuoviRichiesta(model);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("RimuoviRichiestaIscrizione", e);
                 return ErrorHandler(e);
             }
         }

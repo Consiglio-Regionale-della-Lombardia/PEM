@@ -53,6 +53,7 @@ namespace PortaleRegione.DTO.Domain
         public Guid? UIDPersonaModifica { get; set; }
         public string DataPresentazione { get; set; }
         public string DataRichiestaIscrizioneSeduta { get; set; }
+        public Guid? UIDPersonaRichiestaIscrizione { get; set; }
         public Guid? UIDPersonaProponente { get; set; }
         public Guid? UIDPersonaPrimaFirma { get; set; }
         public DateTime DataPrimaFirma { get; set; }

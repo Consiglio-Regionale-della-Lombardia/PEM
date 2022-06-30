@@ -21,9 +21,9 @@ using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Model
 {
-    public class IscriviSedutaDASIModel
+    public class RichiestaIscrizioneDASIModel
     {
-        public Guid UidSeduta { get; set; }
+        public DateTime DataRichiesta { get; set; }
         public List<Guid> Lista { get; set; }
     }
 }
