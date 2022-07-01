@@ -159,26 +159,26 @@ namespace PortaleRegione.Common
                     return "Presentato";
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In Trattazione";
-                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
-                    return "Comunicazione all’Assemblea";
-                case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
-                    return "Trattazione all’Assemblea";
-                case StatiAttoEnum.APPROVATO:
-                    return "Approvato";
-                case StatiAttoEnum.RESPINTO:
-                    return "Respinto";
-                case StatiAttoEnum.INAMMISSIBILE:
-                    return "Inammissibile";
+                //case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
+                //    return "Comunicazione all’Assemblea";
+                //case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
+                //    return "Trattazione all’Assemblea";
+                //case StatiAttoEnum.APPROVATO:
+                //    return "Approvato";
+                //case StatiAttoEnum.RESPINTO:
+                //    return "Respinto";
+                //case StatiAttoEnum.INAMMISSIBILE:
+                //    return "Inammissibile";
                 case StatiAttoEnum.RITIRATO:
                     return "Ritirato";
-                case StatiAttoEnum.DECADUTO:
-                    return "Decaduto";
-                case StatiAttoEnum.DECADUTO_FINE_MANDATO:
-                    return "Decadenza FMC";
-                case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
-                    return "Decadenza FL";
-                case StatiAttoEnum.ALTRO:
-                    return "Chiusura Altro";
+                //case StatiAttoEnum.DECADUTO:
+                //    return "Decaduto";
+                //case StatiAttoEnum.DECADUTO_FINE_MANDATO:
+                //    return "Decadenza FMC";
+                //case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
+                //    return "Decadenza FL";
+                //case StatiAttoEnum.ALTRO:
+                //    return "Chiusura Altro";
                 case StatiAttoEnum.CHIUSO:
                     return "Chiuso";
                 case StatiAttoEnum.TUTTI:

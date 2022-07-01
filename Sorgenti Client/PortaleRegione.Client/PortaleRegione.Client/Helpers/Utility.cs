@@ -168,28 +168,28 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.PRESENTATO;
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
-                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
-                    return StatiAttoCSSConst.COMUNICAZIONE_ASSEMBLEA;
-                case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
-                    return StatiAttoCSSConst.TRATTAZIONE_ASSEMBLEA;
-                case StatiAttoEnum.APPROVATO:
-                    return StatiAttoCSSConst.APPROVATO;
-                case StatiAttoEnum.RESPINTO:
-                    return StatiAttoCSSConst.RESPINTO;
-                case StatiAttoEnum.INAMMISSIBILE:
-                    return StatiAttoCSSConst.INAMMISSIBILE;
+                //case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
+                //    return StatiAttoCSSConst.COMUNICAZIONE_ASSEMBLEA;
+                //case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
+                //    return StatiAttoCSSConst.TRATTAZIONE_ASSEMBLEA;
+                //case StatiAttoEnum.APPROVATO:
+                //    return StatiAttoCSSConst.APPROVATO;
+                //case StatiAttoEnum.RESPINTO:
+                //    return StatiAttoCSSConst.RESPINTO;
+                //case StatiAttoEnum.INAMMISSIBILE:
+                //    return StatiAttoCSSConst.INAMMISSIBILE;
                 case StatiAttoEnum.RITIRATO:
                     return StatiAttoCSSConst.RITIRATO;
-                case StatiAttoEnum.DECADUTO:
-                    return StatiAttoCSSConst.DECADUTO;
-                case StatiAttoEnum.DECADUTO_FINE_MANDATO:
-                    return StatiAttoCSSConst.DECADUTO_FINE_MANDATO;
-                case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
-                    return StatiAttoCSSConst.DECADUTO_FINE_LEGISLATURA;
+                //case StatiAttoEnum.DECADUTO:
+                //    return StatiAttoCSSConst.DECADUTO;
+                //case StatiAttoEnum.DECADUTO_FINE_MANDATO:
+                //    return StatiAttoCSSConst.DECADUTO_FINE_MANDATO;
+                //case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
+                //    return StatiAttoCSSConst.DECADUTO_FINE_LEGISLATURA;
                 case StatiAttoEnum.CHIUSO:
                     return StatiAttoCSSConst.CHIUSO;
-                case StatiAttoEnum.ALTRO:
-                    return StatiAttoCSSConst.ALTRO;
+                //case StatiAttoEnum.ALTRO:
+                //    return StatiAttoCSSConst.ALTRO;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }
