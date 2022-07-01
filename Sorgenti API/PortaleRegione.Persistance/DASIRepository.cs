@@ -17,7 +17,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -49,7 +48,8 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode, Filter<ATTI_DASI> filtro = null,
+        public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
+            Filter<ATTI_DASI> filtro = null,
             List<int> soggetti = null)
         {
             var query = PRContext
@@ -59,15 +59,11 @@ namespace PortaleRegione.Persistance
             filtro?.BuildExpression(ref query);
 
             if (mode == ClientModeEnum.GRUPPI)
-            {
                 if (persona.IsSegreteriaAssemblea)
-                {
-                    query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
-                }
-            }
+                    query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO
+                                                && item.IDStato != (int) StatiAttoEnum.RITIRATO);
 
             if (soggetti != null)
-            {
                 if (soggetti.Count > 0)
                 {
                     //Avvio ricerca soggetti
@@ -79,7 +75,6 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(item => list.Contains(item.UIDAtto));
                 }
-            }
 
             return await query
                 .OrderByDescending(item => item.OrdineVisualizzazione)
@@ -98,12 +93,9 @@ namespace PortaleRegione.Persistance
             filtro?.BuildExpression(ref query);
 
             if (persona.IsSegreteriaAssemblea)
-            {
-                query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
-            }
+                query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
 
             if (soggetti != null)
-            {
                 if (soggetti.Count > 0)
                 {
                     //Avvio ricerca soggetti
@@ -115,7 +107,6 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(item => list.Contains(item.UIDAtto));
                 }
-            }
 
             return await query
                 .CountAsync();
@@ -132,7 +123,7 @@ namespace PortaleRegione.Persistance
             return await query
                 .CountAsync();
         }
-        
+
         public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
             ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null)
         {
@@ -150,18 +141,14 @@ namespace PortaleRegione.Persistance
                     {
                         if (stato == StatiAttoEnum.PRESENTATO
                             && persona.IsConsigliereRegionale)
-                            query = query.Where(item => item.IDStato >= (int)stato);
+                            query = query.Where(item => item.IDStato >= (int) stato);
                         else
-                        {
-                            query = query.Where(item => item.IDStato == (int)stato);
-                        }
+                            query = query.Where(item => item.IDStato == (int) stato);
                     }
                     else
                     {
                         if (persona.IsSegreteriaAssemblea)
-                        {
                             query = query.Where(item => !Utility.statiNonVisibili_Segreteria.Contains(item.IDStato));
-                        }
                     }
 
                     if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
@@ -174,7 +161,6 @@ namespace PortaleRegione.Persistance
                 }
 
                 if (soggetti != null)
-                {
                     if (soggetti.Count > 0)
                     {
                         //Avvio ricerca soggetti
@@ -186,7 +172,6 @@ namespace PortaleRegione.Persistance
                         query = query
                             .Where(item => list.Contains(item.UIDAtto));
                     }
-                }
 
                 return await query
                     .CountAsync();
@@ -456,18 +441,18 @@ namespace PortaleRegione.Persistance
                 .Take(100);
 
             return query
-                .Select(item=>item.UIDAtto)
+                .Select(item => item.UIDAtto)
                 .ToList();
         }
 
         public string GetAll_Query(Filter<ATTI_DASI> filtro)
         {
             var query = PRContext
-               .DASI
-               .Where(em => !em.Eliminato);
-            
+                .DASI
+                .Where(em => !em.Eliminato);
+
             filtro?.BuildExpression(ref query);
-            
+
             var sql = query.ToTraceQuery();
             return sql;
         }
