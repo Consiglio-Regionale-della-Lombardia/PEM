@@ -69,7 +69,7 @@ else
                         title += item.NAtto;
                     }
 
-                    <div id="atto_@item.UIDAtto" class="chip @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title">
+                    <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
                         @Html.Raw(title)
                     </div>
                 </td>
@@ -184,9 +184,6 @@ else
                 <td class="center" style="width: 5%;">
                     <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">
                         <i class="icon material-icons">edit</i>
-                    </a>
-                    <a class="black-text tooltipped" data-tooltip="Visualizza" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
-                        <i class="icon material-icons">chevron_right</i>
                     </a>
                 </td>
             </tr>
