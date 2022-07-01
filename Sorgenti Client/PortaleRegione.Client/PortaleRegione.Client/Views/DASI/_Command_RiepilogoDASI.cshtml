@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Domain
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -34,7 +35,10 @@
                     icon = "desktop_windows";
                 }
 
-                var url = Url.Action("RiepilogoDASI", "DASI", new {view = new_view});
+                var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
+                var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
+
+                var url = Url.Action("RiepilogoDASI", "DASI", new {view = new_view, stato = statoFromCache, tipo = tipoFromCache});
                 if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
                 {
                     var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
