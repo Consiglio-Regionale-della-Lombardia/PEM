@@ -79,6 +79,62 @@
         });
     }
 
+    function IscriviASedutaMassivoDASI() {
+        var text = "";
+        var listaAtti = getListaAtti();
+        var selezionaTutti = getSelezionaTutti();
+        var text_counter = "";
+        if (selezionaTutti && listaAtti.length == 0) {
+            text_counter = $("#hdTotaleDocumenti").val();
+        } else if (selezionaTutti && listaAtti.length > 0) {
+            text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
+        } else {
+            text_counter = listaAtti.length;
+        }
+        text = "Iscrizione di " + text_counter + " atti in una delle seguenti sedute:";
+
+        $('#txtIscriviSeduta').html(text);
+        $('#btnNuovaSedutaDASI').show();
+        $('#dtSeduta').hide();
+        $('#dtSeduta').val("");
+        $('#btnIscriviSeduta_Salva').text("Iscrivi");
+        $('#btnIscriviSeduta_Salva').off("click");
+        $("#btnIscriviSeduta_Salva").on("click",
+            function() {
+
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    ErrorAlert("Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto);
+                    return;
+                }
+
+                var listaAtti = getListaAtti();
+
+                var obj = {};
+                obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("IscriviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalIscriviSeduta").modal("close");
+                    $("#btnIscriviSeduta_Salva").off("click");
+                    if (data.message) {
+                        ErrorAlert(data.message);
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    ErrorAlert(err.message);
+                });
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
     function IscriviSedutaDASI(uidAtto, nomeAtto) {
         $('#hfUidAtto').val(uidAtto);
         $('#btnNuovaSedutaDASI').show();
@@ -145,12 +201,12 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(async function (data) {
-                
+
                 if (data.message)
                     ErrorAlert(data.message);
                 else {
                     var seduta = await GetSedutaByData(body.Data_seduta);
-                    
+
                     var listaAtti = [];
 
                     listaAtti.push($('#hfUidAtto').val());
@@ -168,7 +224,6 @@
                     }).done(function(data) {
                         $("#modalIscriviSeduta").modal("close");
                         $("#btnIscriviSeduta_Salva").off("click");
-                        console.log(data.message);
                         if (data.message) {
                             ErrorAlert(data.message);
                         } else {
@@ -185,5 +240,5 @@
             });
         });
     }
-    
+
 </script>

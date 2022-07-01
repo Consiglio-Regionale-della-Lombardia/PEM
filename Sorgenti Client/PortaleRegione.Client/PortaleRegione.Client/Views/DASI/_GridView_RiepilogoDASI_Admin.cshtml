@@ -127,17 +127,17 @@ else
                     <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
                         <li>
                             <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.PRESENTATO))">
-                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
+                                <i class="material-icons">lock</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
                             </a>
                         </li>
                         <li>
                             <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.IN_TRATTAZIONE))">
-                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
+                                <i class="material-icons">settings_input_antenna</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
                             </a>
                         </li>
                         <li>
                             <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.CHIUSO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.CHIUSO))">
-                                <i class="material-icons">check</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
+                                <i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
                             </a>
                         </li>
                     </ul>

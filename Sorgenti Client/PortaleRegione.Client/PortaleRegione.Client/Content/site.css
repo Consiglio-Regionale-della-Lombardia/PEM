@@ -427,7 +427,7 @@ div.input-field > label { line-height: initial; }
 }
 
 .trattazioneT {
-    color: #00e5ff !important;
+    color: #00cee6 !important;
     font-weight: bold !important;
 }
 
@@ -447,7 +447,7 @@ div.input-field > label { line-height: initial; }
 }
 
 .chiusoT {
-    color: #546e7a !important;
+    color: black !important;
     font-weight: bold !important;
 }
 
@@ -553,6 +553,27 @@ div.input-field > label { line-height: initial; }
     color: lightgray;
     position: relative;
     top: 3px;
+}
+
+.presentato {
+    background-color: white;
+    border: 1px solid #2196F3;
+    color: #2196F3;
+    font-weight: bold;
+}
+
+.trattazione {
+    background-color: white;
+    border: 1px solid #00cee6;
+    color: #00cee6;
+    font-weight: bold;
+}
+
+.chiuso {
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+    font-weight: bold;
 }
 
 /*----------------------------------------

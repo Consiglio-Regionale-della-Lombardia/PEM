@@ -239,7 +239,7 @@ function AbilitaTrattazione() {
     }
 }
 
-//EVENTI EMENDAMENTO
+//EVENTI
 
 function DeselectALLEM() {
     $("#checkAll").prop("checked", false);
@@ -247,6 +247,14 @@ function DeselectALLEM() {
     setSelezionaTutti(false);
     setListaEmendamenti([]);
     AbilitaComandiMassivi(null);
+}
+
+function DeselectALLDASI() {
+    $("#checkAll").prop("checked", false);
+    $('input[id^="chk_Atto_"]').not(this).prop("checked", false);
+    setSelezionaTutti(false);
+    setListaAtti([]);
+    AbilitaComandiMassivi_DASI(null);
 }
 
 function AbilitaComandiMassivi(uidEM) {
@@ -987,6 +995,49 @@ function CambioStatoMassivo(stato, descr) {
 
             $.ajax({
                 url: baseUrl + "/emendamenti/modifica-stato",
+                type: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                DeselectALLEM();
+                location.reload();
+            }).fail(function(err) {
+                console.log("error", err);
+                ErrorAlert(err.message);
+            });
+        });
+}
+
+function CambioStatoMassivoDASI(stato, descr) {
+    var text = "";
+    var listaAtti = getListaAtti();
+    var selezionaTutti = getSelezionaTutti();
+    var text_counter = "";
+    if (selezionaTutti && listaAtti.length == 0) {
+        text_counter = $("#hdTotaleDocumenti").val();
+    } else if (selezionaTutti && listaAtti.length > 0) {
+        text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
+    } else {
+        text_counter = listaAtti.length;
+    }
+    text = "Cambia stato di " + text_counter + " atti in " + descr;
+
+    swal(text,
+            {
+                buttons: { cancel: "Annulla", confirm: "Ok" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            var obj = {};
+            obj.Stato = stato;
+            obj.Lista = listaAtti;
+            obj.All = selezionaTutti;
+
+            $.ajax({
+                url: baseUrl + "/dasi/modifica-stato",
                 type: "POST",
                 data: JSON.stringify(obj),
                 contentType: "application/json; charset=utf-8",
