@@ -102,8 +102,6 @@ namespace PortaleRegione.DTO.Domain
         public bool Ritirabile { get; set; }
         public bool Modificabile { get; set; }
         public int id_gruppo { get; set; }
-        public List<AssessoreInCaricaDto> SoggettiInterrogati { get; set; }
-        public string SoggettiInterrogati_client { get; set; }
         public List<CommissioneDto> Commissioni { get; set; }
         public string Commissioni_client { get; set; }
         public SeduteDto Seduta { get; set; }

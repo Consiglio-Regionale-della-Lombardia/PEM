@@ -368,16 +368,6 @@ namespace PortaleRegione.BAL
 
                 var soggetti = string.Empty;
 
-                #region Soggetti Interrogati
-
-                if (atto.SoggettiInterrogati.Any())
-                    soggetti = atto
-                        .SoggettiInterrogati
-                        .Select(item => "<li>" + item.nome_carica + "</li>")
-                        .Aggregate((i, j) => i + j);
-
-                #endregion
-
                 body = body.Replace("{ddlSoggettiInterrogatiATTOView}", soggetti);
 
                 var allegato_generico = string.Empty;

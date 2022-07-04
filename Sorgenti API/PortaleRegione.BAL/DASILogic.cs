@@ -199,18 +199,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (isUpdate) await _unitOfWork.DASI.RimuoviSoggetti(attoDto.UIDAtto);
-
-                if (!string.IsNullOrEmpty(attoDto.SoggettiInterrogati_client))
-                {
-                    var soggetti = attoDto
-                        .SoggettiInterrogati_client
-                        .Split(',')
-                        .Select(item => Convert.ToInt32(item));
-                    foreach (var soggetto in soggetti) _unitOfWork.DASI.AggiungiSoggetto(attoDto.UIDAtto, soggetto);
-                }
-
-                await _unitOfWork.CompleteAsync();
+                
             }
             catch (Exception e)
             {
@@ -430,10 +419,6 @@ namespace PortaleRegione.API.Controllers
                         .CheckIfNotificabile(dto,
                             persona);
                 }
-
-                var soggettiInterrogati = await _unitOfWork.DASI.GetSoggettiInterrogati(dto.UIDAtto);
-                dto.SoggettiInterrogati = soggettiInterrogati
-                    .Select(Mapper.Map<View_cariche_assessori_in_carica, AssessoreInCaricaDto>).ToList();
 
                 var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
                 dto.Commissioni = commissioni
@@ -1028,7 +1013,6 @@ namespace PortaleRegione.API.Controllers
                     {
                         Tipo = (int) tipo
                     },
-                    SoggettiInterrogabili = await GetSoggettiInterrogabili(),
                     CommissioniAttive = await GetCommissioniAttive()
                 };
 
@@ -1065,7 +1049,6 @@ namespace PortaleRegione.API.Controllers
                 if (!persona.IsSegreteriaAssemblea
                     && !persona.IsPresidente)
                     result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
-                result.Atto.SoggettiInterrogati = new List<AssessoreInCaricaDto>();
                 result.Atto.Commissioni = new List<CommissioneDto>();
                 return result;
             }
@@ -1085,7 +1068,7 @@ namespace PortaleRegione.API.Controllers
                 var dto = await GetAttoDto(atto.UIDAtto, persona, personeInDbLight);
                 var result = new DASIFormModel
                 {
-                    Atto = dto, SoggettiInterrogabili = await GetSoggettiInterrogabili(),
+                    Atto = dto,
                     CommissioniAttive = await GetCommissioniAttive()
                 };
 

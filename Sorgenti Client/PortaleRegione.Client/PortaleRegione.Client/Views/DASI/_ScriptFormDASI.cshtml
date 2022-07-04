@@ -36,14 +36,6 @@
             form_data.append("Tipo", $("#Atto_Tipo").val());
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
 
-            var soggettiInterrogati = [];
-            var commissioniCheckboxes = $('input[id^="chk_Soggetto_"]:checked');
-            commissioniCheckboxes.each(function() {
-                soggettiInterrogati.push($(this).val());
-            });
-            console.log(soggettiInterrogati);
-            form_data.append("SoggettiInterrogati_client", soggettiInterrogati);
-
             var commissioni = [];
             commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
             console.log(commissioni);
@@ -58,8 +50,6 @@
                 if (inputFileAllegatoGenerico.files.length > 0)
                     form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
             }
-            
-
 
             $.ajax({
                 url: '@Url.Action("SalvaAtto")',

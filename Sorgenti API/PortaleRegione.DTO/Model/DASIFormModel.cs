@@ -27,7 +27,6 @@ namespace PortaleRegione.DTO.Model
         public IEnumerable<PersonaDto> ListaGruppo { get; set; }
         public IEnumerable<PersonaDto> ListaAssessori { get; set; }
         public IEnumerable<PersonaDto> ListaConsiglieri { get; set; }
-        public List<AssessoreInCaricaDto> SoggettiInterrogabili { get; set; }
         public List<CommissioneDto> CommissioniAttive { get; set; }
     }
 }

@@ -97,19 +97,7 @@
                         @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
                     </div>
 
-                    <div class="form-group" style="padding-top: 10px">
-                        <label for="">Soggetti interrogabili</label>
-                        @foreach (var soggetto in Model.SoggettiInterrogabili)
-                        {
-                            var soggettoInterrogatoSelezionato = Model.Atto.SoggettiInterrogati.FirstOrDefault(item => item.id_carica == soggetto.id_carica);
-                            <p>
-                                <label>
-                                    <input type="checkbox" id="chk_Soggetto_@soggetto.id_carica" value="@soggetto.id_carica" @Html.Raw(soggettoInterrogatoSelezionato == null ? "" : "checked=\"checked\"") />
-                                    <span>@soggetto.nome_carica</span>
-                                </label>
-                            </p>
-                        }
-                    </div>
+                    
 
                     <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Atto.Richiesta)
