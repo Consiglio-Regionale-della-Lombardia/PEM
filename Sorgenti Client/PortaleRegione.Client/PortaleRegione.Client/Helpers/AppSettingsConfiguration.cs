@@ -24,5 +24,10 @@ namespace PortaleRegione.Client.Helpers
     {
         public static string Logo => ConfigurationManager.AppSettings["logo"];
         public static string Title => ConfigurationManager.AppSettings["title"];
+        public static string GEASI_URL => ConfigurationManager.AppSettings["GEASI_Url"];
+        public static string GEASI_USERNAME => ConfigurationManager.AppSettings["GEASI_Username"];
+        public static string GEASI_PASSWORD => ConfigurationManager.AppSettings["GEASI_Password"];
+        public static string URL_CLIENT => ConfigurationManager.AppSettings["URL_CLIENT"];
+        public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
     }
 }

@@ -38,6 +38,23 @@ namespace PortaleRegione.Client.Controllers
             {
                 CheckCacheClientMode();
 
+                return View("Index");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        
+        [HttpGet]
+        [Route("cruscotto")]
+        public async Task<ActionResult> Cruscotto()
+        {
+            try
+            {
+                CheckCacheClientMode();
+
                 var apiGateway = new ApiGateway(_Token);
                 var model = new DashboardModel
                 {
@@ -54,7 +71,7 @@ namespace PortaleRegione.Client.Controllers
                         model.DASI.Add(attiDASI);
                 }
 
-                return View("Index", model);
+                return View("Cruscotto", model);
             }
             catch (Exception e)
             {

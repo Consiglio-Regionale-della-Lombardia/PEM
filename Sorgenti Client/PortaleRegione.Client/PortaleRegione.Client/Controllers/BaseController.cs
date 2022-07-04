@@ -95,7 +95,7 @@ namespace PortaleRegione.Client.Controllers
         protected override void Initialize(RequestContext requestContext)
         {
             base.Initialize(requestContext);
-            BaseGateway.apiUrl = ConfigurationManager.AppSettings["URL_API"];
+            BaseGateway.apiUrl = AppSettingsConfiguration.URL_API;
         }
 
         internal void CheckCacheClientMode()

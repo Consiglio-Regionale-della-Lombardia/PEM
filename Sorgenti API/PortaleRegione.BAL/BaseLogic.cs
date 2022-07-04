@@ -148,7 +148,13 @@ namespace PortaleRegione.BAL
                 var result = string.Empty;
 
                 if (!string.IsNullOrEmpty(nAtto))
+                {
                     result = DecryptString(nAtto, AppSettingsConfiguration.masterKey);
+                    if (result.Contains("_"))
+                    {
+                        result = result.Split('_')[0];
+                    }
+                }
                 else
                     result = "TEMP " + progressivo;
 

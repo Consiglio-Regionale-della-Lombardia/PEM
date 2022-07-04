@@ -1,4 +1,5 @@
 ﻿@using System.Configuration
+@using PortaleRegione.Client.Helpers
 @model PortaleRegione.DTO.Response.ProiettaResponse
 
 @{
@@ -21,7 +22,7 @@
     @Scripts.Render("~/bundles/logic")
 
     <script>
-        baseUrl = '@Html.Raw(ConfigurationManager.AppSettings["URL_CLIENT"])';
+        baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
         AggiornaPosizioneTemi(baseUrl);
         var cssTheme = "";
         var mode = getClientMode();

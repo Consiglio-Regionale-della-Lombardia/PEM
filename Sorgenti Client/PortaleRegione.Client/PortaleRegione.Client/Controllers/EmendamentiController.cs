@@ -94,6 +94,34 @@ namespace PortaleRegione.Client.Controllers
             return View("RiepilogoEM", composeModel);
         }
 
+        /// <summary>
+        ///     Controller per visualizzare i dati degli emendamenti contenuti in un atto
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <param name="page">Pagina corrente</param>
+        /// <param name="size">Paginazione</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("seduta/{id:guid}")]
+        public async Task<ActionResult> RiepilogoEmendamentiInSeduta(Guid id)
+        {
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            if (mode != (int)ClientModeEnum.TRATTAZIONE)
+            {
+                HttpContext.Cache.Insert(
+                    CacheHelper.CLIENT_MODE,
+                    (int)ClientModeEnum.TRATTAZIONE,
+                    null,
+                    Cache.NoAbsoluteExpiration,
+                    Cache.NoSlidingExpiration,
+                    CacheItemPriority.NotRemovable,
+                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
+                );
+            }
+
+            return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new {id});
+        }
+
         private async Task<EmendamentiViewModel> ComposeModel(Guid id, ClientModeEnum mode,
             OrdinamentoEnum ordine, ViewModeEnum view, int page,
             int size, bool view_require_my_sign)
