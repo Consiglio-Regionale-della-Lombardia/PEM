@@ -33,13 +33,13 @@
                             <div class="input-field col s4">
                                 <select id="qTipo" name="filtro_tipo" onchange="filter_dasi_tipo_OnChange()">
                                 </select>
-                                <label>Tipo</label>
+                                <label for="qTipo">Tipo</label>
                             </div>
                         }
                         <div class="input-field col s4">
                             <select id="qStato" name="filtro_stato" onchange="filter_dasi_stato_OnChange()">
                             </select>
-                            <label>Stato</label>
+                            <label for="qStato">Stato</label>
                         </div>
                         <div class="input-field col s4">
                             <select id="qTipoRisposta" name="filtro_tipo_risposta" onchange="filter_dasi_tipo_risposta_OnChange()">
@@ -48,7 +48,7 @@
                                 <option value="@((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
                                 <option value="@((int) TipoRispostaEnum.COMMISSIONE)">In Commissione</option>
                             </select>
-                            <label>Tipo Risposta</label>
+                            <label for="qTipoRisposta">Tipo Risposta</label>
                         </div>
                         <div class="input-field col s8">
                             <input placeholder="--" id="qNAtto" name="filtro_natto" type="text" onchange="filter_dasi_natto_OnChange()">
@@ -58,17 +58,21 @@
                             <input placeholder="--" id="qNAtto2" name="filtro_natto2" type="text" onchange="filter_dasi_natto2_OnChange()">
                             <label for="qNAtto2">Al Numero <i>(opzionale)</i></label>
                         </div>
-                        <div class="input-field col s4">
+                        <div class="input-field col s3">
                             <input type="date" id="qDataPresentazioneDA" name="filtro_da" class="form-control" onchange="filter_dasi_da_OnChange()" />
                             <label for="qDataPresentazioneDA">Data Presentazione</label>
                         </div>
-                        <div class="input-field col s4">
+                        <div class="input-field col s3">
                             <input type="date" id="qDataPresentazioneA" name="filtro_a" class="form-control" onchange="filter_dasi_a_OnChange()" />
                             <label for="qDataPresentazioneA">Alla Data Presentazione <i>(opzionale)</i></label>
                         </div>
-                        <div class="input-field col s4">
+                        <div class="input-field col s3">
+                            <input type="date" id="qDataSeduta" name="filtro_data_seduta" class="form-control" onchange="filter_dasi_data_seduta_OnChange()" />
+                            <label for="qDataSeduta">Data seduta</label>
+                        </div>
+                        <div class="input-field col s3">
                             <select id="qLegislatura" name="filtro_legislatura" class="form-control" onchange="filter_dasi_legislatura_OnChange()" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")></select>
-                            <label>Legislatura</label>
+                            <label for="qLegislatura">Legislatura</label>
                         </div>
                         <div class="input-field col s12">
                             <input placeholder="--" id="qOggetto" name="filtro_oggetto" type="text" onchange="filter_dasi_oggetto_OnChange()">
