@@ -760,6 +760,19 @@ function GetTitoliMissioni() {
 }
 
 //DASI
+function Filtri_DASI_CaricaNAtto(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.natto;
+        highlight(filterSelect);
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
 function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
@@ -825,6 +838,15 @@ async function Filtri_DASI_CaricaTipo(ctrlSelect) {
     }
 }
 
+function Filtri_DASI_CaricaTipoRisposta(ctrlSelect) {
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        $('#' + ctrlSelect).val(filtri.tipo_risposta);
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
 async function Filtri_DASI_CaricaSoggetti(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
@@ -882,6 +904,36 @@ async function SetupFiltriSoggettiDestinatari() {
     M.FormSelect.init(elems, null);
 }
 
+async function Filtri_DASI_CaricaLegislature(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.legislatura;
+    }
+
+    var legislature = await GetLegislature();
+    if (!filterSelect) {
+        filterSelect = legislature[0].id_legislatura;
+    }
+    if (legislature.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+
+        $.each(legislature,
+            function (index, item) {
+                var template = "";
+                if (item.id_legislatura == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.id_legislatura).html(item.num_legislatura));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
 function filter_dasi_oggetto_OnChange() {
     var value = $("#qOggetto").val();
     var filtri = get_Filtri_DASI();
@@ -893,6 +945,20 @@ function filter_dasi_stato_OnChange() {
     var value = $("#qStato").val();
     var filtri = get_Filtri_DASI();
     filtri.stato = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_natto_OnChange() {
+    var value = $("#qNAtto").val();
+    var filtri = get_Filtri_DASI();
+    filtri.natto = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_legislatura_OnChange() {
+    var value = $("#qLegislatura").val();
+    var filtri = get_Filtri_DASI();
+    filtri.legislatura = value;
     set_Filtri_DASI(filtri);
 }
 

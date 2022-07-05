@@ -1,5 +1,7 @@
-﻿@using PortaleRegione.Common
+﻿@using System.Web.Services.Description
+@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Client.Helpers.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @if (!Model.Data.Results.Any())
@@ -71,7 +73,7 @@ else
                                         <h5 style="margin-top: 7px">
                                             <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
                                         </h5>
-                                        <h6>@Utility.MetaDatiEM_Label(itemEM)</h6>
+                                        <h6>@PortaleRegione.Common.Utility.MetaDatiEM_Label(itemEM)</h6>
                                         @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
                                         {
                                             <h6 style="font-size: small; font-weight: bold; padding-top: 10px">

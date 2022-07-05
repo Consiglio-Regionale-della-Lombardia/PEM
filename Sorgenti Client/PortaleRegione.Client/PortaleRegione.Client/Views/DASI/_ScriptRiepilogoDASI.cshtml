@@ -28,10 +28,12 @@
             });
         }
 
+        Filtri_DASI_CaricaNAtto("qNAtto");
         Filtri_DASI_CaricaOggetto("qOggetto");
+        Filtri_DASI_CaricaTipoRisposta("qTipoRisposta");
         await Filtri_DASI_CaricaStato("qStato");
         await Filtri_DASI_CaricaTipo("qTipo");
-        await SetupFiltriSoggettiDestinatari();
+        await Filtri_DASI_CaricaLegislature("qLegislatura");
 
         checkSelectedDASI();
     });

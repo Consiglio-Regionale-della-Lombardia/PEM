@@ -732,9 +732,11 @@ namespace PortaleRegione.Client.Controllers
             var filtro_stato = Request.Form["filtro_stato"];
             var filtro_tipo = Request.Form["filtro_tipo"];
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
+            var filtro_natto = Request.Form["filtro_natto"];
             var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
+            var filtro_legislatura = Request.Form["filtro_legislatura"];
 
             var model = new BaseRequest<AttoDASIDto>
             {
@@ -743,12 +745,14 @@ namespace PortaleRegione.Client.Controllers
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode }, { "VIEW_MODE", view } },
             };
 
-            Common.Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
-            Common.Utility.AddFilter_ByStato(ref model, filtro_stato);
-            Common.Utility.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
-            Common.Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
-            Common.Utility.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
-            Common.Utility.AddFilter_BySeduta(ref model, filtro_seduta);
+            Utility.AddFilter_ByNumeroAtto(ref model, filtro_natto);
+            Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
+            Utility.AddFilter_ByStato(ref model, filtro_stato);
+            Utility.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
+            Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
+            Utility.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
+            Utility.AddFilter_BySeduta(ref model, filtro_seduta);
+            Utility.AddFilter_ByLegislatura(ref model, filtro_legislatura);
             
             return model;
         }

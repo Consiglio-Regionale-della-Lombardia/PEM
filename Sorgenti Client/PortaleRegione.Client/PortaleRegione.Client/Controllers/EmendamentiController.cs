@@ -1132,19 +1132,19 @@ namespace PortaleRegione.Client.Controllers
                 id = new Guid(atto)
             };
 
-            Common.Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
-            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em);
-            Common.Utility.AddFilter_ByState(ref model, filtro_stato);
-            Common.Utility.AddFilter_ByPart(ref model,
+            Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
+            Utility.AddFilter_ByNUM(ref model, filtro_n_em);
+            Utility.AddFilter_ByState(ref model, filtro_stato);
+            Utility.AddFilter_ByPart(ref model,
                 filtro_parte, filtro_parte_titolo, filtro_parte_capo,
                 filtro_parte_articolo, filtro_parte_comma, filtro_parte_lettera, filtro_parte_letteraOLD,
                 filtro_parte_missione, filtro_parte_programma);
-            Common.Utility.AddFilter_ByType(ref model, filtro_tipo);
-            Common.Utility.AddFilter_My(ref model, _CurrentUser.UID_persona, filtro_my);
-            Common.Utility.AddFilter_Financials(ref model, filtro_effetti_finanziari);
-            Common.Utility.AddFilter_Groups(ref model, filtro_gruppo);
-            Common.Utility.AddFilter_Proponents(ref model, filtro_proponente);
-            Common.Utility.AddFilter_Signers(ref model, filtro_firmatari);
+            Utility.AddFilter_ByType(ref model, filtro_tipo);
+            Utility.AddFilter_My(ref model, _CurrentUser.UID_persona, filtro_my);
+            Utility.AddFilter_Financials(ref model, filtro_effetti_finanziari);
+            Utility.AddFilter_Groups(ref model, filtro_gruppo);
+            Utility.AddFilter_Proponents(ref model, filtro_proponente);
+            Utility.AddFilter_Signers(ref model, filtro_firmatari);
 
             return model;
         }

@@ -867,6 +867,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
+                    atto.NAtto_search = contatore_progressivo;
                     atto.Etichetta = etichetta_progressiva;
                     atto.UIDPersonaPresentazione = persona.UID_persona;
                     atto.OrdineVisualizzazione = contatore_progressivo;
