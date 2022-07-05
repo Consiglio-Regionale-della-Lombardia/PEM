@@ -74,7 +74,7 @@ namespace PortaleRegione.Domain
         public int id_gruppo { get; set; }
         public bool Eliminato { get; set; } = false;
         public string chkf { get; set; }
-        public DateTime? Timestamp { get; set; }
+        public DateTime Timestamp { get; set; } = new DateTime(1970, 1, 1);
         public string Atto_Certificato { get; set; }
         public Guid? UIDPersonaElimina { get; set; }
         public DateTime? DataElimina { get; set; }

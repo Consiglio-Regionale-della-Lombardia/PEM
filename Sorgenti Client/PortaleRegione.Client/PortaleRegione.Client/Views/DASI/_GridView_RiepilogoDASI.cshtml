@@ -116,7 +116,14 @@ else
                         </a>
                     }
                 </td>
-                <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato))">
+                @{
+                    var tooltipStato = "Non ancora presentato";
+                    if (item.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                    {
+                        tooltipStato = $"Presentato il {item.DataPresentazione}";
+                    }
+                }
+                <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
                     @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato))
                 </td>
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)

@@ -786,6 +786,32 @@ function Filtri_DASI_CaricaNAtto2(ctrlSelect) {
     select.val(filterSelect);
 }
 
+function Filtri_DASI_CaricaDataPresentazioneDA(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.da;
+        highlight(filterSelect);
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function Filtri_DASI_CaricaDataPresentazioneA(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.a;
+        highlight(filterSelect);
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
 function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
@@ -945,6 +971,20 @@ async function Filtri_DASI_CaricaLegislature(ctrlSelect) {
         var elems = document.querySelectorAll("#" + ctrlSelect);
         M.FormSelect.init(elems, null);
     }
+}
+
+function filter_dasi_da_OnChange() {
+    var value = $("#qDataPresentazioneDA").val();
+    var filtri = get_Filtri_DASI();
+    filtri.da = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_a_OnChange() {
+    var value = $("#qDataPresentazioneA").val();
+    var filtri = get_Filtri_DASI();
+    filtri.a = value;
+    set_Filtri_DASI(filtri);
 }
 
 function filter_dasi_oggetto_OnChange() {

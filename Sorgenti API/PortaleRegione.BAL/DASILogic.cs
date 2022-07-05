@@ -872,7 +872,7 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaPresentazione = persona.UID_persona;
                     atto.OrdineVisualizzazione = contatore_progressivo;
                     atto.Timestamp = DateTime.Now;
-                    atto.DataPresentazione = EncryptString(atto.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
+                    atto.DataPresentazione = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
                     atto.IDStato = (int) StatiAttoEnum.PRESENTATO;
 

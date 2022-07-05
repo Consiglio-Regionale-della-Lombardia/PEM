@@ -734,6 +734,8 @@ namespace PortaleRegione.Client.Controllers
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
             var filtro_natto = Request.Form["filtro_natto"];
             var filtro_natto2 = Request.Form["filtro_natto2"];
+            var filtro_da = Request.Form["filtro_da"];
+            var filtro_a = Request.Form["filtro_a"];
             var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
@@ -747,7 +749,8 @@ namespace PortaleRegione.Client.Controllers
             };
 
             Utility.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
-            Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
+            Utility.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
+            Utility.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
             Utility.AddFilter_ByStato(ref model, filtro_stato);
             Utility.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
             Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);

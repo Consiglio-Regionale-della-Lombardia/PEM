@@ -59,15 +59,21 @@
                 contentType: false
             }).done(function(data) {
                 console.log(data);
-
-                swal({
-                    title: "Procedura completata",
-                    text: "Atto inserito correttamente a sistema.",
-                    icon: "success"
-                }).then((value) => {
-                    go(data);
-                });
-
+                if (data.message) {
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
+                } else {
+                    swal({
+                        title: "Procedura completata",
+                        text: "Atto inserito correttamente a sistema.",
+                        icon: "success"
+                    }).then((value) => {
+                        go(data);
+                    });
+                }
             }).fail(function(err) {
                 console.log("error", err);
                 ErrorAlert(err.message);

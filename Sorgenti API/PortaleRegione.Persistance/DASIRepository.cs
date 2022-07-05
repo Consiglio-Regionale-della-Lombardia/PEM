@@ -56,7 +56,25 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(item => !item.Eliminato);
 
-            filtro?.BuildExpression(ref query);
+            var filtro2 = new Filter<ATTI_DASI>();
+            foreach (var f in filtro.Statements)
+            {
+                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
+                {
+                    filtro2._statements.Add(f);
+                }
+                else if(f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
+                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
+                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
+                                                || item.Premesse.Contains(f.Value.ToString())
+                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta.Contains(f.Value.ToString()));
+                }
+            }
+
+            filtro2.BuildExpression(ref query);
 
             if (mode == ClientModeEnum.GRUPPI)
                 if (persona.IsSegreteriaAssemblea)
@@ -90,7 +108,25 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(item => !item.Eliminato);
 
-            filtro?.BuildExpression(ref query);
+            var filtro2 = new Filter<ATTI_DASI>();
+            foreach (var f in filtro.Statements)
+            {
+                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
+                {
+                    filtro2._statements.Add(f);
+                }
+                else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
+                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
+                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
+                                                || item.Premesse.Contains(f.Value.ToString())
+                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta.Contains(f.Value.ToString()));
+                }
+            }
+
+            filtro2?.BuildExpression(ref query);
 
             if (persona.IsSegreteriaAssemblea)
                 query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
@@ -118,7 +154,25 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(item => !item.Eliminato);
 
-            filtro?.BuildExpression(ref query);
+            var filtro2 = new Filter<ATTI_DASI>();
+            foreach (var f in filtro.Statements)
+            {
+                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
+                {
+                    filtro2._statements.Add(f);
+                }
+                else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
+                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
+                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
+                                                || item.Premesse.Contains(f.Value.ToString())
+                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta.Contains(f.Value.ToString()));
+                }
+            }
+
+            filtro2?.BuildExpression(ref query);
 
             return await query
                 .CountAsync();
@@ -133,7 +187,25 @@ namespace PortaleRegione.Persistance
                     .DASI
                     .Where(item => !item.Eliminato);
 
-                filtro?.BuildExpression(ref query);
+                var filtro2 = new Filter<ATTI_DASI>();
+                foreach (var f in filtro.Statements)
+                {
+                    if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
+                    {
+                        filtro2._statements.Add(f);
+                    }
+                    else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                    {
+                        query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
+                                                    || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                    || item.Richiesta_Modificata.Contains(f.Value.ToString())
+                                                    || item.Premesse.Contains(f.Value.ToString())
+                                                    || item.Premesse_Modificato.Contains(f.Value.ToString())
+                                                    || item.Richiesta.Contains(f.Value.ToString()));
+                    }
+                }
+
+                filtro2?.BuildExpression(ref query);
 
                 if (clientMode == ClientModeEnum.GRUPPI)
                 {

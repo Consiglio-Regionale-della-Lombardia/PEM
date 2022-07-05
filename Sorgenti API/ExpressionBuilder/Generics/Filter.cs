@@ -37,7 +37,7 @@ namespace ExpressionBuilder.Generics
     [Serializable]
     public class Filter<T> : IFilter, IXmlSerializable where T : class
     {
-        private List<IFilterStatement> _statements;
+        public List<IFilterStatement> _statements;
 
         /// <summary>
         ///     Instantiates a new <see cref="Filter{TClass}" />

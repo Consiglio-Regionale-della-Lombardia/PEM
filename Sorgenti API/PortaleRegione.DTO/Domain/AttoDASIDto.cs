@@ -89,7 +89,7 @@ namespace PortaleRegione.DTO.Domain
         public string Atto_Certificato { get; set; } = "";
         public string BodyAtto { get; set; }
         public string Firme { get; set; }
-        public DateTime? Timestamp { get; set; }
+        public DateTime Timestamp { get; set; }
         public string Firme_dopo_deposito { get; set; }
         public string Destinatari { get; set; }
         public PersonaLightDto PersonaModifica { get; set; }

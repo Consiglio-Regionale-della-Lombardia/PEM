@@ -116,7 +116,15 @@ else
                     }
                 </td>
                 <td style="width: 6%;">
-                    <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato))">
+                    @{
+                        var tooltipStato = "Non ancora presentato";
+                        if (item.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                        {
+                            tooltipStato = $"Presentato il {item.DataPresentazione}";
+                        }
+                    }
+
+                    <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
                         @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
                     </span>
                     <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
