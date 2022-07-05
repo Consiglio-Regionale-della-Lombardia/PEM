@@ -896,6 +896,13 @@ function filter_dasi_stato_OnChange() {
     set_Filtri_DASI(filtri);
 }
 
+function filter_dasi_tipo_risposta_OnChange() {
+    var value = $("#qTipoRisposta").val();
+    var filtri = get_Filtri_DASI();
+    filtri.tipo_risposta = value;
+    set_Filtri_DASI(filtri);
+}
+
 function filter_dasi_tipo_OnChange() {
     var value = $("#qTipo").val();
     var filtri = get_Filtri_DASI();

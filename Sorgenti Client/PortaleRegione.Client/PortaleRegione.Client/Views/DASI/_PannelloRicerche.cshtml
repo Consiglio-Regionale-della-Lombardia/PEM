@@ -1,4 +1,5 @@
 ﻿@using System.Linq;
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
@@ -41,8 +42,13 @@
                             <label for="qOggetto">Oggetto</label>
                         </div>
                         <div class="input-field col s12">
-                            <select multiple id="qSoggettoDestinatarioDasi" name="filtro_soggetto_dest" onchange="filter_dasi_soggetti_dest_OnChange()"></select>
-                            <label>Soggetto interrogato</label>
+                            <select id="qTipoRisposta" name="filtro_tipo_risposta" onchange="filter_dasi_tipo_risposta_OnChange()">
+                                <option value="" sele>--</option>
+                                <option value="@((int)TipoRispostaEnum.ORALE)">Orale</option>
+                                <option value="@((int)TipoRispostaEnum.SCRITTO)">Scritto</option>
+                                <option value="@((int)TipoRispostaEnum.COMMISSIONE)">In Commissione</option>
+                            </select>
+                            <label>Tipo Risposta</label>
                         </div>
                         <div class="input-field col s12 center" style="padding-top: 30px">
                             <a class="btn chip hoverable blue center white-text" style="min-width: unset !important" onclick="filtra(1)">

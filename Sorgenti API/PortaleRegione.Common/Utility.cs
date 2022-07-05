@@ -642,6 +642,22 @@ namespace PortaleRegione.Common
                 }
         }
 
+        public static void AddFilter_ByTipoRisposta(ref BaseRequest<AttoDASIDto> model, string filtroTipoRisposta)
+        {
+            if (!string.IsNullOrEmpty(filtroTipoRisposta))
+                if (filtroTipoRisposta != Convert.ToInt32(StatiAttoEnum.TUTTI).ToString())
+                {
+                    var operation = Operation.EqualTo;
+                    model.filtro.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = nameof(AttoDASIDto.IDTipo_Risposta),
+                        Operation = operation,
+                        Value = filtroTipoRisposta,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+        }
+
         public static void AddFilter_ByTipo(ref BaseRequest<AttoDASIDto> model, string filtroTipo,
             string filtroTipoTrattazione, ClientModeEnum mode)
         {
