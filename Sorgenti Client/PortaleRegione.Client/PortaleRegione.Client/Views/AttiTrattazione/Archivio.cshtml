@@ -62,21 +62,9 @@
                             }
                         </div>
                         <div class="col s2">
-                            @if (!seduta.Data_apertura.HasValue)
-                            {
-                                <div class="chip grey" style="margin-left: -20px;min-width: unset">Chiusa</div>
-                            }
-                            else if (seduta.Data_apertura.Value > DateTime.Now)
-                            {
-                                <div class="chip grey" style="margin-left: -20px;min-width: unset">Chiusa</div>
-                            }
-                            else
-                            {
-                                <a class="btn-floating green" onclick="go('@Url.Action("Index", "AttiTrattazione", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
-                                    <i class="material-icons">chevron_right</i>
-                                </a>
-                            }
-
+                            <a class="btn-floating green" onclick="go('@Url.Action("Index", "AttiTrattazione", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
                         </div>
                     </div>
                 </div>
