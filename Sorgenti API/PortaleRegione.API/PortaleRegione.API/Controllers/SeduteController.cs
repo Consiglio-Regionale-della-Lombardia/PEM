@@ -148,9 +148,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!sedutaDto.Data_seduta.HasValue)
+                if (sedutaDto.Data_seduta <= DateTime.Now)
                 {
-                    return BadRequest("Manca la data seduta");
+                    return BadRequest("Data seduta non valida");
                 }
 
                 var session = GetSession();

@@ -141,7 +141,7 @@ else
                     }
                     else if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
                     {
-                        var textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
+                        var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
                         var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
                         <td>
                             <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">

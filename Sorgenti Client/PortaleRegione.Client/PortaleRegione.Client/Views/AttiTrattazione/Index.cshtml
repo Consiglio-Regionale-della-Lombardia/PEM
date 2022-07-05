@@ -3,7 +3,7 @@
 @model PortaleRegione.DTO.Model.DashboardModel
 
 @{
-    ViewBag.Title = $"Seduta del {Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")}";
+    ViewBag.Title = $"Seduta del {Model.Seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")}";
 }
 
 <div class="row">

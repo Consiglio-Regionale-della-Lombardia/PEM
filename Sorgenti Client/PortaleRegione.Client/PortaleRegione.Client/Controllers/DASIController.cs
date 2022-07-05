@@ -22,6 +22,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
@@ -702,9 +704,8 @@ namespace PortaleRegione.Client.Controllers
             }
 
             var apiGateway = new ApiGateway(_Token);
-            var model = ElaboraFiltri();
+            var model = await ElaboraFiltri();
             var result = await apiGateway.DASI.Get(model);
-
 
             result.ClientMode = mode;
             if (Convert.ToInt16(view) == (int)ViewModeEnum.PREVIEW)
@@ -722,7 +723,7 @@ namespace PortaleRegione.Client.Controllers
             return View("RiepilogoDASI", result);
         }
 
-        private BaseRequest<AttoDASIDto> ElaboraFiltri()
+        private async Task<BaseRequest<AttoDASIDto>> ElaboraFiltri()
         {
             var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
             int.TryParse(Request.Form["page"], out var filtro_page);
@@ -736,6 +737,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_natto2 = Request.Form["filtro_natto2"];
             var filtro_da = Request.Form["filtro_da"];
             var filtro_a = Request.Form["filtro_a"];
+            var filtro_data_seduta = Request.Form["filtro_data_seduta"];
             var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
@@ -748,17 +750,66 @@ namespace PortaleRegione.Client.Controllers
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode }, { "VIEW_MODE", view } },
             };
 
-            Utility.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
-            Utility.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
-            Utility.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
-            Utility.AddFilter_ByStato(ref model, filtro_stato);
-            Utility.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
-            Utility.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
-            Utility.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
-            Utility.AddFilter_BySeduta(ref model, filtro_seduta);
-            Utility.AddFilter_ByLegislatura(ref model, filtro_legislatura);
+            var util = new UtilityFilter();
+
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
+            var sedutaUId = await GetSedutaByData(filtro_data_seduta);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByDataSeduta(ref model, sedutaUId);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByStato(ref model, filtro_stato);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_BySeduta(ref model, filtro_seduta);
+            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
+            util.AddFilter_ByLegislatura(ref model, filtro_legislatura);
             
             return model;
+        }
+
+        private async Task<Guid> GetSedutaByData(string filtroDataSeduta)
+        {
+            var result = Guid.Empty;
+            DateTime data;
+            var success = DateTime.TryParse(filtroDataSeduta, out data);
+
+            if (success)
+            {
+                var modelSedute = new BaseRequest<SeduteDto>()
+                {
+                    filtro = new List<FilterStatement<SeduteDto>>()
+                    {
+                        new FilterStatement<SeduteDto>()
+                        {
+                            PropertyId = nameof(SeduteDto.Data_seduta),
+                            Operation = Operation.GreaterThanOrEqualTo,
+                            Value = data.ToString("yyyy-MM-dd") + " 00:00:01"
+                        },
+                        new FilterStatement<SeduteDto>()
+                        {
+                            PropertyId = nameof(SeduteDto.Data_seduta),
+                            Operation = Operation.LessThanOrEqualTo,
+                            Value = data.ToString("yyyy-MM-dd") + " 23:59:59"
+                        }
+                    }
+                };
+                var gate = new ApiGateway(_Token);
+                var resultSedute = await gate.Sedute.Get(modelSedute);
+                if (resultSedute.Results.Any())
+                {
+                    result = resultSedute.Results.First().UIDSeduta;
+                }
+            }
+
+            return result;
         }
 
         //FILTRI

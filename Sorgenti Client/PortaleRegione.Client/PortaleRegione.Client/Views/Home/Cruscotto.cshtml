@@ -24,7 +24,7 @@
                         <li class="active grey lighten-4">
                             <div class="collapsible-header black-text">
                                 <i class="material-icons">event</i>
-                                Seduta del @seduta.Data_seduta.Value.ToString("dd/MM/yyyy HH:mm")
+                                Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")
                                 @if (seduta.Scadenza_presentazione.HasValue)
                                 {
                                     <label style="position: absolute; right: 50px;"> Scadenza presentazione: @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")</label>

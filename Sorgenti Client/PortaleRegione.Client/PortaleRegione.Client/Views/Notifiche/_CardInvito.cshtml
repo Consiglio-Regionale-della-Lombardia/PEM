@@ -7,7 +7,7 @@
     var sub_titolo = string.Empty;
     if (Model.IsPem)
     {
-        titolo = string.Format("Seduta del {0:dd/MM/yyyy}", Model.EM.ATTI.SEDUTE.Data_seduta.Value);
+        titolo = $"Seduta del {Model.EM.ATTI.SEDUTE.Data_seduta:dd/MM/yyyy}";
         var isSubEM = Model.EM.Rif_UIDEM.HasValue;
         var progressivo = Model.EM.Progressivo.Value;
         var title = "TEMP";

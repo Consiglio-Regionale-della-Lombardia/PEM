@@ -159,7 +159,7 @@ else
 
                     if (item.UIDSeduta.HasValue)
                     {
-                        textSeduta = $"Seduta del {item.Seduta.Data_seduta.Value:dd/MM/yyyy}";
+                        textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
                         tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
                         <div class="chip hoverable badgeSeduta tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
                             @textSeduta
