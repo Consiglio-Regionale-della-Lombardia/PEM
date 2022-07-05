@@ -47,13 +47,13 @@ namespace PortaleRegione.Client.Controllers
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int) ViewModeEnum.GRID,
             int stato = (int) StatiAttoEnum.BOZZA, int tipo = (int) TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser);
             SetCache(page, size, tipo, stato, view);
-            if (view == (int)ViewModeEnum.PREVIEW)
+            if (view == (int) ViewModeEnum.PREVIEW)
             {
                 model.ViewMode = ViewModeEnum.PREVIEW;
                 foreach (var atti in model.Data.Results)
@@ -75,8 +75,9 @@ namespace PortaleRegione.Client.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("seduta")]
-        public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int)TipoAttoEnum.TUTTI, int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
-            int stato = (int)StatiAttoEnum.PRESENTATO)
+        public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int) TipoAttoEnum.TUTTI,
+            int page = 1, int size = 50, int view = (int) ViewModeEnum.GRID,
+            int stato = (int) StatiAttoEnum.PRESENTATO)
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum) tipo, page, size);
@@ -84,13 +85,14 @@ namespace PortaleRegione.Client.Controllers
             model.ClientMode = ClientModeEnum.TRATTAZIONE;
 
             SetCache(page, size, tipo, stato, view);
-            if (view == (int)ViewModeEnum.PREVIEW)
+            if (view == (int) ViewModeEnum.PREVIEW)
             {
                 model.ViewMode = ViewModeEnum.PREVIEW;
                 foreach (var atti in model.Data.Results)
                     atti.BodyAtto =
                         await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
             }
+
             Session["RiepilogoDASI"] = model;
 
             if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
@@ -153,19 +155,15 @@ namespace PortaleRegione.Client.Controllers
                     || !string.IsNullOrEmpty(atto.Premesse_Modificato)
                     || !string.IsNullOrEmpty(atto.Richiesta_Modificata)
                     || string.IsNullOrEmpty(atto.Atto_Certificato))
-                {
                     atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML);
-                }
                 else
-                {
                     atto.BodyAtto = atto.Atto_Certificato;
-                }
 
                 atto.Firme = await Utility.GetFirmatari(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                     _CurrentUser.UID_persona, _Token);
 
-                if (atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                if (atto.IDStato <= (int) StatiAttoEnum.PRESENTATO)
                     atto.Destinatari =
                         await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), _Token);
 
@@ -252,7 +250,7 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
                     throw new NotImplementedException("Azione non funzionante");
-                
+
                 switch (model.Azione)
                 {
                     case ActionEnum.FIRMA:
@@ -568,7 +566,6 @@ namespace PortaleRegione.Client.Controllers
         //        //Ritorna la griglia
         //    }
         //}
-
         [HttpGet]
         [Route("{id:guid}/meta-data")]
         public async Task<ActionResult> GetMetaData(Guid id)
@@ -577,7 +574,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 var atto = await apiGateway.DASI.Get(id);
-                
+
                 return Json(atto, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -635,7 +632,7 @@ namespace PortaleRegione.Client.Controllers
         {
             HttpContext.Cache.Insert(
                 CacheHelper.TIPO_DASI,
-                (int) tipo,
+                tipo,
                 null,
                 Cache.NoAbsoluteExpiration,
                 Cache.NoSlidingExpiration,
@@ -645,7 +642,7 @@ namespace PortaleRegione.Client.Controllers
 
             HttpContext.Cache.Insert(
                 CacheHelper.STATO_DASI,
-                (int) stato,
+                stato,
                 null,
                 Cache.NoAbsoluteExpiration,
                 Cache.NoSlidingExpiration,
@@ -672,7 +669,7 @@ namespace PortaleRegione.Client.Controllers
                 CacheItemPriority.NotRemovable,
                 (key, value, reason) => { Console.WriteLine("Cache removed"); }
             );
-            
+
             HttpContext.Cache.Insert(
                 CacheHelper.VIEW_MODE_DASI,
                 viewModeEnum,
@@ -690,17 +687,18 @@ namespace PortaleRegione.Client.Controllers
         {
             Session["RiepilogoDASI"] = null;
             int.TryParse(Request.Form["reset"], out var reset_enabled);
-            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
             var view = Request.Form["view"];
 
             if (reset_enabled == 1)
             {
                 if (mode == ClientModeEnum.GRUPPI)
                     return RedirectToAction("RiepilogoDASI", "DASI");
-                
+
                 var filtro_tipo_trattazione = Request.Form["Tipo"];
                 var filtro_seduta = Request.Form["UIDSeduta"];
-                return RedirectToAction("RiepilogoDASI_BySeduta", "DASI", new {id = filtro_seduta, tipo = filtro_tipo_trattazione} );
+                return RedirectToAction("RiepilogoDASI_BySeduta", "DASI",
+                    new {id = filtro_seduta, tipo = filtro_tipo_trattazione});
             }
 
             var apiGateway = new ApiGateway(_Token);
@@ -708,16 +706,14 @@ namespace PortaleRegione.Client.Controllers
             var result = await apiGateway.DASI.Get(model);
 
             result.ClientMode = mode;
-            if (Convert.ToInt16(view) == (int)ViewModeEnum.PREVIEW)
-            {
+            if (Convert.ToInt16(view) == (int) ViewModeEnum.PREVIEW)
                 foreach (var atti in result.Data.Results)
                     atti.BodyAtto =
                         await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
-            }
 
             Session["RiepilogoDASI"] = result;
 
-            if (CanAccess(new List<RuoliIntEnum> { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+            if (CanAccess(new List<RuoliIntEnum> {RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea}))
                 return View("RiepilogoDASI_Admin", result);
 
             return View("RiepilogoDASI", result);
@@ -725,7 +721,7 @@ namespace PortaleRegione.Client.Controllers
 
         private async Task<BaseRequest<AttoDASIDto>> ElaboraFiltri()
         {
-            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
             int.TryParse(Request.Form["page"], out var filtro_page);
             int.TryParse(Request.Form["size"], out var filtro_size);
             var view = Request.Form["view"];
@@ -745,9 +741,9 @@ namespace PortaleRegione.Client.Controllers
 
             var model = new BaseRequest<AttoDASIDto>
             {
-                page = filtro_page,
+                page = filtro_page != 0 ? filtro_page : 1,
                 size = filtro_size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode }, { "VIEW_MODE", view } },
+                param = new Dictionary<string, object> {{"CLIENT_MODE", (int) mode}, {"VIEW_MODE", view}}
             };
 
             var util = new UtilityFilter();
@@ -755,23 +751,15 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
             var sedutaUId = await GetSedutaByData(filtro_data_seduta);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByDataSeduta(ref model, sedutaUId);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByStato(ref model, filtro_stato);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_BySeduta(ref model, filtro_seduta);
-            util.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             util.AddFilter_ByLegislatura(ref model, filtro_legislatura);
-            
+
             return model;
         }
 
@@ -783,17 +771,17 @@ namespace PortaleRegione.Client.Controllers
 
             if (success)
             {
-                var modelSedute = new BaseRequest<SeduteDto>()
+                var modelSedute = new BaseRequest<SeduteDto>
                 {
-                    filtro = new List<FilterStatement<SeduteDto>>()
+                    filtro = new List<FilterStatement<SeduteDto>>
                     {
-                        new FilterStatement<SeduteDto>()
+                        new FilterStatement<SeduteDto>
                         {
                             PropertyId = nameof(SeduteDto.Data_seduta),
                             Operation = Operation.GreaterThanOrEqualTo,
                             Value = data.ToString("yyyy-MM-dd") + " 00:00:01"
                         },
-                        new FilterStatement<SeduteDto>()
+                        new FilterStatement<SeduteDto>
                         {
                             PropertyId = nameof(SeduteDto.Data_seduta),
                             Operation = Operation.LessThanOrEqualTo,
@@ -803,10 +791,7 @@ namespace PortaleRegione.Client.Controllers
                 };
                 var gate = new ApiGateway(_Token);
                 var resultSedute = await gate.Sedute.Get(modelSedute);
-                if (resultSedute.Results.Any())
-                {
-                    result = resultSedute.Results.First().UIDSeduta;
-                }
+                if (resultSedute.Results.Any()) result = resultSedute.Results.First().UIDSeduta;
             }
 
             return result;
@@ -829,7 +814,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("tipi")]
         public async Task<ActionResult> Filtri_GetTipi()
@@ -845,7 +830,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("soggetti-interrogabili")]
         public async Task<ActionResult> Filtri_GetSoggettiInterrogabili()

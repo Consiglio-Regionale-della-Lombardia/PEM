@@ -20,12 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Common
 {
@@ -71,24 +68,24 @@ namespace PortaleRegione.Common
                 case PartiEMEnum.Capo:
                     return $"Capo: {em.NCapo}";
                 case PartiEMEnum.Articolo:
+                {
+                    var strArticolo = string.Empty;
+                    if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
+
+                    if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
+                        strArticolo += $", Comma: {em.COMMI.Comma}";
+
+                    if (!string.IsNullOrEmpty(em.NLettera))
                     {
-                        var strArticolo = string.Empty;
-                        if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
-
-                        if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
-                            strArticolo += $", Comma: {em.COMMI.Comma}";
-
-                        if (!string.IsNullOrEmpty(em.NLettera))
-                        {
-                            strArticolo += $", Lettera: {em.NLettera}";
-                        }
-                        else
-                        {
-                            if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
-                        }
-
-                        return strArticolo;
+                        strArticolo += $", Lettera: {em.NLettera}";
                     }
+                    else
+                    {
+                        if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
+                    }
+
+                    return strArticolo;
+                }
                 case PartiEMEnum.Missione:
                     return $"Missione: {em.NMissione} Programma: {em.NProgramma} titolo: {em.NTitoloB}";
                 case PartiEMEnum.Allegato_Tabella:
@@ -200,6 +197,10 @@ namespace PortaleRegione.Common
                 {
                     return "In Commissione";
                 }
+                case TipoRispostaEnum.IMMEDIATA:
+                {
+                    return "Immediata";
+                }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(IdTipoRisposta), IdTipoRisposta, null);
             }
@@ -219,7 +220,7 @@ namespace PortaleRegione.Common
                     descr = e.ToString().Replace("_", " ")
                 }).ToList();
         }
-        
+
         public static string StripHTML(string input)
         {
             return Regex.Replace(input, "<.*?>", string.Empty).Replace("&nbsp;", " ");

@@ -293,8 +293,11 @@ div.input-field > label { line-height: initial; }
     background-color: #2196f3 !important;
 }*/
 
-/* NOTIFICHE */
+.counter-active {
+    border-bottom: 2px solid #469B49;
+}
 
+/* NOTIFICHE */
 .notifica-check {
     /*position: absolute;*/
     border-radius: 50%;

@@ -199,7 +199,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                
             }
             catch (Exception e)
             {
@@ -1186,7 +1185,7 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
 
                     var gruppiMail = listaRichieste.GroupBy(item => item.Key);
                     foreach (var gruppo in gruppiMail)
@@ -1194,12 +1193,13 @@ namespace PortaleRegione.API.Controllers
                         var personaMail = await _unitOfWork.Persone.Get(gruppo.Key);
                         var mailModel = new MailModel
                         {
-                            DA = $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                            DA =
+                                $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                             A = personaMail.email,
                             OGGETTO =
                                 "[ISCRIZIONE ATTI]",
                             MESSAGGIO =
-                                $"La segreteria ha iscritto i seguenti atti alla seduta del {dataSeduta}: <br> {gruppo.Select(item=>item.Value).Aggregate((i, j) => i + "<br>" + j)}."
+                                $"La segreteria ha iscritto i seguenti atti alla seduta del {dataSeduta}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}."
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
@@ -1285,7 +1285,7 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
         }
-        
+
         public async Task RimuoviRichiesta(RichiestaIscrizioneDASIModel model)
         {
             try
@@ -1295,7 +1295,9 @@ namespace PortaleRegione.API.Controllers
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
 
-                    if (atto.UIDSeduta.HasValue) throw new Exception("ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
+                    if (atto.UIDSeduta.HasValue)
+                        throw new Exception(
+                            "ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
 
                     atto.DataRichiestaIscrizioneSeduta = null;
                     atto.UIDPersonaRichiestaIscrizione = null;
@@ -1533,7 +1535,10 @@ namespace PortaleRegione.API.Controllers
             var result = new List<Tipi_AttoDto>();
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
-                if ((int) tipo == (int) TipoAttoEnum.ITL)
+                if ((int) tipo != (int) TipoAttoEnum.ODG
+                    && (int) tipo != (int) TipoAttoEnum.MOZ
+                    && (int) tipo != (int) TipoAttoEnum.PDL
+                    && (int) tipo != (int) TipoAttoEnum.PDA)
                     result.Add(new Tipi_AttoDto
                     {
                         IDTipoAtto = (int) tipo,

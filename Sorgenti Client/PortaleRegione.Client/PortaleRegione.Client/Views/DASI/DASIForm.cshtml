@@ -68,14 +68,35 @@
                     @Html.HiddenFor(m => m.Atto.UID_QRCode)
                     @Html.HiddenFor(m => m.Atto.Tipo)
 
-                    <div class="input-field">
-                        <select id='Atto_TipoRisposta'>
-                            <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>Orale</option>
-                            <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO ? "selected=\"selected\"" : "")>Scritto</option>
-                            <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
-                        </select>
-                        <label for="Atto_TipoRisposta">Tipo Risposta</label>
-                    </div>
+                    if (Model.Atto.Tipo == (int) TipoAttoEnum.ITL)
+                    {
+                        <div class="input-field">
+                            <select id='Atto_TipoRisposta'>
+                                <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int) TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>Orale</option>
+                                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int) TipoRispostaEnum.SCRITTO ? "selected=\"selected\"" : "")>Scritto</option>
+                                <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int) TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
+                            </select>
+                            <label for="Atto_TipoRisposta">Tipo Risposta</label>
+                        </div>
+                    }else if (Model.Atto.Tipo == (int) TipoAttoEnum.ITR)
+                    {
+                        <div class="input-field">
+                            <select id='Atto_TipoRisposta'>
+                                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int) TipoRispostaEnum.SCRITTO ? "selected=\"selected\"" : "")>Scritto</option>
+                                <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int) TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
+                            </select>
+                            <label for="Atto_TipoRisposta">Tipo Risposta</label>
+                        </div>
+                    }else if (Model.Atto.Tipo == (int) TipoAttoEnum.IQT)
+                    {
+                        <div class="input-field">
+                            <select id='Atto_TipoRisposta' disabled="disabled">
+                                <option value="@Html.Raw((int) TipoRispostaEnum.IMMEDIATA)" selected="selected">Immediata</option>
+                            </select>
+                            <label for="Atto_TipoRisposta">Tipo Risposta</label>
+                        </div>
+                    }
+                    
                     var displayCommissioni = Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "display: block;" : "display: none;";
 
                     <div class="input-field" style="padding-top: 10px; @displayCommissioni" id="pnlCommissioni">

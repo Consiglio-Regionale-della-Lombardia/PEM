@@ -22,6 +22,7 @@ namespace PortaleRegione.DTO.Enum
     {
         ORALE = 1,
         SCRITTO = 2,
-        COMMISSIONE = 3
+        COMMISSIONE = 3,
+        IMMEDIATA = 4
     }
 }
