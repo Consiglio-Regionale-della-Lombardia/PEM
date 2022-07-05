@@ -452,7 +452,7 @@ namespace PortaleRegione.Client.Helpers
                 }
         }
 
-        public static void AddFilter_ByNumeroAtto(ref BaseRequest<AttoDASIDto> model, string filtroNAtto)
+        public static void AddFilter_ByNumeroAtto(ref BaseRequest<AttoDASIDto> model, string filtroNAtto, string filtroNAtto2)
         {
             if (!string.IsNullOrEmpty(filtroNAtto))
             {
@@ -461,6 +461,20 @@ namespace PortaleRegione.Client.Helpers
                 if (success && number > 0)
                 {
                     var operation = Operation.EqualTo;
+                    int number2;
+                    var success2 = int.TryParse(filtroNAtto2, out number2);
+                    if (success2 && number2 > 0)
+                    {
+                        operation = Operation.GreaterThanOrEqualTo;
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.NAtto) + "_search",
+                            Operation = Operation.LessThanOrEqualTo,
+                            Value = number2,
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+
                     model.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = nameof(AttoDASIDto.NAtto) + "_search",

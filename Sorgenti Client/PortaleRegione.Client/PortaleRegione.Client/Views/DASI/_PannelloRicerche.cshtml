@@ -51,11 +51,15 @@
                             <label>Tipo Risposta</label>
                         </div>
                         <div class="input-field col s12">
-                            <input placeholder="Lorem ipsum" id="qNAtto" name="filtro_natto" type="text" onchange="filter_dasi_natto_OnChange()">
+                            <input placeholder="--" id="qNAtto" name="filtro_natto" type="text" onchange="filter_dasi_natto_OnChange()">
                             <label for="qNAtto">Numero</label>
                         </div>
                         <div class="input-field col s12">
-                            <input placeholder="Lorem ipsum" id="qOggetto" name="filtro_oggetto" type="text" onchange="filter_dasi_oggetto_OnChange()">
+                            <input placeholder="--" id="qNAtto2" name="filtro_natto2" type="text" onchange="filter_dasi_natto2_OnChange()">
+                            <label for="qNAtto2">Al Numero <i>(opzionale)</i></label>
+                        </div>
+                        <div class="input-field col s12">
+                            <input placeholder="--" id="qOggetto" name="filtro_oggetto" type="text" onchange="filter_dasi_oggetto_OnChange()">
                             <label for="qOggetto">Oggetto</label>
                         </div>
                         <div class="input-field col s12">
@@ -140,6 +144,7 @@
         $('#inputFilterReset').val(1);
 
         Filtri_DASI_CaricaNAtto("qNAtto");
+        Filtri_DASI_CaricaNAtto2("qNAtto2");
         Filtri_DASI_CaricaOggetto("qOggetto");
         Filtri_DASI_CaricaTipoRisposta("qTipoRisposta");
         await Filtri_DASI_CaricaStato("qStato");

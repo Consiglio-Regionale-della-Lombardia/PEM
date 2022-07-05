@@ -733,6 +733,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_tipo = Request.Form["filtro_tipo"];
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
             var filtro_natto = Request.Form["filtro_natto"];
+            var filtro_natto2 = Request.Form["filtro_natto2"];
             var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
@@ -745,7 +746,7 @@ namespace PortaleRegione.Client.Controllers
                 param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode }, { "VIEW_MODE", view } },
             };
 
-            Utility.AddFilter_ByNumeroAtto(ref model, filtro_natto);
+            Utility.AddFilter_ByNumeroAtto(ref model, filtro_natto, filtro_natto2);
             Utility.AddFilter_ByOggetto(ref model, filtro_oggetto);
             Utility.AddFilter_ByStato(ref model, filtro_stato);
             Utility.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);

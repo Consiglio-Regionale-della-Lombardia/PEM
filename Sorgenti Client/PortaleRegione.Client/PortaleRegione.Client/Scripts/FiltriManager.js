@@ -773,6 +773,19 @@ function Filtri_DASI_CaricaNAtto(ctrlSelect) {
     select.val(filterSelect);
 }
 
+function Filtri_DASI_CaricaNAtto2(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.natto2;
+        highlight(filterSelect);
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
 function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
@@ -952,6 +965,13 @@ function filter_dasi_natto_OnChange() {
     var value = $("#qNAtto").val();
     var filtri = get_Filtri_DASI();
     filtri.natto = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_natto2_OnChange() {
+    var value = $("#qNAtto2").val();
+    var filtri = get_Filtri_DASI();
+    filtri.natto2 = value;
     set_Filtri_DASI(filtri);
 }
 
