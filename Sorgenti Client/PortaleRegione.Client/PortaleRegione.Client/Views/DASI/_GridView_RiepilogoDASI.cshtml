@@ -60,7 +60,7 @@ else
                         </label>
                     </p>
                 </td>
-                <td style="width: 6%;">
+                <td style="width: @Html.Raw(item.IDStato!= (int) StatiAttoEnum.BOZZA? "3":"6")%;">
                     @{
                         var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
                         title += item.NAtto;
