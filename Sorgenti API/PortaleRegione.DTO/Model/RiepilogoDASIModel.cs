@@ -32,5 +32,7 @@ namespace PortaleRegione.DTO.Model
         public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
         public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
         public CommandRiepilogoModel CommandRiepilogo { get; set; }
+
+        public PersonaDto CurrentUser { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.Common
+﻿@using PortaleRegione.Client.Controllers
+@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -145,10 +146,13 @@ else
                         }
                         else if (item.IDStato > (int) StatiAttoEnum.BOZZA && item.IDStato != (int) StatiAttoEnum.RITIRATO)
                         {
-                            <a class="btn-flat blue-text" title="Proponi iscrizione a seduta" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
-                                <i class="material-icons right">chevron_right</i>
-                                Proponi iscrizione
-                            </a>
+                            if (Model.CurrentUser.IsCapoGruppo)
+                            {
+                                <a class="btn-flat blue-text" title="Proponi iscrizione a seduta" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                    <i class="material-icons right">chevron_right</i>
+                                    Proponi iscrizione
+                                </a>
+                            }
                         }
                         else if (item.IDStato != (int) StatiAttoEnum.BOZZA)
                         {

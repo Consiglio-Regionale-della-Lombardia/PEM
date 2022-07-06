@@ -92,5 +92,7 @@ namespace PortaleRegione.DTO.Domain
 
         public bool IsAmministratoreGiunta => CurrentRole == RuoliIntEnum.Amministratore_Giunta;
         public bool IsAmministratorePEM => CurrentRole == RuoliIntEnum.Amministratore_PEM;
+
+        public bool IsCapoGruppo { get; set; }
     }
 }

@@ -52,6 +52,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser.CurrentRole);
+            model.CurrentUser = _CurrentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int) ViewModeEnum.PREVIEW)
             {
@@ -717,7 +718,7 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var model = await ElaboraFiltri();
             var result = await apiGateway.DASI.Get(model);
-
+            result.CurrentUser = _CurrentUser;
             result.ClientMode = mode;
             if (Convert.ToInt16(view) == (int) ViewModeEnum.PREVIEW)
                 foreach (var atti in result.Data.Results)

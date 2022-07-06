@@ -130,7 +130,6 @@ namespace PortaleRegione.BAL
                 var lRuoli = Gruppi_Utente.Select(@group => $"CONSIGLIO\\{@group}").ToList();
 
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
-
                 var token = await GetToken(persona, lRuoli);
 
                 return new LoginResponse
@@ -250,6 +249,15 @@ namespace PortaleRegione.BAL
                 personaDto.CurrentRole = (RuoliIntEnum) ruoli_utente.First().IDruolo;
                 personaDto.Gruppo = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                     await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi, personaDto.CurrentRole));
+
+                if (personaDto.Gruppo != null)
+                {
+                    var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(personaDto.Gruppo.id_gruppo);
+                    if (capogruppo.id_persona == personaDto.id_persona)
+                    {
+                        personaDto.IsCapoGruppo = true;
+                    }
+                }
 
                 var claims = new List<Claim>
                 {
