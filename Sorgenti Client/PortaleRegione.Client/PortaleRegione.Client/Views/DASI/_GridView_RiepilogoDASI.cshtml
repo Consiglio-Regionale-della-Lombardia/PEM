@@ -1,4 +1,4 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -34,22 +34,17 @@ else
     <table class="responsive-table highlight">
         <thead>
         <tr>
-            <th width="5" class="center">
-
-            </th>
-            <th width="150">Atto</th>
+            <th></th>
+            <th>Atto</th>
             <th>Tipo</th>
             <th>Oggetto</th>
-            <th width="150">Firmatari</th>
-            <th width="150">Stato</th>
+            <th>Firmatari</th>
+            <th>Stato</th>
             @if (Model.ClientMode == ClientModeEnum.GRUPPI)
             {
-                if (Model.Stato != StatiAttoEnum.BOZZA)
-                {
-                    <th>Seduta</th>
-                }
+                <th>Seduta</th>
             }
-            <th width="100"></th>
+            <th></th>
         </tr>
         </thead>
 
@@ -57,29 +52,29 @@ else
         @foreach (var item in Model.Data.Results)
         {
             <tr>
-                <td>
+                <td style="width: 1%;">
                     <p>
                         <label>
-                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');" />
+                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
                             <span></span>
                         </label>
                     </p>
                 </td>
-                <td>
-                    <div class="chip @Html.Raw(Utility.GetCSS_TipoDASI(item.Tipo))">
-                        @{
-                            var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
-                            title += item.NAtto;
-                        }
+                <td style="width: 3%;">
+                    @{
+                        var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
+                        title += item.NAtto;
+                    }
+                    <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
                         @Html.Raw(title)
                     </div>
                 </td>
-                <td>
-                    <span class="@Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
-                        @PortaleRegione.Common.Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
+                <td style="width: 8%;">
+                    <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
+                        @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
                     </span>
                 </td>
-                <td>
+                <td style="width: 18%;">
                     @if (string.IsNullOrEmpty(item.Oggetto_Modificato))
                     {
                         @Html.Raw(item.Oggetto)
@@ -89,7 +84,7 @@ else
                         @Html.Raw(item.Oggetto_Modificato)
                     }
                 </td>
-                <td>
+                <td style="width: 10%;">
                     @{
                         var codice_gruppo = item.gruppi_politici.codice_gruppo;
 
@@ -110,7 +105,7 @@ else
 
                     @if (item.ConteggioFirme > 1)
                     {
-                        <br />
+                        <br/>
                         <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
                             + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
                         </a>
@@ -123,51 +118,47 @@ else
                         tooltipStato = $"Presentato il {item.DataPresentazione}";
                     }
                 }
-                <td class="@Html.Raw(Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
-                    @Html.Raw(PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato))
+                <td style="width: 6%;" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
+                    @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
                 </td>
+
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-                    if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && !item.UIDSeduta.HasValue)
-                    {
-                        var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
-                        var tooltipSeduta = $"Richiesta in attesa di elaborazione";
-                        <td>
+                    <td style="width: 9%;">
+                        @if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && !item.UIDSeduta.HasValue)
+                        {
+                            var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
+                            var tooltipSeduta = "Richiesta in attesa di elaborazione";
+
                             <div class="chip badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta">
                                 @textSeduta
                                 <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
                             </div>
-                        </td>
-                    }
-                    else if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
-                    {
-                        var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
-                        var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                        <td>
+                        }
+                        else if (item.IDStato != (int) StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                        {
+                            var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
+                            var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
                             <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
                                 @textSeduta
                             </div>
-                        </td>
-                    }
-                    else if (item.IDStato > (int)StatiAttoEnum.BOZZA && item.IDStato != (int)StatiAttoEnum.RITIRATO)
-                    {
-                        <td>
+                        }
+                        else if (item.IDStato > (int) StatiAttoEnum.BOZZA && item.IDStato != (int) StatiAttoEnum.RITIRATO)
+                        {
                             <a class="btn-flat blue-text" title="Proponi iscrizione a seduta" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
                                 <i class="material-icons right">chevron_right</i>
                                 Proponi iscrizione
                             </a>
-                        </td>
-                    }
-                    else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
-                    {
-                        <td>
-                        </td>
-                    }
+                        }
+                        else if (item.IDStato != (int) StatiAttoEnum.BOZZA)
+                        {
+                        }
+                    </td>
                 }
-                <td class="center">
+                <td class="center" style="width: 5%;">
                     @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                     {
-                        if (item.IDStato == (int)StatiAttoEnum.BOZZA)
+                        if (item.IDStato == (int) StatiAttoEnum.BOZZA)
                         {
                             @*<a class="amber-text tooltipped" data-tooltip="Invita">
                         <i class="icon material-icons">send</i>
@@ -199,10 +190,6 @@ else
                             </a>
                         }
                     }
-
-                    <a class="black-text tooltipped" data-tooltip="Visualizza" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
-                        <i class="icon material-icons">chevron_right</i>
-                    </a>
                 </td>
             </tr>
         }
