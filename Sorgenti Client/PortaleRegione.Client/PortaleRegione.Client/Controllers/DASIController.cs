@@ -721,8 +721,11 @@ namespace PortaleRegione.Client.Controllers
             result.ClientMode = mode;
             if (Convert.ToInt16(view) == (int) ViewModeEnum.PREVIEW)
                 foreach (var atti in result.Data.Results)
+                {
+                    result.ViewMode = ViewModeEnum.PREVIEW;
                     atti.BodyAtto =
                         await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+                }
 
             Session["RiepilogoDASI"] = result;
 

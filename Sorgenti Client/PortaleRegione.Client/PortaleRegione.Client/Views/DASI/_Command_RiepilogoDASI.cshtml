@@ -56,7 +56,9 @@
 </div>
 
 <script>
-    function gotoPreviewMode(view) {
-        go('@Html.Raw(url)');
+    function gotoPreviewMode() {
+        var newMode = @Html.Raw(new_view);
+        $('#inputFilterView').val(newMode);
+        filtra();
     }
 </script>
