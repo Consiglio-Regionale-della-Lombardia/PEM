@@ -1,4 +1,5 @@
-﻿@model HandleErrorInfo
+﻿@using PortaleRegione.Client.Helpers
+@model HandleErrorInfo
 
 @{
     Layout = "_Layout.cshtml";
@@ -7,7 +8,7 @@
 <hgroup>
     @if (Model != null)
     {
-        if (HttpContext.Current.IsDebuggingEnabled)
+        if (AppSettingsConfiguration.IsDebugMode)
         {
             <div>
                 <p>

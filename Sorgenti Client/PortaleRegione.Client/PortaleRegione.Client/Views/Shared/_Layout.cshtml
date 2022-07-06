@@ -109,7 +109,7 @@
     </div>
 </div>
 
-@if (HttpContext.Current.IsDebuggingEnabled) {
+@if (AppSettingsConfiguration.IsDebugMode) {
     <div id="pnlAccount" class="sidenav" style="overflow: auto !important">
         <div class="row">
             <div class="col s12">
@@ -179,7 +179,10 @@
 
                     instances.open();
                 } else {
-                    devPanelCounter = devPanelCounter + 1;
+                    @if (AppSettingsConfiguration.IsDebugMode)
+                    {
+                        @Html.Raw("devPanelCounter = devPanelCounter + 1;") 
+                    }
                 }
                 
             }

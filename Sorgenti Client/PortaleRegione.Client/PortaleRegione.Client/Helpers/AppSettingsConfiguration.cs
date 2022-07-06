@@ -16,12 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Configuration;
 
 namespace PortaleRegione.Client.Helpers
 {
     public class AppSettingsConfiguration
     {
+        public static bool IsDebugMode => ConfigurationManager.AppSettings["Environment"]
+            .Equals("Debug", StringComparison.InvariantCultureIgnoreCase);
         public static string Logo => ConfigurationManager.AppSettings["logo"];
         public static string Title => ConfigurationManager.AppSettings["title"];
         public static string LimiteDocumentiDaProcessare => ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"];

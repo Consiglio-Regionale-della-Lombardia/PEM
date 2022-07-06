@@ -1,4 +1,8 @@
-﻿<div class="row">
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<div class="row">
     <div class="col s12">
         <h6>
             Benvenuto nel portale per la presentazione dematerializzata del Atti del Consiglio regionale della Lombardia
@@ -40,7 +44,7 @@
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         set_Filtri_DASI({});
         set_Filtri_EM({});
         set_ListaArticoliEM([]);
