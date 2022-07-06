@@ -108,7 +108,7 @@
                 setSelezionaTutti(false);
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.

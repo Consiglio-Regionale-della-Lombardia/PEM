@@ -51,7 +51,7 @@ namespace PortaleRegione.Client.Controllers
             int stato = (int) StatiAttoEnum.BOZZA, int tipo = (int) TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser);
+            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser.CurrentRole);
             SetCache(page, size, tipo, stato, view);
             if (view == (int) ViewModeEnum.PREVIEW)
             {
@@ -232,7 +232,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -249,7 +249,20 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
-                    throw new NotImplementedException("Azione non funzionante");
+                {
+                    var listaAtti = new RiepilogoDASIModel();
+                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
+                    var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                    var request = new BaseRequest<AttoDASIDto>()
+                    {
+                        page = 1,
+                        size = limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                    };
+                    listaAtti = await apiGateway.DASI.Get(request);
+                    model.Lista = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                }
 
                 switch (model.Azione)
                 {
@@ -322,7 +335,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -357,7 +370,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -391,7 +404,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -811,7 +824,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -827,7 +840,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -843,7 +856,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 

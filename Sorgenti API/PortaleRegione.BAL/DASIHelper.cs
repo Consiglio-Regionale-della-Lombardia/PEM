@@ -24,6 +24,9 @@ namespace PortaleRegione.BAL
                 case TipoRispostaEnum.COMMISSIONE:
                     result = "In Commissione";
                     break;
+                case TipoRispostaEnum.IMMEDIATA:
+                    result = "Immediata";
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoRisposta), tipoRisposta, null);
             }
@@ -43,6 +46,12 @@ namespace PortaleRegione.BAL
             {
                 case TipoAttoEnum.ITL:
                     result = "INTERPELLA";
+                    break;
+                case TipoAttoEnum.ITR:
+                    result = "INTERROGA";
+                    break;
+                case TipoAttoEnum.IQT:
+                    result = "INTERROGAZIONE A RISPOSTA IMMEDIATA";
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);

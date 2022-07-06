@@ -73,7 +73,7 @@
                     }
                 }).fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
             }
         });
@@ -129,7 +129,7 @@
                     }
                 }).fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
             });
         $('#modalIscriviSeduta').modal("open");
@@ -176,7 +176,7 @@
                     }
                 }).fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
             });
         $('#modalIscriviSeduta').modal("open");
@@ -231,12 +231,12 @@
                         }
                     }).fail(function(err) {
                         console.log("error", err);
-                        ErrorAlert(err.message);
+                        Error(err);
                     });
                 }
             }).fail(function (err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
     }

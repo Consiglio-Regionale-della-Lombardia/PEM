@@ -366,7 +366,7 @@
                     typeMessage = "success";
                 }
                 swal({
-                    title: "Esito procedura:",
+                    title: "Esito procedura",
                     text: data.message,
                     icon: typeMessage,
                     button: "Ok"
@@ -378,7 +378,7 @@
             }).fail(function(err) {
                 console.log("error", err);
                 $("#modalEmendamentiUguali").modal("open");
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.
@@ -463,7 +463,7 @@
                     typeMessage = "success";
                 }
                 swal({
-                    title: "Esito procedura:",
+                    title: "Esito procedura",
                     text: data.message,
                     icon: typeMessage,
                     button: "Ok"
@@ -474,7 +474,7 @@
                 });
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.
@@ -555,7 +555,7 @@
                     typeMessage = "success";
                 }
                 swal({
-                    title: "Esito procedura:",
+                    title: "Esito procedura",
                     text: data.message,
                     icon: typeMessage,
                     button: "Ok"
@@ -566,7 +566,7 @@
                 });
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.

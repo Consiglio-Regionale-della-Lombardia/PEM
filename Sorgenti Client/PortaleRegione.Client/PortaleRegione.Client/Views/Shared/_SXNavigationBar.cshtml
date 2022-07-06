@@ -376,7 +376,7 @@
                                             M.toast({ html: 'Il Pin è stato cambiato', classes: 'rounded' });
                                         }).fail(function(err) {
                                             console.log("error", err);
-                                            ErrorAlert(err.message);
+                                            Error(err);
                                         });
                                     }
                                 });

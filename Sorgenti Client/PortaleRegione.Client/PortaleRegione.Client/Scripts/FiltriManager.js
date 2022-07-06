@@ -97,7 +97,7 @@ function GetLegislature() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -111,7 +111,7 @@ function GetSedutaByData(dataSeduta) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -125,7 +125,7 @@ function GetSeduteAttive() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -139,7 +139,7 @@ function GetGruppiInDb() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -298,7 +298,7 @@ function GetStatiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -318,7 +318,7 @@ function GetStatiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -338,7 +338,7 @@ function GetTipiDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -358,7 +358,7 @@ function GetSoggettiInterrogabiliDASI() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -406,7 +406,7 @@ function GetTipiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -646,7 +646,7 @@ function GetPartiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -668,7 +668,7 @@ function GetArticoli(attoUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -691,7 +691,7 @@ function GetCommi(articoloUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -714,7 +714,7 @@ function GetLettere(commaUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -734,7 +734,7 @@ function GetMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -754,7 +754,7 @@ function GetTitoliMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }

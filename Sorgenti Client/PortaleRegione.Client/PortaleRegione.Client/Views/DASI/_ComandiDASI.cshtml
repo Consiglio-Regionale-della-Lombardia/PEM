@@ -66,7 +66,7 @@
         var button = "";
 
         var documentiTotali = $("#hdTotaleDocumenti").val();
-        var selezionaTutti = getSelezionaTutti();
+        var selezionaTutti = getSelezionaTutti_DASI();
         var lista = getListaAtti();
         var totaleDoc = selezionaTutti ? documentiTotali - lista.length : lista.length;
 
@@ -85,7 +85,7 @@
             await NotificaA(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI));
             return;
         }
-        var limite_file = @Html.Raw(ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"]);
+        var limite_file = @Html.Raw(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
         if (totaleDoc > limite_file) {
             text = text + " (Verranno processati solamente i primi " + limite_file + ")";
         } else {
@@ -122,7 +122,7 @@
                         typeMessage = "success";
                     }
                     swal({
-                        title: "Esito procedura:",
+                        title: "Esito procedura",
                         text: data.message,
                         icon: typeMessage,
                         button: "Ok"
@@ -132,7 +132,7 @@
                     });
                 }).fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
             });
     }

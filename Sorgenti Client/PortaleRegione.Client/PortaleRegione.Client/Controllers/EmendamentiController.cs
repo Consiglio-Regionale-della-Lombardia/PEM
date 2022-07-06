@@ -487,7 +487,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -507,7 +507,7 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Lista == null || !model.Lista.Any())
                 {
                     var listaEM = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"]);
+                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     if (model.Richiesta_Firma)
                         listaEM = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(model.AttoUId,
                             mode,
@@ -588,7 +588,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -623,7 +623,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -657,7 +657,7 @@ namespace PortaleRegione.Client.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Json(JsonConvert.DeserializeObject<ErrorResponse>(e.Message), JsonRequestBehavior.AllowGet);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
 

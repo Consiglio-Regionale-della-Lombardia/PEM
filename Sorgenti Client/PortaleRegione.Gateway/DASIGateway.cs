@@ -97,7 +97,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, PersonaDto persona)
+        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo)
         {
             try
             {
@@ -112,8 +112,8 @@ namespace PortaleRegione.Gateway
                 var operationStato = Operation.EqualTo;
                 if ((int)stato>(int)StatiAttoEnum.BOZZA)
                 {
-                    if (persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea
-                        && persona.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                    if (ruolo != RuoliIntEnum.Segreteria_Assemblea
+                        && ruolo != RuoliIntEnum.Amministratore_PEM)
                     {
                         //cosi il consigliere può visualizzare tutti i suoi atti dallo stato presentato in poi
                         operationStato = Operation.GreaterThanOrEqualTo;
@@ -121,8 +121,8 @@ namespace PortaleRegione.Gateway
                 }
                 else if ((int) stato <= (int)StatiAttoEnum.BOZZA)
                 {
-                    if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
-                        || persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
+                    if (ruolo == RuoliIntEnum.Segreteria_Assemblea
+                        || ruolo == RuoliIntEnum.Amministratore_PEM)
                     {
                         //Imposto stato di default per le segreteria e amministratori
                         operationStato = Operation.EqualTo;

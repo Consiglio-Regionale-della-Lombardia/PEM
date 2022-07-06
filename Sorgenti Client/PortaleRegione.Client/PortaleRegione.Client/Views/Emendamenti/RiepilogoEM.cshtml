@@ -1,5 +1,6 @@
 ﻿@using System.Configuration
 @using ExpressionBuilder.Common
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
@@ -155,7 +156,7 @@
                 await NotificaA('@Model.Atto.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
                 return;
             }
-            var limite_file = @Html.Raw(ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"]);
+            var limite_file = @Html.Raw(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
             if (totaleDoc > limite_file) {
                 text = text + " (Verranno processati solamente i primi " + limite_file + " dell'atto)";
             } else {
@@ -195,7 +196,7 @@
                             typeMessage = "success";
                         }
                         swal({
-                            title: "Esito procedura:",
+                            title: "Esito procedura",
                             text: data.message,
                             icon: typeMessage,
                             button: "Ok"
@@ -205,7 +206,7 @@
                         });
                     }).fail(function(err) {
                         console.log("error", err);
-                        ErrorAlert(err.message);
+                        Error(err);
                     });
                 });
         }
