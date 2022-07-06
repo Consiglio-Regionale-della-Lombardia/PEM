@@ -1,13 +1,12 @@
-﻿@using System.Configuration
-@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Client.Helpers
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Portale @Html.Raw(AppSettingsConfiguration.Title)</title>
-    
+
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -88,28 +87,29 @@
     @RenderBody()
 </main>
 
-<div id="modalAction" class="modal" style="height: unset!important">
+<div id="modalAction" class="modal" style="height: unset !important">
     <div class="modal-content">
         <h5 id="emActionDisplayName"></h5>
         <p id="emActionMessage"></p>
-        <div class="modal-footer" style="position: unset!important;">
+        <div class="modal-footer" style="position: unset !important;">
             <button type="button" class="btn modal-close grey">Annulla</button>
             <a id="btnConfermaAction" class="btn red" href="#">Elimina</a>
         </div>
     </div>
 </div>
-<div id="modalActionDASI" class="modal" style="height: unset!important">
+<div id="modalActionDASI" class="modal" style="height: unset !important">
     <div class="modal-content">
         <h5 id="attoActionDisplayName"></h5>
         <p id="attoActionMessage"></p>
-        <div class="modal-footer" style="position: unset!important;">
+        <div class="modal-footer" style="position: unset !important;">
             <button type="button" class="btn modal-close grey">Annulla</button>
             <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
         </div>
     </div>
 </div>
 
-@if (AppSettingsConfiguration.IsDebugMode) {
+@if (AppSettingsConfiguration.IsDebugMode)
+{
     <div id="pnlAccount" class="sidenav" style="overflow: auto !important">
         <div class="row">
             <div class="col s12">
@@ -122,7 +122,7 @@
                         </div>
                         <div class="card-action">
                             <a class="btn-flat blue-text"
-                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id=new Guid("ac98da99-862d-4cff-90e7-d5b324aaa7ae")})')" title="Entra">
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id = new Guid("ac98da99-862d-4cff-90e7-d5b324aaa7ae")})')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
                             </a>
@@ -136,7 +136,7 @@
                         </div>
                         <div class="card-action">
                             <a class="btn-flat blue-text"
-                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id=new Guid("8870e6d1-fe1b-4038-a185-d8f26cb07044")})')" title="Entra">
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id = new Guid("8870e6d1-fe1b-4038-a185-d8f26cb07044")})')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
                             </a>
@@ -159,6 +159,9 @@
         function(event) {
             // Cancel the default action, if needed
             event.preventDefault();
+            if (event.keyCode !== 83 && devPanelCounter > 0) {
+                devPanelCounter = 0;
+            }
             if (event.keyCode === 83) {
                 if (devPanelCounter === 2) {
                     var elems = document.querySelector("#pnlAccount");
@@ -181,10 +184,11 @@
                 } else {
                     @if (AppSettingsConfiguration.IsDebugMode)
                     {
-                        @Html.Raw("devPanelCounter = devPanelCounter + 1;") 
+                        @Html.Raw("devPanelCounter = devPanelCounter + 1;")
+                        ;
                     }
                 }
-                
+
             }
             // Number 13 is the "Enter" key on the keyboard
             if (event.keyCode === 27) {

@@ -34,19 +34,22 @@ else
 {
     <table class="responsive-table highlight">
         <thead>
-        <tr>
-            <th></th>
-            <th>Atto</th>
-            <th>Tipo</th>
-            <th>Oggetto</th>
-            <th>Firmatari</th>
-            <th>Stato</th>
-            @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-            {
-                <th>Seduta</th>
-            }
-            <th></th>
-        </tr>
+            <tr>
+                <th></th>
+                <th>Atto</th>
+                <th>Tipo</th>
+                <th>Oggetto</th>
+                <th>Firmatari</th>
+                @if (Model.Stato != StatiAttoEnum.BOZZA)
+                {
+                    <th>Stato</th>
+                }
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    <th>Seduta</th>
+                }
+                <th></th>
+            </tr>
         </thead>
 
         <tbody>
@@ -56,7 +59,7 @@ else
                 <td style="width: 1%;">
                     <p>
                         <label>
-                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                            <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');" />
                             <span></span>
                         </label>
                     </p>
@@ -106,7 +109,7 @@ else
 
                     @if (item.ConteggioFirme > 1)
                     {
-                        <br/>
+                        <br />
                         <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
                             + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
                         </a>
@@ -114,14 +117,17 @@ else
                 </td>
                 @{
                     var tooltipStato = "Non ancora presentato";
-                    if (item.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                    if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                     {
                         tooltipStato = $"Presentato il {item.DataPresentazione}";
                     }
                 }
-                <td style="width: 6%;" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
-                    @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
-                </td>
+                @if (Model.Stato != StatiAttoEnum.BOZZA)
+                {
+                    <td style="width: 6%;" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
+                        @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                    </td>
+                }
 
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
@@ -136,7 +142,7 @@ else
                                 <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
                             </div>
                         }
-                        else if (item.IDStato != (int) StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                        else if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
                         {
                             var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
                             var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
@@ -144,14 +150,14 @@ else
                                 @textSeduta
                             </div>
                         }
-                        else if (item.IDStato > (int) StatiAttoEnum.BOZZA && item.IDStato != (int) StatiAttoEnum.RITIRATO)
+                        else if ((item.IDStato > (int)StatiAttoEnum.BOZZA || item.Tipo is (int)TipoAttoEnum.IQT) && item.IDStato != (int)StatiAttoEnum.RITIRATO)
                         {
-                            if ((item.Tipo is (int)TipoAttoEnum.IQT 
-                                 && (Model.CurrentUser.IsCapoGruppo 
+                            if ((item.Tipo is (int)TipoAttoEnum.IQT
+                                 && (Model.CurrentUser.IsCapoGruppo
                                  || item.UIDPersonaPrimaFirma.Value == Model.CurrentUser.UID_persona))
-                                || (item.Tipo is (int)TipoAttoEnum.MOZ 
+                                || (item.Tipo is (int)TipoAttoEnum.MOZ
                                  && Model.CurrentUser.IsCapoGruppo)
-                                || (item.Tipo is (int)TipoAttoEnum.ODG 
+                                || (item.Tipo is (int)TipoAttoEnum.ODG
                                  && Model.CurrentUser.IsCapoGruppo))
                             {
                                 <a class="btn-flat blue-text" title="Proponi iscrizione a seduta" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
@@ -160,7 +166,7 @@ else
                                 </a>
                             }
                         }
-                        else if (item.IDStato != (int) StatiAttoEnum.BOZZA)
+                        else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
                         {
                         }
                     </td>
@@ -168,7 +174,7 @@ else
                 <td class="center" style="width: 5%;">
                     @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                     {
-                        if (item.IDStato == (int) StatiAttoEnum.BOZZA)
+                        if (item.IDStato == (int)StatiAttoEnum.BOZZA)
                         {
                             @*<a class="amber-text tooltipped" data-tooltip="Invita">
                         <i class="icon material-icons">send</i>

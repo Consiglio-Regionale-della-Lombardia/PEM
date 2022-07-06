@@ -2,8 +2,14 @@
 <div id="modalIscriviSeduta" class="modal bottom-sheet">
     <div class="modal-content">
         <h4 id="txtIscriviSeduta"></h4>
-        <input id="dtRichiestaIscrizione" class="form-control" type="datetime-local"/>
-        <p><b>info:</b> L'orario verrà scartato dal sistema tenendo solamente la data da voi indicata</p>
+        <ul class="collection with-header" id="lstSeduteAttive">
+        </ul>
+        <a id="btnProponiSedutaDASI" class="btn-flat blue-text"
+           onclick="ProponiSedutaDASI()" title="Proponi seduta">
+            <i class="material-icons right">plus</i>
+            Proponi altra seduta
+        </a>
+        <input id="dtRichiestaIscrizione" class="form-control" type="datetime-local" style="display: none"/>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Richiedi</a>
@@ -11,20 +17,54 @@
 </div>
 
 <script>
+    var sedute = [];
+    $(window).on('load',
+        async function () {
+            if (sedute.length == 0) {
+                $('#modalIscriviSeduta>div>ul').empty();
+                var data = await GetSeduteAttive();
+                sedute = data.Results;
+                var checked = sedute.length == 1;
+                $.each(sedute,
+                    function (i, item) {
+                        var resultDate = GetFormattedDate(item.Data_seduta);
+                        var text = "Seduta del " + resultDate;
+                        $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
+                            .replace("{TEXT}", text)
+                            .replace("{VALUE}", resultDate)
+                            .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+                    });
+            }
+        });
+
+    function ProponiSedutaDASI() {
+        $('#btnProponiSedutaDASI').hide();
+        $('#dtRichiestaIscrizione').show();
+
+        $('#btnIscriviSeduta_Salva').text("Richiedi seduta desiderata");
+    }
 
     function RichiediIscrizioneSedutaDASI(uidAtto, nomeAtto) {
+        $('#btnProponiSedutaDASI').show();
+        $('#dtRichiestaIscrizione').hide();
         $('#txtIscriviSeduta').html("Richiedi iscrizione dell'atto <b>" + nomeAtto + "</b> in data:");
         $('#dtRichiestaIscrizione').val("");
         $("#btnIscriviSeduta_Salva").on("click",
             function() {
                 var listaAtti = [];
+                var obj = {};
 
                 listaAtti.push(uidAtto);
+                var sedutaSelezionata = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                console.log('sedutaSelezionata',sedutaSelezionata)
+                if (sedutaSelezionata) {
+                    obj.DataRichiesta = sedutaSelezionata;
+                } else {
+                    obj.DataRichiesta = $('#dtRichiestaIscrizione').val();
+                }
 
-                var obj = {};
-                obj.DataRichiesta = $('#dtRichiestaIscrizione').val();
                 obj.Lista = listaAtti;
-
+                
                 $.ajax({
                     url: '@Url.Action("RichiediIscrizione")',
                     method: "POST",
@@ -88,4 +128,5 @@
         });
     }
 
+    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
 </script>
