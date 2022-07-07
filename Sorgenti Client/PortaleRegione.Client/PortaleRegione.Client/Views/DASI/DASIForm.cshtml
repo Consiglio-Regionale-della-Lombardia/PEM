@@ -42,14 +42,6 @@
             </div>
         </div>
         <div class="row">
-            <div class="col s12 form-group">
-                <label>Proponente: </label>
-                <h6 style="font-size: small;">
-                    @Html.Raw(Model.Atto.PersonaProponente.DisplayName)
-                </h6>
-            </div>
-        </div>
-        <div class="row">
             <div class="col s12">
                 @using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
                 {
@@ -117,11 +109,50 @@
                         @Html.LabelFor(s => s.Atto.Premesse)
                         @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
                     </div>
-
                     
+                    <div class="row">
+                        <div class="col s12">
+                            <label class="black-text" style="margin-left: 20px">
+                                <input type="radio" name="Atto.TipoRichiesta" checked="checked" value="@((int)TipoRichiestaEnum.CHIEDE)"/>
+                                <span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
+                            </label>
+                            <label class="black-text" style="margin-left: 20px">
+                                <input type="radio" name="Atto.TipoRichiesta" value="@((int)TipoRichiestaEnum.INVITA)" />
+                                <span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
+                            </label>
+                            <label class="black-text" style="margin-left: 20px">
+                                <input type="radio" name="Atto.TipoRichiesta" value="@((int)TipoRichiestaEnum.IMPEGNA)" />
+                                <span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-field">
+                        <select id='Atto_TipoRichiestaDestinatario'>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE)" selected="selected">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE_E_ASSESSORE_AUTONOMIA_E_CULTURA)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE_E_ASSESSORE_AUTONOMIA_E_CULTURA)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_E_LA_GIUNTA_REGIONALE)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_E_LA_GIUNTA_REGIONALE)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE)
+                            </option>
+                            <option value="@Html.Raw((int) TipoRispostaDestinatarioEnum.ASSESSORE_COMPETENTE)">@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestinatarioDASI((int)TipoRispostaDestinatarioEnum.ASSESSORE_COMPETENTE)
+                            </option>
+                        </select>
+                        <label for="Atto_TipoRichiestaDestinatario"></label>
+                    </div>
 
                     <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Richiesta)
                         @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
                     </div>
 

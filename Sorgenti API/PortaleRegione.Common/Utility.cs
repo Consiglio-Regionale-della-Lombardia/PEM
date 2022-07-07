@@ -206,6 +206,50 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoRichiestaDASI(int tipoRichiesta)
+        {
+            switch ((TipoRichiestaEnum)tipoRichiesta)
+            {
+                case TipoRichiestaEnum.CHIEDE:
+                    return "Chiede";
+                case TipoRichiestaEnum.INVITA:
+                    return "Invita";
+                case TipoRichiestaEnum.IMPEGNA:
+                    return "Impegna";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoRichiesta), tipoRichiesta, null);
+            }
+        }
+        
+        public static string GetText_TipoRichiestaDestinatarioDASI(int tipoRichiestaDestinatario)
+        {
+            switch ((TipoRispostaDestinatarioEnum)tipoRichiestaDestinatario)
+            {
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE:
+                    return "IL PRESIDENTE DELLA REGIONE";
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE_E_ASSESSORE_AUTONOMIA_E_CULTURA:
+                    return "IL PRESIDENTE DELLA REGIONE E L’ASSESSORE ALL’AUTONOMIA E CULTURA";
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE:
+                    return "IL PRESIDENTE DELLA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI:
+                    return "IL PRESIDENTE DELLA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_E_LA_GIUNTA_REGIONALE:
+                    return "IL PRESIDENTE E LA GIUNTA REGIONALE";
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE:
+                    return "IL PRESIDENTE, LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI:
+                    return "IL PRESIDENTE, LA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
+                case TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE:
+                    return "LA GIUNTA REGIONALE";
+                case TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE:
+                    return "LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                case TipoRispostaDestinatarioEnum.ASSESSORE_COMPETENTE:
+                    return "L’ASSESSORE COMPETENTE";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoRichiestaDestinatario), tipoRichiestaDestinatario, null);
+            }
+        }
+
         /// <summary>
         ///     Metodo per convertire un enum in KeyValueDto
         /// </summary>
