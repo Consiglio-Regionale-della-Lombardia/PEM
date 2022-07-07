@@ -842,6 +842,12 @@ namespace PortaleRegione.API.Controllers
 
                     var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
+                    if (atto.Tipo == (int)TipoAttoEnum.IQT
+                        && !atto.UIDSeduta.HasValue)
+                    {
+                        results.Add(idGuid, $"ERROR: Atto {attoDto.NAtto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
+                        continue;
+                    }
 
                     if (!attoDto.Presentabile)
                     {
