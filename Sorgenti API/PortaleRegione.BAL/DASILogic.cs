@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -446,7 +447,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Get DTO Atto - DASI", e);
+                Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
                 throw;
             }
         }
@@ -475,7 +476,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Get DTO Atto - DASI", e);
+                Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
                 throw;
             }
         }

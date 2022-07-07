@@ -363,12 +363,8 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{lblRichiestaATTOView}",
                     string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
 
-                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}",
-                    DASIHelper.GetTipoAtto_TitoloParagrafo((TipoAttoEnum) atto.Tipo));
-
-                var soggetti = string.Empty;
-
-                body = body.Replace("{ddlSoggettiInterrogatiATTOView}", soggetti);
+                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}",PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI(atto.TipoRichiesta));
+                body = body.Replace("{ddlSoggettiInterrogatiATTOView}", PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI(atto.TipoRichiestaDestinatario));
 
                 var allegato_generico = string.Empty;
 

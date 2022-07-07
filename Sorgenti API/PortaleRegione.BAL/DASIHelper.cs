@@ -38,25 +38,5 @@ namespace PortaleRegione.BAL
 
             return result;
         }
-
-        public static string GetTipoAtto_TitoloParagrafo(TipoAttoEnum tipo)
-        {
-            var result = string.Empty;
-            switch (tipo)
-            {
-                case TipoAttoEnum.ITL:
-                    result = "INTERPELLA";
-                    break;
-                case TipoAttoEnum.ITR:
-                    result = "INTERROGA";
-                    break;
-                case TipoAttoEnum.IQT:
-                    result = "INTERROGAZIONE A RISPOSTA IMMEDIATA";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
-            }
-            return result;
-        }
     }
 }
