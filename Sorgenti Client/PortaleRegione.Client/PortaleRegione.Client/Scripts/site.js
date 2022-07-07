@@ -1083,7 +1083,7 @@ function GetPersonePerInviti(attoUId, tipo) {
     });
 }
 
-function GetPersonePerInviti(tipo) {
+function GetPersonePerInvitiDASI(tipo) {
     return new Promise(function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/notifiche/destinatari-dasi?tipo=" + tipo,

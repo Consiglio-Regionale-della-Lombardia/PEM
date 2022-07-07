@@ -153,7 +153,7 @@
                 text = "Inserisci il PIN per depositare ";
                 button = "Presenta";
             } else if (action == @((int)ActionEnum.INVITA)) {
-                await NotificaA('@Model.Atto.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
+                await NotificaAEM('@Model.Atto.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
                 return;
             }
             var limite_file = @Html.Raw(AppSettingsConfiguration.LimiteDocumentiDaProcessare);

@@ -33,10 +33,10 @@
 
 
 <script>
-    var chipInstanceNotificaA = null;
+    var chipInstanceNotificaADASI = null;
 
     async function LoadDestinatari(tipo) {
-        var personeInDB = await GetPersonePerInviti(tipo);
+        var personeInDB = await GetPersonePerInvitiDASI(tipo);
 
         var persone = [];
         for (let [key, value] of Object.entries(personeInDB)) {
@@ -54,17 +54,17 @@
             limit: 10,
             minLength: 1
         };
-        if (chipInstanceNotificaA != null) {
-            chipInstanceNotificaA.destroy();
+        if (chipInstanceNotificaADASI != null) {
+            chipInstanceNotificaADASI.destroy();
         }
-        chipInstanceNotificaA = M.Chips.init(elems,
+        chipInstanceNotificaADASI = M.Chips.init(elems,
             {
                 autocompleteOptions: autocompleteDataOptions,
                 data: data_preload
             });
     }
 
-    async function NotificaA() {
+    async function NotificaADASI() {
         waiting(true);
         await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
@@ -88,7 +88,7 @@
 
             var listaAtti = getListaAtti();
             console.log("listaAtti", listaAtti)
-            var destinatari = chipInstanceNotificaA.getData();
+            var destinatari = chipInstanceNotificaADASI.getData();
             if (destinatari.length == 0) {
                 ErrorAlert("Seleziona almeno un destinatario");
                 return;
