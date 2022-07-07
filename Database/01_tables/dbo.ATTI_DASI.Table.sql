@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 06/07/2022 09:35:48 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 07/07/2022 04:08:31 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -19,6 +19,8 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[Oggetto_Modificato] [varchar](max) NULL,
 	[Premesse] [varchar](max) NULL,
 	[Premesse_Modificato] [varchar](max) NULL,
+	[TipoRichiesta] [int] NOT NULL,
+	[TipoRichiestaDestinatario] [int] NOT NULL,
 	[Richiesta] [varchar](max) NULL,
 	[Richiesta_Modificata] [varchar](max) NULL,
 	[DataCreazione] [datetime] NOT NULL,
@@ -67,5 +69,11 @@ CREATE TABLE [dbo].[ATTI_DASI](
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NAtto_search]  DEFAULT ((0)) FOR [NAtto_search]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiesta]  DEFAULT ((0)) FOR [TipoRichiesta]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
 GO
 
