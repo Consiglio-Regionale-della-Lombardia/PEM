@@ -447,6 +447,7 @@
     <Content Include="Views\DASI\_InvitoPanelMassivo.cshtml" />
     <Content Include="Views\DASI\_RichiestaIscrizioneASedutaModal.cshtml" />
     <Content Include="Views\Home\Cruscotto.cshtml" />
+    <Content Include="Views\DASI\DASIForm_Segreteria.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

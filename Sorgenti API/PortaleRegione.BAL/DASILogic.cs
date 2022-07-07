@@ -61,6 +61,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (!attoDto.UIDPersonaProponente.HasValue)
+                {
+                    throw new InvalidOperationException("Indicare un proponente");
+                }
+                if (attoDto.UIDPersonaProponente.Value == Guid.Empty)
+                {
+                    throw new InvalidOperationException("Indicare un proponente");
+                }
+
                 var result = new ATTI_DASI();
                 if (attoDto.UIDAtto == Guid.Empty)
                 {
@@ -1048,6 +1057,9 @@ namespace PortaleRegione.API.Controllers
                         nome = persona.nome
                     };
                 }
+
+                if(persona.IsSegreteriaPolitica)
+                    result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
 
                 result.Atto.UIDPersonaCreazione = persona.UID_persona;
                 result.Atto.DataCreazione = DateTime.Now;

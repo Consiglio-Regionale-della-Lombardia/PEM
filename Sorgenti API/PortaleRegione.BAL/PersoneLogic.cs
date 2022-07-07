@@ -138,6 +138,16 @@ namespace PortaleRegione.BAL
             var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
             persona.CurrentRole = session._currentRole;
             persona.Gruppo = await GetGruppo(session._currentGroup);
+            if (persona.Gruppo != null)
+            {
+                var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(persona.Gruppo.id_gruppo);
+                if (capogruppo != null)
+                    if (capogruppo.id_persona == persona.id_persona)
+                    {
+                        persona.IsCapoGruppo = true;
+                    }
+            }
+
             return persona;
         }
 

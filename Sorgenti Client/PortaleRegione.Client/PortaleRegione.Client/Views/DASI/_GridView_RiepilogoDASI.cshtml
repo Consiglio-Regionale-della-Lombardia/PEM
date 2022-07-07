@@ -154,7 +154,7 @@ else
                         {
                             if ((item.Tipo is (int)TipoAttoEnum.IQT
                                  && (Model.CurrentUser.IsCapoGruppo
-                                 || item.UIDPersonaPrimaFirma.Value == Model.CurrentUser.UID_persona))
+                                 || item.UIDPersonaPrimaFirma.HasValue && item.UIDPersonaPrimaFirma.Value == Model.CurrentUser.UID_persona))
                                 || (item.Tipo is (int)TipoAttoEnum.MOZ
                                  && Model.CurrentUser.IsCapoGruppo)
                                 || (item.Tipo is (int)TipoAttoEnum.ODG

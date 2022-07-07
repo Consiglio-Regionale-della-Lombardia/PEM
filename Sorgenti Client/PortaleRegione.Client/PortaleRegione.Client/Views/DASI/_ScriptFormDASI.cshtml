@@ -15,12 +15,7 @@
             if ($('input[name="Atto.UIDPersonaProponente"]').val())
                 proponente = $('input[name="Atto.UIDPersonaProponente"]').val();
             else {
-                //if ($('#chkProponentiConsiglieri').is(":checked"))
-                //    proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
-                //else if ($('#chkProponentiAssessori').is(":checked"))
-                //    proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
-                //else
-                //    proponente = $('select[id="Emendamento_UIDPersonaProponente"]').children("option:selected").val();
+                proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
             }
             
             var container_premesse = $("#Atto_Premesse").parent();
@@ -35,6 +30,7 @@
             form_data.append("Richiesta", editor_richiesta.html());
             form_data.append("Tipo", $("#Atto_Tipo").val());
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
+            form_data.append("UIDPersonaProponente", proponente);
 
             var commissioni = [];
             commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());

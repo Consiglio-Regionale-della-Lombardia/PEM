@@ -24,7 +24,6 @@ using System.Web.Caching;
 using System.Web.Mvc;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
-using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -51,7 +50,8 @@ namespace PortaleRegione.Client.Controllers
             int stato = (int) StatiAttoEnum.BOZZA, int tipo = (int) TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo, _CurrentUser.CurrentRole);
+            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum) stato, (TipoAttoEnum) tipo,
+                _CurrentUser.CurrentRole);
             model.CurrentUser = _CurrentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int) ViewModeEnum.PREVIEW)
@@ -112,6 +112,9 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetNuovoModello((TipoAttoEnum) tipo);
+            if (_CurrentUser.IsSegreteriaPolitica)
+                return View("DASIForm_Segreteria", model);
+
             return View("DASIForm", model);
         }
 
@@ -254,12 +257,12 @@ namespace PortaleRegione.Client.Controllers
                     var listaAtti = new RiepilogoDASIModel();
                     var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-                    var request = new BaseRequest<AttoDASIDto>()
+                    var request = new BaseRequest<AttoDASIDto>
                     {
                         page = 1,
                         size = limit,
                         filtro = modelInCache.Data.Filters,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                        param = new Dictionary<string, object> {{"CLIENT_MODE", (int) modelInCache.ClientMode}}
                     };
                     listaAtti = await apiGateway.DASI.Get(request);
                     model.Lista = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();

@@ -77,9 +77,21 @@ namespace PortaleRegione.Persistance
             filtro2.BuildExpression(ref query);
 
             if (mode == ClientModeEnum.GRUPPI)
+            {
+                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                          || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
+                                          && (atto.UIDPersonaCreazione == persona.UID_persona
+                                              || atto.UIDPersonaProponente == persona.UID_persona));
+
                 if (persona.IsSegreteriaAssemblea)
                     query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO
                                                 && item.IDStato != (int) StatiAttoEnum.RITIRATO);
+                else if (!persona.IsSegreteriaAssemblea
+                         && !persona.IsPresidente)
+                {
+                    query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
+                }
+            }
 
             if (soggetti != null)
                 if (soggetti.Count > 0)
@@ -209,6 +221,17 @@ namespace PortaleRegione.Persistance
 
                 if (clientMode == ClientModeEnum.GRUPPI)
                 {
+                    query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                                || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
+                                                && (atto.UIDPersonaCreazione == persona.UID_persona
+                                                    || atto.UIDPersonaProponente == persona.UID_persona));
+
+                    if (!persona.IsSegreteriaAssemblea
+                             && !persona.IsPresidente)
+                    {
+                        query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
+                    }
+
                     if (stato != StatiAttoEnum.TUTTI)
                     {
                         if (stato == StatiAttoEnum.PRESENTATO

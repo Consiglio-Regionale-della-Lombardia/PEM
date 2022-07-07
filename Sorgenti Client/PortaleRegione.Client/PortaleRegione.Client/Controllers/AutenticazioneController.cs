@@ -90,7 +90,7 @@ namespace PortaleRegione.Client.Controllers
 
             //if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
 
-            return RedirectToAction("RiepilogoSedute", "PEM");
+            return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
@@ -112,7 +112,7 @@ namespace PortaleRegione.Client.Controllers
 
             await SalvaDatiInCookies(response.persona, response.jwt, response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
-            return RedirectToAction("RiepilogoSedute", "PEM");
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task SalvaDatiInCookies(PersonaDto persona, string jwt, string username)
