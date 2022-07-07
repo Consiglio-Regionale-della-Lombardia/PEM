@@ -117,6 +117,8 @@ namespace PortaleRegione.API.Controllers
                     result.Premesse = attoDto.Premesse;
                     result.Richiesta = attoDto.Richiesta;
                     result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+                    result.TipoRichiesta = attoDto.TipoRichiesta;
+                    result.TipoRichiestaDestinatario = attoDto.TipoRichiestaDestinatario;
 
                     if (attoDto.DocAllegatoGenerico_Stream != null)
                     {
@@ -145,6 +147,8 @@ namespace PortaleRegione.API.Controllers
                 attoInDb.Premesse = attoDto.Premesse;
                 attoInDb.Richiesta = attoDto.Richiesta;
                 attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+                attoInDb.TipoRichiesta = attoDto.TipoRichiesta;
+                attoInDb.TipoRichiestaDestinatario = attoDto.TipoRichiestaDestinatario;
 
                 if (attoDto.DocAllegatoGenerico_Stream != null)
                 {

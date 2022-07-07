@@ -221,29 +221,29 @@ namespace PortaleRegione.Common
             }
         }
         
-        public static string GetText_TipoRichiestaDestinatarioDASI(int tipoRichiestaDestinatario)
+        public static string GetText_TipoRichiestaDestDASI(int tipoRichiestaDestinatario)
         {
-            switch ((TipoRispostaDestinatarioEnum)tipoRichiestaDestinatario)
+            switch ((TipoRichiestaDestEnum)tipoRichiestaDestinatario)
             {
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE:
+                case TipoRichiestaDestEnum.PRES_REG:
                     return "IL PRESIDENTE DELLA REGIONE";
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_REGIONE_E_ASSESSORE_AUTONOMIA_E_CULTURA:
+                case TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA:
                     return "IL PRESIDENTE DELLA REGIONE E L’ASSESSORE ALL’AUTONOMIA E CULTURA";
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE:
+                case TipoRichiestaDestEnum.PRES_G_REG_ASS_C:
                     return "IL PRESIDENTE DELLA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_DELLA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI:
+                case TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C:
                     return "IL PRESIDENTE DELLA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_E_LA_GIUNTA_REGIONALE:
+                case TipoRichiestaDestEnum.PRES_G_REG:
                     return "IL PRESIDENTE E LA GIUNTA REGIONALE";
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE:
+                case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C:
                     return "IL PRESIDENTE, LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
-                case TipoRispostaDestinatarioEnum.IL_PRESIDENTE_LA_GIUNTA_REGIONALE_E_GLI_ASSESSORI_COMPETENTI:
+                case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C:
                     return "IL PRESIDENTE, LA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
-                case TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE:
+                case TipoRichiestaDestEnum.G:
                     return "LA GIUNTA REGIONALE";
-                case TipoRispostaDestinatarioEnum.LA_GIUNTA_REGIONALE_E_ASSESSORE_COMPETENTE:
+                case TipoRichiestaDestEnum.G_REG_E_ASS_C:
                     return "LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
-                case TipoRispostaDestinatarioEnum.ASSESSORE_COMPETENTE:
+                case TipoRichiestaDestEnum.ASS_C:
                     return "L’ASSESSORE COMPETENTE";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoRichiestaDestinatario), tipoRichiestaDestinatario, null);
