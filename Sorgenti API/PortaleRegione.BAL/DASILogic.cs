@@ -875,11 +875,11 @@ namespace PortaleRegione.API.Controllers
                         var minimo_firme = count_consiglieri < 5 ? count_consiglieri : 5;
                         if (count_firme < minimo_firme)
                         {
-                            results.Add(idGuid, $"ERROR: Atto non presentabile. Minimo di {minimo_firme} firme ");
+                            results.Add(idGuid,
+                                $"ERROR: Atto non presentabile. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.");
                             continue;
                         }
                     }
-
 
                     var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
                     var contatore_progressivo = contatore.Inizio + contatore.Contatore;
@@ -977,7 +977,7 @@ namespace PortaleRegione.API.Controllers
                             GetBody(dto, tipo, firme, persona, false, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
-                            GetBodyTemporaneo(dto, tipo, ref body);
+                            GetBodyTemporaneo(dto, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;

@@ -150,13 +150,12 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(nAtto))
                 {
                     result = DecryptString(nAtto, AppSettingsConfiguration.masterKey);
-                    if (result.Contains("_"))
-                    {
-                        result = result.Split('_')[0];
-                    }
+                    if (result.Contains("_")) result = result.Split('_')[0];
                 }
                 else
+                {
                     result = "TEMP " + progressivo;
+                }
 
                 return result;
             }
@@ -260,8 +259,6 @@ namespace PortaleRegione.BAL
                             path = HttpContext.Current.Server.MapPath(
                                 "~/templates/dasi/template_indice.html");
                             break;
-                        default:
-                            break;
                     }
                 else
                     switch (templateType)
@@ -288,8 +285,6 @@ namespace PortaleRegione.BAL
                         case TemplateTypeEnum.INDICE_DASI:
                             path = HttpContext.Current.Server.MapPath(
                                 "~/templates/dasi/template_indice.html");
-                            break;
-                        default:
                             break;
                     }
 
@@ -357,7 +352,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyTemporaneo(AttoDASIDto atto, string tipoAtto, ref string body)
+        internal static void GetBodyTemporaneo(AttoDASIDto atto, ref string body)
         {
             try
             {
@@ -371,8 +366,10 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{lblRichiestaATTOView}",
                     string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
 
-                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}",PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI(atto.TipoRichiesta));
-                body = body.Replace("{ddlSoggettiInterrogatiATTOView}", PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI(atto.TipoRichiestaDestinatario));
+                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}",
+                    Utility.GetText_TipoRichiestaDASI(atto.TipoRichiesta));
+                body = body.Replace("{ddlSoggettiInterrogatiATTOView}",
+                    Utility.GetText_TipoRichiestaDestDASI(atto.TipoRichiestaDestinatario));
 
                 var allegato_generico = string.Empty;
 
@@ -586,7 +583,7 @@ namespace PortaleRegione.BAL
                 {
                     //ATTO TEMPORANEO
                     var bodyTemp = GetTemplate(TemplateTypeEnum.FIRMA, true);
-                    GetBodyTemporaneo(atto, tipoAtto, ref bodyTemp);
+                    GetBodyTemporaneo(atto, ref bodyTemp);
                     body = body.Replace("{ltATTOView}", bodyTemp);
                 }
                 else

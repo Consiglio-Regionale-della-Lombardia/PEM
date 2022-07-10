@@ -11,7 +11,7 @@ namespace PortaleRegione.BAL
     {
         public static string GetDescrizioneRisposta(TipoRispostaEnum tipoRisposta, List<CommissioneDto> commissioni)
         {
-            var result = string.Empty;
+            string result;
 
             switch (tipoRisposta)
             {
@@ -29,11 +29,6 @@ namespace PortaleRegione.BAL
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoRisposta), tipoRisposta, null);
-            }
-
-            if (commissioni.Any())
-            {
-                result += $" ({commissioni.First().nome_organo})";
             }
 
             return result;
