@@ -329,6 +329,11 @@ namespace PortaleRegione.API.Controllers
                         queryFilter, soggetti)
                 };
 
+                if (persona.IsSegreteriaAssemblea)
+                {
+                    responseModel.CommissioniAttive = await GetCommissioniAttive();
+                }
+
                 if (soggetti_request.Any())
                     model.filtro.AddRange(soggetti_request);
                 if (stati_request.Any())

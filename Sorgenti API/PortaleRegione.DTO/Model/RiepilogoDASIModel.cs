@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -34,5 +36,6 @@ namespace PortaleRegione.DTO.Model
         public CommandRiepilogoModel CommandRiepilogo { get; set; }
 
         public PersonaDto CurrentUser { get; set; }
+        public List<CommissioneDto> CommissioniAttive { get; set; }
     }
 }
