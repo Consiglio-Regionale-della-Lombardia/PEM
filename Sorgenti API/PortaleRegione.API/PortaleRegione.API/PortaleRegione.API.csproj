@@ -196,6 +196,7 @@
     <Content Include="Templates\DASI\template_firma.html" />
     <Content Include="Templates\DASI\template_html.html" />
     <Content Include="Templates\DASI\template_html_testomodificabile.html" />
+    <Content Include="Templates\DASI\template_indice.html" />
     <Content Include="Templates\DASI\template_mail.html" />
     <Content Include="Templates\DASI\template_pdf.html" />
     <Content Include="Templates\DASI\template_pdf_copertina.html" />

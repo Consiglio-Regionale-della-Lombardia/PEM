@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -63,13 +62,9 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (!attoDto.UIDPersonaProponente.HasValue)
-                {
                     throw new InvalidOperationException("Indicare un proponente");
-                }
                 if (attoDto.UIDPersonaProponente.Value == Guid.Empty)
-                {
                     throw new InvalidOperationException("Indicare un proponente");
-                }
 
                 var result = new ATTI_DASI();
                 if (attoDto.UIDAtto == Guid.Empty)
@@ -856,10 +851,11 @@ namespace PortaleRegione.API.Controllers
 
                     var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
-                    if (atto.Tipo == (int)TipoAttoEnum.IQT
-                        && !atto.UIDSeduta.HasValue)
+                    if (atto.Tipo == (int) TipoAttoEnum.IQT
+                        && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                     {
-                        results.Add(idGuid, $"ERROR: Atto {attoDto.NAtto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
+                        results.Add(idGuid,
+                            $"ERROR: Atto {attoDto.NAtto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
                         continue;
                     }
 
@@ -868,6 +864,22 @@ namespace PortaleRegione.API.Controllers
                         results.Add(idGuid, $"ERROR: Atto {attoDto.NAtto} non presentabile");
                         continue;
                     }
+
+                    //controllo IQT max 5 firme
+                    var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                    if (atto.Tipo == (int) TipoAttoEnum.IQT)
+                    {
+                        var consiglieriGruppo =
+                            await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
+                        var count_consiglieri = consiglieriGruppo.Count();
+                        var minimo_firme = count_consiglieri < 5 ? count_consiglieri : 5;
+                        if (count_firme < minimo_firme)
+                        {
+                            results.Add(idGuid, $"ERROR: Atto non presentabile. Minimo di {minimo_firme} firme ");
+                            continue;
+                        }
+                    }
+
 
                     var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
                     var contatore_progressivo = contatore.Inizio + contatore.Contatore;
@@ -897,7 +909,6 @@ namespace PortaleRegione.API.Controllers
 
                     atto.NAtto = etichetta_encrypt;
 
-                    var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     atto.chkf = count_firme.ToString();
 
                     await _unitOfWork.CompleteAsync();
@@ -1063,7 +1074,7 @@ namespace PortaleRegione.API.Controllers
                     };
                 }
 
-                if(persona.IsSegreteriaPolitica)
+                if (persona.IsSegreteriaPolitica)
                     result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
 
                 result.Atto.UIDPersonaCreazione = persona.UID_persona;
@@ -1503,13 +1514,7 @@ namespace PortaleRegione.API.Controllers
                 var body = GetTemplate(TemplateTypeEnum.PDF_COPERTINA, true);
                 body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
 
-                var templateItemIndice = "<div style='text-align:left;'>" +
-                                         "<b>{TipoAtto} {NAtto}</b><br/>" +
-                                         "Data Presentazione: {DataPresentazione}<br/>" +
-                                         "<p>{Oggetto}</p><br/>" +
-                                         "Iniziativa: {Firmatari}<br/>" +
-                                         "Stato: {Stato}<br/>" +
-                                         "</div><br/>";
+                var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
 
                 var bodyIndice = new StringBuilder();
                 foreach (var dasiDto in atti)

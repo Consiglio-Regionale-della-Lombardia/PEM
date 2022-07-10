@@ -208,45 +208,59 @@ namespace PortaleRegione.Common
 
         public static string GetText_TipoRichiestaDASI(int tipoRichiesta)
         {
-            switch ((TipoRichiestaEnum)tipoRichiesta)
+            try
             {
-                case TipoRichiestaEnum.CHIEDE:
-                    return "Chiede";
-                case TipoRichiestaEnum.INVITA:
-                    return "Invita";
-                case TipoRichiestaEnum.IMPEGNA:
-                    return "Impegna";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(tipoRichiesta), tipoRichiesta, null);
+                switch ((TipoRichiestaEnum)tipoRichiesta)
+                {
+                    case TipoRichiestaEnum.CHIEDE:
+                        return "Chiede";
+                    case TipoRichiestaEnum.INVITA:
+                        return "Invita";
+                    case TipoRichiestaEnum.IMPEGNA:
+                        return "Impegna";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(tipoRichiesta), tipoRichiesta, null);
+                }
+            }
+            catch (Exception e)
+            {
+                return " ";
             }
         }
         
         public static string GetText_TipoRichiestaDestDASI(int tipoRichiestaDestinatario)
         {
-            switch ((TipoRichiestaDestEnum)tipoRichiestaDestinatario)
+            try
             {
-                case TipoRichiestaDestEnum.PRES_REG:
-                    return "IL PRESIDENTE DELLA REGIONE";
-                case TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA:
-                    return "IL PRESIDENTE DELLA REGIONE E L’ASSESSORE ALL’AUTONOMIA E CULTURA";
-                case TipoRichiestaDestEnum.PRES_G_REG_ASS_C:
-                    return "IL PRESIDENTE DELLA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
-                case TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C:
-                    return "IL PRESIDENTE DELLA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
-                case TipoRichiestaDestEnum.PRES_G_REG:
-                    return "IL PRESIDENTE E LA GIUNTA REGIONALE";
-                case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C:
-                    return "IL PRESIDENTE, LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
-                case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C:
-                    return "IL PRESIDENTE, LA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
-                case TipoRichiestaDestEnum.G:
-                    return "LA GIUNTA REGIONALE";
-                case TipoRichiestaDestEnum.G_REG_E_ASS_C:
-                    return "LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
-                case TipoRichiestaDestEnum.ASS_C:
-                    return "L’ASSESSORE COMPETENTE";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(tipoRichiestaDestinatario), tipoRichiestaDestinatario, null);
+                switch ((TipoRichiestaDestEnum)tipoRichiestaDestinatario)
+                {
+                    case TipoRichiestaDestEnum.PRES_REG:
+                        return "IL PRESIDENTE DELLA REGIONE";
+                    case TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA:
+                        return "IL PRESIDENTE DELLA REGIONE E L’ASSESSORE ALL’AUTONOMIA E CULTURA";
+                    case TipoRichiestaDestEnum.PRES_G_REG_ASS_C:
+                        return "IL PRESIDENTE DELLA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                    case TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C:
+                        return "IL PRESIDENTE DELLA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
+                    case TipoRichiestaDestEnum.PRES_G_REG:
+                        return "IL PRESIDENTE E LA GIUNTA REGIONALE";
+                    case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C:
+                        return "IL PRESIDENTE, LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                    case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C:
+                        return "IL PRESIDENTE, LA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
+                    case TipoRichiestaDestEnum.G:
+                        return "LA GIUNTA REGIONALE";
+                    case TipoRichiestaDestEnum.G_REG_E_ASS_C:
+                        return "LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                    case TipoRichiestaDestEnum.ASS_C:
+                        return "L’ASSESSORE COMPETENTE";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(tipoRichiestaDestinatario), tipoRichiestaDestinatario, null);
+                }
+            }
+            catch (Exception e)
+            {
+                return " ";
             }
         }
 

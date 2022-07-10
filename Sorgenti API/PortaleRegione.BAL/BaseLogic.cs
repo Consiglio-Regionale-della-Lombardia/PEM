@@ -256,8 +256,12 @@ namespace PortaleRegione.BAL
                             path = HttpContext.Current.Server.MapPath(
                                 "~/templates/template_html_testomodificabile.html");
                             break;
+                        case TemplateTypeEnum.INDICE_DASI:
+                            path = HttpContext.Current.Server.MapPath(
+                                "~/templates/dasi/template_indice.html");
+                            break;
                         default:
-                            throw new ArgumentOutOfRangeException(nameof(templateType), templateType, null);
+                            break;
                     }
                 else
                     switch (templateType)
@@ -281,8 +285,12 @@ namespace PortaleRegione.BAL
                             path = HttpContext.Current.Server.MapPath(
                                 "~/templates/dasi/template_html_testomodificabile.html");
                             break;
+                        case TemplateTypeEnum.INDICE_DASI:
+                            path = HttpContext.Current.Server.MapPath(
+                                "~/templates/dasi/template_indice.html");
+                            break;
                         default:
-                            throw new ArgumentOutOfRangeException(nameof(templateType), templateType, null);
+                            break;
                     }
 
                 var result = File.ReadAllText(path);
