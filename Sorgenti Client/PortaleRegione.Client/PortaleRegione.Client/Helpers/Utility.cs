@@ -201,6 +201,8 @@ namespace PortaleRegione.Client.Helpers
         public static string GetText_TipoRispostaCommissioneTooltipDASI(AttoDASIDto atto)
         {
             if (atto.IDTipo_Risposta != (int) TipoRispostaEnum.COMMISSIONE) return string.Empty;
+            if (!atto.Commissioni.Any())
+                return string.Empty;
             return atto.Commissioni.First().nome_organo;
         }
 
