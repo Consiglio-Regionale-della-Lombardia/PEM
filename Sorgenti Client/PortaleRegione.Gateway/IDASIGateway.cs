@@ -60,6 +60,7 @@ namespace PortaleRegione.Gateway
         Task<string> GetCopertina(ByQueryModel model);
         Task<IEnumerable<StatiDto>> GetStati();
         Task<IEnumerable<Tipi_AttoDto>> GetTipi();
+        Task<IEnumerable<Tipi_AttoDto>> GetTipiMOZ();
         Task<IEnumerable<AssessoreInCaricaDto>> GetSoggettiInterrogabili();
         Task ModificaMetaDati(AttoDASIDto model);
         Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model);

@@ -66,7 +66,7 @@ else
                 </td>
                 <td style="width: @Html.Raw(item.IDStato!= (int) StatiAttoEnum.BOZZA? "3":"6")%;">
                     @{
-                        var title = $"{Utility.GetText_TipoDASI(item.Tipo)} ";
+                        var title = $"{Utility.GetText_TipoDASI(item)} ";
                         title += item.NAtto;
                     }
                     <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
@@ -150,7 +150,7 @@ else
                                 @textSeduta
                             </div>
                         }
-                        else if ((item.IDStato > (int)StatiAttoEnum.BOZZA || item.Tipo is (int)TipoAttoEnum.IQT) && item.IDStato != (int)StatiAttoEnum.RITIRATO)
+                        else if ((item.IDStato > (int)StatiAttoEnum.BOZZA || item.Tipo is (int)TipoAttoEnum.MOZ || item.Tipo is (int)TipoAttoEnum.IQT) && item.IDStato != (int)StatiAttoEnum.RITIRATO)
                         {
                             if ((item.Tipo is (int)TipoAttoEnum.IQT
                                  && (Model.CurrentUser.IsCapoGruppo

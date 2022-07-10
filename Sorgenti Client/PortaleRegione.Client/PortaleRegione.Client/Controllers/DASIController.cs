@@ -112,6 +112,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetNuovoModello((TipoAttoEnum) tipo);
+            model.CurrentUser = _CurrentUser;
             if (_CurrentUser.IsSegreteriaPolitica)
                 return View("DASIForm_Segreteria", model);
 
@@ -423,6 +424,10 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.DASI.GetModificaModello(id);
+            model.CurrentUser = _CurrentUser;
+            if (_CurrentUser.IsSegreteriaPolitica)
+                return View("DASIForm_Segreteria", model);
+
             return View("DASIForm", model);
         }
 
@@ -843,6 +848,22 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 return Json(await apiGateway.DASI.GetTipi(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
+        [Route("tipi-moz")]
+        public async Task<ActionResult> Filtri_GetTipiMOZ()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.DASI.GetTipiMOZ(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

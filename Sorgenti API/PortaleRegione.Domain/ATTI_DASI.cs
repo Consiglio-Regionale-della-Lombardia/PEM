@@ -35,6 +35,7 @@ namespace PortaleRegione.Domain
         public Guid? UIDSeduta { get; set; }
 
         public int Tipo { get; set; }
+        public int TipoMOZ { get; set; } = 0;
         public int? Progressivo { get; set; }
         public string Etichetta { get; set; }
 

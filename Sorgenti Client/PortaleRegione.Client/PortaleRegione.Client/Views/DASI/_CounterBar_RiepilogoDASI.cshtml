@@ -18,12 +18,12 @@
         </div>
     </div>
     <div class="col s2 @(Model.Tipo == TipoAttoEnum.MOZ ? "counter-active" : "")">
-        <div class="chip badgeDISABLED">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int) TipoAttoEnum.MOZ))">
             MOZ (@Model.CountBarData.MOZ)
         </div>
     </div>
     <div class="col s2 @(Model.Tipo == TipoAttoEnum.ODG ? "counter-active" : "")">
-        <div class="chip badgeDISABLED">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int) TipoAttoEnum.ODG))">
             ODG (@Model.CountBarData.ODG)
         </div>
     </div>

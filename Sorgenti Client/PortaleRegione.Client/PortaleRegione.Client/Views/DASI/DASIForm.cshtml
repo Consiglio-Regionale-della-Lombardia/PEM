@@ -1,4 +1,4 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
@@ -6,10 +6,10 @@
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
 
-    var backUrl = isNew ? Url.Action("RiepilogoDASI", new { tipo = Model.Atto.Tipo }) : Url.Action("ViewAtto", new { id = Model.Atto.UIDAtto });
+    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : Url.Action("ViewAtto", new {id = Model.Atto.UIDAtto});
 }
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>
@@ -24,7 +24,7 @@
         <h5>
             <b>
                 <span>@ViewBag.Title</span>
-                <input id="hfIsNew" type="hidden" value="@isNew" />
+                <input id="hfIsNew" type="hidden" value="@isNew"/>
             </b>
         </h5>
     </div>
@@ -36,14 +36,14 @@
             <div class="col s12 center">
                 <h5>
                     <b>
-                        <span>@PortaleRegione.Common.Utility.GetText_TipoDASI(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
+                        <span>@Utility.GetText_TipoDASI(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
                     </b>
                 </h5>
             </div>
         </div>
         <div class="row">
             <div class="col s12">
-                @using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
+                @using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new {id = "formDASI"}))
                 {
                     @Html.AntiForgeryToken()
 
@@ -60,76 +60,79 @@
                     @Html.HiddenFor(m => m.Atto.UID_QRCode)
                     @Html.HiddenFor(m => m.Atto.Tipo)
 
+                    @Html.Partial("_TipoMOZPartial", Model)
                     @Html.Partial("_TipoRispostaPartial", Model)
 
                     <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Atto.Oggetto)
-                        @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+                        @Html.TextBoxFor(model => model.Atto.Oggetto, new {@class = "form-control"})
                     </div>
                     <div class="form-group" style="padding-top: 10px">
                         @Html.LabelFor(s => s.Atto.Premesse)
-                        @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
+                        @Html.TextAreaFor(model => model.Atto.Premesse, new {@class = "form-control trumbowyg"})
                     </div>
 
                     <div class="row">
                         <div class="col s12">
                             <label class="black-text" style="margin-left: 20px">
-                                <input type="radio" name="Atto.TipoRichiesta" checked="checked" value="@((int)TipoRichiestaEnum.CHIEDE)" @Html.Raw(Model.Atto.TipoRichiesta == (int)TipoRichiestaEnum.CHIEDE ? "checked='checked'" : "") />
-                                <span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
+                                <input type="radio" name="Atto.TipoRichiesta" checked="checked" value="@((int) TipoRichiestaEnum.CHIEDE)" @Html.Raw(Model.Atto.TipoRichiesta == (int) TipoRichiestaEnum.CHIEDE ? "checked='checked'" : "")/>
+                                <span>@Utility.GetText_TipoRichiestaDASI((int) TipoRichiestaEnum.CHIEDE)</span>
                             </label>
                             <label class="black-text" style="margin-left: 20px">
-                                <input type="radio" name="Atto.TipoRichiesta" value="@((int)TipoRichiestaEnum.INVITA)" @Html.Raw(Model.Atto.TipoRichiesta == (int)TipoRichiestaEnum.INVITA ? "checked='checked'" : "") />
-                                <span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
+                                <input type="radio" name="Atto.TipoRichiesta" value="@((int) TipoRichiestaEnum.INVITA)" @Html.Raw(Model.Atto.TipoRichiesta == (int) TipoRichiestaEnum.INVITA ? "checked='checked'" : "")/>
+                                <span>@Utility.GetText_TipoRichiestaDASI((int) TipoRichiestaEnum.INVITA)</span>
                             </label>
                             <label class="black-text" style="margin-left: 20px">
-                                <input type="radio" name="Atto.TipoRichiesta" value="@((int)TipoRichiestaEnum.IMPEGNA)" @Html.Raw(Model.Atto.TipoRichiesta == (int)TipoRichiestaEnum.IMPEGNA ? "checked='checked'" : "") />
-                                <span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
+                                <input type="radio" name="Atto.TipoRichiesta" value="@((int) TipoRichiestaEnum.IMPEGNA)" @Html.Raw(Model.Atto.TipoRichiesta == (int) TipoRichiestaEnum.IMPEGNA ? "checked='checked'" : "")/>
+                                <span>@Utility.GetText_TipoRichiestaDASI((int) TipoRichiestaEnum.IMPEGNA)</span>
                             </label>
                         </div>
                     </div>
                     <div class="input-field">
                         <select id='Atto_TipoRichiestaDestinatario'>
-                            <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_REG)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_REG ? "selected=\"selected\"" : "")>
-                                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)
-                        </option>
-                        <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA ? "selected=\"selected\"" : "")>
-                            @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA)
-                    </option>
-                    <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_G_REG_ASS_C ? "selected=\"selected\"" : "")>
-                        @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_G_REG_ASS_C)
-                </option>
-                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C ? "selected=\"selected\"" : "")>
-                    @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C)
-            </option>
-            <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_G_REG ? "selected=\"selected\"" : "")>
-                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_G_REG)
-            </option>
-            <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C ? "selected=\"selected\"" : "")>
-                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C)
-            </option>
-            <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C ? "selected=\"selected\"" : "")>
-                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C)
-            </option>
-            <option value="@Html.Raw((int) TipoRichiestaDestEnum.G)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.G ? "selected=\"selected\"" : "")>
-                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)
-            </option>
-            <option value="@Html.Raw((int) TipoRichiestaDestEnum.G_REG_E_ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.G_REG_E_ASS_C ? "selected=\"selected\"" : "")>
-                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G_REG_E_ASS_C)
-            </option>
-            <option value="@Html.Raw((int) TipoRichiestaDestEnum.ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int)TipoRichiestaDestEnum.ASS_C ? "selected=\"selected\"" : "")>
-                @PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)
-            </option>
-            </select>
-            <label for="Atto_TipoRichiestaDestinatario"></label>
-            </div>
 
-            <div class="form-group" style="padding-top: 10px">
-                @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
-            </div>
+                            @if (Model.Atto.Tipo == (int) TipoAttoEnum.ITL
+                                 || Model.Atto.Tipo == (int) TipoAttoEnum.ITR
+                                 || Model.Atto.Tipo == (int) TipoAttoEnum.IQT)
+                            {
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_REG)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.PRES_REG ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.PRES_REG)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.ASS_C ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.ASS_C)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.G)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.G ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.G)
+                                </option>
+                            }
+                            else if (Model.Atto.Tipo == (int) TipoAttoEnum.MOZ
+                                     || Model.Atto.Tipo == (int) TipoAttoEnum.ODG)
+                            {
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.PRES_G_REG_ASS_C ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.PRES_G_REG_ASS_C)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.PRES_G_REG ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.PRES_G_REG)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C ? "selected=\"selected\"" : "")>
+                                    @Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.G)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.G ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.G)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.ASS_C)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.ASS_C ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.ASS_C)
+                                </option>
+                                <option value="@Html.Raw((int) TipoRichiestaDestEnum.ALTRO)" @Html.Raw(Model.Atto.TipoRichiestaDestinatario == (int) TipoRichiestaDestEnum.ALTRO ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRichiestaDestDASI((int) TipoRichiestaDestEnum.ALTRO)
+                                </option>
+                            }
+                        </select>
+                        <label for="Atto_TipoRichiestaDestinatario"></label>
+                    </div>
 
-            @Html.Partial("_DocsPanel", Model)
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.TextAreaFor(model => model.Atto.Richiesta, new {@class = "form-control trumbowyg"})
+                    </div>
 
-        }
+                    @Html.Partial("_DocsPanel", Model)
+                }
 
                 <div class="fixed-action-btn">
                     <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
@@ -142,17 +145,3 @@
 </div>
 
 @Html.Partial("_ScriptFormDASI")
-
-<script>
-    $(document).ready(function() {
-        $('#Atto_TipoRisposta').on("change",
-            function() {
-                var selected_option_value = $(this).find(":selected").val();
-                if (selected_option_value == @Html.Raw((int) TipoRispostaEnum.COMMISSIONE)) {
-                    $("#pnlCommissioni").show();
-                } else {
-                    $("#pnlCommissioni").hide();
-                }
-            });
-    });
-</script>

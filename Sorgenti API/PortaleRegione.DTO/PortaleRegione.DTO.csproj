@@ -83,6 +83,7 @@
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoAttoCSSConst.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
+    <Compile Include="Enum\TipoMOZEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
     <Compile Include="Enum\TipoRichiestaEnum.cs" />
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />

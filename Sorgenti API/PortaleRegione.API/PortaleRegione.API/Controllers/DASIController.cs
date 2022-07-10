@@ -777,6 +777,25 @@ namespace PortaleRegione.API.Controllers
         }
         
         /// <summary>
+        ///     Endpoint per avere i tipi di mozioni
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("tipi-moz")]
+        public async Task<IHttpActionResult> GetTipiMOZ()
+        {
+            try
+            {
+                return Ok(_logic.GetTipiMOZ());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetTipiMOZ", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per avere i soggetti interrogabili
         /// </summary>
         /// <returns></returns>

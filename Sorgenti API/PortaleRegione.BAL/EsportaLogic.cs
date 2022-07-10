@@ -303,7 +303,7 @@ namespace PortaleRegione.BAL
                     if (gruppo.id_gruppo != firma.id_gruppo)
                         gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
                     var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-                    SetColumnValue(ref rowBody, Utility.GetText_TipoDASI(atto.Tipo)); // tipo atto
+                    SetColumnValue(ref rowBody, Utility.GetText_TipoDASI(atto)); // tipo atto
                     SetColumnValue(ref rowBody, atto.NAtto); // numero atto
                     var firmacert = firma.FirmaCert;
                     var indiceParentesiApertura = firmacert.IndexOf('(');
@@ -703,7 +703,7 @@ namespace PortaleRegione.BAL
                 foreach (var atto in attiList)
                 {
                     var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-                    SetColumnValue(ref rowBody, Utility.GetText_TipoDASI(atto.Tipo)); // tipo atto
+                    SetColumnValue(ref rowBody, Utility.GetText_TipoDASI(atto)); // tipo atto
                     SetColumnValue(ref rowBody, ""); // tipo mozione
                     SetColumnValue(ref rowBody, atto.NAtto); // numero atto
                     SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto

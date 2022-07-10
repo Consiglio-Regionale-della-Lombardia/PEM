@@ -95,6 +95,13 @@ function get_ListaTipiDASI() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaTipiMOZDASI() {
+    var session_raw = sessionStorage.getItem("ListaTipiMOZDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function get_ListaSoggettiIterrogabiliDASI() {
     var session_raw = sessionStorage.getItem("ListaSoggettiInterrogabiliDASI");
     if (session_raw == null)
@@ -108,6 +115,10 @@ function set_ListaStatiDASI(obj) {
 
 function set_ListaTipiDASI(obj) {
     sessionStorage.setItem("ListaTipiDASI", JSON.stringify(obj));
+}
+
+function set_ListaTipiMOZDASI(obj) {
+    sessionStorage.setItem("ListaTipiMOZDASI", JSON.stringify(obj));
 }
 
 function set_ListaSoggettiInterrogabiliDASI(obj) {

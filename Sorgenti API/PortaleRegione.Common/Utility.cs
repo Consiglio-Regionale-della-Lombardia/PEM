@@ -119,6 +119,40 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoDASI(AttoDASIDto atto)
+        {
+            return GetText_TipoDASI(atto.Tipo, atto.TipoMOZ);
+        }
+
+        public static string GetText_TipoDASI(int tipoAtto, int tipoMOZ)
+        {
+            switch ((TipoAttoEnum) tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return TipoAttoEnum.ITR.ToString();
+                case TipoAttoEnum.IQT:
+                    return TipoAttoEnum.IQT.ToString();
+                case TipoAttoEnum.ITL:
+                    return TipoAttoEnum.ITL.ToString();
+                case TipoAttoEnum.MOZ:
+                {
+                    var title = TipoAttoEnum.MOZ.ToString();
+                    title += $"{GetText_TipoMOZDASI(tipoMOZ)}";
+                    return title;
+                }
+                case TipoAttoEnum.ODG:
+                    return TipoAttoEnum.ODG.ToString();
+                case TipoAttoEnum.PDL:
+                    return TipoAttoEnum.PDL.ToString();
+                case TipoAttoEnum.PDA:
+                    return TipoAttoEnum.PDA.ToString();
+                case TipoAttoEnum.TUTTI:
+                    return "Tutti";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
         public static string GetText_TipoDASI(int tipoAtto)
         {
             switch ((TipoAttoEnum) tipoAtto)
@@ -144,6 +178,25 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoMOZDASI(int tipoAtto)
+        {
+            switch ((TipoMOZEnum) tipoAtto)
+            {
+                case TipoMOZEnum.NON_IMPOSTATO:
+                    return "";
+                case TipoMOZEnum.URGENTE:
+                    return "U";
+                case TipoMOZEnum.ABBINATA:
+                    return "A";
+                case TipoMOZEnum.SFIDUCIA:
+                    return "S";
+                case TipoMOZEnum.CENSURA:
+                    return "C";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
         public static string GetText_StatoDASI(int stato)
         {
             switch ((StatiAttoEnum) stato)
@@ -156,26 +209,8 @@ namespace PortaleRegione.Common
                     return "Presentato";
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In Trattazione";
-                //case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
-                //    return "Comunicazione all’Assemblea";
-                //case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
-                //    return "Trattazione all’Assemblea";
-                //case StatiAttoEnum.APPROVATO:
-                //    return "Approvato";
-                //case StatiAttoEnum.RESPINTO:
-                //    return "Respinto";
-                //case StatiAttoEnum.INAMMISSIBILE:
-                //    return "Inammissibile";
                 case StatiAttoEnum.RITIRATO:
                     return "Ritirato";
-                //case StatiAttoEnum.DECADUTO:
-                //    return "Decaduto";
-                //case StatiAttoEnum.DECADUTO_FINE_MANDATO:
-                //    return "Decadenza FMC";
-                //case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
-                //    return "Decadenza FL";
-                //case StatiAttoEnum.ALTRO:
-                //    return "Chiusura Altro";
                 case StatiAttoEnum.CHIUSO:
                     return "Chiuso";
                 case StatiAttoEnum.TUTTI:
@@ -202,7 +237,7 @@ namespace PortaleRegione.Common
                     return "Immediata";
                 }
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(IdTipoRisposta), IdTipoRisposta, null);
+                    return "";
             }
         }
 
@@ -210,14 +245,14 @@ namespace PortaleRegione.Common
         {
             try
             {
-                switch ((TipoRichiestaEnum)tipoRichiesta)
+                switch ((TipoRichiestaEnum) tipoRichiesta)
                 {
                     case TipoRichiestaEnum.CHIEDE:
-                        return "Chiede";
+                        return "Chiede al";
                     case TipoRichiestaEnum.INVITA:
-                        return "Invita";
+                        return "Invita il";
                     case TipoRichiestaEnum.IMPEGNA:
-                        return "Impegna";
+                        return "Impegna il";
                     default:
                         throw new ArgumentOutOfRangeException(nameof(tipoRichiesta), tipoRichiesta, null);
                 }
@@ -227,35 +262,38 @@ namespace PortaleRegione.Common
                 return " ";
             }
         }
-        
+
         public static string GetText_TipoRichiestaDestDASI(int tipoRichiestaDestinatario)
         {
             try
             {
-                switch ((TipoRichiestaDestEnum)tipoRichiestaDestinatario)
+                switch ((TipoRichiestaDestEnum) tipoRichiestaDestinatario)
                 {
                     case TipoRichiestaDestEnum.PRES_REG:
-                        return "IL PRESIDENTE DELLA REGIONE";
+                        return "PRESIDENTE DELLA REGIONE";
                     case TipoRichiestaDestEnum.PRES_REG_ASS_AUTONOMIA_CULTURA:
-                        return "IL PRESIDENTE DELLA REGIONE E L’ASSESSORE ALL’AUTONOMIA E CULTURA";
+                        return "PRESIDENTE DELLA REGIONE E L’ASSESSORE ALL’AUTONOMIA E CULTURA";
                     case TipoRichiestaDestEnum.PRES_G_REG_ASS_C:
-                        return "IL PRESIDENTE DELLA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                        return "PRESIDENTE DELLA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
                     case TipoRichiestaDestEnum.PRES_G_REG_ASS_N_C:
-                        return "IL PRESIDENTE DELLA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
+                        return "PRESIDENTE DELLA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
                     case TipoRichiestaDestEnum.PRES_G_REG:
-                        return "IL PRESIDENTE E LA GIUNTA REGIONALE";
+                        return "PRESIDENTE E LA GIUNTA REGIONALE";
                     case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_C:
-                        return "IL PRESIDENTE, LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                        return "PRESIDENTE, LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
                     case TipoRichiestaDestEnum.PRES_G_REG_E_ASS_N_C:
-                        return "IL PRESIDENTE, LA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
+                        return "PRESIDENTE, LA GIUNTA REGIONALE E GLI ASSESSORI COMPETENTI";
                     case TipoRichiestaDestEnum.G:
-                        return "LA GIUNTA REGIONALE";
+                        return "GIUNTA REGIONALE";
                     case TipoRichiestaDestEnum.G_REG_E_ASS_C:
-                        return "LA GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
+                        return "GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
                     case TipoRichiestaDestEnum.ASS_C:
-                        return "L’ASSESSORE COMPETENTE";
+                        return "ASSESSORE COMPETENTE";
+                    case TipoRichiestaDestEnum.ALTRO:
+                        return "ALTRO (il soggetto viene messo nel testo delle richieste dell'atto)";
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(tipoRichiestaDestinatario), tipoRichiestaDestinatario, null);
+                        throw new ArgumentOutOfRangeException(nameof(tipoRichiestaDestinatario),
+                            tipoRichiestaDestinatario, null);
                 }
             }
             catch (Exception e)

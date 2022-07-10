@@ -18,18 +18,12 @@
 
 namespace PortaleRegione.DTO.Enum
 {
-    public enum TipoRichiestaDestEnum
+    public enum TipoMOZEnum
     {
-        PRES_REG = 1,
-        PRES_REG_ASS_AUTONOMIA_CULTURA = 2,
-        PRES_G_REG_ASS_C = 3,
-        PRES_G_REG_ASS_N_C = 4,
-        PRES_G_REG = 5,
-        PRES_G_REG_E_ASS_C =6,
-        PRES_G_REG_E_ASS_N_C=7,
-        G = 8,
-        G_REG_E_ASS_C = 9,
-        ASS_C = 10,
-        ALTRO = 11
+        NON_IMPOSTATO = 0,
+        URGENTE = 1,
+        ABBINATA = 2,
+        SFIDUCIA = 3,
+        CENSURA = 4
     }
 }

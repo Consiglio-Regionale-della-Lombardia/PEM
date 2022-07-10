@@ -448,6 +448,7 @@
     <Content Include="Views\DASI\_RichiestaIscrizioneASedutaModal.cshtml" />
     <Content Include="Views\DASI\DASIForm_Segreteria.cshtml" />
     <Content Include="Views\DASI\_TipoRispostaPartial.cshtml" />
+    <Content Include="Views\DASI\_TipoMOZPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

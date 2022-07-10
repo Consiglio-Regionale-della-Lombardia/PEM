@@ -29,6 +29,9 @@
             form_data.append("Premesse", editor_premesse.html());
             form_data.append("Richiesta", editor_richiesta.html());
             form_data.append("Tipo", $("#Atto_Tipo").val());
+            if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.MOZ)) {
+                form_data.append("TipoMOZ", $('select[id="Atto_TipoMOZ"]').children("option:selected").val());
+            }
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
             form_data.append("UIDPersonaProponente", proponente);
             form_data.append("TipoRichiesta", $('input[name="Atto.TipoRichiesta"]:checked')[0].value);

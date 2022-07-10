@@ -343,6 +343,26 @@ function GetTipiDASI() {
     });
 }
 
+function GetTipiMOZDASI() {
+    var tipi = get_ListaTipiMOZDASI();
+    if (tipi.length > 0) {
+        return tipi;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/tipi-moz",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaTipiMOZDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetSoggettiInterrogabiliDASI() {
     var soggetti = get_ListaSoggettiIterrogabiliDASI();
     if (soggetti.length > 0) {

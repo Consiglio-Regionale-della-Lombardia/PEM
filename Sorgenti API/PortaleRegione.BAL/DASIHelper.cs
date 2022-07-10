@@ -28,7 +28,8 @@ namespace PortaleRegione.BAL
                     result = "Immediata";
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(tipoRisposta), tipoRisposta, null);
+                    result = "";
+                    break;
             }
 
             return result;

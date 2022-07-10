@@ -356,8 +356,17 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                body = body.Replace("{lblTipoRispostaATTOView}",
-                    DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum) atto.IDTipo_Risposta, atto.Commissioni));
+                if (atto.Tipo == (int) TipoAttoEnum.MOZ
+                    || atto.Tipo == (int) TipoAttoEnum.ODG)
+                {
+                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}","<!--");
+                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}","-->");
+                }
+                else
+                {
+                    body = body.Replace("{lblTipoRispostaATTOView}",
+                        DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
+                }
 
                 body = body.Replace("{lblSubTitoloATTOView}",
                     string.IsNullOrEmpty(atto.Oggetto_Modificato) ? atto.Oggetto : atto.Oggetto_Modificato);
@@ -574,7 +583,8 @@ namespace PortaleRegione.BAL
             try
             {
                 var firmeDtos = firme.ToList();
-                body = body.Replace("{lblTitoloATTOView}", $"{tipoAtto} {atto.NAtto}");
+                var title = $"{tipoAtto} {atto.NAtto}";
+                body = body.Replace("{lblTitoloATTOView}", title);
 
                 if (!string.IsNullOrEmpty(atto.Oggetto_Modificato)
                     || !string.IsNullOrEmpty(atto.Premesse_Modificato)

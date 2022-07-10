@@ -71,6 +71,8 @@ namespace PortaleRegione.API.Controllers
                 {
                     //Nuovo inserimento
                     result.Tipo = attoDto.Tipo;
+                    if (attoDto.Tipo == (int) TipoAttoEnum.MOZ) result.TipoMOZ = attoDto.TipoMOZ;
+
                     var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
                     result.Legislatura = legislatura;
                     var progressivo =
@@ -136,6 +138,8 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await _unitOfWork.DASI.Get(attoDto.UIDAtto);
                 if (attoInDb == null)
                     throw new InvalidOperationException("Atto non trovato");
+
+                if (attoDto.Tipo == (int) TipoAttoEnum.MOZ) attoInDb.TipoMOZ = attoDto.TipoMOZ;
 
                 attoInDb.UIDPersonaModifica = persona.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
@@ -329,10 +333,7 @@ namespace PortaleRegione.API.Controllers
                         queryFilter, soggetti)
                 };
 
-                if (persona.IsSegreteriaAssemblea)
-                {
-                    responseModel.CommissioniAttive = await GetCommissioniAttive();
-                }
+                if (persona.IsSegreteriaAssemblea) responseModel.CommissioniAttive = await GetCommissioniAttive();
 
                 if (soggetti_request.Any())
                     model.filtro.AddRange(soggetti_request);
@@ -872,12 +873,33 @@ namespace PortaleRegione.API.Controllers
 
                     //controllo IQT max 5 firme
                     var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
-                    if (atto.Tipo == (int) TipoAttoEnum.IQT)
+                    if (atto.Tipo == (int) TipoAttoEnum.IQT
+                        || (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                        || (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
+                        || (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
                     {
+                        int minimo_consiglieri = 5;
+                        if (atto.Tipo == (int) TipoAttoEnum.MOZ)
+                        {
+                            if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
+                            {
+                                minimo_consiglieri = 8;
+                            }
+                            if (atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
+                                || atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
+                            {
+                                minimo_consiglieri = 16;
+                            }
+                        }
+
                         var consiglieriGruppo =
                             await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                         var count_consiglieri = consiglieriGruppo.Count();
-                        var minimo_firme = count_consiglieri < 5 ? count_consiglieri : 5;
+                        var minimo_firme = count_consiglieri < minimo_consiglieri 
+                                           && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA 
+                                           && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA 
+                            ? count_consiglieri : minimo_consiglieri;
+
                         if (count_firme < minimo_firme)
                         {
                             results.Add(idGuid,
@@ -958,15 +980,7 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    var tipo = atto.Tipo switch
-                    {
-                        (int) TipoAttoEnum.ITL => nameof(TipoAttoEnum.ITL),
-                        (int) TipoAttoEnum.ITR => nameof(TipoAttoEnum.ITR),
-                        (int) TipoAttoEnum.IQT => nameof(TipoAttoEnum.IQT),
-                        (int) TipoAttoEnum.MOZ => nameof(TipoAttoEnum.MOZ),
-                        (int) TipoAttoEnum.ODG => nameof(TipoAttoEnum.ODG),
-                        _ => ""
-                    };
+                    var tipo = Utility.GetText_TipoDASI(dto);
 
                     var body = GetTemplate(template, true);
 
@@ -1215,7 +1229,7 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                        $"{Utility.GetText_TipoDASI(atto.Tipo, atto.TipoMOZ)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
                     listaRichieste.Add(
                         atto.UIDPersonaRichiestaIscrizione.HasValue
                             ? atto.UIDPersonaRichiestaIscrizione.Value
@@ -1271,7 +1285,7 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
 
                     var nomeAtto =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                        $"{Utility.GetText_TipoDASI(atto.Tipo, atto.TipoMOZ)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
                     listaRichieste.Add(nomeAtto);
                 }
 
@@ -1524,7 +1538,7 @@ namespace PortaleRegione.API.Controllers
                 var bodyIndice = new StringBuilder();
                 foreach (var dasiDto in atti)
                     bodyIndice.Append(templateItemIndice
-                        .Replace("{TipoAtto}", Utility.GetText_TipoDASI(dasiDto.Tipo))
+                        .Replace("{TipoAtto}", Utility.GetText_TipoDASI(dasiDto.Tipo, dasiDto.TipoMOZ))
                         .Replace("{NAtto}", dasiDto.NAtto)
                         .Replace("{DataPresentazione}", dasiDto.DataPresentazione)
                         .Replace("{Oggetto}", dasiDto.Oggetto)
@@ -1568,15 +1582,31 @@ namespace PortaleRegione.API.Controllers
             var result = new List<Tipi_AttoDto>();
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
-                if ((int) tipo != (int) TipoAttoEnum.ODG
-                    && (int) tipo != (int) TipoAttoEnum.MOZ
-                    && (int) tipo != (int) TipoAttoEnum.PDL
+                if ((int) tipo != (int) TipoAttoEnum.PDL
                     && (int) tipo != (int) TipoAttoEnum.PDA)
                     result.Add(new Tipi_AttoDto
                     {
                         IDTipoAtto = (int) tipo,
                         Tipo_Atto = Utility.GetText_TipoDASI((int) tipo)
                     });
+
+            return result;
+        }
+
+        public IEnumerable<Tipi_AttoDto> GetTipiMOZ()
+        {
+            var result = new List<Tipi_AttoDto>();
+            var tipi = Enum.GetValues(typeof(TipoMOZEnum));
+            foreach (var tipo in tipi)
+            {
+                if ((int) tipo == (int) TipoMOZEnum.NON_IMPOSTATO)
+                    continue;
+                result.Add(new Tipi_AttoDto
+                {
+                    IDTipoAtto = (int) tipo,
+                    Tipo_Atto = tipo.ToString()
+                });
+            }
 
             return result;
         }

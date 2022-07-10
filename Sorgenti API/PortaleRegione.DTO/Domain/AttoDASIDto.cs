@@ -47,6 +47,7 @@ namespace PortaleRegione.DTO.Domain
         public string Richiesta_Modificata { get; set; }
 
         public int Tipo { get; set; }
+        public int TipoMOZ { get; set; } = 0;
         public string NAtto { get; set; }
         public DateTime DataCreazione { get; set; }
         public Guid UIDPersonaCreazione { get; set; }
