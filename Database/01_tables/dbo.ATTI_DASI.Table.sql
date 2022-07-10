@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 07/07/2022 04:08:31 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 11/07/2022 00:46:03 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,6 +11,7 @@ GO
 CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDAtto] [uniqueidentifier] NOT NULL,
 	[Tipo] [int] NOT NULL,
+	[TipoMOZ] [int] NOT NULL,
 	[Progressivo] [int] NULL,
 	[Etichetta] [varchar](255) NULL,
 	[NAtto] [varchar](max) NULL,
@@ -66,6 +67,9 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDAtto] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoMOZ]  DEFAULT ((0)) FOR [TipoMOZ]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NAtto_search]  DEFAULT ((0)) FOR [NAtto_search]
