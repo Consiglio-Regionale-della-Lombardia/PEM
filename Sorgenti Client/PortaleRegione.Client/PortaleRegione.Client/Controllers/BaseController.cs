@@ -98,14 +98,14 @@ namespace PortaleRegione.Client.Controllers
             BaseGateway.apiUrl = AppSettingsConfiguration.URL_API;
         }
 
-        internal void CheckCacheClientMode()
+        internal void CheckCacheClientMode(ClientModeEnum _mode)
         {
             var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
-            if (mode != (int)ClientModeEnum.TRATTAZIONE)
+            if (mode != (int)_mode)
             {
                 HttpContext.Cache.Insert(
                     CacheHelper.CLIENT_MODE,
-                    (int)ClientModeEnum.TRATTAZIONE,
+                    (int)_mode,
                     null,
                     Cache.NoAbsoluteExpiration,
                     Cache.NoSlidingExpiration,

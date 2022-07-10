@@ -36,24 +36,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                CheckCacheClientMode();
-
-                return View("Index");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-        
-        [HttpGet]
-        [Route("cruscotto")]
-        public async Task<ActionResult> Cruscotto()
-        {
-            try
-            {
-                CheckCacheClientMode();
+                CheckCacheClientMode(ClientModeEnum.GRUPPI);
 
                 var apiGateway = new ApiGateway(_Token);
                 var model = new DashboardModel
@@ -71,29 +54,12 @@ namespace PortaleRegione.Client.Controllers
                         model.DASI.Add(attiDASI);
                 }
 
-                return View("Cruscotto", model);
+                return View("Index", model);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
-            }
-        }
-
-        private void CheckCacheClientMode()
-        {
-            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
-            if (mode != (int)ClientModeEnum.GRUPPI)
-            {
-                HttpContext.Cache.Insert(
-                    CacheHelper.CLIENT_MODE,
-                    (int)ClientModeEnum.GRUPPI,
-                    null,
-                    Cache.NoAbsoluteExpiration,
-                    Cache.NoSlidingExpiration,
-                    CacheItemPriority.NotRemovable,
-                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
-                );
             }
         }
     }

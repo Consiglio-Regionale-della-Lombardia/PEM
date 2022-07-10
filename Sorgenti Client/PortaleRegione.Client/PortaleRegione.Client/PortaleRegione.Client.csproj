@@ -446,7 +446,6 @@
     <Content Include="Views\DASI\_MetaDatiPanelPartial.cshtml" />
     <Content Include="Views\DASI\_InvitoPanelMassivo.cshtml" />
     <Content Include="Views\DASI\_RichiestaIscrizioneASedutaModal.cshtml" />
-    <Content Include="Views\Home\Cruscotto.cshtml" />
     <Content Include="Views\DASI\DASIForm_Segreteria.cshtml" />
     <Content Include="Views\DASI\_TipoRispostaPartial.cshtml" />
   </ItemGroup>

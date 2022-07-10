@@ -41,7 +41,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("view")]
         public async Task<ActionResult> Index(Guid id)
         {
-            CheckCacheClientMode();
+            CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
             var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
             var apiGateway = new ApiGateway(_Token);
             var seduta = await apiGateway.Sedute.Get(id);
@@ -62,7 +62,7 @@ namespace PortaleRegione.Client.Controllers
         
         public async Task<ActionResult> Archivio(int page = 1, int size = 50)
         {
-            CheckCacheClientMode();
+            CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
 
             var apiGateway = new ApiGateway(_Token);
             var model = await apiGateway.Sedute.Get(page, size);

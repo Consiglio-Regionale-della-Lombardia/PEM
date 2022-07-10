@@ -1,7 +1,10 @@
 ﻿@using Newtonsoft.Json
+@using PortaleRegione.Common
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
-@using PortaleRegione.DTO.Model
+@using PortaleRegione.Client.Helpers
+@model PortaleRegione.DTO.Model.DashboardModel
+
 @{
     ViewBag.Title = "Home";
     var currentRole = RuoliIntEnum.Utente;
@@ -32,14 +35,7 @@
 }
 
 <div class="row">
-    <div class="col s12">
-        <h6>
-            Benvenuto nel portale per la presentazione dematerializzata del Atti del Consiglio regionale della Lombardia
-        </h6>
-    </div>
-</div>
-<div class="row">
-    <div class="col @Html.Raw(DASIEnabled?"s6":"s12")">
+    <div class="col @Html.Raw(DASIEnabled ? "s6" : "s12")">
         <div class="card">
             <div class="card-content black-text">
                 <span class="card-title">PEM</span>
@@ -49,7 +45,7 @@
                 <a class="btn-flat blue-text"
                    onclick="go('@Url.Action("RiepilogoSedute", "PEM")')" title="Presenta un emendamento a un progetto di legge">
                     <i class="material-icons right">chevron_right</i>
-                    Entra
+                    Gestisci Emendamenti
                 </a>
             </div>
         </div>
@@ -66,15 +62,200 @@
                     <a class="btn-flat blue-text"
                        onclick="go('@Url.Action("RiepilogoDASI", "DASI")')" title="Presenta un atto di indirizzo e sindacato ispettivo">
                         <i class="material-icons right">chevron_right</i>
-                        Entra
+                        Gestisci Atti
                     </a>
                 </div>
             </div>
         </div>
     }
-    
-</div>
 
+</div>
+<div class="row">
+    <div class="col s12">
+        <div class="row">
+            <div class="col s12">
+                <h6>
+                    <b>AULE ATTIVE</b>
+                </h6>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col s12">
+                <ul class="collapsible">
+                    @foreach (var seduta in Model.Sedute.Results)
+                    {
+                        <li class="active grey lighten-4">
+                            <div class="collapsible-header black-text">
+                                <i class="material-icons">event</i>
+                                Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                            <div class="collapsible-body">
+                                <div class="row" style="margin: 0 !important">
+                                    <div class="col l6 s12">
+                                        <div class="row" style="margin: 0 !important">
+                                            <div class="col s12">
+                                                <h6>
+                                                    <b>PEM</b>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        @{
+                                            var pemList = Model.PEM.FirstOrDefault(a => a.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
+                                        }
+                                        @if (pemList != null)
+                                        {
+                                            <ul class="collapsible" style="position: relative">
+                                                @foreach (var attoPem in pemList.Results)
+                                                {
+                                                    var titolo_atto = string.Format("{0} {1}", attoPem.TIPI_ATTO.Tipo_Atto, attoPem.NAtto);
+                                                    <li>
+                                                        <div class="collapsible-header">
+                                                            <i class="material-icons pink-text">textsms</i>
+                                                            @titolo_atto
+                                                            <div class="collapsabile-secondary-header">
+                                                                <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="collapsible-body">
+                                                            <div class="row">
+                                                                <div class="col s12">
+                                                                    <label>
+                                                                        <b>Oggetto</b>
+                                                                    </label>
+                                                                    <br />
+                                                                    <p>@attoPem.Oggetto</p>
+                                                                </div>
+                                                                @if (attoPem.UIDAssessoreRiferimento.HasValue)
+                                                                {
+                                                                    <div class="col s12">
+                                                                        <label>
+                                                                            <b>Assessore di Riferimento</b>
+                                                                        </label>
+                                                                        <br />
+                                                                        <div class="chip" style="margin-left: 5px; min-width: unset;">
+                                                                            <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                                                            @attoPem.PersonaAssessore.DisplayName
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                                <div class="col s12">
+                                                                    <label>
+                                                                        <b>Relatori</b>
+                                                                    </label>
+                                                                    <br />
+                                                                    @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col s6">
+                                                                    <a class="btn-flat pink-text"
+                                                                       href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
+                                                                        <i class="material-icons left">download</i>
+                                                                        Scarica
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col s6 right-align">
+                                                                    @if (attoPem.Data_apertura.HasValue)
+                                                                    {
+                                                                        <a class="btn-flat blue-text"
+                                                                           onclick="go('@Url.Action("RiepilogoEmendamentiInSeduta", "Emendamenti", new {id = attoPem.UIDAtto})')" title="Riepilogo emendamenti in aula">
+                                                                            <i class="material-icons right">chevron_right</i>
+                                                                            Riepilogo EM In Seduta
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                                @if (seduta.Scadenza_presentazione.HasValue)
+                                                                {
+                                                                    <div class="col s12 left-align">
+                                                                        <a class="btn-flat black-text">
+                                                                            <i class="material-icons left">access_alarm</i>
+                                                                            Scadenza @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                                                                        </a>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <div class="row" style="margin: 0 !important">
+                                                <div class="col s12">
+                                                    <div class="card-panel panel-warning center">
+                                                        <span class="center">
+                                                            Non ci sono atti al momento
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col l6 s12">
+                                        <div class="row" style="margin: 0 !important">
+                                            <div class="col s12">
+                                                <h6>
+                                                    <b>DASI</b>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        @{
+                                            var attoDasi = Model.DASI.FirstOrDefault(a => a.Data.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
+                                        }
+                                        @if (attoDasi != null)
+                                        {
+                                            <ul class="collapsible" style="position: relative">
+                                                @if (attoDasi.CountBarData.ITL > 0)
+                                                {
+                                                    <li>
+                                                        <div class="collapsible-header">
+                                                            <i class="material-icons pink-text">textsms</i>
+                                                            @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)
+                                                            <div class="collapsabile-secondary-header">
+                                                                <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="collapsible-body">
+                                                            <div class="row">
+                                                                <div class="col s12 right-align">
+                                                                    <a class="btn-flat blue-text"
+                                                                       onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITL})')" title="Riepilogo atti in seduta">
+                                                                        <i class="material-icons right">chevron_right</i>
+                                                                        Riepilogo Atti In Seduta
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <div class="row" style="margin: 0 !important">
+                                                <div class="col s12">
+                                                    <div class="card-panel panel-warning center">
+                                                        <span class="center">
+                                                            Non ci sono atti di sindacato ispettivo iscritti al momento
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
