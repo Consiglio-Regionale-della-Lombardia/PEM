@@ -38,14 +38,14 @@
     <div class="col @Html.Raw(DASIEnabled ? "s6" : "s12")">
         <div class="card">
             <div class="card-content black-text">
-                <span class="card-title">PEM</span>
+                <span class="card-title" style="font-weight: bold;">PEM</span>
                 <p>Presenta un emendamento a un progetto di legge</p>
             </div>
             <div class="card-action">
                 <a class="btn-flat blue-text"
                    onclick="go('@Url.Action("RiepilogoSedute", "PEM")')" title="Presenta un emendamento a un progetto di legge">
                     <i class="material-icons right">chevron_right</i>
-                    Gestisci Emendamenti
+                    Presenta
                 </a>
             </div>
         </div>
@@ -55,14 +55,14 @@
         <div class="col s6">
             <div class="card">
                 <div class="card-content black-text">
-                    <span class="card-title">DASI</span>
+                    <span class="card-title" style="font-weight: bold;">DASI</span>
                     <p>Presenta un atto di indirizzo e sindacato ispettivo</p>
                 </div>
                 <div class="card-action">
                     <a class="btn-flat blue-text"
                        onclick="go('@Url.Action("RiepilogoDASI", "DASI")')" title="Presenta un atto di indirizzo e sindacato ispettivo">
                         <i class="material-icons right">chevron_right</i>
-                        Gestisci Atti
+                        Presenta
                     </a>
                 </div>
             </div>
@@ -74,9 +74,9 @@
     <div class="col s12">
         <div class="row">
             <div class="col s12">
-                <h6>
-                    <b>AULE ATTIVE</b>
-                </h6>
+                <h5>
+                    <b>ATTI ISCRITTI ALLA PROSSIMA SEDUTA</b>
+                </h5>
             </div>
         </div>
         <hr />
@@ -96,7 +96,7 @@
                                         <div class="row" style="margin: 0 !important">
                                             <div class="col s12">
                                                 <h6>
-                                                    <b>PEM</b>
+                                                    <b>Emendamenti ai progetti di legge</b>
                                                 </h6>
                                             </div>
                                         </div>
@@ -198,7 +198,7 @@
                                         <div class="row" style="margin: 0 !important">
                                             <div class="col s12">
                                                 <h6>
-                                                    <b>DASI</b>
+                                                    <b>Atti di indirizzo e sindacato ispettivo</b>
                                                 </h6>
                                             </div>
                                         </div>
