@@ -12,7 +12,7 @@
         <input id="dtRichiestaIscrizione" class="form-control" type="datetime-local" style="display: none"/>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Richiedi</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Proponi</a>
     </div>
 </div>
 
@@ -41,13 +41,13 @@
         $('#btnProponiSedutaDASI').hide();
         $('#dtRichiestaIscrizione').show();
 
-        $('#btnIscriviSeduta_Salva').text("Richiedi seduta desiderata");
+        $('#btnIscriviSeduta_Salva').text("Proponi seduta desiderata");
     }
 
     function RichiediIscrizioneSedutaDASI(uidAtto, nomeAtto) {
         $('#btnProponiSedutaDASI').show();
         $('#dtRichiestaIscrizione').hide();
-        $('#txtIscriviSeduta').html("Richiedi iscrizione dell'atto <b>" + nomeAtto + "</b> in data:");
+        $('#txtIscriviSeduta').html("Proponi iscrizione dell'atto <b>" + nomeAtto + "</b> in data:");
         $('#dtRichiestaIscrizione').val("");
         $("#btnIscriviSeduta_Salva").on("click",
             function() {
@@ -91,8 +91,8 @@
     function RimuoviRichiestaIscrizioneDASI(uidAtto, nomeAtto) {
 
         swal({
-            title: "Rimozione richiesta",
-            text: "Sei sicuro di voler rimuovere la richiesta per l'atto " + nomeAtto + "?",
+            title: "Rimozione proposta",
+            text: "Sei sicuro di voler rimuovere la proposta per l'atto " + nomeAtto + "?",
             icon: "warning",
             buttons: ["Annulla", "Rimuovi"],
             dangerMode: true

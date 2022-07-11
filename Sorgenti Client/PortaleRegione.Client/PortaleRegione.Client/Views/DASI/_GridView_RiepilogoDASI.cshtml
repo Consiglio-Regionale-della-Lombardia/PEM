@@ -150,7 +150,11 @@ else
                                 @textSeduta
                             </div>
                         }
-                        else if ((item.IDStato > (int)StatiAttoEnum.BOZZA || item.Tipo is (int)TipoAttoEnum.MOZ || item.Tipo is (int)TipoAttoEnum.IQT) && item.IDStato != (int)StatiAttoEnum.RITIRATO)
+                        else if ((item.IDStato > (int)StatiAttoEnum.BOZZA 
+                                  || item.Tipo is (int)TipoAttoEnum.ODG
+                                  || item.Tipo is (int)TipoAttoEnum.MOZ 
+                                  || item.Tipo is (int)TipoAttoEnum.IQT) 
+                                 && item.IDStato != (int)StatiAttoEnum.RITIRATO)
                         {
                             if ((item.Tipo is (int)TipoAttoEnum.IQT
                                  && (Model.CurrentUser.IsCapoGruppo
