@@ -96,6 +96,28 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+        
+        public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/moz-abbinabili";
+
+                var result = JsonConvert.DeserializeObject<List<AttoDASIDto>>(await Get(requestUrl, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetMOZAbbinabili", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetMOZAbbinabili", ex);
+                throw ex;
+            }
+        }
 
         public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo)
         {

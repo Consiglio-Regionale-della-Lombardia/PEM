@@ -32,6 +32,6 @@ namespace PortaleRegione.Gateway
         Task<BaseResponse<SeduteDto>> Get(int page, int size);
         Task Modifica(SeduteFormUpdateDto seduta);
         Task Salva(SeduteFormUpdateDto seduta);
-        Task<BaseResponse<SeduteDto>> GetActive();
+        Task<BaseResponse<SeduteDto>> GetAttive();
     }
 }

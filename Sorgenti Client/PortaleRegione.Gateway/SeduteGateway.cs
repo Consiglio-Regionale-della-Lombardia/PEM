@@ -132,34 +132,25 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<BaseResponse<SeduteDto>> GetActive()
+        public async Task<BaseResponse<SeduteDto>> GetAttive()
         {
             try
             {
-                var request = new BaseRequest<SeduteDto>
-                {
-                    filtro = new List<FilterStatement<SeduteDto>>
-                    {
-                        new FilterStatement<SeduteDto>
-                        {
-                            PropertyId = nameof(SeduteDto.Data_effettiva_fine),
-                            Operation = Operation.IsNull,
-                            Connector = FilterStatementConnector.Or
-                        },new FilterStatement<SeduteDto>
-                        {
-                            PropertyId = nameof(SeduteDto.Data_effettiva_fine),
-                            Operation = Operation.GreaterThan,
-                            Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-                        }
-                    }
-                };
+                var requestUrl = $"{apiUrl}/sedute/attive";
 
-                return await Get(request);
+                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+
+                return lst;
             }
-            catch (Exception e)
+            catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Riepilogo Sedute Attive", e);
-                throw;
+                Log.Error("GetAttive", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttive", ex);
+                throw ex;
             }
         }
 

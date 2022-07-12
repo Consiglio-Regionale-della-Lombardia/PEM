@@ -246,7 +246,7 @@
 }
 
 <script>
-    $(document).ready(async function() {
+    $(window).on('load', async function() {
         var url = '@Request.Url';
         if (url.includes("notifiche")) {
             $('.menuItem_Notifiche').addClass("active");
@@ -287,23 +287,25 @@
             $('li[class*="menuTrattazione"]').hide();
             $('#pnlLogout').show();
         }
-        LoadCounterNotifiche();
+        await LoadCounterNotifiche();
     });
 
     function LoadCounterNotifiche() {
-        $.ajax({
-            url: '@Url.Action("CounterRiepilogoNotifiche", "Notifiche")',
-            type: "GET"
-        }).done(function(result) {
-            console.log(result);
-            if (result == 0) {
-                $('#counterNotifiche').hide();
-            } else if (result > 0) {
-                $('#counterNotifiche').html(result + " nuove");
-                $('#counterNotifiche').show();
-            }
-        }).fail(function(err) {
-            console.log("error", err);
+        return new Promise(async function(resolve, reject) {
+            $.ajax({
+                url: '@Url.Action("CounterRiepilogoNotifiche", "Notifiche")',
+                type: "GET"
+            }).done(function(result) {
+                if (result == 0) {
+                    $('#counterNotifiche').hide();
+                } else if (result > 0) {
+                    $('#counterNotifiche').html(result + " nuove");
+                    $('#counterNotifiche').show();
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
         });
     }
 

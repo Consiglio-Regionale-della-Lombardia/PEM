@@ -121,7 +121,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                return Json(await apiGateway.Sedute.GetActive(), JsonRequestBehavior.AllowGet);
+                return Json(await apiGateway.Sedute.GetAttive(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

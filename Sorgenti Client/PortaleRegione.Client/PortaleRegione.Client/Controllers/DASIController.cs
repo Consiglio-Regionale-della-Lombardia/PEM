@@ -628,6 +628,22 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("moz-abbinabili")]
+        public async Task<ActionResult> GetMOZAbbinabili()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.DASI.GetMOZAbbinabili(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         ///     Controller per esportare gli atti
         /// </summary>

@@ -363,6 +363,20 @@ function GetTipiMOZDASI() {
     });
 }
 
+function GetTipiMOZAbbinabiliDASI() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/moz-abbinabili",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetSoggettiInterrogabiliDASI() {
     var soggetti = get_ListaSoggettiIterrogabiliDASI();
     if (soggetti.length > 0) {

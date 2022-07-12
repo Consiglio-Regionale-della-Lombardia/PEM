@@ -41,7 +41,7 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 var model = new DashboardModel
                 {
-                    Sedute = await apiGateway.Sedute.GetActive()
+                    Sedute = await apiGateway.Sedute.GetAttive()
                 };
                 foreach (var seduta in model.Sedute.Results)
                 {

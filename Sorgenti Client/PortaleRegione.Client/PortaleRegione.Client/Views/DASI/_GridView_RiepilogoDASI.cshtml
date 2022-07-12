@@ -73,11 +73,23 @@ else
                         @Html.Raw(title)
                     </div>
                 </td>
-                <td style="width: 8%;">
-                    <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
-                        @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
-                    </span>
-                </td>
+                @if (item.Tipo != (int) TipoAttoEnum.MOZ)
+                {
+                    <td style="width: 8%;">
+                        <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
+                            @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td style="width: 8%;">
+                        <span>
+                            @Utility.GetText_TipoMOZDASI(item.TipoMOZ)
+                        </span>
+                    </td>
+                }
+                
                 <td style="width: 18%;">
                     @if (string.IsNullOrEmpty(item.Oggetto_Modificato))
                     {
