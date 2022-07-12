@@ -146,7 +146,7 @@ namespace PortaleRegione.API.Controllers
                 if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
                 {
                     attoInDb.TipoMOZ = attoDto.TipoMOZ;
-                    attoInDb.UID_MOZ_Abbinata = attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoInDb.UID_MOZ_Abbinata : null;
+                    attoInDb.UID_MOZ_Abbinata = attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
                 }
 
                 attoInDb.UIDPersonaModifica = persona.UID_persona;
@@ -1632,12 +1632,10 @@ namespace PortaleRegione.API.Controllers
             var tipi = Enum.GetValues(typeof(TipoMOZEnum));
             foreach (var tipo in tipi)
             {
-                if ((int) tipo == (int) TipoMOZEnum.ORDINARIA)
-                    continue;
                 result.Add(new Tipi_AttoDto
                 {
                     IDTipoAtto = (int) tipo,
-                    Tipo_Atto = tipo.ToString()
+                    Tipo_Atto = Utility.GetText_TipoMOZDASI((int)tipo)
                 });
             }
 

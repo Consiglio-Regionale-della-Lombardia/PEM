@@ -149,12 +149,12 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_TipoMOZDASI(int tipoAtto)
+        public static string GetText_TipoMOZDASI(int tipoMOZ)
         {
-            switch ((TipoMOZEnum) tipoAtto)
+            switch ((TipoMOZEnum) tipoMOZ)
             {
                 case TipoMOZEnum.ORDINARIA:
-                    return "";
+                    return "Mozione";
                 case TipoMOZEnum.URGENTE:
                     return "Urgente";
                 case TipoMOZEnum.ABBINATA:
@@ -164,7 +164,7 @@ namespace PortaleRegione.Common
                 case TipoMOZEnum.CENSURA:
                     return "Censura";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+                    throw new ArgumentOutOfRangeException(nameof(tipoMOZ), tipoMOZ, null);
             }
         }
 
