@@ -1708,12 +1708,14 @@ namespace PortaleRegione.BAL
                         CLIENT_MODE);
                 var result = new List<EmendamentiDto>();
                 if (em_in_db == null) return result;
+                var emInDb = em_in_db.ToList();
+                if (!emInDb.Any()) return result;
 
-                var atto = await _unitOfWork.Atti.Get(em_in_db.First().UIDAtto);
+                var atto = await _unitOfWork.Atti.Get(emInDb.First().UIDAtto);
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
-                foreach (var em in em_in_db)
+                foreach (var em in emInDb)
                 {
                     var dto = await GetEM_DTO(em, atto, null, personeInDbLight);
                     result.Add(dto);
