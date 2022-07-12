@@ -84,7 +84,10 @@ namespace PortaleRegione.DTO.Domain
         public bool IsAssessore => CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta;
         public bool IsPresidente => CurrentRole == RuoliIntEnum.Presidente_Regione;
         public bool IsSegreteriaPolitica => CurrentRole == RuoliIntEnum.Segreteria_Politica || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
-        public bool IsResponsabileSegreteria => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
+
+        public bool IsSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale;
+        public bool IsResponsabileSegreteriaPolitica => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
+        public bool IsResponsabileSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
 
         public bool IsGiunta => IsPresidente 
                                 || IsAmministratoreGiunta

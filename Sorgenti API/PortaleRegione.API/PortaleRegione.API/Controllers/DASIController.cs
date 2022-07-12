@@ -813,6 +813,25 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere le mozioni iscritte a sedute attive
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("moz-abbinabili")]
+        public async Task<IHttpActionResult> GetMOZAbbinabili()
+        {
+            try
+            {
+                return Ok(await _logic.GetMOZAbbinabili());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetMOZAbbinabili", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per modificare i metadati di un atto

@@ -71,7 +71,11 @@ namespace PortaleRegione.API.Controllers
                 {
                     //Nuovo inserimento
                     result.Tipo = attoDto.Tipo;
-                    if (attoDto.Tipo == (int) TipoAttoEnum.MOZ) result.TipoMOZ = attoDto.TipoMOZ;
+                    if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        result.TipoMOZ = attoDto.TipoMOZ;
+                        result.UID_MOZ_Abbinata = result.TipoMOZ == (int)TipoMOZEnum.ABBINATA ? result.UID_MOZ_Abbinata : null;
+                    }
 
                     var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
                     result.Legislatura = legislatura;
@@ -139,7 +143,11 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb == null)
                     throw new InvalidOperationException("Atto non trovato");
 
-                if (attoDto.Tipo == (int) TipoAttoEnum.MOZ) attoInDb.TipoMOZ = attoDto.TipoMOZ;
+                if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
+                {
+                    attoInDb.TipoMOZ = attoDto.TipoMOZ;
+                    attoInDb.UID_MOZ_Abbinata = attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoInDb.UID_MOZ_Abbinata : null;
+                }
 
                 attoInDb.UIDPersonaModifica = persona.UID_persona;
                 attoInDb.DataModifica = DateTime.Now;
@@ -405,7 +413,7 @@ namespace PortaleRegione.API.Controllers
                             .CheckIfPresentabile(dto,
                                 persona);
 
-                    if (dto.IDStato <= (int) StatiAttoEnum.PRESENTATO)
+                    if (dto.IDStato < (int) StatiAttoEnum.PRESENTATO)
                         dto.Firmabile = await _unitOfWork
                             .Atti_Firme
                             .CheckIfFirmabile(dto,
@@ -1150,6 +1158,31 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+
+                var result = new List<AttoDASIDto>();
+                foreach (var seduta in sedute_attive)
+                {
+                    var atti = await _unitOfWork.DASI.GetMOZAbbinabili(seduta.UIDSeduta);
+                    foreach (var atto in atti)
+                    {
+                        result.Add(await GetAttoDto(atto.UIDAtto));
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetMOZAbbinabili - DASI", e);
+                throw;
+            }
+        }
+
         public async Task<List<CommissioneDto>> GetCommissioniAttive()
         {
             try
@@ -1229,7 +1262,7 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo, atto.TipoMOZ)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
                     listaRichieste.Add(
                         atto.UIDPersonaRichiestaIscrizione.HasValue
                             ? atto.UIDPersonaRichiestaIscrizione.Value
@@ -1285,7 +1318,7 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
 
                     var nomeAtto =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo, atto.TipoMOZ)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
                     listaRichieste.Add(nomeAtto);
                 }
 
@@ -1538,7 +1571,7 @@ namespace PortaleRegione.API.Controllers
                 var bodyIndice = new StringBuilder();
                 foreach (var dasiDto in atti)
                     bodyIndice.Append(templateItemIndice
-                        .Replace("{TipoAtto}", Utility.GetText_TipoDASI(dasiDto.Tipo, dasiDto.TipoMOZ))
+                        .Replace("{TipoAtto}", Utility.GetText_TipoDASI(dasiDto.Tipo))
                         .Replace("{NAtto}", dasiDto.NAtto)
                         .Replace("{DataPresentazione}", dasiDto.DataPresentazione)
                         .Replace("{Oggetto}", dasiDto.Oggetto)
@@ -1599,7 +1632,7 @@ namespace PortaleRegione.API.Controllers
             var tipi = Enum.GetValues(typeof(TipoMOZEnum));
             foreach (var tipo in tipi)
             {
-                if ((int) tipo == (int) TipoMOZEnum.NON_IMPOSTATO)
+                if ((int) tipo == (int) TipoMOZEnum.ORDINARIA)
                     continue;
                 result.Add(new Tipi_AttoDto
                 {

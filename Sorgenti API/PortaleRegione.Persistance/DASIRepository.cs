@@ -356,12 +356,12 @@ namespace PortaleRegione.Persistance
             if (string.IsNullOrEmpty(dto.Atto_Certificato))
                 return dto.UIDPersonaProponente == persona.UID_persona
                        || dto.UIDPersonaCreazione == persona.UID_persona
-                       || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
-                       || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
+                       || persona.IsSegreteriaPolitica
+                       || persona.IsSegreteriaGiunta;
 
-            return (dto.UIDPersonaProponente == persona.UID_persona || dto.UIDPersonaCreazione == persona.UID_persona)
-                   && (dto.IDStato == (int) StatiEnum.Bozza || dto.IDStato == (int) StatiEnum.Bozza_Riservata)
-                   && dto.ConteggioFirme == 1;
+            return (dto.UIDPersonaProponente == persona.UID_persona || dto.UIDPersonaCreazione == persona.UID_persona || persona.IsCapoGruppo)
+                   && (dto.IDStato == (int) StatiAttoEnum.BOZZA || dto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA)
+                   && (dto.ConteggioFirme == 1 && dto.Firmato_Dal_Proponente);
         }
 
         public async Task<int> GetProgressivo(TipoAttoEnum tipo, int gruppoId, int legislatura)
@@ -544,12 +544,23 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .Where(em => !em.Eliminato);
+                .Where(a => !a.Eliminato);
 
             filtro?.BuildExpression(ref query);
 
             var sql = query.ToTraceQuery();
             return sql;
+        }
+
+        public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)
+        {
+            var query = PRContext
+                .DASI
+                .Where(a => !a.Eliminato && a.Tipo == (int)TipoAttoEnum.MOZ);
+
+            query = query.Where(a => a.IDStato == (int) StatiAttoEnum.PRESENTATO
+                                     && a.UIDSeduta == sedutaUId);
+            return await query.ToListAsync();
         }
     }
 }

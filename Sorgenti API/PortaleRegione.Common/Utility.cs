@@ -121,38 +121,9 @@ namespace PortaleRegione.Common
 
         public static string GetText_TipoDASI(AttoDASIDto atto)
         {
-            return GetText_TipoDASI(atto.Tipo, atto.TipoMOZ);
+            return GetText_TipoDASI(atto.Tipo);
         }
-
-        public static string GetText_TipoDASI(int tipoAtto, int tipoMOZ)
-        {
-            switch ((TipoAttoEnum) tipoAtto)
-            {
-                case TipoAttoEnum.ITR:
-                    return TipoAttoEnum.ITR.ToString();
-                case TipoAttoEnum.IQT:
-                    return TipoAttoEnum.IQT.ToString();
-                case TipoAttoEnum.ITL:
-                    return TipoAttoEnum.ITL.ToString();
-                case TipoAttoEnum.MOZ:
-                {
-                    var title = TipoAttoEnum.MOZ.ToString();
-                    title += $"{GetText_TipoMOZDASI(tipoMOZ)}";
-                    return title;
-                }
-                case TipoAttoEnum.ODG:
-                    return TipoAttoEnum.ODG.ToString();
-                case TipoAttoEnum.PDL:
-                    return TipoAttoEnum.PDL.ToString();
-                case TipoAttoEnum.PDA:
-                    return TipoAttoEnum.PDA.ToString();
-                case TipoAttoEnum.TUTTI:
-                    return "Tutti";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
-            }
-        }
-
+        
         public static string GetText_TipoDASI(int tipoAtto)
         {
             switch ((TipoAttoEnum) tipoAtto)
@@ -182,16 +153,16 @@ namespace PortaleRegione.Common
         {
             switch ((TipoMOZEnum) tipoAtto)
             {
-                case TipoMOZEnum.NON_IMPOSTATO:
+                case TipoMOZEnum.ORDINARIA:
                     return "";
                 case TipoMOZEnum.URGENTE:
-                    return "U";
+                    return "Urgente";
                 case TipoMOZEnum.ABBINATA:
-                    return "A";
+                    return "Abbinata";
                 case TipoMOZEnum.SFIDUCIA:
-                    return "S";
+                    return "Sfiducia";
                 case TipoMOZEnum.CENSURA:
-                    return "C";
+                    return "Censura";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
             }

@@ -20,7 +20,7 @@ namespace PortaleRegione.DTO.Enum
 {
     public enum TipoMOZEnum
     {
-        NON_IMPOSTATO = 0,
+        ORDINARIA = 0,
         URGENTE = 1,
         ABBINATA = 2,
         SFIDUCIA = 3,

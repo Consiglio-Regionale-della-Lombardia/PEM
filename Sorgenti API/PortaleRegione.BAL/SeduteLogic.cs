@@ -140,5 +140,26 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttive()
+        {
+            try
+            {
+                var sedute_attive =  await _unitOfWork.Sedute.GetAttive();
+
+                return new BaseResponse<SeduteDto>(
+                    1,
+                    10,
+                    sedute_attive
+                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    null,
+                    sedute_attive.Count());
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduteAttive", e);
+                throw e;
+            }
+        }
     }
 }

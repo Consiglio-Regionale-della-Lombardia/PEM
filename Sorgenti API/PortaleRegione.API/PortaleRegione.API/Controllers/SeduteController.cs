@@ -97,6 +97,27 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere le sedute attive
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("attive")]
+        public async Task<IHttpActionResult> GetSeduteAttive()
+        {
+            try
+            {
+                var result = await _logic.GetSeduteAttive();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteAttive", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint per eliminare virtualmente una seduta

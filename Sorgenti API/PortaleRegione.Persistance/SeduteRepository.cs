@@ -74,6 +74,17 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<SEDUTE>> GetAttive()
+        {
+            var query = PRContext.SEDUTE.Include(s => s.legislature)
+                .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
+
+            query = query.Where(s => !s.Data_effettiva_fine.HasValue || s.Data_effettiva_fine >= DateTime.Now);
+
+            return await query.OrderByDescending(c => c.Data_seduta)
+                .ToListAsync();
+        }
+
         public async Task<int> Count(int legislaturaId, Filter<SEDUTE> filtro = null)
         {
             var query = PRContext.SEDUTE

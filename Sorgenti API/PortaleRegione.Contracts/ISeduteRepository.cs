@@ -33,5 +33,6 @@ namespace PortaleRegione.Contracts
         Task<SEDUTE> Get(Guid sedutaUId);
 
         Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize, Filter<SEDUTE> filtro = null);
+        Task<IEnumerable<SEDUTE>> GetAttive();
     }
 }
