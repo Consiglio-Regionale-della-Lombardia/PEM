@@ -10,7 +10,7 @@
             </select>
         </div>
         <div id="pnlMOZAbbinabili" class="col s12 form-group" style="display: none">
-            <label>Tipo Mozione: </label>
+            <label>Mozione abbinata: </label>
             <select id="Atto_TipoMOZ_Abbinabili">
             </select>
         </div>
@@ -33,6 +33,8 @@
 
                 var elems = document.querySelectorAll("#Atto_TipoMOZ");
                 M.FormSelect.init(elems, null);
+
+                await tipoMOZ_onChange();
             }
         });
 
