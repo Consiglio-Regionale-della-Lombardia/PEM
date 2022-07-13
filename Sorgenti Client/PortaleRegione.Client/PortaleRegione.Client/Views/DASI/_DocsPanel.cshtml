@@ -1,8 +1,11 @@
-﻿@model PortaleRegione.DTO.Model.DASIFormModel
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
 
 @{
     var placeholder_allegato_generico_text = string.Empty;
     placeholder_allegato_generico_text = !string.IsNullOrEmpty(Model.Atto.PATH_AllegatoGenerico) ? "Sostituisci documento" : "Inserisci documento";
+
+    bool _readonly = Model.Atto.IDStato == (int) StatiAttoEnum.PRESENTATO;
 }
 <div class="form-group">
     @Html.LabelFor(s => s.Atto.PATH_AllegatoGenerico)
@@ -10,10 +13,10 @@
 <div class="file-field input-field">
     <div class="btn">
         <span>SFOGLIA</span>
-        <input type="file" name="DocAllegatoGenerico" accept="application/pdf">
+        <input type="file" name="DocAllegatoGenerico" accept="application/pdf" @Html.Raw(_readonly ? "disabled=\"disabled\"" : "")>
     </div>
     <div class="file-path-wrapper">
-        <input class="file-path validate" type="text" placeholder="@placeholder_allegato_generico_text">
+        <input class="file-path validate" type="text" placeholder="@placeholder_allegato_generico_text" @Html.Raw(_readonly ? "disabled=\"disabled\"" : "")>
     </div>
 </div>
 @if (!string.IsNullOrEmpty(Model.Atto.PATH_AllegatoGenerico))

@@ -53,7 +53,8 @@
                                 template = "<option selected='selected'></option>";
                             else
                                 template = "<option></option>";
-                            select.append($(template).val(item.UIDAtto).html("MOZ " + item.NAtto));
+                            var oggetto = item.Oggetto.slice(0, 100).concat('...');
+                            select.append($(template).val(item.UIDAtto).html("MOZ " + item.NAtto + " " + oggetto));
                         });
 
                     var elems = document.querySelectorAll("#Atto_TipoMOZ_Abbinabili");

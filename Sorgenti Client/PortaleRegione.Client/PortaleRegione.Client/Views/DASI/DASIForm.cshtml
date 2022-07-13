@@ -7,6 +7,8 @@
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
 
     var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : Url.Action("ViewAtto", new {id = Model.Atto.UIDAtto});
+
+    bool _disabled = Model.Atto.IDStato == (int) StatiAttoEnum.PRESENTATO;
 }
 <script>
     $(document).ready(function() {
@@ -63,14 +65,29 @@
                     @Html.Partial("_TipoMOZPartial", Model)
                     @Html.Partial("_TipoRispostaPartial", Model)
 
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Oggetto)
-                        @Html.TextBoxFor(model => model.Atto.Oggetto, new {@class = "form-control"})
-                    </div>
-                    <div class="form-group" style="padding-top: 10px">
-                        @Html.LabelFor(s => s.Atto.Premesse)
-                        @Html.TextAreaFor(model => model.Atto.Premesse, new {@class = "form-control trumbowyg"})
-                    </div>
+                <div class="form-group" style="padding-top: 10px">
+                    @Html.LabelFor(s => s.Atto.Oggetto)
+                    @if (!_disabled)
+                    {
+                        @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control", @readonly = _disabled })
+                    }
+                </div>
+                <div class="form-group" style="padding-top: 10px">
+                    @Html.LabelFor(s => s.Atto.Premesse)
+                    @if (!_disabled)
+                    {
+                        @Html.TextAreaFor(model => model.Atto.Premesse, new {@class = "form-control trumbowyg" })
+                    }
+                    else
+                    {
+                        @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg", disabled = _disabled })
+                    }
+
+                </div>
 
                     <div class="row">
                         <div class="col s12">
@@ -128,7 +145,15 @@
                     </div>
 
                     <div class="form-group" style="padding-top: 10px">
-                        @Html.TextAreaFor(model => model.Atto.Richiesta, new {@class = "form-control trumbowyg"})
+                        @if (!_disabled)
+                        {
+                            @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
+                        }
+                        else
+                        {
+                            @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg", disabled = _disabled })
+                        }
+
                     </div>
 
                     @Html.Partial("_DocsPanel", Model)
@@ -145,3 +170,17 @@
 </div>
 
 @Html.Partial("_ScriptFormDASI")
+
+<script>
+    $(document).ready(function() {
+        if ('@Html.Raw(_disabled.ToString())' == 'True') {
+            $('#Atto_TipoRichiestaDestinatario').attr("disabled", "disabled");
+            $('input[name="Atto.TipoRichiesta"]').attr("disabled", "disabled");
+        } else {
+            $('#Atto_TipoRichiestaDestinatario').removeAttr("disabled");
+            $('input[name="Atto.TipoRichiesta"]').removeAttr("disabled");
+        }
+        var elems = document.querySelectorAll("#Atto_TipoRichiestaDestinatario");
+        M.FormSelect.init(elems, null);
+    });
+</script>
