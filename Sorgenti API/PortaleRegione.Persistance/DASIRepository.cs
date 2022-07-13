@@ -58,39 +58,31 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-            {
                 if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                {
                     filtro2._statements.Add(f);
-                }
-                else if(f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                {
+                else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
-                }
-            }
 
             filtro2.BuildExpression(ref query);
 
             if (mode == ClientModeEnum.GRUPPI)
             {
-                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
-                                          || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
-                                          && (atto.UIDPersonaCreazione == persona.UID_persona
-                                              || atto.UIDPersonaProponente == persona.UID_persona));
+                query = query.Where(atto => atto.IDStato != (int) StatiAttoEnum.BOZZA_RISERVATA
+                                            || atto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA
+                                            && (atto.UIDPersonaCreazione == persona.UID_persona
+                                                || atto.UIDPersonaProponente == persona.UID_persona));
 
                 if (persona.IsSegreteriaAssemblea)
                     query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO
                                                 && item.IDStato != (int) StatiAttoEnum.RITIRATO);
                 else if (!persona.IsSegreteriaAssemblea
                          && !persona.IsPresidente)
-                {
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
-                }
             }
 
             if (soggetti != null)
@@ -122,21 +114,15 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-            {
                 if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                {
                     filtro2._statements.Add(f);
-                }
                 else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
-                }
-            }
 
             filtro2?.BuildExpression(ref query);
 
@@ -168,21 +154,15 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-            {
                 if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                {
                     filtro2._statements.Add(f);
-                }
                 else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
-                }
-            }
 
             filtro2?.BuildExpression(ref query);
 
@@ -201,36 +181,28 @@ namespace PortaleRegione.Persistance
 
                 var filtro2 = new Filter<ATTI_DASI>();
                 foreach (var f in filtro.Statements)
-                {
                     if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                    {
                         filtro2._statements.Add(f);
-                    }
                     else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
-                    {
                         query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                     || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                     || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                     || item.Premesse.Contains(f.Value.ToString())
                                                     || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                     || item.Richiesta.Contains(f.Value.ToString()));
-                    }
-                }
 
                 filtro2?.BuildExpression(ref query);
 
                 if (clientMode == ClientModeEnum.GRUPPI)
                 {
-                    query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
-                                                || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
+                    query = query.Where(atto => atto.IDStato != (int) StatiAttoEnum.BOZZA_RISERVATA
+                                                || atto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA
                                                 && (atto.UIDPersonaCreazione == persona.UID_persona
                                                     || atto.UIDPersonaProponente == persona.UID_persona));
 
                     if (!persona.IsSegreteriaAssemblea
-                             && !persona.IsPresidente)
-                    {
+                        && !persona.IsPresidente)
                         query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
-                    }
 
                     if (stato != StatiAttoEnum.TUTTI)
                     {
@@ -359,9 +331,12 @@ namespace PortaleRegione.Persistance
                        || persona.IsSegreteriaPolitica
                        || persona.IsSegreteriaGiunta;
 
-            return (dto.UIDPersonaProponente == persona.UID_persona || dto.UIDPersonaCreazione == persona.UID_persona || persona.IsCapoGruppo)
-                   && (dto.IDStato == (int) StatiAttoEnum.BOZZA || dto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA)
-                   && (dto.ConteggioFirme == 1 && dto.Firmato_Dal_Proponente);
+            return persona.IsCapoGruppo && dto.IDStato <= (int) StatiAttoEnum.IN_TRATTAZIONE
+                   || (dto.UIDPersonaProponente == persona.UID_persona ||
+                       dto.UIDPersonaCreazione == persona.UID_persona)
+                   && (dto.IDStato == (int) StatiAttoEnum.BOZZA ||
+                       dto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
+                   dto.Firmato_Dal_Proponente;
         }
 
         public async Task<int> GetProgressivo(TipoAttoEnum tipo, int gruppoId, int legislatura)
@@ -556,10 +531,12 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .Where(a => !a.Eliminato && a.Tipo == (int)TipoAttoEnum.MOZ);
+                .Where(a => !a.Eliminato 
+                            && a.Tipo == (int) TipoAttoEnum.MOZ 
+                            && a.UIDSeduta == sedutaUId);
 
             query = query.Where(a => a.IDStato == (int) StatiAttoEnum.PRESENTATO
-                                     && a.UIDSeduta == sedutaUId);
+                                     || a.IDStato == (int) StatiAttoEnum.IN_TRATTAZIONE);
             return await query.ToListAsync();
         }
     }

@@ -143,6 +143,12 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb == null)
                     throw new InvalidOperationException("Atto non trovato");
 
+                var controllo_firme = await ControlloFirmePresentazione(attoDto);
+                if (!string.IsNullOrEmpty(controllo_firme))
+                {
+                    throw new InvalidOperationException(controllo_firme);
+                }
+
                 if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
                 {
                     attoInDb.TipoMOZ = attoDto.TipoMOZ;
@@ -879,41 +885,13 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    //controllo IQT max 5 firme
+                    //controllo max firme
                     var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
-                    if (atto.Tipo == (int) TipoAttoEnum.IQT
-                        || (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
-                        || (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
-                        || (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
+                    var controllo_firme = await ControlloFirmePresentazione(attoDto, count_firme);
+                    if (!string.IsNullOrEmpty(controllo_firme))
                     {
-                        int minimo_consiglieri = 5;
-                        if (atto.Tipo == (int) TipoAttoEnum.MOZ)
-                        {
-                            if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
-                            {
-                                minimo_consiglieri = 8;
-                            }
-                            if (atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
-                                || atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
-                            {
-                                minimo_consiglieri = 16;
-                            }
-                        }
-
-                        var consiglieriGruppo =
-                            await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
-                        var count_consiglieri = consiglieriGruppo.Count();
-                        var minimo_firme = count_consiglieri < minimo_consiglieri 
-                                           && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA 
-                                           && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA 
-                            ? count_consiglieri : minimo_consiglieri;
-
-                        if (count_firme < minimo_firme)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: Atto non presentabile. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.");
-                            continue;
-                        }
+                        results.Add(idGuid, controllo_firme);
+                        continue;
                     }
 
                     var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
@@ -975,6 +953,50 @@ namespace PortaleRegione.API.Controllers
                 Log.Error("Logic - Presenta - DASI", e);
                 throw e;
             }
+        }
+
+        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme)
+        {
+            if (atto.Tipo == (int)TipoAttoEnum.IQT
+                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
+                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
+            {
+                int minimo_consiglieri = 5;
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                {
+                    if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                    {
+                        minimo_consiglieri = 8;
+                    }
+                    if (atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
+                        || atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
+                    {
+                        minimo_consiglieri = 16;
+                    }
+                }
+
+                var consiglieriGruppo =
+                    await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
+                var count_consiglieri = consiglieriGruppo.Count();
+                var minimo_firme = count_consiglieri < minimo_consiglieri
+                                   && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
+                                   && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
+                    ? count_consiglieri : minimo_consiglieri;
+
+                if (count_firme < minimo_firme)
+                {
+                    return $"ERROR: Atto non presentabile. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
+                }
+            }
+
+            return default;
+        }
+
+        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto)
+        {
+            var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
+            return await ControlloFirmePresentazione(atto, count_firme);
         }
 
         public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
