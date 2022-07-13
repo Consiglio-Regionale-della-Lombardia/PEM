@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 12/07/2022 17:13:59 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 13/07/2022 02:22:52 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -63,6 +63,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataIscrizioneSeduta] [datetime] NULL,
 	[UIDPersonaIscrizioneSeduta] [uniqueidentifier] NULL,
 	[UID_MOZ_Abbinata] [uniqueidentifier] NULL,
+	[UID_Atto_ODG] [uniqueidentifier] NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
