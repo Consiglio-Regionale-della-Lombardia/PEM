@@ -207,7 +207,7 @@ else
             </td>
                 }
                 <td class="center" style="width: 5%;">
-                    <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" href="https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto=ITL&numeroatto=@item.NAtto.Split('_')[0]&idlegislatura=32" target="_blank">
+                    <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_TipoDASI(item.Tipo)', @item.NAtto, @item.Legislatura)">
                         <i class="icon material-icons">remove_red_eye</i>
                     </a>
                     <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">

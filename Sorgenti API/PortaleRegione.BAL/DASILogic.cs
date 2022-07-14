@@ -41,6 +41,7 @@ namespace PortaleRegione.API.Controllers
 {
     public class DASILogic : BaseLogic
     {
+        private readonly AttiLogic _logicAtti;
         private readonly AttiFirmeLogic _logicFirme;
         private readonly PersoneLogic _logicPersona;
         private readonly SeduteLogic _logicSedute;
@@ -48,12 +49,13 @@ namespace PortaleRegione.API.Controllers
         private readonly IUnitOfWork _unitOfWork;
 
         public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme,
-            SeduteLogic logicSedute, UtilsLogic logicUtil)
+            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
             _logicFirme = logicFirme;
             _logicSedute = logicSedute;
+            _logicAtti = logicAtti;
             _logicUtil = logicUtil;
         }
 
@@ -71,10 +73,26 @@ namespace PortaleRegione.API.Controllers
                 {
                     //Nuovo inserimento
                     result.Tipo = attoDto.Tipo;
-                    if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
+                    if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
                     {
                         result.TipoMOZ = attoDto.TipoMOZ;
-                        result.UID_MOZ_Abbinata = result.TipoMOZ == (int)TipoMOZEnum.ABBINATA ? result.UID_MOZ_Abbinata : null;
+                        result.UID_MOZ_Abbinata = result.TipoMOZ == (int) TipoMOZEnum.ABBINATA
+                            ? result.UID_MOZ_Abbinata
+                            : null;
+                    }
+
+                    if (attoDto.Tipo == (int) TipoAttoEnum.ODG)
+                    {
+                        if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
+                            throw new InvalidOperationException(
+                                "Seleziona un atto a cui iscrivere l'ordine del giorno");
+
+                        result.UID_Atto_ODG = attoDto.UID_Atto_ODG;
+                        var data_richiesta = DateTime.Now;
+                        result.UIDSeduta = null;
+                        result.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey);
+                        result.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     }
 
                     var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -144,15 +162,27 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Atto non trovato");
 
                 var controllo_firme = await ControlloFirmePresentazione(attoDto);
-                if (!string.IsNullOrEmpty(controllo_firme))
-                {
-                    throw new InvalidOperationException(controllo_firme);
-                }
+                if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
 
                 if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
                 {
                     attoInDb.TipoMOZ = attoDto.TipoMOZ;
-                    attoInDb.UID_MOZ_Abbinata = attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
+                    attoInDb.UID_MOZ_Abbinata =
+                        attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
+                }
+
+                if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
+                {
+                    if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
+                        throw new InvalidOperationException(
+                            "Seleziona un atto a cui iscrivere l'ordine del giorno");
+
+                    attoInDb.UID_Atto_ODG = attoDto.UID_Atto_ODG;
+                    var data_richiesta = DateTime.Now;
+                    attoInDb.UIDSeduta = null;
+                    attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
+                        AppSettingsConfiguration.masterKey);
+                    attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                 }
 
                 attoInDb.UIDPersonaModifica = persona.UID_persona;
@@ -957,37 +987,32 @@ namespace PortaleRegione.API.Controllers
 
         internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme)
         {
-            if (atto.Tipo == (int)TipoAttoEnum.IQT
-                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
-                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
-                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
+            if (atto.Tipo == (int) TipoAttoEnum.IQT
+                || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.URGENTE
+                || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
+                || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
             {
-                int minimo_consiglieri = 5;
-                if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                var minimo_consiglieri = 5;
+                if (atto.Tipo == (int) TipoAttoEnum.MOZ)
                 {
-                    if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
-                    {
-                        minimo_consiglieri = 8;
-                    }
-                    if (atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
-                        || atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
-                    {
+                    if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE) minimo_consiglieri = 8;
+                    if (atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
+                        || atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
                         minimo_consiglieri = 16;
-                    }
                 }
 
                 var consiglieriGruppo =
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
                 var minimo_firme = count_consiglieri < minimo_consiglieri
-                                   && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
-                                   && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
-                    ? count_consiglieri : minimo_consiglieri;
+                                   && atto.TipoMOZ != (int) TipoMOZEnum.SFIDUCIA
+                                   && atto.TipoMOZ != (int) TipoMOZEnum.CENSURA
+                    ? count_consiglieri
+                    : minimo_consiglieri;
 
                 if (count_firme < minimo_firme)
-                {
-                    return $"ERROR: Atto non presentabile. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
-                }
+                    return
+                        $"ERROR: Atto non presentabile. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
             }
 
             return default;
@@ -1190,10 +1215,7 @@ namespace PortaleRegione.API.Controllers
                 foreach (var seduta in sedute_attive)
                 {
                     var atti = await _unitOfWork.DASI.GetMOZAbbinabili(seduta.UIDSeduta);
-                    foreach (var atto in atti)
-                    {
-                        result.Add(await GetAttoDto(atto.UIDAtto));
-                    }
+                    foreach (var atto in atti) result.Add(await GetAttoDto(atto.UIDAtto));
                 }
 
                 return result;
@@ -1201,6 +1223,39 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Logic - GetMOZAbbinabili - DASI", e);
+                throw;
+            }
+        }
+
+        public async Task<List<AttiDto>> GetAttiSeduteAttive(PersonaDto persona, List<PersonaLightDto> personeInDbLight)
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+
+                var result = new List<AttiDto>();
+                foreach (var seduta in sedute_attive)
+                {
+                    var atti = await _logicAtti
+                        .GetAtti(
+                            new BaseRequest<AttiDto> {id = seduta.UIDSeduta, page = 1, size = 99},
+                            (int) ClientModeEnum.GRUPPI,
+                            persona,
+                            personeInDbLight);
+
+                    foreach (var atto in atti.Results)
+                    {
+                        var tipo = Utility.GetText_TipoDASI(atto.IDTipoAtto);
+                        atto.NAtto = $"{tipo} {atto.NAtto} - Seduta del {seduta.Data_seduta:dd/MM/yyyy HH:mm}";
+                        result.Add(atto);
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetAttiSeduteAttive - DASI", e);
                 throw;
             }
         }
@@ -1653,13 +1708,11 @@ namespace PortaleRegione.API.Controllers
             var result = new List<Tipi_AttoDto>();
             var tipi = Enum.GetValues(typeof(TipoMOZEnum));
             foreach (var tipo in tipi)
-            {
                 result.Add(new Tipi_AttoDto
                 {
                     IDTipoAtto = (int) tipo,
-                    Tipo_Atto = Utility.GetText_TipoMOZDASI((int)tipo)
+                    Tipo_Atto = Utility.GetText_TipoMOZDASI((int) tipo)
                 });
-            }
 
             return result;
         }

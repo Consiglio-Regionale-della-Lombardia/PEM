@@ -60,13 +60,14 @@
                 @Html.HiddenFor(m => m.Atto.UID_QRCode)
                 @Html.HiddenFor(m => m.Atto.Tipo)
 
-                <div class="row">
-                    <div class="col s12 form-group">
-                        <label>Proponente: </label>
-                        @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
+                    <div class="row">
+                        <div class="col s12 form-group">
+                            <label>Proponente: </label>
+                            @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
+                        </div>
                     </div>
-                </div>
-
+                    
+                    @Html.Partial("_TipoODGPartial", Model)
                 @Html.Partial("_TipoMOZPartial", Model)
                 @Html.Partial("_TipoRispostaPartial", Model)
 

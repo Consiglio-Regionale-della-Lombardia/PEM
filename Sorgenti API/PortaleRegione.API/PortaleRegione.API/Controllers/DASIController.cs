@@ -832,7 +832,31 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere gli atti delle sedute attive (pdl, pda, ris,...) che servono all'inserimento e all'iscrizione degli odg
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("odg/atti-sedute-attive")]
+        public async Task<IHttpActionResult> GetAttiSeduteAttive()
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var personeInDb = await _unitOfWork.Persone.GetAll();
+                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
+                return Ok(await _logic.GetAttiSeduteAttive(persona, personeInDbLight));
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetAttiSeduteAttive", e);
+                return ErrorHandler(e);
+            }
+        }
+        
         /// <summary>
         ///     Endpoint per modificare i metadati di un atto
         /// </summary>

@@ -62,6 +62,7 @@
                     @Html.HiddenFor(m => m.Atto.UID_QRCode)
                     @Html.HiddenFor(m => m.Atto.Tipo)
 
+                    @Html.Partial("_TipoODGPartial", Model)
                     @Html.Partial("_TipoMOZPartial", Model)
                     @Html.Partial("_TipoRispostaPartial", Model)
 

@@ -156,10 +156,13 @@ else
                             var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
                             var tooltipSeduta = "Richiesta in attesa di elaborazione";
 
-                            <div class="chip badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta">
-                                @textSeduta
+                        <div class="chip badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta">
+                            @textSeduta
+                            @if (item.Tipo != (int)TipoAttoEnum.ODG)
+                            {
                                 <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
-                            </div>
+                            }
+                        </div>
                         }
                         else if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
                         {

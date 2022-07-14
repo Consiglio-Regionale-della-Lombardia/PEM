@@ -119,6 +119,28 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<List<AttiDto>> GetAttiSeduteAttive()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/odg/atti-sedute-attive";
+
+                var result = JsonConvert.DeserializeObject<List<AttiDto>>(await Get(requestUrl, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAttiSeduteAttive", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttiSeduteAttive", ex);
+                throw ex;
+            }
+        }
+
         public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo)
         {
             try

@@ -33,6 +33,9 @@
                 form_data.append("TipoMOZ", $('select[id="Atto_TipoMOZ"]').children("option:selected").val());
                 form_data.append("UID_MOZ_Abbinata", $('select[id="Atto_TipoMOZ_Abbinabili"]').children("option:selected").val());
             }
+            if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
+                form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
+            }
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
             form_data.append("UIDPersonaProponente", proponente);
             form_data.append("TipoRichiesta", $('input[name="Atto.TipoRichiesta"]:checked')[0].value);

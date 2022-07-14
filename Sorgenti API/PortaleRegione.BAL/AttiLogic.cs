@@ -48,7 +48,7 @@ namespace PortaleRegione.BAL
         public async Task<BaseResponse<AttiDto>> GetAtti(BaseRequest<AttiDto> model, int CLIENT_MODE,
             PersonaDto currentUser,
             List<PersonaLightDto> personeInDbLight,
-            Uri url)
+            Uri url = null)
         {
             try
             {

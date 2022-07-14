@@ -1,0 +1,102 @@
+﻿<div id="modalGeasiView" class="modal">
+    <div class="modal-content">
+        <div class="row" style="margin: unset!important">
+            <div class="col s12 right-align">
+                <i class="icon material-icons modal-close">close</i>
+                <hr/>
+            </div>
+            
+            <div class="col s12 center-align" style="padding-bottom: 10px">
+                <h5 id="modalGeasiView_Atto"></h5>
+            </div>
+            <div class="col s12 center-align" style="padding-bottom: 10px">
+                <h6 id="modalGeasiView_Oggetto"></h6>
+            </div>
+            <ul class="collection">
+                <li class="collection-item">
+                    <label style="font-weight: bold">Data Presentazione: </label>
+                    <label id="Geasi_DataPresentazione"></label>
+                </li>
+                <li class="collection-item">
+                    <label style="font-weight: bold">Area: </label>
+                    <label id="Geasi_Area"></label>
+                </li>
+                <li class="collection-item">
+                    <label style="font-weight: bold">Consigliere primo firmatario: </label>
+                    <label id="Geasi_PrimoFirmatario"></label>
+                </li>
+                <li class="collection-item">
+                    <label style="font-weight: bold">Data di annunzio: </label>
+                    <label id="Geasi_Annunzio"></label>
+                </li>
+                <li class="collection-item">
+                    <label style="font-weight: bold">Tipo di risposta richiesta: </label>
+                    <label id="Geasi_TipoRichiesta"></label>
+                </li>
+                <li class="collection-item">
+                    <label style="font-weight: bold">Tipo di risposta fornita: </label>
+                    <label id="Geasi_TipoRisposta"></label>
+                </li>
+                <li class="collection-item">
+                    <label style="font-weight: bold">Stato iter: </label>
+                    <label id="Geasi_Stato"></label>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    var ticketGeasi = "";
+
+    async function goToGeasi(tipoatto, natto, idlegislatura) {
+        if (ticketGeasi == "") {
+            ticketGeasi = await LoginGeasi();
+        }
+        console.log("ticket", ticketGeasi);
+
+        var response = await SearchGeasi(tipoatto, natto, idlegislatura);
+        var responseJSON = JSON.parse(response);
+        var data = responseJSON.rows[0];
+        console.log("data", data)
+        var title = tipoatto + " N. " + natto;
+        $('#modalGeasiView_Atto').text(title);
+        $('#modalGeasiView_Oggetto').text(data.oggettoAtto);
+        $('#Geasi_DataPresentazione').text(data.dataPresentazione);
+        $('#Geasi_Area').text(data.area);
+        $('#Geasi_Annunzio').text(data.dataAnnunzio);
+        $('#Geasi_TipoRichiesta').text(data.tipoRispostaRichiesta);
+        $('#Geasi_TipoRisposta').text(data.tipoRispostaFornita);
+        $('#Geasi_Stato').text(data.stato);
+        $('#Geasi_PrimoFirmatario').text(data.primiFirmatari[0].nomeFirmatario);
+        $('#modalGeasiView').modal("open");
+    }
+
+    function LoginGeasi() {
+        return new Promise(async function (resolve, reject) {
+            $.ajax({
+                url: baseUrl + "/geasi/login",
+                type: "GET",
+            }).done(function (result) {
+                resolve(result);
+            }).fail(function (err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+    }
+
+    function SearchGeasi(tipoatto, natto, idlegislatura) {
+        return new Promise(async function (resolve, reject) {
+            $.ajax({
+                url: baseUrl + "/geasi/search?ticket=" + ticketGeasi + "&tipoatto=" + tipoatto + "&natto=" + natto + "&idlegislatura=" + idlegislatura,
+                type: "GET",
+            }).done(function (result) {
+                resolve(result);
+            }).fail(function (err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+    }
+</script>

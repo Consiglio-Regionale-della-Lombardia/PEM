@@ -34,6 +34,7 @@ namespace PortaleRegione.Domain
         [Key] public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
         public Guid? UID_MOZ_Abbinata { get; set; }
+        public Guid? UID_Atto_ODG { get; set; }
         public int Tipo { get; set; }
         public int TipoMOZ { get; set; } = 0;
         public int? Progressivo { get; set; }
