@@ -31,7 +31,8 @@ namespace PortaleRegione.DTO.Domain
         public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
         public Guid? UID_MOZ_Abbinata { get; set; }
-        
+        public Guid? UID_Atto_ODG { get; set; }
+
         public string Oggetto { get; set; }
         public string Oggetto_Modificato { get; set; }
 
