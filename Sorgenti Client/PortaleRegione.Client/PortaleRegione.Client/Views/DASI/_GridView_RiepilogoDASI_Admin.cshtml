@@ -63,7 +63,7 @@ else
                         </label>
                     </p>
                 </td>
-                <td style="width: 3%;">
+                <td style="width: 6%;">
                     @{
                         var title = $"{Utility.GetText_TipoDASI(item)} ";
                         title += item.NAtto;
@@ -71,6 +71,10 @@ else
 
                     <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
                         @Html.Raw(title)
+                        @if (item.PresentatoOltreITermini)
+                        {
+                            <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>
+                        }
                     </div>
                 </td>
                 @if (item.Tipo != (int) TipoAttoEnum.MOZ)
@@ -81,18 +85,19 @@ else
                         </span>
                     </td>
                 }
-                else if(item.TipoMOZ == (int)TipoMOZEnum.CENSURA || item.TipoMOZ == (int)TipoMOZEnum.CENSURA)
+                else if (item.TipoMOZ == (int) TipoMOZEnum.CENSURA || item.TipoMOZ == (int) TipoMOZEnum.CENSURA)
                 {
                     <td style="width: 8%;">
                         <span>
                             @Utility.GetText_TipoMOZDASI(item.TipoMOZ)
                         </span>
                     </td>
-                }else 
+                }
+                else
                 {
                     <td style="width: 8%;">
                         <span>
-                            
+
                         </span>
                     </td>
                 }
@@ -170,41 +175,41 @@ else
                 </td>
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-            <td style="width: 9%;">
-                @{
-                    var textSeduta = string.Empty;
-                    var tooltipSeduta = string.Empty;
+                    <td style="width: 9%;">
+                        @{
+                            var textSeduta = string.Empty;
+                            var tooltipSeduta = string.Empty;
 
-                    if (item.UIDSeduta.HasValue)
-                    {
-                        textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
-                        tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                        <div class="chip hoverable badgeSeduta tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                            @textSeduta
-                            <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
-                        </div>
-                    }
-                    else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int)StatiAttoEnum.PRESENTATO)
-                    {
-                        textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
-                        tooltipSeduta = "Richiesta in attesa di elaborazione";
+                            if (item.UIDSeduta.HasValue)
+                            {
+                                textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
+                                tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
+                                <div class="chip hoverable badgeSeduta tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                    @textSeduta
+                                    <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
+                            {
+                                textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
+                                tooltipSeduta = "Richiesta in attesa di elaborazione";
 
-                        <div class="chip hoverable badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                            @textSeduta
-                            <i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
-                        </div>
-                    }
-                    else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int)StatiAttoEnum.PRESENTATO)
-                    {
-                        textSeduta = "Richiesta non avanzata";
-                        tooltipSeduta = "Richiesta non ancora avanzata dal richiedente";
-                        <div class="chip hoverable badgeSedutaSenzaRichiesta tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                            Iscrivi
-                        </div>
-                    }
-                }
+                                <div class="chip hoverable badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                    @textSeduta
+                                    <i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
+                                </div>
+                            }
+                            else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
+                            {
+                                textSeduta = "Richiesta non avanzata";
+                                tooltipSeduta = "Richiesta non ancora avanzata dal richiedente";
+                                <div class="chip hoverable badgeSedutaSenzaRichiesta tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                    Iscrivi
+                                </div>
+                            }
+                        }
 
-            </td>
+                    </td>
                 }
                 <td class="center" style="width: 5%;">
                     <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_TipoDASI(item.Tipo)', @item.NAtto, @item.Legislatura)">
