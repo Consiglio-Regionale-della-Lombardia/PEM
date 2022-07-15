@@ -63,7 +63,7 @@ else
                         </label>
                     </p>
                 </td>
-                <td style="width: 6%;">
+                <td style="width: 7%;">
                     @{
                         var title = $"{Utility.GetText_TipoDASI(item)} ";
                         title += item.NAtto;
@@ -74,6 +74,10 @@ else
                         @if (item.PresentatoOltreITermini)
                         {
                             <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>
+                        }
+                        @if (item.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                        {
+                            <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Proposta di urgenza">priority_high</i>
                         }
                     </div>
                 </td>
