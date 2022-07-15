@@ -164,7 +164,7 @@ else
                             }
                         </div>
                         }
-                        else if (item.IDStato != (int)StatiAttoEnum.BOZZA && item.UIDSeduta.HasValue)
+                        else if (item.UIDSeduta.HasValue)
                         {
                             var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
                             var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";

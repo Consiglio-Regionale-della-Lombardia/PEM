@@ -88,8 +88,8 @@ namespace PortaleRegione.API.Controllers
                                 "Seleziona un atto a cui iscrivere l'ordine del giorno");
 
                         result.UID_Atto_ODG = attoDto.UID_Atto_ODG;
-                        var data_richiesta = DateTime.Now;
                         result.UIDSeduta = null;
+                        var data_richiesta = DateTime.Now;
                         result.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey);
                         result.UIDPersonaRichiestaIscrizione = persona.UID_persona;
@@ -926,12 +926,9 @@ namespace PortaleRegione.API.Controllers
 
                     var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
                     var contatore_progressivo = contatore.Inizio + contatore.Contatore;
-                    var etichetta_progressiva =
-                        contatore_progressivo +
-                        $"_{legislatura.num_legislatura}";
+                    var etichetta_progressiva = $"{Utility.GetText_TipoDASI(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
                         EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
-
                     var checkProgressivo_unique =
                         await _unitOfWork.DASI.CheckProgressivo(etichetta_encrypt);
 
@@ -972,6 +969,17 @@ namespace PortaleRegione.API.Controllers
                         Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
                         DASI = true
                     });
+
+
+                    if (atto.Tipo == (int) TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
+                    {
+                        //iscrivi in seduta
+                        var attoPem = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
+                        atto.UIDSeduta = attoPem.UIDSeduta;
+                        atto.DataIscrizioneSeduta = DateTime.Now;
+                        atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
+                    }
+
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
                 }
@@ -1435,6 +1443,11 @@ namespace PortaleRegione.API.Controllers
                 {
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
+
+                    if (atto.Tipo == (int) TipoAttoEnum.MOZ)
+                    {
+                        atto.TipoMOZ = (int) TipoMOZEnum.ORDINARIA;
+                    }
 
                     atto.UIDSeduta = null;
                     atto.DataIscrizioneSeduta = null;

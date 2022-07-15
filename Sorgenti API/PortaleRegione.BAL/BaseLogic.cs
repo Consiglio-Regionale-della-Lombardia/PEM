@@ -150,7 +150,7 @@ namespace PortaleRegione.BAL
                 if (!string.IsNullOrEmpty(nAtto))
                 {
                     result = DecryptString(nAtto, AppSettingsConfiguration.masterKey);
-                    if (result.Contains("_")) result = result.Split('_')[0];
+                    if (result.Contains("_")) result = result.Split('_')[1];
                 }
                 else
                 {
