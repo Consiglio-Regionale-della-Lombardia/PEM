@@ -46,6 +46,10 @@ namespace PortaleRegione.Domain
         public int? IDOrgano { get; set; }
 
         public DateTime? Scadenza_presentazione { get; set; }
+        public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
+        public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
+        public DateTime? DataScadenzaPresentazioneODG { get; set; }
 
         public int id_legislatura { get; set; }
 

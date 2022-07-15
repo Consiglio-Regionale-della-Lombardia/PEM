@@ -38,6 +38,15 @@ namespace PortaleRegione.DTO.Domain
         public int? IDOrgano { get; set; }
         [Display(Name = "Data scadenza presentazione")]
         public DateTime? Scadenza_presentazione { get; set; }
+        [Display(Name = "Data scadenza presentazione - Interrogation question time")]
+
+        public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni abbinate")]
+        public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni urgenti")]
+        public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
+        [Display(Name = "Data scadenza presentazione - Ordini del giorno")]
+        public DateTime? DataScadenzaPresentazioneODG { get; set; }
 
         public int id_legislatura { get; set; }
 
@@ -68,6 +77,15 @@ namespace PortaleRegione.DTO.Domain
 
         [Display(Name = "Data scadenza presentazione")]
         public DateTime? Scadenza_presentazione { get; set; }
+        [Display(Name = "Data scadenza presentazione - Interrogation question time")]
+
+        public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni abbinate")]
+        public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni urgenti")]
+        public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
+        [Display(Name = "Data scadenza presentazione - Ordini del giorno")]
+        public DateTime? DataScadenzaPresentazioneODG { get; set; }
 
         [AllowHtml]
         public string Intervalli { get; set; }
