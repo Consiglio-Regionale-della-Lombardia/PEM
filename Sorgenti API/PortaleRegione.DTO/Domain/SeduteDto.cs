@@ -36,7 +36,7 @@ namespace PortaleRegione.DTO.Domain
         public DateTime? Data_effettiva_fine { get; set; }
 
         public int? IDOrgano { get; set; }
-        [Display(Name = "Data scadenza presentazione")]
+        [Display(Name = "Data scadenza presentazione - Emendamenti")]
         public DateTime? Scadenza_presentazione { get; set; }
         [Display(Name = "Data scadenza presentazione - Interrogation question time")]
 
@@ -75,7 +75,7 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Data effettiva fine")]
         public DateTime? Data_effettiva_fine { get; set; }
 
-        [Display(Name = "Data scadenza presentazione")]
+        [Display(Name = "Data scadenza presentazione - Emendamenti")]
         public DateTime? Scadenza_presentazione { get; set; }
         [Display(Name = "Data scadenza presentazione - Interrogation question time")]
 

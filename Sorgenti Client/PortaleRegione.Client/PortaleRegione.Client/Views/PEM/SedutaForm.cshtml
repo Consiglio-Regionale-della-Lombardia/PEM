@@ -6,14 +6,14 @@
 }
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>
 
 <div class="row">
     <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute","PEM")">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
@@ -36,41 +36,74 @@
 <div class="row">
     <div class="col s12">
 
-        @using (Html.BeginForm("SalvaSeduta", "PEM", FormMethod.Post, new { id = "formSedute" }))
+        @using (Html.BeginForm("SalvaSeduta", "PEM", FormMethod.Post, new {id = "formSedute"}))
         {
             @Html.AntiForgeryToken()
 
             @Html.HiddenFor(m => m.UIDSeduta)
 
-        <div class="form-group">
-            @Html.LabelFor(s => s.Data_seduta)
-            @Html.TextBoxFor(s => s.Data_seduta, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-                <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_seduta')">close</i>
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(s => s.Data_apertura)
-            @Html.TextBoxFor(s => s.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_apertura')">close</i>
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(s => s.Scadenza_presentazione)
-            @Html.TextBoxFor(s => s.Scadenza_presentazione, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Scadenza_presentazione')">close</i>
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(s => s.Data_effettiva_inizio)
-            @Html.TextBoxFor(s => s.Data_effettiva_inizio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_effettiva_inizio')">close</i>
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(s => s.Data_effettiva_fine)
-            @Html.TextBoxFor(s => s.Data_effettiva_fine, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            <i class="icon material-icons tiny" style="position: absolute; margin-top: 15px;margin-left: 5px" onclick="clearData('Data_effettiva_fine')">close</i>
-        </div>
-            <div class="input-field">
-                @Html.LabelFor(s => s.Intervalli)
-                @Html.TextAreaFor(model => model.Intervalli, new { @class = "materialize-textarea" })
+            <ul id="sedutaFormsTabs" class="tabs tabs-fixed-width">
+                <li class="tab col s6">
+                    <a class="active" href="#generalTab">Info</a>
+                </li>
+                <li class="tab col s6">
+                    <a href="#scadenzeTab">Scadenze</a>
+                </li>
+            </ul>
+            <div id="generalTab" class="col s12">
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Data_seduta)
+                    @Html.TextBoxFor(s => s.Data_seduta, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('Data_seduta')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Data_apertura)
+                    @Html.TextBoxFor(s => s.Data_apertura, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('Data_apertura')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Data_effettiva_inizio)
+                    @Html.TextBoxFor(s => s.Data_effettiva_inizio, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('Data_effettiva_inizio')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Data_effettiva_fine)
+                    @Html.TextBoxFor(s => s.Data_effettiva_fine, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('Data_effettiva_fine')">close</i>
+                </div>
+                <div class="input-field">
+                    @Html.LabelFor(s => s.Intervalli)
+                    @Html.TextAreaFor(model => model.Intervalli, new {@class = "materialize-textarea"})
+                </div>
             </div>
+            <div id="scadenzeTab" class="col s12">
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Scadenza_presentazione)
+                    @Html.TextBoxFor(s => s.Scadenza_presentazione, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('Scadenza_presentazione')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.DataScadenzaPresentazioneIQT)
+                    @Html.TextBoxFor(s => s.DataScadenzaPresentazioneIQT, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneIQT')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.DataScadenzaPresentazioneMOZA)
+                    @Html.TextBoxFor(s => s.DataScadenzaPresentazioneMOZA, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneMOZA')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.DataScadenzaPresentazioneMOZU)
+                    @Html.TextBoxFor(s => s.DataScadenzaPresentazioneMOZU, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneMOZU')">close</i>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.DataScadenzaPresentazioneODG)
+                    @Html.TextBoxFor(s => s.DataScadenzaPresentazioneODG, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneODG')">close</i>
+                </div>
+            </div>
+
             <div class="fixed-action-btn">
                 <button class="btn-floating btn-large blue" id="btnSave" type="button">
                     <i class="large material-icons">save</i>
@@ -81,23 +114,23 @@
 </div>
 
 
-
 <script>
     function clearData(ctrl) {
-        console.log("clear", ctrl)
+        console.log("clear", ctrl);
         $('#' + ctrl).val("");
     }
+
     $("#btnSave").on("click",
-        function () {
+        function() {
             $('#formSedute').submit();
         });
 
-    $("#formSedute").submit(function (e) {
+    $("#formSedute").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function (form) {
+        submitHandler: function(form) {
             var body = JSON.parse(JSON.stringify($("#formSedute").serializeObject()));
-            
+
             //submit via ajax
             $.ajax({
                 url: baseUrl + "/pem/salva",
@@ -105,13 +138,20 @@
                 data: JSON.stringify(body),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
-            }).done(function (data) {
-                console.log(data)
+            }).done(function(data) {
+                console.log(data);
                 if (data.message)
-                    ErrorAlert(data.message);
+                {
+                    swal({
+                        title: "Esito salvataggio",
+                        text: data.message,
+                        icon: "error",
+                        button: "OK"
+                    });
+                }
                 else
                     go(data);
-            }).fail(function (err) {
+            }).fail(function(err) {
                 console.log("error", err);
                 Error(err);
             });

@@ -171,7 +171,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (sedutaDto.Data_seduta <= DateTime.Now)
                 {
-                    return BadRequest("Data seduta non valida");
+                    throw new InvalidOperationException("Data seduta non valida");
                 }
 
                 var session = GetSession();
@@ -201,11 +201,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (sedutaDto.Data_seduta <= DateTime.Now)
-                {
-                    return BadRequest("Data seduta non valida");
-                }
-
                 var sedutaInDb = await _logic.GetSeduta(sedutaDto.UIDSeduta);
 
                 if (sedutaInDb == null)
