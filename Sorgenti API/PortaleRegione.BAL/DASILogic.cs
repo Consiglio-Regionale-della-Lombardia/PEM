@@ -486,6 +486,9 @@ namespace PortaleRegione.API.Controllers
                 {
                     var sedutaInDb = await _logicSedute.GetSeduta(attoInDb.UIDSeduta.Value);
                     dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+
+                    var presentato_oltre_termini = IsOutdate(dto);
+                    dto.PresentatoOltreITermini = presentato_oltre_termini;
                 }
 
                 return dto;
@@ -1763,6 +1766,61 @@ namespace PortaleRegione.API.Controllers
                 Log.Error("Logic - ModificaMetaDati", e);
                 throw e;
             }
+        }
+
+        private bool IsOutdate(AttoDASIDto atto)
+        {
+            if (atto.IDStato < (int) StatiAttoEnum.PRESENTATO) return false;
+            var data_presentazione = Convert.ToDateTime(atto.DataPresentazione);
+            var result = false;
+            switch ((TipoAttoEnum)atto.Tipo)
+            {
+                case TipoAttoEnum.IQT:
+                {
+                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneIQT)
+                    {
+                        result = true;
+                    }
+
+                    break;
+                }
+                case TipoAttoEnum.MOZ:
+                {
+                    switch ((TipoMOZEnum)atto.TipoMOZ)
+                    {
+                        case TipoMOZEnum.URGENTE:
+                        {
+                            if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU)
+                            {
+                                result = true;
+                            }
+
+                            break;
+                        }
+                        case TipoMOZEnum.ABBINATA:
+                        {
+                            if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA)
+                            {
+                                result = true;
+                            }
+
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case TipoAttoEnum.ODG:
+                {
+                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneODG)
+                    {
+                        result = true;
+                    }
+
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }
