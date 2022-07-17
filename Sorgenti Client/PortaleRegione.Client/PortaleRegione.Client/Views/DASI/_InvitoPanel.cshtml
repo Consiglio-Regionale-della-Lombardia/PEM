@@ -99,7 +99,11 @@
             console.log("listaAtti", listaAtti)
             var destinatari = chipInstanceNotificaADASI.getData();
             if (destinatari.length == 0) {
-                ErrorAlert("Seleziona almeno un destinatario");
+                swal({
+                    title: "Errore",
+                    text: "Seleziona almeno un destinatario",
+                    icon: "error"
+                });
                 return;
             }
 

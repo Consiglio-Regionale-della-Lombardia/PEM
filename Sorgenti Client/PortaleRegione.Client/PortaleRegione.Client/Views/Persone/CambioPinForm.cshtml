@@ -80,7 +80,11 @@
                 dataType: "json"
             }).done(function(data) {
                 if (data.message)
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 else {
                     SuccessAlert("Il pin è stato correttamente cambiato!");
                     go(data)

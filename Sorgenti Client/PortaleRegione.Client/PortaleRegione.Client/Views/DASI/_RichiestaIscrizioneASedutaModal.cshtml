@@ -75,7 +75,11 @@
                     $("#btnIscriviSeduta_Salva").off("click");
                     console.log(data.message);
                     if (data.message) {
-                        ErrorAlert(data.message);
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
                     } else {
                         go(data);
                     }
@@ -115,7 +119,11 @@
                     $("#btnRimuoviSeduta_Salva").off("click");
                     console.log(data.message);
                     if (data.message) {
-                        ErrorAlert(data.message);
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
                     } else {
                         go(data);
                     }

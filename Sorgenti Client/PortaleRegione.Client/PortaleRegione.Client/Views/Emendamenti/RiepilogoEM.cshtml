@@ -142,7 +142,11 @@
             var totaleDoc = selezionaTutti ? documentiTotali - listaEM.length : listaEM.length;
 
             if (totaleDoc <= 0) {
-                ErrorAlert("Seleziona almeno un emendamento da elaborare");
+                swal({
+                    title: "Errore",
+                    text: "Seleziona almeno un emendamento da elaborare",
+                    icon: "error"
+                });
                 return;
             }
 

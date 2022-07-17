@@ -330,7 +330,11 @@
             dataType: "json"
         }).done(async function(data) {
             if (data.message) {
-                ErrorAlert(data.message);
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
                 $('#btnResetPin').attr("disabled", false);
                 return;
             }
@@ -339,7 +343,7 @@
         }).fail(function(err) {
             $('#btnResetPin').attr("disabled", false);
             console.log("error", err);
-            ErrorAlert(err);
+            Error(err);
         });
     });
 
@@ -368,7 +372,11 @@
             dataType: "json"
         }).done(function(data) {
             if (data.message) {
-                ErrorAlert(data.message);
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
                 $('#btnResetPassword').attr("disabled", false);
                 return;
             }
@@ -377,7 +385,7 @@
         }).fail(function(err) {
             $('#btnResetPassword').attr("disabled", false);
             console.log("error", err);
-            ErrorAlert(err);
+            Error(err);
         });
     });
 

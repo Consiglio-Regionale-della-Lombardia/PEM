@@ -329,7 +329,11 @@
         $("#btnConfermaUguali").on("click",
             function() {
                 if ($("#txtColore").val() == '') {
-                    ErrorAlert("Conferma il colore dalla tavollozza");
+                    swal({
+                        title: "Errore",
+                        text: "Conferma il colore dalla tavollozza",
+                        icon: "error"
+                    });
                 } else {
                     $("#modalEmendamentiUguali").modal("close");
 
@@ -439,7 +443,11 @@
             var proponenti = chipInstanceAssegnaA.getData();
             if (proponenti.length > 1) {
                 //ERROR
-                ErrorAlert("E' concesso selezionare solo un proponente");
+                swal({
+                    title: "Errore",
+                    text: "E' concesso selezionare solo un proponente",
+                    icon: "error"
+                });
                 return null;
             }
 

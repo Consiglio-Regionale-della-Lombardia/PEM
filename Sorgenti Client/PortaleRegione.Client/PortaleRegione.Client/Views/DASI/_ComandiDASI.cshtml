@@ -71,7 +71,11 @@
         var totaleDoc = selezionaTutti ? documentiTotali - lista.length : lista.length;
 
         if (totaleDoc <= 0) {
-            ErrorAlert("Seleziona almeno un atto da elaborare");
+            swal({
+                title: "Errore",
+                text: "Seleziona almeno un atto da elaborare",
+                icon: "error"
+            });
             return;
         }
 

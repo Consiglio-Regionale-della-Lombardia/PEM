@@ -129,7 +129,11 @@
             }).done(function(data) {
                 console.log(data)
                 if (data.message)
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 else
                     go(data);
             }).fail(function(err) {

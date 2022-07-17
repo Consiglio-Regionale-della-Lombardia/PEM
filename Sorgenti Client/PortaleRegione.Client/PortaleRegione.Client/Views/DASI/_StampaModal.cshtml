@@ -42,7 +42,11 @@
 
         var totaleDoc = selezionaTutti || lista.length == 0 ? documentiTotali - lista.length : lista.length;
         if (totaleDoc <= 0) {
-            ErrorAlert("Seleziona almeno un atto da stampare");
+            swal({
+                title: "Errore",
+                text: "Seleziona almeno un atto da stampare",
+                icon: "error"
+            });
             return;
         }
         if (totaleDoc >= 10) {
@@ -96,7 +100,11 @@
                 dataType: "json"
             }).done(function(data) {
                 if (data.message)
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 else {
                     $("#modalStampa").modal("close");
                     $("#btnConfermaStampa").off("click");

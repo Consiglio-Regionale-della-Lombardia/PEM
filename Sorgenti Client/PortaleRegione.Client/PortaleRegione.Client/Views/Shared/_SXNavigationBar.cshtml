@@ -332,7 +332,11 @@
                     data: check_request
                 }).done(function(result) {
                     if (result.message) {
-                        ErrorAlert(result.message);
+                        swal({
+                            title: "Errore",
+                            text: result.message,
+                            icon: "error"
+                        });
                         return;
                     }
                     swal("Inserisci nuovo pin",
@@ -358,7 +362,11 @@
                                     if (pin2 == null || pin2 == "")
                                         return;
                                     if (pin != pin2) {
-                                        ErrorAlert("I pin sono diversi, ripetere la procedura");
+                                        swal({
+                                            title: "Errore",
+                                            text: "I pin sono diversi, ripetere la procedura",
+                                            icon: "error"
+                                        });
                                         return;
                                     } else {
                                         var url = '@Html.Raw(Url.Action("SalvaPin", "Persone"))';
@@ -383,7 +391,7 @@
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err);
+                    Error(err);
                 });
             });
     }

@@ -67,7 +67,11 @@
                     $("#btnRimuoviSeduta_Salva").off("click");
                     console.log(data.message);
                     if (data.message) {
-                        ErrorAlert(data.message);
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
                     } else {
                         go(data);
                     }
@@ -103,7 +107,11 @@
             function() {
 
                 if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
-                    ErrorAlert("Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto);
+                    swal({
+                        title: "Errore",
+                        text: "Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto,
+                        icon: "error"
+                    });
                     return;
                 }
 
@@ -123,7 +131,11 @@
                     $("#modalIscriviSeduta").modal("close");
                     $("#btnIscriviSeduta_Salva").off("click");
                     if (data.message) {
-                        ErrorAlert(data.message);
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
                     } else {
                         go(data);
                     }
@@ -147,7 +159,11 @@
             function() {
 
                 if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
-                    ErrorAlert("Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto);
+                    swal({
+                        title: "Errore",
+                        text: "Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto,
+                        icon: "error"
+                    });
                     return;
                 }
 
@@ -170,7 +186,11 @@
                     $("#btnIscriviSeduta_Salva").off("click");
                     console.log(data.message);
                     if (data.message) {
-                        ErrorAlert(data.message);
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
                     } else {
                         go(data);
                     }
@@ -201,7 +221,11 @@
             }).done(async function (data) {
 
                 if (data.message)
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 else {
                     var seduta = await GetSedutaByData(body.Data_seduta);
 
@@ -223,7 +247,11 @@
                         $("#modalIscriviSeduta").modal("close");
                         $("#btnIscriviSeduta_Salva").off("click");
                         if (data.message) {
-                            ErrorAlert(data.message);
+                            swal({
+                                title: "Errore",
+                                text: data.message,
+                                icon: "error"
+                            });
                         } else {
                             go(data);
                         }

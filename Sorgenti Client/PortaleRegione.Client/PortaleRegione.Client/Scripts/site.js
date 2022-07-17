@@ -111,7 +111,11 @@ function Sposta_EMTrattazione(em) {
                 dataType: "json"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     location.reload();
                 }
@@ -131,7 +135,11 @@ function SpostaUP_EMTrattazione(em) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             location.reload();
         }
@@ -150,7 +158,11 @@ function SpostaDOWN_EMTrattazione(em) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             location.reload();
         }
@@ -371,7 +383,11 @@ function ConfirmAction(id, name, action) {
                 $("#btnConfermaAction").off("click");
                 console.log(data.message);
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     go(data);
                 }
@@ -405,7 +421,11 @@ function ConfirmActionDASI(id, name, action) {
                 $("#btnConfermaActionDASI").off("click");
                 console.log(data.message);
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     go(data);
                 }
@@ -909,7 +929,11 @@ function CambioStato(uidem, stato) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             var label = $("#tdStato_" + uidem + ">label");
             var textStato = "";
@@ -961,7 +985,11 @@ function CambioStatoDASI(uidatto, stato) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             go(data);
         }
@@ -1109,7 +1137,11 @@ function Ordina_EMTrattazione(attoUId) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             swal({
                     title: "Ordinamento automatico",
@@ -1137,7 +1169,11 @@ function OrdinamentoConcluso(attoUId) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             swal("Email inviata con successo!").then((val) => {
                 location.reload();
@@ -1279,7 +1315,11 @@ function CreaArticolo(attoUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetArticoliAtto(attoUId);
                 }
@@ -1306,7 +1346,11 @@ function CreaComma(articoloUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetCommiArticolo(articoloUId);
                 }
@@ -1333,7 +1377,11 @@ function CreaLettera(commaUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetLettereComma(commaUId);
                 }
@@ -1360,7 +1408,11 @@ function EliminaArticolo(articoloUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetArticoliAtto($("#Atto_UIDAtto").val());
                 }
@@ -1387,7 +1439,11 @@ function EliminaComma(commaUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     var uidArticoloAttivo = $("#tableArticoli").find("li.active").attr("uid");
                     GetCommiArticolo(uidArticoloAttivo);
@@ -1415,7 +1471,11 @@ function EliminaLettera(letteraUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     var uidCommaAttivo = $("#tableCommi").find("li.active").attr("uid");
                     GetLettereComma(uidCommaAttivo);
@@ -1446,7 +1506,11 @@ function PubblicaFascicolo(attoUId, ordine) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         }
         if (obj.Abilita == true) {
             SuccessAlert("Fascicolo pubblicato");
