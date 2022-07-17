@@ -39,7 +39,36 @@
 
         $('#btnProponiAbbinata_Salva').on("click",
             function() {
-                console.log("proponi")
+                var listaAtti = [];
+                var obj = {};
+
+                listaAtti.push(uidAtto);
+                obj.Lista = listaAtti;
+                obj.AttoUId = $('select[id="Atto_TipoMOZ_Abbinabili"]').children("option:selected").val();
+
+                $.ajax({
+                    url: '@Url.Action("ProponiAbbinataMozione")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    console.log(data.message);
+                    if (data.message) {
+                        swal({
+                            title: "Esito salvataggio",
+                            text: data.message,
+                            icon: "error",
+                            button: "OK"
+                        });
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+
                 $('#btnProponiAbbinata_Salva').off("click");
                 $('#modalProponiAbbinata').modal("close");
             });
