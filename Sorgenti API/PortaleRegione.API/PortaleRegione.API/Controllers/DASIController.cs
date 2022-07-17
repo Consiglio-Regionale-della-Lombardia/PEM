@@ -102,7 +102,7 @@ namespace PortaleRegione.API.Controllers
                 var countFirme = await _logicFirma.CountFirme(id);
                 if (countFirme > 1)
                 {
-                    return BadRequest(
+                    throw new InvalidOperationException(
                         $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
                 }
 
@@ -211,7 +211,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logic.Firma(firmaModel, persona, null, true));
@@ -220,17 +220,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logic.Firma(firmaModel, persona, pinInDb));
@@ -261,7 +261,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logic.RitiroFirma(firmaModel, persona));
@@ -270,17 +270,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logic.RitiroFirma(firmaModel, persona));
@@ -312,7 +312,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logic.EliminaFirma(firmaModel, persona));
@@ -321,17 +321,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logic.EliminaFirma(firmaModel, persona));
@@ -356,7 +356,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (ManagerLogic.BloccaPresentazione)
                 {
-                    return BadRequest(
+                    throw new InvalidOperationException(
                         "E' in corso un'altra operazione di presentazione. Riprova tra qualche secondo.");
                 }
 
@@ -368,7 +368,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (presentazioneModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logic.Presenta(presentazioneModel, persona));
@@ -377,17 +377,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (presentazioneModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logic.Presenta(presentazioneModel, persona));
@@ -532,7 +532,7 @@ namespace PortaleRegione.API.Controllers
                 var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                 if (firmatari_attivi.Any())
                 {
-                    return BadRequest("L'atto ha delle firme attive e non può essere eliminato");
+                    throw new InvalidOperationException("L'atto ha delle firme attive e non può essere eliminato");
                 }
 
                 var session = GetSession();
@@ -569,7 +569,7 @@ namespace PortaleRegione.API.Controllers
                     var seduta = await _logicPem.GetSeduta(atto.UIDSeduta.Value);
                     if (DateTime.Now > seduta.Data_seduta)
                     {
-                        return BadRequest(
+                        throw new InvalidOperationException(
                             "Non è possibile ritirare l'atto durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
                     }
                 }
@@ -626,7 +626,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (model.UidSeduta == Guid.Empty)
                 {
-                    return BadRequest($"Guid [{model.UidSeduta}]");
+                    throw new InvalidOperationException($"Guid [{model.UidSeduta}]");
                 }
 
                 var session = GetSession();
@@ -823,25 +823,6 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        /// <summary>
-        ///     Endpoint per avere i tipi
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("tipi")]
-        public async Task<IHttpActionResult> GetTipi()
-        {
-            try
-            {
-                return Ok(_logic.GetTipi());
-            }
-            catch (Exception e)
-            {
-                Log.Error("GetTipi", e);
-                return ErrorHandler(e);
-            }
-        }
-        
         /// <summary>
         ///     Endpoint per avere i tipi di mozioni
         /// </summary>

@@ -949,22 +949,6 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpGet]
-        [Route("tipi")]
-        public async Task<ActionResult> Filtri_GetTipi()
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(_Token);
-                return Json(await apiGateway.DASI.GetTipi(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-        
-        [HttpGet]
         [Route("tipi-moz")]
         public async Task<ActionResult> Filtri_GetTipiMOZ()
         {

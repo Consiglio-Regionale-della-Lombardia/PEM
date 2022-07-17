@@ -65,7 +65,7 @@ namespace PortaleRegione.API.Controllers
                 if (session._currentRole != RuoliIntEnum.Amministratore_PEM
                     && session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
                 {
-                    return BadRequest("Operazione non eseguibile per il ruolo assegnato");
+                    throw new InvalidOperationException("Operazione non eseguibile per il ruolo assegnato");
                 }
 
                 var persona = await _logicPersone.GetPersona(session);
@@ -102,7 +102,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (is_report)
                     {
-                        return BadRequest("Operazione non eseguibile per il ruolo assegnato");
+                        throw new InvalidOperationException("Operazione non eseguibile per il ruolo assegnato");
                     }
                 }
 

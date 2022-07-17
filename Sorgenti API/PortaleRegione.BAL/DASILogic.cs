@@ -933,7 +933,7 @@ namespace PortaleRegione.API.Controllers
                     var contatore = await _unitOfWork.DASI.GetContatore(atto.Tipo, atto.IDTipo_Risposta);
                     var contatore_progressivo = contatore.Inizio + contatore.Contatore;
                     var etichetta_progressiva =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
+                        $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
                         EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
                     var checkProgressivo_unique =
@@ -1000,7 +1000,7 @@ namespace PortaleRegione.API.Controllers
                                     OGGETTO =
                                         "[ODG DI NON PASSAGGIO ALL'ESAME]",
                                     MESSAGGIO =
-                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha presentato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_TipoDASI(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
+                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha presentato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
                                 };
                                 await _logicUtil.InvioMail(mailModel);
                             }
@@ -1074,7 +1074,7 @@ namespace PortaleRegione.API.Controllers
                             if (firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
                             var mozDto = await GetAttoDto(moz.UIDAtto);
-                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]", $"{Utility.GetText_TipoDASI(atto.Tipo)} {mozDto.NAtto}");
+                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]", $"{Utility.GetText_Tipo(atto.Tipo)} {mozDto.NAtto}");
                             break;
                         }
 
@@ -1108,7 +1108,7 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    var tipo = Utility.GetText_TipoDASI(dto);
+                    var tipo = Utility.GetText_Tipo(dto);
 
                     var body = GetTemplate(template, true);
 
@@ -1318,7 +1318,7 @@ namespace PortaleRegione.API.Controllers
 
                     foreach (var atto in atti.Results)
                     {
-                        var tipo = Utility.GetText_TipoDASI(atto.IDTipoAtto);
+                        var tipo = Utility.GetText_Tipo(atto.IDTipoAtto);
                         atto.NAtto = $"{tipo} {atto.NAtto} - Seduta del {seduta.Data_seduta:dd/MM/yyyy HH:mm}";
                         result.Add(atto);
                     }
@@ -1412,7 +1412,7 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
                     listaRichieste.Add(
                         atto.UIDPersonaRichiestaIscrizione.HasValue
                             ? atto.UIDPersonaRichiestaIscrizione.Value
@@ -1468,7 +1468,7 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
 
                     var nomeAtto =
-                        $"{Utility.GetText_TipoDASI(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
                     listaRichieste.Add(nomeAtto);
                 }
 
@@ -1791,7 +1791,7 @@ namespace PortaleRegione.API.Controllers
                 var bodyIndice = new StringBuilder();
                 foreach (var dasiDto in atti)
                     bodyIndice.Append(templateItemIndice
-                        .Replace("{TipoAtto}", Utility.GetText_TipoDASI(dasiDto.Tipo))
+                        .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                         .Replace("{NAtto}", dasiDto.NAtto)
                         .Replace("{DataPresentazione}", dasiDto.DataPresentazione)
                         .Replace("{Oggetto}", dasiDto.Oggetto)
@@ -1826,22 +1826,6 @@ namespace PortaleRegione.API.Controllers
                     Stato = Utility.GetText_StatoDASI((int) stato)
                 });
             }
-
-            return result;
-        }
-
-        public IEnumerable<Tipi_AttoDto> GetTipi()
-        {
-            var result = new List<Tipi_AttoDto>();
-            var tipi = Enum.GetValues(typeof(TipoAttoEnum));
-            foreach (var tipo in tipi)
-                if ((int) tipo != (int) TipoAttoEnum.PDL
-                    && (int) tipo != (int) TipoAttoEnum.PDA)
-                    result.Add(new Tipi_AttoDto
-                    {
-                        IDTipoAtto = (int) tipo,
-                        Tipo_Atto = Utility.GetText_TipoDASI((int) tipo)
-                    });
 
             return result;
         }

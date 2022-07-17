@@ -188,17 +188,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (model.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logic.InvitaAFirmare(model, persona));

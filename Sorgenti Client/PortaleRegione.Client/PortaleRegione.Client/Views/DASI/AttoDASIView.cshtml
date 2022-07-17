@@ -5,7 +5,7 @@
 @model PortaleRegione.DTO.Domain.AttoDASIDto
 
 @{
-    ViewBag.Title = $"{Utility.GetText_TipoDASI(Model)} {Model.NAtto}";
+    ViewBag.Title = $"{Utility.GetText_Tipo(Model)} {Model.NAtto}";
 
     var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
     var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
@@ -136,7 +136,7 @@
                     <div class="row">
                         <div class="col s12 center">
                             <h3>
-                                <b>@Html.Raw($"{Utility.GetText_TipoDASI(Model)} {Model.NAtto}")</b>
+                                <b>@Html.Raw($"{Utility.GetText_Tipo(Model)} {Model.NAtto}")</b>
                             </h3>
                         </div>
                     </div>

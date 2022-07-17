@@ -50,6 +50,11 @@ namespace PortaleRegione.Client.Helpers
         {
             try
             {
+                if (!persone.Any())
+                {
+                    return default;
+                }
+
                 var result = new List<string>();
 
                 foreach (var persona in persone)

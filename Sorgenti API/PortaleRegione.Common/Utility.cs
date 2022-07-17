@@ -40,6 +40,20 @@ namespace PortaleRegione.Common
             (int) StatiAttoEnum.BOZZA_RISERVATA,
             (int) StatiAttoEnum.RITIRATO
         };
+        
+        public static List<TipoAttoEnum> tipiNonVisibili = new List<TipoAttoEnum>
+        {
+            TipoAttoEnum.PDL,
+            TipoAttoEnum.PDA,
+            TipoAttoEnum.DOC,
+            TipoAttoEnum.PLP,
+            TipoAttoEnum.PRE,
+            TipoAttoEnum.PDN,
+            TipoAttoEnum.REF,
+            TipoAttoEnum.REL,
+            TipoAttoEnum.ORG,
+            TipoAttoEnum.RIS
+        };
 
         /// <summary>
         ///     Metodo per avere i metadati dell'emendamento in formato visualizzabile
@@ -119,12 +133,12 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_TipoDASI(AttoDASIDto atto)
+        public static string GetText_Tipo(AttoDASIDto atto)
         {
-            return GetText_TipoDASI(atto.Tipo);
+            return GetText_Tipo(atto.Tipo);
         }
         
-        public static string GetText_TipoDASI(int tipoAtto)
+        public static string GetText_Tipo(int tipoAtto)
         {
             switch ((TipoAttoEnum) tipoAtto)
             {
@@ -144,6 +158,22 @@ namespace PortaleRegione.Common
                     return TipoAttoEnum.PDA.ToString();
                 case TipoAttoEnum.TUTTI:
                     return "Tutti";
+                case TipoAttoEnum.PLP:
+                    return TipoAttoEnum.PLP.ToString();
+                case TipoAttoEnum.PRE:
+                    return TipoAttoEnum.PRE.ToString();
+                case TipoAttoEnum.PDN:
+                    return TipoAttoEnum.PDN.ToString();
+                case TipoAttoEnum.DOC:
+                    return TipoAttoEnum.DOC.ToString();
+                case TipoAttoEnum.REF:
+                    return TipoAttoEnum.REF.ToString();
+                case TipoAttoEnum.REL:
+                    return TipoAttoEnum.REL.ToString();
+                case TipoAttoEnum.ORG:
+                    return TipoAttoEnum.ORG.ToString();
+                case TipoAttoEnum.RIS:
+                    return TipoAttoEnum.RIS.ToString();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
             }

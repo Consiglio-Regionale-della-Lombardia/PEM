@@ -351,10 +351,30 @@ function GetTipiDASI() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/dasi/tipi",
+            url: baseUrl + "/atti/tipi",
             type: "GET"
         }).done(function(result) {
             set_ListaTipiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetTipiPEM() {
+    var tipi = get_ListaTipiPEM();
+    if (tipi.length > 0) {
+        return tipi;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/tipi?dasi=false",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaTipiPEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);

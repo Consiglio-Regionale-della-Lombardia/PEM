@@ -64,7 +64,6 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .ATTI
-                .Include(a => a.TIPI_ATTO)
                 .Include(a => a.SEDUTE)
                 .Where(c => c.Eliminato == false && c.UIDSeduta == sedutaUId);
 
@@ -72,7 +71,6 @@ namespace PortaleRegione.Persistance
 
             return await query
                 .OrderBy(c => c.Priorita)
-                .Include(c => c.TIPI_ATTO)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

@@ -18,6 +18,7 @@
 
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -575,5 +576,37 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Atti.GetRelatori(attoUId);
             return result;
         }
+
+        public IEnumerable<Tipi_AttoDto> GetTipi(bool dasi = true)
+        {
+            var result = new List<Tipi_AttoDto>();
+            var tipi = Enum.GetValues(typeof(TipoAttoEnum));
+            foreach (var tipo in tipi)
+            {
+                if (dasi)
+                {
+                    if (Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (!Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo))
+                    {
+                        continue;
+                    }
+                }
+
+                result.Add(new Tipi_AttoDto
+                {
+                    IDTipoAtto = (int)tipo,
+                    Tipo_Atto = Utility.GetText_Tipo((int)tipo)
+                });
+            }
+
+            return result;
+        }
+
     }
 }

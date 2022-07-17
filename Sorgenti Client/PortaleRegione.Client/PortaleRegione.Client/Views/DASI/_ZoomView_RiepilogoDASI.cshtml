@@ -34,7 +34,7 @@ else
     foreach (var item in Model.Data.Results)
     {
         
-        var title = $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)} ";
+        var title = $"{PortaleRegione.Common.Utility.GetText_Tipo(item.Tipo)} ";
         title += item.NAtto;
 
         <div class="col s12 m12 l12" id="atto_@item.UIDAtto" data-nome-atto="@title">

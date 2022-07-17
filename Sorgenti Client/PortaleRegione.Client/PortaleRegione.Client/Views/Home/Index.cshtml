@@ -3,6 +3,7 @@
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.Client.Helpers
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.DashboardModel
 
 @{
@@ -110,18 +111,21 @@
                                             <ul class="collapsible" style="position: relative">
                                                 @foreach (var attoPem in pemList.Results)
                                                 {
-                                                    var titolo_atto = string.Format("{0} {1}", attoPem.TIPI_ATTO.Tipo_Atto, attoPem.NAtto);
+                                                    var titolo_atto = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
                                                     <li>
                                                         <div class="collapsible-header">
                                                             <i class="material-icons pink-text">textsms</i>
                                                             @titolo_atto
-                                                            <div class="collapsabile-secondary-header">
+                                                        <div class="collapsabile-secondary-header">
+                                                            @if (attoPem.Conteggio_EM + attoPem.Conteggio_SubEM > 0)
+                                                            {
                                                                 <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
-                                                                @if (attoDasi!=null && attoDasi.CountBarData.ODG > 0)
-                                                                {
-                                                                    <div class="chip">@(attoDasi.CountBarData.ODG) ODG</div>
-                                                                }
-                                                            </div>
+                                                            }
+                                                            @if (attoDasi != null && attoDasi.CountBarData.ODG > 0)
+                                                            {
+                                                                <div class="chip">@(attoDasi.CountBarData.ODG) ODG</div>
+                                                            }
+                                                        </div>
                                                         </div>
                                                         <div class="collapsible-body">
                                                             <div class="row">
@@ -145,25 +149,33 @@
                                                                         </div>
                                                                     </div>
                                                                 }
-                                                                <div class="col s12">
-                                                                    <label>
-                                                                        <b>Relatori</b>
-                                                                    </label>
-                                                                    <br />
-                                                                    @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
-                                                                </div>
+                                                                @if (attoPem.Relatori.Any())
+                                                                {
+                                                                    <div class="col s12">
+                                                                        <label>
+                                                                            <b>Relatori</b>
+                                                                        </label>
+                                                                        <br />
+                                                                        @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
+                                                                    </div>
+                                                                }
+                                                                
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col s6">
-                                                                    <a class="btn-flat pink-text"
-                                                                       href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
-                                                                        <i class="material-icons left">download</i>
-                                                                        Scarica
-                                                                    </a>
+                                                                    @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
+                                                                    {
+                                                                        <a class="btn-flat pink-text"
+                                                                           href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
+                                                                            <i class="material-icons left">download</i>
+                                                                            Scarica
+                                                                        </a>
+                                                                    }
+                                                                    
                                                                 </div>
                                                             </div>
                                                             <div class="row">
-                                                                @if (seduta.Scadenza_presentazione.HasValue)
+                                                                @if (seduta.Scadenza_presentazione.HasValue && attoPem.IDTipoAtto == (int)TipoAttoEnum.PDL)
                                                                 {
                                                                     <div class="col s6 left-align">
                                                                         <a class="btn-flat black-text">
@@ -172,7 +184,7 @@
                                                                         </a>
                                                                     </div>
                                                                 }
-                                                                @if (attoPem.Data_apertura.HasValue)
+                                                                @if (attoPem.Data_apertura.HasValue && attoPem.Conteggio_EM + attoPem.Conteggio_SubEM > 0)
                                                                 {
                                                                     <div class="col s6 right-align">
                                                                         <a class="btn-flat blue-text"
@@ -184,12 +196,12 @@
                                                                 }
                                                             </div>
                                                             <div class="row">
-                                                                @if (seduta.Scadenza_presentazione.HasValue)
+                                                                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
                                                                 {
                                                                     <div class="col s6 left-align">
                                                                         <a class="btn-flat black-text">
                                                                             <i class="material-icons left">access_alarm</i>
-                                                                            Scadenza @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                                                                            Scadenza @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
                                                                         </a>
                                                                     </div>
                                                                 }
@@ -240,7 +252,7 @@
                                                     <li>
                                                         <div class="collapsible-header">
                                                             <i class="material-icons pink-text">textsms</i>
-                                                            @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)
+                                                            @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.ITL)
                                                             <div class="collapsabile-secondary-header">
                                                                 <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
                                                             </div>
@@ -263,7 +275,7 @@
                                                     <li>
                                                         <div class="collapsible-header">
                                                             <i class="material-icons pink-text">textsms</i>
-                                                            @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.ITR)
+                                                            @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.ITR)
                                                             <div class="collapsabile-secondary-header">
                                                                 <div class="chip">@(attoDasi.CountBarData.ITR) Atti</div>
                                                             </div>
@@ -286,7 +298,7 @@
                                                     <li>
                                                         <div class="collapsible-header">
                                                             <i class="material-icons pink-text">textsms</i>
-                                                            @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.IQT)
+                                                            @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.IQT)
                                                             <div class="collapsabile-secondary-header">
                                                                 <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
                                                             </div>
@@ -309,7 +321,7 @@
                                                     <li>
                                                         <div class="collapsible-header">
                                                             <i class="material-icons pink-text">textsms</i>
-                                                            @PortaleRegione.Common.Utility.GetText_TipoDASI((int)TipoAttoEnum.MOZ)
+                                                            @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)
                                                             <div class="collapsabile-secondary-header">
                                                                 <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
                                                             </div>

@@ -100,10 +100,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (model.id == Guid.Empty) return BadRequest();
+                if (model.id == Guid.Empty) throw new InvalidOperationException();
 
                 var sedutaInDb = await _logicSedute.GetSeduta(model.id);
-                if (sedutaInDb == null) return BadRequest("Seduta non valida");
+                if (sedutaInDb == null) throw new InvalidOperationException("Seduta non valida");
 
                 object CLIENT_MODE;
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
@@ -121,7 +121,7 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetAtti", e);
-                return BadRequest(e.Message);
+                return ErrorHandler(e);
             }
         }
 
@@ -144,7 +144,7 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetAtto", e);
-                return BadRequest(e.Message);
+                return ErrorHandler(e);
             }
         }
 
@@ -160,7 +160,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (id == Guid.Empty) return BadRequest();
+                if (id == Guid.Empty) throw new InvalidOperationException();
 
                 var attoInDb = await _logic.GetAtto(id);
 
@@ -189,12 +189,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(attoModel.NAtto)) return BadRequest("Imposta il numero di atto");
+                if (string.IsNullOrEmpty(attoModel.NAtto)) throw new InvalidOperationException("Imposta il numero di atto");
 
-                if (string.IsNullOrEmpty(attoModel.Oggetto)) return BadRequest("Imposta l'oggetto");
+                if (string.IsNullOrEmpty(attoModel.Oggetto)) throw new InvalidOperationException("Imposta l'oggetto");
 
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
-                    return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
+                    throw new InvalidOperationException("Impossibile settare una data di chiusura inferiore alla data di apertura");
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -225,7 +225,7 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb == null) return NotFound();
 
                 if (attoModel.Data_chiusura <= attoModel.Data_apertura)
-                    return BadRequest("Impossibile settare una data di chiusura inferiore alla data di apertura");
+                    throw new InvalidOperationException("Impossibile settare una data di chiusura inferiore alla data di apertura");
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
@@ -601,6 +601,25 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("SPOSTA_DOWN", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere i tipi
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("tipi")]
+        public async Task<IHttpActionResult> GetTipi(bool dasi = true)
+        {
+            try
+            {
+                return Ok(_logic.GetTipi(dasi));
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetTipi", e);
                 return ErrorHandler(e);
             }
         }

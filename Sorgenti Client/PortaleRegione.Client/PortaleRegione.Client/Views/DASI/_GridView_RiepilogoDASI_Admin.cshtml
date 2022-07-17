@@ -65,7 +65,7 @@ else
                 </td>
                 <td style="width: 7%;">
                     @{
-                        var title = $"{Utility.GetText_TipoDASI(item)} ";
+                        var title = $"{Utility.GetText_Tipo(item)} ";
                         title += item.NAtto;
                     }
 
@@ -216,7 +216,7 @@ else
                     </td>
                 }
                 <td class="center" style="width: 5%;">
-                    <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_TipoDASI(item.Tipo)', @item.NAtto, @item.Legislatura)">
+                    <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
                         <i class="icon material-icons">remove_red_eye</i>
                     </a>
                     <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">

@@ -27,6 +27,14 @@ namespace PortaleRegione.DTO.Enum
         IQT = 4,
         ITL = 5,
         MOZ = 6,
-        ODG = 7
+        ODG = 7,
+        PLP = 8,
+        PRE = 9,
+        PDN = 10,
+        DOC = 11,
+        REF = 12,
+        REL = 13,
+        ORG = 14,
+        RIS = 15
     }
 }

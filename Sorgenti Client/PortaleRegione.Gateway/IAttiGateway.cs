@@ -51,5 +51,9 @@ namespace PortaleRegione.Gateway
         Task SalvaRelatori(AttoRelatoriModel model);
         Task SPOSTA_DOWN(Guid id);
         Task SPOSTA_UP(Guid id);
+
+
+        Task<IEnumerable<Tipi_AttoDto>> GetTipi(bool dasi = true);
+
     }
 }

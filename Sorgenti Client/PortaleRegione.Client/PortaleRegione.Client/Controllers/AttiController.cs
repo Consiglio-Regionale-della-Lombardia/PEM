@@ -371,5 +371,21 @@ namespace PortaleRegione.Client.Controllers
             await apiGateway.Atti.SPOSTA_DOWN(id);
             return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
+
+        [HttpGet]
+        [Route("tipi")]
+        public async Task<ActionResult> GetTipi(bool dasi = true)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Atti.GetTipi(dasi), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

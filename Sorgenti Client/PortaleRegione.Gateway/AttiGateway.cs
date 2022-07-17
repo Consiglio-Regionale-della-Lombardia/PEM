@@ -337,6 +337,32 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<IEnumerable<Tipi_AttoDto>> GetTipi(bool dasi = true)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/tipi";
+
+                if (dasi == false)
+                {
+                    requestUrl += "?dasi=false";
+                }
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_AttoDto>>(await Get(requestUrl, _token));
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetTipi", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetTipi", ex);
+                throw ex;
+            }
+        }
+
         #region ARTICOLI
 
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)

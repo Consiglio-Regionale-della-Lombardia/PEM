@@ -776,27 +776,6 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<IEnumerable<Tipi_AttoDto>> GetTipi()
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/dasi/tipi";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_AttoDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("GetTipi", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetTipi", ex);
-                throw ex;
-            }
-        }
-
         public async Task<IEnumerable<Tipi_AttoDto>> GetTipiMOZ()
         {
             try

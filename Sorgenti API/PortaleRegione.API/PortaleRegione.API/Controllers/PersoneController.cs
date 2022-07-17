@@ -250,11 +250,11 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var currentPin = await _logicPersone.GetPin(persona);
-                if (currentPin == null) return BadRequest("Pin non impostato");
+                if (currentPin == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin) return BadRequest("Il vecchio PIN non è corretto!!!");
+                if (currentPin.PIN_Decrypt != model.vecchio_pin) throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
-                if (model.Cambio == false && currentPin.RichiediModificaPIN) return BadRequest("E' richiesto il reset del pin");
+                if (model.Cambio == false && currentPin.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 return Ok("OK");
             }
@@ -277,20 +277,20 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (model.conferma_pin != model.nuovo_pin)
-                    return BadRequest("Il nuovo PIN non combacia con quello di conferma!!!");
+                    throw new InvalidOperationException("Il nuovo PIN non combacia con quello di conferma!!!");
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var currentPin = await _logicPersone.GetPin(persona);
-                if (currentPin == null) return BadRequest("Pin non impostato");
+                if (currentPin == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin) return BadRequest("Il vecchio PIN non è corretto!!!");
+                if (currentPin.PIN_Decrypt != model.vecchio_pin) throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
                 int valuePin;
                 var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
-                if (!checkTry) return BadRequest("Il pin deve contenere solo cifre numeriche");
+                if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
-                if (model.nuovo_pin.Length != 4) return BadRequest("Il PIN dev'essere un numero di massimo 4 cifre!");
+                if (model.nuovo_pin.Length != 4) throw new InvalidOperationException("Il PIN dev'essere un numero di massimo 4 cifre!");
 
                 model.PersonaUId = persona.UID_persona;
 
@@ -340,9 +340,9 @@ namespace PortaleRegione.API.Controllers
             {
                 int valuePin;
                 var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
-                if (!checkTry) return BadRequest("Il pin deve contenere solo cifre numeriche");
+                if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
-                if (model.nuovo_pin.Length != 4) return BadRequest("Il PIN dev'essere un numero di massimo 4 cifre!");
+                if (model.nuovo_pin.Length != 4) throw new InvalidOperationException("Il PIN dev'essere un numero di massimo 4 cifre!");
 
                 await _logicPersone.ResetPin(model);
 
