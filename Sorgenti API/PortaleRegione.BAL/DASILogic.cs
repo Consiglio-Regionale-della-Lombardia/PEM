@@ -1512,6 +1512,11 @@ namespace PortaleRegione.API.Controllers
                         throw new Exception(
                             "ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
 
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                    }
+
                     atto.DataRichiestaIscrizioneSeduta = null;
                     atto.UIDPersonaRichiestaIscrizione = null;
                     await _unitOfWork.CompleteAsync();
@@ -1536,11 +1541,13 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
 
                 attoInDb.TipoMOZ = (int) TipoMOZEnum.URGENTE;
+                atto.TipoMOZ = (int) TipoMOZEnum.URGENTE;
                 
                 var sedute_attive = await _unitOfWork.Sedute.GetAttive();
                 var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
 
-                attoInDb.DataRichiestaIscrizioneSeduta = seduta_attiva.Data_seduta.ToString("dd/MM/yyyy");
+                attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
+                    AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                 var count_firme = atto.ConteggioFirme;

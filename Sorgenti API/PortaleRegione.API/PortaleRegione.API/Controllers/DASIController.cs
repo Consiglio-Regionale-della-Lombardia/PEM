@@ -719,7 +719,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.ProponiMozioneUrgente(model);
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session._currentUId);
+                persona.CurrentRole = session._currentRole;
+                await _logic.ProponiMozioneUrgente(model, persona);
                 return Ok();
             }
             catch (Exception e)
