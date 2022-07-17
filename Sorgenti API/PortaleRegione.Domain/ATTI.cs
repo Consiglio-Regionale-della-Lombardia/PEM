@@ -92,6 +92,8 @@ namespace PortaleRegione.Domain
 
         public DateTime? DataUltimaModificaEM { get; set; }
 
+        public int TipoDibattito { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ARTICOLI> ARTICOLI { get; set; }
 

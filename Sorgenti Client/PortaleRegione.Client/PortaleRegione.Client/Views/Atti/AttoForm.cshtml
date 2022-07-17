@@ -129,6 +129,14 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <select id="Atto_TipoDibattito">
+                        <option value="" selected="selected">--</option>
+                        <option value="1">Dibattito</option>
+                        <option value="2">Discussione</option>
+                        <option value="3">Altro</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     @Html.LabelFor(s => s.Atto.NAtto)
                     @Html.TextBoxFor(s => s.Atto.NAtto, new {@class = "form-control"})
                 </div>
@@ -299,6 +307,7 @@
             form_data.append("Data_chiusura", $('input[name="Atto.Data_chiusura"]').val());
             form_data.append("DocAtto", doc);
             form_data.append("IDTipoAtto", $('select[id="Atto_Tipo"]').children("option:selected").val());
+            form_data.append("TipoDibattito", $('select[id="Atto_TipoDibattito"]').children("option:selected").val());
             form_data.append("Note", $('#Atto_Note').val());
             form_data.append("Notifica_deposito_differita", $('input[name="Atto.Notifica_deposito_differita"]').is(":checked"));
             form_data.append("Oggetto", $('#Atto_Oggetto').val());

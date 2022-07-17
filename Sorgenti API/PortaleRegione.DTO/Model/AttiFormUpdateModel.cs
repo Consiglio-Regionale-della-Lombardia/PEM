@@ -64,5 +64,6 @@ namespace PortaleRegione.DTO.Model
         public string Path_Testo_Atto { get; set; }
 
         public IEnumerable<PersonaLightDto> Relatori { get; set; }
+        public int TipoDibattito { get; set; }
     }
 }
