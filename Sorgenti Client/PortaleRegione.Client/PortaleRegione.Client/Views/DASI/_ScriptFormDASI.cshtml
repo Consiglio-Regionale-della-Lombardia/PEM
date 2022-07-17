@@ -4,7 +4,28 @@
 
     $("#btnSave").on("click",
         function() {
-            $('#formDASI').submit();
+
+            if ($("#Atto_Tipo").val() == @Html.Raw((int) TipoAttoEnum.ODG) && $('#Atto_Non_Passaggio_In_Esame').is(":checked")) {
+                swal({
+                    title: "ATTENZIONE",
+                    text: "Stai presentando un odg per richiedere il non passaggio all'esame del provvedimento. Procedere comunque? In caso di dubbio contatta il personale della Segreteria dell'Assemblea",
+                    icon: "warning",
+                    buttons: {
+                        cancel: "Annulla",
+                        confirm: {
+                            className: "blue white-text",
+                            title: "Procedi",
+                            value: true
+                        }
+                    }
+                }).then((value) => {
+                    if (value == true) {
+                        $('#formDASI').submit();
+                    }
+                });
+            } else {
+                $('#formDASI').submit();
+            }
         });
     $("#formDASI").submit(function(e) {
         e.preventDefault();
@@ -17,7 +38,7 @@
             else {
                 proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
             }
-            
+
             var container_premesse = $("#Atto_Premesse").parent();
             var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
             var container_richiesta = $("#Atto_Richiesta").parent();
@@ -31,6 +52,7 @@
             form_data.append("Tipo", $("#Atto_Tipo").val());
             if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
                 form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
+                form_data.append("Non_Passaggio_In_Esame", $('#Atto_Non_Passaggio_In_Esame').is(":checked"));
             }
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
             form_data.append("UIDPersonaProponente", proponente);
@@ -40,7 +62,7 @@
             var commissioni = [];
             commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
             form_data.append("Commissioni_client", commissioni);
-            
+
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
             if (inputsAllegatoGenerico.length != 0) {
                 var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];

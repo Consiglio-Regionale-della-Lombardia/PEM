@@ -87,6 +87,7 @@ namespace PortaleRegione.Domain
         public DateTime? DataIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaRichiestaIscrizione { get; set; }
+        public bool Non_Passaggio_In_Esame { get; set; } = false;
         public int NAtto_search { get; set; } = 0;
     }
 }

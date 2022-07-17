@@ -93,6 +93,8 @@ namespace PortaleRegione.API.Controllers
                         result.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey);
                         result.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                        result.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
                     }
 
                     var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -183,6 +185,7 @@ namespace PortaleRegione.API.Controllers
                     attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
                     attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+                    attoInDb.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
                 }
 
                 attoInDb.UIDPersonaModifica = persona.UID_persona;
@@ -982,6 +985,31 @@ namespace PortaleRegione.API.Controllers
                         atto.UIDSeduta = attoPem.UIDSeduta;
                         atto.DataIscrizioneSeduta = DateTime.Now;
                         atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
+
+                        if (atto.Non_Passaggio_In_Esame)
+                        {
+                            try
+                            {
+                                var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
+
+                                var mailModel = new MailModel
+                                {
+                                    DA = persona.email,
+                                    A =
+                                        $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                                    OGGETTO =
+                                        "[ODG DI NON PASSAGGIO ALL'ESAME]",
+                                    MESSAGGIO =
+                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha presentato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_TipoDASI(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
+                                };
+                                await _logicUtil.InvioMail(mailModel);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
+                            }
+                        }
+
                     }
 
                     await _unitOfWork.CompleteAsync();

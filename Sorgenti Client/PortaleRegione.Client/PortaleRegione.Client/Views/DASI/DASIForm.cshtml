@@ -167,6 +167,19 @@
                     </div>
 
                     @Html.Partial("_DocsPanel", Model)
+
+                    if (Model.Atto.Tipo == (int) TipoAttoEnum.ODG)
+                    {
+                        <div class="form-group">
+                            <p>
+                                <label>
+                                    <input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
+                                           @Html.Raw((Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : ""))>
+                                    <span>ODG di NON passaggio in esame</span>
+                                </label>
+                            </p>
+                        </div>
+                    }
                 }
 
                 <div class="fixed-action-btn">
