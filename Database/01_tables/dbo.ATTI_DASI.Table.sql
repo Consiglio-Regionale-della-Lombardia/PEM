@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 15/07/2022 10:05:53 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 17/07/2022 21:52:45 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -64,6 +64,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDPersonaIscrizioneSeduta] [uniqueidentifier] NULL,
 	[UID_MOZ_Abbinata] [uniqueidentifier] NULL,
 	[UID_Atto_ODG] [uniqueidentifier] NULL,
+	[Non_Passaggio_In_Esame] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -81,5 +82,8 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiesta]  DEFA
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]
 GO
 
