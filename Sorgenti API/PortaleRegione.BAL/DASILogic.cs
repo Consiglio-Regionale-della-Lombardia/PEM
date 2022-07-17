@@ -1038,7 +1038,7 @@ namespace PortaleRegione.API.Controllers
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
                     foreach (var firma in firmatari)
                     {
-                        var firmatario_indagato = $"{Decrypt(firma.FirmaCert, AppSettingsConfiguration.masterKey)}, firma non valida perchè già presente in [[LISTA]]. ";
+                        var firmatario_indagato = $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var moz in moz_in_seduta)
                         {
@@ -1046,7 +1046,7 @@ namespace PortaleRegione.API.Controllers
                             if (firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
                             var mozDto = await GetAttoDto(moz.UIDAtto);
-                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]", $"{Utility.GetText_TipoDASI(atto.TipoMOZ)} {mozDto.NAtto}");
+                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]", $"{Utility.GetText_TipoDASI(atto.Tipo)} {mozDto.NAtto}");
                             break;
                         }
 
@@ -1057,7 +1057,7 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 if (anomalie.Length > 0 && count_firme < minimo_firme)
-                    return $"{error_title}. Firme {{count_firme}}/{{minimo_firme}}. Mancano {{minimo_firme - count_firme}} firme. Riscontrate le seguenti anomalie: {anomalie}";
+                    return $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
             }
 
             return default;
