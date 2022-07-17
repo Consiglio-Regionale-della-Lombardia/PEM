@@ -1,4 +1,6 @@
-﻿@model PortaleRegione.Client.Models.AttiViewModel
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.Client.Models.AttiViewModel
 
 @{
     ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0:dd/MM/yyyy}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta, Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
@@ -46,7 +48,7 @@
 
     @foreach (var atto in Model.Data.Results)
     {
-        var titolo_atto = string.Format("{0} {1}", atto.TIPI_ATTO.Tipo_Atto, atto.NAtto);
+        var titolo_atto = $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}";
 
         var statoAtto = "";
         var coloreStatoAtto = "";
@@ -77,11 +79,11 @@
 
                 if (totalMinutes <= 60)
                 {
-                    statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
+                    statoAtto = $"Mancano {totalMinutes} minuti all'apertura";
                 }
                 else
                 {
-                    statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
+                    statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
 
                 coloreStatoAtto = "green";
@@ -94,7 +96,9 @@
                     <div class="card-title">
                         <div class="row" style="margin: 0; margin-bottom: 0 !important">
                             <div class="col s8">
-                                <h5><b>@titolo_atto</b></h5>
+                                <h5>
+                                    <b>@titolo_atto</b>
+                                </h5>
                                 <h6 class="active">
                                     <i>@Html.Raw(atto.Oggetto)</i>
                                 </h6>
@@ -116,22 +120,26 @@
                                         SCARICA DOCUMENTO
                                     </a>
                                 }
-                                
+
                             </div>
-                            <div class="col s7 right-align">
-                                <h6 class="black-text">
-                                    @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
-                                </h6>
-                            </div>
-                            <div class="col s1 right-align">
-                                @if (atto.Data_apertura.HasValue)
-                                {
-                                    <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
-                                        <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                    </a>
-                                }
-                            </div>
+                            @if (atto.IDTipoAtto == (int) TipoAttoEnum.PDL)
+                            {
+                                <div class="col s7 right-align">
+                                    <h6 class="black-text">
+                                        @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
+                                    </h6>
+                                </div>
+                                <div class="col s1 right-align">
+                                    @if (atto.Data_apertura.HasValue)
+                                    {
+                                        <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                            <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                        </a>
+                                    }
+                                </div>
+                            }
                         </div>
+
                     </div>
                 </div>
             </div>

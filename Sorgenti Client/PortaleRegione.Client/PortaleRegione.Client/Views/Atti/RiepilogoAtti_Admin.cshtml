@@ -96,12 +96,12 @@
                     }
                     else
                     {
-                        statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
+                        statoAtto = $"Mancano {totalMinutes} minuti all'apertura";
                     }
                 }
                 else
                 {
-                    statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
+                    statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
                 coloreStatoAtto = "amber darken-3";
             }
@@ -112,20 +112,23 @@
                 <div class="card-action grey lighten-4">
                     <div class="row" style="margin: 0 !important; padding: 0 !important">
                         <div class="col s6" style="display: inline-block">
-                            <p style="display: inline-block">
-                                <label>
-                                    <input data-val="true" id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Presentazione))"
-                                           @Html.Raw(atto.OrdinePresentazione.Value ? "checked=\"checked\"" : "")>
-                                    <span>Abilita fascicolo presentazione</span>
-                                </label>
-                            </p>
-                            <p style="display: inline-block; padding-left: 30px">
-                                <label>
-                                    <input data-val="true" id="chkAbilitaFascicoloVotazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Votazione))"
-                                           @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
-                                    <span>Abilita fascicolo votazione</span>
-                                </label>
-                            </p>
+                            @if (atto.IDTipoAtto == (int) TipoAttoEnum.PDL)
+                            {
+                                <p style="display: inline-block">
+                                    <label>
+                                        <input data-val="true" id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Presentazione))"
+                                               @Html.Raw(atto.OrdinePresentazione.Value ? "checked=\"checked\"" : "")>
+                                        <span>Abilita fascicolo presentazione</span>
+                                    </label>
+                                </p>
+                                <p style="display: inline-block; padding-left: 30px">
+                                    <label>
+                                        <input data-val="true" id="chkAbilitaFascicoloVotazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Votazione))"
+                                               @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
+                                        <span>Abilita fascicolo votazione</span>
+                                    </label>
+                                </p>
+                            }
                         </div>
                         <div class="col s6 right-align">
                             @if (atto.CanMoveUp)
@@ -140,7 +143,7 @@
                                     <i class="material-icons" style="margin-top: 15px">arrow_downward</i>
                                 </a>
                             }
-                            
+
                             <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new {id = atto.UIDAtto})')" title="Modifica">
                                 <i class="material-icons" style="margin-top: 15px">edit</i>
                             </a>
@@ -154,7 +157,9 @@
                     <div class="card-title">
                         <div class="row valign-wrapper" style="margin: 0 !important;">
                             <div class="col s8">
-                                <h5><b>@titolo_atto</b></h5>
+                                <h5>
+                                    <b>@titolo_atto</b>
+                                </h5>
                                 <h6 class="active">
                                     <i>@Html.Raw(atto.Oggetto)</i>
                                 </h6>
@@ -178,19 +183,24 @@
                                 }
 
                             </div>
-                            <div class="col s7 right-align">
-                                <h6 class="black-text">
-                                    @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
-                                </h6>
-                            </div>
-                            <div class="col s1 right-align">
-                                @if (atto.Data_apertura.HasValue)
-                                {
-                                    <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
-                                        <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                    </a>
-                                }
-                            </div>
+                            @if (atto.IDTipoAtto == (int) TipoAttoEnum.PDL)
+                            {
+                                <div class="col s7 right-align">
+
+                                    <h6 class="black-text">
+                                        @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
+                                    </h6>
+
+                                </div>
+                                <div class="col s1 right-align">
+                                    @if (atto.Data_apertura.HasValue)
+                                    {
+                                        <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                            <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                        </a>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
