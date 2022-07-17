@@ -58,5 +58,6 @@ namespace PortaleRegione.Contracts
         List<Guid> GetByQuery(ByQueryModel model);
         string GetAll_Query(Filter<ATTI_DASI> queryFilter);
         Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId);
+        Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
     }
 }

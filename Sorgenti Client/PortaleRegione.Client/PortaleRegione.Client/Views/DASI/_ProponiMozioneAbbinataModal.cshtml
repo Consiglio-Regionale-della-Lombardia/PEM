@@ -1,0 +1,47 @@
+﻿<!-- Modal Structure -->
+<div id="modalProponiAbbinata" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="txtProponiAbbinata"></h4>
+        <label>Mozione abbinabili: </label>
+        <select id="Atto_TipoMOZ_Abbinabili">
+        </select>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnProponiAbbinata_Salva">Proponi</a>
+    </div>
+</div>
+<script>
+    async function ProponiAbbinataDASI(uidAtto, nomeAtto) {
+        $('#txtProponiAbbinata').html("Proposta di mozione abbinata per l'atto <b>" + nomeAtto + "</b>:");
+        var mozioni = await GetTipiMOZAbbinabiliDASI();
+        if (mozioni.length > 0) {
+            var select = $("#Atto_TipoMOZ_Abbinabili");
+            select.empty();
+            var abbinata = '';
+            $.each(mozioni,
+                function (index, item) {
+                    var template = "";
+                    if (item.UIDAtto != uidAtto) {
+                        template = "<option></option>";
+                    }
+                    var oggetto = item.Oggetto == null ? "" : item.Oggetto;
+                    if (oggetto.length > 100) {
+                        oggetto = oggetto.slice(0, 100).concat('...');
+                    }
+                    select.append($(template).val(item.UIDAtto).html("MOZ " + item.NAtto + " " + oggetto));
+                });
+
+            var elems = document.querySelectorAll("#Atto_TipoMOZ_Abbinabili");
+            M.FormSelect.init(elems, null);
+        }
+
+        $('#modalProponiAbbinata').modal("open");
+
+        $('#btnProponiAbbinata_Salva').on("click",
+            function() {
+                console.log("proponi")
+                $('#btnProponiAbbinata_Salva').off("click");
+                $('#modalProponiAbbinata').modal("close");
+            });
+    }
+</script>

@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
@@ -331,8 +332,7 @@ namespace PortaleRegione.Persistance
                        || persona.IsSegreteriaPolitica
                        || persona.IsSegreteriaGiunta;
 
-            return persona.IsCapoGruppo && dto.IDStato <= (int) StatiAttoEnum.IN_TRATTAZIONE
-                   || (dto.UIDPersonaProponente == persona.UID_persona ||
+            return (dto.UIDPersonaProponente == persona.UID_persona ||
                        dto.UIDPersonaCreazione == persona.UID_persona)
                    && (dto.IDStato == (int) StatiAttoEnum.BOZZA ||
                        dto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
@@ -537,6 +537,19 @@ namespace PortaleRegione.Persistance
 
             query = query.Where(a => a.IDStato == (int) StatiAttoEnum.PRESENTATO
                                      || a.IDStato == (int) StatiAttoEnum.IN_TRATTAZIONE);
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
+        {
+            var query = PRContext.DASI.Where(atto => atto.UIDSeduta == uidSeduta
+                                                     && atto.Tipo == (int) tipo);
+
+            if (tipoMoz != TipoMOZEnum.ORDINARIA)
+            {
+                query = query.Where(atto => atto.TipoMOZ == (int) tipoMoz);
+            }
+
             return await query.ToListAsync();
         }
     }

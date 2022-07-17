@@ -58,6 +58,8 @@ namespace PortaleRegione.Gateway
         Task RichiediIscrizione(RichiestaIscrizioneDASIModel model);
         Task RimuoviSeduta(IscriviSedutaDASIModel model);
         Task RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model);
+        Task ProponiMozioneUrgente(PromuoviMozioneModel model);
+        Task ProponiMozioneAbbinata(PromuoviMozioneModel model);
         Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId);
         Task<string> GetCopertina(ByQueryModel model);
         Task<IEnumerable<StatiDto>> GetStati();

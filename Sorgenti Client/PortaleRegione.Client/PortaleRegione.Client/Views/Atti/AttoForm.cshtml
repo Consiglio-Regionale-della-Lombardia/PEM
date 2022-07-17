@@ -235,13 +235,19 @@
 </div>
 
 <script>
-    $("#btnSave").on("click",
-        function() {
-            setTimeout(function () {
-                $('body').removeClass('loaded');
-            }, 200);
-            $('#formAtto').submit();
+
+    $(window).on('load',
+        async function () {
+            $("#btnSave").on("click",
+                function () {
+                    $("#btnSave").off("click");
+                    setTimeout(function () {
+                        $('body').removeClass('loaded');
+                    }, 200);
+                    $('#formAtto').submit();
+                });
         });
+    
 
     $("#formAtto").submit(function(e) {
         e.preventDefault();

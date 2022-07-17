@@ -89,6 +89,7 @@
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
+    <Compile Include="Model\PromuoviMozioneModel.cs" />
     <Compile Include="Model\RichiestaIscrizioneDASIModel.cs" />
     <Compile Include="Model\IscriviSedutaDASIModel.cs" />
     <Compile Include="Model\AssegnaProponenteModel.cs" />

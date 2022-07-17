@@ -66,8 +66,19 @@ function get_ListaLegislature() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaSeduteAttive() {
+    var session_raw = sessionStorage.getItem("ListaSeduteAttive");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function set_ListaLegislature(obj) {
     sessionStorage.setItem("ListaLegislature", JSON.stringify(obj));
+}
+
+function set_ListaSeduteAttive(obj) {
+    sessionStorage.setItem("ListaSeduteAttive", JSON.stringify(obj));
 }
 
 function get_ListaStatiEM() {

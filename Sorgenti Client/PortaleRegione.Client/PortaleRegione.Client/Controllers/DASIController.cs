@@ -567,6 +567,60 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        /// <summary>
+        ///     Controller per proporre l'urgenza della mozione
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("proponi-urgenza")]
+        public async Task<ActionResult> ProponiUrgenzaMozione(PromuoviMozioneModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.ProponiMozioneUrgente(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per proporre l'abbinata ad una mozione presentata
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("proponi-abbinata")]
+        public async Task<ActionResult> ProponiAbbinataMozione(PromuoviMozioneModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.ProponiMozioneAbbinata(model);
+                var url = Url.Action("RiepilogoDASI", new
+                {
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                });
+                return Json(url, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
 
         /// <summary>
         ///     Controller per andare nella pagina preview degli atti
@@ -918,11 +972,6 @@ namespace PortaleRegione.Client.Controllers
                 Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
-        }
-
-        public ActionResult NuovoCartaceo(int tipo)
-        {
-            throw new NotImplementedException();
         }
     }
 }

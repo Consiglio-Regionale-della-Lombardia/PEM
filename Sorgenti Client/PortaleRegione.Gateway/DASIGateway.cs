@@ -102,8 +102,8 @@ namespace PortaleRegione.Gateway
             try
             {
                 var requestUrl = $"{apiUrl}/dasi/moz-abbinabili";
-
-                var result = JsonConvert.DeserializeObject<List<AttoDASIDto>>(await Get(requestUrl, _token));
+                var str = await Get(requestUrl, _token);
+                var result = JsonConvert.DeserializeObject<List<AttoDASIDto>>(str);
 
                 return result;
             }
@@ -660,6 +660,48 @@ namespace PortaleRegione.Gateway
                 Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
                 throw ex;
             }
+        }
+
+        public async Task ProponiMozioneUrgente(PromuoviMozioneModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/proponi-urgenza";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("ProponiMozioneUrgente - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ProponiMozioneUrgente - DASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task ProponiMozioneAbbinata(PromuoviMozioneModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/proponi-abbinata";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("ProponiMozioneAbbinata - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ProponiMozioneAbbinata - DASI", ex);
+                throw ex;
+            }
 
         }
 
@@ -796,7 +838,6 @@ namespace PortaleRegione.Gateway
                 Log.Error("GetSoggettiInterrogabili", ex);
                 throw ex;
             }
-
         }
 
         public async Task ModificaMetaDati(AttoDASIDto model)

@@ -1,5 +1,8 @@
 ﻿var baseUrl = "";
 const MESSAGGIO_ERRORE_500 = "Errore generico. Contattare l'amministratore di sistema.";
+
+var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+
 document.addEventListener("DOMContentLoaded",
     function() {
         // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/

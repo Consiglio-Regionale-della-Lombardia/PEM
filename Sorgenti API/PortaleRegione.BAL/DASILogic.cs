@@ -171,7 +171,7 @@ namespace PortaleRegione.API.Controllers
                         attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
                 }
 
-                if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
+                if (attoDto.Tipo == (int) TipoAttoEnum.ODG)
                 {
                     if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
                         throw new InvalidOperationException(
@@ -929,7 +929,8 @@ namespace PortaleRegione.API.Controllers
 
                     var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
                     var contatore_progressivo = contatore.Inizio + contatore.Contatore;
-                    var etichetta_progressiva = $"{Utility.GetText_TipoDASI(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
+                    var etichetta_progressiva =
+                        $"{Utility.GetText_TipoDASI(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
                         EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
                     var checkProgressivo_unique =
@@ -996,20 +997,22 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme)
+        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme, SEDUTE seduta_attiva = null,
+            string error_title = "Atto non presentabile")
         {
             if (atto.Tipo == (int) TipoAttoEnum.IQT
                 || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.URGENTE
                 || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
                 || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
             {
-                var minimo_consiglieri = 5;
+                var minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriIQT;
                 if (atto.Tipo == (int) TipoAttoEnum.MOZ)
                 {
-                    if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE) minimo_consiglieri = 8;
+                    if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
+                        minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriMOZU;
                     if (atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
                         || atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
-                        minimo_consiglieri = 16;
+                        minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriMOZC_MOZS;
                 }
 
                 var consiglieriGruppo =
@@ -1023,16 +1026,47 @@ namespace PortaleRegione.API.Controllers
 
                 if (count_firme < minimo_firme)
                     return
-                        $"ERROR: Atto non presentabile. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
+                        $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
+
+                if (seduta_attiva == null)
+                    return default;
+
+                var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
+                StringBuilder anomalie = new StringBuilder();
+                if (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
+                {
+                    var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                    foreach (var firma in firmatari)
+                    {
+                        var firmatario_indagato = $"{Decrypt(firma.FirmaCert, AppSettingsConfiguration.masterKey)}, firma non valida perchè già presente in [[LISTA]]. ";
+                        var firmatario_valido = true;
+                        foreach (var moz in moz_in_seduta)
+                        {
+                            var firmatari_moz = await _unitOfWork.Atti_Firme.GetFirmatari(moz.UIDAtto);
+                            if (firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            firmatario_valido = false;
+                            var mozDto = await GetAttoDto(moz.UIDAtto);
+                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]", $"{Utility.GetText_TipoDASI(atto.TipoMOZ)} {mozDto.NAtto}");
+                            break;
+                        }
+
+                        if (firmatario_valido) continue;
+                        count_firme--;
+                        anomalie.AppendLine(firmatario_indagato);
+                    }
+                }
+
+                if (anomalie.Length > 0 && count_firme < minimo_firme)
+                    return $"{error_title}. Firme {{count_firme}}/{{minimo_firme}}. Mancano {{minimo_firme - count_firme}} firme. Riscontrate le seguenti anomalie: {anomalie}";
             }
 
             return default;
         }
 
-        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto)
+        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, SEDUTE seduta_attiva = null)
         {
             var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
-            return await ControlloFirmePresentazione(atto, count_firme);
+            return await ControlloFirmePresentazione(atto, count_firme, seduta_attiva);
         }
 
         public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
@@ -1490,6 +1524,64 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task ProponiMozioneUrgente(PromuoviMozioneModel model, PersonaDto persona)
+        {
+            try
+            {
+                var guid = model.Lista.First();
+                var attoInDb = await Get(guid);
+                if (attoInDb == null) throw new InvalidOperationException("ERROR: NON TROVATO");
+                var atto = await GetAttoDto(guid);
+                if (atto.Tipo != (int) TipoAttoEnum.MOZ)
+                    throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
+
+                attoInDb.TipoMOZ = (int) TipoMOZEnum.URGENTE;
+                
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+                var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
+
+                attoInDb.DataRichiestaIscrizioneSeduta = seduta_attiva.Data_seduta.ToString("dd/MM/yyyy");
+                attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                var count_firme = atto.ConteggioFirme;
+                var controllo_firme =
+                    await ControlloFirmePresentazione(atto, count_firme, seduta_attiva, "Non è possibile proporre l'urgenza");
+                if (!string.IsNullOrEmpty(controllo_firme))
+                {
+                    throw new InvalidOperationException(controllo_firme);
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - ProponiMozioneUrgente", e);
+                throw e;
+            }
+        }
+
+        public async Task ProponiMozioneAbbinata(PromuoviMozioneModel model)
+        {
+            try
+            {
+                var guid = model.Lista.First();
+                var atto = await Get(guid);
+                if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
+                if (atto.Tipo != (int) TipoAttoEnum.MOZ)
+                    throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
+
+                atto.TipoMOZ = (int) TipoMOZEnum.ABBINATA;
+                atto.UID_MOZ_Abbinata = model.AttoUId;
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - ProponiMozioneAbbinata", e);
+                throw e;
+            }
+        }
+
         public async Task<List<Guid>> ScaricaAtti_UID(StatiAttoEnum stato, TipoAttoEnum tipo, PersonaDto persona)
         {
             var result = new List<Guid>();
@@ -1773,7 +1865,7 @@ namespace PortaleRegione.API.Controllers
             if (atto.IDStato < (int) StatiAttoEnum.PRESENTATO) return false;
             var data_presentazione = Convert.ToDateTime(atto.DataPresentazione);
             var result = false;
-            switch ((TipoAttoEnum)atto.Tipo)
+            switch ((TipoAttoEnum) atto.Tipo)
             {
                 case TipoAttoEnum.IQT:
                 {
@@ -1786,7 +1878,7 @@ namespace PortaleRegione.API.Controllers
                 }
                 case TipoAttoEnum.MOZ:
                 {
-                    switch ((TipoMOZEnum)atto.TipoMOZ)
+                    switch ((TipoMOZEnum) atto.TipoMOZ)
                     {
                         case TipoMOZEnum.URGENTE:
                         {
@@ -1807,6 +1899,7 @@ namespace PortaleRegione.API.Controllers
                             break;
                         }
                     }
+
                     break;
                 }
                 case TipoAttoEnum.ODG:

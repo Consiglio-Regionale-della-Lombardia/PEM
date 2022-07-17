@@ -180,67 +180,90 @@ else
                                 @textSeduta
                             </div>
                         }
-                        else if ((item.IDStato > (int)StatiAttoEnum.BOZZA 
-                                  || item.Tipo is (int)TipoAttoEnum.ODG
-                                  || item.Tipo is (int)TipoAttoEnum.MOZ 
-                                  || item.Tipo is (int)TipoAttoEnum.IQT) 
-                                 && item.IDStato != (int)StatiAttoEnum.RITIRATO)
-                        {
-                            if ((item.Tipo is (int)TipoAttoEnum.IQT
-                                 && (Model.CurrentUser.IsCapoGruppo
-                                 || item.UIDPersonaPrimaFirma.HasValue && item.UIDPersonaPrimaFirma.Value == Model.CurrentUser.UID_persona))
-                                || (item.Tipo is (int)TipoAttoEnum.MOZ
-                                 && Model.CurrentUser.IsCapoGruppo)
-                                || (item.Tipo is (int)TipoAttoEnum.ODG
-                                 && Model.CurrentUser.IsCapoGruppo))
-                            {
-                                <a class="btn-flat blue-text" title="Proponi iscrizione a seduta" onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Proponi iscrizione
-                                </a>
-                            }
-                        }
                         else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
                         {
                         }
                     </td>
                 }
-                <td class="center" style="width: 5%;">
-                    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+            <td class="center" style="width: 5%;">
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    if (Model.CurrentUser.IsCapoGruppo)
                     {
-                        if (item.IDStato == (int)StatiAttoEnum.BOZZA)
-                        {
-                            @*<a class="amber-text tooltipped" data-tooltip="Invita">
-                        <i class="icon material-icons">send</i>
-                    </a>*@
-                            if (item.Firmabile)
-                            {
-                                <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
-                                    <i class="icon material-icons">gavel</i>
-                                </a>
-                            }
-                            if (item.Presentabile)
-                            {
-                                <a class="purple-text tooltipped" data-tooltip="Presenta" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                    <i class="material-icons">lock</i>
-                                </a>
-                            }
-                        }
+                        <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
+                            <i class="icon material-icons black-text">settings</i>
+                        </a>
 
-                        if (item.Eliminabile)
+                        <!-- Dropdown Structure -->
+                        <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
+                            @if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA)
+                            {
+                                <li>
+                                    <a onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                        Proponi urgenza
+                                    </a>
+                                </li>
+                                <li>
+                                    <a onclick="ProponiAbbinataDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                        Proponi abbinamento
+                                    </a>
+                                </li>
+                            }
+                            
+                            @if ((item.IDStato > (int)StatiAttoEnum.BOZZA 
+                                  || item.Tipo is (int)TipoAttoEnum.ODG
+                                  || item.Tipo is (int)TipoAttoEnum.MOZ 
+                                  || item.Tipo is (int)TipoAttoEnum.IQT) 
+                                 && item.IDStato != (int)StatiAttoEnum.RITIRATO)
+                            {
+                                if ((item.Tipo is (int)TipoAttoEnum.IQT
+                                     && (Model.CurrentUser.IsCapoGruppo
+                                         || item.UIDPersonaPrimaFirma.HasValue && item.UIDPersonaPrimaFirma.Value == Model.CurrentUser.UID_persona))
+                                    || (item.Tipo is (int)TipoAttoEnum.MOZ
+                                        && Model.CurrentUser.IsCapoGruppo)
+                                    || (item.Tipo is (int)TipoAttoEnum.ODG
+                                        && Model.CurrentUser.IsCapoGruppo))
+                                {
+                                    <li>
+                                        <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                            Proponi iscrizione
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    }
+
+                    if (item.IDStato == (int)StatiAttoEnum.BOZZA)
+                    {
+                        if (item.Firmabile)
                         {
-                            <a class="red-text tooltipped" data-tooltip="Elimina atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.ELIMINA))">
-                                <i class="material-icons">close</i>
+                            <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                <i class="icon material-icons">gavel</i>
                             </a>
                         }
-                        if (item.Ritirabile)
+                        if (item.Presentabile)
                         {
-                            <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.RITIRA))">
-                                <i class="material-icons">close</i>
+                            <a class="purple-text tooltipped" data-tooltip="Presenta" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                <i class="material-icons">lock</i>
                             </a>
                         }
                     }
-                </td>
+
+                    if (item.Eliminabile)
+                    {
+                        <a class="red-text tooltipped" data-tooltip="Elimina atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.ELIMINA))">
+                            <i class="material-icons">close</i>
+                        </a>
+                    }
+                    if (item.Ritirabile)
+                    {
+                        <a class="red-text tooltipped" data-tooltip="Ritira atto" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int) ActionEnum.RITIRA))">
+                            <i class="material-icons">close</i>
+                        </a>
+                    }
+                }
+            </td>
             </tr>
         }
         </tbody>

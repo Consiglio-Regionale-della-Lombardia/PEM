@@ -69,5 +69,8 @@ namespace PortaleRegione.BAL
 
         //DASI
         public static string LimitePresentazioneMassivo => ConfigurationManager.AppSettings["LimitePresentazioneMassivo"];
+        public static int MinimoConsiglieriIQT => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriIQT"]);
+        public static int MinimoConsiglieriMOZU => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZU"]);
+        public static int MinimoConsiglieriMOZC_MOZS => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZC_MOZS"]);
     }
 }

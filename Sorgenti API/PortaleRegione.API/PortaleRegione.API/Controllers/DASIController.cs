@@ -709,6 +709,48 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Controller per proporre l'urgenza della mozione
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("proponi-urgenza")]
+        public async Task<IHttpActionResult> ProponiUrgenzaMozione(PromuoviMozioneModel model)
+        {
+            try
+            {
+                await _logic.ProponiMozioneUrgente(model);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("ProponiMozioneUrgente", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Controller per proporre l'abbinata ad una mozione presentata
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("proponi-abbinata")]
+        public async Task<IHttpActionResult> ProponiMozioneAbbinata(PromuoviMozioneModel model)
+        {
+            try
+            {
+                await _logic.ProponiMozioneAbbinata(model);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("ProponiMozioneAbbinata", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per avere gli invitati di un atto
         /// </summary>
         /// <param name="id">Guid</param>

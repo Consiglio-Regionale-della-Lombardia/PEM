@@ -117,11 +117,31 @@ function GetSedutaByData(dataSeduta) {
 }
 
 function GetSeduteAttive() {
+    var sedute = get_ListaSeduteAttive();
+    if (sedute.length > 0) {
+        return sedute;
+    }
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/pem/sedute-attive",
             type: "GET"
-        }).done(function(result) {
+        }).done(function (result) {
+            set_ListaSeduteAttive(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetRiepilogoFirmeAtto() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/sedute-attive",
+            type: "GET"
+        }).done(function (result) {
+            set_ListaSeduteAttive(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);

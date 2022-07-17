@@ -454,6 +454,8 @@
     <Content Include="Views\DASI\_TipoMOZPartial.cshtml" />
     <Content Include="Views\DASI\_TipoODGPartial.cshtml" />
     <Content Include="Views\DASI\_GeasiViewPartial.cshtml" />
+    <Content Include="Views\DASI\_ProponiMozioneUrgenteModal.cshtml" />
+    <Content Include="Views\DASI\_ProponiMozioneAbbinataModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
