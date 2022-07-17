@@ -754,6 +754,27 @@ namespace PortaleRegione.API.Controllers
         }
         
         /// <summary>
+        ///     Controller per riservare il contatore per la gestione manuale/cartacea dell'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("presentazione-cartacea")]
+        public async Task<IHttpActionResult> PresentazioneCartacea(PresentazioneCartaceaModel model)
+        {
+            try
+            {
+                await _logic.PresentazioneCartacea(model);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("PresentazioneCartacea", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
         ///     Endpoint per avere gli invitati di un atto
         /// </summary>
         /// <param name="id">Guid</param>

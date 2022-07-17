@@ -251,11 +251,11 @@ namespace PortaleRegione.Persistance
             }
         }
 
-        public async Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta)
+        public async Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta)
         {
             var query = PRContext
                 .DASI_CONTATORI
-                .Where(atto => atto.Tipo == (int) tipo
+                .Where(atto => atto.Tipo == tipo
                                && atto.Risposta == tipo_risposta);
             var result = await query.FirstAsync();
 
@@ -364,9 +364,20 @@ namespace PortaleRegione.Persistance
             return !await query.AnyAsync(e => e.NAtto == etichettaEncrypt);
         }
 
-        public void IncrementaContatore(ATTI_DASI_CONTATORI contatore)
+        public void IncrementaContatore(ATTI_DASI_CONTATORI contatore, int salto = 1)
         {
-            contatore.Contatore += 1;
+            var result = contatore.Contatore + salto;
+
+            if (contatore.Fine.HasValue)
+            {
+                if (result > contatore.Fine)
+                {
+                    throw new Exception(
+                        $"Limite raggiunto o superato. Attuali [{contatore.Contatore}], Limite [{contatore.Fine}], Richiesti [{salto}] - Disponibili [{contatore.Fine-contatore.Contatore}]");
+                }
+            }
+
+            contatore.Contatore = result;
         }
 
         public async Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogabili()

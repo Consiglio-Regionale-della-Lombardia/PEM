@@ -36,7 +36,7 @@ namespace PortaleRegione.Contracts
         Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter, List<int> soggetti);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
             ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
-        Task<ATTI_DASI_CONTATORI> GetContatore(TipoAttoEnum tipo, int tipo_risposta);
+        Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta);
         Task<int> GetOrdine(int tipo);
         Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona);
@@ -44,7 +44,7 @@ namespace PortaleRegione.Contracts
         bool CheckIfModificabile(AttoDASIDto dto, PersonaDto persona);
         Task<int> GetProgressivo(TipoAttoEnum tipo, int gruppoId, int legislatura);
         Task<bool> CheckProgressivo(string etichettaEncrypt);
-        void IncrementaContatore(ATTI_DASI_CONTATORI contatore);
+        void IncrementaContatore(ATTI_DASI_CONTATORI contatore, int salto = 1);
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogabili();
         Task<List<View_Commissioni_attive>> GetCommissioniAttive();
         Task RimuoviCommissioni(Guid UidAtto);

@@ -927,7 +927,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    var contatore = await _unitOfWork.DASI.GetContatore((TipoAttoEnum) atto.Tipo, atto.IDTipo_Risposta);
+                    var contatore = await _unitOfWork.DASI.GetContatore(atto.Tipo, atto.IDTipo_Risposta);
                     var contatore_progressivo = contatore.Inizio + contatore.Contatore;
                     var etichetta_progressiva =
                         $"{Utility.GetText_TipoDASI(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
@@ -1921,6 +1921,21 @@ namespace PortaleRegione.API.Controllers
             }
 
             return result;
+        }
+
+        public async Task PresentazioneCartacea(PresentazioneCartaceaModel model)
+        {
+            try
+            {
+                var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
+                _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - PresentazioneCartacea", e);
+                throw e;
+            }
         }
     }
 }

@@ -702,7 +702,6 @@ namespace PortaleRegione.Gateway
                 Log.Error("ProponiMozioneAbbinata - DASI", ex);
                 throw ex;
             }
-
         }
 
         public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId)
@@ -869,6 +868,27 @@ namespace PortaleRegione.Gateway
                 Pin = pin
             };
             return await RitiraFirma(model);
+        }
+
+        public async Task PresentazioneCartacea(PresentazioneCartaceaModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/presentazione-cartacea";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("PresentazioneCartacea - DASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("PresentazioneCartacea - DASI", ex);
+                throw ex;
+            }
         }
 
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)

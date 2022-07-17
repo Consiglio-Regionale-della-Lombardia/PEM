@@ -69,5 +69,6 @@ namespace PortaleRegione.Gateway
         Task ModificaMetaDati(AttoDASIDto model);
         Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin);
+        Task PresentazioneCartacea(PresentazioneCartaceaModel model);
     }
 }

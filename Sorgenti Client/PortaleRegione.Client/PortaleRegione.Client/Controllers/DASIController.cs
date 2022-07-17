@@ -623,6 +623,28 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Controller per riservare il contatore per la gestione manuale/cartacea dell'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("presentazione-cartacea")]
+        public async Task<ActionResult> PresentazioneCartacea(PresentazioneCartaceaModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.PresentazioneCartacea(model);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Controller per andare nella pagina preview degli atti
         /// </summary>
         /// <param name="page"></param>

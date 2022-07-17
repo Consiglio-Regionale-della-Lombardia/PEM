@@ -34,15 +34,41 @@
     </ul>
 </div>
 
-<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: block">
-    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
+<div id="pnlNuovoCartaceoDASI" class="fixed-action-btn" style="display: block">
+    <a id="btnNuovoCartaceoDASI" class="btn-floating btn-large blue darken-1">
         <i class="large material-icons">add</i>
     </a>
-    <ul>
-        <li>
-            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITL)" href="@Url.Action("NuovoCartaceo", new {tipo = (int) TipoAttoEnum.ITL})">@Utility.GetText_TipoDASI((int)TipoAttoEnum.ITL)</a>
-        </li>
-    </ul>
+</div>
+
+<div id="modalNuovoCartaceo" class="modal">
+    <div class="modal-content">
+        <h4>Presentazione cartacea</h4>
+        <p>seleziona il tipo di atto e il tipo di risposta se necessario</p>
+        <div class="row">
+            <div class="input-field col s4">
+                <select id="NuovoCartaceo_Tipo">
+                </select>
+                <label for="NuovoCartaceo_Tipo">Tipo</label>
+            </div>
+            <div class="input-field col s4">
+                <select id="NuovoCartaceo_TipoRisposta">
+                    <option value="" selected="selected">--</option>
+                    <option value="@((int) TipoRispostaEnum.ORALE)">Orale</option>
+                    <option value="@((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
+                    <option value="@((int) TipoRispostaEnum.COMMISSIONE)">In Commissione</option>
+                </select>
+                <label for="NuovoCartaceo_TipoRisposta">Tipo Risposta</label>
+            </div>
+            <div class="input-field col s4">
+                <input id="NuovoCartaceo_Salto" type="number" min="1" step="1" value="1">
+                <label for="NuovoCartaceo_Salto">Quantità</label>
+            </div>
+        </div>
+        
+    </div>
+    <div class="modal-footer">
+        <a id="NuovoCartaceo_Presenta" href="#!" class="modal-close waves-effect waves-green btn-flat">Presenta</a>
+    </div>
 </div>
 
 
@@ -76,13 +102,65 @@
 
         if (lchk.length > 0 || $("#checkAll")[0].checked) {
             $("#btnComandiMassivi").show();
-            
+            $("#pnlNuovoCartaceoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
+            $("#pnlNuovoCartaceoDASI").show();
         }
-
-        $("#pnlNuovoDASI").hide();
     }
+
+    $('#btnNuovoCartaceoDASI').on("click",
+        async function() {
+            var tipi = await GetTipiDASI();
+            if (tipi.length > 0) {
+                var select = $("#NuovoCartaceo_Tipo");
+                select.empty();
+                $.each(tipi,
+                    function(index, item) {
+                        if (item.IDTipoAtto != @Html.Raw((int) TipoAttoEnum.TUTTI)) {
+                            var template = "<option></option>";
+                            select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+                        }
+                    });
+
+                var elems = document.querySelectorAll("#NuovoCartaceo_Tipo");
+                M.FormSelect.init(elems, null);
+            }
+            $('#modalNuovoCartaceo').modal("open");
+        });
+
+    $('#NuovoCartaceo_Presenta').on("click",
+        function() {
+
+            var obj = {};
+            obj.Tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
+            obj.TipoRisposta = $('select[id="NuovoCartaceo_TipoRisposta"]').children("option:selected").val();
+            obj.Salto = $('#NuovoCartaceo_Salto').val();
+            $.ajax({
+                url: '@Url.Action("PresentazioneCartacea")',
+                method: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                console.log(data.message);
+                if (data.message) {
+                    swal({
+                        title: "Esito salvataggio",
+                        text: data.message,
+                        icon: "error",
+                        button: "OK"
+                    });
+                } else {
+                    SuccessAlert("Operazione completata");
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+
+
 
     $("#checkAll").click(function() {
         setSelezionaTutti_DASI(this.checked);
