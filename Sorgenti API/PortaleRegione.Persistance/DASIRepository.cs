@@ -473,7 +473,7 @@ namespace PortaleRegione.Persistance
             {
                 var query = PRContext
                     .NOTIFICHE
-                    .Where(n => n.UIDAtto == attoUId)
+                    .Where(n => n.UIDAtto == attoUId && n.IDTipo == (int)TipoNotificaEnum.INVITO)
                     .Join(PRContext.NOTIFICHE_DESTINATARI,
                         n => n.UIDNotifica,
                         nd => nd.UIDNotifica,
@@ -485,7 +485,7 @@ namespace PortaleRegione.Persistance
                     var notificaUId = result.First().UIDNotifica;
                     var notifica = await PRContext
                         .NOTIFICHE
-                        .SingleAsync(n => n.UIDNotifica == notificaUId);
+                        .SingleAsync(n => n.UIDNotifica == notificaUId && n.IDTipo == (int)TipoNotificaEnum.INVITO);
                     var new_result = new List<NOTIFICHE_DESTINATARI>();
                     foreach (var destinatario in result)
                     {

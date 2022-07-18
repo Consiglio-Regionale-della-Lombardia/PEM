@@ -1,7 +1,8 @@
 ﻿var baseUrl = "";
 const MESSAGGIO_ERRORE_500 = "Errore generico. Contattare l'amministratore di sistema.";
 
-var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+var templateSeduteAttive =
+    "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
 
 document.addEventListener("DOMContentLoaded",
     function() {
@@ -686,6 +687,37 @@ function RevealFirmaDeposito(id, action) {
         });
 }
 
+function AccettaPropostaFirmaAttoDASI(idNotifica) {
+
+    swal("Sei sicuro di voler accettare la proposta di firma?",
+        {
+            buttons: {
+                cancel: "Annulla",
+                confirm: {
+                    className: "blue white-text",
+                    title: "Accetta",
+                    value: true
+                }
+            }
+        }).then((value) => {
+        if (value == true) {
+            var url = baseUrl + '/notifiche/accetta-proposta?id=' + idNotifica;
+            $.ajax({
+                url: url,
+                type: "GET"
+            }).done(function(result) {
+
+                location.reload();
+
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        }
+    });
+
+}
+
 function RevealFirmaDepositoDASI(id, action) {
     var text = "";
     var button = "";
@@ -714,25 +746,30 @@ function RevealFirmaDepositoDASI(id, action) {
                 url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
+                console.log('esito', data.message)
                 if (data.message) {
                     var typeMessage = "error";
+                    var message = data.message;
                     var str = data.message;
                     var pos = str.indexOf("OK");
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    pos = str.indexOf("?!?");
+                    if (pos > 0) {
+                        typeMessage = "info";
+                        message = "Proposta di firma inviata al proponente";
+                    }
                     swal({
                         title: "Esito " + button,
-                        text: data.message,
+                        text: message,
                         icon: typeMessage,
                         button: "OK"
                     }).then(() => {
-                        if (data.message.includes("OK")) {
+                        if (data.message.includes("OK") || data.message.includes("?!?")) {
                             location.reload();
                         }
                     });
-                } else {
-                    go(data);
                 }
             }).fail(function(err) {
                 console.log("error", err);

@@ -71,5 +71,7 @@ namespace PortaleRegione.Domain
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual UTENTI_NoCons UTENTI_NoCons { get; set; }
+
+        public bool Valida { get; set; } = true;
     }
 }

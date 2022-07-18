@@ -63,6 +63,7 @@ namespace PortaleRegione.DTO.Domain
         public virtual TipoNotificaDto TIPI_NOTIFICA { get; set; }
 
         public virtual PersonaDto UTENTI_NoCons { get; set; }
+        public bool Valida { get; set; } = true;
 
         public bool IsDasi => UIDEM == Guid.Empty;
         public bool IsPem => UIDEM != Guid.Empty;

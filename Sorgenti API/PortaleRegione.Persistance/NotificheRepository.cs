@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
@@ -270,6 +271,11 @@ namespace PortaleRegione.Persistance
 
             var result = await query2.ToListAsync();
             return result;
+        }
+
+        public async Task<NOTIFICHE> Get(long id)
+        {
+            return await PRContext.NOTIFICHE.FindAsync(id);
         }
     }
 }

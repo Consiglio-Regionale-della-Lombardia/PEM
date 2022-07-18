@@ -275,7 +275,7 @@ namespace PortaleRegione.Client.Helpers
 
                 var titoloColonna = tipo == FirmeTipoEnum.DOPO_DEPOSITO
                     ? "Firme aggiunte dopo il deposito"
-                    : "Firmatari dell'emendamento";
+                    : "Firmatari";
                 var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
                 var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
                 var em = await apiGateway.Emendamento.Get(firmeDtos.Select(f => f.UIDEM).First());
@@ -324,7 +324,8 @@ namespace PortaleRegione.Client.Helpers
         /// <param name="tipo"></param>
         /// <param name="tag"></param>
         /// <returns></returns>
-        public static async Task<string> GetFirmatari(IEnumerable<AttiFirmeDto> firme, Guid currentUId,
+        public static async Task<string> GetFirmatariDASI(IEnumerable<AttiFirmeDto> firme, Guid currentUId,
+            FirmeTipoEnum tipo,
             string token,
             bool tag = false)
         {
@@ -369,9 +370,12 @@ namespace PortaleRegione.Client.Helpers
                     return result.Aggregate((i, j) => i + j);
                 }
 
+                var header_firme = tipo == FirmeTipoEnum.DOPO_DEPOSITO
+                    ? "Firmatari dopo la presentazione"
+                    : "Firmatari";
                 var titoloColonna = "Firmatari dell'atto";
                 var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
-                var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
+                var body = $"<li class=\"collection-header\"><h4 style=\"margin-left:10px\">{header_firme}</h4></li>";
                 var em = await apiGateway.DASI.Get(firmeDtos.Select(f => f.UIDAtto).First());
                 foreach (var firmeDto in firmeDtos)
                 {
@@ -610,7 +614,7 @@ namespace PortaleRegione.Client.Helpers
                     Operation = Operation.Contains,
                     Value = stringa1
                 };
-                if (connettore > 0) filtro1.Connector = (FilterStatementConnector)connettore;
+                if (connettore > 0) filtro1.Connector = (FilterStatementConnector) connettore;
 
                 model.filtro.Add(filtro1);
             }
@@ -623,7 +627,7 @@ namespace PortaleRegione.Client.Helpers
                     Operation = Operation.Contains,
                     Value = stringa2
                 };
-                if (connettore > 0) filtro2.Connector = (FilterStatementConnector)connettore;
+                if (connettore > 0) filtro2.Connector = (FilterStatementConnector) connettore;
 
                 model.filtro.Add(filtro2);
             }
@@ -658,7 +662,7 @@ namespace PortaleRegione.Client.Helpers
                     Connector = FilterStatementConnector.And
                 });
                 var filtro_parte_enum = Convert.ToInt16(q_parte);
-                switch ((PartiEMEnum)filtro_parte_enum)
+                switch ((PartiEMEnum) filtro_parte_enum)
                 {
                     case PartiEMEnum.Titolo_PDL:
                         break;
@@ -759,7 +763,7 @@ namespace PortaleRegione.Client.Helpers
         {
             if (!string.IsNullOrEmpty(statoId))
             {
-                if (statoId.Equals(((int)StatiEnum.Approvato).ToString()))
+                if (statoId.Equals(((int) StatiEnum.Approvato).ToString()))
                 {
                     model.filtro.Add(new FilterStatement<EmendamentiDto>
                     {
@@ -772,7 +776,7 @@ namespace PortaleRegione.Client.Helpers
                     {
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
-                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
+                        Value = (int) StatiEnum.Approvato_Con_Modifiche,
                         Connector = FilterStatementConnector.And
                     });
                 }
@@ -820,7 +824,7 @@ namespace PortaleRegione.Client.Helpers
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.NotEqualTo,
-                Value = (int)StatiEnum.Bozza_Riservata,
+                Value = (int) StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro1);
@@ -828,7 +832,7 @@ namespace PortaleRegione.Client.Helpers
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.EqualTo,
-                Value = (int)StatiEnum.Bozza_Riservata,
+                Value = (int) StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtro2);

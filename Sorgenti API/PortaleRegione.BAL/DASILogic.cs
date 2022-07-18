@@ -656,16 +656,12 @@ namespace PortaleRegione.API.Controllers
 
                     var attoInDb = await _unitOfWork.DASI.Get(idGuid);
                     var atto = await GetAttoDto(idGuid, persona, personeInDbLight);
-                    if (atto == null)
-                    {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
-                        continue;
-                    }
+                    var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
 
                     if (atto.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE)
                     {
                         results.Add(idGuid,
-                            $"ERROR: Atto {atto.NAtto} si trova nello stato: [{Utility.GetText_StatoDASI(atto.IDStato)}] e non è più sottoscrivibile");
+                            $"ERROR: Atto {nome_atto} si trova nello stato: [{Utility.GetText_StatoDASI(atto.IDStato)}] e non è più sottoscrivibile");
                         continue;
                     }
 
@@ -677,7 +673,7 @@ namespace PortaleRegione.API.Controllers
                         //Controllo se l'utente ha già firmato
                         if (atto.Firma_da_ufficio)
                         {
-                            results.Add(idGuid, $"ERROR: Atto {atto.NAtto} già firmato dall'ufficio");
+                            results.Add(idGuid, $"ERROR: Atto {nome_atto} già firmato dall'ufficio");
                             continue;
                         }
 
@@ -692,7 +688,7 @@ namespace PortaleRegione.API.Controllers
                         //Controllo la firma del proponente
                         if (!atto.Firmato_Dal_Proponente && atto.UIDPersonaProponente.Value != persona.UID_persona)
                         {
-                            results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'atto {atto.NAtto}");
+                            results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'atto {nome_atto}");
                             continue;
                         }
 
@@ -744,17 +740,46 @@ namespace PortaleRegione.API.Controllers
                         primoFirmatario = true;
                     }
 
-                    var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
-                        firmaUfficio, primoFirmatario);
-                    
                     var destinatario_notifica =
-                        await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(idGuid, persona.UID_persona, true);
-                    if (destinatario_notifica!=null)
+                        await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(idGuid, persona.UID_persona,
+                            true);
+
+                    var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
+                    var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null);
+                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
+                        firmaUfficio, primoFirmatario, valida);
+
+                    if (destinatario_notifica != null)
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
                             persona.UID_persona);
+                    else if (!valida)
+                    {
+                        var newNotifica = new NOTIFICHE
+                        {
+                            UIDAtto = atto.UIDAtto,
+                            Mittente = persona.UID_persona,
+                            RuoloMittente = (int) persona.CurrentRole,
+                            IDTipo = (int) TipoNotificaEnum.RICHIESTA,
+                            Messaggio = $"Richiesta di sottoscrivere l'atto {nome_atto}",
+                            DataCreazione = DateTime.Now,
+                            IdGruppo = atto.id_gruppo,
+                            SyncGUID = Guid.NewGuid(),
+                            Valida = false
+                        };
 
-                    results.Add(idGuid, $"{atto.NAtto} - OK");
+                        var newDestinatario = new NOTIFICHE_DESTINATARI
+                        {
+                            NOTIFICHE = newNotifica,
+                            UIDPersona = atto.UIDPersonaProponente.Value,
+                            IdGruppo = atto.id_gruppo,
+                            UID = Guid.NewGuid()
+                        };
+
+                        _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
+                        await _unitOfWork.CompleteAsync();
+                    }
+
+                    results.Add(idGuid, $"{nome_atto} - {(valida ? "OK" : "?!?")}");
                     counterFirme++;
                 }
 

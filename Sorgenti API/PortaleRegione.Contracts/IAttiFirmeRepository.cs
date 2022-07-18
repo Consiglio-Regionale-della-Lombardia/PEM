@@ -29,7 +29,8 @@ namespace PortaleRegione.Contracts
     {
         Task Firma(Guid attoUId, Guid personaUId, int gruppoIdGruppo, string firmaCert, string dataFirmaCert,
             bool ufficio = false,
-            bool primoFirmatario = false);
+            bool primoFirmatario = false, 
+            bool valida = true);
         Task<int> CountFirme(Guid attoUId);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(Guid attoUId);

@@ -723,11 +723,11 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId)
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid guid)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/dasi/invitati?id={emendamentoUId}";
+                var requestUrl = $"{apiUrl}/dasi/invitati?id={guid}";
 
                 var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl, _token));
 

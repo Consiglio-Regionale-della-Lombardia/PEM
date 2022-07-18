@@ -90,6 +90,7 @@
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\BloccoODGModel.cs" />
+    <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\JollyODGModel.cs" />
     <Compile Include="Model\PresentazioneCartaceaModel.cs" />
     <Compile Include="Model\PromuoviMozioneModel.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Model\RaggruppaEmendamentiModel.cs" />
     <Compile Include="Model\ResetPinModel.cs" />
     <Compile Include="Model\RiepilogoDASIModel.cs" />
+    <Compile Include="Model\RiepilogoNotificheModel.cs" />
     <Compile Include="Model\SessionManager.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />

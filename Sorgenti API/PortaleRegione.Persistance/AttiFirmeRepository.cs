@@ -43,15 +43,17 @@ namespace PortaleRegione.Persistance
         /// </summary>
         /// <param name="attoUId"></param>
         /// <param name="personaUId"></param>
-        /// <param name="gruppoIdGruppo"></param>
+        /// <param name="id_gruppo"></param>
         /// <param name="firmaCert"></param>
         /// <param name="dataFirmaCert"></param>
         /// <param name="ufficio"></param>
         /// <param name="primoFirmatario"></param>
+        /// <param name="valida"></param>
+        /// <param name="gruppoIdGruppo"></param>
         /// <param name="em"></param>
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
             string dataFirmaCert,
-            bool ufficio = false, bool primoFirmatario = false)
+            bool ufficio = false, bool primoFirmatario = false, bool valida = true)
         {
             PRContext
                 .ATTI_FIRME
@@ -64,7 +66,8 @@ namespace PortaleRegione.Persistance
                     Timestamp = DateTime.Now,
                     ufficio = ufficio,
                     PrimoFirmatario = primoFirmatario,
-                    id_gruppo = id_gruppo
+                    id_gruppo = id_gruppo,
+                    Valida = valida
                 });
             await PRContext.SaveChangesAsync();
         }
@@ -78,7 +81,7 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext
                 .ATTI_FIRME
-                .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma));
+                .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida);
         }
 
         /// <summary>
@@ -90,7 +93,7 @@ namespace PortaleRegione.Persistance
         {
             var result = await PRContext
                 .ATTI_FIRME
-                .Where(f => f.UIDAtto == attoUId)
+                .Where(f => f.UIDAtto == attoUId && f.Valida)
                 .OrderBy(f => f.Timestamp)
                 .ToListAsync();
 
@@ -177,12 +180,14 @@ namespace PortaleRegione.Persistance
                 .ATTI_FIRME
                 .SingleOrDefaultAsync(f =>
                     f.UIDAtto == atto.UIDAtto
-                    && f.UID_persona == atto.UIDPersonaProponente);
+                    && f.UID_persona == atto.UIDPersonaProponente
+                    && f.Valida);
 
             var query = PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == atto.UIDAtto
-                            && f.UID_persona != atto.UIDPersonaProponente);
+                            && f.UID_persona != atto.UIDPersonaProponente
+                            && f.Valida);
             switch (tipo)
             {
                 case FirmeTipoEnum.TUTTE:

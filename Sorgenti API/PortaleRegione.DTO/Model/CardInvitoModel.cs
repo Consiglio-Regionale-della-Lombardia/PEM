@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using PortaleRegione.DTO.Domain;
+
+namespace PortaleRegione.DTO.Model
 {
-    public enum TipoNotificaEnum
+    public class CardInvitoModel
     {
-        GENERALE = 0,
-        INVITO = 1,
-        RICHIESTA = 2
+        public NotificaDto Data { get; set; }
+        public PersonaDto User { get; set; }
+        public bool Ricevute { get; set; } = true;
     }
 }

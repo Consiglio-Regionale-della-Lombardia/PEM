@@ -30,6 +30,7 @@ using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.BAL
@@ -59,12 +60,10 @@ namespace PortaleRegione.BAL
         }
 
         #endregion
-
-        #region GetNotificheInviate
-
-        public async Task<IEnumerable<NotificaDto>> GetNotificheInviate(BaseRequest<NotificaDto> model,
+        
+        public async Task<RiepilogoNotificheModel> GetNotificheInviate(BaseRequest<NotificaDto> model,
             PersonaDto currentUser,
-            bool Archivio)
+            bool Archivio, Uri uri)
         {
             try
             {
@@ -81,9 +80,7 @@ namespace PortaleRegione.BAL
                         .GetNotificheInviate(currentUser, idGruppo, Archivio, model.page, model.size, queryFilter))
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
-
-                if (!notifiche.Any()) return new List<NotificaDto>();
-
+                
                 var result = new List<NotificaDto>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -108,7 +105,17 @@ namespace PortaleRegione.BAL
                     result.Add(notifica);
                 }
 
-                return result;
+                return new RiepilogoNotificheModel
+                {
+                    Data = new BaseResponse<NotificaDto>(
+                        model.page,
+                        model.size,
+                        result,
+                        model.filtro,
+                        await CountInviate(model, currentUser, Convert.ToBoolean(Archivio)),
+                        uri),
+                    CurrentUser = currentUser
+                };
             }
             catch (Exception e)
             {
@@ -117,14 +124,10 @@ namespace PortaleRegione.BAL
             }
         }
 
-        #endregion
-
-        #region GetNotificheRicevute
-
-        public async Task<IEnumerable<NotificaDto>> GetNotificheRicevute(BaseRequest<NotificaDto> model,
+        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(BaseRequest<NotificaDto> model,
             PersonaDto currentUser,
             bool Archivio,
-            bool Solo_Non_Viste)
+            bool Solo_Non_Viste, Uri uri)
         {
             try
             {
@@ -142,8 +145,6 @@ namespace PortaleRegione.BAL
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
 
-                if (!notifiche.Any()) return new List<NotificaDto>();
-
                 var result = new List<NotificaDto>();
 
                 var personeInDb = await _unitOfWork.Persone.GetAll();
@@ -169,7 +170,17 @@ namespace PortaleRegione.BAL
                     result.Add(notifica);
                 }
 
-                return result;
+                return new RiepilogoNotificheModel
+                {
+                    Data = new BaseResponse<NotificaDto>(
+                        model.page,
+                        model.size,
+                        result,
+                        model.filtro,
+                        await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio), Convert.ToBoolean(Solo_Non_Viste)), 
+                        uri),
+                    CurrentUser = currentUser
+                };
             }
             catch (Exception e)
             {
@@ -177,10 +188,6 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetDestinatariNotifica
 
         public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(long notificaId)
         {
@@ -215,11 +222,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region InvitaAFirmare
-
+        
         public async Task<Dictionary<Guid, string>> InvitaAFirmare(ComandiAzioneModel model,
             PersonaDto currentUser)
         {
@@ -423,11 +426,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region CountRicevute
-
+        
         public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio,
             bool Solo_Non_Viste)
         {
@@ -441,11 +440,7 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste,
                 queryFilter);
         }
-
-        #endregion
-
-        #region CountInviate
-
+        
         public async Task<int> CountInviate(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio)
         {
             var queryFilter = new Filter<NOTIFICHE>();
@@ -458,11 +453,7 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Notifiche.CountInviate(currentUser, idGruppo, Archivio, queryFilter);
             return result;
         }
-
-        #endregion
-
-        #region NotificaVista
-
+        
         public async Task NotificaVista(long notificaId, Guid personaUId)
         {
             try
@@ -481,11 +472,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-
-        #endregion
-
-        #region GetListaDestinatari
-
+        
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo,
             PersonaDto persona)
         {
@@ -619,6 +606,23 @@ namespace PortaleRegione.BAL
             }
         }
 
-        #endregion
+        public async Task AccettaPropostaFirma(long id)
+        {
+            try
+            {
+                var notifica = await _unitOfWork.Notifiche.Get(id);
+                notifica.Valida = true;
+                notifica.Chiuso = true;
+                var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
+                firma.Valida = true;
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - AccettaPropostaFirma", e);
+                throw e;
+            }
+        }
     }
 }

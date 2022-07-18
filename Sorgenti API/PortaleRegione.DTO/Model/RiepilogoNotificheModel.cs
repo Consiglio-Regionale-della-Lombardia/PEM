@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Response;
+
+namespace PortaleRegione.DTO.Model
 {
-    public enum TipoNotificaEnum
+    public class RiepilogoNotificheModel
     {
-        GENERALE = 0,
-        INVITO = 1,
-        RICHIESTA = 2
+        public BaseResponse<NotificaDto> Data { get; set; }
+        public PersonaDto CurrentUser { get; set; }
     }
 }

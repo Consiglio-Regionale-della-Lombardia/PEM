@@ -24,6 +24,7 @@ using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -41,7 +42,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                BaseResponse<NotificaDto> model;
+                RiepilogoNotificheModel model;
                 if (!is_inviate)
                     model = await apiGateway.Notifiche.GetNotificheRicevute(page, size, archivio);
                 else
@@ -63,10 +64,9 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                BaseResponse<NotificaDto> model;
-                model = await apiGateway.Notifiche.GetNotificheRicevute(1, 1, false, true);
+                var model = await apiGateway.Notifiche.GetNotificheRicevute(1, 1, false, true);
 
-                return Json(model.Paging.Total, JsonRequestBehavior.AllowGet);
+                return Json(model.Data.Paging.Total, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -101,6 +101,15 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var destinatari = await apiGateway.Notifiche.GetListaDestinatari(tipo);
             return Json(destinatari, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [Route("accetta-proposta")]
+        public async Task<ActionResult> AccettaPropostaFirma(long id)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            await apiGateway.Notifiche.AccettaPropostaFirma(id);
+            return Json("", JsonRequestBehavior.AllowGet);
         }
     }
 }

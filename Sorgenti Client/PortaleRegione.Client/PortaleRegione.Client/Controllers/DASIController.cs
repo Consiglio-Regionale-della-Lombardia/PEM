@@ -165,9 +165,12 @@ namespace PortaleRegione.Client.Controllers
                 else
                     atto.BodyAtto = atto.Atto_Certificato;
 
-                atto.Firme = await Utility.GetFirmatari(
+                atto.Firme = await Utility.GetFirmatariDASI(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
-                    _CurrentUser.UID_persona, _Token);
+                    _CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, _Token);
+                atto.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                    await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
+                    _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
 
                 if (atto.IDStato <= (int) StatiAttoEnum.PRESENTATO)
                     atto.Destinatari =

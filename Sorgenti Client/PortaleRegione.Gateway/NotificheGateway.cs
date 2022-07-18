@@ -61,7 +61,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<BaseResponse<NotificaDto>> GetNotificheInviate(int page, int size,
+        public async Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size,
             bool Archivio = false)
         {
             try
@@ -72,21 +72,12 @@ namespace PortaleRegione.Gateway
                 {
                     param = new Dictionary<string, object>(),
                     page = page,
-                    size = size,
-                    filtro = new List<FilterStatement<NotificaDto>>
-                    {
-                        new FilterStatement<NotificaDto>
-                        {
-                            PropertyId = nameof(NotificaDto.IDTipo),
-                            Operation = Operation.EqualTo,
-                            Value = (int) TipoNotificaEnum.INVITO
-                        }
-                    }
+                    size = size
                 };
                 model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
                 var body = JsonConvert.SerializeObject(model);
 
-                var lst = JsonConvert.DeserializeObject<BaseResponse<NotificaDto>>(await Post(requestUrl, body,
+                var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
                     _token));
 
                 return lst;
@@ -103,7 +94,7 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<BaseResponse<NotificaDto>> GetNotificheRicevute(int page, int size, bool Archivio,
+        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool Archivio,
             bool Solo_Non_Viste = false)
         {
             try
@@ -114,22 +105,13 @@ namespace PortaleRegione.Gateway
                 {
                     param = new Dictionary<string, object>(),
                     page = page,
-                    size = size,
-                    filtro = new List<FilterStatement<NotificaDto>>
-                    {
-                        new FilterStatement<NotificaDto>
-                        {
-                            PropertyId = nameof(NotificaDto.IDTipo),
-                            Operation = Operation.EqualTo,
-                            Value = (int) TipoNotificaEnum.INVITO
-                        }
-                    }
+                    size = size
                 };
                 model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
                 model.param.Add(new KeyValuePair<string, object>("Solo_Non_Viste", Solo_Non_Viste));
                 var body = JsonConvert.SerializeObject(model);
 
-                var lst = JsonConvert.DeserializeObject<BaseResponse<NotificaDto>>(await Post(requestUrl, body,
+                var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
                     _token));
 
                 return lst;
@@ -233,6 +215,25 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("NotificaDASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task AccettaPropostaFirma(long id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/notifiche/accetta-proposta?id={id}";
+                await Get(requestUrl, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("AccettaPropostaFirma", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("AccettaPropostaFirma", ex);
                 throw ex;
             }
         }
