@@ -62,7 +62,7 @@ namespace PortaleRegione.BAL
                         FirmaCert = Decrypt(firma.FirmaCert),
                         PrimoFirmatario = firma.PrimoFirmatario,
                         id_gruppo = firma.id_gruppo,
-                        Data_firma = Decrypt(firma.Data_firma),
+                        Data_firma = Convert.ToDateTime(Decrypt(firma.Data_firma)).ToString("dd/MM/yyyy"),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
                             : Decrypt(firma.Data_ritirofirma)
