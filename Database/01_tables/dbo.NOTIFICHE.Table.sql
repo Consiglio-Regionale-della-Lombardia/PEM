@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[NOTIFICHE]    Script Date: 23/06/2022 15:40:24 ******/
+/****** Object:  Table [dbo].[NOTIFICHE]    Script Date: 18/07/2022 18:55:56 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -23,6 +23,7 @@ CREATE TABLE [dbo].[NOTIFICHE](
 	[Chiuso] [bit] NULL,
 	[DataChiusura] [datetime] NULL,
 	[BLOCCO_INVITI] [uniqueidentifier] NULL,
+	[Valida] [bit] NOT NULL,
  CONSTRAINT [PK_NOTIFICHE] PRIMARY KEY CLUSTERED 
 (
 	[SyncGUID] ASC
@@ -34,5 +35,8 @@ ALTER TABLE [dbo].[NOTIFICHE] ADD  CONSTRAINT [DF_NOTIFICHE_DataCreazione]  DEFA
 GO
 
 ALTER TABLE [dbo].[NOTIFICHE] ADD  CONSTRAINT [DF_NOTIFICHE_SyncGUID]  DEFAULT (newsequentialid()) FOR [SyncGUID]
+GO
+
+ALTER TABLE [dbo].[NOTIFICHE] ADD  CONSTRAINT [DF_NOTIFICHE_Valida]  DEFAULT ((1)) FOR [Valida]
 GO
 
