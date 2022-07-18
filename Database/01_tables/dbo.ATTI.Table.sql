@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI]    Script Date: 17/07/2022 23:34:30 ******/
+/****** Object:  Table [dbo].[ATTI]    Script Date: 18/07/2022 00:43:43 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -35,6 +35,8 @@ CREATE TABLE [dbo].[ATTI](
 	[DataCreazioneVotazione] [datetime] NULL,
 	[DataUltimaModificaEM] [datetime] NULL,
 	[TipoDibattito] [int] NOT NULL,
+	[BloccoODG] [bit] NOT NULL,
+	[Jolly] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -55,6 +57,12 @@ ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Notifica_deposito_differita]  
 GO
 
 ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_TipoDibattito]  DEFAULT ((0)) FOR [TipoDibattito]
+GO
+
+ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_BloccoODG]  DEFAULT ((0)) FOR [BloccoODG]
+GO
+
+ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Jolly]  DEFAULT ((0)) FOR [Jolly]
 GO
 
 ALTER TABLE [dbo].[ATTI]  WITH NOCHECK ADD  CONSTRAINT [FK_ATTI_SEDUTE] FOREIGN KEY([UIDSeduta])
