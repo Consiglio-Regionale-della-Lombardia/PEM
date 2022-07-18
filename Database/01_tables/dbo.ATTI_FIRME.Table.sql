@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_FIRME]    Script Date: 21/06/2022 10:50:05 ******/
+/****** Object:  Table [dbo].[ATTI_FIRME]    Script Date: 18/07/2022 15:49:24 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -18,7 +18,8 @@ CREATE TABLE [dbo].[ATTI_FIRME](
 	[Timestamp] [datetime] NOT NULL,
 	[ufficio] [bit] NOT NULL,
 	[PrimoFirmatario] [bit] NOT NULL,
-	[id_gruppo] [int] NOT NULL
+	[id_gruppo] [int] NOT NULL,
+	[Valida] [bit] NOT NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -29,5 +30,8 @@ ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_PrimoFirmatario]  
 GO
 
 ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_id_gruppo]  DEFAULT ((0)) FOR [id_gruppo]
+GO
+
+ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_Valida]  DEFAULT ((1)) FOR [Valida]
 GO
 
