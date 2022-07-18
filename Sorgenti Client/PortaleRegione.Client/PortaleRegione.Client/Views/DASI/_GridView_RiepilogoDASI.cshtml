@@ -79,9 +79,25 @@ else
                         {
                     <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Proposta di urgenza">priority_high</i>
                         }
+                        @if (item.TipoMOZ == (int)TipoMOZEnum.CENSURA)
+                        {
+                    <i class="close material-icons purple-text tooltipped" data-position="bottom" data-tooltip="Proposta di censura">speaker_notes_off</i>
+                        }
+                        @if (item.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
+                        {
+                    <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Proposta di sfiducia">thumb_down</i>
+                        }
+                        @if (item.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                        {
+                    <i class="close material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>
+                        }
+                        @if (item.Non_Passaggio_In_Esame)
+                        {
+                    <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Ordine del giorno di NON passaggio in esame">new_releases</i>
+                        }
                     </div>
                 </td>
-                @if (item.Tipo != (int) TipoAttoEnum.MOZ)
+                @if (item.Tipo != (int) TipoAttoEnum.MOZ && item.Tipo != (int) TipoAttoEnum.ODG)
                 {
                     <td style="width: 8%;">
                         <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
@@ -89,14 +105,7 @@ else
                         </span>
                     </td>
                 }
-                else if(item.TipoMOZ == (int)TipoMOZEnum.CENSURA || item.TipoMOZ == (int)TipoMOZEnum.CENSURA)
-                {
-                    <td style="width: 8%;">
-                        <span>
-                            @Utility.GetText_TipoMOZDASI(item.TipoMOZ)
-                        </span>
-                    </td>
-                }else 
+                else 
                 {
                     <td style="width: 8%;">
                         <span>

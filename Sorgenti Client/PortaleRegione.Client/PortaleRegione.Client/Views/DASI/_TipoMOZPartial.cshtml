@@ -1,69 +1,17 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
-@if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ && Model.CurrentUser.IsCapoGruppo)
+@if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ)
 {
     <div class="row">
         <div class="col s12 form-group">
             <label>Tipo Mozione: </label>
-            <select id="Atto_TipoMOZ" onchange="tipoMOZ_onChange()">
-            </select>
-        </div>
-        <div id="pnlMOZAbbinabili" class="col s12 form-group" style="display: none">
-            <label>Mozione abbinata: </label>
-            <select id="Atto_TipoMOZ_Abbinabili">
+            <select id="Atto_TipoMOZ">
+                <option value="@((int)TipoMOZEnum.ORDINARIA)" selected="selected">--</option>
+                <option value="@((int)TipoMOZEnum.CENSURA)">@Utility.GetText_TipoMOZDASI((int)TipoMOZEnum.CENSURA)</option>
+                <option value="@((int)TipoMOZEnum.SFIDUCIA)">@Utility.GetText_TipoMOZDASI((int)TipoMOZEnum.SFIDUCIA)</option>
             </select>
         </div>
     </div>
-    <script>
-        $(document).ready(async function() {
-            var tipi = await GetTipiMOZDASI();
-            if (tipi.length > 0) {
-                var select = $("#Atto_TipoMOZ");
-                select.empty();
-                $.each(tipi,
-                    function(index, item) {
-                        var template = "";
-                        if (item.IDTipoAtto == @Html.Raw(Model.Atto.TipoMOZ))
-                            template = "<option selected='selected'></option>";
-                        else
-                            template = "<option></option>";
-                        select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
-                    });
-
-                var elems = document.querySelectorAll("#Atto_TipoMOZ");
-                M.FormSelect.init(elems, null);
-
-                await tipoMOZ_onChange();
-            }
-        });
-
-        async function tipoMOZ_onChange() {
-            var tipoMOZ = $('select[id="Atto_TipoMOZ"]').children("option:selected").val();
-            if (tipoMOZ == @Html.Raw((int) TipoMOZEnum.ABBINATA)) {
-                var mozioni = await GetTipiMOZAbbinabiliDASI();
-                if (mozioni.length > 0) {
-                    var select = $("#Atto_TipoMOZ_Abbinabili");
-                    select.empty();
-                    var abbinata = '@Html.Raw(Model.Atto.UID_MOZ_Abbinata)';
-                    $.each(mozioni,
-                        function(index, item) {
-                            var template = "";
-                            if (item.UIDAtto == abbinata)
-                                template = "<option selected='selected'></option>";
-                            else
-                                template = "<option></option>";
-                            var oggetto = item.Oggetto.slice(0, 100).concat('...');
-                            select.append($(template).val(item.UIDAtto).html("MOZ " + item.NAtto + " " + oggetto));
-                        });
-
-                    var elems = document.querySelectorAll("#Atto_TipoMOZ_Abbinabili");
-                    M.FormSelect.init(elems, null);
-                }
-                $('#pnlMOZAbbinabili').show();
-            } else {
-                $('#pnlMOZAbbinabili').hide();
-            }
-        }
-    </script>
 }

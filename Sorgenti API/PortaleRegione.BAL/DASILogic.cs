@@ -164,9 +164,6 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb == null)
                     throw new InvalidOperationException("Atto non trovato");
 
-                var controllo_firme = await ControlloFirmePresentazione(attoDto);
-                if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
-
                 if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
                 {
                     attoInDb.TipoMOZ = attoDto.TipoMOZ;
