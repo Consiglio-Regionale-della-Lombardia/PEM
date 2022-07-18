@@ -128,7 +128,6 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetNotificheRicevute - page[{model.page}], pageSize[{model.size}]");
                 var queryFilter = new Filter<NOTIFICHE>();
                 queryFilter.ImportStatements(model.filtro);
 

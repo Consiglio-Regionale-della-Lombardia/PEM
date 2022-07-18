@@ -231,8 +231,10 @@ namespace PortaleRegione.Persistance
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
-                currentUser.IsAmministratorePEM)
+                !currentUser.IsAmministratorePEM)
+            {
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
+            }
 
             if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
 
