@@ -296,10 +296,10 @@ namespace PortaleRegione.BAL
                         foreach (var destinatario in listaDestinatari)
                         {
                             var existDestinatario =
-                                await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotificaDASI(atto.UIDAtto,
-                                    destinatario.UID_persona);
+                                await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(atto.UIDAtto,
+                                    destinatario.UID_persona, true);
 
-                            if (!existDestinatario)
+                            if (existDestinatario == null)
                                 destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                                 {
                                     NOTIFICHE = newNotifica,
@@ -383,7 +383,7 @@ namespace PortaleRegione.BAL
                                 await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(em.UIDEM,
                                     destinatario.UID_persona);
 
-                            if (!existDestinatario)
+                            if (existDestinatario == null)
                                 destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                                 {
                                     NOTIFICHE = newNotifica,

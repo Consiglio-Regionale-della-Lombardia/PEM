@@ -451,11 +451,10 @@ namespace PortaleRegione.API.Controllers
                             .CheckIfPresentabile(dto,
                                 persona);
 
-                    if (dto.IDStato < (int) StatiAttoEnum.PRESENTATO)
-                        dto.Firmabile = await _unitOfWork
-                            .Atti_Firme
-                            .CheckIfFirmabile(dto,
-                                persona);
+                    dto.Firmabile = await _unitOfWork
+                        .Atti_Firme
+                        .CheckIfFirmabile(dto,
+                            persona);
 
                     if (!dto.DataRitiro.HasValue && dto.IDStato == (int) StatiAttoEnum.PRESENTATO)
                         dto.Ritirabile = _unitOfWork
@@ -666,7 +665,7 @@ namespace PortaleRegione.API.Controllers
                     if (atto.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE)
                     {
                         results.Add(idGuid,
-                            $"ERROR: Atto {atto.NAtto} si trova in trattazione e non è più sottoscrivibile");
+                            $"ERROR: Atto {atto.NAtto} si trova nello stato: [{Utility.GetText_StatoDASI(atto.IDStato)}] e non è più sottoscrivibile");
                         continue;
                     }
 
@@ -748,13 +747,12 @@ namespace PortaleRegione.API.Controllers
                     var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
                         firmaUfficio, primoFirmatario);
-
-                    //TODO: DESTINATARI DASI
-                    //var is_destinatario_notifica =
-                    //    await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(idGuid, persona.UID_persona);
-                    //if (is_destinatario_notifica)
-                    //    await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(idGuid,
-                    //        persona.UID_persona);
+                    
+                    var destinatario_notifica =
+                        await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(idGuid, persona.UID_persona, true);
+                    if (destinatario_notifica!=null)
+                        await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
+                            persona.UID_persona);
 
                     results.Add(idGuid, $"{atto.NAtto} - OK");
                     counterFirme++;
@@ -913,11 +911,14 @@ namespace PortaleRegione.API.Controllers
                             $"ERROR: Atto {attoDto.NAtto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
                         continue;
                     }
-                    
+
                     if (atto.Tipo == (int) TipoAttoEnum.ODG)
                     {
-                        var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG, TipoMOZEnum.ORDINARIA);
-                        var my_atti = atti.Where(a => a.UID_Atto_ODG == atto.UID_Atto_ODG && a.UIDPersonaPrimaFirma == persona.UID_persona).ToList();
+                        var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG,
+                            TipoMOZEnum.ORDINARIA);
+                        var my_atti = atti.Where(a =>
+                                a.UID_Atto_ODG == atto.UID_Atto_ODG && a.UIDPersonaPrimaFirma == persona.UID_persona)
+                            .ToList();
                         var attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
                         var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
                         if (attoPEM.BloccoODG)
@@ -939,7 +940,8 @@ namespace PortaleRegione.API.Controllers
 
                         if (seduta.Data_effettiva_inizio.HasValue)
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG + AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG +
+                                AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1032,7 +1034,8 @@ namespace PortaleRegione.API.Controllers
                         {
                             try
                             {
-                                var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
+                                var ruoloSegreterie =
+                                    await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
 
                                 var mailModel = new MailModel
                                 {
@@ -1051,7 +1054,6 @@ namespace PortaleRegione.API.Controllers
                                 Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
                             }
                         }
-
                     }
 
                     await _unitOfWork.CompleteAsync();
@@ -1067,7 +1069,8 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme, SEDUTE seduta_attiva = null,
+        internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme,
+            SEDUTE seduta_attiva = null,
             string error_title = "Atto non presentabile")
         {
             if (atto.Tipo == (int) TipoAttoEnum.IQT
@@ -1105,10 +1108,12 @@ namespace PortaleRegione.API.Controllers
                 StringBuilder anomalie = new StringBuilder();
                 if (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
                 {
-                    var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                    var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
+                        TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
                     foreach (var firma in firmatari)
                     {
-                        var firmatario_indagato = $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
+                        var firmatario_indagato =
+                            $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var moz in moz_in_seduta)
                         {
@@ -1116,7 +1121,8 @@ namespace PortaleRegione.API.Controllers
                             if (firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
                             var mozDto = await GetAttoDto(moz.UIDAtto);
-                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]", $"{Utility.GetText_Tipo(atto.Tipo)} {mozDto.NAtto}");
+                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
+                                $"{Utility.GetText_Tipo(atto.Tipo)} {mozDto.NAtto}");
                             break;
                         }
 
@@ -1127,7 +1133,8 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 if (anomalie.Length > 0 && count_firme < minimo_firme)
-                    return $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
+                    return
+                        $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
             }
 
             return default;
@@ -1455,9 +1462,9 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
                         $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                    if (!listaRichieste.Any(item=> item.Value == nomeAtto 
-                        && item.Key == atto.UIDPersonaRichiestaIscrizione.Value 
-                        || item.Key == atto.UIDPersonaPresentazione.Value))
+                    if (!listaRichieste.Any(item => item.Value == nomeAtto
+                                                    && item.Key == atto.UIDPersonaRichiestaIscrizione.Value
+                                                    || item.Key == atto.UIDPersonaPresentazione.Value))
                     {
                         listaRichieste.Add(
                             atto.UIDPersonaRichiestaIscrizione.HasValue
@@ -1588,9 +1595,9 @@ namespace PortaleRegione.API.Controllers
                         throw new Exception(
                             "ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
 
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    if (atto.Tipo == (int) TipoAttoEnum.MOZ)
                     {
-                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                        atto.TipoMOZ = (int) TipoMOZEnum.ORDINARIA;
                     }
 
                     atto.DataRichiestaIscrizioneSeduta = null;
@@ -1618,7 +1625,7 @@ namespace PortaleRegione.API.Controllers
 
                 attoInDb.TipoMOZ = (int) TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int) TipoMOZEnum.URGENTE;
-                
+
                 var sedute_attive = await _unitOfWork.Sedute.GetAttive();
                 var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
 
@@ -1628,7 +1635,8 @@ namespace PortaleRegione.API.Controllers
 
                 var count_firme = atto.ConteggioFirme;
                 var controllo_firme =
-                    await ControlloFirmePresentazione(atto, count_firme, seduta_attiva, "Non è possibile proporre l'urgenza");
+                    await ControlloFirmePresentazione(atto, count_firme, seduta_attiva,
+                        "Non è possibile proporre l'urgenza");
                 if (!string.IsNullOrEmpty(controllo_firme))
                 {
                     throw new InvalidOperationException(controllo_firme);

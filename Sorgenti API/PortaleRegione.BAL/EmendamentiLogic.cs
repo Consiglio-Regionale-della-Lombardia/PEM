@@ -802,10 +802,10 @@ namespace PortaleRegione.BAL
 
                     await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, firmaUfficio);
 
-                    var is_destinatario_notifica =
+                    var destinatario_notifica =
                         await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(idGuid, persona.UID_persona);
-                    if (is_destinatario_notifica)
-                        await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(idGuid,
+                    if (destinatario_notifica != null)
+                        await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
                             persona.UID_persona);
 
                     results.Add(idGuid, $"{n_em} - OK");
