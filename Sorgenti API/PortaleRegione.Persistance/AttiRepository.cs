@@ -47,7 +47,6 @@ namespace PortaleRegione.Persistance
         {
             var result = await PRContext
                 .ATTI
-                .Include(a => a.TIPI_ATTO)
                 .Include(a => a.SEDUTE)
                 .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
             return result;

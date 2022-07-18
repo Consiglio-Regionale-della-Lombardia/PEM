@@ -372,6 +372,30 @@ namespace PortaleRegione.Client.Controllers
             return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
 
+        /// <summary>
+        ///     Controller per salvare o modificare l'atto
+        /// </summary>
+        /// <param name="atto">Modello atto</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("bloccoODG")]
+        [HttpPost]
+        public async Task<ActionResult> BloccoODG(BloccoODGModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Atti.BloccoODG(model);
+
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet]
         [Route("tipi")]
         public async Task<ActionResult> GetTipi(bool dasi = true)

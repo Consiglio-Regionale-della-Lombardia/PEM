@@ -72,5 +72,8 @@ namespace PortaleRegione.BAL
         public static int MinimoConsiglieriIQT => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriIQT"]);
         public static int MinimoConsiglieriMOZU => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZU"]);
         public static int MinimoConsiglieriMOZC_MOZS => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZC_MOZS"]);
+        public static int MassimoODG => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG"]);
+        public static int MassimoODG_DuranteSeduta => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG_DuranteSeduta"]);
+        public static int MassimoODG_Jolly => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG_Jolly"]);
     }
 }

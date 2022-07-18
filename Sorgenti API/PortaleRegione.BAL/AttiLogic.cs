@@ -607,6 +607,5 @@ namespace PortaleRegione.BAL
 
             return result;
         }
-
     }
 }

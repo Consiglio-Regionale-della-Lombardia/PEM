@@ -1523,6 +1523,36 @@ function PubblicaFascicolo(attoUId, ordine) {
     });
 }
 
+function BloccaODG(attoUId, blocca) {
+    var obj = {};
+    obj.Id = attoUId;
+    obj.Blocco = blocca;
+
+    $.ajax({
+        url: baseUrl + "/atti/bloccoODG",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+        }
+        if (blocca == true) {
+            SuccessAlert("Presentazione ordini del giorno bloccata");
+        } else {
+            SuccessAlert("Presentazione ordini del giorno abilitata");
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
+    });
+}
+
 //NOTIFICHE
 
 function GetDestinatariNotifica(notificaId) {

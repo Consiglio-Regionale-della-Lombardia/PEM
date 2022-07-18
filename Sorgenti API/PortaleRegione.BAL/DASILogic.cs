@@ -88,9 +88,10 @@ namespace PortaleRegione.API.Controllers
                                 "Seleziona un atto a cui iscrivere l'ordine del giorno");
 
                         result.UID_Atto_ODG = attoDto.UID_Atto_ODG;
-                        result.UIDSeduta = null;
-                        var data_richiesta = DateTime.Now;
-                        result.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
+                        var attoPEM = await _unitOfWork.Atti.Get(result.UID_Atto_ODG.Value);
+                        var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                        result.UIDSeduta = seduta.UIDSeduta;
+                        result.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey);
                         result.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
@@ -180,9 +181,10 @@ namespace PortaleRegione.API.Controllers
                             "Seleziona un atto a cui iscrivere l'ordine del giorno");
 
                     attoInDb.UID_Atto_ODG = attoDto.UID_Atto_ODG;
-                    var data_richiesta = DateTime.Now;
-                    attoInDb.UIDSeduta = null;
-                    attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(data_richiesta.ToString("dd/MM/yyyy"),
+                    var attoPEM = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                    attoInDb.UIDSeduta = seduta.UIDSeduta;
+                    attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
                     attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     attoInDb.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
@@ -913,6 +915,49 @@ namespace PortaleRegione.API.Controllers
                         results.Add(idGuid,
                             $"ERROR: Atto {attoDto.NAtto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
                         continue;
+                    }
+                    
+                    if (atto.Tipo == (int) TipoAttoEnum.ODG)
+                    {
+                        var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG, TipoMOZEnum.ORDINARIA);
+                        var my_atti = atti.Where(a => a.UID_Atto_ODG == atto.UID_Atto_ODG && a.UIDPersonaPrimaFirma == persona.UID_persona).ToList();
+                        var attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
+                        var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                        if (attoPEM.BloccoODG)
+                        {
+                            results.Add(idGuid,
+                                $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno.");
+                            continue;
+                        }
+
+                        if (attoPEM.Jolly)
+                        {
+                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG_Jolly)
+                            {
+                                results.Add(idGuid,
+                                    $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                continue;
+                            }
+                        }
+
+                        if (seduta.Data_effettiva_inizio.HasValue)
+                        {
+                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG + AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            {
+                                results.Add(idGuid,
+                                    $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG)
+                            {
+                                results.Add(idGuid,
+                                    $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                continue;
+                            }
+                        }
                     }
 
                     if (!attoDto.Presentabile)

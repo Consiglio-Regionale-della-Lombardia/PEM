@@ -136,6 +136,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task BloccoODG(BloccoODGModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/bloccoODG";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("BloccoODG", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("BloccoODG", ex);
+                throw ex;
+            }
+        }
+
         public async Task<AttiDto> Salva(AttiFormUpdateModel atto)
         {
             try

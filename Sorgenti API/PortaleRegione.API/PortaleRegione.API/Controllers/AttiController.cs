@@ -606,6 +606,34 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Controller per bloccare la presentazione degli ordini del giorno per l'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("bloccoODG")]
+        [HttpPost]
+        public async Task<IHttpActionResult> BloccoODG(BloccoODGModel model)
+        {
+            try
+            {
+                var attoInDb = await _logic.GetAtto(model.Id);
+
+                if (attoInDb == null) return NotFound();
+                attoInDb.BloccoODG = Convert.ToBoolean(model.Blocco);
+                await _unitOfWork.CompleteAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("BloccoODG", e);
+                return ErrorHandler(e);
+            }
+
+        }
+
+        /// <summary>
         ///     Endpoint per avere i tipi
         /// </summary>
         /// <returns></returns>
