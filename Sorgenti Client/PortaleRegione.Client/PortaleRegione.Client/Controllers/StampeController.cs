@@ -103,20 +103,22 @@ namespace PortaleRegione.Client.Controllers
                 Da = Convert.ToInt16(DA),
                 A = Convert.ToInt16(A)
             };
-
+            
             if (model.filtro == null)
             {
                 model.filtro = new List<FilterStatement<AttoDASIDto>>();
+                if (Session["RiepilogoDASI"] is RiepilogoDASIModel modelInCache)
+                    try
+                    {
+                        model.page = 1;
+                        model.size = modelInCache.Data.Paging.Total;
+                        model.filtro.AddRange(modelInCache.Data.Filters);
+                        model.param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } };
+                    }
+                    catch (Exception)
+                    {
+                    }
             }
-
-            if (Session["RiepilogoDASI"] is RiepilogoDASIModel old_model)
-                try
-                {
-                    model.filtro.AddRange(old_model.Data.Filters);
-                }
-                catch (Exception)
-                {
-                }
 
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Stampe.InserisciStampa(model);
