@@ -126,6 +126,10 @@
                                 {
                                     <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
                                 }
+                                @if (attoPem.CounterODG > 0)
+                                {
+                                    <div class="chip">@(attoPem.CounterODG) ODG</div>
+                                }
                             </div>
                         </div>
                         <div class="collapsible-body">
@@ -185,18 +189,43 @@
                                         </a>
                                     </div>
                                 }
-                                @if (attoPem.Data_apertura.HasValue && attoPem.Conteggio_EM + attoPem.Conteggio_SubEM > 0)
-                                {
-                                    <div class="col s6 right-align">
+
+                                <div class="col s6 right-align">
+                                    @if (attoPem.Data_apertura.HasValue && attoPem.Conteggio_EM + attoPem.Conteggio_SubEM > 0)
+                                    {
                                         <a class="btn-flat blue-text"
                                            onclick="go('@Url.Action("RiepilogoEmendamentiInSeduta", "Emendamenti", new {id = attoPem.UIDAtto})')" title="Riepilogo emendamenti in aula">
                                             <i class="material-icons right">chevron_right</i>
                                             Riepilogo EM In Seduta
                                         </a>
-                                    </div>
-                                }
+                                    }
+                                </div>
                             </div>
+                            @if (attoPem.CounterODG > 0)
+                            {
+                                <div class="row">
+                                    @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                                    {
+                                        <div class="col s6 left-align">
+                                            <a class="btn-flat black-text">
+                                                <i class="material-icons left">access_alarm</i>
+                                                Scadenza ODG @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
+                                            </a>
+                                        </div>
+                                    }
 
+                                    <div class="col s6 right-align">
+                                        @if (attoPem.CounterODG > 0)
+                                        {
+                                            <a class="btn-flat blue-text tooltipped"
+                                               onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = attoPem.UIDSeduta, tipo = (int) TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto})')" data-tooltip="Riepilogo ordini del giorno">
+                                                <i class="material-icons right">chevron_right</i>
+                                                Riepilogo Ordini del giorno
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </li>
                 }
@@ -354,7 +383,7 @@
                     </div>
                 </li>
             }
-            
+
         </ul>
     </div>
     </div>
