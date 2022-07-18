@@ -157,6 +157,28 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task JollyODG(JollyODGModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/jollyODG";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("JollyODG", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("JollyODG", ex);
+                throw ex;
+            }
+
+        }
+
         public async Task<AttiDto> Salva(AttiFormUpdateModel atto)
         {
             try

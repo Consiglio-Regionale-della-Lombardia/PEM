@@ -90,6 +90,7 @@
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\BloccoODGModel.cs" />
+    <Compile Include="Model\JollyODGModel.cs" />
     <Compile Include="Model\PresentazioneCartaceaModel.cs" />
     <Compile Include="Model\PromuoviMozioneModel.cs" />
     <Compile Include="Model\RichiestaIscrizioneDASIModel.cs" />

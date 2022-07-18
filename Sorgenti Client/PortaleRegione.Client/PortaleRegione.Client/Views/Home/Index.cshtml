@@ -3,6 +3,7 @@
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Model
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.DashboardModel
 
@@ -88,6 +89,10 @@
 {
     var pemList = Model.PEM.FirstOrDefault(a => a.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
     var attoDasi = Model.DASI.FirstOrDefault(a => a.Data.Results.Any(item => item.UIDSeduta == seduta.UIDSeduta));
+    if (attoDasi == null)
+    {
+        attoDasi = new RiepilogoDASIModel();
+    }
 
     <li class="active grey lighten-4">
     <div class="collapsible-header black-text">
@@ -219,162 +224,138 @@
             </div>
         </div>
         <hr/>
-        @if (attoDasi != null || seduta.DataScadenzaPresentazioneODG.HasValue)
-        {
-            <ul class="collapsible" style="position: relative">
-                @if (attoDasi != null)
-                {
-                    if (attoDasi.CountBarData.ITL > 0)
-                    {
-                        <li>
-                            <div class="collapsible-header">
-                                <i class="material-icons pink-text">textsms</i>
-                                @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ITL)
-                                <div class="collapsabile-secondary-header">
-                                    <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
-                                </div>
-                            </div>
-                            <div class="collapsible-body">
-                                <div class="row">
-                                    <div class="col s12 right-align">
-                                        <a class="btn-flat blue-text"
-                                           onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITL})')" title="Riepilogo atti in seduta">
-                                            <i class="material-icons right">chevron_right</i>
-                                            Riepilogo Atti In Seduta
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                    if (attoDasi.CountBarData.ITR > 0)
-                    {
-                        <li>
-                            <div class="collapsible-header">
-                                <i class="material-icons pink-text">textsms</i>
-                                @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ITR)
-                                <div class="collapsabile-secondary-header">
-                                    <div class="chip">@(attoDasi.CountBarData.ITR) Atti</div>
-                                </div>
-                            </div>
-                            <div class="collapsible-body">
-                                <div class="row">
-                                    <div class="col s12 right-align">
-                                        <a class="btn-flat blue-text"
-                                           onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITR})')" title="Riepilogo atti in seduta">
-                                            <i class="material-icons right">chevron_right</i>
-                                            Riepilogo Atti In Seduta
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                    if (attoDasi.CountBarData.IQT > 0)
-                    {
-                        <li>
-                            <div class="collapsible-header">
-                                <i class="material-icons pink-text">textsms</i>
-                                @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.IQT)
-                                <div class="collapsabile-secondary-header">
-                                    <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
-                                </div>
-                            </div>
-                            <div class="collapsible-body">
-                                <div class="row">
-                                    <div class="col s12 right-align">
-                                        <a class="btn-flat blue-text"
-                                           onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.IQT})')" title="Riepilogo atti in seduta">
-                                            <i class="material-icons right">chevron_right</i>
-                                            Riepilogo Atti In Seduta
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                    if (attoDasi.CountBarData.MOZ > 0)
-                    {
-                        <li>
-                            <div class="collapsible-header">
-                                <i class="material-icons pink-text">textsms</i>
-                                @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.MOZ)
-                                <div class="collapsabile-secondary-header">
-                                    <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
-                                </div>
-                            </div>
-                            <div class="collapsible-body">
-                                <div class="row">
-                                    <div class="col s12 right-align">
-                                        <a class="btn-flat blue-text"
-                                           onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.MOZ})')" title="Riepilogo atti in seduta">
-                                            <i class="material-icons right">chevron_right</i>
-                                            Riepilogo Atti In Seduta
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                }
+        <ul class="collapsible" style="position: relative">
 
-                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                {
-                    <li>
-                        <div class="collapsible-header">
-                            <i class="material-icons pink-text">textsms</i>
-                            @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ODG)
-                            <div class="collapsabile-secondary-header">
-                                @if (attoDasi != null)
+            @if (attoDasi.CountBarData.ITL > 0)
+            {
+                <li>
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ITL)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s12 right-align">
+                                <a class="btn-flat blue-text"
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITL})')" title="Riepilogo atti in seduta">
+                                    <i class="material-icons right">chevron_right</i>
+                                    Riepilogo Atti In Seduta
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+            @if (attoDasi.CountBarData.ITR > 0)
+            {
+                <li>
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ITR)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@(attoDasi.CountBarData.ITR) Atti</div>
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s12 right-align">
+                                <a class="btn-flat blue-text"
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITR})')" title="Riepilogo atti in seduta">
+                                    <i class="material-icons right">chevron_right</i>
+                                    Riepilogo Atti In Seduta
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+            @if (attoDasi.CountBarData.IQT > 0)
+            {
+                <li>
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.IQT)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s12 right-align">
+                                <a class="btn-flat blue-text"
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.IQT})')" title="Riepilogo atti in seduta">
+                                    <i class="material-icons right">chevron_right</i>
+                                    Riepilogo Atti In Seduta
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+            @if (attoDasi.CountBarData.MOZ > 0)
+            {
+                <li>
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.MOZ)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s12 right-align">
+                                <a class="btn-flat blue-text"
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.MOZ})')" title="Riepilogo atti in seduta">
+                                    <i class="material-icons right">chevron_right</i>
+                                    Riepilogo Atti In Seduta
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+            @if (attoDasi.CountBarData.ODG > 0 || seduta.DataScadenzaPresentazioneODG.HasValue)
+            {
+                <li>
+                    <div class="collapsible-header">
+                        <i class="material-icons pink-text">textsms</i>
+                        @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ODG)
+                        <div class="collapsabile-secondary-header">
+                            <div class="chip">@(attoDasi.CountBarData.ODG) Atti</div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s6 left-align">
+                                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
                                 {
-                                    <div class="chip">@(attoDasi.CountBarData.ODG) Atti</div>
-
+                                    <a class="btn-flat black-text">
+                                        <i class="material-icons left">access_alarm</i>
+                                        Scadenza ODG @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
+                                    </a>
+                                }
+                            </div>
+                            <div class="col s6 right-align">
+                                @if (attoDasi.CountBarData.ODG > 0)
+                                {
+                                    <a class="btn-flat blue-text"
+                                       onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ODG})')" title="Riepilogo atti in seduta">
+                                        <i class="material-icons right">chevron_right</i>
+                                        Riepilogo Atti In Seduta
+                                    </a>
                                 }
                             </div>
                         </div>
-
-                        <div class="collapsible-body">
-                            <div class="row">
-                                <div class="col s6 left-align">
-                                    @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                                    {
-                                        <a class="btn-flat black-text">
-                                            <i class="material-icons left">access_alarm</i>
-                                            Scadenza ODG @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
-                                        </a>
-                                    }
-                                </div>
-                                <div class="col s6 right-align">
-                                    @if (attoDasi!= null)
-                                    {
-                                        if (attoDasi.CountBarData.ODG > 0)
-                                        {
-                                            <a class="btn-flat blue-text"
-                                               onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ODG})')" title="Riepilogo atti in seduta">
-                                                <i class="material-icons right">chevron_right</i>
-                                                Riepilogo Atti In Seduta
-                                            </a>
-                                        }
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <div class="row" style="margin: 0 !important">
-                <div class="col s12">
-                    <div class="card-panel panel-warning center">
-                        <span class="center">
-                            Non ci sono atti di sindacato ispettivo iscritti al momento
-                        </span>
                     </div>
-                </div>
-            </div>
-        }
+                </li>
+            }
+            
+        </ul>
     </div>
     </div>
     </div>

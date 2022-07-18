@@ -1458,14 +1458,20 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
                         $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                    listaRichieste.Add(
-                        atto.UIDPersonaRichiestaIscrizione.HasValue
-                            ? atto.UIDPersonaRichiestaIscrizione.Value
-                            : atto.UIDPersonaPresentazione.Value, nomeAtto);
+                    if (!listaRichieste.Any(item=> item.Value == nomeAtto 
+                        && item.Key == atto.UIDPersonaRichiestaIscrizione.Value 
+                        || item.Key == atto.UIDPersonaPresentazione.Value))
+                    {
+                        listaRichieste.Add(
+                            atto.UIDPersonaRichiestaIscrizione.HasValue
+                                ? atto.UIDPersonaRichiestaIscrizione.Value
+                                : atto.UIDPersonaPresentazione.Value, nomeAtto);
+                    }
                 }
 
                 try
                 {
+                    var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
                     var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
 
                     var gruppiMail = listaRichieste.GroupBy(item => item.Key);
@@ -1480,7 +1486,7 @@ namespace PortaleRegione.API.Controllers
                             OGGETTO =
                                 "[ISCRIZIONE ATTI]",
                             MESSAGGIO =
-                                $"La segreteria ha iscritto i seguenti atti alla seduta del {dataSeduta}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}."
+                                $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}."
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
@@ -1529,7 +1535,7 @@ namespace PortaleRegione.API.Controllers
                         OGGETTO =
                             "[RICHIESTA ISCRIZIONE]",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {dataRichiesta}."
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }

@@ -364,6 +364,8 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
+                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}", "");
+                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}", "");
                     body = body.Replace("{lblTipoRispostaATTOView}",
                         DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
                 }

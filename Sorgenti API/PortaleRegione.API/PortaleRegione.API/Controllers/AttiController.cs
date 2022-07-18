@@ -634,6 +634,34 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Controller per bloccare la presentazione degli ordini del giorno per l'atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("jollyODG")]
+        [HttpPost]
+        public async Task<IHttpActionResult> JollyODG(JollyODGModel model)
+        {
+            try
+            {
+                var attoInDb = await _logic.GetAtto(model.Id);
+
+                if (attoInDb == null) return NotFound();
+                attoInDb.Jolly = Convert.ToBoolean(model.Jolly);
+                await _unitOfWork.CompleteAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("JollyODG", e);
+                return ErrorHandler(e);
+            }
+
+        }
+
+        /// <summary>
         ///     Endpoint per avere i tipi
         /// </summary>
         /// <returns></returns>

@@ -48,6 +48,7 @@ namespace PortaleRegione.Gateway
         Task ModificaFiles(AttiDto atto);
         Task PubblicaFascicolo(PubblicaFascicoloModel model);
         Task BloccoODG(BloccoODGModel model);
+        Task JollyODG(JollyODGModel model);
         Task<AttiDto> Salva(AttiFormUpdateModel atto);
         Task SalvaRelatori(AttoRelatoriModel model);
         Task SPOSTA_DOWN(Guid id);

@@ -372,11 +372,11 @@ namespace PortaleRegione.Client.Controllers
             return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
 
-        /// <summary>
-        ///     Controller per salvare o modificare l'atto
-        /// </summary>
-        /// <param name="atto">Modello atto</param>
-        /// <returns></returns>
+       /// <summary>
+       /// Controller per bloccare la presentazione degli ordini del giorno per un atto
+       /// </summary>
+       /// <param name="model"></param>
+       /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("bloccoODG")]
         [HttpPost]
@@ -386,6 +386,30 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Atti.BloccoODG(model);
+
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        /// <summary>
+        /// Controller per attivare o disattivare il jolly che toglie il limite alla presentazione degli ordini del giorno
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("jollyODG")]
+        [HttpPost]
+        public async Task<ActionResult> JollyODG(JollyODGModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Atti.JollyODG(model);
 
                 return Json("OK", JsonRequestBehavior.AllowGet);
             }

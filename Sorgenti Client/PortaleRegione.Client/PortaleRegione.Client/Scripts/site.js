@@ -1553,6 +1553,36 @@ function BloccaODG(attoUId, blocca) {
     });
 }
 
+function JollyODG(attoUId, jolly) {
+    var obj = {};
+    obj.Id = attoUId;
+    obj.Jolly = jolly;
+
+    $.ajax({
+        url: baseUrl + "/atti/jollyODG",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+        }
+        if (blocca == true) {
+            SuccessAlert("Ordini del giorno: jolly disabilitato");
+        } else {
+            SuccessAlert("Ordini del giorno: jolly abilitato");
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
+    });
+}
+
 //NOTIFICHE
 
 function GetDestinatariNotifica(notificaId) {

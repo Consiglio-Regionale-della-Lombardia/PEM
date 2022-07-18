@@ -472,6 +472,23 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
+
+                if (model.Lista == null || !model.Lista.Any())
+                {
+                    var listaAtti = new RiepilogoDASIModel();
+                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
+                    var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                    var request = new BaseRequest<AttoDASIDto>
+                    {
+                        page = 1,
+                        size = modelInCache.Data.Paging.Total,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                    };
+                    listaAtti = await apiGateway.DASI.Get(request);
+                    model.Lista = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                }
+
                 await apiGateway.DASI.IscriviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {

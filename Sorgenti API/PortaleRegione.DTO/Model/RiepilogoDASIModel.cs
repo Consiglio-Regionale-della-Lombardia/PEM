@@ -27,6 +27,10 @@ namespace PortaleRegione.DTO.Model
 {
     public class RiepilogoDASIModel
     {
+        public RiepilogoDASIModel()
+        {
+            CountBarData = new CountBarData();
+        }
         public BaseResponse<AttoDASIDto> Data { get; set; }
         public StatiAttoEnum Stato { get; set; }
         public TipoAttoEnum Tipo { get; set; }
