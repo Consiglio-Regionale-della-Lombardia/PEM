@@ -1354,7 +1354,7 @@ namespace PortaleRegione.API.Controllers
                     var atti = await _logicAtti
                         .GetAtti(
                             new BaseRequest<AttiDto> {id = seduta.UIDSeduta, page = 1, size = 99},
-                            (int) ClientModeEnum.GRUPPI,
+                            (int) ClientModeEnum.TRATTAZIONE,
                             persona,
                             personeInDbLight);
 
