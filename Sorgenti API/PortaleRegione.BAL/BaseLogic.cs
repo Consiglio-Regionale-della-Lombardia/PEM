@@ -733,10 +733,9 @@ namespace PortaleRegione.BAL
 
                 var firmeDtos = firme.ToList();
                 if (!firmeDtos.Any()) return string.Empty;
-
                 var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
-                        ? $"<label style='font-size:12px'>{item.FirmaCert}, {item.Data_firma}</label><br/>"
-                        : $"<div style='text-decoration:line-through;'><label style='font-size:12px'>{item.FirmaCert}, {item.Data_firma} ({item.Data_ritirofirma})</label></div><br/>")
+                        ? $"<label style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy}</label><br/>"
+                        : $"<div style='text-decoration:line-through;'><label style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy} ({item.Data_ritirofirma})</label></div><br/>")
                     .ToList();
 
                 return result.Aggregate((i, j) => i + j);

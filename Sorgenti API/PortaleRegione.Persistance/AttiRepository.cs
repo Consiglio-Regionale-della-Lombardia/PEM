@@ -59,6 +59,7 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<IEnumerable<ATTI>> GetAll(Guid sedutaUId, int pageIndex, int pageSize,
+            int clientMode,
             Filter<ATTI> filtro = null)
         {
             var query = PRContext
@@ -67,6 +68,11 @@ namespace PortaleRegione.Persistance
                 .Where(c => c.Eliminato == false && c.UIDSeduta == sedutaUId);
 
             filtro?.BuildExpression(ref query);
+
+            if (clientMode == (int) ClientModeEnum.GRUPPI)
+            {
+                query = query.Where(item => item.IDTipoAtto == (int) TipoAttoEnum.PDL);
+            }
 
             return await query
                 .OrderBy(c => c.Priorita)

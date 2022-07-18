@@ -56,7 +56,7 @@ namespace PortaleRegione.BAL
                 var queryFilter = new Filter<ATTI>();
                 queryFilter.ImportStatements(model.filtro);
 
-                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, queryFilter))
+                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE, queryFilter))
                     .Select(Mapper.Map<ATTI, AttiDto>);
                 var result = new List<AttiDto>();
                 foreach (var appoggio in appoggioAttiDtos)

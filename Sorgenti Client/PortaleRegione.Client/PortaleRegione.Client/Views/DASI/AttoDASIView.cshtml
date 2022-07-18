@@ -104,7 +104,7 @@
                 @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
                 <div class="row">
                     <div class="col s6 left">
-                        @if (Model.UIDPersonaModifica.HasValue)
+                        @if (Model.UIDPersonaModifica.HasValue && Model.IDStato < (int)StatiAttoEnum.PRESENTATO)
                         {
                             <label style="font-size: small !important">Ultima modifica: </label>
                             <br/>
