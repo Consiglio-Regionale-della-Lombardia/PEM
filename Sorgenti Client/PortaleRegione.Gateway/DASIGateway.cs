@@ -283,7 +283,8 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, int page = 1,
+        public async Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, string uidAtto,
+            int page = 1,
             int size = 50)
         {
             try
@@ -311,6 +312,24 @@ namespace PortaleRegione.Gateway
                     Connector = FilterStatementConnector.And
                 };
                 request.filtro.Add(filtroTipo);
+                if (!string.IsNullOrEmpty(uidAtto))
+                {
+                    var tryParse = Guid.TryParse(uidAtto, out var guid);
+                    if (tryParse)
+                    {
+                        if (guid != Guid.Empty)
+                        {
+                            var filtroAttoPEM = new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = nameof(AttoDASIDto.UID_Atto_ODG),
+                                Operation = Operation.EqualTo,
+                                Value = guid,
+                                Connector = FilterStatementConnector.And
+                            };
+                            request.filtro.Add(filtroAttoPEM);
+                        }
+                    }
+                }
 
                 var body = JsonConvert.SerializeObject(request);
 

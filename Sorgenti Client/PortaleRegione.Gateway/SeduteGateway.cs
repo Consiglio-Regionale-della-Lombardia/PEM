@@ -22,6 +22,7 @@ using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -139,7 +140,7 @@ namespace PortaleRegione.Gateway
                 var requestUrl = $"{apiUrl}/sedute/attive";
 
                 var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
-
+                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
                 return lst;
             }
             catch (UnauthorizedAccessException ex)

@@ -43,7 +43,7 @@ namespace PortaleRegione.Client.Controllers
                 };
                 foreach (var seduta in model.Sedute.Results)
                 {
-                    var attiPEM = await apiGateway.Atti.Get(seduta.UIDSeduta, ClientModeEnum.GRUPPI, 1, 99);
+                    var attiPEM = await apiGateway.Atti.Get(seduta.UIDSeduta, ClientModeEnum.TRATTAZIONE, 1, 99);
                     if (attiPEM.Results.Any())
                         model.PEM.Add(attiPEM);
 

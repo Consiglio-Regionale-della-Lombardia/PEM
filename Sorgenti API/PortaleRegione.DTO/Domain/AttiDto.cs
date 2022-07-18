@@ -92,5 +92,7 @@ namespace PortaleRegione.DTO.Domain
         public int TipoDibattito { get; set; }
         public bool BloccoODG { get; set; } = false;
         public bool Jolly { get; set; } = false;
+
+        public int CounterODG { get; set; } = 0;
     }
 }

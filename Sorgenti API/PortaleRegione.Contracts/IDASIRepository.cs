@@ -59,5 +59,6 @@ namespace PortaleRegione.Contracts
         string GetAll_Query(Filter<ATTI_DASI> queryFilter);
         Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId);
         Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
+        Task<int> CountODGByAttoPEM(Guid appoggioUidAtto);
     }
 }

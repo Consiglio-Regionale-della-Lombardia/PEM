@@ -246,11 +246,13 @@ function go(link, switchMode) {
     document.location = link;
 }
 
-function AbilitaTrattazione() {
+async function AbilitaTrattazione() {
     var mode = getClientMode();
     if (mode == 1) {
         setClientMode(2);
-        go("/attitrattazione/archivio");
+        var data = await GetSeduteAttive();
+        var seduta = data.Results[0];
+        go("/attitrattazione/view?id=" + seduta.UIDSeduta);
     } else {
         setClientMode(1);
         go("/home");

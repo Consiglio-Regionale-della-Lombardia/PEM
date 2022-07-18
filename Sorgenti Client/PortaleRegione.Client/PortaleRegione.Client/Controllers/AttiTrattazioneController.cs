@@ -54,8 +54,9 @@ namespace PortaleRegione.Client.Controllers
                 model.PEM.Add(attiPEM);
 
             var attiDASI = await apiGateway.DASI.GetBySeduta(id);
-            if (attiDASI.Data.Results.Any())
-                model.DASI.Add(attiDASI);
+            if (attiDASI == null)
+                attiDASI = new RiepilogoDASIModel();
+            model.DASI.Add(attiDASI);
 
             return View("Index", model);
         }

@@ -553,7 +553,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
         {
-            var query = PRContext.DASI.Where(atto => atto.UIDSeduta == uidSeduta
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato 
+                                                     && atto.UIDSeduta == uidSeduta
                                                      && atto.Tipo == (int) tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
@@ -562,6 +563,14 @@ namespace PortaleRegione.Persistance
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<int> CountODGByAttoPEM(Guid uidAtto)
+        {
+            return await PRContext
+                .DASI
+                .CountAsync(item => !item.Eliminato
+                               && item.UID_Atto_ODG == uidAtto);
         }
     }
 }

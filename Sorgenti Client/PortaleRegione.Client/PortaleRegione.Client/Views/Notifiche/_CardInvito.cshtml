@@ -23,7 +23,7 @@
             displayRiferimentoTemporaneo = string.Format("(ex. {0} {1})", title, progressivo);
         }
 
-        sub_titolo = $" - {Model.EM.ATTI.TIPI_ATTO.Tipo_Atto} {Model.EM.ATTI.NAtto} - <b>{Model.EM.N_EM} {displayRiferimentoTemporaneo}</b>";
+        sub_titolo = $" - {Utility.GetText_Tipo(Model.EM.ATTI.IDTipoAtto)} {Model.EM.ATTI.NAtto} - <b>{Model.EM.N_EM} {displayRiferimentoTemporaneo}</b>";
     }
     else if (Model.IsDasi)
     {

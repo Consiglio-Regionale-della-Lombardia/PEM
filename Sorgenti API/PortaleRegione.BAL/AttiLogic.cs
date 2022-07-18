@@ -65,7 +65,7 @@ namespace PortaleRegione.BAL
                         currentUser, CounterEmendamentiEnum.EM, CLIENT_MODE);
                     appoggio.Conteggio_SubEM = await _unitOfWork.Emendamenti.Count(appoggio.UIDAtto,
                         currentUser, CounterEmendamentiEnum.SUB_EM, CLIENT_MODE);
-
+                    appoggio.CounterODG = await _unitOfWork.DASI.CountODGByAttoPEM(appoggio.UIDAtto);
                     if (currentUser.IsSegreteriaAssemblea)
                     {
                         appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);

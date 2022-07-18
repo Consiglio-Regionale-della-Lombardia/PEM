@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -78,10 +79,10 @@ namespace PortaleRegione.Client.Controllers
         [Route("seduta")]
         public async Task<ActionResult> RiepilogoDASI_BySeduta(Guid id, int tipo = (int) TipoAttoEnum.TUTTI,
             int page = 1, int size = 50, int view = (int) ViewModeEnum.GRID,
-            int stato = (int) StatiAttoEnum.PRESENTATO)
+            int stato = (int) StatiAttoEnum.PRESENTATO, string uidAtto = "")
         {
             var apiGateway = new ApiGateway(_Token);
-            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum) tipo, page, size);
+            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum) tipo, uidAtto, page, size);
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
             model.ClientMode = ClientModeEnum.TRATTAZIONE;
 
