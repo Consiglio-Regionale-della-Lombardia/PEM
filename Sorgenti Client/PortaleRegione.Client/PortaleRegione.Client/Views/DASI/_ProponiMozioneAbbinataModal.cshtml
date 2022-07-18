@@ -25,6 +25,9 @@
                         template = "<option></option>";
                     }
                     var oggetto = item.Oggetto == null ? "" : item.Oggetto;
+                    if (item.Oggetto_Modificato != null) {
+                        oggetto = ite.Oggetto_Modificato;
+                    }
                     if (oggetto.length > 100) {
                         oggetto = oggetto.slice(0, 100).concat('...');
                     }
