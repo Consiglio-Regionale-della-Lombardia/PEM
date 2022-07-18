@@ -199,7 +199,7 @@ namespace GeneraStampeJob
                 {
                     var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF);
                     var nameFilePDF =
-                        $"{PortaleRegione.Common.Utility.GetText_TipoDASI(item.Tipo)}{item.NAtto}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                        $"{PortaleRegione.Common.Utility.GetText_Tipo(item.Tipo)}{item.NAtto}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                     var FilePathComplete = Path.Combine(path, nameFilePDF);
 
                     var dettagliCreaPDF = new BodyModel
@@ -233,7 +233,7 @@ namespace GeneraStampeJob
             var dasiDto = listaAtti.First();
             var legislatura = await apiGateway.Legislature.GetLegislatura(dasiDto.Legislatura);
             //Legislatura/Tipo
-            var dir = $"{legislatura.num_legislatura}/{Utility.GetText_TipoDASI(dasiDto.Tipo)}";
+            var dir = $"{legislatura.num_legislatura}/{Utility.GetText_Tipo(dasiDto.Tipo)}";
             var pathRepository = $"{_model.RootRepository}/{dir}";
 
             if (!Directory.Exists(pathRepository))

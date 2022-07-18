@@ -136,38 +136,11 @@ namespace PortaleRegione.GestioneStampe.Helpers
                         case StatiAttoEnum.IN_TRATTAZIONE:
                             text = nameof(StatiAttoEnum.IN_TRATTAZIONE).Replace("_", " ");
                             break;
-                        case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
-                            text = nameof(StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA).Replace("_", " ");
-                            break;
-                        case StatiAttoEnum.TRATTAZIONE_ASSEMBLEA:
-                            text = nameof(StatiAttoEnum.TRATTAZIONE_ASSEMBLEA).Replace("_", " ");
-                            break;
-                        case StatiAttoEnum.APPROVATO:
-                            text = nameof(StatiAttoEnum.APPROVATO);
-                            break;
-                        case StatiAttoEnum.RESPINTO:
-                            text = nameof(StatiAttoEnum.RESPINTO);
-                            break;
-                        case StatiAttoEnum.INAMMISSIBILE:
-                            text = nameof(StatiAttoEnum.INAMMISSIBILE);
-                            break;
                         case StatiAttoEnum.RITIRATO:
                             text = nameof(StatiAttoEnum.RITIRATO);
                             break;
-                        case StatiAttoEnum.DECADUTO:
-                            text = nameof(StatiAttoEnum.DECADUTO);
-                            break;
-                        case StatiAttoEnum.DECADUTO_FINE_MANDATO:
-                            text = nameof(StatiAttoEnum.DECADUTO_FINE_MANDATO).Replace("_", " ");
-                            break;
-                        case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
-                            text = nameof(StatiAttoEnum.DECADUTO_FINE_LEGISLATURA).Replace("_", " ");
-                            break;
                         case StatiAttoEnum.CHIUSO:
                             text = nameof(StatiAttoEnum.CHIUSO);
-                            break;
-                        case StatiAttoEnum.ALTRO:
-                            text = nameof(StatiAttoEnum.ALTRO);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -204,7 +177,7 @@ namespace PortaleRegione.GestioneStampe.Helpers
                         if (Atto.Firma_da_ufficio)
                             cb.ShowText($"{Atto.NAtto} presentato d'ufficio");
                         else if (dtpresentazione != "--")
-                            cb.ShowText($"{Common.Utility.GetText_TipoDASI(Atto.Tipo)} {Atto.NAtto} presentato il {dtpresentazione}");
+                            cb.ShowText($"{Common.Utility.GetText_Tipo(Atto.Tipo)} {Atto.NAtto} presentato il {dtpresentazione}");
 
                         cb.EndText();
                         var len = bf.GetWidthPoint(text, 12);
