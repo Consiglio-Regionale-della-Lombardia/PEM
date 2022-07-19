@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI]    Script Date: 18/07/2022 00:43:43 ******/
+/****** Object:  Table [dbo].[ATTI]    Script Date: 19/07/2022 22:06:09 ******/
 SET ANSI_NULLS ON
 GO
 
