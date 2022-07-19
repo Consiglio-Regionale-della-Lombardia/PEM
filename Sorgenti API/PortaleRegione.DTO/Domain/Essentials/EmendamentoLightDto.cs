@@ -24,6 +24,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
 {
     public class EmendamentoLightDto
     {
+        public Guid? UIDPersonaProponente { get; set; }
         public DateTime? DataModifica { get; set; }
 
         public Guid? UIDPersonaModifica { get; set; }
