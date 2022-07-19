@@ -56,7 +56,7 @@ namespace PortaleRegione.BAL
                 var queryFilter = new Filter<ATTI>();
                 queryFilter.ImportStatements(model.filtro);
 
-                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE, queryFilter))
+                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE, currentUser, queryFilter))
                     .Select(Mapper.Map<ATTI, AttiDto>);
                 var result = new List<AttiDto>();
                 foreach (var appoggio in appoggioAttiDtos)
@@ -81,6 +81,12 @@ namespace PortaleRegione.BAL
                     appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
                     if (appoggio.UIDAssessoreRiferimento.HasValue)
                         appoggio.PersonaAssessore = personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
+
+
+                    if (appoggio.NAtto == "$$")
+                    {
+                        appoggio.NAtto = "";
+                    }
 
                     result.Add(appoggio);
                 }
@@ -126,6 +132,11 @@ namespace PortaleRegione.BAL
                 atto.OrdinePresentazione = false;
                 atto.OrdineVotazione = false;
                 atto.Priorita = await _unitOfWork.Atti.PrioritaAtto(atto.UIDSeduta.Value);
+                if (string.IsNullOrEmpty(attoModel.NAtto))
+                {
+                    atto.NAtto = "$$";
+                }
+
                 _unitOfWork.Atti.Add(atto);
                 await _unitOfWork.CompleteAsync();
 

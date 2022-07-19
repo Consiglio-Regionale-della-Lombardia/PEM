@@ -33,6 +33,10 @@
                 continue;
             }
             var titolo_atto = $"{PortaleRegione.Common.Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+            if (attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+            {
+                titolo_atto = attoPem.Oggetto;
+            }
             <li>
                 <div class="collapsible-header">
                     <i class="material-icons pink-text">textsms</i>

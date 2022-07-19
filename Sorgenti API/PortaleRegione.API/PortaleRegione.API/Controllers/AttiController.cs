@@ -189,7 +189,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(attoModel.NAtto)) throw new InvalidOperationException("Imposta il numero di atto");
+                if (string.IsNullOrEmpty(attoModel.NAtto) && attoModel.IDTipoAtto != (int)TipoAttoEnum.ALTRO) throw new InvalidOperationException("Imposta il numero di atto");
 
                 if (string.IsNullOrEmpty(attoModel.Oggetto)) throw new InvalidOperationException("Imposta l'oggetto");
 

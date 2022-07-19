@@ -52,7 +52,8 @@ namespace PortaleRegione.Common
             TipoAttoEnum.REF,
             TipoAttoEnum.REL,
             TipoAttoEnum.ORG,
-            TipoAttoEnum.RIS
+            TipoAttoEnum.RIS,
+            TipoAttoEnum.ALTRO
         };
 
         /// <summary>
@@ -174,6 +175,8 @@ namespace PortaleRegione.Common
                     return TipoAttoEnum.ORG.ToString();
                 case TipoAttoEnum.RIS:
                     return TipoAttoEnum.RIS.ToString();
+                case TipoAttoEnum.ALTRO:
+                    return "";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
             }

@@ -129,17 +129,29 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <select id="Atto_TipoDibattito">
-                        <option value="" selected="selected">--</option>
-                        <option value="1">Dibattito</option>
-                        <option value="2">Discussione</option>
-                        <option value="3">Altro</option>
-                    </select>
+                    @Html.LabelFor(s => s.Atto.NAtto)
+                    @Html.TextBoxFor(s => s.Atto.NAtto, new { @class = "form-control" })
+                </div>
+                <div class="input-field">
+                    @Html.LabelFor(s => s.Atto.Oggetto)
+                    @Html.TextAreaFor(model => model.Atto.Oggetto, new { @class = "materialize-textarea" })
                 </div>
                 <div class="form-group">
-                    @Html.LabelFor(s => s.Atto.NAtto)
-                    @Html.TextBoxFor(s => s.Atto.NAtto, new {@class = "form-control"})
+                    @Html.LabelFor(s => s.Atto.Data_apertura)
+                    <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_apertura').val(0)">close</i>
+                    @Html.TextBoxFor(s => s.Atto.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
                 </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Data_chiusura)
+                    <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_chiusura').val(0)">close</i>
+
+                    @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+                </div>
+                <div class="input-field">
+                    @Html.LabelFor(s => s.Atto.Note)
+                    @Html.TextAreaFor(model => model.Atto.Note, new { @class = "materialize-textarea" })
+                </div>
+
                 @{
                     var placeholder_text = string.Empty;
                     placeholder_text = !string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto) ? "Sostituisci documento" : "Inserisci documento atto";
@@ -159,25 +171,6 @@
                         <div class="chip">@Model.Atto.Path_Testo_Atto</div>
                     </div>
                 }
-            <div class="form-group">
-                @Html.LabelFor(s => s.Atto.Data_apertura)
-                <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_apertura').val(0)">close</i>
-                @Html.TextBoxFor(s => s.Atto.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
-                <div class="form-group">
-                    @Html.LabelFor(s => s.Atto.Data_chiusura)
-                    <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_chiusura').val(0)">close</i>
-
-                    @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-                </div>
-                <div class="input-field">
-                    @Html.LabelFor(s => s.Atto.Oggetto)
-                    @Html.TextAreaFor(model => model.Atto.Oggetto, new {@class = "materialize-textarea" })
-                </div>
-                <div class="input-field">
-                    @Html.LabelFor(s => s.Atto.Note)
-                    @Html.TextAreaFor(model => model.Atto.Note, new {@class = "materialize-textarea" })
-                </div>
             </div>
 
             if (Model.Atto.UIDAtto != Guid.Empty)
@@ -260,6 +253,9 @@
                 $.each(tipi,
                     function(index, item) {
                         if (item.IDTipoAtto != @Html.Raw((int) TipoAttoEnum.TUTTI)) {
+                            if (item.IDTipoAtto == @Html.Raw((int) TipoAttoEnum.ALTRO)) {
+                                item.Tipo_Atto = "ALTRO";
+                            }
                             var template = "";
                             if (item.IDTipoAtto == @Html.Raw(Model.Atto.IDTipoAtto)) {
                                 template = "<option selected=\"selected\"></option>";
@@ -307,7 +303,6 @@
             form_data.append("Data_chiusura", $('input[name="Atto.Data_chiusura"]').val());
             form_data.append("DocAtto", doc);
             form_data.append("IDTipoAtto", $('select[id="Atto_Tipo"]').children("option:selected").val());
-            form_data.append("TipoDibattito", $('select[id="Atto_TipoDibattito"]').children("option:selected").val());
             form_data.append("Note", $('#Atto_Note').val());
             form_data.append("Notifica_deposito_differita", $('input[name="Atto.Notifica_deposito_differita"]').is(":checked"));
             form_data.append("Oggetto", $('#Atto_Oggetto').val());

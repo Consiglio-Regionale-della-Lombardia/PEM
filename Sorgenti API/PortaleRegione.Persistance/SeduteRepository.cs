@@ -81,7 +81,7 @@ namespace PortaleRegione.Persistance
 
             query = query.Where(s => !s.Data_effettiva_fine.HasValue || s.Data_effettiva_fine >= DateTime.Now);
 
-            return await query.OrderByDescending(c => c.Data_seduta)
+            return await query.OrderBy(c => c.Data_seduta)
                 .ToListAsync();
         }
 

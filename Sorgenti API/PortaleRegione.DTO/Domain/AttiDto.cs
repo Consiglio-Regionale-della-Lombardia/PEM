@@ -89,7 +89,6 @@ namespace PortaleRegione.DTO.Domain
         public bool CanMoveUp { get; set; } = false;
         public int Stato { get; set; }
         public PersonaLightDto PersonaAssessore { get; set; }
-        public int TipoDibattito { get; set; }
         public bool BloccoODG { get; set; } = false;
         public bool Jolly { get; set; } = false;
 

@@ -60,6 +60,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<IEnumerable<ATTI>> GetAll(Guid sedutaUId, int pageIndex, int pageSize,
             int clientMode,
+            PersonaDto persona,
             Filter<ATTI> filtro = null)
         {
             var query = PRContext
@@ -71,7 +72,8 @@ namespace PortaleRegione.Persistance
 
             if (clientMode == (int) ClientModeEnum.GRUPPI)
             {
-                query = query.Where(item => item.IDTipoAtto == (int) TipoAttoEnum.PDL);
+                if (!persona.IsSegreteriaAssemblea)
+                    query = query.Where(item => item.IDTipoAtto == (int) TipoAttoEnum.PDL);
             }
 
             return await query

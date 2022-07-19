@@ -35,6 +35,7 @@ namespace PortaleRegione.DTO.Enum
         REF = 12,
         REL = 13,
         ORG = 14,
-        RIS = 15
+        RIS = 15,
+        ALTRO = 99
     }
 }

@@ -1393,7 +1393,13 @@ namespace PortaleRegione.API.Controllers
                     foreach (var atto in atti.Results)
                     {
                         var tipo = Utility.GetText_Tipo(atto.IDTipoAtto);
-                        atto.NAtto = $"{tipo} {atto.NAtto} - Seduta del {seduta.Data_seduta:dd/MM/yyyy HH:mm}";
+                        var titolo_atto = $"{tipo} {atto.NAtto}";
+                        if (atto.IDTipoAtto == (int) TipoAttoEnum.ALTRO)
+                        {
+                            titolo_atto = atto.Oggetto;
+                        }
+
+                        atto.NAtto = $"{titolo_atto} - Seduta del {seduta.Data_seduta:dd/MM/yyyy HH:mm}";
                         result.Add(atto);
                     }
                 }
