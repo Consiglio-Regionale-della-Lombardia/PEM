@@ -3,7 +3,7 @@
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @{
-    ViewBag.Title = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
+    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
 

@@ -4,8 +4,8 @@
 @model PortaleRegione.DTO.Domain.EmendamentiDto
 
 @{
-    var displayAtto = string.Format("{0} {1}", Model.ATTI.TIPI_ATTO.Tipo_Atto, Model.ATTI.NAtto);
-    ViewBag.Title = string.Format("{0}", displayAtto);
+    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.ATTI.IDTipoAtto)} {Model.ATTI.NAtto}";
+    ViewBag.Title = $"{displayAtto}";
 
     var ordineFromCache = HttpContext.Current.Cache.Get(CacheHelper.ORDINAMENTO_PEM);
     var viewFromCache = HttpContext.Current.Cache.Get(CacheHelper.VIEW_MODE_PEM);

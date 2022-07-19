@@ -2,7 +2,7 @@
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
-    var displayAtto = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
+    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
     var isNew = Model.Emendamento.UIDEM == Guid.Empty;
     var tipo_descrizione = Model.Emendamento.Rif_UIDEM.HasValue ? "sub-emendamento" : "emendamento";
     ViewBag.Title = isNew ? string.Format("{0} - Nuovo {1}", displayAtto, tipo_descrizione) : string.Format("{0} - Modifica {1}", displayAtto, tipo_descrizione);
