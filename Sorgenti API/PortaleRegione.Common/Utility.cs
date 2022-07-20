@@ -252,13 +252,13 @@ namespace PortaleRegione.Common
                 switch ((TipoRichiestaEnum) tipoRichiesta)
                 {
                     case TipoRichiestaEnum.CHIEDE:
-                        return "Chiede al";
+                        return "CHIEDE";
                     case TipoRichiestaEnum.INVITA:
-                        return "Invita il";
+                        return "INVITA";
                     case TipoRichiestaEnum.IMPEGNA:
-                        return "Impegna il";
+                        return "IMPEGNA";
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(tipoRichiesta), tipoRichiesta, null);
+                        return " ";
                 }
             }
             catch (Exception e)

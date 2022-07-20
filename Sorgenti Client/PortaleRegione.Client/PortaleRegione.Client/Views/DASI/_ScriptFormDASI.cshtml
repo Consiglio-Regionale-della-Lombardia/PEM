@@ -59,8 +59,6 @@
             }
             form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
             form_data.append("UIDPersonaProponente", proponente);
-            form_data.append("TipoRichiesta", $('input[name="Atto.TipoRichiesta"]:checked')[0].value);
-            form_data.append("TipoRichiestaDestinatario", $('select[id="Atto_TipoRichiestaDestinatario"]').children("option:selected").val());
 
             var commissioni = [];
             commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());

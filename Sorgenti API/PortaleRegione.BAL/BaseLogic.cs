@@ -377,11 +377,6 @@ namespace PortaleRegione.BAL
                 body = body.Replace("{lblRichiestaATTOView}",
                     string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
 
-                body = body.Replace("{lblTipoAttoTitoloSoggettiATTOView}",
-                    Utility.GetText_TipoRichiestaDASI(atto.TipoRichiesta));
-                body = body.Replace("{ddlSoggettiInterrogatiATTOView}",
-                    Utility.GetText_TipoRichiestaDestDASI(atto.TipoRichiestaDestinatario));
-
                 var allegato_generico = string.Empty;
 
                 #region Allegato Generico

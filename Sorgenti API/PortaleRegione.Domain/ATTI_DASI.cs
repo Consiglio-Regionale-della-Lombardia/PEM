@@ -44,8 +44,6 @@ namespace PortaleRegione.Domain
         public string Oggetto_Modificato { get; set; }
         public string Premesse { get; set; }
         public string Premesse_Modificato { get; set; }
-        public int TipoRichiesta { get; set; }
-        public int TipoRichiestaDestinatario { get; set; }
         public string Richiesta { get; set; }
         public string Richiesta_Modificata { get; set; }
         public string NAtto { get; set; }

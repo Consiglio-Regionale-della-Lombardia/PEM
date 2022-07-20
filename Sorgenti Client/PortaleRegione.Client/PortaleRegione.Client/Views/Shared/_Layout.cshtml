@@ -167,7 +167,19 @@
 @RenderSection("scripts", false)
 
 <script>
-    $('.trumbowyg').trumbowyg();
+    $('.trumbowyg').trumbowyg({
+        removeformatPasted: true,
+        btns: [
+            ['viewHTML'],
+            ['undo', 'redo'], // Only supported in Blink browsers
+            ['formatting'],
+            ['strong', 'em', 'del'],
+            ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+            ['unorderedList', 'orderedList'],
+            ['removeformat'],
+            ['fullscreen']
+        ]
+    });
     var devPanelCounter = 0;
     $("body").on("keyup",
         function(event) {

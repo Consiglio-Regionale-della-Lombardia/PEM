@@ -40,8 +40,6 @@ namespace PortaleRegione.DTO.Domain
         public string Premesse { get; set; }
         [AllowHtml]
         public string Premesse_Modificato { get; set; }
-        public int TipoRichiesta { get; set; }
-        public int TipoRichiestaDestinatario { get; set; }
 
         [AllowHtml]
         public string Richiesta { get; set; }
