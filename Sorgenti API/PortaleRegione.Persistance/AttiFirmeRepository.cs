@@ -123,15 +123,18 @@ namespace PortaleRegione.Persistance
             {
                 return false;
             }
+            
+            if (atto.UIDSeduta.HasValue)
+            {
+                return false;
+            }
 
             var firma_personale = await Get(atto.UIDAtto, persona.UID_persona);
             var firma_proponente = await CheckFirmato(atto.UIDAtto, atto.UIDPersonaProponente.Value);
 
             if (firma_personale == null
                 && (firma_proponente || atto.UIDPersonaProponente == persona.UID_persona)
-                && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
-                    persona.CurrentRole == RuoliIntEnum.Presidente_Regione))
+                && persona.IsConsigliereRegionale)
             {
                 return true;
             }

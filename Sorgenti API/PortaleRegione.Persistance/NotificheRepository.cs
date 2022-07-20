@@ -83,7 +83,10 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) return false;
+            if (atto.UIDSeduta.HasValue)
+            {
+                return false;
+            }
 
             if (persona.IsSegreteriaAssemblea)
                 return true;
