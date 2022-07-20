@@ -30,6 +30,7 @@ namespace PortaleRegione.DTO.Enum
         G = 8,
         G_REG_E_ASS_C = 9,
         ASS_C = 10,
-        ALTRO = 11
+        ASS_C_N = 11,
+        ALTRO = 12
     }
 }

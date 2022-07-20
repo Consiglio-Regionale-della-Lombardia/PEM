@@ -293,6 +293,8 @@ namespace PortaleRegione.Common
                         return "GIUNTA REGIONALE E L’ASSESSORE COMPETENTE";
                     case TipoRichiestaDestEnum.ASS_C:
                         return "ASSESSORE COMPETENTE";
+                    case TipoRichiestaDestEnum.ASS_C_N:
+                        return "ASSESSORI COMPETENTI";
                     case TipoRichiestaDestEnum.ALTRO:
                         return "ALTRO (il soggetto viene messo nel testo delle richieste dell'atto)";
                     default:
