@@ -1155,11 +1155,25 @@ namespace PortaleRegione.API.Controllers
                         count_firme--;
                         anomalie.AppendLine(firmatario_indagato);
                     }
+                }else if (atto.Tipo == (int) TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
+                {
+                    var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
+                    if (firmatari_di_altri_gruppi)
+                    {
+                        minimo_firme = minimo_consiglieri;
+                    }
                 }
 
-                if (anomalie.Length > 0 && count_firme < minimo_firme)
+
+                if (anomalie.Length > 0)
                     return
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
+                
+                if (count_firme < minimo_firme)
+                {
+                    return
+                        $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
+                }
             }
 
             return default;
