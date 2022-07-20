@@ -243,6 +243,13 @@ else
                     </ul>
                 }
 
+                if (item.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                {
+                    <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+                        <i class="icon material-icons">remove_red_eye</i>
+                    </a>
+                }
+
                 if (item.IDStato == (int) StatiAttoEnum.BOZZA)
                 {
                     if (item.Firmabile)

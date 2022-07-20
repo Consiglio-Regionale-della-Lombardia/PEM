@@ -43,6 +43,14 @@
                 </li>
             </ul>
         </div>
+        
+        <div class="row">
+            <div class="col s12">
+                <a id="Geasi_LINK" href="" target="_blank">
+                    Consulta la banca dati GeASI online
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -50,25 +58,31 @@
     var ticketGeasi = "";
 
     async function goToGeasi(tipoatto, natto, idlegislatura) {
-        if (ticketGeasi == "") {
-            ticketGeasi = await LoginGeasi();
-        }
-        console.log("ticket", ticketGeasi);
+        try {
+            if (ticketGeasi == "") {
+                ticketGeasi = await LoginGeasi();
+            }
+            console.log("ticket", ticketGeasi);
 
-        var response = await SearchGeasi(tipoatto, natto, idlegislatura);
-        var responseJSON = JSON.parse(response);
-        var data = responseJSON.rows[0];
-        console.log("data", data)
-        var title = tipoatto + " N. " + natto;
-        $('#modalGeasiView_Atto').text(title);
-        $('#modalGeasiView_Oggetto').text(data.oggettoAtto);
-        $('#Geasi_DataPresentazione').text(data.dataPresentazione);
-        $('#Geasi_Area').text(data.area);
-        $('#Geasi_Annunzio').text(data.dataAnnunzio);
-        $('#Geasi_TipoRichiesta').text(data.tipoRispostaRichiesta);
-        $('#Geasi_TipoRisposta').text(data.tipoRispostaFornita);
-        $('#Geasi_Stato').text(data.stato);
-        $('#Geasi_PrimoFirmatario').text(data.primiFirmatari[0].nomeFirmatario);
+            var response = await SearchGeasi(tipoatto, natto, idlegislatura);
+            var responseJSON = JSON.parse(response);
+            var data = responseJSON.rows[0];
+            console.log("data", data)
+            var title = tipoatto + " N. " + natto;
+            $('#modalGeasiView_Atto').text(title);
+            $('#modalGeasiView_Oggetto').text(data.oggettoAtto);
+            $('#Geasi_DataPresentazione').text(data.dataPresentazione);
+            $('#Geasi_Area').text(data.area);
+            $('#Geasi_Annunzio').text(data.dataAnnunzio);
+            $('#Geasi_TipoRichiesta').text(data.tipoRispostaRichiesta);
+            $('#Geasi_TipoRisposta').text(data.tipoRispostaFornita);
+            $('#Geasi_Stato').text(data.stato);
+            $('#Geasi_PrimoFirmatario').text(data.primiFirmatari[0].nomeFirmatario);
+        } catch (e) {
+            console.log(e)
+        }
+
+        $('#Geasi_LINK').attr("href", "https://www.consiglio.regione.lombardia.it/wps/portal/crl/home/leggi-e-banche-dati/Atti-di-indirizzo-e-controllo/Dettaglio-atto-di-indirizzo-e-controllo?tipoatto="+tipoatto+"&numeroatto="+natto+"&idlegislatura="+idlegislatura);
         $('#modalGeasiView').modal("open");
     }
 
