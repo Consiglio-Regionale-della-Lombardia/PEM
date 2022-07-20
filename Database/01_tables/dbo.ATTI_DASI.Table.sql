@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 17/07/2022 21:52:45 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 20/07/2022 10:40:33 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -20,8 +20,6 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[Oggetto_Modificato] [varchar](max) NULL,
 	[Premesse] [varchar](max) NULL,
 	[Premesse_Modificato] [varchar](max) NULL,
-	[TipoRichiesta] [int] NOT NULL,
-	[TipoRichiestaDestinatario] [int] NOT NULL,
 	[Richiesta] [varchar](max) NULL,
 	[Richiesta_Modificata] [varchar](max) NULL,
 	[DataCreazione] [datetime] NOT NULL,
@@ -76,12 +74,6 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoMOZ]  DEFAULT ((
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NAtto_search]  DEFAULT ((0)) FOR [NAtto_search]
-GO
-
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiesta]  DEFAULT ((0)) FOR [TipoRichiesta]
-GO
-
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]
