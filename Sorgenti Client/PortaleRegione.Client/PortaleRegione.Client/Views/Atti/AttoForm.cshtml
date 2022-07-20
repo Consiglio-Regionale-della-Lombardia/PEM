@@ -147,6 +147,17 @@
 
                     @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
                 </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input id="Emendabile" name="Atto.Emendabile" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.Emendabile ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.Emendabile)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
                 <div class="input-field">
                     @Html.LabelFor(s => s.Atto.Note)
                     @Html.TextAreaFor(model => model.Atto.Note, new { @class = "materialize-textarea" })
@@ -310,6 +321,7 @@
             form_data.append("UIDAtto", $('input[name="Atto.UIDAtto"]').val());
             form_data.append("UIDSeduta", $('input[name="Atto.UIDSeduta"]').val());
             form_data.append("VIS_Mis_Prog", $('input[name="Atto.VIS_Mis_Prog"]').is(":checked"));
+            form_data.append("Emendabile", $('input[name="Atto.Emendabile"]').is(":checked"));
 
             //submit via ajax
             $.ajax({

@@ -73,7 +73,7 @@ namespace PortaleRegione.Persistance
             if (clientMode == (int) ClientModeEnum.GRUPPI)
             {
                 if (!persona.IsSegreteriaAssemblea)
-                    query = query.Where(item => item.IDTipoAtto == (int) TipoAttoEnum.PDL);
+                    query = query.Where(item => item.Emendabile);
             }
 
             return await query

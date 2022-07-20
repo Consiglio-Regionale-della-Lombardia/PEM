@@ -118,5 +118,6 @@ namespace PortaleRegione.Domain
 
         public bool BloccoODG { get; set; } = false;
         public bool Jolly { get; set; } = false;
+        public bool Emendabile { get; set; } = false;
     }
 }
