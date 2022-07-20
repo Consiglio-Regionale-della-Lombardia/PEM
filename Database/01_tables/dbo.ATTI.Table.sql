@@ -1,7 +1,7 @@
 USE [dbEmendamenti]
 GO
 
-/****** Object:  Table [dbo].[ATTI]    Script Date: 19/07/2022 22:06:09 ******/
+/****** Object:  Table [dbo].[ATTI]    Script Date: 20/07/2022 10:12:42 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -37,6 +37,7 @@ CREATE TABLE [dbo].[ATTI](
 	[TipoDibattito] [int] NOT NULL,
 	[BloccoODG] [bit] NOT NULL,
 	[Jolly] [bit] NOT NULL,
+	[Emendabile] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -63,6 +64,9 @@ ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_BloccoODG]  DEFAULT ((0)) FOR 
 GO
 
 ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Jolly]  DEFAULT ((0)) FOR [Jolly]
+GO
+
+ALTER TABLE [dbo].[ATTI] ADD  CONSTRAINT [DF_ATTI_Emendabile]  DEFAULT ((0)) FOR [Emendabile]
 GO
 
 ALTER TABLE [dbo].[ATTI]  WITH NOCHECK ADD  CONSTRAINT [FK_ATTI_SEDUTE] FOREIGN KEY([UIDSeduta])
