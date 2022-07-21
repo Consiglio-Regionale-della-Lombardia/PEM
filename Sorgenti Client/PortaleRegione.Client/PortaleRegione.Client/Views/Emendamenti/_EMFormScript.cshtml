@@ -1,4 +1,5 @@
-﻿<script>
+﻿@using PortaleRegione.DTO.Enum
+<script>
     function InitEffettiFinanziari(value) {
         $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
             if (item.value == value) {
@@ -72,12 +73,17 @@
             form_data.append("Progressivo", $('input[name="Emendamento.Progressivo"]').val());
             form_data.append("SubProgressivo", $('input[name="Emendamento.SubProgressivo"]').val());
             form_data.append("Rif_UIDEM", $('input[name="Emendamento.Rif_UIDEM"]').val());
-            form_data.append("IDStato", $('input[name="Emendamento.IDStato"]').val());
             form_data.append("id_gruppo", $('input[name="Emendamento.id_gruppo"]').val());
             form_data.append("DataCreazione", $('input[name="Emendamento.DataCreazione"]').val());
             form_data.append("DataModifica", $('input[name="Emendamento.DataModifica"]').val());
             form_data.append("UIDPersonaModifica", $('input[name="Emendamento.UIDPersonaModifica"]').val());
             form_data.append("UID_QRCode", $('input[name="Emendamento.UID_QRCode"]').val());
+            var riservato = $('input[name="Emendamento.Riservato"]').is(":checked");
+            if (riservato == true) {
+                form_data.append("IDStato", @Html.Raw((int)StatiEnum.Bozza_Riservata));
+            } else {
+                form_data.append("IDStato", @Html.Raw((int)StatiEnum.Bozza));
+            }
 
             form_data.append("TestoEM_originale", editor_testo_originale.html());
             form_data.append("TestoREL_originale", editor_relazione.html());

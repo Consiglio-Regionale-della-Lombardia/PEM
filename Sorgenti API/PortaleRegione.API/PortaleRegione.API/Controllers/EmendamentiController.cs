@@ -688,7 +688,7 @@ namespace PortaleRegione.API.Controllers
                         throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _logicEm.FirmaEmendamento(firmaModel, persona, null, true));
+                    return Ok(await _logicEm.Firma(firmaModel, persona, null, true));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
@@ -707,7 +707,7 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logicEm.FirmaEmendamento(firmaModel, persona, pinInDb));
+                return Ok(await _logicEm.Firma(firmaModel, persona, pinInDb));
             }
             catch (Exception e)
             {
