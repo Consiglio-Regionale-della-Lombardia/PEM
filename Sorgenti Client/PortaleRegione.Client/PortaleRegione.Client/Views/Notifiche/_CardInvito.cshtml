@@ -186,7 +186,8 @@
 
                     </div>
                     
-                    if (!notifica.Valida
+                    if (!notifica.Chiuso
+                    && !notifica.Valida
                          && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
                          && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA)
                     {
@@ -196,7 +197,8 @@
                             </a>
                         </div>
                     }
-                    else if (notifica.Valida
+                    else if (!notifica.Chiuso 
+                             && notifica.Valida
                              && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
                              && notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
                     {
