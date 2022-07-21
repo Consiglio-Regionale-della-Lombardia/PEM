@@ -32,6 +32,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [Required(ErrorMessage = "E' obbligatorio indicare il modo")]
         public int IDTipo_EM { get; set; }
 
+        public int IDStato { get; set; }
+
         [Required(ErrorMessage = "E' obbligatorio indicare l'elemento da emendare")]
         public int IDParte { get; set; }
 

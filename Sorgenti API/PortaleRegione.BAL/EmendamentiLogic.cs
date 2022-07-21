@@ -198,11 +198,16 @@ namespace PortaleRegione.BAL
                     emendamento.Progressivo = progressivo;
                     if (persona.IsSegreteriaAssemblea
                         || persona.IsPresidente)
+                    {
                         emendamento.IDStato = (int) StatiEnum.Bozza;
+                    }
                     else
-                        emendamento.IDStato = persona.Gruppo.abilita_em_privati
-                            ? (int) StatiEnum.Bozza_Riservata
-                            : (int) StatiEnum.Bozza;
+                    {
+                        emendamento.IDStato = (int) StatiEnum.Bozza;
+                        var info_gruppo = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(persona.Gruppo.id_gruppo);
+                        if (info_gruppo is {AbilitaEMPrivati: true})
+                            emendamento.IDStato = (int) StatiEnum.Bozza_Riservata;
+                    }
 
                     emendamento.N_EM = GetNomeEM(emendamento, null);
                 }
@@ -381,6 +386,12 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                if (model.IDStato != (int) StatiEnum.Bozza
+                    && model.IDStato != (int) StatiEnum.Bozza_Riservata)
+                {
+                    throw new InvalidOperationException($"Stato non valido [{model.IDStato}]");
+                }
+
                 var updateDto = Mapper.Map<EmendamentiDto, EmendamentoLightDto>(model);
                 Mapper.Map(updateDto, em);
 
@@ -394,8 +405,6 @@ namespace PortaleRegione.BAL
                     em.EM_Certificato = string.Empty;
                     em.Hash = string.Empty;
                     await _unitOfWork.Firme.CancellaFirme(model.UIDEM);
-
-                    ///TODO: Cancellare notifiche
                 }
 
                 if (em.IDStato < (int) StatiEnum.Depositato)
@@ -690,7 +699,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> FirmaEmendamento(ComandiAzioneModel firmaModel, PersonaDto persona,
+        public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
             PinDto pin, bool firmaUfficio = false)
         {
             try
@@ -1106,7 +1115,7 @@ namespace PortaleRegione.BAL
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                
+
                 model.Lista ??= new List<Guid>();
                 switch (model.All)
                 {
@@ -1142,7 +1151,7 @@ namespace PortaleRegione.BAL
                     if (string.IsNullOrEmpty(em.DataDeposito))
                         continue;
 
-                    em.IDStato = (int)model.Stato;
+                    em.IDStato = (int) model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
                     try
@@ -1448,9 +1457,7 @@ namespace PortaleRegione.BAL
 
                 var presentato_oltre_termini = false;
                 if (presidente_regione != null)
-                {
                     presentato_oltre_termini = IsOutdate(emendamentoDto, presidente_regione);
-                }
 
                 emendamentoDto.PresentatoOltreITermini = presentato_oltre_termini;
                 return emendamentoDto;
@@ -1897,7 +1904,6 @@ namespace PortaleRegione.BAL
                 result += $"{proponente.id_persona}-{proponente.DisplayName}{separatore}";
                 //Colonna AreaPolitica
                 if (em.AreaPolitica.HasValue)
-                {
                     switch ((AreaPoliticaIntEnum) em.AreaPolitica.Value)
                     {
                         case AreaPoliticaIntEnum.Maggioranza:
@@ -1916,11 +1922,8 @@ namespace PortaleRegione.BAL
                             result += $"{separatore}";
                             break;
                     }
-                }
                 else
-                {
                     result += $"{separatore}";
-                }
 
                 //Colonna Firmatari
                 if (em.IDStato >= (int) StatiEnum.Depositato)

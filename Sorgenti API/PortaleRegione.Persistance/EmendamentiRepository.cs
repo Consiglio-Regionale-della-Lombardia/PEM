@@ -321,7 +321,8 @@ namespace PortaleRegione.Persistance
                 query = query.Where(em => em.IDStato != (int)StatiEnum.Bozza_Riservata
                                           || em.IDStato == (int)StatiEnum.Bozza_Riservata
                                           && (em.UIDPersonaCreazione == persona.UID_persona
-                                              || em.UIDPersonaProponente == persona.UID_persona));
+                                              || em.UIDPersonaProponente == persona.UID_persona
+                                              || persona.IsCapoGruppo));
 
                 if (persona.IsGiunta)
                 {

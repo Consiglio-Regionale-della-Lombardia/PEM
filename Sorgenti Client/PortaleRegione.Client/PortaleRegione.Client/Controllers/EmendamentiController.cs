@@ -343,6 +343,7 @@ namespace PortaleRegione.Client.Controllers
                 if (model.UIDEM == Guid.Empty)
                 {
                     await apiGateway.Emendamento.Salva(model);
+                    Session["RiepilogoEmendamenti"] = null;
                     return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                     {
                         id = model.UIDAtto
@@ -350,6 +351,7 @@ namespace PortaleRegione.Client.Controllers
                 }
 
                 await apiGateway.Emendamento.Modifica(model);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Url.Action("ViewEmendamento", "Emendamenti", new
                 {
                     id = model.UIDEM
@@ -390,6 +392,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Emendamento.ModificaMetaDati(model.Emendamento);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     id = model.Emendamento.UIDAtto
@@ -415,6 +418,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Emendamento.ModificaMetaDati(model);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     id = model.UIDAtto
@@ -438,6 +442,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                Session["RiepilogoEmendamenti"] = null;
                 var apiGateway = new ApiGateway(_Token);
                 switch ((ActionEnum) azione)
                 {
@@ -502,6 +507,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                Session["RiepilogoEmendamenti"] = null;
                 var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
@@ -753,6 +759,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Emendamento.CambioStato(model);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -899,6 +906,7 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
 
                 await apiGateway.Emendamento.ORDINA_EM_TRATTAZIONE(id);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -922,6 +930,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Emendamento.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -944,6 +953,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Emendamento.UP_EM_TRATTAZIONE(id);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -966,6 +976,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 await apiGateway.Emendamento.DOWN_EM_TRATTAZIONE(id);
+                Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
@@ -81,6 +82,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     @Html.Partial("_MetaDatiPanel", Model)
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
