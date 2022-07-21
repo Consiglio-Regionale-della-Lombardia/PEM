@@ -624,5 +624,38 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task AccettaRitiroFirma(long id)
+        {
+            try
+            {
+                var notifica = await _unitOfWork.Notifiche.Get(id);
+                notifica.Chiuso = true;
+                var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
+                firma.Data_ritirofirma =
+                    EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        AppSettingsConfiguration.masterKey);
+                await _unitOfWork.CompleteAsync();
+                var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
+                SEDUTE seduta = null;
+                if (atto.UIDSeduta.HasValue)
+                {
+                    seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+                }
+                
+                var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto,seduta);
+                if (!string.IsNullOrEmpty(check_presentazione))
+                {
+                    var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);
+                    attoInDb.IDStato = (int) StatiAttoEnum.DECADUTO;
+                    await _unitOfWork.CompleteAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - AccettaRitiroFirma", e);
+                throw e;
+            }
+        }
     }
 }

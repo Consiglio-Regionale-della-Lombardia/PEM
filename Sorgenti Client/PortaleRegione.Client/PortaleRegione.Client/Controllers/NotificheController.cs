@@ -111,5 +111,14 @@ namespace PortaleRegione.Client.Controllers
             await apiGateway.Notifiche.AccettaPropostaFirma(id);
             return Json("", JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpGet]
+        [Route("accetta-ritiro")]
+        public async Task<ActionResult> AccettaRitiroFirma(long id)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            await apiGateway.Notifiche.AccettaRitiroFirma(id);
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
     }
 }

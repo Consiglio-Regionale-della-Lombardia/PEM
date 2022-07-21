@@ -238,6 +238,25 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task AccettaRitiroFirma(long id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/notifiche/accetta-ritiro?id={id}";
+                await Get(requestUrl, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("AccettaRitiroFirma", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("AccettaRitiroFirma", ex);
+                throw ex;
+            }
+        }
+
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto,
             TipoDestinatarioNotificaEnum tipo)
         {

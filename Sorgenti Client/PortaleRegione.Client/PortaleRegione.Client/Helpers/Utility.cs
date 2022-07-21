@@ -188,8 +188,8 @@ namespace PortaleRegione.Client.Helpers
                 //    return StatiAttoCSSConst.INAMMISSIBILE;
                 case StatiAttoEnum.RITIRATO:
                     return StatiAttoCSSConst.RITIRATO;
-                //case StatiAttoEnum.DECADUTO:
-                //    return StatiAttoCSSConst.DECADUTO;
+                case StatiAttoEnum.DECADUTO:
+                    return StatiAttoCSSConst.DECADUTO;
                 //case StatiAttoEnum.DECADUTO_FINE_MANDATO:
                 //    return StatiAttoCSSConst.DECADUTO_FINE_MANDATO;
                 //case StatiAttoEnum.DECADUTO_FINE_LEGISLATURA:
@@ -376,7 +376,7 @@ namespace PortaleRegione.Client.Helpers
                 var titoloColonna = "Firmatari dell'atto";
                 var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
                 var body = $"<li class=\"collection-header\"><h4 style=\"margin-left:10px\">{header_firme}</h4></li>";
-                var em = await apiGateway.DASI.Get(firmeDtos.Select(f => f.UIDAtto).First());
+                var dto = await apiGateway.DASI.Get(firmeDtos.Select(f => f.UIDAtto).First());
                 foreach (var firmeDto in firmeDtos)
                 {
                     body += "<li class=\"collection-item with-header\">";
@@ -393,7 +393,7 @@ namespace PortaleRegione.Client.Helpers
                         body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                         if (currentUId == firmeDto.UID_persona)
                         {
-                            if (em.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                            if (dto.IDStato >= (int) StatiAttoEnum.PRESENTATO)
                                 body +=
                                     $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                             else

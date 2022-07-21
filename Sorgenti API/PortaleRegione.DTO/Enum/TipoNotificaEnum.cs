@@ -22,6 +22,7 @@ namespace PortaleRegione.DTO.Enum
     {
         GENERALE = 0,
         INVITO = 1,
-        RICHIESTA = 2
+        RICHIESTA = 2,
+        RITIRO = 3
     }
 }

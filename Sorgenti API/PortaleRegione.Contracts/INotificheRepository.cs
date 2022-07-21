@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -42,5 +43,7 @@ namespace PortaleRegione.Contracts
         bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona);
         Task<IEnumerable<NOTIFICHE>> GetNotificheRicevute(PersonaDto currentUser, int idGruppo, bool Archivio, bool Solo_Non_Viste, int pageIndex, int pageSize, Filter<NOTIFICHE> filtro = null);
         Task<NOTIFICHE> Get(long id);
+
+        Task<bool> EsisteRitiroDasi(Guid attoUId, Guid personaUId);
     }
 }

@@ -140,7 +140,7 @@ namespace PortaleRegione.API.Controllers
                     result.Premesse = attoDto.Premesse;
                     result.Richiesta = attoDto.Richiesta;
                     result.IDTipo_Risposta = attoDto.IDTipo_Risposta;
-                    
+
                     if (attoDto.DocAllegatoGenerico_Stream != null)
                     {
                         var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
@@ -805,23 +805,77 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
+                    var dto = await GetAttoDto(idGuid);
+                    var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
+                    SEDUTE seduta = null;
+                    if (atto.UIDSeduta.HasValue)
+                    {
+                        seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+                        if (DateTime.Now > seduta.Data_seduta)
+                        {
+                            throw new InvalidOperationException(
+                                "Non è possibile ritirare la firma durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
+                        }
+                    }
+
+                    var richiestaPresente = await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
+                    if (richiestaPresente)
+                    {
+                        throw new InvalidOperationException(
+                            "Richiesta di ritiro già inviata al proponente.");
+                    }
+
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                    var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
+                    if (!string.IsNullOrEmpty(result_check))
+                    {
+                        switch ((TipoAttoEnum) atto.Tipo)
+                        {
+                            case TipoAttoEnum.IQT:
+                            case TipoAttoEnum.MOZ:
+                            {
+                                if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
+                                {
+                                    atto.TipoMOZ = (int) TipoMOZEnum.ORDINARIA;
+                                    break;
+                                }
+
+                                var newNotifica = new NOTIFICHE
+                                {
+                                    UIDAtto = atto.UIDAtto,
+                                    Mittente = persona.UID_persona,
+                                    RuoloMittente = (int) persona.CurrentRole,
+                                    IDTipo = (int) TipoNotificaEnum.RITIRO,
+                                    Messaggio = $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
+                                    DataCreazione = DateTime.Now,
+                                    IdGruppo = atto.id_gruppo,
+                                    SyncGUID = Guid.NewGuid()
+                                };
+
+                                var newDestinatario = new NOTIFICHE_DESTINATARI
+                                {
+                                    NOTIFICHE = newNotifica,
+                                    UIDPersona = atto.UIDPersonaProponente.Value,
+                                    IdGruppo = atto.id_gruppo,
+                                    UID = Guid.NewGuid()
+                                };
+
+                                _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
+
+                                await _unitOfWork.CompleteAsync();
+
+                                throw new InvalidOperationException(
+                                    "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
+                                }
+                        }
+                    }
+
                     if (countFirme == 1)
                     {
-                        //TODO: BLOCCO RITIRO FIRMA
-                        if (atto.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE)
-                        {
-                            results.Add(idGuid,
-                                "ERROR: Non è possibile ritirare l'ultima firma, in quanto equivale al ritiro dell'atto: annuncia in Aula l'intenzione di ritiro della firma");
-                            continue;
-                        }
-
                         //RITIRA ATTO
                         atto.IDStato = (int) StatiAttoEnum.RITIRATO;
                         atto.UIDPersonaRitiro = persona.UID_persona;
                         atto.DataRitiro = DateTime.Now;
-
-                        //TODO: INVIO MAIL ALLA SEGRETERIA
                     }
 
                     //RITIRA FIRMA
@@ -837,10 +891,8 @@ namespace PortaleRegione.API.Controllers
                         EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
 
-                    //TODO: INVIO MAIL ALLA SEGRETERIA
-
                     await _unitOfWork.CompleteAsync();
-                    results.Add(idGuid, "OK");
+                    results.Add(idGuid, $"{dto} - OK");
                     jumpMail = false;
                 }
 
@@ -924,12 +976,13 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
+                    var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
                     if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
                     if (atto.Tipo == (int) TipoAttoEnum.IQT
                         && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                     {
                         results.Add(idGuid,
-                            $"ERROR: Atto {attoDto.NAtto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
+                            $"ERROR: {nome_atto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
                         continue;
                     }
 
@@ -945,7 +998,7 @@ namespace PortaleRegione.API.Controllers
                         if (attoPEM.BloccoODG)
                         {
                             results.Add(idGuid,
-                                $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno.");
+                                $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno.");
                             continue;
                         }
 
@@ -954,7 +1007,7 @@ namespace PortaleRegione.API.Controllers
                             if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
-                                    $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                    $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
                         }
@@ -965,7 +1018,7 @@ namespace PortaleRegione.API.Controllers
                                 AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 results.Add(idGuid,
-                                    $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                    $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
                         }
@@ -974,7 +1027,7 @@ namespace PortaleRegione.API.Controllers
                             if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG)
                             {
                                 results.Add(idGuid,
-                                    $"ERROR: Atto {attoDto.NAtto} non presentabile. Non puoi presentare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                    $"ERROR: {nome_atto} non presentabile. Non puoi presentare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
                         }
@@ -982,7 +1035,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (!attoDto.Presentabile)
                     {
-                        results.Add(idGuid, $"ERROR: Atto {attoDto.NAtto} non presentabile");
+                        results.Add(idGuid, $"ERROR: {nome_atto} non presentabile");
                         continue;
                     }
 
@@ -1025,7 +1078,9 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    results.Add(idGuid, $"{attoDto.NAtto} - OK");
+                    var new_nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
+
+                    results.Add(idGuid, $"{new_nome_atto} - OK");
 
                     _unitOfWork.DASI.IncrementaContatore(contatore);
                     _unitOfWork.Stampe.Add(new STAMPE
@@ -1151,7 +1206,8 @@ namespace PortaleRegione.API.Controllers
                         count_firme--;
                         anomalie.AppendLine(firmatario_indagato);
                     }
-                }else if (atto.Tipo == (int) TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
+                }
+                else if (atto.Tipo == (int) TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
                 {
                     var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
                     if (firmatari_di_altri_gruppi)
@@ -1164,7 +1220,7 @@ namespace PortaleRegione.API.Controllers
                 if (anomalie.Length > 0)
                     return
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
-                
+
                 if (count_firme < minimo_firme)
                 {
                     return

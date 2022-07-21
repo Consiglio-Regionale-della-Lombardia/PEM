@@ -7,6 +7,7 @@
         BOZZA = 2,
         PRESENTATO = 3,
         IN_TRATTAZIONE = 4,
+        DECADUTO = 5,
         RITIRATO = 10,
         CHIUSO = 14,
     }

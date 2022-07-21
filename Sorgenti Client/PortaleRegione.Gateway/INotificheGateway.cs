@@ -38,5 +38,6 @@ namespace PortaleRegione.Gateway
         Task NotificaVista(long notificaId);
         Task<Dictionary<Guid, string>> NotificaDASI(ComandiAzioneModel model);
         Task AccettaPropostaFirma(long id);
+        Task AccettaRitiroFirma(long id);
     }
 }

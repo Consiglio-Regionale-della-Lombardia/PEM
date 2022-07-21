@@ -548,6 +548,11 @@ function RitiraFirmaDASI(id) {
                 if (pos > 0) {
                     typeMessage = "success";
                 }
+                pos = str.indexOf("INFO");
+                if (pos > 0) {
+                    typeMessage = "info";
+                    data.message = data.message.replace("INFO: ", "");
+                }
                 swal({
                     title: "Esito ritiro firma",
                     text: data.message,
@@ -702,6 +707,37 @@ function AccettaPropostaFirmaAttoDASI(idNotifica) {
         }).then((value) => {
         if (value == true) {
             var url = baseUrl + '/notifiche/accetta-proposta?id=' + idNotifica;
+            $.ajax({
+                url: url,
+                type: "GET"
+            }).done(function(result) {
+
+                location.reload();
+
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        }
+    });
+
+}
+
+function AccettaRitiroFirmaAttoDASI(idNotifica) {
+
+    swal("Sei sicuro di voler accettare la richiesta di ritiro firma?",
+        {
+            buttons: {
+                cancel: "Annulla",
+                confirm: {
+                    className: "red white-text",
+                    title: "Accetta",
+                    value: true
+                }
+            }
+        }).then((value) => {
+        if (value == true) {
+            var url = baseUrl + '/notifiche/accetta-ritiro?id=' + idNotifica;
             $.ajax({
                 url: url,
                 type: "GET"

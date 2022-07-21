@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
+using System.Security.Permissions;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
@@ -279,6 +280,15 @@ namespace PortaleRegione.Persistance
         public async Task<NOTIFICHE> Get(long id)
         {
             return await PRContext.NOTIFICHE.FindAsync(id);
+        }
+
+        public async Task<bool> EsisteRitiroDasi(Guid attoUId, Guid personaUId)
+        {
+            return await PRContext
+                .NOTIFICHE
+                .AnyAsync(item => item.UIDAtto == attoUId
+                               && item.Mittente == personaUId
+                               && item.IDTipo == (int)TipoNotificaEnum.RITIRO);
         }
     }
 }

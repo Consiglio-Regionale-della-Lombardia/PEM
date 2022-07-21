@@ -270,5 +270,26 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("accetta-ritiro")]
+        public async Task<IHttpActionResult> AccettaRitiroFirma(long id)
+        {
+            try
+            {
+                await _logic.AccettaRitiroFirma(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("AccettaRitiroFirma", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }
