@@ -134,7 +134,10 @@ namespace PortaleRegione.BAL
             {
                 var sub_em = em_riferimentoUId != Guid.Empty;
 
-                var result = new EmendamentiFormModel();
+                var result = new EmendamentiFormModel
+                {
+                    CurrentUser = persona
+                };
                 var emendamento = new EmendamentiDto();
 
                 var isGiunta = persona.IsGiunta;
@@ -282,7 +285,7 @@ namespace PortaleRegione.BAL
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var em = await GetEM_DTO(emInDb, atto, persona, personeInDbLight);
-                var result = new EmendamentiFormModel {Emendamento = em, Atto = em.ATTI};
+                var result = new EmendamentiFormModel {Emendamento = em, Atto = em.ATTI, CurrentUser = persona};
                 if (persona.CurrentRole != RuoliIntEnum.Consigliere_Regionale &&
                     persona.CurrentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta)
                 {

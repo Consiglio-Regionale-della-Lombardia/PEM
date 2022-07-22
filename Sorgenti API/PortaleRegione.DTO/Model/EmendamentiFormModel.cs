@@ -36,5 +36,7 @@ namespace PortaleRegione.DTO.Model
         public List<KeyValueDto> ListaAreaPolitica { get; set; }
 
         public bool IsGiunta { get; set; } = false;
+
+        public PersonaDto CurrentUser { get; set; }
     }
 }

@@ -68,3 +68,18 @@
     </div>
 </div>
 }
+
+@if (Model.CurrentUser.IsCapoGruppo)
+{
+    <div class="row">
+        <div class="col s12">
+            <p>
+                <label>
+                    <input id="Firma_su_invito" name="Emendamento.Firma_su_invito" type="checkbox" value="true"
+                           @Html.Raw(Model.Emendamento.Firma_su_invito ? "checked=\"checked\"" : "")>
+                    <span>Sottoscrivibile solo su invito</span>
+                </label>
+            </p>
+        </div>
+    </div>
+}
