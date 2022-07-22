@@ -250,11 +250,11 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
                 var currentPin = await _logicPersone.GetPin(persona);
-                if (currentPin == null) return BadRequest("Pin non impostato");
+                if (currentPin == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (currentPin.RichiediModificaPIN) return BadRequest("E' richiesto il reset del pin");
+                if (currentPin.PIN_Decrypt != model.vecchio_pin) throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin) return BadRequest("Il vecchio PIN non è corretto!!!");
+                if (model.Cambio == false && currentPin.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 return Ok("OK");
             }

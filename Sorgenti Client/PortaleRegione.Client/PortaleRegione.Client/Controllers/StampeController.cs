@@ -17,7 +17,7 @@
  */
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PortaleRegione.DTO.Domain;
@@ -70,16 +70,25 @@ namespace PortaleRegione.Client.Controllers
                 CLIENT_MODE = Convert.ToInt32(client_mode)
             };
 
-            if (model.filtro != null)
-                if (!model.filtro.Any())
-                    if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel old_model)
-                        try
+            if (model.filtro == null)
+                if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel modelInCache)
+                    try
+                    {
+                        model.page = 1;
+                        model.size = modelInCache.Data.Paging.Total;
+                        model.filtro.AddRange(modelInCache.Data.Filters);
+                        model.ordine = modelInCache.Ordinamento;
+                        model.param = new Dictionary<string, object>
                         {
-                            model.filtro = old_model.Data.Filters;
-                        }
-                        catch (Exception)
-                        {
-                        }
+                            {
+                                "CLIENT_MODE", (int) modelInCache.Mode
+                            }
+                        };
+                    }
+                    catch (Exception)
+                    {
+                    }
+
 
             var apiGateway = new ApiGateway(_Token);
             await apiGateway.Stampe.InserisciStampa(model);

@@ -280,7 +280,8 @@
                     return;
                 var url_check = '@Html.Raw(Url.Action("CheckPin", "Persone"))';
                 var check_request = {
-                    vecchio_pin: value
+                    vecchio_pin: value,
+                    cambio: true
                 };
                 $.ajax({
                     url: url_check,

@@ -64,15 +64,12 @@ namespace PortaleRegione.BAL
             {
                 var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
 
-                if (!model.entity.UIDEM.HasValue)
-                {
-                    var queryFilter = new Filter<EM>();
-                    queryFilter.ImportStatements(model.filtro);
+                var queryFilter = new Filter<EM>();
+                queryFilter.ImportStatements(model.filtro);
 
-                    var queryEM =
-                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
-                    stampa.QueryEM = queryEM;
-                }
+                var queryEM =
+                    _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
+                stampa.QueryEM = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int)persona.CurrentRole;
