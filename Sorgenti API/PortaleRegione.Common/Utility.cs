@@ -148,6 +148,23 @@ namespace PortaleRegione.Common
         ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
+        /// <param name="numero_em"></param>
+        public static void AddFilter_ByAtto(ref BaseRequest<EmendamentiDto> model, string atto)
+        {
+            if (!string.IsNullOrEmpty(atto))
+                model.filtro.Add(new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.UIDAtto),
+                    Operation = Operation.EqualTo,
+                    Value = atto,
+                    Connector = FilterStatementConnector.And
+                });
+        }
+
+        /// <summary>
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
         /// <param name="stringa1"></param>
         /// <param name="stringa2"></param>
         /// <param name="connettore"></param>

@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
@@ -70,10 +71,12 @@ namespace PortaleRegione.Client.Controllers
                 CLIENT_MODE = Convert.ToInt32(client_mode)
             };
 
-            if (model.filtro == null)
+            
                 if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel modelInCache)
                     try
                     {
+                        if(model.filtro == null)
+                            model.filtro = new List<FilterStatement<EmendamentiDto>>();
                         model.page = 1;
                         model.size = modelInCache.Data.Paging.Total;
                         model.filtro.AddRange(modelInCache.Data.Filters);

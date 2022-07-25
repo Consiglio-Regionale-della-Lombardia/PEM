@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -23,10 +29,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
@@ -49,14 +51,22 @@ namespace PortaleRegione.Gateway
 
                 var param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode } };
 
-                var model = new BaseRequest<AttiDto>
+                var model = new BaseRequest<EmendamentiDto>
                 {
                     id = attoUId,
                     page = page,
                     size = size,
                     ordine = ordine,
-                    param = param
+                    param = param,
+                    filtro = new List<FilterStatement<EmendamentiDto>>()
                 };
+                var filtro1 = new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.UIDAtto),
+                    Operation = Operation.EqualTo,
+                    Value = attoUId
+                };
+                model.filtro.Add(filtro1);
                 var body = JsonConvert.SerializeObject(model);
 
                 var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
@@ -271,7 +281,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/emendamenti/firma";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -303,7 +314,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/emendamenti/deposita";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -335,7 +347,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/emendamenti/ritiro-firma";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -367,7 +380,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/emendamenti/elimina-firma";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -468,7 +482,6 @@ namespace PortaleRegione.Gateway
                 Log.Error("GetTitoliMissioni", ex);
                 throw ex;
             }
-
         }
 
         public async Task<EmendamentiFormModel> GetModificaMetaDatiModel(Guid id)
@@ -612,7 +625,8 @@ namespace PortaleRegione.Gateway
                 var requestUrl = $"{apiUrl}/emendamenti/raggruppa";
                 var body = JsonConvert.SerializeObject(model);
 
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
 
                 return result;
             }
@@ -635,7 +649,8 @@ namespace PortaleRegione.Gateway
                 var requestUrl = $"{apiUrl}/emendamenti/assegna-nuovo-proponente";
                 var body = JsonConvert.SerializeObject(model);
 
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
 
                 return result;
             }
@@ -679,7 +694,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/emendamenti/invitati?id={emendamentoUId}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl, _token));
+                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
+                    _token));
 
                 return lst;
             }
@@ -802,7 +818,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/emendamenti/tipi-em";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_EmendamentiDto>>(await Get(requestUrl, _token));
+                var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_EmendamentiDto>>(await Get(requestUrl,
+                    _token));
                 return lst;
             }
             catch (UnauthorizedAccessException ex)

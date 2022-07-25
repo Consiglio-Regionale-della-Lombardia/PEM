@@ -70,7 +70,7 @@ namespace PortaleRegione.Persistance
                 persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
                 persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
             {
-                if (em.UIDPersonaProponente.Value != persona.UID_persona) return false;
+                if (em.UIDPersonaProponente != persona.UID_persona) return false;
 
                 var firma = PRContext.FIRME.Find(em.UIDEM, persona.UID_persona);
                 if (firma == null) return false;

@@ -1110,6 +1110,7 @@ namespace PortaleRegione.Client.Controllers
                 id = new Guid(atto)
             };
 
+            Common.Utility.AddFilter_ByAtto(ref model, atto);
             Common.Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
             Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em);
             Common.Utility.AddFilter_ByState(ref model, filtro_stato);

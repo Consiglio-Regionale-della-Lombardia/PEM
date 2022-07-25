@@ -89,7 +89,7 @@
                             PropertyId: "UIDEM",
                             Operation: selezionaTutti ? 5 : 1,
                             Value: lstEM[i],
-                            Connector: @((int)FilterStatementConnector.Or)
+                            Connector: i == lstEM.length - 1 ? @((int)FilterStatementConnector.And) : @((int)FilterStatementConnector.Or)
                         });
                     }
                 }
