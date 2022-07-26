@@ -28,10 +28,6 @@
     <ul class="collapsible" style="position: relative">
         @foreach (var attoPem in Model.PEM.First().Results)
         {
-            if (attoPem.Informazioni_Mancanti)
-            {
-                continue;
-            }
             var titolo_atto = $"{PortaleRegione.Common.Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
             if (attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
             {
@@ -42,7 +38,7 @@
                     <i class="material-icons pink-text">textsms</i>
                     @titolo_atto
                     <div class="collapsabile-secondary-header">
-                        @if (attoPem.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                        @if (attoPem.Emendabile)
                         {
                             <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
                         }
@@ -98,7 +94,7 @@
                             }
                         </div>
                         <div class="col s6 right-align">
-                            @if (attoPem.Data_apertura.HasValue && attoPem.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                            @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
                             {
                                 <a class="btn-flat blue-text tooltipped"
                                    onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = attoPem.UIDAtto})')" data-tooltip="Riepilogo emendamenti">

@@ -18,12 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
-using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -57,10 +55,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var mode = ClientModeEnum.GRUPPI;
             var contextMode = HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
-            if (contextMode != null)
-            {
-                mode = (ClientModeEnum) Convert.ToInt16(contextMode);
-            }
+            if (contextMode != null) mode = (ClientModeEnum)Convert.ToInt16(contextMode);
 
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
@@ -107,7 +102,6 @@ namespace PortaleRegione.Client.Controllers
         {
             var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
             if (mode != (int)ClientModeEnum.TRATTAZIONE)
-            {
                 HttpContext.Cache.Insert(
                     CacheHelper.CLIENT_MODE,
                     (int)ClientModeEnum.TRATTAZIONE,
@@ -117,9 +111,8 @@ namespace PortaleRegione.Client.Controllers
                     CacheItemPriority.NotRemovable,
                     (key, value, reason) => { Console.WriteLine("Cache removed"); }
                 );
-            }
 
-            return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new {id});
+            return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new { id });
         }
 
         private async Task<EmendamentiViewModel> ComposeModel(Guid id, ClientModeEnum mode,
@@ -146,7 +139,7 @@ namespace PortaleRegione.Client.Controllers
 
                 if (mode == ClientModeEnum.GRUPPI)
                     foreach (var emendamentiDto in model.Data.Results)
-                        if (emendamentiDto.IDStato <= (int) StatiEnum.Depositato)
+                        if (emendamentiDto.IDStato <= (int)StatiEnum.Depositato)
                         {
                             if (emendamentiDto.ConteggioFirme > 0)
                                 emendamentiDto.Firmatari = await Utility.GetFirmatari(
@@ -172,7 +165,7 @@ namespace PortaleRegione.Client.Controllers
         {
             HttpContext.Cache.Insert(
                 CacheHelper.ORDINAMENTO_PEM,
-                (int) ordine,
+                (int)ordine,
                 null,
                 Cache.NoAbsoluteExpiration,
                 Cache.NoSlidingExpiration,
@@ -230,7 +223,7 @@ namespace PortaleRegione.Client.Controllers
             em.Firme_dopo_deposito = await Utility.GetFirmatari(
                 await apiGateway.Emendamento.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                 _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
-            if (em.IDStato <= (int) StatiEnum.Depositato)
+            if (em.IDStato <= (int)StatiEnum.Depositato)
                 em.Destinatari =
                     await Utility.GetDestinatariNotifica(await apiGateway.Emendamento.GetInvitati(id), _Token);
             em.ATTI = await apiGateway.Atti.Get(em.UIDAtto);
@@ -439,7 +432,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                switch ((ActionEnum) azione)
+                switch ((ActionEnum)azione)
                 {
                     case ActionEnum.ELIMINA:
                         var em = await apiGateway.Emendamento.Get(id);
@@ -502,7 +495,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
                 {
@@ -704,7 +697,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
                 var apiGateway = new ApiGateway(_Token);
                 var file = await apiGateway.Esporta.EsportaXLS(id, ordine, mode, is_report);
                 return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
@@ -728,7 +721,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
                 var apiGateway = new ApiGateway(_Token);
                 var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
                 return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
@@ -1045,17 +1038,19 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> Filtri_RiepilogoEM()
         {
             Session["RiepilogoEmendamenti"] = null;
-            var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
-            var model = ElaboraFiltriEM();
+            var mode = 1;
+            var model = ElaboraFiltriEM(ref mode);
 
             int.TryParse(Request.Form["reset"], out var reset_enabled);
             if (reset_enabled == 1)
+            {
                 return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     model.id,
                     mode,
-                    ordine = (int) model.ordine
+                    ordine = (int)model.ordine
                 });
+            }
 
             var apiGateway = new ApiGateway(_Token);
             var modelResult = await apiGateway.Emendamento.Get(model);
@@ -1072,9 +1067,9 @@ namespace PortaleRegione.Client.Controllers
                 return View("RiepilogoEM_Admin", modelResult);
             }
 
-            if (mode == ClientModeEnum.GRUPPI)
+            if (Convert.ToInt16(mode) == (int)ClientModeEnum.GRUPPI)
                 foreach (var emendamentiDto in modelResult.Data.Results)
-                    if (emendamentiDto.STATI_EM.IDStato <= (int) StatiEnum.Depositato)
+                    if (emendamentiDto.STATI_EM.IDStato <= (int)StatiEnum.Depositato)
                     {
                         if (emendamentiDto.ConteggioFirme > 0)
                             emendamentiDto.Firmatari = await Utility.GetFirmatari(
@@ -1090,11 +1085,13 @@ namespace PortaleRegione.Client.Controllers
             return View("RiepilogoEM", modelResult);
         }
 
-        private BaseRequest<EmendamentiDto> ElaboraFiltriEM()
+        private BaseRequest<EmendamentiDto> ElaboraFiltriEM(ref int mode)
         {
-            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
             int.TryParse(Request.Form["page"], out var filtro_page);
             int.TryParse(Request.Form["size"], out var filtro_size);
+            int.TryParse(Request.Form["mode"], out var mode_result);
+            if (mode_result == 0)
+                mode_result = 1;
             int.TryParse(Request.Form["ordine"], out var ordine);
             if (ordine == 0)
                 ordine = 1;
@@ -1121,14 +1118,15 @@ namespace PortaleRegione.Client.Controllers
             var filtro_proponente = Request.Form["filtro_proponente"];
             var filtro_firmatari = Request.Form["filtro_firmatari"];
 
+            mode = mode_result;
             if (ordine == 0)
                 ordine = 1;
             var model = new BaseRequest<EmendamentiDto>
             {
                 page = filtro_page,
                 size = filtro_size,
-                param = new Dictionary<string, object> {{"CLIENT_MODE", (int) mode}, {"VIEW_MODE", view}},
-                ordine = (OrdinamentoEnum) ordine,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", mode_result }, { "VIEW_MODE", view } },
+                ordine = (OrdinamentoEnum)ordine,
                 id = new Guid(atto)
             };
 
@@ -1140,12 +1138,12 @@ namespace PortaleRegione.Client.Controllers
                 filtro_parte, filtro_parte_titolo, filtro_parte_capo,
                 filtro_parte_articolo, filtro_parte_comma, filtro_parte_lettera, filtro_parte_letteraOLD,
                 filtro_parte_missione, filtro_parte_programma);
-            util.AddFilter_ByType(ref model, filtro_tipo);
-            util.AddFilter_My(ref model, _CurrentUser.UID_persona, filtro_my);
-            util.AddFilter_Financials(ref model, filtro_effetti_finanziari);
-            util.AddFilter_Groups(ref model, filtro_gruppo);
-            util.AddFilter_Proponents(ref model, filtro_proponente);
-            util.AddFilter_Signers(ref model, filtro_firmatari);
+            Common.Utility.AddFilter_ByType(ref model, filtro_tipo);
+            Common.Utility.AddFilter_My(ref model, _CurrentUser.UID_persona, filtro_my);
+            Common.Utility.AddFilter_Financials(ref model, filtro_effetti_finanziari);
+            Common.Utility.AddFilter_Groups(ref model, filtro_gruppo);
+            Common.Utility.AddFilter_Proponents(ref model, filtro_proponente);
+            Common.Utility.AddFilter_Signers(ref model, filtro_firmatari);
 
             return model;
         }

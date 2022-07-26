@@ -65,10 +65,6 @@ namespace PortaleRegione.BAL
                 var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
 
                 var queryFilter = new Filter<EM>();
-
-                    var queryEM =
-                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto.Value, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
-                    stampa.Query = queryEM;
                 var firmatari = new List<Guid>();
                 var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
                 if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
@@ -106,7 +102,7 @@ namespace PortaleRegione.BAL
 
                 var queryEM =
                     await _unitOfWork.Emendamenti.GetAll_Query(queryFilter, model.ordine, firmatari, proponenti, gruppi);
-                stampa.QueryEM = queryEM;
+                stampa.Query = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int)persona.CurrentRole;

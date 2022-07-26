@@ -150,6 +150,7 @@
     <Content Include="apple-touch-icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="App_Offline.htm" />
     <Content Include="Content\editor\langs\ar.js" />
     <Content Include="Content\editor\langs\ar.min.js" />
     <Content Include="Content\editor\langs\bg.js" />
@@ -310,6 +311,7 @@
     <Content Include="Content\editor\ui\trumbowyg.css" />
     <Content Include="Content\editor\ui\trumbowyg.min.css" />
     <Content Include="Content\gruppi-theme.css" />
+    <Content Include="Content\img\scheduled-maintenance.png" />
     <Content Include="Content\jquery-hex-picker.css" />
     <Content Include="Content\trattazione-theme.css" />
     <Content Include="favicon-16x16.png">
