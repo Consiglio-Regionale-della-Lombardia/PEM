@@ -47,7 +47,7 @@ namespace PortaleRegione.DTO.Domain
 
         public int? SubProgressivo { get; set; }
 
-        public Guid? UIDPersonaProponente { get; set; }
+        public Guid UIDPersonaProponente { get; set; }
         public PersonaLightDto PersonaProponente { get; set; }
 
         public Guid? UIDPersonaProponenteOLD { get; set; }

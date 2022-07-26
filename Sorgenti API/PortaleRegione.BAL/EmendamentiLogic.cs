@@ -747,7 +747,7 @@ namespace PortaleRegione.BAL
                         if (emDto.Firmato_Da_Me) continue;
 
                         //Controllo la firma del proponente
-                        if (!emDto.Firmato_Dal_Proponente && em.UIDPersonaProponente.Value != persona.UID_persona)
+                        if (!emDto.Firmato_Dal_Proponente && em.UIDPersonaProponente != persona.UID_persona)
                         {
                             results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'emendamento {n_em}");
                             continue;
@@ -1367,7 +1367,7 @@ namespace PortaleRegione.BAL
                 }
 
                 emendamentoDto.Firmato_Dal_Proponente =
-                    await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
+                    await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente);
                 emendamentoDto.PersonaProponente =
                     personeInDbLight.First(p => p.UID_persona == em.UIDPersonaProponente);
                 emendamentoDto.PersonaCreazione = personeInDbLight.First(p => p.UID_persona == em.UIDPersonaCreazione);
@@ -1386,7 +1386,7 @@ namespace PortaleRegione.BAL
                 if (persona == null) return emendamentoDto;
 
                 emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int) StatiEnum.Depositato
-                                              && emendamentoDto.UIDPersonaProponente.Value != persona.UID_persona
+                                              && emendamentoDto.UIDPersonaProponente != persona.UID_persona
                                               && !emendamentoDto.ATTI.Chiuso ||
                                               persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
                                               persona.IsSegreteriaAssemblea;
@@ -1478,7 +1478,7 @@ namespace PortaleRegione.BAL
                         result = false;
 
                     if (emendamentoDto.Firmato_Dal_Proponente)
-                        if (emendamentoDto.UIDPersonaProponente.Value == presidente_regione.UID_persona)
+                        if (emendamentoDto.UIDPersonaProponente == presidente_regione.UID_persona)
                             result = false;
 
                     if (emendamentoDto.Rif_UIDEM != null) result = false;
@@ -1538,19 +1538,42 @@ namespace PortaleRegione.BAL
                     firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
                     foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
                 }
+                
+                var proponenti = new List<Guid>();
+                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
+                {
+                    proponenti_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
+                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
+                }
+                
+                var gruppi = new List<int>();
+                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
+                {
+                    gruppi_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
+                    gruppi.AddRange(gruppi_request.Select(proponente => Convert.ToInt32(proponente.Value.ToString())));
+                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
+                }
 
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
                     .Emendamenti
-                    .GetAll(model.id,
-                        persona,
+                    .GetAll(persona,
                         model.ordine,
                         model.page,
                         model.size,
                         CLIENT_MODE,
                         queryFilter,
-                        firmatari);
+                        firmatari,
+                        proponenti, 
+                        gruppi);
 
                 if (!em_in_db.Any())
                     return new EmendamentiViewModel
@@ -1583,9 +1606,13 @@ namespace PortaleRegione.BAL
                 }
 
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
-                    firmatari);
-                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
+                    firmatari, proponenti, gruppi);
+                if (firmatari_request.Any())
                     model.filtro.AddRange(firmatari_request);
+                if (proponenti_request.Any())
+                    model.filtro.AddRange(proponenti_request);
+                if (gruppi.Any())
+                    model.filtro.AddRange(gruppi_request);
 
                 return new EmendamentiViewModel
                 {
@@ -1617,8 +1644,7 @@ namespace PortaleRegione.BAL
             {
                 var em_in_db = await _unitOfWork
                     .Emendamenti
-                    .GetAll(model.id,
-                        persona,
+                    .GetAll(persona,
                         model.ordine,
                         model.page,
                         model.size,
@@ -1757,7 +1783,7 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<int> CountEM(BaseRequest<EmendamentiDto> model, PersonaDto persona, int CLIENT_MODE,
-            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null)
+            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null)
         {
             try
             {
@@ -1765,7 +1791,7 @@ namespace PortaleRegione.BAL
                 queryFilter.ImportStatements(model.filtro);
 
                 return await _unitOfWork.Emendamenti.Count(model.id,
-                    persona, type, CLIENT_MODE, queryFilter, firmatari);
+                    persona, type, CLIENT_MODE, queryFilter, firmatari, proponenti, gruppi);
             }
             catch (Exception e)
             {

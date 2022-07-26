@@ -146,21 +146,35 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                         ? $"{em.IDParte}-{em.PARTI_TESTO.Parte}"
                         : em.PARTI_TESTO.Parte);
-
-                    if (em.UIDArticolo.HasValue)
-                        SetColumnValue(ref rowEm, em.ARTICOLI.Articolo);
+                    
+                    if (em.UIDArticolo.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
+                    {
+                        var articolo = await _unitOfWork.Articoli.GetArticolo(em.UIDArticolo.Value);
+                        SetColumnValue(ref rowEm, articolo.Articolo);
+                    }
                     else
                         SetColumnValue(ref rowEm, "");
 
-                    if (em.UIDComma.HasValue)
-                        SetColumnValue(ref rowEm, em.COMMI.Comma);
+                    if (em.UIDComma.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
+                    {
+                        var comma = await _unitOfWork.Commi.GetComma(em.UIDComma.Value);
+                        SetColumnValue(ref rowEm, comma.Comma);
+                    }
                     else
                         SetColumnValue(ref rowEm, "");
 
-                    if (em.UIDLettera.HasValue)
-                        SetColumnValue(ref rowEm, em.LETTERE.Lettera);
+                    if (em.UIDLettera.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
+                    {
+                        var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
+                        SetColumnValue(ref rowEm, lettera.Lettera);
+                    }
                     else
-                        SetColumnValue(ref rowEm, "");
+                    {
+                        if (!string.IsNullOrEmpty(em.NLettera) && em.IDParte == (int)PartiEMEnum.Articolo)
+                            SetColumnValue(ref rowEm, em.NLettera);
+                        else
+                            SetColumnValue(ref rowEm, "");
+                    }
 
                     SetColumnValue(ref rowEm, em.NTitolo);
                     SetColumnValue(ref rowEm, em.NCapo);

@@ -1132,11 +1132,11 @@ namespace PortaleRegione.Client.Controllers
                 id = new Guid(atto)
             };
 
-            var util = new UtilityFilter();
-            util.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
-            util.AddFilter_ByNUM(ref model, filtro_n_em);
-            util.AddFilter_ByState(ref model, filtro_stato);
-            util.AddFilter_ByPart(ref model,
+            Common.Utility.AddFilter_ByAtto(ref model, atto);
+            Common.Utility.AddFilter_ByText(ref model, filtro_text1, filtro_text2, filtro_text_connector);
+            Common.Utility.AddFilter_ByNUM(ref model, filtro_n_em);
+            Common.Utility.AddFilter_ByState(ref model, filtro_stato);
+            Common.Utility.AddFilter_ByPart(ref model,
                 filtro_parte, filtro_parte_titolo, filtro_parte_capo,
                 filtro_parte_articolo, filtro_parte_comma, filtro_parte_lettera, filtro_parte_letteraOLD,
                 filtro_parte_missione, filtro_parte_programma);

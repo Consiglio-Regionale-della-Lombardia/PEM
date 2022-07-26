@@ -71,31 +71,18 @@
             });
     }
 
-    $("#formStampa").submit(function(e) {
-        e.preventDefault();
-    }).validate({
-        submitHandler: function(form) {
-            var obj = {};
-
-            obj.param = {
-                UIDAtto: $("#hdUIdAtto").val(),
-                Da: $("#txtDa").val(),
-                A: $("#txtA").val(),
-                Ordine: $("#hdOrdine").val(),
-                CLIENT_MODE: @Html.Raw(mode)
-            };
-
-            var lstEM = getListaEmendamenti();
-            if (lstEM.length > 0) {
-                obj.filtro = [];
-                var selezionaTutti = getSelezionaTutti();
-                for (var i = 0; i < lstEM.length; i++) {
-                    obj.filtro.push({
-                        PropertyId: "UIDEM",
-                        Operation: selezionaTutti ? 5 : 1,
-                        Value: lstEM[i],
-                        Connector: @((int) FilterStatementConnector.Or)
-                    });
+                var lstEM = getListaEmendamenti();
+                if (lstEM.length > 0) {
+                    obj.filtro = [];
+                    var selezionaTutti = getSelezionaTutti();
+                    for (var i = 0; i < lstEM.length; i++) {
+                        obj.filtro.push({
+                            PropertyId: "UIDEM",
+                            Operation: selezionaTutti ? 5 : 1,
+                            Value: lstEM[i],
+                            Connector: i == lstEM.length - 1 ? @((int)FilterStatementConnector.And) : @((int)FilterStatementConnector.Or)
+                        });
+                    }
                 }
             }
 
