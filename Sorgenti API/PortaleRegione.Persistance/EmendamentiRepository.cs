@@ -55,7 +55,7 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti,
             int CLIENT_MODE,
-            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null)
+            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
         {
             var query = PRContext.EM
                 .Where(em => em.UIDAtto == attoUId && !em.Eliminato);
@@ -125,6 +125,16 @@ namespace PortaleRegione.Persistance
                     //Avvio ricerca gruppi;
                     query = query
                         .Where(em => gruppi.Contains(em.id_gruppo));
+                }
+            }
+            
+            if (stati != null)
+            {
+                if (stati.Count > 0)
+                {
+                    //Avvio ricerca stati;
+                    query = query
+                        .Where(em => stati.Contains(em.IDStato));
                 }
             }
 
@@ -309,7 +319,7 @@ namespace PortaleRegione.Persistance
         /// <param name="gruppi"></param>
         /// <returns></returns>
         public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page,
-            int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null)
+            int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
         {
             var query = PRContext
                 .EM
@@ -399,6 +409,16 @@ namespace PortaleRegione.Persistance
                 }
             }
 
+            if (stati != null)
+            {
+                if (stati.Count > 0)
+                {
+                    //Avvio ricerca stati;
+                    query = query
+                        .Where(em => stati.Contains(em.IDStato));
+                }
+            }
+
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE ||
                 (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                  || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea
@@ -454,7 +474,7 @@ namespace PortaleRegione.Persistance
         /// <param name="persona"></param>
         /// <param name="ordine"></param>
         /// <returns></returns>
-        public async Task<string> GetAll_Query(Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null)
+        public async Task<string> GetAll_Query(Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
         {
             var query = PRContext
                 .EM
@@ -493,6 +513,16 @@ namespace PortaleRegione.Persistance
                     //Avvio ricerca gruppi;
                     query = query
                         .Where(em => gruppi.Contains(em.id_gruppo));
+                }
+            }
+
+            if (stati != null)
+            {
+                if (stati.Count > 0)
+                {
+                    //Avvio ricerca stati;
+                    query = query
+                        .Where(em => stati.Contains(em.IDStato));
                 }
             }
 
