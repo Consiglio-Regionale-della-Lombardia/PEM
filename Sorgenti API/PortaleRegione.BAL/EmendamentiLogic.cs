@@ -1561,6 +1561,17 @@ namespace PortaleRegione.BAL
                     foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
                 }
 
+                var stati = new List<int>();
+                var stati_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
+                {
+                    stati_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
+                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                }
+
                 queryFilter.ImportStatements(model.filtro);
 
                 var em_in_db = await _unitOfWork
@@ -1573,7 +1584,8 @@ namespace PortaleRegione.BAL
                         queryFilter,
                         firmatari,
                         proponenti, 
-                        gruppi);
+                        gruppi,
+                        stati);
 
                 if (!em_in_db.Any())
                     return new EmendamentiViewModel
@@ -1606,13 +1618,15 @@ namespace PortaleRegione.BAL
                 }
 
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
-                    firmatari, proponenti, gruppi);
+                    firmatari, proponenti, gruppi, stati);
                 if (firmatari_request.Any())
                     model.filtro.AddRange(firmatari_request);
                 if (proponenti_request.Any())
                     model.filtro.AddRange(proponenti_request);
                 if (gruppi.Any())
                     model.filtro.AddRange(gruppi_request);
+                if (stati.Any())
+                    model.filtro.AddRange(stati_request);
 
                 return new EmendamentiViewModel
                 {
@@ -1783,7 +1797,7 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<int> CountEM(BaseRequest<EmendamentiDto> model, PersonaDto persona, int CLIENT_MODE,
-            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null)
+            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
         {
             try
             {
@@ -1791,7 +1805,7 @@ namespace PortaleRegione.BAL
                 queryFilter.ImportStatements(model.filtro);
 
                 return await _unitOfWork.Emendamenti.Count(model.id,
-                    persona, type, CLIENT_MODE, queryFilter, firmatari, proponenti, gruppi);
+                    persona, type, CLIENT_MODE, queryFilter, firmatari, proponenti, gruppi, stati);
             }
             catch (Exception e)
             {
