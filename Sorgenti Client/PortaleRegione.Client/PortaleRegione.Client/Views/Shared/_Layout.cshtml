@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Portale @Html.Raw(AppSettingsConfiguration.Title)</title>
 
@@ -16,11 +16,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
     @Styles.Render("~/Content/css")
+    @*Import Trumbowyg plugins style...*@
+    <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet" />
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
     <script src="~/Content/editor/trumbowyg.min.js"></script>
+    @*Import Trumbowyg plugins...*@
+    <script src="~/Content/editor/plugins/cleanpaste/trumbowyg.cleanpaste.min.js"></script>
+    <script src="~/Content/editor/plugins/fontfamily/trumbowyg.fontfamily.min.js"></script>
+    <script src="~/Content/editor/plugins/fontsize/trumbowyg.fontsize.min.js"></script>
+    <script src="~/Content/editor/plugins/history/trumbowyg.history.min.js"></script>
+    <script src="~/Content/editor/plugins/indent/trumbowyg.indent.min.js"></script>
+    <script src="~/Content/editor/plugins/table/trumbowyg.table.min.js"></script>
     <link rel="stylesheet" href="~/Content/editor/ui/trumbowyg.min.css">
     <script src="~/Scripts/moment.js"></script>
 
@@ -122,7 +131,7 @@
                         </div>
                         <div class="card-action">
                             <a class="btn-flat blue-text"
-                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id = new Guid("ac98da99-862d-4cff-90e7-d5b324aaa7ae")})')" title="Entra">
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new { id = new Guid("ac98da99-862d-4cff-90e7-d5b324aaa7ae") })')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
                             </a>
@@ -136,7 +145,7 @@
                         </div>
                         <div class="card-action">
                             <a class="btn-flat blue-text"
-                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id = new Guid("8870e6d1-fe1b-4038-a185-d8f26cb07044")})')" title="Entra">
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new { id = new Guid("8870e6d1-fe1b-4038-a185-d8f26cb07044") })')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
                             </a>
@@ -150,7 +159,7 @@
                         </div>
                         <div class="card-action">
                             <a class="btn-flat blue-text"
-                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new {id = new Guid("3e77df9c-9e3c-e811-910f-00155d4d0224")})')" title="Entra">
+                               onclick="go('@Url.Action("CambiaUtente", "Autenticazione", new { id = new Guid("3e77df9c-9e3c-e811-910f-00155d4d0224") })')" title="Entra">
                                 <i class="material-icons right">lock_open</i>
                                 Entra
                             </a>
@@ -168,17 +177,28 @@
 
 <script>
     $('.trumbowyg').trumbowyg({
-        removeformatPasted: true,
         btns: [
-            ['viewHTML'],
+            ['historyUndo', 'historyRedo'],
             ['undo', 'redo'], // Only supported in Blink browsers
             ['formatting'],
             ['strong', 'em', 'del'],
             ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
             ['unorderedList', 'orderedList'],
+            ['indent', 'outdent'],
+            ['table'],
+            ['fontfamily'],
+            ['fontsize'],
             ['removeformat'],
             ['fullscreen']
-        ]
+        ],
+        plugins: {
+            fontfamily: {
+                fontList: [
+                    {name: 'Arial', family: 'Arial, Helvetica, sans-serif'},
+                    {name: 'Open Sans', family: '\'Open Sans\', sans-serif'}
+                ]
+            }
+        }
     });
     var devPanelCounter = 0;
     $("body").on("keyup",
@@ -211,6 +231,7 @@
                     @if (AppSettingsConfiguration.IsDebugMode)
                     {
                         @Html.Raw("devPanelCounter = devPanelCounter + 1;")
+                        ;
                         ;
                     }
                 }
