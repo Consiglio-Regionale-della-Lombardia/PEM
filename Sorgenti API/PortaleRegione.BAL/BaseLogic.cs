@@ -370,12 +370,12 @@ namespace PortaleRegione.BAL
                         DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
                 }
 
-                body = body.Replace("{lblSubTitoloATTOView}",
-                    string.IsNullOrEmpty(atto.Oggetto_Modificato) ? atto.Oggetto : atto.Oggetto_Modificato);
-                body = body.Replace("{lblPremesseATTOView}",
-                    string.IsNullOrEmpty(atto.Premesse_Modificato) ? atto.Premesse : atto.Premesse_Modificato);
-                body = body.Replace("{lblRichiestaATTOView}",
-                    string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
+                body = body.Replace("{lblSubTitoloATTOView}", Utility.CleanWordText(
+                    string.IsNullOrEmpty(atto.Oggetto_Modificato) ? atto.Oggetto : atto.Oggetto_Modificato));
+                body = body.Replace("{lblPremesseATTOView}", Utility.CleanWordText(
+                    string.IsNullOrEmpty(atto.Premesse_Modificato) ? atto.Premesse : atto.Premesse_Modificato));
+                body = body.Replace("{lblRichiestaATTOView}", Utility.CleanWordText(
+                    string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata));
 
                 var allegato_generico = string.Empty;
 
@@ -595,7 +595,7 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    body = body.Replace("{ltATTOView}", atto.Atto_Certificato);
+                    body = body.Replace("{ltATTOView}", Utility.CleanWordText(atto.Atto_Certificato));
                 }
 
                 #region Firme

@@ -113,7 +113,7 @@ namespace PortaleRegione.BAL
 
                 var queryEM =
                     await _unitOfWork.Emendamenti.GetAll_Query(queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
-                stampa.QueryEM = queryEM;
+                stampa.Query = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int)persona.CurrentRole;

@@ -124,7 +124,7 @@ namespace PortaleRegione.Persistance
                 return false;
             }
             
-            if (atto.UIDSeduta.HasValue)
+            if (atto.UIDSeduta.HasValue && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 return false;
             }
