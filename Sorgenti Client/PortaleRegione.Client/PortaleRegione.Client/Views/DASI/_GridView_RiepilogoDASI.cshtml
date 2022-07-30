@@ -173,21 +173,21 @@ else
                     var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
                     var tooltipSeduta = "Richiesta in attesa di elaborazione";
 
-                    <div class="chip badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta">
-                        @textSeduta
+                    <span class="tooltipped" data-tooltip="@tooltipSeduta">
+                        <i>@textSeduta</i>
                         @if (item.Tipo != (int) TipoAttoEnum.ODG)
                         {
                             <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
                         }
-                    </div>
+                    </span>
                 }
                 else if (item.DataIscrizioneSeduta.HasValue)
                 {
                     var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
                     var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                    <div class="chip badgeSeduta tooltipped" data-tooltip="@tooltipSeduta">
-                        @textSeduta
-                    </div>
+                    <span class="tooltipped" data-tooltip="@tooltipSeduta">
+                        <b>@textSeduta</b>
+                    </span>
                 }
                 else if (item.IDStato != (int) StatiAttoEnum.BOZZA)
                 {
