@@ -204,20 +204,20 @@ else
                             {
                                 textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
                                 tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                                <div class="chip hoverable badgeSeduta tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                                    @textSeduta
+                                <span class="tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                    <b>@textSeduta</b>
                                     <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
-                                </div>
+                                </span>
                             }
                             else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
                             {
                                 textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
                                 tooltipSeduta = "Richiesta in attesa di elaborazione";
 
-                                <div class="chip hoverable badgeDISABLED tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                                    @textSeduta
+                                <span class="tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                    <i>@textSeduta</i>
                                     <i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
-                                </div>
+                                </span>
                             }
                             else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
                             {
