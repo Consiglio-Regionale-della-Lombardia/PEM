@@ -96,7 +96,7 @@ namespace PortaleRegione.BAL
                     model.size,
                     result,
                     model.filtro,
-                    await _unitOfWork.Atti.Count(model.id, queryFilter),
+                    await _unitOfWork.Atti.Count(model.id, CLIENT_MODE, currentUser, queryFilter),
                     url);
             }
             catch (Exception e)

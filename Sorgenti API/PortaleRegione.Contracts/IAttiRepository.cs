@@ -32,7 +32,7 @@ namespace PortaleRegione.Contracts
     /// </summary>
     public interface IAttiRepository : IRepository<ATTI>
     {
-        Task<int> Count(Guid sedutaUId, Filter<ATTI> filtro = null);
+        Task<int> Count(Guid sedutaUId, int clientMode, PersonaDto persona, Filter<ATTI> filtro = null);
         Task<int> CountEM(Guid id, bool sub_em, PersonaDto persona, int gruppo);
         Task<ATTI> Get(Guid attoUId);
         Task<ATTI> Get(string attoUId);
