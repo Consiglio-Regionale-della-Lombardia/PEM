@@ -81,6 +81,10 @@ a { cursor: pointer }
 
 .bodyEMClass > div > table > tbody > tr { border-bottom: unset !important; }
 
+.icon_info_grid {
+    margin-left: 15px;
+}
+
 label {
     color: #9e9e9e !important;
     font-size: 0.9rem !important;
@@ -478,9 +482,14 @@ div.input-field > label { line-height: initial; }
     DASI
 ------------------------------------------*/
 
+.badgeBody {
+    color: black;
+    font-weight: bold;
+}
+
 .badgeIQT {
     background-color: white;
-    border: 1px solid #e91e63;
+    border-left: 1em solid #e91e63;
     color: black;
     font-weight: bold;
     min-width: unset !important;
@@ -488,7 +497,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeITL {
     background-color: white;
-    border: 1px solid #2196f3;
+    border-left: 1em solid #2196f3;
     color: black;
     font-weight: bold;
     min-width: unset !important;
@@ -496,7 +505,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeMOZ {
     background-color: white;
-    border: 1px solid #ff5722;
+    border-left: 1em solid #ff5722;
     color: black;
     font-weight: bold;
     min-width: unset !important;
@@ -504,7 +513,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeITR {
     background-color: white;
-    border: 1px solid #673ab7;
+    border-left: 1em solid #673ab7;
     color: black;
     font-weight: bold;
     min-width: unset !important;
@@ -512,7 +521,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeODG {
     background-color: white;
-    border: 1px solid #4caf50;
+    border-left: 1em solid #4caf50;
     color: black;
     font-weight: bold;
     min-width: unset !important;
@@ -520,14 +529,14 @@ div.input-field > label { line-height: initial; }
 
 .badgeDISABLED {
     background-color: white;
-    border: 1px solid #9e9e9e;
+    border-left: 1em solid #9e9e9e;
     color: black;
     min-width: unset !important;
 }
 
 .badgeALL {
     background-color: white;
-    border: 1px solid black;
+    border-left: 1em solid black;
     color: black;
     font-weight: bold;
     min-width: unset !important;
