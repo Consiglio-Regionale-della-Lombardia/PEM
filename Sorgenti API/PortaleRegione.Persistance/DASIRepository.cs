@@ -100,7 +100,10 @@ namespace PortaleRegione.Persistance
                 }
 
             return await query
-                .OrderByDescending(item => item.OrdineVisualizzazione)
+                .OrderBy(item => item.Tipo)
+                .ThenBy(item => item.IDTipo_Risposta)
+                .ThenBy(item => item.TipoMOZ)
+                .ThenByDescending(item => item.OrdineVisualizzazione)
                 .Select(item => item.UIDAtto)
                 .Skip((page - 1) * size)
                 .Take(size)

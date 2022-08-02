@@ -488,6 +488,18 @@ namespace PortaleRegione.API.Controllers
                     dto.PresentatoOltreITermini = presentato_oltre_termini;
                 }
 
+                if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                {
+                    var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
+                    dto.MOZ_Abbinata = $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo.Value)}";
+                }
+
+                if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
+                {
+                    var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+                }
+
                 return dto;
             }
             catch (Exception e)
