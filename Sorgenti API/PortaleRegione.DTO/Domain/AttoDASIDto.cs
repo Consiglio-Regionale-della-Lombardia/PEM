@@ -115,5 +115,6 @@ namespace PortaleRegione.DTO.Domain
         public bool Non_Passaggio_In_Esame { get; set; } = false;
 
         public string MOZ_Abbinata { get; set; }
+        public string ODG_Atto_PEM { get; set; }
     }
 }

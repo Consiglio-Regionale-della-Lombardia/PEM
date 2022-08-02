@@ -494,6 +494,12 @@ namespace PortaleRegione.API.Controllers
                     dto.MOZ_Abbinata = $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo.Value)}";
                 }
 
+                if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
+                {
+                    var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+                }
+
                 return dto;
             }
             catch (Exception e)

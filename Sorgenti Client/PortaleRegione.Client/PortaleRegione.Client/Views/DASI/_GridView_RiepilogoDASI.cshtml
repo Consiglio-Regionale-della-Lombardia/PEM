@@ -43,7 +43,7 @@ else
             <div class="col s10 valign-wrapper">
                 <p>
                     <label>
-                        <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
+                        <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');" />
                         <span>@title</span>
                     </label>
                 </p>
@@ -67,6 +67,11 @@ else
                 {
                     <i class="close material-icons orange-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>
                     <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UID_MOZ_Abbinata})')">@item.MOZ_Abbinata</a>
+                }
+                @if (item.Tipo == (int)TipoAttoEnum.ODG)
+                {
+                    <i class="close material-icons orange-text icon_info_grid">insert_link</i>
+                    <label class="blue-text">@item.ODG_Atto_PEM</label>
                 }
                 @if (item.Non_Passaggio_In_Esame)
                 {
