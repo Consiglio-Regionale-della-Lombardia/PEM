@@ -113,5 +113,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Invito_Abilitato { get; set; } = false;
         public bool PresentatoOltreITermini { get; set; } = false;
         public bool Non_Passaggio_In_Esame { get; set; } = false;
+
+        public string MOZ_Abbinata { get; set; }
     }
 }
