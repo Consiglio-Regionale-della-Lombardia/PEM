@@ -100,12 +100,19 @@ else
                 @if (item.Tipo != (int) TipoAttoEnum.MOZ)
                 {
                     <td style="width: 8%;">
-                        <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
-                            @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
-                        </span>
+                        @if (item.Tipo == (int)TipoAttoEnum.ODG)
+                        {
+                            <label class="black-text">@item.ODG_Atto_PEM</label>
+                        }
+                        else
+                        {
+                            <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
+                                @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
+                            </span>
+                        }
                     </td>
                 }
-                else if (item.TipoMOZ == (int) TipoMOZEnum.CENSURA || item.TipoMOZ == (int) TipoMOZEnum.CENSURA)
+                else if (item.TipoMOZ == (int) TipoMOZEnum.CENSURA || item.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA)
                 {
                     <td style="width: 8%;">
                         <span>
@@ -117,7 +124,10 @@ else
                 {
                     <td style="width: 8%;">
                         <span>
-
+                            @if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                            {
+                                <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UID_MOZ_Abbinata})')">@item.MOZ_Abbinata</a>
+                            }
                         </span>
                     </td>
                 }
