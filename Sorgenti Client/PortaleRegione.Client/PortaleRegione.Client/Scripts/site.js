@@ -871,11 +871,12 @@ function RevealFirmaDepositoDASI(id, action) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
                 method: "GET"
-            }).done(function(data) {
+            }).done(function (data) {
+                waiting(false);
                 console.log('esito', data.message)
                 if (data.message) {
                     var typeMessage = "error";
@@ -903,6 +904,7 @@ function RevealFirmaDepositoDASI(id, action) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
+                waiting(false);
                 Error(err);
             });
         });

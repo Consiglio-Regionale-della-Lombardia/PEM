@@ -98,8 +98,7 @@ else
             <div class="col s2 right-align" style="margin-top: 15px">
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-                    if (Model.CurrentUser.IsCapoGruppo 
-                        && item.Tipo != (int)TipoAttoEnum.ITL 
+                    if (item.Tipo != (int)TipoAttoEnum.ITL 
                         && item.Tipo != (int)TipoAttoEnum.ITR)
                     {
                         <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
@@ -130,7 +129,7 @@ else
                             {
                                 if ((item.Tipo is (int)TipoAttoEnum.IQT
                                      && (Model.CurrentUser.IsCapoGruppo
-                                         || item.UIDPersonaPrimaFirma.HasValue && item.UIDPersonaPrimaFirma.Value == Model.CurrentUser.UID_persona))
+                                         || item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona))
                                     || (item.Tipo is (int)TipoAttoEnum.MOZ
                                         && Model.CurrentUser.IsCapoGruppo)
                                     || (item.Tipo is (int)TipoAttoEnum.ODG
