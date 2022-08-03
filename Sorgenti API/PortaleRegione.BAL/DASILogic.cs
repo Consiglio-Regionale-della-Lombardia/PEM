@@ -1016,7 +1016,7 @@ namespace PortaleRegione.API.Controllers
 
                         if (attoPEM.Jolly)
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG_Jolly)
+                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1026,7 +1026,7 @@ namespace PortaleRegione.API.Controllers
 
                         if (seduta.Data_effettiva_inizio.HasValue)
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG +
+                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG +
                                 AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 results.Add(idGuid,
@@ -1036,7 +1036,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG)
+                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non presentabile. Non puoi presentare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
