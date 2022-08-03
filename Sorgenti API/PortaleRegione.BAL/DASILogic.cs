@@ -1112,11 +1112,13 @@ namespace PortaleRegione.API.Controllers
 
                     if (atto.Tipo == (int) TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
                     {
-                        //iscrivi in seduta
+                        //proposta di iscrizione in seduta
                         var attoPem = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        atto.UIDSeduta = attoPem.UIDSeduta;
-                        atto.DataIscrizioneSeduta = DateTime.Now;
-                        atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
+                        var seduta = await _unitOfWork.Sedute.Get(attoPem.UIDSeduta.Value);
+                        var dataRichiesta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey);
+                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                         if (atto.Non_Passaggio_In_Esame)
                         {
