@@ -765,7 +765,7 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
-                        if (emDto.Firma_su_invito && em.UIDPersonaProponente.Value != persona.UID_persona)
+                        if (emDto.Firma_su_invito && em.UIDPersonaProponente != persona.UID_persona)
                         {
                             var check_notifica = await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(emDto.UIDEM,
                                 persona.UID_persona, false);
