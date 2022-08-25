@@ -1,8 +1,9 @@
 ﻿@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using System.Linq
+@using System.Web.Mvc.Html
 @using Newtonsoft.Json
-@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.PersonaDto>
+@model PortaleRegione.DTO.Model.RiepilogoUtentiModel
 
 @{
     ViewBag.Title = "Amministrazione";
@@ -29,12 +30,12 @@
 </div>
 
 @{
-    Html.RenderPartial("_PaginationBar", Model.Paging);
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
 }
 
 <div id="contentTable" class="row">
 
-    @if (!Model.Results.Any())
+    @if (!Model.Data.Results.Any())
     {
         <div class="row">
             <div class="col s12">
@@ -47,7 +48,7 @@
         </div>
     }
 
-    @foreach (var persona in Model.Results)
+    @foreach (var persona in Model.Data.Results)
     {
         var colorPin = "";
         var messaggio = "";
@@ -86,7 +87,7 @@
                             <a class="hoverable center black-text" onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')" title="RESET password">
                                 <i class="material-icons">vpn_key</i>
                             </a>
-                            <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new {id = persona.UID_persona})')" title="Modifica @persona.UID_persona">
+                            <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new { id = persona.UID_persona })')" title="Modifica @persona.UID_persona">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
@@ -139,48 +140,51 @@
             @using (Html.BeginForm("SearchUsers", "AdminPanel", FormMethod.Post, new { id = "formSearchUsers" }))
             {
                 @Html.AntiForgeryToken()
-                <input type="hidden" id="hfPage" name="page" value="@Model.Paging.Page" />
-                <input type="hidden" id="hfSize" name="size" value="@Model.Paging.Limit" />
+                <input type="hidden" id="hfPage" name="page" value="@Model.Data.Paging.Page"/>
+                <input type="hidden" id="hfSize" name="size" value="@Model.Data.Paging.Limit"/>
 
                 <div class="form-group">
                     <label>Ricerca per persona</label>
-                    <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.cognome)) ? Model.Filters.First(f => f.PropertyId == nameof(PersonaDto.cognome)).Value : "")" />
+                    <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@Html.Raw(Model.Data.Filters.Any(f => f.PropertyId == nameof(PersonaDto.cognome)) ? Model.Data.Filters.First(f => f.PropertyId == nameof(PersonaDto.cognome)).Value : "")"/>
                 </div>
-                <div class="form-group">
-                    <label>Ruoli</label>
-                    <select id="filter_ruoli" name="ruoli" class="form-control" multiple="multiple">
-                        <option value="">--</option>
-                        <option value="@((int)RuoliIntEnum.Amministratore_PEM)">Amministratore PEM</option>
-                        <option value="@((int)RuoliIntEnum.Presidente_Regione)">Presidente della Regione Lombardia</option>
-                        <option value="@((int)RuoliIntEnum.Amministratore_Giunta)">Amministratore Giunta</option>
-                        <option value="@((int)RuoliIntEnum.Assessore_Sottosegretario_Giunta)">Assessore/Sottosegretario Giunta</option>
-                        <option value="@((int)RuoliIntEnum.Segreteria_Assemblea)">Segreteria dell'Assemblea</option>
-                        <option value="@((int)RuoliIntEnum.Consigliere_Regionale)">Consigliere</option>
-                        <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Politica)">Responsabile di segreteria Politica</option>
-                        <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Giunta)">Responsabile di segreteria Giunta</option>
-                        <option value="@((int)RuoliIntEnum.Segreteria_Giunta_Regionale)">Segreteria Giunta</option>
-                        <option value="@((int)RuoliIntEnum.Segreteria_Politica)">Segreteria Politica</option>
-                        <option value="@((int)RuoliIntEnum.Utente)">Utente</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Gruppi</label>
-                    <select id="filter_gruppi" name="gruppi" class="form-control" multiple="multiple">
-                        <option value="">--</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <p>
-                        <label>
-                            <input type="checkbox" name="no_cons" @Html.Raw(Model.Filters.Any(f => f.PropertyId == nameof(PersonaDto.No_Cons)) ? "checked='checked'" : "") />
-                            <span>Solo non consiglieri</span>
-                        </label>
-                    </p>
-                </div>
-                <div class="form-group">
-                    <label>Legislatura</label>
-                    <select id="filter_legislature" name="legislatura" class="form-control" multiple="multiple"></select>
-                </div>
+                if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+                {
+                    <div class="form-group">
+                        <label>Ruoli</label>
+                        <select id="filter_ruoli" name="ruoli" class="form-control" multiple="multiple">
+                            <option value="">--</option>
+                            <option value="@((int)RuoliIntEnum.Amministratore_PEM)">Amministratore PEM</option>
+                            <option value="@((int)RuoliIntEnum.Presidente_Regione)">Presidente della Regione Lombardia</option>
+                            <option value="@((int)RuoliIntEnum.Amministratore_Giunta)">Amministratore Giunta</option>
+                            <option value="@((int)RuoliIntEnum.Assessore_Sottosegretario_Giunta)">Assessore/Sottosegretario Giunta</option>
+                            <option value="@((int)RuoliIntEnum.Segreteria_Assemblea)">Segreteria dell'Assemblea</option>
+                            <option value="@((int)RuoliIntEnum.Consigliere_Regionale)">Consigliere</option>
+                            <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Politica)">Responsabile di segreteria Politica</option>
+                            <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Giunta)">Responsabile di segreteria Giunta</option>
+                            <option value="@((int)RuoliIntEnum.Segreteria_Giunta_Regionale)">Segreteria Giunta</option>
+                            <option value="@((int)RuoliIntEnum.Segreteria_Politica)">Segreteria Politica</option>
+                            <option value="@((int)RuoliIntEnum.Utente)">Utente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gruppi</label>
+                        <select id="filter_gruppi" name="gruppi" class="form-control" multiple="multiple">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <p>
+                            <label>
+                                <input type="checkbox" name="no_cons" @Html.Raw(Model.Data.Filters.Any(f => f.PropertyId == nameof(PersonaDto.No_Cons)) ? "checked='checked'" : "")/>
+                                <span>Solo non consiglieri</span>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label>Legislatura</label>
+                        <select id="filter_legislature" name="legislatura" class="form-control" multiple="multiple"></select>
+                    </div>
+                }
             }
         </div>
     </div>
@@ -228,12 +232,15 @@
     </div>
 </div>
 
-<div class="fixed-action-btn">
-    <a class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo utente"
-       href="@Url.Action("NuovoUtente")">
-        <i class="large material-icons">add</i>
-    </a>
-</div>
+@if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+{
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo utente"
+           href="@Url.Action("NuovoUtente")">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+}
 
 <script>
 
@@ -242,13 +249,13 @@
         $('#formSearchUsers').submit();
     }
 
-    function filtra_Paginazione (size) {
+    function filtra_Paginazione(size) {
         $('#hfSize').val(size);
         $('#formSearchUsers').submit();
     }
 
     async function loadLegislature() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f => f.PropertyId == nameof(PersonaDto.legislature))));
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters.Where(f => f.PropertyId == nameof(PersonaDto.legislature))));
         var legislature = await GetLegislature();
         if (legislature.length > 0) {
             var select = $("#filter_legislature");
@@ -277,7 +284,7 @@
     }
 
     async function loadGruppi() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f=> f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif))));
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif))));
         var gruppi = await GetGruppiInDb();
         if (gruppi.length > 0) {
             var select = $("#filter_gruppi");
@@ -293,24 +300,26 @@
             var elems = document.querySelectorAll("#filter_gruppi");
             M.FormSelect.init(elems, null);
 
-            if(currentFilter.length > 0) {
+            if (currentFilter.length > 0) {
                 var selected_filter = [];
-                $.each(currentFilter, function(index, item) {
-                    selected_filter.push(item.Value.replace(/-/g, ""));
-                });
+                $.each(currentFilter,
+                    function(index, item) {
+                        selected_filter.push(item.Value.replace(/-/g, ""));
+                    });
                 $('#filter_gruppi').val(selected_filter);
                 $('#filter_gruppi').formSelect();
             }
         }
     }
-    
+
     function loadRuoli() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Filters.Where(f=> f.PropertyId == nameof(PersonaDto.Ruoli))));
-        if(currentFilter.length > 0) {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli))));
+        if (currentFilter.length > 0) {
             var selected_filter = [];
-            $.each(currentFilter, function(index, item) {
-                selected_filter.push(item.Value.replace(/-/g, ""));
-            });
+            $.each(currentFilter,
+                function(index, item) {
+                    selected_filter.push(item.Value.replace(/-/g, ""));
+                });
             $('#filter_ruoli').val(selected_filter);
             $('#filter_ruoli').formSelect();
         }
@@ -412,7 +421,7 @@
         highlight(text);
 
         $('#btnSearch').on("click",
-            function () {
+            function() {
                 openSearch();
             });
     });
