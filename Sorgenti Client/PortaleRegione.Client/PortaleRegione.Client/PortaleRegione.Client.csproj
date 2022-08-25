@@ -457,6 +457,7 @@
     <Content Include="Views\DASI\_GeasiViewPartial.cshtml" />
     <Content Include="Views\DASI\_ProponiMozioneUrgenteModal.cshtml" />
     <Content Include="Views\DASI\_ProponiMozioneAbbinataModal.cshtml" />
+    <Content Include="Views\Emendamenti\_TagsPanel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

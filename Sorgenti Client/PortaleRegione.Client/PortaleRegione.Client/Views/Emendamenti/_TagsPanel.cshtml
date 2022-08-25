@@ -1,0 +1,33 @@
+﻿@model PortaleRegione.DTO.Model.EmendamentiFormModel
+
+<h5>Tags</h5>
+<hr/>
+
+<div id="tagsEm" class="chips"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#tagsEm').chips({
+            placeholder: 'Aggiungi un tag',
+            secondaryPlaceholder: '+ Tag',
+        });
+
+        //$('.chips-autocomplete').chips({
+        //    autocompleteOptions: {
+        //        data: {
+        //            'Apple': null,
+        //            'Microsoft': null,
+        //            'Google': null
+        //        },
+        //        limit: Infinity,
+        //        minLength: 1
+        //    }
+        //});
+    });
+</script>
+
+<style>
+    .chips > .chip {
+        min-width: unset !important;
+    }
+</style>
