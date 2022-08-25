@@ -765,6 +765,18 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
+                        if (emDto.Firma_su_invito && em.UIDPersonaProponente.Value != persona.UID_persona)
+                        {
+                            var check_notifica = await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(emDto.UIDEM,
+                                persona.UID_persona, false);
+
+                            if (check_notifica == null)
+                            {
+                                results.Add(idGuid, $"ERROR: Emendamento {n_em} non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
+                                continue;
+                            }
+                        }
+
                         var info_codice_carica_gruppo = string.Empty;
                         switch (persona.CurrentRole)
                         {

@@ -28,7 +28,7 @@ namespace PortaleRegione.Contracts
     public interface INotifiche_DestinatariRepository : IRepository<NOTIFICHE_DESTINATARI>
     {
         Task<NOTIFICHE_DESTINATARI> Get(long notificaId, Guid personaUId);
-        Task<NOTIFICHE_DESTINATARI> ExistDestinatarioNotifica(Guid emendamentoUId, Guid personaUId, bool dasi = false);
+        Task<NOTIFICHE_DESTINATARI> ExistDestinatarioNotifica(Guid guid, Guid personaUId, bool dasi = false);
         Task SetSeen_DestinatarioNotifica(NOTIFICHE_DESTINATARI destinatario, Guid personaUId);
     }
 }
