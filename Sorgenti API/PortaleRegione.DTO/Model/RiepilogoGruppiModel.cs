@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using PortaleRegione.DTO.Domain;
 
 namespace PortaleRegione.DTO.Model
 {
-    public class AdminGruppiModel
+    public class RiepilogoGruppiModel
     {
-        public GruppiDto Gruppo { get; set; }
-        public bool Error_AD { get; set; } = false;
-        public string Error_AD_Message { get; set; } = string.Empty;
+        public PersonaDto Persona { get; set; }
+        public List<AdminGruppiModel> Results { get; set; }
     }
 }

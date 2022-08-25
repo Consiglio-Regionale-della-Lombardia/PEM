@@ -23,6 +23,7 @@ using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 
@@ -103,7 +104,11 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var currentUser = await _logic.GetPersona(session);
                 var results = await _logic.GetUtenti(model, currentUser, Request.RequestUri);
-                return Ok(results);
+                return Ok(new RiepilogoUtentiModel
+                {
+                    Data = results,
+                    Persona = currentUser
+                });
             }
             catch (Exception e)
             {
@@ -260,7 +265,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
                 await _logic.EliminaUtente(id);
                 return Ok();
             }
@@ -304,8 +308,14 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var session = GetSession();
+                var currentUser = await _logic.GetPersona(session);
                 var results = await _logic.GetGruppi(model, Request.RequestUri);
-                return Ok(results);
+                return Ok(new RiepilogoGruppiModel
+                {
+                    Results = results,
+                    Persona = currentUser
+                });
             }
             catch (Exception e)
             {

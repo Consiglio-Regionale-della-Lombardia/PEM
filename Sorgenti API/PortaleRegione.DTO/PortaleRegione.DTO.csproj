@@ -133,7 +133,9 @@
     <Compile Include="Model\RaggruppaEmendamentiModel.cs" />
     <Compile Include="Model\ResetPinModel.cs" />
     <Compile Include="Model\RiepilogoDASIModel.cs" />
+    <Compile Include="Model\RiepilogoGruppiModel.cs" />
     <Compile Include="Model\RiepilogoNotificheModel.cs" />
+    <Compile Include="Model\RiepilogoUtentiModel.cs" />
     <Compile Include="Model\SessionManager.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />

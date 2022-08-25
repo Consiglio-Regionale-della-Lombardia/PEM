@@ -20,10 +20,9 @@ using PortaleRegione.DTO.Domain;
 
 namespace PortaleRegione.DTO.Model
 {
-    public class AdminGruppiModel
+    public class RiepilogoUtentiModel
     {
-        public GruppiDto Gruppo { get; set; }
-        public bool Error_AD { get; set; } = false;
-        public string Error_AD_Message { get; set; } = string.Empty;
+        public PersonaDto Persona { get; set; }
+        public PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.PersonaDto> Data { get; set; }
     }
 }
