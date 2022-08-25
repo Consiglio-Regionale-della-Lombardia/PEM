@@ -50,6 +50,7 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetInvitati(Guid emendamentoUId);
         Task<IEnumerable<PARTI_TESTO>> GetPartiEmendabili();
         Task<IEnumerable<TIPI_EM>> GetTipiEmendamento();
+        Task<List<TAGS>> GetTags();
         Task<IEnumerable<MISSIONI>> GetMissioniEmendamento();
         Task<IEnumerable<TITOLI_MISSIONI>> GetTitoliMissioneEmendamento();
         Task<IEnumerable<STATI_EM>> GetStatiEmendamento();

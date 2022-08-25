@@ -717,6 +717,11 @@ namespace PortaleRegione.Persistance
             return await PRContext.TIPI_EM.ToListAsync();
         }
 
+        public async Task<List<TAGS>> GetTags()
+        {
+            return await PRContext.TAGS.ToListAsync();
+        }
+
         /// <summary>
         ///     Ritorna tutti i valori disponibili in tabella
         /// </summary>

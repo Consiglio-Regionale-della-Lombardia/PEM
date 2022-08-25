@@ -85,6 +85,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<ATTI_SOGGETTI_INTERROGATI> ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
         public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
+        public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

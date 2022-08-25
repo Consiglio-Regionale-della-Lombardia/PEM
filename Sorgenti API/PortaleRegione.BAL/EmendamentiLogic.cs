@@ -2086,5 +2086,14 @@ namespace PortaleRegione.BAL
                 .Emendamenti
                 .GetByQR(id);
         }
+
+        public async Task<List<TagDto>> GetTags()
+        {
+            var result = await _unitOfWork.Emendamenti.GetTags();
+
+            return result
+                .Select(Mapper.Map<TAGS, TagDto>)
+                .ToList();
+        }
     }
 }

@@ -1250,7 +1250,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per avere i tipi di emendmento
+        ///     Endpoint per avere i tipi di emendamento
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -1264,6 +1264,25 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetTipiEM", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere la lista dei tags
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("tags")]
+        public async Task<IHttpActionResult> GetTags()
+        {
+            try
+            {
+                return Ok(await _logicEm.GetTags());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetTags", e);
                 return ErrorHandler(e);
             }
         }
