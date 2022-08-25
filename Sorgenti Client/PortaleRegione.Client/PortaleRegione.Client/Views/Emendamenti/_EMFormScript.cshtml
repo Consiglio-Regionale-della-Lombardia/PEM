@@ -85,6 +85,9 @@
                 form_data.append("IDStato", @Html.Raw((int)StatiEnum.Bozza));
             }
 
+            var Firma_su_invito = $('input[name="Emendamento.Firma_su_invito"]').is(":checked");
+            form_data.append("Firma_su_invito", Firma_su_invito);
+
             form_data.append("TestoEM_originale", editor_testo_originale.html());
             form_data.append("TestoREL_originale", editor_relazione.html());
 

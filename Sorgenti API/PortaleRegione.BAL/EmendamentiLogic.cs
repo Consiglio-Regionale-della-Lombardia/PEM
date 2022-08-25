@@ -134,7 +134,10 @@ namespace PortaleRegione.BAL
             {
                 var sub_em = em_riferimentoUId != Guid.Empty;
 
-                var result = new EmendamentiFormModel();
+                var result = new EmendamentiFormModel
+                {
+                    CurrentUser = persona
+                };
                 var emendamento = new EmendamentiDto();
 
                 var isGiunta = persona.IsGiunta;
@@ -282,7 +285,7 @@ namespace PortaleRegione.BAL
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var em = await GetEM_DTO(emInDb, atto, persona, personeInDbLight);
-                var result = new EmendamentiFormModel {Emendamento = em, Atto = em.ATTI};
+                var result = new EmendamentiFormModel {Emendamento = em, Atto = em.ATTI, CurrentUser = persona};
                 if (persona.CurrentRole != RuoliIntEnum.Consigliere_Regionale &&
                     persona.CurrentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta)
                 {
@@ -760,6 +763,18 @@ namespace PortaleRegione.BAL
                         {
                             results.Add(idGuid, $"ERROR: Il Proponente non ha ancora firmato l'emendamento {n_em}");
                             continue;
+                        }
+
+                        if (emDto.Firma_su_invito && em.UIDPersonaProponente.Value != persona.UID_persona)
+                        {
+                            var check_notifica = await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(emDto.UIDEM,
+                                persona.UID_persona, false);
+
+                            if (check_notifica == null)
+                            {
+                                results.Add(idGuid, $"ERROR: Emendamento {n_em} non firmabile. Il proponente ha riservato la firma dell’emendamento a un gruppo ristretto.");
+                                continue;
+                            }
                         }
 
                         var info_codice_carica_gruppo = string.Empty;
