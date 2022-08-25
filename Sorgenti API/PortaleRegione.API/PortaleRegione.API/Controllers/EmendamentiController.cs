@@ -116,7 +116,7 @@ namespace PortaleRegione.API.Controllers
                             Connector = FilterStatementConnector.And
                         }
                     }
-                }, session
+                }, persona
                     , Request.RequestUri);
                 var presidente = ricerca_presidente_regione.Results.First();
                 var results =

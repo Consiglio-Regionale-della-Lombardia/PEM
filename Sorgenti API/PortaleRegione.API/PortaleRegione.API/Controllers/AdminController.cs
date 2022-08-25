@@ -31,7 +31,6 @@ namespace PortaleRegione.API.Controllers
     /// <summary>
     ///     Controller per endpoint di amministrazione
     /// </summary>
-    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
     [RoutePrefix("admin")]
     public class AdminController : BaseApiController
     {
@@ -102,7 +101,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var session = GetSession();
-                var results = await _logic.GetUtenti(model, session, Request.RequestUri);
+                var currentUser = await _logic.GetPersona(session);
+                var results = await _logic.GetUtenti(model, currentUser, Request.RequestUri);
                 return Ok(results);
             }
             catch (Exception e)
@@ -205,6 +205,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpDelete]
         [Route("user/{id:guid}")]
         public async Task<IHttpActionResult> DeleteUtente(Guid id)
@@ -230,6 +231,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
         [Route("salva")]
         public async Task<IHttpActionResult> SalvaUtente(PersonaUpdateRequest request)
@@ -251,6 +253,7 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per eliminare un utente
         /// </summary>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpDelete]
         [Route("elimina")]
         public async Task<IHttpActionResult> EliminaUtente(Guid id)
@@ -273,6 +276,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
         [Route("salva-gruppo")]
         public async Task<IHttpActionResult> SalvaGruppo(SalvaGruppoRequest request)
