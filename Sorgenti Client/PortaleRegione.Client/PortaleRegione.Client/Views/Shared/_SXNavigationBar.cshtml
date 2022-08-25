@@ -3,8 +3,7 @@
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
 @{
-    var displayName = "";
-    var foto = "";
+    PersonaDto persona = null;
     IEnumerable<RuoliDto> ruoli = new List<RuoliDto>();
     IEnumerable<KeyValueDto> gruppiAdmin = new List<KeyValueDto>();
     GruppiDto gruppo = null;
@@ -25,10 +24,9 @@
                 var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
                 var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
 
+                persona = data;
                 currentRole = data.CurrentRole;
                 ruoli = data.Ruoli;
-                displayName = data.DisplayName;
-                foto = data.foto;
                 gruppo = data.Gruppo;
                 carica = data.IsGiunta ? data.Carica : string.Empty;
                 if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
@@ -90,11 +88,11 @@
                         </ul>
                     </div>
                     <div class="col s3 center">
-                        <img class="responsive-img circle" style="height: 50px; width: 50px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@foto">
+                        <img class="responsive-img circle" style="height: 50px; width: 50px;" src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@persona.foto">
                     </div>
                     <div class="col s8" style="padding-left: 0">
                         <h6 class="black-text">
-                            <b>@displayName</b>
+                            <b>@persona.DisplayName</b>
                         </h6>
                     </div>
                 </div>
@@ -204,7 +202,7 @@
         <li class="menuItem_Stampe bold">
             <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
         </li>
-        @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta)
+        @if (currentRole == RuoliIntEnum.Amministratore_PEM || currentRole == RuoliIntEnum.Amministratore_Giunta || persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
         {
             <li class="menuItem_Amministrazione_Utenti bold">
                 <a class="waves-effect purple-text" href="@Url.Action("RiepilogoUtenti", "AdminPanel")"><i class="material-icons purple-text">person</i>Utenti</a>

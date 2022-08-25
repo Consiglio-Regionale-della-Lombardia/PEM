@@ -377,7 +377,7 @@ namespace PortaleRegione.BAL
             return personaResult;
         }
 
-        public async Task<BaseResponse<PersonaDto>> GetUtenti(BaseRequest<PersonaDto> model, SessionManager session,
+        public async Task<BaseResponse<PersonaDto>> GetUtenti(BaseRequest<PersonaDto> model, PersonaDto persona,
             Uri url)
         {
             try
@@ -426,39 +426,47 @@ namespace PortaleRegione.BAL
                 var results = new List<PersonaDto>();
                 var persone_In_Db = new List<PersonaDto>();
                 var counter = 0;
-                persone_In_Db.AddRange(await GetPersoneIn_DB(model));
-                counter = await Count(model);
 
-                foreach (var persona in persone_In_Db)
+                if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
                 {
-                    if (!string.IsNullOrEmpty(persona.userAD))
+                    var consiglieri_gruppo = await _unitOfWork.Gruppi.GetConsiglieriGruppo(await _unitOfWork.Legislature.Legislatura_Attiva(),
+                        persona.Gruppo.id_gruppo);
+                    persone_In_Db.AddRange(consiglieri_gruppo.Select(Mapper.Map<View_UTENTI,PersonaDto>));
+                    counter = consiglieri_gruppo.Count();
+                }
+                else
+                {
+                    counter = await Count(model);
+                    persone_In_Db.AddRange(await GetPersoneIn_DB(model));
+                }
+
+                foreach (var persona_in_db in persone_In_Db)
+                {
+                    if (!string.IsNullOrEmpty(persona_in_db.userAD))
                     {
                         var gruppiUtente_PEM = new List<string>(intranetAdService.GetGroups(
-                            persona.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
+                            persona_in_db.userAD.Replace(@"CONSIGLIO\", ""), "PEM_", AppSettingsConfiguration.TOKEN_R));
 
                         if (gruppiUtente_PEM.Any())
                         {
-                            persona.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
+                            persona_in_db.Gruppi = gruppiUtente_PEM.Aggregate((i, j) => i + "; " + j);
                         }
 
-                        var gruppiUtente_AD = GetADGroups(persona.userAD.Replace(@"CONSIGLIO\", ""));
+                        var gruppiUtente_AD = GetADGroups(persona_in_db.userAD.Replace(@"CONSIGLIO\", ""));
                         if (gruppiUtente_AD.Any())
                         {
-                            persona.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
+                            persona_in_db.GruppiAD = gruppiUtente_AD.Aggregate((i, j) => i + "; " + j);
                         }
 
-                        persona.Stato_Pin = await CheckPin(persona);
+                        persona_in_db.Stato_Pin = await CheckPin(persona_in_db);
                     }
 
-                    results.Add(persona);
+                    results.Add(persona_in_db);
                 }
-
-                results.Skip((model.page - 1) * model.size)
-                    .Take(model.size);
 
                 return new BaseResponse<PersonaDto>(
                     model.page,
-                    model.size,
+                    persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica ? counter : model.size,
                     results,
                     model.filtro,
                     counter,

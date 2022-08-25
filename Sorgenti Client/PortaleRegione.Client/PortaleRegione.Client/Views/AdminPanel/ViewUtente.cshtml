@@ -216,11 +216,14 @@
                 }
             </div>
         </div>
-        <div class="fixed-action-btn">
-            <button id="btnSalvaUtente" class="btn-floating btn-large blue">
-                <i class="large material-icons">save</i>
-            </button>
-        </div>
+        @if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+        {
+            <div class="fixed-action-btn">
+                <button id="btnSalvaUtente" class="btn-floating btn-large blue">
+                    <i class="large material-icons">save</i>
+                </button>
+            </div>
+        }
     </div>
 </div>
 
