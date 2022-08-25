@@ -2,13 +2,12 @@
 @using PortaleRegione.DTO.Domain
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <script>
-    $(window).on('load', async function () {
+    $('#btnSearch').on("click", async function () {
+        openDasiSearch();
+    });
+
+    $(document).ready(async function () {
         setSelezionaTutti_DASI(false);
-
-        $('#btnSearch').on("click", function () {
-            openDasiSearch();
-        });
-
         var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
         if (filters == 0) {
             set_Filtri_DASI({});
@@ -25,7 +24,7 @@
                         filtri_cache.tipo = item.Value;
                         set_Filtri_DASI(filtri_cache);
                     }
-            });
+                });
         }
 
         Filtri_DASI_CaricaNAtto("qNAtto");

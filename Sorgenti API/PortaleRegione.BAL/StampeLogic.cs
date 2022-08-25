@@ -64,15 +64,56 @@ namespace PortaleRegione.BAL
             {
                 var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
 
-                if (!model.entity.UIDEM.HasValue)
+                var queryFilter = new Filter<EM>();
+                var firmatari = new List<Guid>();
+                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
                 {
-                    var queryFilter = new Filter<EM>();
-                    queryFilter.ImportStatements(model.filtro);
-
-                    var queryEM =
-                        _unitOfWork.Emendamenti.GetAll_Query(model.entity.UIDAtto.Value, persona, (OrdinamentoEnum)model.entity.Ordine!.Value, queryFilter, model.entity.CLIENT_MODE);
-                    stampa.Query = queryEM;
+                    firmatari_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "Firmatario"));
+                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
+                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
                 }
+
+                var proponenti = new List<Guid>();
+                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
+                {
+                    proponenti_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
+                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
+                }
+
+                var gruppi = new List<int>();
+                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
+                {
+                    gruppi_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
+                    gruppi.AddRange(gruppi_request.Select(gruppo => Convert.ToInt32(gruppo.Value.ToString())));
+                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
+                }
+
+                var stati = new List<int>();
+                var stati_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
+                {
+                    stati_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
+                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                }
+
+                queryFilter.ImportStatements(model.filtro);
+
+                var queryEM =
+                    await _unitOfWork.Emendamenti.GetAll_Query(queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
+                stampa.Query = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int)persona.CurrentRole;

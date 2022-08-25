@@ -321,7 +321,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!model.UIDPersonaProponente.HasValue)
+                if (model.UIDPersonaProponente == Guid.Empty)
                 {
                     throw new InvalidOperationException("L'emendamento deve avere un proponente");
                 }
@@ -375,7 +375,7 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var isGiunta = model.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID;
-                var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente.Value, isGiunta);
+                var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente, isGiunta);
 
                 var em = await _logicEm.NuovoEmendamento(model, proponente, isGiunta);
 

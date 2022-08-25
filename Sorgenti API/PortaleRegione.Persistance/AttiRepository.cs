@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -159,11 +158,16 @@ namespace PortaleRegione.Persistance
             return (await query.ToListAsync()).Count;
         }
 
-        public async Task<int> Count(Guid sedutaUId, Filter<ATTI> filtro = null)
+        public async Task<int> Count(Guid sedutaUId, int clientMode, PersonaDto persona, Filter<ATTI> filtro = null)
         {
             var query = PRContext.ATTI.Where(c => c.UIDSeduta == sedutaUId && c.Eliminato == false);
 
             filtro?.BuildExpression(ref query);
+            if (clientMode == (int)ClientModeEnum.GRUPPI)
+            {
+                if (!persona.IsSegreteriaAssemblea)
+                    query = query.Where(item => item.Emendabile);
+            }
 
             return (await query.ToListAsync()).Count;
         }

@@ -124,7 +124,7 @@ namespace PortaleRegione.Persistance
                 return false;
             }
             
-            if (atto.UIDSeduta.HasValue)
+            if (atto.UIDSeduta.HasValue && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 return false;
             }
@@ -179,6 +179,11 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo)
         {
+            if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO && tipo == FirmeTipoEnum.DOPO_DEPOSITO)
+            {
+                return new List<ATTI_FIRME>();
+            }
+
             var firmaProponente = await PRContext
                 .ATTI_FIRME
                 .SingleOrDefaultAsync(f =>
@@ -196,14 +201,17 @@ namespace PortaleRegione.Persistance
                 case FirmeTipoEnum.TUTTE:
                     break;
                 case FirmeTipoEnum.PRIMA_DEPOSITO:
-                    if (atto.IDStato >= (int)StatiEnum.Depositato)
+                    if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                     {
                         query = query.Where(f => f.Timestamp < atto.Timestamp);
                     }
 
                     break;
                 case FirmeTipoEnum.DOPO_DEPOSITO:
-                    query = query.Where(f => f.Timestamp > atto.Timestamp);
+                    if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                    {
+                        query = query.Where(f => f.Timestamp > atto.Timestamp);
+                    }
                     break;
                 case FirmeTipoEnum.ATTIVI:
                     query = query.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));

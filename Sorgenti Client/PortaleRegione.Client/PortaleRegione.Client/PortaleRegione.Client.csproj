@@ -310,6 +310,7 @@
     <Content Include="Content\editor\ui\trumbowyg.css" />
     <Content Include="Content\editor\ui\trumbowyg.min.css" />
     <Content Include="Content\gruppi-theme.css" />
+    <Content Include="Content\img\scheduled-maintenance.png" />
     <Content Include="Content\jquery-hex-picker.css" />
     <Content Include="Content\trattazione-theme.css" />
     <Content Include="favicon-16x16.png">

@@ -36,8 +36,10 @@
 
 <script>
     function filtraByTipo(tipo) {
+        console.log("filtro", tipo);
         $('input[name="Tipo"]').val(tipo);
         $('#qTipo').val(tipo);
+        $('#qTipo').formSelect();
         filter_dasi_tipo_OnChange();
         filtra();
     }

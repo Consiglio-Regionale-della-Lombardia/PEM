@@ -488,6 +488,18 @@ namespace PortaleRegione.API.Controllers
                     dto.PresentatoOltreITermini = presentato_oltre_termini;
                 }
 
+                if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                {
+                    var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
+                    dto.MOZ_Abbinata = $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo.Value)}";
+                }
+
+                if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
+                {
+                    var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+                }
+
                 return dto;
             }
             catch (Exception e)
@@ -1004,7 +1016,7 @@ namespace PortaleRegione.API.Controllers
 
                         if (attoPEM.Jolly)
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG_Jolly)
+                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1014,7 +1026,7 @@ namespace PortaleRegione.API.Controllers
 
                         if (seduta.Data_effettiva_inizio.HasValue)
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG +
+                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG +
                                 AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 results.Add(idGuid,
@@ -1024,7 +1036,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count + 1 > AppSettingsConfiguration.MassimoODG)
+                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non presentabile. Non puoi presentare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1100,11 +1112,13 @@ namespace PortaleRegione.API.Controllers
 
                     if (atto.Tipo == (int) TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
                     {
-                        //iscrivi in seduta
+                        //proposta di iscrizione in seduta
                         var attoPem = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        atto.UIDSeduta = attoPem.UIDSeduta;
-                        atto.DataIscrizioneSeduta = DateTime.Now;
-                        atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
+                        var seduta = await _unitOfWork.Sedute.Get(attoPem.UIDSeduta.Value);
+                        var dataRichiesta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey);
+                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                         if (atto.Non_Passaggio_In_Esame)
                         {

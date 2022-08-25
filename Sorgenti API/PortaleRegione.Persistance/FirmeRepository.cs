@@ -101,7 +101,7 @@ namespace PortaleRegione.Persistance
             }
 
             var firma_personale = await Get(em.UIDEM, persona.UID_persona);
-            var firma_proponente = await CheckFirmato(em.UIDEM, em.UIDPersonaProponente.Value);
+            var firma_proponente = await CheckFirmato(em.UIDEM, em.UIDPersonaProponente);
 
             if (firma_personale == null
                 && (firma_proponente || em.UIDPersonaProponente == persona.UID_persona)

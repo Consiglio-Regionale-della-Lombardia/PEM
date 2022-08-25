@@ -370,11 +370,11 @@ namespace PortaleRegione.BAL
                         DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
                 }
 
-                body = body.Replace("{lblSubTitoloATTOView}",
+                body = body.Replace("{lblSubTitoloATTOView}", 
                     string.IsNullOrEmpty(atto.Oggetto_Modificato) ? atto.Oggetto : atto.Oggetto_Modificato);
-                body = body.Replace("{lblPremesseATTOView}",
+                body = body.Replace("{lblPremesseATTOView}", 
                     string.IsNullOrEmpty(atto.Premesse_Modificato) ? atto.Premesse : atto.Premesse_Modificato);
-                body = body.Replace("{lblRichiestaATTOView}",
+                body = body.Replace("{lblRichiestaATTOView}", 
                     string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
 
                 var allegato_generico = string.Empty;

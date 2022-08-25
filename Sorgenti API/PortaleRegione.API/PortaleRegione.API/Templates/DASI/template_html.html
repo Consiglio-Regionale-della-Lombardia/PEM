@@ -1,6 +1,4 @@
 ﻿<style>
-    tr, td { border: unset !important }
-
     .left-border {
         border-left: 1px solid !important;
         border-right: 1px solid !important;
@@ -18,31 +16,31 @@
 
 <table style="width: 100%">
     {NOTE_PUBBLICHE_COMMENTO_START}
-    <tr>
-        <td style="text-align: left">
+    <tr style="border: unset !important">
+        <td style="text-align: left; border: unset !important">
             <h5 style="font-size: 15px">
                 {lblNotePubblicheATTOView}
             </h5>
         </td>
     </tr>
     {NOTE_PUBBLICHE_COMMENTO_END}
-    <tr>
-        <td style="text-align: center">
+    <tr style="border: unset !important">
+        <td style="text-align: center; border: unset !important">
             <h3>
                 <b>{lblTitoloATTOView}</b>
             </h3>
         </td>
     </tr>
-    <tr>
-        <td style="text-align: center; width: 100%;">
-            <table style="vertical-align: top; width: 100%;">
-                <tr>
-                    <td style="vertical-align: top;">
+    <tr style="border: unset !important">
+        <td style="text-align: center; width: 100%; border: unset !important">
+            <table style="width: 100%;">
+                <tr style="border: unset !important">
+                    <td style="border: unset !important">
                         {ltATTOView}
                         <br />
                         <table>
                             {FIRMEANTE_COMMENTO_START}
-                            <tr>
+                            <tr style="border: unset !important">
                                 <td style="text-align: left!important">
                                     <h5>Firme</h5>
                                     {radGridFirmeView}
@@ -50,7 +48,7 @@
                             </tr>
                             {FIRMEANTE_COMMENTO_END}
                             {FIRME_COMMENTO_START}
-                            <tr>
+                            <tr style="border: unset !important">
                                 <td style="text-align: left!important">
                                     {radGridFirmePostView}
                                 </td>

@@ -435,6 +435,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpPost]
         [Route("template-body")]
         public async Task<IHttpActionResult> GetBody(GetBodyModel model)

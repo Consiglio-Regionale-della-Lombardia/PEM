@@ -11,7 +11,13 @@
         </label>
     </div>
     <div class="col s5 left">
-
+        @if (!Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <label>
+                <input type="checkbox" id="expandAll" checked="checked"/>
+                <span for="expandAll">Espandi tutti</span>
+            </label>
+        }
     </div>
     <div class="col s6">
         <div class="right">
