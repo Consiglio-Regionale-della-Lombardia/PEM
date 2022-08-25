@@ -6,28 +6,21 @@
 <div id="tagsEm" class="chips"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('#tagsEm').chips({
-            placeholder: 'Aggiungi un tag',
-            secondaryPlaceholder: '+ Tag',
+    document.addEventListener('DOMContentLoaded',
+        async function () {
+            var tagsInDb = await GetTags();
+            $('#tagsEm').chips({
+                placeholder: 'Aggiungi un tag',
+                secondaryPlaceholder: '+ Tag',
+                autocompleteOptions: {
+                    data: tagsInDb,
+                    limit: Infinity,
+                    minLength: 1
+                }
+            });
         });
-
-        //$('.chips-autocomplete').chips({
-        //    autocompleteOptions: {
-        //        data: {
-        //            'Apple': null,
-        //            'Microsoft': null,
-        //            'Google': null
-        //        },
-        //        limit: Infinity,
-        //        minLength: 1
-        //    }
-        //});
-    });
 </script>
 
 <style>
-    .chips > .chip {
-        min-width: unset !important;
-    }
+    .chips > .chip { min-width: unset !important; }
 </style>

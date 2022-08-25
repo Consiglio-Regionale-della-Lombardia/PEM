@@ -1002,6 +1002,15 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("tags")]
+        public async Task<ActionResult> GetTags()
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var result = await apiGateway.Emendamento.GetTags();
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
         //FILTRI
 
         [HttpGet]

@@ -70,5 +70,6 @@ namespace PortaleRegione.Gateway
         Task<EmendamentiDto> Salva(EmendamentiDto model);
         Task SPOSTA_EM_TRATTAZIONE(Guid id, int pos);
         Task UP_EM_TRATTAZIONE(Guid id);
+        Task<List<TagDto>> GetTags();
     }
 }

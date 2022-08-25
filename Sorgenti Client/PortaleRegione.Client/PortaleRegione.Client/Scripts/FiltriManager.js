@@ -135,6 +135,21 @@ function GetSeduteAttive() {
     });
 }
 
+function GetTags() {
+    
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/emendamenti/tags",
+            type: "GET"
+        }).done(function (result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetRiepilogoFirmeAtto() {
     return new Promise(async function(resolve, reject) {
         $.ajax({
