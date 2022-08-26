@@ -22,7 +22,7 @@
                     }
                 }
                 <label class="black-text" style="margin-left: 20px">
-                    <input type="radio" onchange="PartiTestoEmendamento_OnChange(@((int)partiTestoDto.IDParte))" value="@((int)partiTestoDto.IDParte)" @Html.Raw(Model.Emendamento.IDParte == (int)partiTestoDto.IDParte ? "checked='checked'" : "") name="Emendamento.IDParte" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                    <input type="radio" onchange="PartiTestoEmendamento_OnChange(@((int)partiTestoDto.IDParte))" value="@((int)partiTestoDto.IDParte)" @Html.Raw(Model.Emendamento.IDParte == (int)partiTestoDto.IDParte ? "checked='checked'" : "") name="Emendamento.IDParte" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                     <span>@partiTestoDto.Parte</span>
                 </label>
             }
@@ -41,7 +41,7 @@
                     }
                     <div id="pnlTitolo" style="display: @pnlTitoloVisible">
                         @Html.LabelFor(m => m.Emendamento.NTitolo)
-                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
 
                     </div>
                     @{
@@ -49,7 +49,7 @@
                     }
                     <div id="pnlCapo" style="display: @pnlCapoVisible">
                         @Html.LabelFor(m => m.Emendamento.NCapo)
-                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                     </div>
                     @{
                         var pnlArticoliVisible = Model.Emendamento.UIDArticolo.HasValue ? "block" : "none";
@@ -155,7 +155,7 @@
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NProgramma)
-                            <input type="number" name="Emendamento.NProgramma" min="0" value="@Model.Emendamento.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                            <input type="number" name="Emendamento.NProgramma" min="0" value="@Model.Emendamento.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Emendamento.NTitoloB)
@@ -200,15 +200,15 @@
                         throw new ArgumentOutOfRangeException();
                 }
                 <label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
-                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")/>
                     <span>@tipoDto.Tipo_EM</span>
                 </label>
             }
         </div>
     </div>
 </div>
-<input type="hidden" id="hdParteId" />
-<input type="hidden" id="hdTipoId" />
+<input type="hidden" id="hdParteId"/>
+<input type="hidden" id="hdTipoId"/>
 <script>
     function PartiTestoEmendamento_OnChange(item) {
 
@@ -219,13 +219,13 @@
         $("#pnlMissioni").hide();
 
         var viewPanel = true;
-        if (item == @((int) PartiEMEnum.Titolo))
+        if (item == @((int)PartiEMEnum.Titolo))
             $("#pnlTitolo").show();
-        else if (item == @((int) PartiEMEnum.Capo))
+        else if (item == @((int)PartiEMEnum.Capo))
             $("#pnlCapo").show();
-        else if (item == @((int) PartiEMEnum.Articolo))
+        else if (item == @((int)PartiEMEnum.Articolo))
             $("#pnlArticoli").show();
-        else if (item == @((int) PartiEMEnum.Missione))
+        else if (item == @((int)PartiEMEnum.Missione))
             $("#pnlMissioni").show();
         else
             viewPanel = false;
@@ -242,7 +242,7 @@
 
     function TestoEmendamento_TipoEM(tipo, block_edit_text_auto) {
         $('#hdTipoId').val(tipo);
-        
+
         var container_testo_em = $("#Emendamento_TestoEM_originale").parent();
         var editor_test_em = $(container_testo_em).find(".trumbowyg-editor");
 
@@ -252,38 +252,55 @@
                 function(index, itemParteEM) {
                     if (itemParteEM.checked) {
                         var testo = "";
-                        if (itemParteEM.value == @((int) PartiEMEnum.Titolo_PDL)) {
+                        if (itemParteEM.value == @((int)PartiEMEnum.Titolo_PDL)) {
                             testo = "Il titolo del PDL ";
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Titolo)) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Titolo)) {
                             testo = "Il titolo " + $("input[name='Emendamento.NTitolo']").val();
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Capo)) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Capo)) {
                             testo = "Il capo " + $("input[name='Emendamento.NCapo']").val();
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Articolo)) {
-                            if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
-                                testo = "La lettera " + $("#Emendamento_NLettera").val();
-                            } else if ($("#pnlLettere").is(":visible") && $("#LettereList option:selected").val() != 0) {
-                                testo = "La lettera " + $("#LettereList option:selected").text();
-                            }
-
-                            if ($("#pnlCommi").is(":visible") && $("#CommiList option:selected").val() != 0) {
-                                if (testo == "") {
-                                    testo = "Il comma ";
-                                } else {
-                                    testo = testo + " del comma ";
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Articolo)) {
+                            
+                            if (tipo == @((int)TipiEMEnum.AGGIUNTIVO) 
+                                && $("#ArticoliList option:selected").val() != 0
+                                && $("#CommiList option:selected").val() == 0
+                                && $("#LettereList option:selected").val() == 0) {
+                                testo = "Il progetto di legge viene emendato aggiungendo dopo l’articolo " + $("#ArticoliList option:selected").text() + " il seguente:";
+                                editor_test_em.html(testo);
+                                return;
+                            } else if (tipo == @((int)TipiEMEnum.AGGIUNTIVO) 
+                                && $("#CommiList option:selected").val() != 0
+                                && $("#ArticoliList option:selected").val() != 0
+                                 && $("#LettereList option:selected").val() == 0) {
+                                testo = "L’articolo " + $("#ArticoliList option:selected").text() + " viene emendato aggiungendo dopo il comma " + $("#CommiList option:selected").text() + " il seguente:";
+                                editor_test_em.html(testo);
+                                return;
+                            } else {
+                                if ($("#pnlLettereOLD").is(":visible") && $("#Emendamento_NLettera").val() != "") {
+                                    testo = "La lettera " + $("#Emendamento_NLettera").val();
+                                } else if ($("#pnlLettere").is(":visible") && $("#LettereList option:selected").val() != 0) {
+                                    testo = "La lettera " + $("#LettereList option:selected").text();
                                 }
 
-                                testo = testo + $("#CommiList option:selected").text();
-                            }
-                            if ($("#pnlArticoli").is(":visible") && $("#ArticoliList option:selected").val() != 0) {
-                                if (testo == "") {
-                                    testo = "L'articolo ";
-                                } else {
-                                    testo = testo + " dell'articolo ";
-                                }
+                                if ($("#pnlCommi").is(":visible") && $("#CommiList option:selected").val() != 0) {
+                                    if (testo == "") {
+                                        testo = "Il comma ";
+                                    } else {
+                                        testo = testo + " del comma ";
+                                    }
 
-                                testo = testo + $("#ArticoliList option:selected").text();
+                                    testo = testo + $("#CommiList option:selected").text();
+                                }
+                                if ($("#pnlArticoli").is(":visible") && $("#ArticoliList option:selected").val() != 0) {
+                                    if (testo == "") {
+                                        testo = "L'articolo ";
+                                    } else {
+                                        testo = testo + " dell'articolo ";
+                                    }
+
+                                    testo = testo + $("#ArticoliList option:selected").text();
+                                }
                             }
-                        } else if (itemParteEM.value == @((int) PartiEMEnum.Missione)) {
+                        } else if (itemParteEM.value == @((int)PartiEMEnum.Missione)) {
                             testo = "La missione " +
                                 $("#MissioniList option:selected").val() +
                                 " programma " +
@@ -293,13 +310,13 @@
                                 " ";
                         }
 
-                        if (tipo == @((int) TipiEMEnum.SOPPRESSIVO)) {
+                        if (tipo == @((int)TipiEMEnum.SOPPRESSIVO)) {
                             testo = testo + " è soppresso.";
-                        } else if (tipo == @((int) TipiEMEnum.MODIFICATIVO)) {
+                        } else if (tipo == @((int)TipiEMEnum.MODIFICATIVO)) {
                             testo = testo + " è modificato come segue: ";
-                        } else if (tipo == @((int) TipiEMEnum.AGGIUNTIVO)) {
+                        } else if (tipo == @((int)TipiEMEnum.AGGIUNTIVO)) {
                             testo = testo + " viene emendato aggiungendo: ";
-                        } else if (tipo == @((int) TipiEMEnum.SOSTITUTIVO)) {
+                        } else if (tipo == @((int)TipiEMEnum.SOSTITUTIVO)) {
                             testo = testo + " è sostituito.";
                         }
                         editor_test_em.html(testo);
