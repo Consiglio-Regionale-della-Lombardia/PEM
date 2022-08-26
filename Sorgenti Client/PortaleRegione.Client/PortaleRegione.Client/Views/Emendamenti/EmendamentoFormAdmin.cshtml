@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     @Html.Partial("_MetaDatiPanel", Model)
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
@@ -94,6 +94,7 @@
                     </div>
 
                     @Html.Partial("_DocsPanel", Model)
+                    @Html.Partial("_TagsPanel", Model)
                 }
                 <div class="fixed-action-btn">
                     <button class="btn-floating btn-large blue" id="btnSave">

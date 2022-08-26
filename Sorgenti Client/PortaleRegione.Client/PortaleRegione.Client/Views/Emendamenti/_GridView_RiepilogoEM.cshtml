@@ -1,5 +1,7 @@
 ﻿@using System.Web.Services.Description
+@using Newtonsoft.Json
 @using PortaleRegione.Common
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using Utility = PortaleRegione.Client.Helpers.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
@@ -132,6 +134,23 @@ else
                                             </span>
                                         }
                                     </div>
+                                        }
+                                        
+                                        
+                                        @*TAGS*@
+                                        
+                                        @{
+                                            var tags = new List<TagDto>();
+
+                                            if (!string.IsNullOrEmpty(itemEM.Tags))
+                                            {
+                                                tags = JsonConvert.DeserializeObject<List<TagDto>>(itemEM.Tags);
+                                            }
+                                        }
+                                        
+                                        @foreach (var t in tags)
+                                        {
+                                            <label>#@t.tag</label>
                                         }
                                     </div>
                                 </div>

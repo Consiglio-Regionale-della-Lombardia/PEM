@@ -1137,6 +1137,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_gruppo = Request.Form["filtro_gruppo"];
             var filtro_proponente = Request.Form["filtro_proponente"];
             var filtro_firmatari = Request.Form["filtro_firmatari"];
+            var filtro_tags = Request.Form["tags"];
 
             mode = mode_result;
             if (ordine == 0)
@@ -1164,6 +1165,7 @@ namespace PortaleRegione.Client.Controllers
             Common.Utility.AddFilter_Groups(ref model, filtro_gruppo);
             Common.Utility.AddFilter_Proponents(ref model, filtro_proponente);
             Common.Utility.AddFilter_Signers(ref model, filtro_firmatari);
+            Common.Utility.AddFilter_Tags(ref model, filtro_tags);
 
             return model;
         }

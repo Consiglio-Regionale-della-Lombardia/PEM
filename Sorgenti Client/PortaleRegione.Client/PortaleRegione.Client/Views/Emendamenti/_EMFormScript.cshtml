@@ -24,7 +24,7 @@
     $("#formEmendamento").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function(form) {
+        submitHandler: function (form) {
 
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
@@ -113,6 +113,17 @@
 
             form_data.append("DocEffettiFinanziari", docAllegatoTecnico);
             form_data.append("DocAllegatoGenerico", docAllegatoGenerico);
+
+            //Tags
+            var tagData = [];
+            if (tagInstance != null) {
+                t = tagInstance[0];
+                $.each(t.chipsData, function(index, item) {
+                    tagData.push(item);
+                });
+
+                form_data.append("Tags", JSON.stringify(tagData));
+            }
 
             //submit via ajax
             $.ajax({
