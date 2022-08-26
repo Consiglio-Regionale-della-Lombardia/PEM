@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Interfaces;
@@ -55,13 +56,15 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti,
             int CLIENT_MODE,
-            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
+            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
+            List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null)
         {
             var query = PRContext.EM
                 .Where(em => em.UIDAtto == attoUId && !em.Eliminato);
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
             {
-                query = query.Where(em => em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
+                query = query.Where(em =>
+                    em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else
             {
@@ -107,6 +110,24 @@ namespace PortaleRegione.Persistance
                 }
             }
 
+            if (tagDtos != null)
+            {
+                if (tagDtos.Count > 0)
+                {
+                    //Avvio ricerca tags;
+                    var tag_em = new List<Guid>();
+                    foreach (var t in tagDtos)
+                    {
+                        var arr = await PRContext.EM
+                            .Where(em => em.Tags.Contains(t.tag)).Select(em => em.UIDEM)
+                            .ToListAsync();
+                        tag_em.AddRange(arr.Where(item => !tag_em.Contains(item)));
+                    }
+
+                    query = query.Where(em => tag_em.Contains(em.UIDEM));
+                }
+            }
+
             if (proponenti != null)
             {
                 if (proponenti.Count > 0)
@@ -126,7 +147,7 @@ namespace PortaleRegione.Persistance
                         .Where(em => gruppi.Contains(em.id_gruppo));
                 }
             }
-            
+
             if (stati != null)
             {
                 if (stati.Count > 0)
@@ -140,9 +161,9 @@ namespace PortaleRegione.Persistance
             switch (counter_emendamenti)
             {
                 case CounterEmendamentiEnum.NONE:
-                    {
-                        return await query.CountAsync();
-                    }
+                {
+                    return await query.CountAsync();
+                }
                 case CounterEmendamentiEnum.EM:
                     if (persona.IsSegreteriaAssemblea)
                     {
@@ -317,9 +338,12 @@ namespace PortaleRegione.Persistance
         /// <param name="firmatari"></param>
         /// <param name="proponenti"></param>
         /// <param name="gruppi"></param>
+        /// <param name="stati"></param>
+        /// <param name="tagDtos"></param>
         /// <returns></returns>
         public async Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page,
-            int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
+            int? size, int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null,
+            List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null)
         {
             var query = PRContext
                 .EM
@@ -327,7 +351,8 @@ namespace PortaleRegione.Persistance
 
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
             {
-                var filter_value = filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(AttiDto.UIDAtto)).Value;
+                var filter_value = filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(AttiDto.UIDAtto))
+                    .Value;
                 var uidAtto = new Guid(filter_value.ToString());
                 var atto = await PRContext
                     .ATTI
@@ -342,7 +367,8 @@ namespace PortaleRegione.Persistance
                     return new List<Guid>();
                 }
 
-                query = query.Where(em => em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
+                query = query.Where(em =>
+                    em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else
             {
@@ -371,7 +397,7 @@ namespace PortaleRegione.Persistance
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);
                 }
             }
-            
+
             filtro?.BuildExpression(ref query);
 
             if (firmatari != null)
@@ -388,7 +414,7 @@ namespace PortaleRegione.Persistance
                         .Where(em => firme.Contains(em.UIDEM));
                 }
             }
-            
+
             if (proponenti != null)
             {
                 if (proponenti.Count > 0)
@@ -398,7 +424,25 @@ namespace PortaleRegione.Persistance
                         .Where(em => proponenti.Contains(em.UIDPersonaProponente));
                 }
             }
-            
+
+            if (tagDtos != null)
+            {
+                if (tagDtos.Count > 0)
+                {
+                    //Avvio ricerca tags;
+                    var tag_em = new List<Guid>();
+                    foreach (var t in tagDtos)
+                    {
+                        var arr = await PRContext.EM
+                            .Where(em => em.Tags.Contains(t.tag)).Select(em => em.UIDEM)
+                            .ToListAsync();
+                        tag_em.AddRange(arr.Where(item => !tag_em.Contains(item)));
+                    }
+
+                    query = query.Where(em => tag_em.Contains(em.UIDEM));
+                }
+            }
+
             if (gruppi != null)
             {
                 if (gruppi.Count > 0)
@@ -438,9 +482,10 @@ namespace PortaleRegione.Persistance
             }
             else
             {
-                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo).ThenBy(em => em.SubProgressivo);
+                query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo)
+                    .ThenBy(em => em.SubProgressivo);
             }
-            
+
             return await query
                 .Select(em => em.UIDEM)
                 .Skip((page.Value - 1) * size.Value)
@@ -473,7 +518,8 @@ namespace PortaleRegione.Persistance
         /// <param name="persona"></param>
         /// <param name="ordine"></param>
         /// <returns></returns>
-        public async Task<string> GetAll_Query(Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
+        public async Task<string> GetAll_Query(Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum,
+            List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
         {
             var query = PRContext
                 .EM
@@ -891,6 +937,19 @@ namespace PortaleRegione.Persistance
                              && em.IDStato >= (int)StatiEnum.Depositato
                              && em.Eliminato == false);
             return await query.CountAsync();
+        }
+
+        public async Task<bool> TagExists(string tag)
+        {
+            return await PRContext.TAGS.AnyAsync(item => tag.ToLower().Equals(item.tag.ToLower()));
+        }
+
+        public void AddTag(string tag)
+        {
+            PRContext.TAGS.Add(new TAGS
+            {
+                tag = tag
+            });
         }
 
         /// <summary>

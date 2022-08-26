@@ -16,11 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+
 namespace PortaleRegione.DTO.Domain
 {
     public class TagDto
     {
         public string tag { get; set; }
-        public string id { get; set; }
     }
 }

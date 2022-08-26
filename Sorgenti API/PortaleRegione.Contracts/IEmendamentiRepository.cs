@@ -34,12 +34,13 @@ namespace PortaleRegione.Contracts
     public interface IEmendamentiRepository : IRepository<EM>
     {
         Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti, int CLIENT_MODE,
-            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null);
+            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
 
         Task<int> Count(string query);
 
         Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
-            int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null);
+            int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
+            List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos =null);
 
         IEnumerable<EM> GetAll(ByQueryModel model);
 
@@ -78,5 +79,7 @@ namespace PortaleRegione.Contracts
         bool CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
         bool CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
         Task<int> GetOrdinePresentazione(Guid uidAtto);
+        Task<bool> TagExists(string tag);
+        void AddTag(string tag);
     }
 }
