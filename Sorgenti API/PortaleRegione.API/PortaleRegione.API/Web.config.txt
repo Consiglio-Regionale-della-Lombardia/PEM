@@ -38,8 +38,8 @@
 
     <add key="AutenticazioneAD " value="1" />
     <add key="JWT_MASTER" value="YOUR_JWT_MASTER_KEY" />
-    <!-- Valore in minuti -->
-    <add key="JWT_EXPIRATION" value="525600" /> 
+    <!-- Valore in ore -->
+    <add key="JWT_EXPIRATION" value="4" /> 
     <add key="TOKEN_R" value="YOUR_TOKEN_R" />
     <add key="TOKEN_W" value="YOUR_TOKEN_W" />
     <add key="MasterPIN" value="YOUR_MASTER_PIN" />

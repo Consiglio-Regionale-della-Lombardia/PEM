@@ -277,7 +277,7 @@ namespace PortaleRegione.BAL
                     Issuer = AppSettingsConfiguration.URL_API,
                     Subject = new ClaimsIdentity(claims),
                     NotBefore = DateTime.UtcNow,
-                    Expires = DateTime.UtcNow.AddMinutes(AppSettingsConfiguration.JWT_EXPIRATION),
+                    Expires = DateTime.UtcNow.AddHours(AppSettingsConfiguration.JWT_EXPIRATION),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
                 };
@@ -320,7 +320,7 @@ namespace PortaleRegione.BAL
                     Issuer = AppSettingsConfiguration.URL_API,
                     Subject = new ClaimsIdentity(claims),
                     NotBefore = DateTime.UtcNow,
-                    Expires = DateTime.UtcNow.AddMinutes(AppSettingsConfiguration.JWT_EXPIRATION),
+                    Expires = DateTime.UtcNow.AddHours(AppSettingsConfiguration.JWT_EXPIRATION),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
                 };
