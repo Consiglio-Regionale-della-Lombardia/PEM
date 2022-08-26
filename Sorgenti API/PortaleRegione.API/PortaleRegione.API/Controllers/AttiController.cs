@@ -355,7 +355,6 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var commiDtos = (await _logic.GetCommi(id)).Select(Mapper.Map<COMMI, CommiDto>);
-
                 return Ok(commiDtos);
             }
             catch (Exception e)
