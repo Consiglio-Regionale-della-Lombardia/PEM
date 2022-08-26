@@ -712,6 +712,24 @@ namespace PortaleRegione.Common
                 model.filtro.Add(filtro);
             }
         }
+        
+        /// <summary>
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="tags"></param>
+        public static void AddFilter_Tags(ref BaseRequest<EmendamentiDto> model, string tags)
+        {
+            if (string.IsNullOrEmpty(tags)) return;
+
+            var filtro = new FilterStatement<EmendamentiDto>
+            {
+                PropertyId = "Tags",
+                Operation = Operation.EqualTo,
+                Value = tags
+            };
+            model.filtro.Add(filtro);
+        }
 
         public static string StripHTML(string input)
         {

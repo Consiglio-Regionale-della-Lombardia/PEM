@@ -73,6 +73,7 @@
     <Compile Include="STAMPE.cs" />
     <Compile Include="STAMPE_INFO.cs" />
     <Compile Include="STATI_EM.cs" />
+    <Compile Include="TAGS.cs" />
     <Compile Include="tbl_recapiti.cs" />
     <Compile Include="TIPI_ATTO.cs" />
     <Compile Include="TIPI_EM.cs" />

@@ -137,6 +137,7 @@
     <Compile Include="Model\RiepilogoNotificheModel.cs" />
     <Compile Include="Model\RiepilogoUtentiModel.cs" />
     <Compile Include="Model\SessionManager.cs" />
+    <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />

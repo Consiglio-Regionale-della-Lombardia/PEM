@@ -893,6 +893,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<List<TagDto>> GetTags()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/emendamenti/tags";
+
+                var lst = JsonConvert.DeserializeObject<List<TagDto>>(await Get(requestUrl, _token));
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetTags", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetTags", ex);
+                throw ex;
+            }
+        }
+
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
         {
             try

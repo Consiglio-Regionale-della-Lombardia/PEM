@@ -1,4 +1,6 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Domain.EmendamentiDto
@@ -215,6 +217,22 @@
                             </p>
                         </div>
                     </div>
+                }
+                
+                @*TAGS*@
+                                        
+                @{
+                    var tags = new List<TagDto>();
+
+                    if (!string.IsNullOrEmpty(Model.Tags))
+                    {
+                        tags = JsonConvert.DeserializeObject<List<TagDto>>(Model.Tags);
+                    }
+                }
+                                        
+                @foreach (var t in tags)
+                {
+                    <label>#@t.tag</label>
                 }
             </div>
         </div>

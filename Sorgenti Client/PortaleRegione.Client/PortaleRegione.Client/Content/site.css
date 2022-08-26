@@ -109,6 +109,10 @@ div.chips.chips-autocomplete > .chip {
     text-decoration: underline;
 }
 
+.chips > .chip {
+    min-width: unset !important;
+}
+
 div.form-group > .chip { min-width: unset !important; }
 
 div.chip > i.material-icons {

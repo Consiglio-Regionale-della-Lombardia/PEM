@@ -24,6 +24,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.BAL.OpenData;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -376,6 +377,22 @@ namespace PortaleRegione.BAL
                 }
 
                 await _unitOfWork.CompleteAsync();
+
+                //Controllo Tags
+                if (!string.IsNullOrEmpty(em.Tags))
+                {
+                    var tags = JsonConvert.DeserializeObject<List<TagDto>>(em.Tags);
+                    foreach (var t in tags)
+                    {
+                        bool exists = await _unitOfWork.Emendamenti.TagExists(t.tag);
+                        if (!exists)
+                        {
+                            _unitOfWork.Emendamenti.AddTag(t.tag);
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
+                }
+
                 return em;
             }
             catch (Exception e)
@@ -397,6 +414,8 @@ namespace PortaleRegione.BAL
 
                 var updateDto = Mapper.Map<EmendamentiDto, EmendamentoLightDto>(model);
                 Mapper.Map(updateDto, em);
+
+                em.Tags = model.Tags;
 
                 var countFirme = await _unitOfWork.Firme.CountFirme(model.UIDEM);
 
@@ -443,6 +462,21 @@ namespace PortaleRegione.BAL
                 PuliziaMetaDati(em);
 
                 await _unitOfWork.CompleteAsync();
+
+                //Controllo Tags
+                if (!string.IsNullOrEmpty(em.Tags))
+                {
+                    var tags = JsonConvert.DeserializeObject<List<TagDto>>(model.Tags);
+                    foreach (var t in tags)
+                    {
+                        bool exists = await _unitOfWork.Emendamenti.TagExists(t.tag);
+                        if (!exists)
+                        {
+                            _unitOfWork.Emendamenti.AddTag(t.tag);
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -1550,6 +1584,15 @@ namespace PortaleRegione.BAL
                     filterStatement.Value =
                         EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
+                var tags = new List<TagDto>();
+                var tags_request = new FilterStatement<EmendamentiDto>();
+                if (model.filtro.Any(statement => statement.PropertyId == "Tags"))
+                {
+                    tags_request = model.filtro.First(statement => statement.PropertyId == "Tags");
+                    tags = JsonConvert.DeserializeObject<List<TagDto>>(tags_request.Value.ToString());
+                    model.filtro.Remove(tags_request);
+                }
+                
                 var firmatari = new List<Guid>();
                 var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
                 if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
@@ -1607,7 +1650,8 @@ namespace PortaleRegione.BAL
                         firmatari,
                         proponenti, 
                         gruppi,
-                        stati);
+                        stati,
+                        tags);
 
                 if (!em_in_db.Any())
                     return new EmendamentiViewModel
@@ -1640,7 +1684,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE), CounterEmendamentiEnum.NONE,
-                    firmatari, proponenti, gruppi, stati);
+                    firmatari, proponenti, gruppi, stati, tags);
                 if (firmatari_request.Any())
                     model.filtro.AddRange(firmatari_request);
                 if (proponenti_request.Any())
@@ -1819,7 +1863,8 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<int> CountEM(BaseRequest<EmendamentiDto> model, PersonaDto persona, int CLIENT_MODE,
-            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
+            CounterEmendamentiEnum type = CounterEmendamentiEnum.NONE, List<Guid> firmatari = null,
+            List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null)
         {
             try
             {
@@ -1827,7 +1872,7 @@ namespace PortaleRegione.BAL
                 queryFilter.ImportStatements(model.filtro);
 
                 return await _unitOfWork.Emendamenti.Count(model.id,
-                    persona, type, CLIENT_MODE, queryFilter, firmatari, proponenti, gruppi, stati);
+                    persona, type, CLIENT_MODE, queryFilter, firmatari, proponenti, gruppi, stati, tagDtos);
             }
             catch (Exception e)
             {
@@ -2085,6 +2130,15 @@ namespace PortaleRegione.BAL
             return await _unitOfWork
                 .Emendamenti
                 .GetByQR(id);
+        }
+
+        public async Task<List<TagDto>> GetTags()
+        {
+            var result = await _unitOfWork.Emendamenti.GetTags();
+
+            return result
+                .Select(Mapper.Map<TAGS, TagDto>)
+                .ToList();
         }
     }
 }

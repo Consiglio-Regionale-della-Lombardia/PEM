@@ -187,12 +187,15 @@ namespace PortaleRegione.API
             Mapper.CreateMap<ATTI_DASI, AttoDASIDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<AttoDASIDto, ATTI_DASI>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<ATTI_FIRME, AttiFirmeDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
-            Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             
-            Mapper.CreateMap<View_cariche_assessori_in_carica, AssessoreInCaricaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
-            Mapper.CreateMap<View_Commissioni_attive, CommissioneDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<View_cariche_assessori_in_carica, AssessoreInCaricaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<View_Commissioni_attive, CommissioneDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
 
             #endregion
+
+            Mapper.CreateMap<TAGS, TagDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull)); 
+            Mapper.CreateMap<TagDto, TAGS>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
         }
     }
 }
