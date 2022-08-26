@@ -302,12 +302,13 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<IEnumerable<COMMI>> GetCommi(Guid id)
+        public async Task<IEnumerable<COMMI>> GetCommi(Guid id, bool expanded = false)
         {
             try
             {
                 var result = new List<COMMI>();
                 var commInDb = await _unitOfWork.Commi.GetCommi(id);
+                if (!expanded) return commInDb;
                 foreach (var comma in commInDb)
                 {
                     var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);

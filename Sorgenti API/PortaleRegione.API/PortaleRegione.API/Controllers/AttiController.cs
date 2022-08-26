@@ -350,11 +350,11 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid articolo</param>
         /// <returns></returns>
         [Route("commi")]
-        public async Task<IHttpActionResult> GetCommi(Guid id)
+        public async Task<IHttpActionResult> GetCommi(Guid id, bool expanded = false)
         {
             try
             {
-                var commiDtos = (await _logic.GetCommi(id)).Select(Mapper.Map<COMMI, CommiDto>);
+                var commiDtos = (await _logic.GetCommi(id, expanded)).Select(Mapper.Map<COMMI, CommiDto>);
                 return Ok(commiDtos);
             }
             catch (Exception e)
