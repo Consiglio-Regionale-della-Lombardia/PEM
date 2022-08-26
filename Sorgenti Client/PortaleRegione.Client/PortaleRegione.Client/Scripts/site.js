@@ -1415,8 +1415,8 @@ async function GetCommiArticolo(articoloUId) {
     var tableLettere = $("#tableLettere");
     tableLettere.empty();
     tableLettere.append("<li class='collection-item'>Crea da un comma</li>");
-
-    var commi = await GetCommi(articoloUId);
+   
+    var commi = await GetCommi(articoloUId, true);
 
     var table = $("#tableCommi");
     table.empty();
