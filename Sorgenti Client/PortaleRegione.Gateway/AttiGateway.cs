@@ -474,11 +474,11 @@ namespace PortaleRegione.Gateway
 
         #region COMMI
 
-        public async Task<IEnumerable<CommiDto>> GetComma(Guid id)
+        public async Task<IEnumerable<CommiDto>> GetComma(Guid id, bool expanded = false)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/atti/commi?id={id}";
+                var requestUrl = $"{apiUrl}/atti/commi?id={id}&expanded={expanded}";
 
                 var lst = JsonConvert.DeserializeObject<IEnumerable<CommiDto>>(await Get(requestUrl, _token));
 

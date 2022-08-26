@@ -41,7 +41,7 @@ namespace PortaleRegione.Gateway
         Task<AttiDto> Get(Guid attoUId);
         Task<BaseResponse<AttiDto>> Get(Guid sedutaUId, ClientModeEnum mode, int page, int size);
         Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id);
-        Task<IEnumerable<CommiDto>> GetComma(Guid id);
+        Task<IEnumerable<CommiDto>> GetComma(Guid id, bool expanded);
         Task<AttiFormUpdateModel> GetFormUpdate(Guid id);
         Task<IEnumerable<LettereDto>> GetLettere(Guid id);
         Task<AttiDto> Modifica(AttiFormUpdateModel atto);

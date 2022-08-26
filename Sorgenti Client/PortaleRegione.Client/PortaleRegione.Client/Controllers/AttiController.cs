@@ -242,10 +242,10 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="id">Guid articolo</param>
         /// <returns></returns>
         [Route("commi")]
-        public async Task<ActionResult> GetCommi(Guid id)
+        public async Task<ActionResult> GetCommi(Guid id, bool expanded = false)
         {
             var apiGateway = new ApiGateway(_Token);
-            var commi = await apiGateway.Atti.GetComma(id);
+            var commi = await apiGateway.Atti.GetComma(id, expanded);
             return Json(commi, JsonRequestBehavior.AllowGet);
         }
 

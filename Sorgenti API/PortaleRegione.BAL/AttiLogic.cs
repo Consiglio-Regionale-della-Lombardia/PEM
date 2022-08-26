@@ -56,7 +56,8 @@ namespace PortaleRegione.BAL
                 var queryFilter = new Filter<ATTI>();
                 queryFilter.ImportStatements(model.filtro);
 
-                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE, currentUser, queryFilter))
+                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE,
+                        currentUser, queryFilter))
                     .Select(Mapper.Map<ATTI, AttiDto>);
                 var result = new List<AttiDto>();
                 foreach (var appoggio in appoggioAttiDtos)
@@ -80,7 +81,8 @@ namespace PortaleRegione.BAL
 
                     appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
                     if (appoggio.UIDAssessoreRiferimento.HasValue)
-                        appoggio.PersonaAssessore = personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
+                        appoggio.PersonaAssessore =
+                            personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
 
 
                     if (appoggio.NAtto == "$$")
@@ -173,7 +175,8 @@ namespace PortaleRegione.BAL
                 if (attoModel.DocAtto_Stream != null)
                 {
                     var path = ByteArrayToFile(attoModel.DocAtto_Stream);
-                    attoInDb.Path_Testo_Atto = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                    attoInDb.Path_Testo_Atto =
+                        Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     await _unitOfWork.CompleteAsync();
                 }
 
@@ -299,11 +302,24 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<IEnumerable<COMMI>> GetCommi(Guid id)
+        public async Task<IEnumerable<COMMI>> GetCommi(Guid id, bool expanded = false)
         {
             try
             {
-                return await _unitOfWork.Commi.GetCommi(id);
+                var result = new List<COMMI>();
+                var commInDb = await _unitOfWork.Commi.GetCommi(id);
+                if (!expanded) return commInDb;
+                foreach (var comma in commInDb)
+                {
+                    var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
+                    if (lettere.Count() > 0)
+                    {
+                        comma.Comma = $"{comma.Comma} ({lettere.Select(i => i.Lettera).Aggregate((k, j) => k + "-" + j)})";
+                    }
+                    result.Add(comma);
+                }
+
+                return result;
             }
             catch (Exception e)
             {

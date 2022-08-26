@@ -309,7 +309,7 @@
             $('#pnlParte_Articoli_Commi').hide();
             return;
         }
-        var parti_commi = await GetCommi(em.UIDArticolo);
+        var parti_commi = await GetCommi(em.UIDArticolo, false);
         if (parti_commi.length > 0) {
             $('#pnlParte_Articoli_Commi').show();
             var select = $("#Commi");

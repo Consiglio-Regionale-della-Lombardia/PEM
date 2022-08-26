@@ -625,7 +625,7 @@ async function Filtri_EM_CaricaPartiCommaEM(ctrlSelect) {
 
     if (!filterArticolo || filterArticolo == 0) return;
 
-    var parti_commi = await GetCommi(filterArticolo);
+    var parti_commi = await GetCommi(filterArticolo, false);
     if (parti_commi.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
@@ -776,21 +776,13 @@ function GetArticoli(attoUId) {
     });
 }
 
-function GetCommi(articoloUId) {
-    var commi = get_ListaCommiEM();
-    if (commi.length > 0) {
-        console.log("Commi", commi);
-
-        return commi;
-    }
-
+function GetCommi(articoloUId, expanded) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/commi",
-            data: { id: articoloUId },
+            data: { id: articoloUId, expanded: expanded },
             type: "GET"
         }).done(function(result) {
-            set_ListaCommiEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
