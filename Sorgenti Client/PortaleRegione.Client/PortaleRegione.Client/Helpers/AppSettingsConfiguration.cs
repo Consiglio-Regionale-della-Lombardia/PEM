@@ -33,5 +33,6 @@ namespace PortaleRegione.Client.Helpers
         public static string GEASI_URL => ConfigurationManager.AppSettings["GEASI_URL"];
         public static string GEASI_USERNAME => ConfigurationManager.AppSettings["GEASI_USERNAME"];
         public static string GEASI_PASSWORD => ConfigurationManager.AppSettings["GEASI_PASSWORD"];
+        public static int COOKIE_EXPIRE_IN => Convert.ToInt16(ConfigurationManager.AppSettings["COOKIE_EXPIRE_IN"]);
     }
 }
