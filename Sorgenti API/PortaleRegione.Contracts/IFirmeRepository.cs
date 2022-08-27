@@ -30,7 +30,8 @@ namespace PortaleRegione.Contracts
     /// </summary>
     public interface IFirmeRepository : IRepository<FIRME>
     {
-        Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert, bool ufficio = false);
+        Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert, int tipoAreaFirma,
+            bool ufficio = false);
         Task<int> CountFirme(Guid emendamentoUId);
         Task<IEnumerable<FIRME>> GetFirmatari(EM em, FirmeTipoEnum tipo);
         Task CancellaFirme(Guid emendamentoUId);

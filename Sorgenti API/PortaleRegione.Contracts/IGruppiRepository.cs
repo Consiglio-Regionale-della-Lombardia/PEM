@@ -52,5 +52,6 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<JOIN_GRUPPO_AD>> GetJoinGruppiAdmin(int legislaturaAttiva);
         Task<JOIN_GRUPPO_AD> GetGiunta(int legislaturaAttiva);
         Task<JOIN_GRUPPO_AD> GetJoinGruppoAdmin(int gruppo);
+        Task<int> GetTipoArea(int idGruppo);
     }
 }

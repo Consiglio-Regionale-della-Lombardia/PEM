@@ -57,6 +57,11 @@ namespace PortaleRegione.Client.Controllers
 
                 return View("Index", model);
             }
+            catch (UnauthorizedAccessException e)
+            {
+                RedirectToAction("FormAutenticazione", "Autenticazione");
+                throw;
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e);
