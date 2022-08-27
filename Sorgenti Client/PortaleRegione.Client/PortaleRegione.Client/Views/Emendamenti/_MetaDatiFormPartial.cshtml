@@ -1,4 +1,5 @@
-﻿<div id="modalMetaDati" class="modal bottom-sheet">
+﻿@using PortaleRegione.DTO.Enum
+<div id="modalMetaDati" class="modal bottom-sheet">
     <div class="modal-content">
         <div class="row" style="margin: unset !important">
             <div class="col l6 left-align">
@@ -42,6 +43,20 @@
                 </ul>
                 <div id="metaDatiTab" class="col s12 left-align">
                     @Html.Partial("_MetaDatiPanelPartial")
+                    @if (User.IsInRole(RuoliExt.Segreteria_Assemblea)
+                         || User.IsInRole(RuoliExt.Amministratore_PEM))
+                    {
+                        <div class="input-field col s12">
+                            <label class="active">Area Politica</label>
+                            <select id="ddlAreaPolitica" name="AreaPolitica">
+                                <option value="@((int)AreaPoliticaIntEnum.Maggioranza)" selected="selected">@AreaPoliticaEnum.Maggioranza</option>
+                                <option value="@((int)AreaPoliticaIntEnum.Minoranza)">@AreaPoliticaEnum.Minoranza</option>
+                                <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza)">@AreaPoliticaEnum.Misto_Maggioranza</option>
+                                <option value="@((int)AreaPoliticaIntEnum.Misto_Minoranza)">@AreaPoliticaEnum.Misto_Minoranza</option>
+                            </select>
+                        </div>
+
+                    }
                 </div>
                 <div id="testoEMTab" class="col s12 left-align">
                     <div class="form-group">
