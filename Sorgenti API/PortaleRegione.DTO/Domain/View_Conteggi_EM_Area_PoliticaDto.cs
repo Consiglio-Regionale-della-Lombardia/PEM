@@ -16,21 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-
-namespace PortaleRegione.DTO.Response
+namespace PortaleRegione.DTO.Domain
 {
-    public class EmendamentiViewModel
+    public class View_Conteggi_EM_Area_PoliticaDto
     {
-        public BaseResponse<EmendamentiDto> Data { get; set; }
-        public PersonaDto CurrentUser { get; set; }
-        public AttiDto Atto { get; set; }
-        public ClientModeEnum Mode { get; set; }
-        public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
-        public OrdinamentoEnum Ordinamento { get; set; } = OrdinamentoEnum.Presentazione;
-        public ICollection<View_Conteggi_EM_Gruppi_PoliticiDto> ConteggiGruppi { get; set; }
-        public ICollection<View_Conteggi_EM_Area_PoliticaDto> ConteggiAreePolitiche { get; set; }
+        public int IdArea { get; set; }
+        public string AreaPolitica { get; set; }
+        public int num_em { get; set; }
     }
 }

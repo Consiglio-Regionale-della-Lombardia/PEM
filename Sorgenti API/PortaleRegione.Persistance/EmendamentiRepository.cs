@@ -952,6 +952,24 @@ namespace PortaleRegione.Persistance
             });
         }
 
+        public async Task<List<View_Conteggi_EM_Gruppi_Politici>> GetConteggiGruppi(Guid uidAtto)
+        {
+            return await PRContext
+                    .View_Conteggi_EM_Gruppi_Politici
+                    .Where(o => o.UIDAtto == uidAtto)
+                    .OrderByDescending(o=>o.num_em)
+                .ToListAsync();
+        }
+
+        public async Task<List<View_Conteggi_EM_Area_Politica>> GetConteggiAreePolitiche(Guid uidAtto)
+        {
+            return await PRContext
+                .View_Conteggi_EM_Area_Politica
+                .Where(o => o.UIDAtto == uidAtto)
+                .OrderByDescending(o => o.num_em)
+                .ToListAsync();
+        }
+
         /// <summary>
         ///     Controlla che il progressivo sia unico all'interno dell'atto
         /// </summary>

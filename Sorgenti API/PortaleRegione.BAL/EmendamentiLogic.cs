@@ -1736,6 +1736,15 @@ namespace PortaleRegione.BAL
                 if (stati.Any())
                     model.filtro.AddRange(stati_request);
 
+                var conteggiGruppi = new List<View_Conteggi_EM_Gruppi_Politici>();
+                var conteggiAreePolitiche = new List<View_Conteggi_EM_Area_Politica>();
+
+                if (persona.IsSegreteriaAssemblea || CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
+                {
+                    conteggiGruppi = await _unitOfWork.Emendamenti.GetConteggiGruppi(atto.UIDAtto);
+                    conteggiAreePolitiche = await _unitOfWork.Emendamenti.GetConteggiAreePolitiche(atto.UIDAtto);
+                }
+
                 return new EmendamentiViewModel
                 {
                     Data = new BaseResponse<EmendamentiDto>(
@@ -1748,6 +1757,8 @@ namespace PortaleRegione.BAL
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
                     Ordinamento = model.ordine,
+                    ConteggiGruppi = conteggiGruppi.Select(Mapper.Map<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>).ToList(),
+                    ConteggiAreePolitiche = conteggiAreePolitiche.Select(Mapper.Map<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>).ToList(),
                     CurrentUser = persona
                 };
             }

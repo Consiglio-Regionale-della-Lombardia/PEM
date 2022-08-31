@@ -81,5 +81,7 @@ namespace PortaleRegione.Contracts
         Task<int> GetOrdinePresentazione(Guid uidAtto);
         Task<bool> TagExists(string tag);
         void AddTag(string tag);
+        Task<List<View_Conteggi_EM_Gruppi_Politici>> GetConteggiGruppi(Guid uidAtto);
+        Task<List<View_Conteggi_EM_Area_Politica>> GetConteggiAreePolitiche(Guid uidAtto);
     }
 }
