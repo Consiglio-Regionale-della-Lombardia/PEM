@@ -93,5 +93,6 @@ namespace PortaleRegione.DTO.Domain
         public bool Jolly { get; set; } = false;
         public bool Emendabile { get; set; } = false;
         public int CounterODG { get; set; } = 0;
+        public bool Fascicoli_Da_Aggiornare { get; set; } = false;
     }
 }

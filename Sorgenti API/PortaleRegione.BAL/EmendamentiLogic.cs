@@ -516,6 +516,19 @@ namespace PortaleRegione.BAL
                 PuliziaMetaDati(em);
 
                 await _unitOfWork.CompleteAsync();
+
+                var atto = await _unitOfWork.Atti.Get(emAggiornato.UIDAtto);
+
+                if (!atto.Fascicoli_Da_Aggiornare &&
+                    (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
+                     !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
+                {
+                    if (!string.IsNullOrEmpty(em.DataDeposito))
+                    {
+                        atto.Fascicoli_Da_Aggiornare = true;
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -874,6 +887,17 @@ namespace PortaleRegione.BAL
                     counterFirme++;
 
                     await PreCompilaAreaPolitica(em);
+
+                    if (!atto.Fascicoli_Da_Aggiornare &&
+                        (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
+                         !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
+                    {
+                        if (!string.IsNullOrEmpty(em.DataDeposito))
+                        {
+                            atto.Fascicoli_Da_Aggiornare = true;
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
                 }
 
                 return results;
@@ -1245,6 +1269,18 @@ namespace PortaleRegione.BAL
                     em.IDStato = (int)model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
+                    
+                    if (!atto.Fascicoli_Da_Aggiornare && 
+                        (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
+                        !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
+                    {
+                        if (!string.IsNullOrEmpty(em.DataDeposito))
+                        {
+                            atto.Fascicoli_Da_Aggiornare = true;
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
+
                     try
                     {
                         //OPENDATA
@@ -1996,10 +2032,10 @@ namespace PortaleRegione.BAL
                 var nome_em = em.N_EM;
                 //Colonna IDEM
                 result +=
-                    $"{atto.TIPI_ATTO.Tipo_Atto}-{atto.NAtto}-{legislatura.num_legislatura}-{nome_em}{separatore}";
+                    $"{Utility.GetText_Tipo(atto.IDTipoAtto)}-{atto.NAtto}-{legislatura.num_legislatura}-{nome_em}{separatore}";
                 //Colonna Atto
                 result +=
-                    $"{atto.TIPI_ATTO.Tipo_Atto}-{atto.NAtto}-{legislatura.num_legislatura}{separatore}";
+                    $"{Utility.GetText_Tipo(atto.IDTipoAtto)}-{atto.NAtto}-{legislatura.num_legislatura}{separatore}";
                 //Colonna Numero EM
                 result += nome_em + separatore;
                 //Colonna Data Deposito

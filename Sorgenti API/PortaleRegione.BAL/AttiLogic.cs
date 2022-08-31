@@ -543,6 +543,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                attoInDb.Fascicoli_Da_Aggiornare = false;
                 switch (model.Ordinamento)
                 {
                     case OrdinamentoEnum.Default:

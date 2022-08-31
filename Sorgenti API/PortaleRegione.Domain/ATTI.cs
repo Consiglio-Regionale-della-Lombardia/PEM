@@ -119,5 +119,6 @@ namespace PortaleRegione.Domain
         public bool BloccoODG { get; set; } = false;
         public bool Jolly { get; set; } = false;
         public bool Emendabile { get; set; } = false;
+        public bool Fascicoli_Da_Aggiornare { get; set; } = false;
     }
 }
