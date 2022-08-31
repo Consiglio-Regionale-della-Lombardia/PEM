@@ -196,6 +196,12 @@ namespace PortaleRegione.API
 
             Mapper.CreateMap<TAGS, TagDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull)); 
             Mapper.CreateMap<TagDto, TAGS>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            
+            Mapper.CreateMap<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull)); 
+            Mapper.CreateMap<View_Conteggi_EM_Gruppi_PoliticiDto, View_Conteggi_EM_Gruppi_Politici>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            
+            Mapper.CreateMap<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull)); 
+            Mapper.CreateMap<View_Conteggi_EM_Area_PoliticaDto, View_Conteggi_EM_Area_Politica>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
         }
     }
 }
