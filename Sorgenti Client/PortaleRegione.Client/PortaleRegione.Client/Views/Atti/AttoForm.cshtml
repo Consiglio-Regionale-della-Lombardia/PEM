@@ -5,52 +5,10 @@
 @{
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = isNew ? "Nuova atto" : "Modifica atto";
+
+    Html.RenderPartial("_AttoFormScript", Model);
+
 }
-
-<script>
-    var chipInstance;
-    $(document).ready(function() {
-        $('#btnCrea').hide();
-        $('#btnSearch').hide();
-        var elems = document.querySelector('#autocompleteRelatori');
-
-        var autocompleteDataOptions = {
-            data: [
-                @foreach (var persona in Model.Relatori)
-                {
-                    if (!string.IsNullOrEmpty(persona.DisplayName))
-                    {
-                        @Html.Raw("{ tag: '" + persona.DisplayName + "', id: '" + persona.UID_persona + "'}, ")
-                    }
-                }
-            ],
-            limit: 10,
-            minLength: 1
-        };
-
-        chipInstance = M.Chips.init(elems,
-            {
-                autocompleteOptions: autocompleteDataOptions,
-                data: [
-                    @if (Model.Atto.Relatori != null && Model.Atto.Relatori.Any())
-                    {
-                        foreach (var relatoriDto in Model.Atto.Relatori)
-                        {
-                            @Html.Raw("{ tag: '" + relatoriDto.DisplayName + "', id: '" + relatoriDto.UID_persona + "'}, ")
-                        }
-                    }
-                ],
-                onChipAdd: function(e, chip) {
-                },
-                onChipSelect: function(e, chip) {
-                },
-                onChipDelete: function(e, chip) {
-                }
-            });
-        GetArticoliAtto($('#Atto_UIDAtto').val());
-    });
-</script>
-
 <div class="row">
     <div class="col s1">
         <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
@@ -88,6 +46,7 @@
         <div class="col s8">
             <a class="btn chip hoverable yellow center black-text" onclick="spostaAtto('@Model.Atto.UIDAtto')">
                 Sposta
+                <i class="material-icons right">call_missed_outgoing</i>
             </a>
         </div>
     </div>
@@ -97,7 +56,7 @@
     <div class="col s12">
 
         @using (Html.BeginForm("SalvaAtto", "Atti", FormMethod.Post, new
-        {enctype = "multipart/form-data", id = "formAtto"}))
+        { enctype = "multipart/form-data", id = "formAtto" }))
         {
             @Html.AntiForgeryToken()
 
@@ -187,7 +146,10 @@
             if (Model.Atto.UIDAtto != Guid.Empty)
             {
                 <div id="articoliCommiLettereTab" class="col s12">
-                    <div class="row">
+                    @{
+                        Html.RenderPartial("_Testi_Articoli_Commi_Lettere_Partial", Model);
+                    }
+                    <div class="row" id="viewGrid">
                         <div class="col s4">
                             <span>Articoli</span>
                             <ul id="tableArticoli" class="collection">
@@ -207,11 +169,11 @@
                         </div>
                     </div>
                 </div>
-            }
+                        }
             <div id="assessoreRelatoriTab" class="col s12">
                 <div class="form-group">
                     @Html.LabelFor(s => s.Atto.UIDAssessoreRiferimento)
-                    @Html.DropDownListFor(s => s.Atto.UIDAssessoreRiferimento, new SelectList(Model.Assessori, "UID_persona", "DisplayName"), "Seleziona persona", new {@class = "form-control"})
+                    @Html.DropDownListFor(s => s.Atto.UIDAssessoreRiferimento, new SelectList(Model.Assessori, "UID_persona", "DisplayName"), "Seleziona persona", new { @class = "form-control" })
                 </div>
                 <div class="form-group">
                     @Html.LabelFor(s => s.Relatori)
@@ -251,124 +213,3 @@
         }
     </div>
 </div>
-
-<script>
-
-    $(window).on('load',
-        async function () {
-
-            var tipi = await GetTipiPEM();
-            if (tipi.length > 0) {
-                var select = $("#Atto_Tipo");
-                select.empty();
-                $.each(tipi,
-                    function(index, item) {
-                        if (item.IDTipoAtto != @Html.Raw((int) TipoAttoEnum.TUTTI)) {
-                            if (item.IDTipoAtto == @Html.Raw((int) TipoAttoEnum.ALTRO)) {
-                                item.Tipo_Atto = "ALTRO";
-                            }
-                            var template = "";
-                            if (item.IDTipoAtto == @Html.Raw(Model.Atto.IDTipoAtto)) {
-                                template = "<option selected=\"selected\"></option>";
-                            } else {
-                                template = "<option></option>";
-                            }
-                            select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
-                        }
-                    });
-
-                var elems = document.querySelectorAll("#Atto_Tipo");
-                M.FormSelect.init(elems, null);
-            }
-
-            $("#btnSave").on("click",
-                function() {
-                    $("#btnSave").off("click");
-                    setTimeout(function() {
-                            $('body').removeClass('loaded');
-                        },
-                        200);
-                    $('#formAtto').submit();
-                });
-        });
-
-
-    $("#formAtto").submit(function(e) {
-        e.preventDefault();
-    }).validate({
-        submitHandler: function(form) {
-            var doc;
-            var inputsAtto = $('input[name=DocAtto]');
-            if (inputsAtto.length != 0) {
-                var inputFileAtto = inputsAtto[0];
-                if (!inputFileAtto.files) {
-                    alert("This browser doesn't seem to support the `files` property of file inputs.");
-                }
-                if (inputFileAtto.files.length > 0)
-                    doc = inputFileAtto.files[0];
-            }
-
-            var form_data = new FormData();
-            form_data.append("NAtto", $('input[name="Atto.NAtto"]').val());
-            form_data.append("Data_apertura", $('input[name="Atto.Data_apertura"]').val());
-            form_data.append("Data_chiusura", $('input[name="Atto.Data_chiusura"]').val());
-            form_data.append("DocAtto", doc);
-            form_data.append("IDTipoAtto", $('select[id="Atto_Tipo"]').children("option:selected").val());
-            form_data.append("Note", $('#Atto_Note').val());
-            form_data.append("Notifica_deposito_differita", $('input[name="Atto.Notifica_deposito_differita"]').is(":checked"));
-            form_data.append("Oggetto", $('#Atto_Oggetto').val());
-            form_data.append("UIDAssessoreRiferimento", $('select[name="Atto.UIDAssessoreRiferimento"]').children("option:selected").val());
-            form_data.append("UIDAtto", $('input[name="Atto.UIDAtto"]').val());
-            form_data.append("UIDSeduta", $('input[name="Atto.UIDSeduta"]').val());
-            form_data.append("VIS_Mis_Prog", $('input[name="Atto.VIS_Mis_Prog"]').is(":checked"));
-            form_data.append("Emendabile", $('input[name="Atto.Emendabile"]').is(":checked"));
-
-            //submit via ajax
-            $.ajax({
-                    url: baseUrl + "/atti/salva",
-                    type: "POST",
-                    data: form_data,
-                    processData: false,
-                    contentType: false
-                }).done(function(dataResult) {
-                    if (dataResult.message)
-                    {
-                        swal({
-                            title: "Errore",
-                            text: dataResult.message,
-                            icon: "error"
-                        });
-                    }
-                    else {
-                        var relatori = chipInstance.getData();
-
-                        var newRelatori = [];
-                        $.each(relatori,
-                            function(index, item) {
-                                newRelatori.push(item.id);
-                            });
-                        $.ajax({
-                            url: baseUrl + "/atti/relatori",
-                            type: "POST",
-                            data: JSON.stringify({
-                                id: dataResult.entity.UIDAtto,
-                                persone: newRelatori
-                            }),
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json"
-                        }).done(function(data) {
-                            go(dataResult.url);
-                        }).fail(function(err) {
-                            console.log("ERROR - RELATORI", err);
-                        });
-                    }
-                })
-                .fail(function(err) {
-                    console.log("error", err);
-                    Error(err);
-                });
-
-            return false; //This doesn't prevent the form from submitting.
-        }
-    });
-</script>

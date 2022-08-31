@@ -461,6 +461,8 @@
     <Content Include="Views\Emendamenti\_ConteggiGruppiPartial.cshtml" />
     <Content Include="Views\Emendamenti\_ConteggiAreePolitichePartial.cshtml" />
     <Content Include="Views\Emendamenti\_DataRiepilogoEMPartial.cshtml" />
+    <Content Include="Views\Atti\_Testi_Articoli_Commi_Lettere_Partial.cshtml" />
+    <Content Include="Views\Atti\_AttoFormScript.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

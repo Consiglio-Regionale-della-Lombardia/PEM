@@ -635,5 +635,54 @@ namespace PortaleRegione.BAL
 
             return result;
         }
+
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id)
+        {
+            var result = new List<ArticoliModel>();
+
+            var articoli = await _unitOfWork.Articoli.GetArticoli(id);
+            foreach (var articolo in articoli)
+            {
+                var articoliModel = new ArticoliModel
+                {
+                    Data = Mapper.Map<ARTICOLI, ArticoliDto>(articolo)
+                };
+
+                var commi = await _unitOfWork.Commi.GetCommi(articolo.UIDArticolo);
+
+                if (commi.Any())
+                {
+                    foreach (var comma in commi)
+                    {
+                        var commiModel = new CommiModel
+                        {
+                            Data = Mapper.Map<COMMI, CommiDto>(comma)
+                        };
+
+                        var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
+
+                        if (lettere.Any())
+                        {
+                            foreach (var lettera in lettere)
+                            {
+                                var letteraModel = new LettereModel
+                                {
+                                    Data = Mapper.Map<LETTERE, LettereDto>(lettera)
+                                };
+
+                                commiModel.Lettere.Add(letteraModel);
+                            }
+                        }
+
+                        articoliModel.Commi.Add(commiModel);
+                    }
+                    
+                }
+
+                result.Add(articoliModel);
+            }
+
+            return result;
+        }
     }
 }

@@ -288,6 +288,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere tutti gli articoli/commi/lettere
+        /// </summary>
+        /// <param name="id">Guid articolo</param>
+        /// <returns></returns>
+        [Route("griglia-testi")]
+        public async Task<IHttpActionResult> GetGrigliaTesto(Guid id)
+        {
+            try
+            {
+                var result = await _logic.GetGrigliaTesto(id);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetGrigliaTesto", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per creare articoli in un atto
         /// </summary>
         /// <param name="id">Guid atto</param>

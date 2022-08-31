@@ -91,9 +91,12 @@
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
+    <Compile Include="Model\ArticoliModel.cs" />
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
+    <Compile Include="Model\CommiModel.cs" />
     <Compile Include="Model\JollyODGModel.cs" />
+    <Compile Include="Model\LettereModel.cs" />
     <Compile Include="Model\PresentazioneCartaceaModel.cs" />
     <Compile Include="Model\PromuoviMozioneModel.cs" />
     <Compile Include="Model\RichiestaIscrizioneDASIModel.cs" />

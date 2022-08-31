@@ -406,6 +406,28 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/griglia-testi?id={id}";
+
+                var lst = JsonConvert.DeserializeObject<List<ArticoliModel>>(await Get(requestUrl, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGrigliaTesto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGrigliaTesto", ex);
+                throw ex;
+            }
+        }
+
         #region ARTICOLI
 
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)

@@ -435,5 +435,23 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+        
+        [HttpGet]
+        [Route("griglia-testi")]
+        public async Task<ActionResult> GetGrigliaTesto(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Atti.GetGrigliaTesto(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
     }
 }

@@ -56,6 +56,7 @@ namespace PortaleRegione.Gateway
 
 
         Task<IEnumerable<Tipi_AttoDto>> GetTipi(bool dasi = true);
+        Task<List<ArticoliModel>> GetGrigliaTesto(Guid id);
 
     }
 }
