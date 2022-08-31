@@ -321,20 +321,8 @@
                 }
             </ul>
         }
-        Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-        Html.RenderPartial("_Command_RiepilogoEM", new CommandRiepilogoModel { view = Model.ViewMode, mode = Model.Mode, IsAdmin = false, Atto = Model.Atto });
 
-        <div class="row">
-            @if (Model.ViewMode == ViewModeEnum.GRID)
-            {
-                Html.RenderPartial("_GridView_RiepilogoEM", Model);
-            }
-            else if (Model.ViewMode == ViewModeEnum.PREVIEW)
-            {
-                Html.RenderPartial("_ZoomView_RiepilogoEM", Model);
-            }
-        </div>
-        Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+        Html.RenderPartial("_DataRiepilogoEMPartial", Model);
     }
 </div>
 

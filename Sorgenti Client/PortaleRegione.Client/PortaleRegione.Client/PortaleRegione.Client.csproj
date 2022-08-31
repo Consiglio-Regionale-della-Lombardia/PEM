@@ -458,6 +458,9 @@
     <Content Include="Views\DASI\_ProponiMozioneUrgenteModal.cshtml" />
     <Content Include="Views\DASI\_ProponiMozioneAbbinataModal.cshtml" />
     <Content Include="Views\Emendamenti\_TagsPanel.cshtml" />
+    <Content Include="Views\Emendamenti\_ConteggiGruppiPartial.cshtml" />
+    <Content Include="Views\Emendamenti\_ConteggiAreePolitichePartial.cshtml" />
+    <Content Include="Views\Emendamenti\_DataRiepilogoEMPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
