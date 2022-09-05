@@ -92,13 +92,13 @@
                             function(index, commaModel) {
                                 var titoloCommaModal = "Articolo " + articoloModel.Data.Articolo + " - Comma " + commaModel.Data.Comma;
                                 var testoComma = commaModel.Data.TestoComma ? commaModel.Data.TestoComma : "";
-                                table.append('<tr class="hoverable" onclick="ModificaTesto(this, \'' + titoloCommaModal + '\')"><td width="10%" data-id="' + commaModel.Data.UIDComma + '">Comma ' + commaModel.Data.Comma + '</td><td>' + testoComma + '</td></tr>');
+                                table.append('<tr class="hoverable" onclick="ModificaTesto(this, \'' + titoloCommaModal + '\')"><td width="10%" data-id="' + commaModel.Data.UIDComma + '">&nbsp;&nbsp;Comma ' + commaModel.Data.Comma + '</td><td>' + testoComma + '</td></tr>');
                                 if (commaModel.Lettere.length > 0) {
                                     $.each(commaModel.Lettere,
                                         function(index, letteraModel) {
                                             var titoloLetteraModal = "Articolo " + articoloModel.Data.Articolo + " - Comma " + commaModel.Data.Comma + " - Lettera " + letteraModel.Data.Lettera;
                                             var testoLettera = letteraModel.Data.TestoLettera ? letteraModel.Data.TestoLettera : "";
-                                            table.append('<tr class="hoverable" onclick="ModificaTesto(this, \'' + titoloLetteraModal + '\')"><td width="10%" data-id="' + letteraModel.Data.UIDLettera + '"><i>Lettera ' + letteraModel.Data.Lettera + '</i></td><td>' + testoLettera + '</td></tr>');
+                                            table.append('<tr class="hoverable" onclick="ModificaTesto(this, \'' + titoloLetteraModal + '\')"><td width="10%" data-id="' + letteraModel.Data.UIDLettera + '">&nbsp;&nbsp;&nbsp;&nbsp;<i>Lettera ' + letteraModel.Data.Lettera + '</i></td><td>' + testoLettera + '</td></tr>');
                                         });
                                 }
                             });
