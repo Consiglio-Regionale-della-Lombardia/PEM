@@ -50,6 +50,7 @@ namespace PortaleRegione.Gateway
         Task BloccoODG(BloccoODGModel model);
         Task JollyODG(JollyODGModel model);
         Task<AttiDto> Salva(AttiFormUpdateModel atto);
+        Task SalvaTesto(TestoAttoModel model);
         Task SalvaRelatori(AttoRelatoriModel model);
         Task SPOSTA_DOWN(Guid id);
         Task SPOSTA_UP(Guid id);

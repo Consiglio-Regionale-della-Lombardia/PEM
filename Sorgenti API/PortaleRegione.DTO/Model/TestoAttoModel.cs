@@ -16,10 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Domain
+using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
+
+namespace PortaleRegione.DTO.Model
 {
-    public class TagDto
+    public class TestoAttoModel
     {
-        public string tag { get; set; }
+        [Key]
+        public string Id { get; set; }
+
+        [AllowHtml]
+        public string Testo { get; set; }
     }
 }

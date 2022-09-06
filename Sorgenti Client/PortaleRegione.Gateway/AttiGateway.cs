@@ -208,6 +208,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/salva-testo";
+
+                var body = JsonConvert.SerializeObject(model);
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SalvaTesto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SalvaTesto", ex);
+                throw ex;
+            }
+        }
+
         public async Task<AttiDto> Modifica(AttiFormUpdateModel atto)
         {
             try

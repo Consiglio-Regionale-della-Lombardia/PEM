@@ -676,13 +676,54 @@ namespace PortaleRegione.BAL
 
                         articoliModel.Commi.Add(commiModel);
                     }
-                    
+
                 }
 
                 result.Add(articoliModel);
             }
 
             return result;
+        }
+
+        public async Task SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var success = Guid.TryParse(model.Id, out var guid);
+                if (!success)
+                    throw new Exception("Identificativo non valido");
+
+                var articolo = await _unitOfWork.Articoli.GetArticolo(guid);
+                if (articolo != null)
+                {
+                    articolo.TestoArticolo = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                var comma = await _unitOfWork.Commi.GetComma(guid);
+                if (comma != null)
+                {
+                    comma.TestoComma = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                var lettera = await _unitOfWork.Lettere.GetLettera(guid);
+                if (lettera != null)
+                {
+                    lettera.TestoLettera = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                throw new Exception("Identificativo non valido");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

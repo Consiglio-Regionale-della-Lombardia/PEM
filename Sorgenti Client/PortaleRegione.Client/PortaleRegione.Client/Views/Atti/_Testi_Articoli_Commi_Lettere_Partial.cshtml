@@ -2,11 +2,13 @@
 @model PortaleRegione.Client.Models.AttiViewModel
 
 <div class="row">
-    <div class="col s12">
+    <div class="col s12 valign-wrapper">
         <a class="btn chip hoverable green lighten-1 center black-text" id="btnInserisciTesti">
             Visualizza testo
             <i class="material-icons right">remove_red_eye</i>
         </a>
+        <label id="info-label-autosave" style="display: none; padding-left: 20px"><b>SALVATAGGIO AUTOMATICO ATTIVO</b></label>
+        <i class="material-icons right" onclick="CaricaTesti();">refresh</i>
     </div>
 </div>
 
@@ -58,12 +60,14 @@
                     $("#viewGrid").hide();
                     $("#btnInserisciTesti").html('Visualizza griglia <i class="material-icons right">grid_on</i>');
                     $("#pnlTesti").show();
+                    $("#info-label-autosave").show();
 
                     await CaricaTesti();
                 } else {
                     $("#pnlTesti").hide();
                     $("#btnInserisciTesti").html('Visualizza testo <i class="material-icons right">remove_red_eye</i>');
                     $("#viewGrid").show();
+                    $("#info-label-autosave").hide();
                 }
             });
 
@@ -73,15 +77,41 @@
                 var editor_testo = $(container_testo).find(".trumbowyg-editor");
 
                 var testo = editor_testo.html();
-                var textCol = $(_row).children();
-                $(textCol[1]).html(testo);
-                $("#modalModificaTesto").modal("close");
+                var columns = $(_row).children();
+                var id = $(columns[0]).data("id");
+                var body = {};
+                body.id = id;
+                body.testo = testo;
+                $.ajax({
+                    url: baseUrl + "/atti/salva-testo",
+                    type: "POST",
+                    data: JSON.stringify(body),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    if (data.message)
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    else {
+                        SuccessAlert("OK");
+                        $(columns[1]).html(testo);
+                        $("#modalModificaTesto").modal("close");
+                    }
+                
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
             });
 
         async function CaricaTesti() {
             var attoUId = $("#Atto_UIDAtto").val();
             var grigliaInDb = await GetGrigliaTesto(attoUId);
             var table = $("#tableTesti");
+            table.empty();
             $.each(grigliaInDb,
                 function(index, articoloModel) {
                     var titoloArticoloModal = "Articolo " + articoloModel.Data.Articolo;
@@ -112,9 +142,9 @@
             _row = row;
 
             var loadTesto = "";
-            var textCol = $(_row).children();
-            if ($(textCol[1]).html()) {
-                loadTesto = $(textCol[1]).html();
+            var columns = $(_row).children();
+            if ($(columns[1]).html()) {
+                loadTesto = $(columns[1]).html();
             }
             $('#modalTitle').text(title);
             var container_testo = $("#EditorTesto").parent();
