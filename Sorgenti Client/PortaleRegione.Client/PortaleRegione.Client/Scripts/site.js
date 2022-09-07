@@ -962,7 +962,7 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
             commiSelect.append('<option selected="selected" value="0">Seleziona comma</option>');
 
         $.each(commi,
-            function(index, item) {
+            function (index, item) {
                 var template = "";
                 if (item.UIDComma == valueCommaSelected)
                     template = "<option selected='selected'></option>";
@@ -973,12 +973,13 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
 
         var elems = document.querySelectorAll("#CommiList");
         M.FormSelect.init(elems, null);
-
-        if (valueLetteraSelected) {
-            await Commi_OnChange(valueCommaSelected, valueLetteraSelected);
-        }
-    } else
+        
+        await Commi_OnChange(valueCommaSelected, valueLetteraSelected);
+    } else {
+        $("#CommiList").empty();
+        $("#CommiList").formSelect();
         $("#pnlCommi").hide();
+    }
 }
 
 async function Commi_OnChange(value, valueLetteraSelected) {
