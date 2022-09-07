@@ -11,7 +11,15 @@
 <div class="row">
     @if (Model.ViewMode == ViewModeEnum.GRID)
     {
-        Html.RenderPartial("_GridView_Admin_RiepilogoEM", Model);
+        if (Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            Html.RenderPartial("_GridView_Admin_RiepilogoEM", Model);
+        }
+        else
+        {
+            Html.RenderPartial("_GridView_RiepilogoEM", Model);
+        }
+
     }
     else if (Model.ViewMode == ViewModeEnum.PREVIEW)
     {
