@@ -159,6 +159,24 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("salva-testo")]
+        [HttpPost]
+        public async Task<ActionResult> SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Atti.SalvaTesto(model);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         ///     Controller per scaricare il documento pdf dell'atto
         /// </summary>
@@ -372,11 +390,11 @@ namespace PortaleRegione.Client.Controllers
             return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
 
-       /// <summary>
-       /// Controller per bloccare la presentazione degli ordini del giorno per un atto
-       /// </summary>
-       /// <param name="model"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Controller per bloccare la presentazione degli ordini del giorno per un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [Route("bloccoODG")]
         [HttpPost]
@@ -395,7 +413,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         /// <summary>
         /// Controller per attivare o disattivare il jolly che toglie il limite alla presentazione degli ordini del giorno
         /// </summary>
@@ -435,5 +453,23 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpGet]
+        [Route("griglia-testi")]
+        public async Task<ActionResult> GetGrigliaTesto(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Atti.GetGrigliaTesto(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
     }
 }

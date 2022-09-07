@@ -635,5 +635,95 @@ namespace PortaleRegione.BAL
 
             return result;
         }
+
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id)
+        {
+            var result = new List<ArticoliModel>();
+
+            var articoli = await _unitOfWork.Articoli.GetArticoli(id);
+            foreach (var articolo in articoli)
+            {
+                var articoliModel = new ArticoliModel
+                {
+                    Data = Mapper.Map<ARTICOLI, ArticoliDto>(articolo)
+                };
+
+                var commi = await _unitOfWork.Commi.GetCommi(articolo.UIDArticolo);
+
+                if (commi.Any())
+                {
+                    foreach (var comma in commi)
+                    {
+                        var commiModel = new CommiModel
+                        {
+                            Data = Mapper.Map<COMMI, CommiDto>(comma)
+                        };
+
+                        var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
+
+                        if (lettere.Any())
+                        {
+                            foreach (var lettera in lettere)
+                            {
+                                var letteraModel = new LettereModel
+                                {
+                                    Data = Mapper.Map<LETTERE, LettereDto>(lettera)
+                                };
+
+                                commiModel.Lettere.Add(letteraModel);
+                            }
+                        }
+
+                        articoliModel.Commi.Add(commiModel);
+                    }
+
+                }
+
+                result.Add(articoliModel);
+            }
+
+            return result;
+        }
+
+        public async Task SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var success = Guid.TryParse(model.Id, out var guid);
+                if (!success)
+                    throw new Exception("Identificativo non valido");
+
+                var articolo = await _unitOfWork.Articoli.GetArticolo(guid);
+                if (articolo != null)
+                {
+                    articolo.TestoArticolo = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                var comma = await _unitOfWork.Commi.GetComma(guid);
+                if (comma != null)
+                {
+                    comma.TestoComma = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                var lettera = await _unitOfWork.Lettere.GetLettera(guid);
+                if (lettera != null)
+                {
+                    lettera.TestoLettera = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                throw new Exception("Identificativo non valido");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 }

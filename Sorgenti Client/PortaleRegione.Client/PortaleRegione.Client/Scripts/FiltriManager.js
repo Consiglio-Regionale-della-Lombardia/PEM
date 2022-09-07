@@ -757,7 +757,6 @@ function GetPartiEM() {
 function GetArticoli(attoUId) {
     var articoli = get_ListaArticoliEM();
     if (articoli.length > 0) {
-        console.log("Articoli", articoli);
         return articoli;
     }
 
@@ -768,6 +767,21 @@ function GetArticoli(attoUId) {
             type: "GET"
         }).done(function(result) {
             set_ListaArticoliEM(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetGrigliaTesto(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/griglia-testi",
+            data: { id: attoUId },
+            type: "GET"
+        }).done(function(result) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);

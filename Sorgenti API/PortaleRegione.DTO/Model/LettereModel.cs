@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Domain
+using PortaleRegione.DTO.Domain;
+
+namespace PortaleRegione.DTO.Model
 {
-    public class TagDto
+    public class LettereModel
     {
-        public string tag { get; set; }
+        public LettereDto Data { get; set; }
     }
 }

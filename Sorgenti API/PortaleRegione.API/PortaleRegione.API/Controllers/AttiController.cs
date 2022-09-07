@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -31,6 +27,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -54,8 +54,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="logicSedute"></param>
         /// <param name="logic"></param>
         /// <param name="logicStampe"></param>
-        public AttiController(IUnitOfWork unitOfWork, 
-            PersoneLogic logicPersone, 
+        public AttiController(IUnitOfWork unitOfWork,
+            PersoneLogic logicPersone,
             SeduteLogic logicSedute,
             AttiLogic logic,
             StampeLogic logicStampe)
@@ -283,6 +283,26 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetArticoli", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere tutti gli articoli/commi/lettere
+        /// </summary>
+        /// <param name="id">Guid articolo</param>
+        /// <returns></returns>
+        [Route("griglia-testi")]
+        public async Task<IHttpActionResult> GetGrigliaTesto(Guid id)
+        {
+            try
+            {
+                var result = await _logic.GetGrigliaTesto(id);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetGrigliaTesto", e);
                 return ErrorHandler(e);
             }
         }
@@ -516,6 +536,28 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("salva-testo")]
+        [HttpPost]
+        public async Task<IHttpActionResult> SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    throw new Exception("Invalid object");
+                }
+
+                await _logic.SalvaTesto(model);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("SalvaTesto", e);
+                return ErrorHandler(e);
+            }
+        }
+
         /// <summary>
         ///     Endpoint per la pubblicazione del fascicolo Presentazione/Votazione
         /// </summary>
@@ -544,7 +586,7 @@ namespace PortaleRegione.API.Controllers
                             UIDAtto = model.Id,
                             Da = 0,
                             A = 0,
-                            Ordine = (int) model.Ordinamento
+                            Ordine = (int)model.Ordinamento
                         },
                         ordine = model.Ordinamento
                     }, persona);

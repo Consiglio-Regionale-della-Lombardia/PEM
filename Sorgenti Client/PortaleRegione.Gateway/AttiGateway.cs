@@ -208,6 +208,27 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/salva-testo";
+
+                var body = JsonConvert.SerializeObject(model);
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SalvaTesto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SalvaTesto", ex);
+                throw ex;
+            }
+        }
+
         public async Task<AttiDto> Modifica(AttiFormUpdateModel atto)
         {
             try
@@ -402,6 +423,28 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("GetTipi", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/griglia-testi?id={id}";
+
+                var lst = JsonConvert.DeserializeObject<List<ArticoliModel>>(await Get(requestUrl, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGrigliaTesto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGrigliaTesto", ex);
                 throw ex;
             }
         }
