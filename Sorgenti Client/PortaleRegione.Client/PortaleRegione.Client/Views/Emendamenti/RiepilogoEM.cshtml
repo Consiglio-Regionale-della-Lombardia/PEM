@@ -272,10 +272,14 @@
                 </h3>
             </div>
             <div class="col s6 right-align">
+                <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati">
+                    <i class="material-icons right pink-text">format_align_left</i>
+                    VISUALIZZA ATTO
+                </a>
                 @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
                 {
-                    <a class="btn-flat pink-text"
-                       href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" title="Scarica documento">
+                    <a class="btn-flat pink-text tooltipped"
+                       href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica documento">
                         <i class="material-icons right pink-text">cloud_download</i>
                         SCARICA DOCUMENTO
                     </a>
@@ -284,8 +288,8 @@
                 {
                     if (classActiveTabVotazione == "active")
                     {
-                        <a class="btn-flat purple-text"
-                           href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" title="Proietta">
+                        <a class="btn-flat purple-text tooltipped"
+                           href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" data-tooltip="Proietta">
                             <i class="material-icons right purple-text">subscriptions</i>
                             PROIETTA
                         </a>

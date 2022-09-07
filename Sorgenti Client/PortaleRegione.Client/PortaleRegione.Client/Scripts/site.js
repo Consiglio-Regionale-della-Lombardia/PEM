@@ -944,7 +944,6 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
-    console.log("Articoli_OnChange", value, valueCommaSelected, valueLetteraSelected);
     set_ListaCommiEM([]);
     $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
@@ -984,6 +983,12 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
 
 async function Commi_OnChange(value, valueLetteraSelected) {
     set_ListaLettereEM([]);
+    if (value == null) {
+        $("#pnlLettere").hide();
+        $("#LettereList").empty();
+        $("#LettereList").formSelect();
+        return;
+    }
     var lettere = await GetLettere(value);
 
     if (lettere.length > 0) {
@@ -1011,6 +1016,8 @@ async function Commi_OnChange(value, valueLetteraSelected) {
         M.FormSelect.init(elems, null);
     } else {
         $("#pnlLettere").hide();
+        $("#LettereList").empty();
+        $("#LettereList").formSelect();
 
         var letteraOLD = $("#txtLetteraOLD").val();
         if (letteraOLD != null && letteraOLD != "")
