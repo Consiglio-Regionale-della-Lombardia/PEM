@@ -5,6 +5,156 @@
 @using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
+<style>
+    tr {
+        border: unset;
+    }
+
+    td {
+        text-align: center;
+    }
+</style>
+
+@{
+    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
+
+    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
+
+    var classActiveTabPresentazione = "";
+    var classActiveTabVotazione = "";
+
+    switch (Model.Ordinamento)
+    {
+        case OrdinamentoEnum.Presentazione:
+        case OrdinamentoEnum.Default:
+            classActiveTabPresentazione = "active";
+            break;
+        case OrdinamentoEnum.Votazione:
+            classActiveTabVotazione = "active";
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+    var url = Url.Action("RiepilogoAtti", "Atti", new
+    {
+        id = Model.Atto.UIDSeduta
+    });
+    if (Model.Mode == ClientModeEnum.TRATTAZIONE)
+    {
+        url = Url.Action("Index", "AttiTrattazione", new { id = Model.Atto.UIDSeduta });
+    }
+}
+<div id="pnlViewStandard">
+    <div class="row">
+        <div class="col s12">
+            <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
+                <i class="material-icons">arrow_back</i>
+            </a>
+            <div class="row valign-wrapper" style="margin-bottom: 0px !important">
+                <div class="col s6">
+                    <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta</p>
+                    <h3>
+                        <b>@ViewBag.Title</b>
+                    </h3>
+                </div>
+                <div class="col s6 right-align">
+                    <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
+                        <i class="material-icons right pink-text">format_align_left</i>
+                        VISUALIZZA ATTO
+                    </a>
+                    @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
+                    {
+                        <a class="btn-flat pink-text tooltipped"
+                           href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica documento">
+                            <i class="material-icons right pink-text">cloud_download</i>
+                            SCARICA DOCUMENTO
+                        </a>
+                    }
+                    @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
+                    {
+                        if (classActiveTabVotazione == "active")
+                        {
+                            <a class="btn-flat purple-text tooltipped"
+                               href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" data-tooltip="Proietta">
+                                <i class="material-icons right purple-text">subscriptions</i>
+                                PROIETTA
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="contentTable" class="row">
+        @{
+            if (Model.Mode == ClientModeEnum.TRATTAZIONE)
+            {
+                <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
+                    @if (!filtri_attivi)
+                    {
+                        <li class="tab col s3">
+                            <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
+                        </li>
+                        <li class="tab col s3">
+                            <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="tab col s3">
+                            <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
+                        </li>
+                        <li class="tab col s3">
+                            <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
+                        </li>
+                    }
+                </ul>
+            }
+
+            Html.RenderPartial("_DataRiepilogoEMPartial", Model);
+        }
+    </div>
+</div>
+<div id="pnlViewTestoAtto" class="card" style="display: none;">
+    <div class="card-content">
+        <div class="row">
+            <div class="col l12 right-align">
+                <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
+                    <i class="material-icons right pink-text">apps</i>
+                    VISUALIZZA EM
+                </a>
+            </div>
+            <div class="col l12">
+                <table id="tableTesti" class="tableTesti">
+                    <tr>
+                        <td colspan="2" style="text-align: center; font-weight: bold;">
+                            @PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)
+                            @Model.Atto.NAtto
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center">
+                            @Model.Atto.Oggetto
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_ComandiMassivi", Model.Atto.Chiuso);
+    Html.RenderPartial("_PannelloStrumentiRicerche");
+    Html.RenderPartial("_InvitoPanel", new InvitoPanelModel
+    {
+        UIDAtto = Model.Atto.UIDAtto
+    });
+
+    Html.RenderPartial("_StampaModal", Model.Atto.UIDAtto);
+}
+
 @section scripts
 {
     <script>
@@ -39,6 +189,72 @@
 
                 checkSelectedEM();
             });
+
+        async function viewTestoAtto() {
+            await CaricaTesti();
+            $('#pnlViewStandard').hide();
+            $('#pnlViewTestoAtto').show();
+        }
+
+        function viewStandard() {
+            $('#pnlViewStandard').show();
+            $('#pnlViewTestoAtto').hide();
+        }
+
+        async function CaricaTesti() {
+            var attoUId = $('#hdUIdAtto').val();
+            var grigliaInDb = await GetGrigliaTestoEM(attoUId);
+            var table = $("#tableTesti");
+
+            $.each(grigliaInDb,
+                function (index, articoloModel) {
+                    var testoArticolo = articoloModel.Data.TestoArticolo ? articoloModel.Data.TestoArticolo : "";
+                    var emArticoli = "";
+                    if (articoloModel.Emendamenti.length > 0) {
+                        emArticoli = "<br>";
+
+                        $.each(articoloModel.Emendamenti,
+                            function (index, emArtItem) {
+                                emArticoli = emArticoli + "<div class='chip white black-text' style='min-width: unset; border: 1px solid green'><b>" + emArtItem.N_EM + "</b> - " + emArtItem.PersonaProponente.DisplayName + "</div>";
+                            });
+                    }
+                    table.append('<tr class="hoverable"><td width="10%"><b>Articolo ' + articoloModel.Data.Articolo + '</b></td><td>' + testoArticolo + emArticoli + '</td></tr>');
+                    if (articoloModel.Commi.length > 0) {
+                        $.each(articoloModel.Commi,
+                            function (index, commaModel) {
+                                var testoComma = commaModel.Data.TestoComma ? commaModel.Data.TestoComma : "";
+                                var emCommi = "";
+                                if (commaModel.Emendamenti.length > 0) {
+                                    emCommi = "<br>";
+
+                                    $.each(commaModel.Emendamenti,
+                                        function (index, emCommaItem) {
+                                            emCommi = emCommi + "<div class='chip white black-text' style='min-width: unset; border: 1px solid green'><b>" + emCommaItem.N_EM + "</b> - " + emCommaItem.PersonaProponente.DisplayName + "</div>";
+                                        });
+                                }
+
+                                table.append('<tr class="hoverable"><td width="10%">&nbsp;&nbsp;Comma ' + commaModel.Data.Comma + '</td><td>' + testoComma + emCommi + '</td></tr>');
+                                if (commaModel.Lettere.length > 0) {
+                                    $.each(commaModel.Lettere,
+                                        function (index, letteraModel) {
+                                            var testoLettera = letteraModel.Data.TestoLettera ? letteraModel.Data.TestoLettera : "";
+                                            var emLettere = "";
+                                            if (letteraModel.Emendamenti.length > 0) {
+                                                emLettere = "<br>";
+
+                                                $.each(letteraModel.Emendamenti,
+                                                    function (index, emLetteraItem) {
+                                                        emLettere = emLettere + "<div class='chip white black-text' style='min-width: unset; border: 1px solid green'><b>" + emLetteraItem.N_EM + "</b> - " + emLetteraItem.PersonaProponente.DisplayName + "</div>";
+                                                    });
+                                            }
+
+                                            table.append('<tr class="hoverable"><td width="10%">&nbsp;&nbsp;&nbsp;&nbsp;<i>Lettera ' + letteraModel.Data.Lettera + '</i></td><td>' + testoLettera + emLettere + '</td></tr>');
+                                        });
+                                }
+                            });
+                    }
+                });
+        }
 
         function filtra() {
             setTimeout(function() {
@@ -218,125 +434,4 @@
         }
 
     </script>
-}
-<style>
-    tr {
-        border: unset;
-    }
-
-    td {
-        text-align: center;
-    }
-</style>
-
-@{
-    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
-
-    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-
-    var classActiveTabPresentazione = "";
-    var classActiveTabVotazione = "";
-
-    switch (Model.Ordinamento)
-    {
-        case OrdinamentoEnum.Presentazione:
-        case OrdinamentoEnum.Default:
-            classActiveTabPresentazione = "active";
-            break;
-        case OrdinamentoEnum.Votazione:
-            classActiveTabVotazione = "active";
-            break;
-        default:
-            throw new ArgumentOutOfRangeException();
-    }
-    var url = Url.Action("RiepilogoAtti", "Atti", new
-    {
-        id = Model.Atto.UIDSeduta
-    });
-    if (Model.Mode == ClientModeEnum.TRATTAZIONE)
-    {
-        url = Url.Action("Index", "AttiTrattazione", new { id = Model.Atto.UIDSeduta });
-    }
-}
-
-<div class="row">
-    <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
-            <i class="material-icons">arrow_back</i>
-        </a>
-        <div class="row valign-wrapper" style="margin-bottom: 0px !important">
-            <div class="col s6">
-                <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta</p>
-                <h3>
-                    <b>@ViewBag.Title</b>
-                </h3>
-            </div>
-            <div class="col s6 right-align">
-                <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati">
-                    <i class="material-icons right pink-text">format_align_left</i>
-                    VISUALIZZA ATTO
-                </a>
-                @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
-                {
-                    <a class="btn-flat pink-text tooltipped"
-                       href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica documento">
-                        <i class="material-icons right pink-text">cloud_download</i>
-                        SCARICA DOCUMENTO
-                    </a>
-                }
-                @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
-                {
-                    if (classActiveTabVotazione == "active")
-                    {
-                        <a class="btn-flat purple-text tooltipped"
-                           href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" data-tooltip="Proietta">
-                            <i class="material-icons right purple-text">subscriptions</i>
-                            PROIETTA
-                        </a>
-                    }
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="contentTable" class="row">
-    @{
-        if (Model.Mode == ClientModeEnum.TRATTAZIONE)
-        {
-            <ul id="RiepilogoEmendamentiTabs" class="tabs tabs-fixed-width">
-                @if (!filtri_attivi)
-                {
-                    <li class="tab col s3">
-                        <a class="@classActiveTabPresentazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Presentazione, view = Model.ViewMode })')">Ordine Presentazione</a>
-                    </li>
-                    <li class="tab col s3">
-                        <a class="@classActiveTabVotazione" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { ordine = (int)OrdinamentoEnum.Votazione, view = Model.ViewMode })')">Ordine Votazione</a>
-                    </li>
-                }
-                else
-                {
-                    <li class="tab col s3">
-                        <a class="@classActiveTabPresentazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Presentazione))">Ordine Presentazione</a>
-                    </li>
-                    <li class="tab col s3">
-                        <a class="@classActiveTabVotazione" onclick="filtra_Ordinamento(@Html.Raw((int)OrdinamentoEnum.Votazione))">Ordine Votazione</a>
-                    </li>
-                }
-            </ul>
-        }
-
-        Html.RenderPartial("_DataRiepilogoEMPartial", Model);
-    }
-</div>
-
-@{
-    Html.RenderPartial("_ComandiMassivi", Model.Atto.Chiuso);
-    Html.RenderPartial("_PannelloStrumentiRicerche");
-    Html.RenderPartial("_InvitoPanel", new InvitoPanelModel
-    {
-        UIDAtto = Model.Atto.UIDAtto
-    });
-
-    Html.RenderPartial("_StampaModal", Model.Atto.UIDAtto);
 }
