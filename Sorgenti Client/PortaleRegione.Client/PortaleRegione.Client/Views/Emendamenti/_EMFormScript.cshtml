@@ -21,19 +21,16 @@
         var table = $("#tableTesti");
         $.each(grigliaInDb,
             function (index, articoloModel) {
-                var titoloArticoloModal = "Articolo " + articoloModel.Data.Articolo;
                 var testoArticolo = articoloModel.Data.TestoArticolo ? articoloModel.Data.TestoArticolo : "";
                 table.append('<tr class="hoverable" onclick="InserimentoEM_Articolo(\'' + articoloModel.Data.UIDArticolo +'\')"><td width="10%"><b>Articolo ' + articoloModel.Data.Articolo + '</b></td><td>' + testoArticolo + '</td></tr>');
                 if (articoloModel.Commi.length > 0) {
                     $.each(articoloModel.Commi,
                         function (index, commaModel) {
-                            var titoloCommaModal = "Articolo " + articoloModel.Data.Articolo + " - Comma " + commaModel.Data.Comma;
                             var testoComma = commaModel.Data.TestoComma ? commaModel.Data.TestoComma : "";
                             table.append('<tr class="hoverable" onclick="InserimentoEM_Comma(\'' + articoloModel.Data.UIDArticolo + '\', \'' + commaModel.Data.UIDComma +'\')"><td width="10%">&nbsp;&nbsp;Comma ' + commaModel.Data.Comma + '</td><td>' + testoComma + '</td></tr>');
                             if (commaModel.Lettere.length > 0) {
                                 $.each(commaModel.Lettere,
                                     function (index, letteraModel) {
-                                        var titoloLetteraModal = "Articolo " + articoloModel.Data.Articolo + " - Comma " + commaModel.Data.Comma + " - Lettera " + letteraModel.Data.Lettera;
                                         var testoLettera = letteraModel.Data.TestoLettera ? letteraModel.Data.TestoLettera : "";
                                         table.append('<tr class="hoverable" onclick="InserimentoEM_Lettera(\'' + articoloModel.Data.UIDArticolo + '\', \'' + commaModel.Data.UIDComma + '\', \'' + letteraModel.Data.UIDLettera +'\')"><td width="10%">&nbsp;&nbsp;&nbsp;&nbsp;<i>Lettera ' + letteraModel.Data.Lettera + '</i></td><td>' + testoLettera + '</td></tr>');
                                     });
@@ -47,16 +44,28 @@
         $($('input[name="Emendamento.IDParte"]')[3]).click();
         await Articoli_OnChange(articoloUId, null, null);
         $('#viewManual').click();
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0,0);
     }
     async function InserimentoEM_Comma(articoloUId, commaUId) {
         $($('input[name="Emendamento.IDParte"]')[3]).click();
         await Articoli_OnChange(articoloUId, commaUId, null);
         $('#viewManual').click();
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
     }
     async function InserimentoEM_Lettera(articoloUId, commaUId, letteraUId) {
         $($('input[name="Emendamento.IDParte"]')[3]).click();
         await Articoli_OnChange(articoloUId, commaUId, letteraUId);
         $('#viewManual').click();
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
     }
 
     function InitEffettiFinanziari(value) {

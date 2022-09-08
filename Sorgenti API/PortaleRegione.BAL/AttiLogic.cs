@@ -40,10 +40,12 @@ namespace PortaleRegione.BAL
     public class AttiLogic : BaseLogic
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly EmendamentiLogic _logicEm;
 
-        public AttiLogic(IUnitOfWork unitOfWork)
+        public AttiLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM)
         {
             _unitOfWork = unitOfWork;
+            _logicEm = logicEM;
         }
 
         public async Task<BaseResponse<AttiDto>> GetAtti(BaseRequest<AttiDto> model, int CLIENT_MODE,
@@ -636,7 +638,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id)
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm = false)
         {
             var result = new List<ArticoliModel>();
 
@@ -647,6 +649,17 @@ namespace PortaleRegione.BAL
                 {
                     Data = Mapper.Map<ARTICOLI, ArticoliDto>(articolo)
                 };
+
+                if (viewEm)
+                {
+                    List<Guid> emArticolis =
+                        await _unitOfWork.Emendamenti.GetByArticolo(articolo.UIDArticolo, StatiEnum.Approvato);
+                    foreach (var emArticoloGuid in emArticolis)
+                    {
+                        var emArticolo = await _logicEm.GetEM_DTO_Light(emArticoloGuid);
+                        articoliModel.Emendamenti.Add(emArticolo);
+                    }
+                }
 
                 var commi = await _unitOfWork.Commi.GetCommi(articolo.UIDArticolo);
 
@@ -659,6 +672,17 @@ namespace PortaleRegione.BAL
                             Data = Mapper.Map<COMMI, CommiDto>(comma)
                         };
 
+                        if (viewEm)
+                        {
+                            List<Guid> emCommis =
+                                await _unitOfWork.Emendamenti.GetByComma(comma.UIDComma, StatiEnum.Approvato);
+                            foreach (var emCommaGuid in emCommis)
+                            {
+                                var emComma = await _logicEm.GetEM_DTO_Light(emCommaGuid);
+                                commiModel.Emendamenti.Add(emComma);
+                            }
+                        }
+
                         var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
 
                         if (lettere.Any())
@@ -670,13 +694,24 @@ namespace PortaleRegione.BAL
                                     Data = Mapper.Map<LETTERE, LettereDto>(lettera)
                                 };
 
+                                if (viewEm)
+                                {
+                                    List<Guid> emLetteras =
+                                        await _unitOfWork.Emendamenti.GetByLettera(lettera.UIDLettera,
+                                            StatiEnum.Approvato);
+                                    foreach (var emLetteraGuid in emLetteras)
+                                    {
+                                        var emLettera = await _logicEm.GetEM_DTO_Light(emLetteraGuid);
+                                        letteraModel.Emendamenti.Add(emLettera);
+                                    }
+                                }
+
                                 commiModel.Lettere.Add(letteraModel);
                             }
                         }
 
                         articoliModel.Commi.Add(commiModel);
                     }
-
                 }
 
                 result.Add(articoliModel);

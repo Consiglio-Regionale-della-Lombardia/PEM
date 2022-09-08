@@ -293,11 +293,11 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid articolo</param>
         /// <returns></returns>
         [Route("griglia-testi")]
-        public async Task<IHttpActionResult> GetGrigliaTesto(Guid id)
+        public async Task<IHttpActionResult> GetGrigliaTesto(Guid id, bool viewEm = false)
         {
             try
             {
-                var result = await _logic.GetGrigliaTesto(id);
+                var result = await _logic.GetGrigliaTesto(id, viewEm);
                 return Ok(result);
             }
             catch (Exception e)

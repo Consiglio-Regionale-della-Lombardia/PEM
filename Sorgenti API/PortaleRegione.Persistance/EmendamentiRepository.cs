@@ -28,11 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Interfaces;
-using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
@@ -161,9 +157,9 @@ namespace PortaleRegione.Persistance
             switch (counter_emendamenti)
             {
                 case CounterEmendamentiEnum.NONE:
-                {
-                    return await query.CountAsync();
-                }
+                    {
+                        return await query.CountAsync();
+                    }
                 case CounterEmendamentiEnum.EM:
                     if (persona.IsSegreteriaAssemblea)
                     {
@@ -955,9 +951,9 @@ namespace PortaleRegione.Persistance
         public async Task<List<View_Conteggi_EM_Gruppi_Politici>> GetConteggiGruppi(Guid uidAtto)
         {
             return await PRContext
-                    .View_Conteggi_EM_Gruppi_Politici
-                    .Where(o => o.UIDAtto == uidAtto)
-                    .OrderByDescending(o=>o.num_em)
+                .View_Conteggi_EM_Gruppi_Politici
+                .Where(o => o.UIDAtto == uidAtto)
+                .OrderByDescending(o => o.num_em)
                 .ToListAsync();
         }
 
@@ -967,6 +963,33 @@ namespace PortaleRegione.Persistance
                 .View_Conteggi_EM_Area_Politica
                 .Where(o => o.UIDAtto == uidAtto)
                 .OrderByDescending(o => o.num_em)
+                .ToListAsync();
+        }
+
+        public async Task<List<Guid>> GetByLettera(Guid uGuid, StatiEnum stato)
+        {
+            return await PRContext
+                .EM
+                .Where(em => em.UIDLettera == uGuid && em.IDStato == (int)stato && !em.Eliminato)
+                .Select(em => em.UIDEM)
+                .ToListAsync();
+        }
+
+        public async Task<List<Guid>> GetByComma(Guid guid, StatiEnum stato)
+        {
+            return await PRContext
+                .EM
+                .Where(em => em.UIDComma == guid && em.IDStato == (int)stato && !em.Eliminato)
+                .Select(em => em.UIDEM)
+                .ToListAsync();
+        }
+
+        public async Task<List<Guid>> GetByArticolo(Guid guid, StatiEnum stato)
+        {
+            return await PRContext
+                .EM
+                .Where(em => em.UIDArticolo == guid && em.IDStato == (int)stato && !em.Eliminato)
+                .Select(em => em.UIDEM)
                 .ToListAsync();
         }
 

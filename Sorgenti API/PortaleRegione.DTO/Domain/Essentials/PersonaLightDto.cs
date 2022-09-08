@@ -32,7 +32,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
             this.cognome = cognome;
             this.nome = nome;
         }
-        public string DisplayName => $"{cognome} {nome}";
+        public string DisplayName => $"{cognome} {nome} ({codice_gruppo})";
 
         public Guid UID_persona { get; set; }
 
@@ -40,5 +40,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string nome { get; set; }
         public string foto { get; set; }
         public int id_persona { get; set; }
+        public string codice_gruppo { get; set; }
     }
 }
