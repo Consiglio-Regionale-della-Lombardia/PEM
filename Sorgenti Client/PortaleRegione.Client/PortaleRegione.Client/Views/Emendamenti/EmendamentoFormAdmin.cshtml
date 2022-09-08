@@ -28,26 +28,29 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col l6 right-align">
-        <label class="black-text" style="margin-left: 20px">
-            <input id="viewWizard" type="radio" name="switchView" onchange="SwitchView(1)" value="1" checked="checked" />
-            <span>
-                Inserimento guidato
-            </span>
-        </label>
+@if (isNew)
+{
+    <div class="row">
+        <div class="col l6 right-align">
+            <label class="black-text" style="margin-left: 20px">
+                <input id="viewWizard" type="radio" name="switchView" onchange="SwitchView(1)" value="1" checked="checked" />
+                <span>
+                    Inserimento guidato
+                </span>
+            </label>
+        </div>
+        <div class="col l6 left-align">
+            <label class="black-text" style="margin-left: 20px">
+                <input id="viewManual" type="radio" name="switchView" onchange="SwitchView(0)" value="0" />
+                <span>
+                    Inserimento manuale
+                </span>
+            </label>
+        </div>
     </div>
-    <div class="col l6 left-align">
-        <label class="black-text" style="margin-left: 20px">
-            <input id="viewManual" type="radio" name="switchView" onchange="SwitchView(0)" value="0" />
-            <span>
-                Inserimento manuale
-            </span>
-        </label>
-    </div>
-</div>
+}
 
-<div id="pnlTestiAtto" class="card">
+<div id="pnlTestiAtto" class="card" style="display: @Html.Raw(isNew?"block": "none")">
     <div class="card-content">
         <table id="tableTesti" class="tableTesti">
             <tr>
@@ -66,7 +69,7 @@
 </div>
 
 
-<div id="pnlFormEM" class="card" style="display: none;">
+<div id="pnlFormEM" class="card" style="display: @Html.Raw(isNew?"none": "block");">
     <div class="card-content">
         <div class="row">
             <div class="col s12 center">

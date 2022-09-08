@@ -1713,7 +1713,7 @@ namespace PortaleRegione.BAL
 
                 var proponente = await _logicPersone.GetPersona(em.UIDPersonaProponente);
 
-                emendamentoDto.PersonaProponente = Mapper.Map<PersonaDto, PersonaLightDto>(proponente);
+                emendamentoDto.PersonaProponente = Mapper.Map<PersonaDto, PersonaExtraLightDto>(proponente);
 
                 var gruppo = await _unitOfWork.Gruppi.Get(em.id_gruppo);
                 emendamentoDto.PersonaProponente.codice_gruppo = gruppo.codice_gruppo;

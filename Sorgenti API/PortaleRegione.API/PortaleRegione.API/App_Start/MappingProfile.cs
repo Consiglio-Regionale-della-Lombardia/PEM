@@ -90,6 +90,10 @@ namespace PortaleRegione.API
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<PersonaLightDto, PersonaDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<PersonaDto, PersonaExtraLightDto>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<PersonaExtraLightDto, PersonaDto>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<RUOLI, RuoliDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<RuoliDto, RUOLI>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<gruppi_politici, GruppiDto>()

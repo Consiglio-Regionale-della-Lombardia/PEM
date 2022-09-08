@@ -372,7 +372,7 @@ namespace PortaleRegione.Persistance
                                           || em.IDStato == (int)StatiEnum.Bozza_Riservata
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona
-                                              || persona.IsCapoGruppo));
+                                              || persona.IsCapoGruppo && em.chkem > 1));
 
                 if (persona.IsGiunta)
                 {

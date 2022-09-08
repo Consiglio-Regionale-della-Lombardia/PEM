@@ -82,7 +82,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
     {
         [Key] public Guid UIDEM { get; set; }
         [StringLength(50)] public string N_EM { get; set; }
-        public PersonaLightDto PersonaProponente { get; set; }
+        public PersonaExtraLightDto PersonaProponente { get; set; }
         [StringLength(255)] public string DataDeposito { get; set; }
     }
 }

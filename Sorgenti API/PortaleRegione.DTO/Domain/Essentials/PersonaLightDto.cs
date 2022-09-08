@@ -32,6 +32,27 @@ namespace PortaleRegione.DTO.Domain.Essentials
             this.cognome = cognome;
             this.nome = nome;
         }
+        public string DisplayName => $"{cognome} {nome}";
+
+        public Guid UID_persona { get; set; }
+
+        public string cognome { get; set; }
+        public string nome { get; set; }
+        public string foto { get; set; }
+        public int id_persona { get; set; }
+    }
+    public class PersonaExtraLightDto
+    {
+        public PersonaExtraLightDto()
+        {
+
+        }
+
+        public PersonaExtraLightDto(string cognome, string nome)
+        {
+            this.cognome = cognome;
+            this.nome = nome;
+        }
         public string DisplayName => $"{cognome} {nome} ({codice_gruppo})";
 
         public Guid UID_persona { get; set; }
