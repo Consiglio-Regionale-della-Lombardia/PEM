@@ -779,7 +779,22 @@ function GetGrigliaTesto(attoUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/griglia-testi",
-            data: { id: attoUId },
+            data: { id: attoUId, viewEm: false },
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetGrigliaTestoEM(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/griglia-testi",
+            data: { id: attoUId, viewEm: true },
             type: "GET"
         }).done(function(result) {
             resolve(result);

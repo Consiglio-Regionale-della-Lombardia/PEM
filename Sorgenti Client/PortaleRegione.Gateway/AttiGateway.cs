@@ -427,11 +427,11 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id)
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm = false)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/atti/griglia-testi?id={id}";
+                var requestUrl = $"{apiUrl}/atti/griglia-testi?id={id}&viewEm={viewEm}";
 
                 var lst = JsonConvert.DeserializeObject<List<ArticoliModel>>(await Get(requestUrl, _token));
 

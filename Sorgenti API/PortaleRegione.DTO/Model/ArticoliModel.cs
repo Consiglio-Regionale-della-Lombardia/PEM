@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
+using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Model
 {
@@ -26,8 +27,10 @@ namespace PortaleRegione.DTO.Model
         public ArticoliModel()
         {
             Commi = new List<CommiModel>();
+            Emendamenti = new List<EmendamentoExtraLightDto>();
         }
         public ArticoliDto Data { get; set; }
         public List<CommiModel> Commi { get; set; }
+        public List<EmendamentoExtraLightDto> Emendamenti { get; set; }
     }
 }

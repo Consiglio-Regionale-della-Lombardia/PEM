@@ -23,7 +23,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Contracts
@@ -40,7 +39,7 @@ namespace PortaleRegione.Contracts
 
         Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
             int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
-            List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos =null);
+            List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
 
         IEnumerable<EM> GetAll(ByQueryModel model);
 
@@ -83,5 +82,8 @@ namespace PortaleRegione.Contracts
         void AddTag(string tag);
         Task<List<View_Conteggi_EM_Gruppi_Politici>> GetConteggiGruppi(Guid uidAtto);
         Task<List<View_Conteggi_EM_Area_Politica>> GetConteggiAreePolitiche(Guid uidAtto);
+        Task<List<Guid>> GetByLettera(Guid uGuid, StatiEnum stato);
+        Task<List<Guid>> GetByComma(Guid guid, StatiEnum stato);
+        Task<List<Guid>> GetByArticolo(Guid guid, StatiEnum stato);
     }
 }

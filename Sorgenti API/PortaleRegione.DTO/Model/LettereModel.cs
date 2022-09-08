@@ -17,11 +17,18 @@
  */
 
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
+using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Model
 {
     public class LettereModel
     {
+        public LettereModel()
+        {
+            Emendamenti = new List<EmendamentoExtraLightDto>();
+        }
         public LettereDto Data { get; set; }
+        public List<EmendamentoExtraLightDto> Emendamenti { get; set; }
     }
 }

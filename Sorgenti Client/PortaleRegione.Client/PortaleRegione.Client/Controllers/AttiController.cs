@@ -456,12 +456,12 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("griglia-testi")]
-        public async Task<ActionResult> GetGrigliaTesto(Guid id)
+        public async Task<ActionResult> GetGrigliaTesto(Guid id, bool viewEm = false)
         {
             try
             {
                 var apiGateway = new ApiGateway(_Token);
-                return Json(await apiGateway.Atti.GetGrigliaTesto(id), JsonRequestBehavior.AllowGet);
+                return Json(await apiGateway.Atti.GetGrigliaTesto(id, viewEm), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
