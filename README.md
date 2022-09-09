@@ -126,6 +126,7 @@ Il sotto-progetto API costituisce la parte principale della parte API in quanto 
 -	SEDUTECONTROLLER: contiene tutte le operazioni per gestire le sedute
 -	ATTICONTROLLER: Contiene tutte le operazioni per gestire gli atti (Gestione articoli/commi/lettere, salvataggio relatori, gestione dei fascicoli in ordine di votazione/presentazione, ecc.)
 -	EMENDAMENTICONTROLLER: Contiene tutte le operazioni per gestire gli emendamenti (Gestione firme/inviti/depositi, visualizzazioni di preview, modifica metadati, gestione stati, ordinamenti e fascicolazione, ecc.)
+-	DASICONTROLLER: contiene tutte le operazioni per gestire gli atti di sindacato ispettivo.
 -	PERSONECONTROLLER: contiene tutte le operazioni inerenti gli utenti del sistema e la gestione dei relativi ruoli e gruppi di appartenenza (swap ruoli/gruppi, visualizzazione utenti e ruoli del sistema, cambio pin, ecc.)
 -	NOTIFICHECONTROLLER: contiene tutte le operazioni sulle notifiche
 -	AUTENTICAZIONECONTROLLER: contiene tutte le operazioni di autenticazione al portale
@@ -156,6 +157,7 @@ Il sotto-progetto Client costituisce la parte principale della parte CLIENT. Sec
 -	SEDUTECONTROLLER: gestisce tutte funzionalità per gestire le sedute interfacciandosi con SEDUTECONTROLLER del modulo API.
 -	ATTICONTROLLER: gestisce tutte le funzionalità per gestire gli atti (gestione articoli/commi/lettere, relatori, fascicolazione, ecc.) interfacciandosi con ATTICONTROLLER del modulo API.
 -	EMENDAMENTICONTROLLER: gestisce tutte le funzionalità per gestire gli emendamenti (gestione firme/inviti/depositi, preview, modifica metadati, gestione stati, ordinamenti/ fascicolazione, ecc.) interfacciandosi con EMENDAMENTICONTROLLER del modulo API.
+-	DASICONTROLLER: gestisce tutte le funzionalità per gestire gli atti di sindacato ispettivo interfacciandosi con DASICONTROLLER dell'API.
 -	PERSONECONTROLLER: gestisce tutte le funzionalità inerenti gli utenti del sistema e la gestione dei relativi ruoli e gruppi di appartenenza (swap ruoli/gruppi, visualizzazione utenti e ruoli del sistema, cambio pin, ecc.) interfacciandosi con PERSONECONTROLLER del modulo API.
 -	NOTIFICHECONTROLLER: gestisce tutte le funzionalità sulle notifiche interfacciandosi con NOTIFICHECONTROLLER del modulo API.
 -	AUTENTICAZIONECONTROLLER: gestisce tutte le operazioni di autenticazione al portale interfacciandosi con AUTENTICAZIONECONTROLLER del modulo API.
@@ -166,7 +168,7 @@ Il sotto-progetto Client costituisce la parte principale della parte CLIENT. Sec
 La parte di interfaccia utente di PEM è stata realizzata utilizzando le tecnologie attualmente più evolute che consentono la visualizzazione responsive dell’applicazione. In particolare, sono stati utilizzati:
 -	Materialize (stile) - [Documentation - Materialize (materializecss.com)](https://materializecss.com/)
 -	jQuery (javascript) - [jQuery](https://jquery.com/)
--	TiniMCE (editor testo) - [The Most Advanced WYSIWYG HTML Editor | Trusted Rich Text Editor | TinyMCE](https://www.tiny.cloud/)
+-	Trumbowyg (editor testo) - [https://alex-d.github.io/Trumbowyg/](https://alex-d.github.io/Trumbowyg/))
 
 #### TEMPLATE
 Per rendere il portale PEM adattabile ad esigenze di layout differenti e personalizzabili, la visualizzazione degli emendamenti, la stampa dei fascicoli e dei singoli emendamenti è stata sviluppata utilizzando dei templates html. Attraverso questi templates, contenuti nella cartella Template nel progetto API, è possibile personalizzare il layout degli emendamenti e dei fascicoli sia nella versione html (per visualizzazione a video e per invio tramite email) sia nella versione pdf.
@@ -252,10 +254,9 @@ All'interno del codice del Portale PEM sono stati utilizzati i seguenti componen
  con licenza [GNU Affero General Public License version 3](https://github.com/itext/itextsharp/blob/develop/LICENSE.md)
  
  
-- TinyMCE 5
- https://github.com/tinymce/tinymce
- con licenza [GNU Lesser General Public License v2.1](https://github.com/tinymce/tinymce/blob/develop/LICENSE.TXT)
-Registrarsi sul sito del produttore alla community "Free Forever" per ottenere la chiave di licenza dell'editor da inserire nella configurazione del Portale PEM, come indicato in fase di installazione: [community "Free Forever"](https://www.tiny.cloud/auth/signup/)
+- Trumbowyg
+ https://github.com/Alex-D/Trumbowyg
+ con licenza [MIT License](https://github.com/Alex-D/Trumbowyg/blob/develop/LICENSE)
  
  
 - Materialize 
