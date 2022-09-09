@@ -16,14 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System.Collections.Generic;
 
 namespace PortaleRegione.DTO.Response
 {
     public class EmendamentiViewModel
     {
+        public EmendamentiViewModel()
+        {
+            ConteggiGruppi = new List<View_Conteggi_EM_Gruppi_PoliticiDto>();
+            ConteggiAreePolitiche = new List<View_Conteggi_EM_Area_PoliticaDto>();
+        }
         public BaseResponse<EmendamentiDto> Data { get; set; }
         public PersonaDto CurrentUser { get; set; }
         public AttiDto Atto { get; set; }
