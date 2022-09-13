@@ -908,7 +908,7 @@ namespace PortaleRegione.Client.Controllers
             var sedutaUId = await GetSedutaByData(filtro_data_seduta);
             util.AddFilter_ByDataSeduta(ref model, sedutaUId);
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
-            util.AddFilter_ByStato(ref model, filtro_stato);
+            util.AddFilter_ByStato(ref model, filtro_stato, _CurrentUser);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
             util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);

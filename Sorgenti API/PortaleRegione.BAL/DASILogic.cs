@@ -356,6 +356,7 @@ namespace PortaleRegione.API.Controllers
                 var totaleAtti = await _unitOfWork
                     .DASI
                     .Count(persona,
+                        (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                         queryFilter,
                         soggetti);
 
@@ -590,6 +591,11 @@ namespace PortaleRegione.API.Controllers
                     .Count(persona,
                         tipo
                         , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti),
+                RITIRATI = await _unitOfWork
+                    .DASI
+                    .Count(persona,
+                        tipo
+                        , StatiAttoEnum.RITIRATO, sedutaId, clientMode, filtro, soggetti),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
