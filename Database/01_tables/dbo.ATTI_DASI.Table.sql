@@ -1,7 +1,7 @@
-USE [dbEmendamenti]
+USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 20/07/2022 10:40:33 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 13/09/2022 17:43:59 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -20,6 +20,8 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[Oggetto_Modificato] [varchar](max) NULL,
 	[Premesse] [varchar](max) NULL,
 	[Premesse_Modificato] [varchar](max) NULL,
+	[TipoRichiesta] [int] NOT NULL,
+	[TipoRichiestaDestinatario] [int] NOT NULL,
 	[Richiesta] [varchar](max) NULL,
 	[Richiesta_Modificata] [varchar](max) NULL,
 	[DataCreazione] [datetime] NOT NULL,
@@ -28,9 +30,9 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataModifica] [datetime] NULL,
 	[UIDPersonaModifica] [uniqueidentifier] NULL,
 	[DataPresentazione] [varchar](255) NULL,
+	[UIDPersonaPresentazione] [uniqueidentifier] NULL,
 	[DataRichiestaIscrizioneSeduta] [varchar](255) NULL,
 	[UIDPersonaRichiestaIscrizione] [uniqueidentifier] NULL,
-	[UIDPersonaPresentazione] [uniqueidentifier] NULL,
 	[UIDPersonaProponente] [uniqueidentifier] NULL,
 	[UIDPersonaPrimaFirma] [uniqueidentifier] NULL,
 	[DataPrimaFirma] [datetime] NULL,
@@ -46,6 +48,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[Note_Pubbliche] [varchar](max) NULL,
 	[Note_Private] [varchar](max) NULL,
 	[IDStato] [int] NOT NULL,
+	[IDStato_Motivazione] [int] NOT NULL,
 	[Firma_su_invito] [bit] NOT NULL,
 	[UID_QRCode] [uniqueidentifier] NOT NULL,
 	[AreaPolitica] [int] NOT NULL,
@@ -66,7 +69,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -74,6 +77,15 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoMOZ]  DEFAULT ((
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_NAtto_search]  DEFAULT ((0)) FOR [NAtto_search]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiesta]  DEFAULT ((0)) FOR [TipoRichiesta]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_IDStato_Motivazione]  DEFAULT ((0)) FOR [IDStato_Motivazione]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]
