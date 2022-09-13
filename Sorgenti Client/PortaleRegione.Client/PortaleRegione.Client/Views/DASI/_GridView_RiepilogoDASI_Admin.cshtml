@@ -171,37 +171,45 @@ else
                 <td style="width: 6%;">
                     @{
                         var tooltipStato = "Non ancora presentato";
-                        if (item.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                        if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                         {
                             tooltipStato = $"Presentato il {item.DataPresentazione}";
+                            if (item.IDStato == (int)StatiAttoEnum.CHIUSO)
+                            {
+                                var motivazione = item.IDStato_Motivazione != 1 ? "Decaduto" : "Ritirato";
+                                tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
+                            }
                         }
                     }
 
                     <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
                         @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
                     </span>
-                    <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
-                        <i class="icon material-icons">refresh</i>
-                    </a>
+                    @if (item.IDStato != (int)StatiAttoEnum.CHIUSO)
+                    {
+                        <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
+                            <i class="icon material-icons">refresh</i>
+                        </a>
 
-                    <!-- Dropdown Structure -->
-                    <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
-                        <li>
-                            <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.PRESENTATO))">
-                                <i class="material-icons">lock</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
-                            </a>
-                        </li>
-                        <li>
-                            <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.IN_TRATTAZIONE))">
-                                <i class="material-icons">settings_input_antenna</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
-                            </a>
-                        </li>
-                        <li>
-                            <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.CHIUSO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.CHIUSO))">
-                                <i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
-                            </a>
-                        </li>
-                    </ul>
+                        <!-- Dropdown Structure -->
+                        <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
+                            <li>
+                                <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.PRESENTATO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.PRESENTATO))">
+                                    <i class="material-icons">lock</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.PRESENTATO))
+                                </a>
+                            </li>
+                            <li>
+                                <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.IN_TRATTAZIONE))">
+                                    <i class="material-icons">settings_input_antenna</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.IN_TRATTAZIONE))
+                                </a>
+                            </li>
+                            <li>
+                                <a class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI((int) StatiAttoEnum.CHIUSO))" onclick="CambioStatoDASI('@Html.Raw(item.UIDAtto)', @((int) StatiAttoEnum.CHIUSO))">
+                                    <i class="material-icons">storage</i> @Html.Raw(Utility.GetText_StatoDASI((int) StatiAttoEnum.CHIUSO))
+                                </a>
+                            </li>
+                        </ul>
+                    }
                 </td>
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {

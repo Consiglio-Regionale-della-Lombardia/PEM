@@ -18,13 +18,10 @@
 
 namespace PortaleRegione.DTO.Enum
 {
-    public class TipoAttoCSSConst
+    public enum MotivazioneStatoAttoEnum
     {
-        public const string ITR = "badgeITR";
-        public const string IQT = "badgeIQT";
-        public const string ITL = "badgeITL";
-        public const string MOZ = "badgeMOZ";
-        public const string ODG = "badgeODG";
-        public const string TUTTI = "badgeALL";
+        NESSUNO = 0,
+        RITIRATO = 1,
+        DECADUTO = 2
     }
 }

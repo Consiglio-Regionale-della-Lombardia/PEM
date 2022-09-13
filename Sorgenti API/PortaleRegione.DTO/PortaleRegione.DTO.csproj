@@ -73,8 +73,8 @@
     <Compile Include="Enum\AreaPoliticaEnum.cs" />
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
-    <Compile Include="Enum\DocTypeEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
+    <Compile Include="Enum\MotivazioneStatoAttoEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
