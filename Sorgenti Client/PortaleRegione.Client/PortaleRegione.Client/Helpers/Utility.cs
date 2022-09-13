@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
@@ -28,6 +24,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Gateway;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Client.Helpers
 {
@@ -122,7 +122,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetCSS_TipoDASI(int tipoAtto)
         {
-            switch ((TipoAttoEnum) tipoAtto)
+            switch ((TipoAttoEnum)tipoAtto)
             {
                 case TipoAttoEnum.ITR:
                     return TipoAttoCSSConst.ITR;
@@ -145,7 +145,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetTooltip_TipoDASI(int tipoAtto)
         {
-            switch ((TipoAttoEnum) tipoAtto)
+            switch ((TipoAttoEnum)tipoAtto)
             {
                 case TipoAttoEnum.ITR:
                     return "Interrogazione";
@@ -168,7 +168,7 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetCSS_StatoDASI(int stato)
         {
-            switch ((StatiAttoEnum) stato)
+            switch ((StatiAttoEnum)stato)
             {
                 case StatiAttoEnum.BOZZA:
                     return StatiAttoCSSConst.BOZZA;
@@ -205,15 +205,15 @@ namespace PortaleRegione.Client.Helpers
 
         public static string GetText_TipoRispostaCommissioneTooltipDASI(AttoDASIDto atto)
         {
-            if (atto.IDTipo_Risposta != (int) TipoRispostaEnum.COMMISSIONE) return string.Empty;
+            if (atto.IDTipo_Risposta != (int)TipoRispostaEnum.COMMISSIONE) return string.Empty;
             if (!atto.Commissioni.Any())
                 return string.Empty;
-            return atto.Commissioni.First().nome_organo;
+            return atto.Commissioni.Select(c => c.nome_organo).Aggregate((i, j) => i + "<br>" + j);
         }
 
         public static string GetText_TipoRispostaCommissioneCSSTooltipDASI(AttoDASIDto atto)
         {
-            if (atto.IDTipo_Risposta != (int) TipoRispostaEnum.COMMISSIONE) return string.Empty;
+            if (atto.IDTipo_Risposta != (int)TipoRispostaEnum.COMMISSIONE) return string.Empty;
             return "tooltipped";
         }
 
@@ -295,7 +295,7 @@ namespace PortaleRegione.Client.Helpers
                         body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                         if (currentUId == firmeDto.UID_persona)
                         {
-                            if (em.IDStato >= (int) StatiEnum.Depositato)
+                            if (em.IDStato >= (int)StatiEnum.Depositato)
                                 body +=
                                     $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirma('{firmeDto.UIDEM}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                             else
@@ -393,7 +393,7 @@ namespace PortaleRegione.Client.Helpers
                         body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                         if (currentUId == firmeDto.UID_persona)
                         {
-                            if (dto.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                            if (dto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                                 body +=
                                     $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                             else
@@ -614,7 +614,7 @@ namespace PortaleRegione.Client.Helpers
                     Operation = Operation.Contains,
                     Value = stringa1
                 };
-                if (connettore > 0) filtro1.Connector = (FilterStatementConnector) connettore;
+                if (connettore > 0) filtro1.Connector = (FilterStatementConnector)connettore;
 
                 model.filtro.Add(filtro1);
             }
@@ -627,7 +627,7 @@ namespace PortaleRegione.Client.Helpers
                     Operation = Operation.Contains,
                     Value = stringa2
                 };
-                if (connettore > 0) filtro2.Connector = (FilterStatementConnector) connettore;
+                if (connettore > 0) filtro2.Connector = (FilterStatementConnector)connettore;
 
                 model.filtro.Add(filtro2);
             }
@@ -662,7 +662,7 @@ namespace PortaleRegione.Client.Helpers
                     Connector = FilterStatementConnector.And
                 });
                 var filtro_parte_enum = Convert.ToInt16(q_parte);
-                switch ((PartiEMEnum) filtro_parte_enum)
+                switch ((PartiEMEnum)filtro_parte_enum)
                 {
                     case PartiEMEnum.Titolo_PDL:
                         break;
@@ -763,7 +763,7 @@ namespace PortaleRegione.Client.Helpers
         {
             if (!string.IsNullOrEmpty(statoId))
             {
-                if (statoId.Equals(((int) StatiEnum.Approvato).ToString()))
+                if (statoId.Equals(((int)StatiEnum.Approvato).ToString()))
                 {
                     model.filtro.Add(new FilterStatement<EmendamentiDto>
                     {
@@ -776,7 +776,7 @@ namespace PortaleRegione.Client.Helpers
                     {
                         PropertyId = nameof(EmendamentiDto.IDStato),
                         Operation = Operation.EqualTo,
-                        Value = (int) StatiEnum.Approvato_Con_Modifiche,
+                        Value = (int)StatiEnum.Approvato_Con_Modifiche,
                         Connector = FilterStatementConnector.And
                     });
                 }
@@ -824,7 +824,7 @@ namespace PortaleRegione.Client.Helpers
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.NotEqualTo,
-                Value = (int) StatiEnum.Bozza_Riservata,
+                Value = (int)StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro1);
@@ -832,7 +832,7 @@ namespace PortaleRegione.Client.Helpers
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.EqualTo,
-                Value = (int) StatiEnum.Bozza_Riservata,
+                Value = (int)StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtro2);

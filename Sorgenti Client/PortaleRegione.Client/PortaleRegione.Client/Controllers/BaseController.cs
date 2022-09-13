@@ -16,19 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Gateway;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.Gateway;
-using System.Configuration;
-using System.Linq;
 using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
-using PortaleRegione.Client.Helpers;
-using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -46,7 +44,7 @@ namespace PortaleRegione.Client.Controllers
 
                 //}
 
-                var check = User.IsInRole(((int) ruoli[i]).ToString());
+                var check = User.IsInRole(((int)ruoli[i]).ToString());
                 if (check)
                     return true;
             }
