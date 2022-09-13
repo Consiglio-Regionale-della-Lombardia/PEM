@@ -16,12 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -36,6 +30,12 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -73,15 +73,15 @@ namespace PortaleRegione.API.Controllers
                 {
                     //Nuovo inserimento
                     result.Tipo = attoDto.Tipo;
-                    if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
+                    if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
                     {
                         result.TipoMOZ = attoDto.TipoMOZ;
-                        result.UID_MOZ_Abbinata = result.TipoMOZ == (int) TipoMOZEnum.ABBINATA
+                        result.UID_MOZ_Abbinata = result.TipoMOZ == (int)TipoMOZEnum.ABBINATA
                             ? result.UID_MOZ_Abbinata
                             : null;
                     }
 
-                    if (attoDto.Tipo == (int) TipoAttoEnum.ODG)
+                    if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
                     {
                         if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
                             throw new InvalidOperationException(
@@ -101,17 +101,17 @@ namespace PortaleRegione.API.Controllers
                     var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
                     result.Legislatura = legislatura;
                     var progressivo =
-                        await _unitOfWork.DASI.GetProgressivo((TipoAttoEnum) attoDto.Tipo, persona.Gruppo.id_gruppo,
+                        await _unitOfWork.DASI.GetProgressivo((TipoAttoEnum)attoDto.Tipo, persona.Gruppo.id_gruppo,
                             legislatura);
                     result.Progressivo = progressivo;
 
                     if (persona.IsSegreteriaAssemblea
                         || persona.IsPresidente)
-                        result.IDStato = (int) StatiAttoEnum.BOZZA;
+                        result.IDStato = (int)StatiAttoEnum.BOZZA;
                     else
                         result.IDStato = persona.Gruppo.abilita_em_privati
-                            ? (int) StatiAttoEnum.BOZZA_RISERVATA
-                            : (int) StatiAttoEnum.BOZZA;
+                            ? (int)StatiAttoEnum.BOZZA_RISERVATA
+                            : (int)StatiAttoEnum.BOZZA;
 
                     if (persona.IsConsigliereRegionale ||
                         persona.IsAssessore)
@@ -121,7 +121,7 @@ namespace PortaleRegione.API.Controllers
 
                     result.UIDPersonaCreazione = persona.UID_persona;
                     result.DataCreazione = DateTime.Now;
-                    result.idRuoloCreazione = (int) persona.CurrentRole;
+                    result.idRuoloCreazione = (int)persona.CurrentRole;
                     if (!persona.IsSegreteriaAssemblea
                         && !persona.IsPresidente)
                     {
@@ -162,14 +162,14 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb == null)
                     throw new InvalidOperationException("Atto non trovato");
 
-                if (attoDto.Tipo == (int) TipoAttoEnum.MOZ)
+                if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
                 {
                     attoInDb.TipoMOZ = attoDto.TipoMOZ;
                     attoInDb.UID_MOZ_Abbinata =
-                        attoInDb.TipoMOZ == (int) TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
+                        attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
                 }
 
-                if (attoDto.Tipo == (int) TipoAttoEnum.ODG)
+                if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
                 {
                     if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
                         throw new InvalidOperationException(
@@ -306,7 +306,7 @@ namespace PortaleRegione.API.Controllers
                     .GetAll(persona,
                         model.page,
                         model.size,
-                        (ClientModeEnum) Convert.ToInt16(CLIENT_MODE),
+                        (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                         queryFilter,
                         soggetti);
 
@@ -452,7 +452,7 @@ namespace PortaleRegione.API.Controllers
                         .CheckIfFirmabile(dto,
                             persona);
 
-                    if (!dto.DataRitiro.HasValue && dto.IDStato == (int) StatiAttoEnum.PRESENTATO)
+                    if (!dto.DataRitiro.HasValue && dto.IDStato == (int)StatiAttoEnum.PRESENTATO)
                         dto.Ritirabile = _unitOfWork
                             .DASI
                             .CheckIfRitirabile(dto,
@@ -541,7 +541,7 @@ namespace PortaleRegione.API.Controllers
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
             Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti)
         {
-            var clientMode = (ClientModeEnum) Convert.ToInt16(_clientMode);
+            var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
             var filtro = PulisciFiltro(_filtro);
             var result = new CountBarData
             {
@@ -630,7 +630,7 @@ namespace PortaleRegione.API.Controllers
             if (typeFilter == null)
                 return TipoAttoEnum.TUTTI;
 
-            return (TipoAttoEnum) Convert.ToInt16(typeFilter.Value);
+            return (TipoAttoEnum)Convert.ToInt16(typeFilter.Value);
         }
 
         private StatiAttoEnum GetResponseStatusFromFilters(List<FilterStatement<AttoDASIDto>> modelFiltro)
@@ -644,7 +644,7 @@ namespace PortaleRegione.API.Controllers
             if (statusFilter == null)
                 return StatiAttoEnum.TUTTI;
 
-            return (StatiAttoEnum) Convert.ToInt16(statusFilter.Value);
+            return (StatiAttoEnum)Convert.ToInt16(statusFilter.Value);
         }
 
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel firmaModel, PersonaDto persona,
@@ -666,7 +666,7 @@ namespace PortaleRegione.API.Controllers
                     var atto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
 
-                    if (atto.IDStato >= (int) StatiAttoEnum.IN_TRATTAZIONE)
+                    if (atto.IDStato >= (int)StatiAttoEnum.IN_TRATTAZIONE)
                     {
                         results.Add(idGuid,
                             $"ERROR: Atto {nome_atto} si trova nello stato: [{Utility.GetText_StatoDASI(atto.IDStato)}] e non è più sottoscrivibile");
@@ -766,8 +766,8 @@ namespace PortaleRegione.API.Controllers
                         {
                             UIDAtto = atto.UIDAtto,
                             Mittente = persona.UID_persona,
-                            RuoloMittente = (int) persona.CurrentRole,
-                            IDTipo = (int) TipoNotificaEnum.RICHIESTA,
+                            RuoloMittente = (int)persona.CurrentRole,
+                            IDTipo = (int)TipoNotificaEnum.RICHIESTA,
                             Messaggio = $"Richiesta di sottoscrivere l'atto {nome_atto}",
                             DataCreazione = DateTime.Now,
                             IdGruppo = atto.id_gruppo,
@@ -841,43 +841,43 @@ namespace PortaleRegione.API.Controllers
                     var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
                     if (!string.IsNullOrEmpty(result_check))
                     {
-                        switch ((TipoAttoEnum) atto.Tipo)
+                        switch ((TipoAttoEnum)atto.Tipo)
                         {
                             case TipoAttoEnum.IQT:
                             case TipoAttoEnum.MOZ:
-                            {
-                                if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
                                 {
-                                    atto.TipoMOZ = (int) TipoMOZEnum.ORDINARIA;
-                                    break;
-                                }
+                                    if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                                    {
+                                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                                        break;
+                                    }
 
-                                var newNotifica = new NOTIFICHE
-                                {
-                                    UIDAtto = atto.UIDAtto,
-                                    Mittente = persona.UID_persona,
-                                    RuoloMittente = (int) persona.CurrentRole,
-                                    IDTipo = (int) TipoNotificaEnum.RITIRO,
-                                    Messaggio = $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
-                                    DataCreazione = DateTime.Now,
-                                    IdGruppo = atto.id_gruppo,
-                                    SyncGUID = Guid.NewGuid()
-                                };
+                                    var newNotifica = new NOTIFICHE
+                                    {
+                                        UIDAtto = atto.UIDAtto,
+                                        Mittente = persona.UID_persona,
+                                        RuoloMittente = (int)persona.CurrentRole,
+                                        IDTipo = (int)TipoNotificaEnum.RITIRO,
+                                        Messaggio = $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
+                                        DataCreazione = DateTime.Now,
+                                        IdGruppo = atto.id_gruppo,
+                                        SyncGUID = Guid.NewGuid()
+                                    };
 
-                                var newDestinatario = new NOTIFICHE_DESTINATARI
-                                {
-                                    NOTIFICHE = newNotifica,
-                                    UIDPersona = atto.UIDPersonaProponente.Value,
-                                    IdGruppo = atto.id_gruppo,
-                                    UID = Guid.NewGuid()
-                                };
+                                    var newDestinatario = new NOTIFICHE_DESTINATARI
+                                    {
+                                        NOTIFICHE = newNotifica,
+                                        UIDPersona = atto.UIDPersonaProponente.Value,
+                                        IdGruppo = atto.id_gruppo,
+                                        UID = Guid.NewGuid()
+                                    };
 
-                                _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
+                                    _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
 
-                                await _unitOfWork.CompleteAsync();
+                                    await _unitOfWork.CompleteAsync();
 
-                                throw new InvalidOperationException(
-                                    "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
+                                    throw new InvalidOperationException(
+                                        "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
                                 }
                         }
                     }
@@ -885,7 +885,7 @@ namespace PortaleRegione.API.Controllers
                     if (countFirme == 1)
                     {
                         //RITIRA ATTO
-                        atto.IDStato = (int) StatiAttoEnum.RITIRATO;
+                        atto.IDStato = (int)StatiAttoEnum.RITIRATO;
                         atto.UIDPersonaRitiro = persona.UID_persona;
                         atto.DataRitiro = DateTime.Now;
                     }
@@ -989,8 +989,8 @@ namespace PortaleRegione.API.Controllers
 
                     var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
-                    if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO) continue;
-                    if (atto.Tipo == (int) TipoAttoEnum.IQT
+                    if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
+                    if (atto.Tipo == (int)TipoAttoEnum.IQT
                         && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                     {
                         results.Add(idGuid,
@@ -998,7 +998,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    if (atto.Tipo == (int) TipoAttoEnum.ODG)
+                    if (atto.Tipo == (int)TipoAttoEnum.ODG)
                     {
                         var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG,
                             TipoMOZEnum.ORDINARIA);
@@ -1082,7 +1082,7 @@ namespace PortaleRegione.API.Controllers
                     atto.Timestamp = DateTime.Now;
                     atto.DataPresentazione = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
-                    atto.IDStato = (int) StatiAttoEnum.PRESENTATO;
+                    atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
 
                     atto.NAtto = etichetta_encrypt;
 
@@ -1110,7 +1110,7 @@ namespace PortaleRegione.API.Controllers
                     });
 
 
-                    if (atto.Tipo == (int) TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
+                    if (atto.Tipo == (int)TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
                     {
                         //proposta di iscrizione in seduta
                         var attoPem = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
@@ -1125,7 +1125,7 @@ namespace PortaleRegione.API.Controllers
                             try
                             {
                                 var ruoloSegreterie =
-                                    await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
+                                    await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
 
                                 var mailModel = new MailModel
                                 {
@@ -1163,18 +1163,18 @@ namespace PortaleRegione.API.Controllers
             SEDUTE seduta_attiva = null,
             string error_title = "Atto non presentabile")
         {
-            if (atto.Tipo == (int) TipoAttoEnum.IQT
-                || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.URGENTE
-                || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
-                || atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
+            if (atto.Tipo == (int)TipoAttoEnum.IQT
+                || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE
+                || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
+                || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
             {
                 var minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriIQT;
-                if (atto.Tipo == (int) TipoAttoEnum.MOZ)
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                 {
-                    if (atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
+                    if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                         minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriMOZU;
-                    if (atto.TipoMOZ == (int) TipoMOZEnum.SFIDUCIA
-                        || atto.TipoMOZ == (int) TipoMOZEnum.CENSURA)
+                    if (atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
+                        || atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
                         minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriMOZC_MOZS;
                 }
 
@@ -1182,8 +1182,8 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
                 var minimo_firme = count_consiglieri < minimo_consiglieri
-                                   && atto.TipoMOZ != (int) TipoMOZEnum.SFIDUCIA
-                                   && atto.TipoMOZ != (int) TipoMOZEnum.CENSURA
+                                   && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
+                                   && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
                     ? count_consiglieri
                     : minimo_consiglieri;
 
@@ -1196,7 +1196,7 @@ namespace PortaleRegione.API.Controllers
 
                 var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
                 StringBuilder anomalie = new StringBuilder();
-                if (atto.Tipo == (int) TipoAttoEnum.MOZ && atto.TipoMOZ == (int) TipoMOZEnum.URGENTE)
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                 {
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
@@ -1221,7 +1221,7 @@ namespace PortaleRegione.API.Controllers
                         anomalie.AppendLine(firmatario_indagato);
                     }
                 }
-                else if (atto.Tipo == (int) TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
+                else if (atto.Tipo == (int)TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
                 {
                     var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
                     if (firmatari_di_altri_gruppi)
@@ -1322,7 +1322,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                atto.IDStato = (int) StatiAttoEnum.RITIRATO;
+                atto.IDStato = (int)StatiAttoEnum.RITIRATO;
                 atto.UIDPersonaRitiro = persona.UID_persona;
                 atto.DataRitiro = DateTime.Now;
 
@@ -1343,7 +1343,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     Atto = new AttoDASIDto
                     {
-                        Tipo = (int) tipo
+                        Tipo = (int)tipo
                     },
                     CommissioniAttive = await GetCommissioniAttive()
                 };
@@ -1355,11 +1355,11 @@ namespace PortaleRegione.API.Controllers
 
                 if (persona.IsSegreteriaAssemblea
                     || persona.IsPresidente)
-                    result.Atto.IDStato = (int) StatiAttoEnum.BOZZA;
+                    result.Atto.IDStato = (int)StatiAttoEnum.BOZZA;
                 else
                     result.Atto.IDStato = persona.Gruppo.abilita_em_privati
-                        ? (int) StatiAttoEnum.BOZZA_RISERVATA
-                        : (int) StatiAttoEnum.BOZZA;
+                        ? (int)StatiAttoEnum.BOZZA_RISERVATA
+                        : (int)StatiAttoEnum.BOZZA;
 
                 result.Atto.NAtto = GetNome(result.Atto.NAtto, progressivo);
 
@@ -1380,7 +1380,7 @@ namespace PortaleRegione.API.Controllers
 
                 result.Atto.UIDPersonaCreazione = persona.UID_persona;
                 result.Atto.DataCreazione = DateTime.Now;
-                result.Atto.idRuoloCreazione = (int) persona.CurrentRole;
+                result.Atto.idRuoloCreazione = (int)persona.CurrentRole;
                 if (!persona.IsSegreteriaAssemblea
                     && !persona.IsPresidente)
                     result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
@@ -1477,8 +1477,8 @@ namespace PortaleRegione.API.Controllers
                 {
                     var atti = await _logicAtti
                         .GetAtti(
-                            new BaseRequest<AttiDto> {id = seduta.UIDSeduta, page = 1, size = 99},
-                            (int) ClientModeEnum.TRATTAZIONE,
+                            new BaseRequest<AttiDto> { id = seduta.UIDSeduta, page = 1, size = 99 },
+                            (int)ClientModeEnum.TRATTAZIONE,
                             persona,
                             personeInDbLight);
 
@@ -1486,7 +1486,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         var tipo = Utility.GetText_Tipo(atto.IDTipoAtto);
                         var titolo_atto = $"{tipo} {atto.NAtto}";
-                        if (atto.IDTipoAtto == (int) TipoAttoEnum.ALTRO)
+                        if (atto.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
                         {
                             titolo_atto = atto.Oggetto;
                         }
@@ -1553,7 +1553,7 @@ namespace PortaleRegione.API.Controllers
                     if (string.IsNullOrEmpty(atto.DataPresentazione))
                         continue;
 
-                    atto.IDStato = (int) model.Stato;
+                    atto.IDStato = (int)model.Stato;
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, "OK");
                 }
@@ -1599,7 +1599,7 @@ namespace PortaleRegione.API.Controllers
                 try
                 {
                     var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
-                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
 
                     var gruppiMail = listaRichieste.GroupBy(item => item.Key);
                     foreach (var gruppo in gruppiMail)
@@ -1652,7 +1652,7 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int) RuoliIntEnum.Segreteria_Assemblea);
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
 
                     var mailModel = new MailModel
                     {
@@ -1687,9 +1687,9 @@ namespace PortaleRegione.API.Controllers
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
 
-                    if (atto.Tipo == (int) TipoAttoEnum.MOZ)
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                     {
-                        atto.TipoMOZ = (int) TipoMOZEnum.ORDINARIA;
+                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
                     }
 
                     atto.UIDSeduta = null;
@@ -1718,9 +1718,9 @@ namespace PortaleRegione.API.Controllers
                         throw new Exception(
                             "ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
 
-                    if (atto.Tipo == (int) TipoAttoEnum.MOZ)
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                     {
-                        atto.TipoMOZ = (int) TipoMOZEnum.ORDINARIA;
+                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
                     }
 
                     atto.DataRichiestaIscrizioneSeduta = null;
@@ -1743,11 +1743,11 @@ namespace PortaleRegione.API.Controllers
                 var attoInDb = await Get(guid);
                 if (attoInDb == null) throw new InvalidOperationException("ERROR: NON TROVATO");
                 var atto = await GetAttoDto(guid);
-                if (atto.Tipo != (int) TipoAttoEnum.MOZ)
+                if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
 
-                attoInDb.TipoMOZ = (int) TipoMOZEnum.URGENTE;
-                atto.TipoMOZ = (int) TipoMOZEnum.URGENTE;
+                attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
+                atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
 
                 var sedute_attive = await _unitOfWork.Sedute.GetAttive();
                 var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
@@ -1781,10 +1781,10 @@ namespace PortaleRegione.API.Controllers
                 var guid = model.Lista.First();
                 var atto = await Get(guid);
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
-                if (atto.Tipo != (int) TipoAttoEnum.MOZ)
+                if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
 
-                atto.TipoMOZ = (int) TipoMOZEnum.ABBINATA;
+                atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;
 
                 await _unitOfWork.CompleteAsync();
@@ -1804,7 +1804,7 @@ namespace PortaleRegione.API.Controllers
             {
                 PropertyId = nameof(AttoDASIDto.IDStato),
                 Operation = Operation.EqualTo,
-                Value = (int) stato,
+                Value = (int)stato,
                 Connector = FilterStatementConnector.And
             };
             filtro.Add(filtroStato);
@@ -1812,7 +1812,7 @@ namespace PortaleRegione.API.Controllers
             {
                 PropertyId = nameof(AttoDASIDto.Tipo),
                 Operation = Operation.EqualTo,
-                Value = (int) tipo
+                Value = (int)tipo
             };
             filtro.Add(filtroTipo);
 
@@ -1822,10 +1822,10 @@ namespace PortaleRegione.API.Controllers
             var counter_dasi = await _unitOfWork.DASI.Count(queryFilter);
 
             var dasiList = await GetDASI_UID_RawChunk(new BaseRequest<AttoDASIDto>
-                {
-                    page = 1,
-                    size = counter_dasi
-                },
+            {
+                page = 1,
+                size = counter_dasi
+            },
                 queryFilter,
                 persona);
 
@@ -2001,8 +2001,8 @@ namespace PortaleRegione.API.Controllers
 
                 result.Add(new StatiDto
                 {
-                    IDStato = (int) stato,
-                    Stato = Utility.GetText_StatoDASI((int) stato)
+                    IDStato = (int)stato,
+                    Stato = Utility.GetText_StatoDASI((int)stato)
                 });
             }
 
@@ -2016,8 +2016,8 @@ namespace PortaleRegione.API.Controllers
             foreach (var tipo in tipi)
                 result.Add(new Tipi_AttoDto
                 {
-                    IDTipoAtto = (int) tipo,
-                    Tipo_Atto = Utility.GetText_TipoMOZDASI((int) tipo)
+                    IDTipoAtto = (int)tipo,
+                    Tipo_Atto = Utility.GetText_TipoMOZDASI((int)tipo)
                 });
 
             return result;
@@ -2049,6 +2049,12 @@ namespace PortaleRegione.API.Controllers
                     //caso in cui l'utente voglia tornare allo stato precedente
                     atto.Richiesta_Modificata = string.Empty;
 
+                atto.IDTipo_Risposta = model.IDTipo_Risposta;
+                await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
+                foreach (var commissioneDto in model.Commissioni)
+                {
+                    _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
+                }
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -2060,55 +2066,55 @@ namespace PortaleRegione.API.Controllers
 
         private bool IsOutdate(AttoDASIDto atto)
         {
-            if (atto.IDStato < (int) StatiAttoEnum.PRESENTATO) return false;
+            if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO) return false;
             var data_presentazione = Convert.ToDateTime(atto.DataPresentazione);
             var result = false;
-            switch ((TipoAttoEnum) atto.Tipo)
+            switch ((TipoAttoEnum)atto.Tipo)
             {
                 case TipoAttoEnum.IQT:
-                {
-                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneIQT)
                     {
-                        result = true;
-                    }
+                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneIQT)
+                        {
+                            result = true;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 case TipoAttoEnum.MOZ:
-                {
-                    switch ((TipoMOZEnum) atto.TipoMOZ)
                     {
-                        case TipoMOZEnum.URGENTE:
+                        switch ((TipoMOZEnum)atto.TipoMOZ)
                         {
-                            if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU)
-                            {
-                                result = true;
-                            }
+                            case TipoMOZEnum.URGENTE:
+                                {
+                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU)
+                                    {
+                                        result = true;
+                                    }
 
-                            break;
-                        }
-                        case TipoMOZEnum.ABBINATA:
-                        {
-                            if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA)
-                            {
-                                result = true;
-                            }
+                                    break;
+                                }
+                            case TipoMOZEnum.ABBINATA:
+                                {
+                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA)
+                                    {
+                                        result = true;
+                                    }
 
-                            break;
+                                    break;
+                                }
                         }
+
+                        break;
                     }
-
-                    break;
-                }
                 case TipoAttoEnum.ODG:
-                {
-                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneODG)
                     {
-                        result = true;
-                    }
+                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneODG)
+                        {
+                            result = true;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             return result;

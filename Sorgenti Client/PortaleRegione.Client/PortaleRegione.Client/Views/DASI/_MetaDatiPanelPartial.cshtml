@@ -30,7 +30,7 @@
                         <a href="#metaDatiRichiesta">Richiesta</a>
                     </li>
                     <li class="tab col s3">
-                        <a href="#metaDatiCommissioni">Commissioni</a>
+                        <a href="#metaDatiCommissioni">Tipo Risposta</a>
                     </li>
                 </ul>
                 <div id="metaDatiOggetto" class="col s12 left-align">
@@ -39,18 +39,18 @@
                         <span style="display: flex">
                             <p>
                                 <label>
-                                    <input name="Oggetto" type="radio" value="0" />
+                                    <input name="Oggetto" type="radio" value="0"/>
                                     <span>Oggetto Originale</span>
                                 </label>
                             </p>
                             <p style="padding-left: 10px">
                                 <label>
-                                    <input name="Oggetto" type="radio" value="1" />
+                                    <input name="Oggetto" type="radio" value="1"/>
                                     <span>Oggetto Modificato</span>
                                 </label>
                             </p>
                         </span>
-                        <input id="EditorOggetto" class="form-control" />
+                        <input id="EditorOggetto" class="form-control"/>
                     </div>
                 </div>
                 <div id="metaDatiPremesse" class="col s12 left-align">
@@ -59,13 +59,13 @@
                         <span style="display: flex">
                             <p>
                                 <label>
-                                    <input name="Premesse" type="radio" value="0" />
+                                    <input name="Premesse" type="radio" value="0"/>
                                     <span>Premesse Originale</span>
                                 </label>
                             </p>
                             <p style="padding-left: 10px">
                                 <label>
-                                    <input name="Premesse" type="radio" value="1" />
+                                    <input name="Premesse" type="radio" value="1"/>
                                     <span>Premesse Modificato</span>
                                 </label>
                             </p>
@@ -79,13 +79,13 @@
                         <span style="display: flex">
                             <p>
                                 <label>
-                                    <input name="Richiesta" type="radio" value="0" />
+                                    <input name="Richiesta" type="radio" value="0"/>
                                     <span>Richiesta Originale</span>
                                 </label>
                             </p>
                             <p style="padding-left: 10px">
                                 <label>
-                                    <input name="Richiesta" type="radio" value="1" />
+                                    <input name="Richiesta" type="radio" value="1"/>
                                     <span>Richiesta Modificato</span>
                                 </label>
                             </p>
@@ -97,24 +97,26 @@
                     <div class="form-group">
                         <div class="input-field">
                             <select id='Atto_TipoRisposta'>
-                                <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)">Orale</option>
-                                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
-                                <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" selected="selected">Commissione</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">Orale</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTO)">Scritto</option>
+                                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">Commissione</option>
                             </select>
                             <label for="Atto_TipoRisposta">Tipo Risposta</label>
                         </div>
-                        <div class="input-field" style="padding-top: 10px; display: block" id="pnlCommissioni">
-                            <select id="Atto_Commissioni">
-                                <option value="">Seleziona commissione</option>
-                                @if (Model.CommissioniAttive != null)
+                        <div style="padding-top: 10px; display: none" id="pnlCommissioni">
+
+                            @if (Model.CommissioniAttive != null)
+                            {
+                                foreach (var commissione in Model.CommissioniAttive)
                                 {
-                                    foreach (var commissione in Model.CommissioniAttive)
-                                    {
-                                        <option value="@commissione.id_organo">@commissione.nome_organo</option>
-                                    }
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" value="@commissione.id_organo" onclick="addCommissione(this)"/>
+                                            <span>@commissione.nome_organo</span>
+                                        </label>
+                                    </p>
                                 }
-                                
-                            </select>
+                            }
                         </div>
                     </div>
                 </div>
@@ -135,7 +137,7 @@
 
         //EVENTI TESTO
         var carica_oggetto = true;
-        $('#EditorOggetto').keyup(function () {
+        $('#EditorOggetto').keyup(function() {
             if (carica_oggetto) {
                 if ($("input[type=radio][name='Oggetto']:checked").val() == 0) {
                     carica_oggetto = false;
@@ -143,7 +145,7 @@
                 }
             }
         });
-        $("input[type=radio][name='Oggetto']").change(function () {
+        $("input[type=radio][name='Oggetto']").change(function() {
             if (carica_oggetto) {
                 if (this.value == 0) {
                     $('#EditorOggetto').val(atto.Oggetto);
@@ -166,7 +168,7 @@
             }
         });
         var carica_premesse = true;
-        $('#EditorPremesse').parent().keyup(function () {
+        $('#EditorPremesse').parent().keyup(function() {
             if (carica_premesse) {
                 if ($("input[type=radio][name='Premesse']:checked").val() == 0) {
                     carica_premesse = false;
@@ -174,7 +176,7 @@
                 }
             }
         });
-        $("input[type=radio][name='Premesse']").change(function () {
+        $("input[type=radio][name='Premesse']").change(function() {
             if (carica_premesse) {
                 if (this.value == 0) {
                     editor_premesse.html(atto.Premesse);
@@ -197,7 +199,7 @@
             }
         });
         var carica_richiesta = true;
-        $('#EditorRichiesta').parent().keyup(function () {
+        $('#EditorRichiesta').parent().keyup(function() {
             if (carica_richiesta) {
                 if ($("input[type=radio][name='Richiesta']:checked").val() == 0) {
                     carica_richiesta = false;
@@ -205,7 +207,7 @@
                 }
             }
         });
-        $("input[type=radio][name='Richiesta']").change(function () {
+        $("input[type=radio][name='Richiesta']").change(function() {
             if (carica_richiesta) {
                 if (this.value == 0) {
                     editor_richiesta.html(atto.Richiesta);
@@ -229,7 +231,7 @@
         });
         $('#btnSalvaMetaDatiPartial').click(function() {
             $('#modalMetaDati').modal("close");
-            waiting(true);
+            //waiting(true);
 
             var oggetto_modificabile = $("input[type=radio][name='Oggetto']:checked")[0];
             if ($(oggetto_modificabile).val() == 1) {
@@ -252,6 +254,20 @@
                 atto.Richiesta_Modificata = "";
             }
 
+            atto.IDTipo_Risposta = $('#Atto_TipoRisposta').val();
+            if (lstCommissioni.length > 0) {
+                atto.Commissioni = [];
+                $.each(lstCommissioni, function(i, item) {
+                    var id = item;
+                    var text = $('input[value="' + item + '"]').parent().find('span').html();
+
+                    atto.Commissioni.push({
+                        id_organo: id,
+                        nome_organo: text
+                    });
+                });
+            }
+            
             $.ajax({
                 url: '@Url.Action("SalvaMetaDati")',
                 type: "POST",
@@ -271,12 +287,73 @@
 
     async function SetupMetaDati(atto) {
         waiting(true);
-        $('#NAtto').text($('div[id*="atto_"]').data("nome-atto"));
+        console.log('ATTO', atto)
+        $('#NAtto').text($('div[id*="atto_' + atto.UIDAtto + '"]').data("nome-atto"));
         LoadMetaDati_Oggetto(atto);
         LoadMetaDati_Premesse(atto);
         LoadMetaDati_Richiesta(atto);
 
+        $('#Atto_TipoRisposta').val(atto.IDTipo_Risposta);
+        $('#Atto_TipoRisposta').formSelect();
+
+        LoadTipoRisposta(atto);
+
+        $('#Atto_TipoRisposta').on("change",
+            function() {
+                LoadTipoRisposta(atto);
+            });
+
         waiting(false);
+    }
+
+    var lstCommissioni = [];
+    function LoadTipoRisposta(atto) {
+        lstCommissioni = [];
+        deselectAllCheckbox();
+        if ($('#Atto_TipoRisposta').val() == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
+            $('#pnlCommissioni').show();
+
+            if (atto.Commissioni != null) {
+                if (atto.Commissioni.length > 0) {
+                    $.each(atto.Commissioni,
+                        function(i, item) {
+                            console.log(item);
+                            $('input[value="' + item.id_organo + '"]').click();
+                        });
+                }
+            }
+        } else {
+            $('#pnlCommissioni').hide();
+        }
+    }
+
+    function addCommissione(ctrl) {
+        if ($(ctrl).is(":checked")) {
+            var resultObject = searchCommissione(parseInt($(ctrl).val()), lstCommissioni);
+            if (resultObject != null) {
+                return;
+            }
+            lstCommissioni.push(parseInt($(ctrl).val()));
+        } else {
+            removeA(lstCommissioni, parseInt($(ctrl).val()));
+        }
+    }
+
+    function searchCommissione(q, myArray){
+        for (var i=0; i < myArray.length; i++) {
+            if (myArray[i].id_organo === q) {
+                return myArray[i];
+            }
+        }
+    }
+
+    function deselectAllCheckbox() {
+        $.each($('#pnlCommissioni').find("input"),
+            function(i, item) {
+                if ($(item).is(":checked")) {
+                    $(item).click();
+                }
+            });
     }
 
     function LoadMetaDati_Oggetto(atto) {
