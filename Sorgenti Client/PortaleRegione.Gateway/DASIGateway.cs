@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
@@ -29,6 +24,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
@@ -96,7 +95,7 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
-        
+
         public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
         {
             try
@@ -141,7 +140,8 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo)
+        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo,
+            RuoliIntEnum ruolo)
         {
             try
             {
@@ -154,7 +154,7 @@ namespace PortaleRegione.Gateway
                     param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
                 };
                 var operationStato = Operation.EqualTo;
-                if ((int)stato>(int)StatiAttoEnum.BOZZA)
+                if ((int)stato > (int)StatiAttoEnum.BOZZA)
                 {
                     if (ruolo != RuoliIntEnum.Segreteria_Assemblea
                         && ruolo != RuoliIntEnum.Amministratore_PEM)
@@ -163,7 +163,7 @@ namespace PortaleRegione.Gateway
                         operationStato = Operation.GreaterThanOrEqualTo;
                     }
                 }
-                else if ((int) stato <= (int)StatiAttoEnum.BOZZA)
+                else if ((int)stato <= (int)StatiAttoEnum.BOZZA)
                 {
                     if (ruolo == RuoliIntEnum.Segreteria_Assemblea
                         || ruolo == RuoliIntEnum.Amministratore_PEM)
@@ -178,7 +178,7 @@ namespace PortaleRegione.Gateway
                 {
                     PropertyId = nameof(AttoDASIDto.IDStato),
                     Operation = operationStato,
-                    Value = (int) stato,
+                    Value = (int)stato,
                     Connector = FilterStatementConnector.And
                 };
                 model.filtro.Add(filtroStato);
@@ -188,7 +188,7 @@ namespace PortaleRegione.Gateway
                     {
                         PropertyId = nameof(AttoDASIDto.Tipo),
                         Operation = Operation.EqualTo,
-                        Value = (int) tipo
+                        Value = (int)tipo
                     };
                     model.filtro.Add(filtroTipo);
                 }
@@ -238,7 +238,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                Lista = new List<Guid> {attoUId},
+                Lista = new List<Guid> { attoUId },
                 Pin = pin
             };
             return await Firma(model);
@@ -513,7 +513,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                Lista = new List<Guid> {attoUId},
+                Lista = new List<Guid> { attoUId },
                 Pin = pin
             };
             return await Presenta(model);
@@ -546,7 +546,7 @@ namespace PortaleRegione.Gateway
         {
             var model = new ComandiAzioneModel
             {
-                Lista = new List<Guid> {attoUId},
+                Lista = new List<Guid> { attoUId },
                 Pin = pin
             };
             return await EliminaFirma(model);
@@ -574,7 +574,7 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
-        
+
         public async Task CambioStato(ModificaStatoAttoModel model)
         {
             try
@@ -636,7 +636,6 @@ namespace PortaleRegione.Gateway
                 Log.Error("RichiediIscrizione - DASI", ex);
                 throw ex;
             }
-
         }
 
         public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
@@ -729,7 +728,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/dasi/invitati?id={guid}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl, _token));
+                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
+                    _token));
 
                 return lst;
             }
@@ -771,7 +771,6 @@ namespace PortaleRegione.Gateway
                 Log.Error("DASI - GetCopertina", ex);
                 throw ex;
             }
-
         }
 
         public async Task<IEnumerable<StatiDto>> GetStati()
@@ -822,7 +821,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/dasi/soggetti-interrogabili";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<AssessoreInCaricaDto>>(await Get(requestUrl, _token));
+                var lst =
+                    JsonConvert.DeserializeObject<IEnumerable<AssessoreInCaricaDto>>(await Get(requestUrl, _token));
                 return lst;
             }
             catch (UnauthorizedAccessException ex)
@@ -895,7 +895,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/dasi/ritiro-firma";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }

@@ -16,12 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -30,6 +24,11 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -73,14 +72,13 @@ namespace PortaleRegione.Persistance
 
             if (mode == ClientModeEnum.GRUPPI)
             {
-                query = query.Where(atto => atto.IDStato != (int) StatiAttoEnum.BOZZA_RISERVATA
-                                            || atto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA
+                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                            || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
                                             && (atto.UIDPersonaCreazione == persona.UID_persona
                                                 || atto.UIDPersonaProponente == persona.UID_persona));
 
                 if (persona.IsSegreteriaAssemblea)
-                    query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO
-                                                && item.IDStato != (int) StatiAttoEnum.RITIRATO);
+                    query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
                 else if (!persona.IsSegreteriaAssemblea
                          && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
@@ -110,7 +108,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> filtro, List<int> soggetti)
+        public async Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti)
         {
             var query = PRContext
                 .DASI
@@ -128,10 +126,21 @@ namespace PortaleRegione.Persistance
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
 
-            filtro2?.BuildExpression(ref query);
+            filtro2.BuildExpression(ref query);
 
-            if (persona.IsSegreteriaAssemblea)
-                query = query.Where(item => item.IDStato >= (int) StatiAttoEnum.PRESENTATO);
+            if (mode == ClientModeEnum.GRUPPI)
+            {
+                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                            || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
+                                            && (atto.UIDPersonaCreazione == persona.UID_persona
+                                                || atto.UIDPersonaProponente == persona.UID_persona));
+
+                if (persona.IsSegreteriaAssemblea)
+                    query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+                else if (!persona.IsSegreteriaAssemblea
+                         && !persona.IsPresidente)
+                    query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
+            }
 
             if (soggetti != null)
                 if (soggetti.Count > 0)
@@ -199,8 +208,8 @@ namespace PortaleRegione.Persistance
 
                 if (clientMode == ClientModeEnum.GRUPPI)
                 {
-                    query = query.Where(atto => atto.IDStato != (int) StatiAttoEnum.BOZZA_RISERVATA
-                                                || atto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA
+                    query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                                || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
                                                 && (atto.UIDPersonaCreazione == persona.UID_persona
                                                     || atto.UIDPersonaProponente == persona.UID_persona));
 
@@ -212,9 +221,9 @@ namespace PortaleRegione.Persistance
                     {
                         if (stato == StatiAttoEnum.PRESENTATO
                             && persona.IsConsigliereRegionale)
-                            query = query.Where(item => item.IDStato >= (int) stato);
+                            query = query.Where(item => item.IDStato >= (int)stato);
                         else
-                            query = query.Where(item => item.IDStato == (int) stato);
+                            query = query.Where(item => item.IDStato == (int)stato);
                     }
                     else
                     {
@@ -222,13 +231,13 @@ namespace PortaleRegione.Persistance
                             query = query.Where(item => !Utility.statiNonVisibili_Segreteria.Contains(item.IDStato));
                     }
 
-                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
                 }
                 else
                 {
                     query = query.Where(item => item.UIDSeduta == sedutaId);
-                    if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int) stato);
-                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int) tipo);
+                    if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int)stato);
+                    if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
                 }
 
                 if (soggetti != null)
@@ -308,7 +317,7 @@ namespace PortaleRegione.Persistance
 
             if (dto.DataRitiro.HasValue) return false;
 
-            if (dto.IDStato != (int) StatiAttoEnum.PRESENTATO) return false;
+            if (dto.IDStato != (int)StatiAttoEnum.PRESENTATO) return false;
 
             return persona.UID_persona == dto.UIDPersonaProponente
                    || persona.CurrentRole == RuoliIntEnum.Presidente_Regione;
@@ -337,8 +346,8 @@ namespace PortaleRegione.Persistance
 
             return (dto.UIDPersonaProponente == persona.UID_persona ||
                        dto.UIDPersonaCreazione == persona.UID_persona)
-                   && (dto.IDStato == (int) StatiAttoEnum.BOZZA ||
-                       dto.IDStato == (int) StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
+                   && (dto.IDStato == (int)StatiAttoEnum.BOZZA ||
+                       dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
                    dto.Firmato_Dal_Proponente;
         }
 
@@ -346,7 +355,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI
                 .Where(atto => atto.id_gruppo == gruppoId
-                               && atto.Tipo == (int) tipo
+                               && atto.Tipo == (int)tipo
                                && atto.Legislatura == legislatura);
             query = query.OrderByDescending(em => em.Progressivo)
                 .Take(1);
@@ -376,7 +385,7 @@ namespace PortaleRegione.Persistance
                 if (result > contatore.Fine)
                 {
                     throw new Exception(
-                        $"Limite raggiunto o superato. Attuali [{contatore.Contatore}], Limite [{contatore.Fine}], Richiesti [{salto}] - Disponibili [{contatore.Fine-contatore.Contatore}]");
+                        $"Limite raggiunto o superato. Attuali [{contatore.Contatore}], Limite [{contatore.Fine}], Richiesti [{salto}] - Disponibili [{contatore.Fine - contatore.Contatore}]");
                 }
             }
 
@@ -545,24 +554,24 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .Where(a => !a.Eliminato 
-                            && a.Tipo == (int) TipoAttoEnum.MOZ 
+                .Where(a => !a.Eliminato
+                            && a.Tipo == (int)TipoAttoEnum.MOZ
                             && a.UIDSeduta == sedutaUId);
 
-            query = query.Where(a => a.IDStato == (int) StatiAttoEnum.PRESENTATO
-                                     || a.IDStato == (int) StatiAttoEnum.IN_TRATTAZIONE);
+            query = query.Where(a => a.IDStato == (int)StatiAttoEnum.PRESENTATO
+                                     || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE);
             return await query.ToListAsync();
         }
 
         public async Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
         {
-            var query = PRContext.DASI.Where(atto => !atto.Eliminato 
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.UIDSeduta == uidSeduta
-                                                     && atto.Tipo == (int) tipo);
+                                                     && atto.Tipo == (int)tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
             {
-                query = query.Where(atto => atto.TipoMOZ == (int) tipoMoz);
+                query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
             }
 
             return await query.ToListAsync();

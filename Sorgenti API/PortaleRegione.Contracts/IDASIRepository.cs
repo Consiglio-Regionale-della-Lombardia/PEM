@@ -16,15 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Contracts
 {
@@ -33,7 +32,7 @@ namespace PortaleRegione.Contracts
         Task<ATTI_DASI> Get(Guid attoUId);
         Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
-        Task<int> Count(PersonaDto persona, Filter<ATTI_DASI> queryFilter, List<int> soggetti);
+        Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
             ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
         Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta);

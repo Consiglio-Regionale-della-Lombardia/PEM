@@ -7,30 +7,22 @@
     ViewBag.Title = "DASI";
 
     var classTabPresentati = "";
-    var classTabPresentati_Badge = "";
     var classTabInTrattazione = "";
-    var classTabInTrattazione_Badge = "";
     var classTabChiuso = "";
-    var classTabChiuso_Badge = "";
+    var classTabRitirati = "";
     switch (Model.Stato)
     {
         case StatiAttoEnum.PRESENTATO:
             classTabPresentati = "active";
-            classTabInTrattazione_Badge = "inactive-badge";
-            classTabChiuso_Badge = "inactive-badge";
-            classTabPresentati_Badge = "active-badge";
             break;
         case StatiAttoEnum.IN_TRATTAZIONE:
             classTabInTrattazione = "active";
-            classTabInTrattazione_Badge = "active-badge";
-            classTabChiuso_Badge = "inactive-badge";
-            classTabPresentati_Badge = "inactive-badge";
+            break;
+        case StatiAttoEnum.RITIRATO:
+            classTabRitirati = "active";
             break;
         case StatiAttoEnum.CHIUSO:
             classTabChiuso = "active";
-            classTabInTrattazione_Badge = "inactive-badge";
-            classTabChiuso_Badge = "active-badge";
-            classTabPresentati_Badge = "inactive-badge";
             break;
     }
     var url = Url.Action("Index", "Home");
@@ -87,17 +79,22 @@
     {
         <div class="col s12">
             <ul class="tabs">
-                <li class="tab col s4">
+                <li class="tab col s3">
                     <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO, tipo = (int)Model.Tipo})');">
                         Presentati (@Model.CountBarData.PRESENTATI)
                     </a>
                 </li>
-                <li class="tab col s4">
+                <li class="tab col s3">
                     <a class="@classTabInTrattazione" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.IN_TRATTAZIONE, tipo = (int)Model.Tipo})');">
                         In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
                     </a>
                 </li>
-                <li class="tab col s4">
+                <li class="tab col s3">
+                    <a class="@classTabRitirati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.RITIRATO, tipo = (int)Model.Tipo})');">
+                        RITIRATI (@Model.CountBarData.RITIRATI)
+                    </a>
+                </li>
+                <li class="tab col s3">
                     <a class="@classTabChiuso" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.CHIUSO, tipo = (int)Model.Tipo})');">
                         CHIUSI (@Model.CountBarData.CHIUSO)
                     </a>
