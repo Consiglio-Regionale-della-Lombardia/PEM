@@ -125,7 +125,7 @@ else
                                   || item.Tipo is (int)TipoAttoEnum.ODG
                                   || item.Tipo is (int)TipoAttoEnum.MOZ
                                   || item.Tipo is (int)TipoAttoEnum.IQT)
-                                 && item.IDStato != (int)StatiAttoEnum.RITIRATO)
+                                 && item.IDStato != (int)StatiAttoEnum.CHIUSO)
                             {
                                 if ((item.Tipo is (int)TipoAttoEnum.IQT
                                      && (Model.CurrentUser.IsCapoGruppo

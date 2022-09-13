@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PortaleRegione.Common
 {
@@ -40,10 +40,9 @@ namespace PortaleRegione.Common
         public static List<int> statiNonVisibili_Segreteria = new List<int>
         {
             (int) StatiAttoEnum.BOZZA,
-            (int) StatiAttoEnum.BOZZA_RISERVATA,
-            (int) StatiAttoEnum.RITIRATO
+            (int) StatiAttoEnum.BOZZA_RISERVATA
         };
-        
+
         public static List<TipoAttoEnum> tipiNonVisibili = new List<TipoAttoEnum>
         {
             TipoAttoEnum.PDL,
@@ -86,24 +85,24 @@ namespace PortaleRegione.Common
                 case PartiEMEnum.Capo:
                     return $"Capo: {em.NCapo}";
                 case PartiEMEnum.Articolo:
-                {
-                    var strArticolo = string.Empty;
-                    if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
-
-                    if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
-                        strArticolo += $", Comma: {em.COMMI.Comma}";
-
-                    if (!string.IsNullOrEmpty(em.NLettera))
                     {
-                        strArticolo += $", Lettera: {em.NLettera}";
-                    }
-                    else
-                    {
-                        if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
-                    }
+                        var strArticolo = string.Empty;
+                        if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
 
-                    return strArticolo;
-                }
+                        if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
+                            strArticolo += $", Comma: {em.COMMI.Comma}";
+
+                        if (!string.IsNullOrEmpty(em.NLettera))
+                        {
+                            strArticolo += $", Lettera: {em.NLettera}";
+                        }
+                        else
+                        {
+                            if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
+                        }
+
+                        return strArticolo;
+                    }
                 case PartiEMEnum.Missione:
                     return $"Missione: {em.NMissione} Programma: {em.NProgramma} titolo: {em.NTitoloB}";
                 case PartiEMEnum.Allegato_Tabella:
@@ -123,17 +122,17 @@ namespace PortaleRegione.Common
             switch (effetti_finanziari)
             {
                 case 0:
-                {
-                    return "NO";
-                }
+                    {
+                        return "NO";
+                    }
                 case 1:
-                {
-                    return "SI";
-                }
+                    {
+                        return "SI";
+                    }
                 default:
-                {
-                    return "NON SPECIFICATO";
-                }
+                    {
+                        return "NON SPECIFICATO";
+                    }
             }
         }
 
@@ -141,10 +140,10 @@ namespace PortaleRegione.Common
         {
             return GetText_Tipo(atto.Tipo);
         }
-        
+
         public static string GetText_Tipo(int tipoAtto)
         {
-            switch ((TipoAttoEnum) tipoAtto)
+            switch ((TipoAttoEnum)tipoAtto)
             {
                 case TipoAttoEnum.ITR:
                     return TipoAttoEnum.ITR.ToString();
@@ -187,7 +186,7 @@ namespace PortaleRegione.Common
 
         public static string GetText_TipoMOZDASI(int tipoMOZ)
         {
-            switch ((TipoMOZEnum) tipoMOZ)
+            switch ((TipoMOZEnum)tipoMOZ)
             {
                 case TipoMOZEnum.ORDINARIA:
                     return "Mozione";
@@ -206,7 +205,7 @@ namespace PortaleRegione.Common
 
         public static string GetText_StatoDASI(int stato)
         {
-            switch ((StatiAttoEnum) stato)
+            switch ((StatiAttoEnum)stato)
             {
                 case StatiAttoEnum.BOZZA_RISERVATA:
                     return "Bozza Ris.";
@@ -216,10 +215,6 @@ namespace PortaleRegione.Common
                     return "Presentato";
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In Trattazione";
-                case StatiAttoEnum.RITIRATO:
-                    return "Ritirato";
-                case StatiAttoEnum.DECADUTO:
-                    return "Decaduto";
                 case StatiAttoEnum.CHIUSO:
                     return "Chiuso";
                 case StatiAttoEnum.TUTTI:
@@ -231,20 +226,20 @@ namespace PortaleRegione.Common
 
         public static string GetText_TipoRispostaDASI(int IdTipoRisposta)
         {
-            switch ((TipoRispostaEnum) IdTipoRisposta)
+            switch ((TipoRispostaEnum)IdTipoRisposta)
             {
                 case TipoRispostaEnum.ORALE:
                     return "Orale";
                 case TipoRispostaEnum.SCRITTO:
                     return "Scritto";
                 case TipoRispostaEnum.COMMISSIONE:
-                {
-                    return "In Commissione";
-                }
+                    {
+                        return "In Commissione";
+                    }
                 case TipoRispostaEnum.IMMEDIATA:
-                {
-                    return "Immediata";
-                }
+                    {
+                        return "Immediata";
+                    }
                 default:
                     return "";
             }
@@ -254,7 +249,7 @@ namespace PortaleRegione.Common
         {
             try
             {
-                switch ((TipoRichiestaEnum) tipoRichiesta)
+                switch ((TipoRichiestaEnum)tipoRichiesta)
                 {
                     case TipoRichiestaEnum.CHIEDE:
                         return "CHIEDE";
@@ -276,7 +271,7 @@ namespace PortaleRegione.Common
         {
             try
             {
-                switch ((TipoRichiestaDestEnum) tipoRichiestaDestinatario)
+                switch ((TipoRichiestaDestEnum)tipoRichiestaDestinatario)
                 {
                     case TipoRichiestaDestEnum.PRES_REG:
                         return "PRESIDENTE DELLA REGIONE";
@@ -321,11 +316,11 @@ namespace PortaleRegione.Common
         public static List<KeyValueDto> GetEnumList<T>()
         {
             return (from object e in Enum.GetValues(typeof(T))
-                select new KeyValueDto
-                {
-                    id = (int) e,
-                    descr = e.ToString().Replace("_", " ")
-                }).ToList();
+                    select new KeyValueDto
+                    {
+                        id = (int)e,
+                        descr = e.ToString().Replace("_", " ")
+                    }).ToList();
         }
 
         /// <summary>
@@ -380,7 +375,7 @@ namespace PortaleRegione.Common
                     Operation = Operation.Contains,
                     Value = stringa1
                 };
-                if (connettore > 0) filtro1.Connector = (FilterStatementConnector) connettore;
+                if (connettore > 0) filtro1.Connector = (FilterStatementConnector)connettore;
 
                 model.filtro.Add(filtro1);
             }
@@ -393,7 +388,7 @@ namespace PortaleRegione.Common
                     Operation = Operation.Contains,
                     Value = stringa2
                 };
-                if (connettore > 0) filtro2.Connector = (FilterStatementConnector) connettore;
+                if (connettore > 0) filtro2.Connector = (FilterStatementConnector)connettore;
 
                 model.filtro.Add(filtro2);
             }
@@ -428,7 +423,7 @@ namespace PortaleRegione.Common
                     Connector = FilterStatementConnector.And
                 });
                 var filtro_parte_enum = Convert.ToInt16(q_parte);
-                switch ((PartiEMEnum) filtro_parte_enum)
+                switch ((PartiEMEnum)filtro_parte_enum)
                 {
                     case PartiEMEnum.Titolo_PDL:
                         break;
@@ -529,7 +524,7 @@ namespace PortaleRegione.Common
         {
             if (!string.IsNullOrEmpty(statoId))
             {
-                if (statoId.Equals(((int) StatiEnum.Approvato).ToString()))
+                if (statoId.Equals(((int)StatiEnum.Approvato).ToString()))
                 {
                     model.filtro.Add(new FilterStatement<EmendamentiDto>
                     {
@@ -590,7 +585,7 @@ namespace PortaleRegione.Common
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.NotEqualTo,
-                Value = (int) StatiEnum.Bozza_Riservata,
+                Value = (int)StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.Or
             };
             model.filtro.Add(filtro1);
@@ -598,7 +593,7 @@ namespace PortaleRegione.Common
             {
                 PropertyId = nameof(EmendamentiDto.IDStato),
                 Operation = Operation.EqualTo,
-                Value = (int) StatiEnum.Bozza_Riservata,
+                Value = (int)StatiEnum.Bozza_Riservata,
                 Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtro2);
@@ -712,7 +707,7 @@ namespace PortaleRegione.Common
                 model.filtro.Add(filtro);
             }
         }
-        
+
         /// <summary>
         ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>

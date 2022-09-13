@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.API.Controllers;
@@ -32,6 +28,10 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
@@ -60,7 +60,7 @@ namespace PortaleRegione.BAL
         }
 
         #endregion
-        
+
         public async Task<RiepilogoNotificheModel> GetNotificheInviate(BaseRequest<NotificaDto> model,
             PersonaDto currentUser,
             bool Archivio, Uri uri)
@@ -80,7 +80,7 @@ namespace PortaleRegione.BAL
                         .GetNotificheInviate(currentUser, idGruppo, Archivio, model.page, model.size, queryFilter))
                     .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
                     .ToList();
-                
+
                 var result = new List<NotificaDto>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
@@ -177,7 +177,7 @@ namespace PortaleRegione.BAL
                         model.size,
                         result,
                         model.filtro,
-                        await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio), Convert.ToBoolean(Solo_Non_Viste)), 
+                        await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio), Convert.ToBoolean(Solo_Non_Viste)),
                         uri),
                     CurrentUser = currentUser
                 };
@@ -222,7 +222,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<Guid, string>> InvitaAFirmare(ComandiAzioneModel model,
             PersonaDto currentUser)
         {
@@ -269,7 +269,7 @@ namespace PortaleRegione.BAL
 
                         var n_atto = atto.NAtto;
 
-                        if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                        if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                         {
                             results.Add(idGuid,
                                 $"ERROR: Non è possibile creare notifiche per l'atto {n_atto} essendo già stato presentato");
@@ -287,7 +287,7 @@ namespace PortaleRegione.BAL
                         {
                             UIDAtto = atto.UIDAtto,
                             Mittente = currentUser.UID_persona,
-                            RuoloMittente = (int) currentUser.CurrentRole,
+                            RuoloMittente = (int)currentUser.CurrentRole,
                             IDTipo = 1,
                             Messaggio = string.Empty,
                             DataCreazione = DateTime.Now,
@@ -351,7 +351,7 @@ namespace PortaleRegione.BAL
 
                         var n_em = em.N_EM;
 
-                        if (em.IDStato >= (int) StatiEnum.Depositato)
+                        if (em.IDStato >= (int)StatiEnum.Depositato)
                         {
                             results.Add(idGuid,
                                 $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
@@ -370,7 +370,7 @@ namespace PortaleRegione.BAL
                             UIDEM = em.UIDEM,
                             UIDAtto = em.UIDAtto,
                             Mittente = currentUser.UID_persona,
-                            RuoloMittente = (int) currentUser.CurrentRole,
+                            RuoloMittente = (int)currentUser.CurrentRole,
                             IDTipo = 1,
                             Messaggio = string.Empty,
                             DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
@@ -426,7 +426,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio,
             bool Solo_Non_Viste)
         {
@@ -440,7 +440,7 @@ namespace PortaleRegione.BAL
             return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste,
                 queryFilter);
         }
-        
+
         public async Task<int> CountInviate(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio)
         {
             var queryFilter = new Filter<NOTIFICHE>();
@@ -453,7 +453,7 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Notifiche.CountInviate(currentUser, idGruppo, Archivio, queryFilter);
             return result;
         }
-        
+
         public async Task NotificaVista(long notificaId, Guid personaUId)
         {
             try
@@ -472,7 +472,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo,
             PersonaDto persona)
         {
@@ -642,12 +642,15 @@ namespace PortaleRegione.BAL
                 {
                     seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
                 }
-                
-                var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto,seduta);
+
+                var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
                 if (!string.IsNullOrEmpty(check_presentazione))
                 {
                     var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);
-                    attoInDb.IDStato = (int) StatiAttoEnum.DECADUTO;
+                    attoInDb.IDStato = (int)StatiAttoEnum.CHIUSO;
+                    attoInDb.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.DECADUTO;
+                    attoInDb.DataRitiro = DateTime.Now;
+
                     await _unitOfWork.CompleteAsync();
                 }
             }

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Enum;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -70,6 +71,7 @@ namespace PortaleRegione.Domain
         public string Note_Pubbliche { get; set; }
         public string Note_Private { get; set; }
         public int IDStato { get; set; }
+        public int IDStato_Motivazione { get; set; } = (int)MotivazioneStatoAttoEnum.NESSUNO;
         public bool Firma_su_invito { get; set; } = false;
         public Guid UID_QRCode { get; set; }
         public int AreaPolitica { get; set; }
@@ -81,7 +83,7 @@ namespace PortaleRegione.Domain
         public Guid? UIDPersonaElimina { get; set; }
         public DateTime? DataElimina { get; set; }
         public int Legislatura { get; set; }
-        
+
         public DateTime? DataIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaRichiestaIscrizione { get; set; }

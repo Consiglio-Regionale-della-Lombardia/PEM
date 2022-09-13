@@ -591,11 +591,6 @@ namespace PortaleRegione.API.Controllers
                     .Count(persona,
                         tipo
                         , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti),
-                RITIRATI = await _unitOfWork
-                    .DASI
-                    .Count(persona,
-                        tipo
-                        , StatiAttoEnum.RITIRATO, sedutaId, clientMode, filtro, soggetti),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
@@ -891,7 +886,8 @@ namespace PortaleRegione.API.Controllers
                     if (countFirme == 1)
                     {
                         //RITIRA ATTO
-                        atto.IDStato = (int)StatiAttoEnum.RITIRATO;
+                        atto.IDStato = (int)StatiAttoEnum.CHIUSO;
+                        atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
                         atto.UIDPersonaRitiro = persona.UID_persona;
                         atto.DataRitiro = DateTime.Now;
                     }
@@ -1328,7 +1324,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                atto.IDStato = (int)StatiAttoEnum.RITIRATO;
+                atto.IDStato = (int)StatiAttoEnum.CHIUSO;
+                atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
                 atto.UIDPersonaRitiro = persona.UID_persona;
                 atto.DataRitiro = DateTime.Now;
 

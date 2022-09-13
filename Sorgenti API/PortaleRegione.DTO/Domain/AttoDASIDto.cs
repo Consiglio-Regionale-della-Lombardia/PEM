@@ -16,13 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.DTO.Domain
 {
@@ -69,13 +70,14 @@ namespace PortaleRegione.DTO.Domain
         public string Hash { get; set; }
         public int IDTipo_Risposta { get; set; }
         public int OrdineVisualizzazione { get; set; }
-        
+
         [DisplayName("Allegato")]
         public string PATH_AllegatoGenerico { get; set; }
-        
+
         public string Note_Pubbliche { get; set; }
         public string Note_Private { get; set; }
         public int IDStato { get; set; }
+        public int IDStato_Motivazione { get; set; } = (int)MotivazioneStatoAttoEnum.NESSUNO;
         public bool Firma_su_invito { get; set; } = false;
         public Guid UID_QRCode { get; set; }
         public int AreaPolitica { get; set; }
@@ -85,7 +87,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Presentabile { get; set; } = false;
         public int Progressivo { get; set; }
         public int Legislatura { get; set; }
-        
+
         [JsonIgnore] public HttpPostedFileBase DocAllegatoGenerico { get; set; }
 
         public byte[] DocAllegatoGenerico_Stream { get; set; }

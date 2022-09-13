@@ -176,10 +176,6 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.PRESENTATO;
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
-                case StatiAttoEnum.RITIRATO:
-                    return StatiAttoCSSConst.RITIRATO;
-                case StatiAttoEnum.DECADUTO:
-                    return StatiAttoCSSConst.DECADUTO;
                 case StatiAttoEnum.CHIUSO:
                     return StatiAttoCSSConst.CHIUSO;
                 default:
