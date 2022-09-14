@@ -492,7 +492,8 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
                 {
                     var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
-                    dto.MOZ_Abbinata = $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo.Value)}";
+                    dto.MOZ_Abbinata =
+                        $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo.Value)}";
                 }
 
                 if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
@@ -759,8 +760,10 @@ namespace PortaleRegione.API.Controllers
                         firmaUfficio, primoFirmatario, valida);
 
                     if (destinatario_notifica != null)
+                    {
                         await _unitOfWork.Notifiche_Destinatari.SetSeen_DestinatarioNotifica(destinatario_notifica,
                             persona.UID_persona);
+                    }
                     else if (!valida)
                     {
                         var newNotifica = new NOTIFICHE
@@ -825,23 +828,19 @@ namespace PortaleRegione.API.Controllers
                     {
                         seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
                         if (DateTime.Now > seduta.Data_seduta)
-                        {
                             throw new InvalidOperationException(
                                 "Non è possibile ritirare la firma durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
-                        }
                     }
 
-                    var richiestaPresente = await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
+                    var richiestaPresente =
+                        await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
                     if (richiestaPresente)
-                    {
                         throw new InvalidOperationException(
                             "Richiesta di ritiro già inviata al proponente.");
-                    }
 
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
                     if (!string.IsNullOrEmpty(result_check))
-                    {
                         switch ((TipoAttoEnum)atto.Tipo)
                         {
                             case TipoAttoEnum.IQT:
@@ -859,7 +858,8 @@ namespace PortaleRegione.API.Controllers
                                         Mittente = persona.UID_persona,
                                         RuoloMittente = (int)persona.CurrentRole,
                                         IDTipo = (int)TipoNotificaEnum.RITIRO,
-                                        Messaggio = $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
+                                        Messaggio =
+                                            $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
                                         DataCreazione = DateTime.Now,
                                         IdGruppo = atto.id_gruppo,
                                         SyncGUID = Guid.NewGuid()
@@ -881,7 +881,6 @@ namespace PortaleRegione.API.Controllers
                                         "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
                                 }
                         }
-                    }
 
                     if (countFirme == 1)
                     {
@@ -1017,14 +1016,12 @@ namespace PortaleRegione.API.Controllers
                         }
 
                         if (attoPEM.Jolly)
-                        {
                             if (my_atti.Count > AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
-                        }
 
                         if (seduta.Data_effettiva_inizio.HasValue)
                         {
@@ -1111,7 +1108,8 @@ namespace PortaleRegione.API.Controllers
                         DASI = true
                     });
 
-
+                    var ruoloSegreterie =
+                        await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                     if (atto.Tipo == (int)TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
                     {
                         //proposta di iscrizione in seduta
@@ -1123,12 +1121,8 @@ namespace PortaleRegione.API.Controllers
                         atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                         if (atto.Non_Passaggio_In_Esame)
-                        {
                             try
                             {
-                                var ruoloSegreterie =
-                                    await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
-
                                 var mailModel = new MailModel
                                 {
                                     DA = persona.email,
@@ -1145,11 +1139,28 @@ namespace PortaleRegione.API.Controllers
                             {
                                 Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
                             }
-                        }
                     }
 
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
+
+                    try
+                    {
+                        var mailModel = new MailModel
+                        {
+                            DA = persona.email,
+                            A =
+                                $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                            OGGETTO = $"[PRESENTATO] {new_nome_atto}",
+                            MESSAGGIO =
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha presentato l'atto {new_nome_atto} con oggetto: </br> {atto.Oggetto}."
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Logic - Presentazione - Invio Mail", e);
+                    }
                 }
 
                 return results;
@@ -1197,7 +1208,7 @@ namespace PortaleRegione.API.Controllers
                     return default;
 
                 var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
-                StringBuilder anomalie = new StringBuilder();
+                var anomalie = new StringBuilder();
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                 {
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
@@ -1226,10 +1237,7 @@ namespace PortaleRegione.API.Controllers
                 else if (atto.Tipo == (int)TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
                 {
                     var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
-                    if (firmatari_di_altri_gruppi)
-                    {
-                        minimo_firme = minimo_consiglieri;
-                    }
+                    if (firmatari_di_altri_gruppi) minimo_firme = minimo_consiglieri;
                 }
 
 
@@ -1238,10 +1246,8 @@ namespace PortaleRegione.API.Controllers
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
 
                 if (count_firme < minimo_firme)
-                {
                     return
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
-                }
             }
 
             return default;
@@ -1489,10 +1495,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         var tipo = Utility.GetText_Tipo(atto.IDTipoAtto);
                         var titolo_atto = $"{tipo} {atto.NAtto}";
-                        if (atto.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                        {
-                            titolo_atto = atto.Oggetto;
-                        }
+                        if (atto.IDTipoAtto == (int)TipoAttoEnum.ALTRO) titolo_atto = atto.Oggetto;
 
                         atto.NAtto = $"{titolo_atto} - Seduta del {seduta.Data_seduta:dd/MM/yyyy HH:mm}";
                         result.Add(atto);
@@ -1591,12 +1594,10 @@ namespace PortaleRegione.API.Controllers
                     if (!listaRichieste.Any(item => item.Value == nomeAtto
                                                     && item.Key == atto.UIDPersonaRichiestaIscrizione.Value
                                                     || item.Key == atto.UIDPersonaPresentazione.Value))
-                    {
                         listaRichieste.Add(
                             atto.UIDPersonaRichiestaIscrizione.HasValue
                                 ? atto.UIDPersonaRichiestaIscrizione.Value
                                 : atto.UIDPersonaPresentazione.Value, nomeAtto);
-                    }
                 }
 
                 try
@@ -1690,10 +1691,7 @@ namespace PortaleRegione.API.Controllers
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
 
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                    {
-                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
-                    }
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ) atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
 
                     atto.UIDSeduta = null;
                     atto.DataIscrizioneSeduta = null;
@@ -1721,10 +1719,7 @@ namespace PortaleRegione.API.Controllers
                         throw new Exception(
                             "ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
 
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                    {
-                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
-                    }
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ) atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
 
                     atto.DataRichiestaIscrizioneSeduta = null;
                     atto.UIDPersonaRichiestaIscrizione = null;
@@ -1763,10 +1758,7 @@ namespace PortaleRegione.API.Controllers
                 var controllo_firme =
                     await ControlloFirmePresentazione(atto, count_firme, seduta_attiva,
                         "Non è possibile proporre l'urgenza");
-                if (!string.IsNullOrEmpty(controllo_firme))
-                {
-                    throw new InvalidOperationException(controllo_firme);
-                }
+                if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -2055,9 +2047,7 @@ namespace PortaleRegione.API.Controllers
                 atto.IDTipo_Risposta = model.IDTipo_Risposta;
                 await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
                 foreach (var commissioneDto in model.Commissioni)
-                {
                     _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
-                }
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -2076,10 +2066,7 @@ namespace PortaleRegione.API.Controllers
             {
                 case TipoAttoEnum.IQT:
                     {
-                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneIQT)
-                        {
-                            result = true;
-                        }
+                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
 
                         break;
                     }
@@ -2089,19 +2076,13 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
-                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU)
-                                    {
-                                        result = true;
-                                    }
+                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
 
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
-                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA)
-                                    {
-                                        result = true;
-                                    }
+                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
 
                                     break;
                                 }
@@ -2111,10 +2092,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 case TipoAttoEnum.ODG:
                     {
-                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneODG)
-                        {
-                            result = true;
-                        }
+                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
 
                         break;
                     }
