@@ -250,21 +250,23 @@
             var parteEMList = $('input[name="Emendamento.IDParte"]');
             $.each(parteEMList,
                 function(index, itemParteEM) {
-                    if (itemParteEM.checked) {
+                    if ($(itemParteEM).is(":checked")) {
                         var testo = "";
-                        if (itemParteEM.value == @((int)PartiEMEnum.Titolo_PDL)) {
+                        if ($(itemParteEM).val() == @((int)PartiEMEnum.Titolo_PDL)) {
                             testo = "Il titolo del PDL ";
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Titolo)) {
+                        } else if ($(itemParteEM).val() == @((int)PartiEMEnum.Titolo)) {
                             testo = "Il titolo " + $("input[name='Emendamento.NTitolo']").val();
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Capo)) {
+                        } else if ($(itemParteEM).val() == @((int)PartiEMEnum.Capo)) {
                             testo = "Il capo " + $("input[name='Emendamento.NCapo']").val();
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Articolo)) {
-                            
+                        } else if ($(itemParteEM).val() == @((int)PartiEMEnum.Articolo)) {
+                            console.log('SEL', $(itemParteEM).val());
+                            console.log('TIPO', tipo);
                             if (tipo == @((int)TipiEMEnum.AGGIUNTIVO) 
                                 && $("#ArticoliList option:selected").val() != 0
                                 && $("#CommiList option:selected").val() == 0
-                                && $("#LettereList option:selected").val() == 0) {
+                                && !$("#LettereList option:selected").is(":visible")) {
                                 testo = "Il progetto di legge viene emendato aggiungendo dopo l’articolo " + $("#ArticoliList option:selected").text() + " il seguente:";
+                                console.log(testo)
                                 editor_test_em.html(testo);
                                 return;
                             } else if (tipo == @((int)TipiEMEnum.AGGIUNTIVO) 
@@ -300,7 +302,7 @@
                                     testo = testo + $("#ArticoliList option:selected").text();
                                 }
                             }
-                        } else if (itemParteEM.value == @((int)PartiEMEnum.Missione)) {
+                        } else if ($(itemParteEM).val() == @((int)PartiEMEnum.Missione)) {
                             testo = "La missione " +
                                 $("#MissioniList option:selected").val() +
                                 " programma " +
