@@ -16,17 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Security.Permissions;
-using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -119,11 +118,18 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona)
         {
+            if (persona.IsSegreteriaPolitica
+                || persona.IsResponsabileSegreteriaPolitica
+                || persona.IsSegreteriaAssemblea)
+            {
+                return false;
+            }
+
             if (atto.IDStato > (int)StatiAttoEnum.PRESENTATO)
             {
                 return false;
             }
-            
+
             if (atto.UIDSeduta.HasValue && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 return false;
@@ -139,13 +145,7 @@ namespace PortaleRegione.Persistance
                 return true;
             }
 
-            if (!persona.IsSegreteriaAssemblea)
-            {
-                return false;
-            }
-
-            var firmatoUfficio = await CheckFirmatoDaUfficio(atto.UIDAtto);
-            return !firmatoUfficio;
+            return false;
         }
 
         /// <summary>
