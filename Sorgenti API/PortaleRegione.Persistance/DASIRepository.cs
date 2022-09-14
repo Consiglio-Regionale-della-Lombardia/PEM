@@ -296,12 +296,12 @@ namespace PortaleRegione.Persistance
             switch (persona.CurrentRole)
             {
                 case RuoliIntEnum.Consigliere_Regionale:
+                    return dto.UIDPersonaProponente == persona.UID_persona;
                 case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
                 case RuoliIntEnum.Presidente_Regione:
-                    return dto.UIDPersonaProponente == persona.UID_persona;
                 case RuoliIntEnum.Amministratore_PEM:
                 case RuoliIntEnum.Segreteria_Assemblea:
-                    return true;
+                    return false;
             }
 
             if (persona.Gruppo != null) return dto.id_gruppo == persona.Gruppo.id_gruppo;

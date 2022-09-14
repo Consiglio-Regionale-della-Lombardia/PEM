@@ -654,11 +654,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (!persona.IsConsigliereRegionale)
+                {
+                    throw new Exception("Ruolo non abilitato alla firma di atti");
+                }
+
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var counterFirme = 1;
-                var carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 
                 foreach (var idGuid in firmaModel.Lista)
                 {
@@ -702,16 +706,7 @@ namespace PortaleRegione.API.Controllers
                             continue;
                         }
 
-                        var info_codice_carica_gruppo = string.Empty;
-                        switch (persona.CurrentRole)
-                        {
-                            case RuoliIntEnum.Consigliere_Regionale:
-                                info_codice_carica_gruppo = persona.Gruppo.codice_gruppo;
-                                break;
-                            case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
-                                info_codice_carica_gruppo = carica;
-                                break;
-                        }
+                        var info_codice_carica_gruppo = persona.Gruppo.codice_gruppo;
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo})";
@@ -967,6 +962,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (!persona.IsConsigliereRegionale)
+                {
+                    throw new Exception("Ruolo non abilitato alla presentazione di atti");
+                }
+
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
