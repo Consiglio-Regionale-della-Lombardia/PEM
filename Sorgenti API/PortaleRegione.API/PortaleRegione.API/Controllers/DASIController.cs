@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -31,6 +27,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -141,7 +141,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         /// Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
@@ -167,7 +167,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         /// Endpoint per avere il riepilogo filtrato di atti
         /// </summary>
@@ -529,13 +529,6 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var firmatari = await _logicFirma.GetFirme(atto, FirmeTipoEnum.ATTIVI);
-                var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
-                if (firmatari_attivi.Any())
-                {
-                    throw new InvalidOperationException("L'atto ha delle firme attive e non può essere eliminato");
-                }
-
                 var session = GetSession();
                 await _logic.Elimina(atto, session._currentUId);
 
@@ -612,7 +605,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per aggiungere una seduta all'atto
         /// </summary>
@@ -665,7 +658,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per rimuovere un atto dalla seduta
         /// </summary>
@@ -732,7 +725,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Controller per proporre l'abbinata ad una mozione presentata
         /// </summary>
@@ -753,7 +746,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Controller per riservare il contatore per la gestione manuale/cartacea dell'atto
         /// </summary>
@@ -774,7 +767,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere gli invitati di un atto
         /// </summary>
@@ -800,7 +793,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere gli stati
         /// </summary>
@@ -842,7 +835,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere i soggetti interrogabili
         /// </summary>
@@ -861,7 +854,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere le mozioni iscritte a sedute attive
         /// </summary>
@@ -880,7 +873,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere gli atti delle sedute attive (pdl, pda, ris,...) che servono all'inserimento e all'iscrizione degli odg
         /// </summary>
@@ -904,7 +897,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per modificare i metadati di un atto
         /// </summary>
