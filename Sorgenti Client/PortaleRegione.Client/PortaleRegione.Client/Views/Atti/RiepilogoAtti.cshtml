@@ -3,7 +3,7 @@
 @model PortaleRegione.Client.Models.AttiViewModel
 
 @{
-    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0:dd/MM/yyyy}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta, Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0:dd/MM/yyyy}.", Model.Seduta.Data_seduta);
 }
 
 <script>

@@ -171,17 +171,6 @@
                                         </a>
                                     </div>
                                 }
-
-                                <div class="col s6 right-align">
-                                    @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
-                                    {
-                                        <a class="btn-flat blue-text"
-                                           onclick="go('@Url.Action("RiepilogoEmendamentiInSeduta", "Emendamenti", new {id = attoPem.UIDAtto})')" title="Riepilogo emendamenti in aula">
-                                            <i class="material-icons right">chevron_right</i>
-                                            Riepilogo EM In Seduta
-                                        </a>
-                                    }
-                                </div>
                             </div>
                             @if (attoPem.CounterODG > 0)
                             {
@@ -195,17 +184,6 @@
                                             </a>
                                         </div>
                                     }
-
-                                    <div class="col s6 right-align">
-                                        @if (attoPem.CounterODG > 0)
-                                        {
-                                            <a class="btn-flat blue-text tooltipped"
-                                               onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = attoPem.UIDSeduta, tipo = (int) TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto})')" data-tooltip="Riepilogo ordini del giorno">
-                                                <i class="material-icons right">chevron_right</i>
-                                                Riepilogo Ordini del giorno
-                                            </a>
-                                        }
-                                    </div>
                                 </div>
                             }
                         </div>
@@ -247,17 +225,6 @@
                             <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
                         </div>
                     </div>
-                    <div class="collapsible-body">
-                        <div class="row">
-                            <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITL})')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo Atti In Seduta
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </li>
             }
             @if (attoDasi.CountBarData.ITR > 0)
@@ -268,17 +235,6 @@
                         @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ITR)
                         <div class="collapsabile-secondary-header">
                             <div class="chip">@(attoDasi.CountBarData.ITR) Atti</div>
-                        </div>
-                    </div>
-                    <div class="collapsible-body">
-                        <div class="row">
-                            <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ITR})')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo Atti In Seduta
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </li>
@@ -293,17 +249,6 @@
                             <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
                         </div>
                     </div>
-                    <div class="collapsible-body">
-                        <div class="row">
-                            <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.IQT})')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo Atti In Seduta
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </li>
             }
             @if (attoDasi.CountBarData.MOZ > 0)
@@ -316,17 +261,6 @@
                             <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
                         </div>
                     </div>
-                    <div class="collapsible-body">
-                        <div class="row">
-                            <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.MOZ})')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo Atti In Seduta
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </li>
             }
             @if (attoDasi.CountBarData.ODG > 0 || seduta.DataScadenzaPresentazioneODG.HasValue)
@@ -337,30 +271,6 @@
                         @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ODG)
                         <div class="collapsabile-secondary-header">
                             <div class="chip">@(attoDasi.CountBarData.ODG) Atti</div>
-                        </div>
-                    </div>
-
-                    <div class="collapsible-body">
-                        <div class="row">
-                            <div class="col s6 left-align">
-                                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                                {
-                                    <a class="btn-flat black-text">
-                                        <i class="material-icons left">access_alarm</i>
-                                        Scadenza ODG @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
-                                    </a>
-                                }
-                            </div>
-                            <div class="col s6 right-align">
-                                @if (attoDasi.CountBarData.ODG > 0)
-                                {
-                                    <a class="btn-flat blue-text"
-                                       onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = seduta.UIDSeduta, tipo = (int) TipoAttoEnum.ODG})')" title="Riepilogo atti in seduta">
-                                        <i class="material-icons right">chevron_right</i>
-                                        Riepilogo Atti In Seduta
-                                    </a>
-                                }
-                            </div>
                         </div>
                     </div>
                 </li>
