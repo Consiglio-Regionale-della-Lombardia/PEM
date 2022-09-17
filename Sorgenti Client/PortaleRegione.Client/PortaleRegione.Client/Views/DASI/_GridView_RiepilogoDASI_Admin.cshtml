@@ -170,10 +170,10 @@ else
                 </td>
                 <td style="width: 6%;">
                     @{
-                        var tooltipStato = "Non ancora presentato";
+                        var tooltipStato = "Non ancora depositato";
                         if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                         {
-                            tooltipStato = $"Presentato il {item.DataPresentazione}";
+                            tooltipStato = $"Depositato il {item.DataPresentazione}";
                             if (item.IDStato == (int)StatiAttoEnum.CHIUSO)
                             {
                                 var motivazione = item.IDStato_Motivazione != 1 ? "Decaduto" : "Ritirato";

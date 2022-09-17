@@ -212,7 +212,7 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.BOZZA:
                     return "Bozza";
                 case StatiAttoEnum.PRESENTATO:
-                    return "Presentato";
+                    return "Depositato";
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In Trattazione";
                 case StatiAttoEnum.CHIUSO:

@@ -48,7 +48,7 @@ else
                 </p>
                 @if (item.PresentatoOltreITermini)
                 {
-                    <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Presentato oltre i termini">warning</i>
+                    <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Depositato oltre i termini">warning</i>
                 }
                 @if (item.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                 {
@@ -80,10 +80,10 @@ else
             
             <div class="col s2 valign-wrapper">
                 @{
-                    var tooltipStato = "Non ancora presentato";
+                    var tooltipStato = "Non ancora depositato";
                     if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                     {
-                        tooltipStato = $"Presentato il {item.DataPresentazione}";
+                        tooltipStato = $"Depositato il {item.DataPresentazione}";
                     }
                 }
                 @if (Model.Stato != StatiAttoEnum.BOZZA)
@@ -162,7 +162,7 @@ else
                         }
                         if (item.Presentabile)
                         {
-                            <a class="purple-text tooltipped" data-tooltip="Presenta" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                            <a class="purple-text tooltipped" data-tooltip="Deposita" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                                 <i class="material-icons">lock</i>
                             </a>
                         }

@@ -964,7 +964,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (!persona.IsConsigliereRegionale)
                 {
-                    throw new Exception("Ruolo non abilitato alla presentazione di atti");
+                    throw new Exception("Ruolo non abilitato al deposito di atti");
                 }
 
                 var results = new Dictionary<Guid, string>();
@@ -995,7 +995,7 @@ namespace PortaleRegione.API.Controllers
                         && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                     {
                         results.Add(idGuid,
-                            $"ERROR: {nome_atto} non presentabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
+                            $"ERROR: {nome_atto} non depositabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
                         continue;
                     }
 
@@ -1011,7 +1011,7 @@ namespace PortaleRegione.API.Controllers
                         if (attoPEM.BloccoODG)
                         {
                             results.Add(idGuid,
-                                $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno.");
+                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno.");
                             continue;
                         }
 
@@ -1019,7 +1019,7 @@ namespace PortaleRegione.API.Controllers
                             if (my_atti.Count > AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
 
@@ -1029,7 +1029,7 @@ namespace PortaleRegione.API.Controllers
                                 AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non presentabile. Non puoi presentare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
                         }
@@ -1038,7 +1038,7 @@ namespace PortaleRegione.API.Controllers
                             if (my_atti.Count > AppSettingsConfiguration.MassimoODG)
                             {
                                 results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non presentabile. Non puoi presentare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
                         }
@@ -1046,7 +1046,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (!attoDto.Presentabile)
                     {
-                        results.Add(idGuid, $"ERROR: {nome_atto} non presentabile");
+                        results.Add(idGuid, $"ERROR: {nome_atto} non depositabile");
                         continue;
                     }
 
@@ -1131,7 +1131,7 @@ namespace PortaleRegione.API.Controllers
                                     OGGETTO =
                                         "[ODG DI NON PASSAGGIO ALL'ESAME]",
                                     MESSAGGIO =
-                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha presentato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
+                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
                                 };
                                 await _logicUtil.InvioMail(mailModel);
                             }
@@ -1153,13 +1153,13 @@ namespace PortaleRegione.API.Controllers
                                 $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                             OGGETTO = $"[PRESENTATO] {new_nome_atto}",
                             MESSAGGIO =
-                                $"Il consigliere {persona.DisplayName_GruppoCode} ha presentato l'atto {new_nome_atto} con oggetto: </br> {atto.Oggetto}."
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato l'atto {new_nome_atto} con oggetto: </br> {atto.Oggetto}."
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
                     catch (Exception e)
                     {
-                        Log.Error("Logic - Presentazione - Invio Mail", e);
+                        Log.Error("Logic - Presenta - Invio Mail", e);
                     }
                 }
 
