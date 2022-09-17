@@ -1428,6 +1428,9 @@ namespace PortaleRegione.API.Controllers
                     CommissioniAttive = await GetCommissioniAttive()
                 };
 
+                if (persona.IsSegreteriaPolitica)
+                    result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
+
                 return result;
             }
             catch (Exception e)
