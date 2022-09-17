@@ -16,17 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Client.Helpers;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.Gateway;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Caching;
 using System.Web.Mvc;
-using PortaleRegione.Client.Helpers;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Response;
-using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -47,7 +44,8 @@ namespace PortaleRegione.Client.Controllers
             var seduta = await apiGateway.Sedute.Get(id);
             var model = new DashboardModel
             {
-                Seduta = seduta
+                Seduta = seduta,
+                CurrentUser = _CurrentUser
             };
             var attiPEM = await apiGateway.Atti.Get(id, mode, 1, 99);
             if (attiPEM.Results.Any())
@@ -60,7 +58,7 @@ namespace PortaleRegione.Client.Controllers
 
             return View("Index", model);
         }
-        
+
         public async Task<ActionResult> Archivio(int page = 1, int size = 50)
         {
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
