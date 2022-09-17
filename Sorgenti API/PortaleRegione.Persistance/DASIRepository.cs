@@ -332,7 +332,8 @@ namespace PortaleRegione.Persistance
 
             return persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                    || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
-                   || persona.UID_persona == dto.UIDPersonaCreazione;
+                   || persona.UID_persona == dto.UIDPersonaCreazione
+                   || persona.UID_persona == dto.UIDPersonaProponente;
         }
 
         public bool CheckIfModificabile(AttoDASIDto dto, PersonaDto persona)
