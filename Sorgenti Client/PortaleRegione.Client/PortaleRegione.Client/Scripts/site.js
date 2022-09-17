@@ -855,8 +855,8 @@ function RevealFirmaDepositoDASI(id, action) {
         text = "Inserisci il PIN per firmare";
         button = "Firma";
     } else if (action == 4) {
-        text = "Inserisci il PIN per presentare";
-        button = "Presenta";
+        text = "Inserisci il PIN per depositare";
+        button = "Deposita";
     }
 
     swal(text,

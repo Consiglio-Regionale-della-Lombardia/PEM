@@ -13,7 +13,7 @@
             </a>
         </li>
         <li>
-            <a class="btn-floating tooltipped btn-presenta" data-position="left" data-tooltip="Presenta" onclick="PresentaMassivo_DASI()">
+            <a class="btn-floating tooltipped btn-presenta" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
                 <i class="material-icons">lock</i>
             </a>
         </li>
@@ -84,7 +84,7 @@
             button = "Firma";
         } else if (action == @((int) ActionEnum.DEPOSITA)) {
             text = "Inserisci il PIN per depositare ";
-            button = "Presenta";
+            button = "Deposita";
         } else if (action == @((int) ActionEnum.INVITA)) {
             await NotificaADASI(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI));
             return;

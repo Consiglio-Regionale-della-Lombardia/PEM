@@ -274,14 +274,6 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<int> GetOrdine(int tipo)
-        {
-            //TODO: CALCOLA L'ORDINE IN BASE ALLA PROGRESSIONE
-            //ULTIMO DEI CONTATORI 
-            var random = new Random();
-            return random.Next(9, 999);
-        }
-
         public async Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona)
         {
             if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
@@ -296,7 +288,14 @@ namespace PortaleRegione.Persistance
             switch (persona.CurrentRole)
             {
                 case RuoliIntEnum.Consigliere_Regionale:
-                    return dto.UIDPersonaProponente == persona.UID_persona;
+                    {
+                        if (persona.IsCapoGruppo)
+                        {
+                            return dto.id_gruppo == persona.Gruppo.id_gruppo;
+                        }
+
+                        return dto.UIDPersonaProponente == persona.UID_persona;
+                    }
                 case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
                 case RuoliIntEnum.Presidente_Regione:
                 case RuoliIntEnum.Amministratore_PEM:
