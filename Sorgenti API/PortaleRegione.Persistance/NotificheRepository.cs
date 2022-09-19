@@ -84,7 +84,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (atto.UIDSeduta.HasValue)
+            if (atto.UIDSeduta.HasValue && atto.Tipo != (int)TipoAttoEnum.ODG)
             {
                 return false;
             }
