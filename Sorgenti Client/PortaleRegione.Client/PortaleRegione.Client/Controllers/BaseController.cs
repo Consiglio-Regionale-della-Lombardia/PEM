@@ -93,6 +93,7 @@ namespace PortaleRegione.Client.Controllers
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
+                    FormsAuthentication.SignOut();
                     throw new UnauthorizedAccessException("Sessione scaduta");
                 }
             }
