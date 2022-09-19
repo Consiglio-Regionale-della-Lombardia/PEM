@@ -1002,7 +1002,7 @@ namespace PortaleRegione.API.Controllers
                     if (atto.Tipo == (int)TipoAttoEnum.ODG)
                     {
                         var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG,
-                            TipoMOZEnum.ORDINARIA);
+                            0);
                         var my_atti = atti.Where(a =>
                                 a.UID_Atto_ODG == atto.UID_Atto_ODG && a.UIDPersonaPrimaFirma == persona.UID_persona)
                             .ToList();

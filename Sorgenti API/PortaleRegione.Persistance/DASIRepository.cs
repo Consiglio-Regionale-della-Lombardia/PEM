@@ -567,6 +567,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.UIDSeduta == uidSeduta
+                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
@@ -582,7 +583,8 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .DASI
                 .CountAsync(item => !item.Eliminato
-                               && item.UID_Atto_ODG == uidAtto);
+                               && item.UID_Atto_ODG == uidAtto
+                               && item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
         }
     }
 }
