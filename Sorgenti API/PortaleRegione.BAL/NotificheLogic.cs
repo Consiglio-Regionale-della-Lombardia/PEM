@@ -268,14 +268,7 @@ namespace PortaleRegione.BAL
                         }
 
                         var n_atto = atto.NAtto;
-
-                        if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: Non è possibile creare notifiche per l'atto {n_atto} essendo già stato presentato");
-                            continue;
-                        }
-
+                        
                         var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
                         if (check == false)
                         {
