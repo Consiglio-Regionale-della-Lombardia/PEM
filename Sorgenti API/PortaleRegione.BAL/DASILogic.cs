@@ -1181,6 +1181,9 @@ namespace PortaleRegione.API.Controllers
                 || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
                 || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
             {
+                var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
+                var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
+
                 var minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriIQT;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                 {
@@ -1194,7 +1197,7 @@ namespace PortaleRegione.API.Controllers
                 var consiglieriGruppo =
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
-                var minimo_firme = count_consiglieri < minimo_consiglieri
+                var minimo_firme = (count_consiglieri < minimo_consiglieri && !firmatari_di_altri_gruppi)
                                    && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
                                    && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
                     ? count_consiglieri
@@ -1207,7 +1210,6 @@ namespace PortaleRegione.API.Controllers
                 if (seduta_attiva == null)
                     return default;
 
-                var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
                 var anomalie = new StringBuilder();
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                 {
@@ -1234,20 +1236,10 @@ namespace PortaleRegione.API.Controllers
                         anomalie.AppendLine(firmatario_indagato);
                     }
                 }
-                else if (atto.Tipo == (int)TipoAttoEnum.IQT && count_consiglieri < minimo_consiglieri)
-                {
-                    var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
-                    if (firmatari_di_altri_gruppi) minimo_firme = minimo_consiglieri;
-                }
-
 
                 if (anomalie.Length > 0)
                     return
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
-
-                if (count_firme < minimo_firme)
-                    return
-                        $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme.";
             }
 
             return default;
