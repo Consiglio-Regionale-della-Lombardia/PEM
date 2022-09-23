@@ -79,7 +79,13 @@
     <add key="MessaggioInizialeInvito" value="Gentile Consigliere/Assessore, {br}la invito a firmare il seguente emendamento:" />
 
     <!--DASI-->
-    <add key="LimitePresentazioneMassivo" value="10" />
+    <add key="LimitePresentazioneMassivo" value="1" />
+    <add key="MinimoConsiglieriIQT" value="1" />
+    <add key="MinimoConsiglieriMOZU" value="1" />
+    <add key="MinimoConsiglieriMOZC_MOZS" value="1" />
+    <add key="MassimoODG" value="1" />
+    <add key="MassimoODG_DuranteSeduta" value="1" />
+    <add key="MassimoODG_Jolly" value="5" />
 
   </appSettings>
    <system.web>
