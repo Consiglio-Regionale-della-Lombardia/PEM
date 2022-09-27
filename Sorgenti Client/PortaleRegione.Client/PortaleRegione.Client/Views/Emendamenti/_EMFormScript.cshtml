@@ -1,4 +1,5 @@
-﻿<script>
+﻿@using PortaleRegione.Client.Helpers
+<script>
     function InitEffettiFinanziari(value) {
         $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
             if (item.value == value) {
@@ -51,11 +52,11 @@
                 proponente = $('input[name="Emendamento.UIDPersonaProponente"]').val();
             else {
                 if ($('#chkProponentiConsiglieri').is(":checked"))
-                    proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
-                else if ($('#chkProponentiAssessori').is(":checked"))
-                    proponente = $('select[id="selectProponentiConsiglieri"]').children("option:selected").val();
-                else
-                    proponente = $('select[id="Emendamento_UIDPersonaProponente"]').children("option:selected").val();
+                    proponente = $('#selectProponentiConsiglieri').val();
+                else if ($('#chkProponentiAssessori').is(":checked")) {
+                    proponente = $('#selectProponentiAssessori').val();
+                    $('#Emendamento_id_gruppo').val(10000);
+                }
             }
 
             var container_testo_originale = $("#Emendamento_TestoEM_originale").parent();
