@@ -111,9 +111,12 @@ namespace PortaleRegione.BAL
 
                 queryFilter.ImportStatements(model.filtro);
 
+                object CLIENT_MODE;
+                model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
+
                 var queryEM =
-                    await _unitOfWork.Emendamenti.GetAll_Query(queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
-                stampa.Query = queryEM;
+                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
+                stampa.QueryEM = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int)persona.CurrentRole;

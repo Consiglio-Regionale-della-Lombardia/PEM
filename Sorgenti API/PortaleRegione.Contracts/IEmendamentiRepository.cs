@@ -73,8 +73,11 @@ namespace PortaleRegione.Contracts
 
         Task<EM> GetCurrentEMInProiezione(Guid attoUId);
         Task<EM> GetByQR(Guid id);
-        Task<string> GetAll_Query(Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null);
-        Task<int> UltimoInVotazione(Guid uidAtto);
+
+        Task<string> GetAll_Query(PersonaDto persona, int CLIENT_MODE, Filter<EM> filtro,
+            OrdinamentoEnum ordinamentoEnum, List<Guid> firmatari = null, List<Guid> proponenti = null,
+            List<int> gruppi = null, List<int> stati = null);
+
         bool CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
         bool CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
         Task<int> GetOrdinePresentazione(Guid uidAtto);

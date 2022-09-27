@@ -16,14 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -42,6 +34,14 @@ using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace PortaleRegione.BAL
@@ -146,7 +146,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                         ? $"{em.IDParte}-{em.PARTI_TESTO.Parte}"
                         : em.PARTI_TESTO.Parte);
-                    
+
                     if (em.UIDArticolo.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
                         var articolo = await _unitOfWork.Articoli.GetArticolo(em.UIDArticolo.Value);
@@ -155,7 +155,7 @@ namespace PortaleRegione.BAL
                     else
                         SetColumnValue(ref rowEm, "");
 
-                    if (em.UIDComma.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
+                    if (em.UIDComma.HasValue && em.UIDComma != Guid.Empty && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
                         var comma = await _unitOfWork.Commi.GetComma(em.UIDComma.Value);
                         SetColumnValue(ref rowEm, comma.Comma);
@@ -163,7 +163,7 @@ namespace PortaleRegione.BAL
                     else
                         SetColumnValue(ref rowEm, "");
 
-                    if (em.UIDLettera.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
+                    if (em.UIDLettera.HasValue && em.UIDLettera != Guid.Empty && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
                         var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
                         SetColumnValue(ref rowEm, lettera.Lettera);
@@ -235,7 +235,7 @@ namespace PortaleRegione.BAL
 
                     SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}");
                     var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
-                    totalProcessTime += (float) spentTime;
+                    totalProcessTime += (float)spentTime;
                 }
 
                 Log.Debug($"EsportaGrigliaXLS: Compilazione XLS eseguita in {totalProcessTime} s");
@@ -391,7 +391,7 @@ namespace PortaleRegione.BAL
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
             var emList =
                 await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, false, true);
-            var list = emList.Where(em => em.IDStato >= (int) StatiEnum.Depositato);
+            var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
 
             var body = "<html>";
             body += "<body style='page-orientation: landscape'>";
@@ -541,7 +541,7 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    if (em.IDParte == (int) PartiEMEnum.Missione)
+                    if (em.IDParte == (int)PartiEMEnum.Missione)
                     {
                         if (em.NMissione.HasValue)
                         {
@@ -612,17 +612,17 @@ namespace PortaleRegione.BAL
                 }
 
                 SetColumnValue(ref rowEm, em.TIPI_EM.Tipo_EM);
-                SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Inammissibile ? "X" : "");
+                SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "");
 
                 if (reportType != ReportType.PCR)
                 {
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Ritirato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "");
                     SetColumnValue(ref rowEm,
-                        em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche
+                        em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche
                             ? "X"
                             : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Non_Approvato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int) StatiEnum.Decaduto ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "");
+                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "");
                 }
 
                 SetColumnValue(ref rowEm, em.NOTE_EM);
@@ -631,11 +631,11 @@ namespace PortaleRegione.BAL
 
             var countEM = emendamentiDtos.Count();
             var approvati = emendamentiDtos.Count(em =>
-                em.IDStato == (int) StatiEnum.Approvato || em.IDStato == (int) StatiEnum.Approvato_Con_Modifiche);
-            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Non_Approvato);
-            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Ritirato);
-            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Decaduto);
-            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int) StatiEnum.Inammissibile);
+                em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
+            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
+            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
+            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
+            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
 
             var rowReport = sheet.CreateRow(sheet.LastRowNum + 1);
             rowReport.RowStyle = styleR;
@@ -757,7 +757,7 @@ namespace PortaleRegione.BAL
 
         private short GetColumn(short column)
         {
-            return column < 0 ? (short) 0 : column;
+            return column < 0 ? (short)0 : column;
         }
 
         private string GetLocalPath(string extension)
