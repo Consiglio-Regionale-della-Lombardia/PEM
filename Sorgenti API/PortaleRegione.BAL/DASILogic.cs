@@ -1640,6 +1640,16 @@ namespace PortaleRegione.API.Controllers
                 {
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
+
+                    if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                    {
+                        var checkIscrizioneSeduta = await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta, persona.UID_persona);
+                        if (!checkIscrizioneSeduta)
+                        {
+                            throw new Exception("ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
+                        }
+                    }
+
                     atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
@@ -1739,11 +1749,18 @@ namespace PortaleRegione.API.Controllers
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
 
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+                var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
+
+                var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta_attiva.UIDSeduta, persona.UID_persona);
+                if (!checkMozUrgente)
+                {
+                    throw new Exception($"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta_attiva.Data_seduta:dd/MM/yyyy}.");
+                }
+
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
 
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
-                var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
 
                 attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
@@ -1773,6 +1790,8 @@ namespace PortaleRegione.API.Controllers
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
+
+                //1 sola mozione per gruppo politico
 
                 atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;

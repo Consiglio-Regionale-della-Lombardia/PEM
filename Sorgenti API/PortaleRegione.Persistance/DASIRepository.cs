@@ -108,7 +108,8 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti)
+        public async Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro,
+            List<int> soggetti)
         {
             var query = PRContext
                 .DASI
@@ -345,7 +346,7 @@ namespace PortaleRegione.Persistance
                        || persona.IsSegreteriaGiunta;
 
             return (dto.UIDPersonaProponente == persona.UID_persona ||
-                       dto.UIDPersonaCreazione == persona.UID_persona)
+                    dto.UIDPersonaCreazione == persona.UID_persona)
                    && (dto.IDStato == (int)StatiAttoEnum.BOZZA ||
                        dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) && dto.ConteggioFirme == 1 &&
                    dto.Firmato_Dal_Proponente;
@@ -583,8 +584,52 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .DASI
                 .CountAsync(item => !item.Eliminato
-                               && item.UID_Atto_ODG == uidAtto
-                               && item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+                                    && item.UID_Atto_ODG == uidAtto
+                                    && item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+        }
+
+        public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
+        {
+            var res = true;
+
+            var atti_proposti_in_seduta = await PRContext.DASI
+                .Where(i => i.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
+                            && i.Tipo == (int)TipoAttoEnum.IQT)
+                .ToListAsync();
+
+            foreach (var attiDasi in atti_proposti_in_seduta)
+            {
+                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto).ToListAsync();
+                if (firmatari.Any(i => i.UID_persona == uidPersona))
+                {
+                    res = false;
+                }
+            }
+
+            return res;
+        }
+
+        public async Task<bool> CheckMOZUrgente(Guid uidSeduta, Guid uidPersona)
+        {
+            var res = true;
+
+            var atti_proposti_in_seduta = await PRContext.DASI
+                .Where(i => i.UIDSeduta == uidSeduta
+                            && i.DataIscrizioneSeduta.HasValue
+                            && i.Tipo == (int)TipoAttoEnum.MOZ
+                            && i.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                .ToListAsync();
+
+            foreach (var attiDasi in atti_proposti_in_seduta)
+            {
+                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto).ToListAsync();
+                if (firmatari.Any(i => i.UID_persona == uidPersona))
+                {
+                    res = false;
+                }
+            }
+
+            return res;
         }
     }
 }
