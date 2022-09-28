@@ -1005,8 +1005,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG,
                             0);
-                        var my_atti = atti.Where(a =>
-                                a.UID_Atto_ODG == atto.UID_Atto_ODG && a.UIDPersonaPrimaFirma == persona.UID_persona)
+                        var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona)
                             .ToList();
                         var attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
                         var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);

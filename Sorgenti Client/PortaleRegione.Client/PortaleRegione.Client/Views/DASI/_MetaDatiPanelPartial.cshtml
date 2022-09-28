@@ -30,7 +30,7 @@
                         <a href="#metaDatiRichiesta">Richiesta</a>
                     </li>
                     <li class="tab col s3">
-                        <a href="#metaDatiCommissioni">Tipo Risposta</a>
+                        <a href="#metaDatiCommissioni">Commissione</a>
                     </li>
                 </ul>
                 <div id="metaDatiOggetto" class="col s12 left-align">
@@ -97,8 +97,6 @@
                     <div class="form-group">
                         <div class="input-field">
                             <select id='Atto_TipoRisposta'>
-                                <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)">Orale</option>
-                                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTO)">Scritto</option>
                                 <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)">Commissione</option>
                             </select>
                             <label for="Atto_TipoRisposta">Tipo Risposta</label>
@@ -287,7 +285,6 @@
 
     async function SetupMetaDati(atto) {
         waiting(true);
-        console.log('ATTO', atto)
         $('#NAtto').text($('div[id*="atto_' + atto.UIDAtto + '"]').data("nome-atto"));
         LoadMetaDati_Oggetto(atto);
         LoadMetaDati_Premesse(atto);
@@ -296,34 +293,33 @@
         $('#Atto_TipoRisposta').val(atto.IDTipo_Risposta);
         $('#Atto_TipoRisposta').formSelect();
 
-        LoadTipoRisposta(atto);
+        LoadCommissione(atto);
 
-        $('#Atto_TipoRisposta').on("change",
-            function() {
-                LoadTipoRisposta(atto);
-            });
+        var instance = M.Tabs.getInstance($('#dasiFormsTabs'));
+        instance.select('metaDatiOggetto');
+        instance.updateTabIndicator();
 
         waiting(false);
     }
 
     var lstCommissioni = [];
-    function LoadTipoRisposta(atto) {
+    function LoadCommissione(atto) {
         lstCommissioni = [];
         deselectAllCheckbox();
         if ($('#Atto_TipoRisposta').val() == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
+            $('a[href="#metaDatiCommissioni"]').parent().show();
             $('#pnlCommissioni').show();
 
             if (atto.Commissioni != null) {
                 if (atto.Commissioni.length > 0) {
                     $.each(atto.Commissioni,
                         function(i, item) {
-                            console.log(item);
                             $('input[value="' + item.id_organo + '"]').click();
                         });
                 }
             }
         } else {
-            $('#pnlCommissioni').hide();
+            $('a[href="#metaDatiCommissioni"]').parent().hide();
         }
     }
 
