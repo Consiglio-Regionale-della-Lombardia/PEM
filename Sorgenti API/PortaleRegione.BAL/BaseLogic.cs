@@ -16,6 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
+using PortaleRegione.Common;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Logger;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -29,13 +36,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using AutoMapper;
-using PortaleRegione.Common;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
-using QRCoder;
 
 namespace PortaleRegione.BAL
 {
@@ -356,11 +356,11 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                if (atto.Tipo == (int) TipoAttoEnum.MOZ
-                    || atto.Tipo == (int) TipoAttoEnum.ODG)
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ
+                    || atto.Tipo == (int)TipoAttoEnum.ODG)
                 {
-                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}","<!--");
-                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}","-->");
+                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_START}", "<!--");
+                    body = body.Replace("{TIPO_RISPOSTA_COMMENTO_END}", "-->");
                 }
                 else
                 {
@@ -370,11 +370,10 @@ namespace PortaleRegione.BAL
                         DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
                 }
 
-                body = body.Replace("{lblSubTitoloATTOView}", 
-                    string.IsNullOrEmpty(atto.Oggetto_Modificato) ? atto.Oggetto : atto.Oggetto_Modificato);
-                body = body.Replace("{lblPremesseATTOView}", 
+                body = body.Replace("{lblSubTitoloATTOView}", atto.Oggetto);
+                body = body.Replace("{lblPremesseATTOView}",
                     string.IsNullOrEmpty(atto.Premesse_Modificato) ? atto.Premesse : atto.Premesse_Modificato);
-                body = body.Replace("{lblRichiestaATTOView}", 
+                body = body.Replace("{lblRichiestaATTOView}",
                     string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
 
                 var allegato_generico = string.Empty;
@@ -452,7 +451,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.IDStato >= (int) StatiEnum.Depositato)
+                if (emendamento.IDStato >= (int)StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",
@@ -600,7 +599,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (atto.IDStato >= (int) StatiAttoEnum.PRESENTATO)
+                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoATTOView}",
@@ -779,7 +778,7 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (emendamento.STATI_EM.IDStato >= (int) StatiEnum.Depositato)
+                if (emendamento.STATI_EM.IDStato >= (int)StatiEnum.Depositato)
                 {
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoEMView}",

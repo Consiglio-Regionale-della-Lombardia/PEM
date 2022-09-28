@@ -2079,10 +2079,13 @@ namespace PortaleRegione.API.Controllers
                     //caso in cui l'utente voglia tornare allo stato precedente
                     atto.Richiesta_Modificata = string.Empty;
 
-                atto.IDTipo_Risposta = model.IDTipo_Risposta;
                 await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
-                foreach (var commissioneDto in model.Commissioni)
-                    _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
+                if (model.Commissioni != null)
+                {
+                    foreach (var commissioneDto in model.Commissioni)
+                        _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
+                }
+
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)

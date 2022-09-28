@@ -140,10 +140,7 @@
                     <div class="col s12" style="margin-top: -15px">
                         @{
                             var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
-                            if (HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
-                                || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale)
-                                || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_Giunta))
+                            if (persona.IsGiunta)
                             {
                                 testoGruppo = "Giunta";
                             }
@@ -166,7 +163,7 @@
                                 </ul>
                             }
 
-                            if (!HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                            if (currentRole != RuoliIntEnum.Segreteria_Assemblea)
                             {
                                 <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
                                     @testoGruppo @Html.Raw(iconClassSwapGruppi)
@@ -183,11 +180,10 @@
         <li class="menuItem_PEM bold">
             <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
         </li>
-        @if (currentRole != RuoliIntEnum.Utente
-             && currentRole != RuoliIntEnum.Amministratore_Giunta
-             && currentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta
-             && currentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta
-             && currentRole != RuoliIntEnum.Segreteria_Giunta_Regionale)
+        @if (persona.IsConsigliereRegionale
+            || persona.IsSegreteriaAssemblea
+            || persona.IsSegreteriaPolitica
+            || persona.IsResponsabileSegreteriaPolitica)
         {
             <li class="menuItem_DASI bold">
                 <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
