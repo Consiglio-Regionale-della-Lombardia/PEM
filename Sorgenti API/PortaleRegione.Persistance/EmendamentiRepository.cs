@@ -514,7 +514,7 @@ namespace PortaleRegione.Persistance
         /// <param name="persona"></param>
         /// <param name="ordine"></param>
         /// <returns></returns>
-        public async Task<string> GetAll_Query(Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum,
+        public async Task<string> GetAll_Query(PersonaDto persona, int CLIENT_MODE, Filter<EM> filtro, OrdinamentoEnum ordinamentoEnum,
             List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null)
         {
             var query = PRContext
@@ -547,7 +547,7 @@ namespace PortaleRegione.Persistance
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
 
-                if (persona.IsGiunta())
+                if (persona.IsGiunta)
                 {
                     query = query
                         .Where(em => em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
