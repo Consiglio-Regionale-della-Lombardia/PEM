@@ -191,39 +191,6 @@ function set_ListaTitoliMissioniEM(obj) {
     sessionStorage.setItem("ListaTitoliMissioniEM", JSON.stringify(obj));
 }
 
-function get_ListaArticoliEM() {
-    var session_raw = sessionStorage.getItem("ListaArticoliEM");
-    if (session_raw == null)
-        return {}
-    return JSON.parse(session_raw);
-}
-
-function set_ListaArticoliEM(obj) {
-    sessionStorage.setItem("ListaArticoliEM", JSON.stringify(obj));
-}
-
-function get_ListaCommiEM() {
-    var session_raw = sessionStorage.getItem("ListaCommiEM");
-    if (session_raw == null)
-        return {}
-    return JSON.parse(session_raw);
-}
-
-function set_ListaCommiEM(obj) {
-    sessionStorage.setItem("ListaCommiEM", JSON.stringify(obj));
-}
-
-function get_ListaLettereEM() {
-    var session_raw = sessionStorage.getItem("ListaLettereEM");
-    if (session_raw == null)
-        return {}
-    return JSON.parse(session_raw);
-}
-
-function set_ListaLettereEM(obj) {
-    sessionStorage.setItem("ListaLettereEM", JSON.stringify(obj));
-}
-
 function get_Gruppi() {
     var session_raw = sessionStorage.getItem("GruppiPoliticiLegislatura");
     if (session_raw == null)

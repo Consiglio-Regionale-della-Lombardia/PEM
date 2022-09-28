@@ -944,7 +944,14 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
-    set_ListaCommiEM([]);
+    console.log("ARTICOLI", value,valueCommaSelected, valueLetteraSelected)
+    if (value == 0 || value == null || value == undefined) {
+        $("#pnlCommi").hide();
+        $("#CommiList").empty();
+        $("#CommiList").formSelect();
+        return;
+    }
+
     $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
     M.FormSelect.init(elemsArt, null);
@@ -955,7 +962,7 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
         var commiSelect = $("#CommiList");
         commiSelect.empty();
 
-        if (valueCommaSelected)
+        if (valueCommaSelected != 0)
             commiSelect.append('<option value="0">Seleziona comma</option>');
         else
             commiSelect.append('<option selected="selected" value="0">Seleziona comma</option>');
@@ -982,8 +989,8 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
 }
 
 async function Commi_OnChange(value, valueLetteraSelected) {
-    set_ListaLettereEM([]);
-    if (value == null) {
+    console.log("COMMI", value, valueLetteraSelected)
+    if (value == 0 || value == null || value == undefined) {
         $("#pnlLettere").hide();
         $("#LettereList").empty();
         $("#LettereList").formSelect();
@@ -1384,8 +1391,6 @@ async function GetArticoliAtto(attoUId) {
     var tableLettere = $("#tableLettere");
     tableCommi.empty();
     tableLettere.empty();
-    set_ListaCommiEM([]);
-    set_ListaLettereEM([]);
     tableCommi.append("<li class='collection-item'>Crea da un articolo</li>");
     tableLettere.append("<li class='collection-item'>Crea da un comma</li>");
 
@@ -1450,9 +1455,6 @@ async function GetCommiArticolo(articoloUId) {
 }
 
 async function GetLettereComma(commaUId) {
-
-    set_ListaLettereEM([]);
-
     $("#tableCommi").find("li").removeClass("active");
     $("#tableCommi").find("li[uid='" + commaUId + "']").addClass("active");
 
