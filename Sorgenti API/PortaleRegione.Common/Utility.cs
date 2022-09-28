@@ -178,7 +178,7 @@ namespace PortaleRegione.Common
                 case TipoAttoEnum.RIS:
                     return TipoAttoEnum.RIS.ToString();
                 case TipoAttoEnum.ALTRO:
-                    return "";
+                    return "Dibattito";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
             }

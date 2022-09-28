@@ -99,7 +99,8 @@ else
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
                     if (item.Tipo != (int)TipoAttoEnum.ITL 
-                        && item.Tipo != (int)TipoAttoEnum.ITR)
+                        && item.Tipo != (int)TipoAttoEnum.ITR
+                        && item.Tipo != (int)TipoAttoEnum.ODG)
                     {
                         <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
                             <i class="icon material-icons black-text">settings</i>
@@ -131,8 +132,6 @@ else
                                      && (Model.CurrentUser.IsCapoGruppo
                                          || item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona))
                                     || (item.Tipo is (int)TipoAttoEnum.MOZ
-                                        && Model.CurrentUser.IsCapoGruppo)
-                                    || (item.Tipo is (int)TipoAttoEnum.ODG
                                         && Model.CurrentUser.IsCapoGruppo))
                                 {
                                     <li>
@@ -292,8 +291,7 @@ else
                 {
                     accordion: false
                 });
-            instanceGridView.open(); 
-            instanceGridView.destroy(); 
+            instanceGridView.close(); 
         });
 
     $('#expandAll').on("change", function() {
