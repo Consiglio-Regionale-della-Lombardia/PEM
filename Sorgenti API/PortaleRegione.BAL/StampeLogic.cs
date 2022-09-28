@@ -22,7 +22,6 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
-using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
@@ -111,8 +110,11 @@ namespace PortaleRegione.BAL
 
                 queryFilter.ImportStatements(model.filtro);
 
+                object CLIENT_MODE;
+                model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
+
                 var queryEM =
-                    await _unitOfWork.Emendamenti.GetAll_Query(queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
+                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
                 stampa.Query = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
@@ -140,7 +142,7 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-        
+
         public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
         {
             try

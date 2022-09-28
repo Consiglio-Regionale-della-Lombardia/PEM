@@ -25,7 +25,6 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -125,9 +124,14 @@ namespace PortaleRegione.BAL
             {
                 var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
                 Mapper.Map(sedutaDto, sedutaInDb);
+                if (sedutaDto.Data_effettiva_fine == null)
+                {
+                    sedutaInDb.Data_effettiva_fine = null;
+                }
+
                 sedutaInDb.UIDPersonaModifica = persona.UID_persona;
                 sedutaInDb.DataModifica = DateTime.Now;
-                
+
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -141,7 +145,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var sedute_attive =  await _unitOfWork.Sedute.GetAttive();
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
 
                 return new BaseResponse<SeduteDto>(
                     1,

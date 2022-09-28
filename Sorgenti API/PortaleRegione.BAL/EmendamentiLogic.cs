@@ -17,6 +17,7 @@
  */
 
 using AutoMapper;
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.BAL.OpenData;
@@ -1887,13 +1888,16 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                var filter = new Filter<EM>();
+                filter.ImportStatements(model.filtro);
                 var em_in_db = await _unitOfWork
                     .Emendamenti
                     .GetAll(persona,
                         model.ordine,
                         model.page,
                         model.size,
-                        CLIENT_MODE);
+                        CLIENT_MODE,
+                        filter);
 
                 var result = new List<EmendamentiDto>();
                 var totalProcessTime = 0f;
@@ -2065,6 +2069,14 @@ namespace PortaleRegione.BAL
             bool light_version = false)
         {
             var result = new List<EmendamentiDto>();
+
+            var filtro1 = new FilterStatement<EmendamentiDto>
+            {
+                PropertyId = nameof(EmendamentiDto.UIDAtto),
+                Operation = Operation.EqualTo,
+                Value = attoUId
+            };
+
             var counter_em = await _unitOfWork.Emendamenti.Count(attoUId, persona, CounterEmendamentiEnum.NONE,
                 (int)mode);
 
