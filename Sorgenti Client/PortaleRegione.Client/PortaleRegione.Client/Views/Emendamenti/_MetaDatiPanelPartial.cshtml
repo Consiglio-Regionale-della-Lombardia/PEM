@@ -79,10 +79,6 @@
             ListaEM.push(em); // aggiungo em alla lista per gestire il reset delle modifiche
         }
 
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
-
         await SetupMetaDati(em);
 
         var container_testo = $('#EditorTesto').parent();
@@ -96,9 +92,6 @@
 
         $("input[type=radio][name='Parte']").change(async function() {
             em.IDParte = this.value;
-            set_ListaArticoliEM([]);
-            set_ListaCommiEM([]);
-            set_ListaLettereEM([]);
             em.UIDArticolo = null;
             em.UIDComma = null;
             em.UIDLettera = null;
@@ -302,8 +295,6 @@
 
             $(select).unbind();
             $(select).change(async function() {
-                set_ListaCommiEM([]);
-                set_ListaLettereEM([]);
                 em.UIDArticolo = this.value;
                 em.UIDComma = null;
                 em.UIDLettera = null;
@@ -343,7 +334,6 @@
 
             $(select).unbind();
             $(select).change(async function() {
-                set_ListaLettereEM([]);
                 em.UIDComma = this.value;
                 em.UIDLettera = null;
                 await LoadMetaDati_Parte(em);
