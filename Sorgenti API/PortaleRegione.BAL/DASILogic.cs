@@ -499,7 +499,9 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
                 {
                     var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                    dto.ODG_Atto_PEM = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && !persona.IsSegreteriaAssemblea
+                        ? $"{attoPem.Oggetto}"
+                        : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
                 }
 
                 return dto;
@@ -1016,29 +1018,49 @@ namespace PortaleRegione.API.Controllers
                         }
 
                         if (attoPEM.Jolly)
-                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG_Jolly)
+                            if (my_atti.Count >= AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
 
-                        if (seduta.Data_effettiva_inizio.HasValue)
+                        if (seduta.DataScadenzaPresentazioneODG.HasValue)
                         {
-                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG +
-                                AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            var atti_dopo_scadenza =
+                                my_atti.Where(a => a.Timestamp > seduta.DataScadenzaPresentazioneODG)
+                                    .ToList();
+                            if (atti_dopo_scadenza.Count >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+                                {
+                                    results.Add(idGuid,
+                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per la {attoPEM.Oggetto}.");
+                                }
+                                else
+                                {
+                                    results.Add(idGuid,
+                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                }
+
                                 continue;
                             }
                         }
                         else
                         {
-                            if (my_atti.Count > AppSettingsConfiguration.MassimoODG)
+                            if (my_atti.Count >= AppSettingsConfiguration.MassimoODG)
                             {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+                                {
+                                    results.Add(idGuid,
+                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per la {attoPEM.Oggetto}.");
+                                }
+                                else
+                                {
+                                    results.Add(idGuid,
+                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                }
+
                                 continue;
                             }
                         }
