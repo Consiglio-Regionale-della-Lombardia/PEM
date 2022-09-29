@@ -250,8 +250,12 @@ else
                     </td>
                 }
                 <td class="center" style="width: 5%;">
-                    <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+
+                    <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
                         <i class="icon material-icons">remove_red_eye</i>
+                    </a>
+                    <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" href="@Url.Action("Download", "DASI", new { id = item.UIDAtto })" target="_blank">
+                        <i class="material-icons">print</i>
                     </a>
                     <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">
                         <i class="icon material-icons">edit</i>

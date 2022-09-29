@@ -932,5 +932,35 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Endpoint per scaricare il file generato
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file")]
+        public async Task<IHttpActionResult> Download(Guid id)
+        {
+            try
+            {
+                var em = await _logic.Get(id);
+                if (em == null)
+                {
+                    return NotFound();
+                }
+
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var response = ResponseMessage(await _logic.DownloadPDFIstantaneo(em, persona));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Download", e);
+                return ErrorHandler(e);
+            }
+        }
+
     }
 }

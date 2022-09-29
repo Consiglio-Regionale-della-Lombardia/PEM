@@ -23,6 +23,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
@@ -887,6 +888,29 @@ namespace PortaleRegione.Gateway
                 Log.Error("PresentazioneCartacea - DASI", ex);
                 throw ex;
             }
+        }
+
+        public async Task<FileResponse> Download(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/file?id={id}";
+
+                var lst = await GetFile(requestUrl, _token);
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("DownloadDASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("DownloadDASI", ex);
+                throw ex;
+            }
+
         }
 
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)

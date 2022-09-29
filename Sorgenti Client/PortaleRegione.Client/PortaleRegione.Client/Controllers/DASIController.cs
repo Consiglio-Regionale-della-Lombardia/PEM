@@ -952,6 +952,29 @@ namespace PortaleRegione.Client.Controllers
             return result;
         }
 
+        /// <summary>
+        ///     Controller per scaricare il documento pdf dell'atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file")]
+        public async Task<ActionResult> Download(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.DASI.Download(id);
+                return File(file.Content, "application/pdf",
+                    file.FileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         //FILTRI
 
         [HttpGet]

@@ -203,4 +203,10 @@
     </div>
 </div>
 
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large white black-text tooltipped" data-position="left" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "DASI", new { id = Model.UIDAtto })">
+        <i class="large material-icons">print</i>
+    </a>
+</div>
+
 @Html.Partial("_InvitoPanel", Model)

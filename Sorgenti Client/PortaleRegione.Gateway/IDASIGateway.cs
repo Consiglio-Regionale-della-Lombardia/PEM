@@ -16,15 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
@@ -69,5 +68,6 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin);
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
+        Task<FileResponse> Download(Guid id);
     }
 }
