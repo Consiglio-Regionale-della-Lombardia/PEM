@@ -1025,6 +1025,7 @@ namespace PortaleRegione.API.Controllers
                             .ToList();
                         var attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
                         var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+
                         if (attoPEM.BloccoODG)
                         {
                             results.Add(idGuid,
@@ -1033,17 +1034,17 @@ namespace PortaleRegione.API.Controllers
                         }
 
                         if (attoPEM.Jolly)
-                            if (my_atti.Count >= AppSettingsConfiguration.MassimoODG_Jolly)
+                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >= AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                                 continue;
                             }
 
-                        if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                        if (seduta.Data_seduta <= DateTime.Now)
                         {
                             var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp > seduta.DataScadenzaPresentazioneODG)
+                                my_atti.Where(a => a.Timestamp > seduta.Data_seduta)
                                     .ToList();
                             if (atti_dopo_scadenza.Count >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
@@ -1063,7 +1064,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count >= AppSettingsConfiguration.MassimoODG)
+                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >= AppSettingsConfiguration.MassimoODG)
                             {
                                 if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
                                 {
