@@ -118,32 +118,19 @@ namespace PortaleRegione.Persistance
         /// <returns></returns>
         public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (persona.IsSegreteriaPolitica
-                || persona.IsResponsabileSegreteriaPolitica
-                || persona.IsSegreteriaAssemblea)
-            {
-                return false;
-            }
+            if (!persona.IsConsigliereRegionale) return false;
+            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO) return false;
+            if (atto.DataIscrizioneSeduta.HasValue) return false;
 
-            if (atto.IDStato > (int)StatiAttoEnum.PRESENTATO)
-            {
-                return false;
-            }
-
-            if (atto.UIDSeduta.HasValue && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-            {
-                return false;
-            }
+            if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE)
+                if (atto.Tipo != (int)TipoAttoEnum.ITL && atto.IDTipo_Risposta != (int)TipoRispostaEnum.ORALE)
+                    return false;
 
             var firma_personale = await Get(atto.UIDAtto, persona.UID_persona);
             var firma_proponente = await CheckFirmato(atto.UIDAtto, atto.UIDPersonaProponente.Value);
 
-            if (firma_personale == null
-                && (firma_proponente || atto.UIDPersonaProponente == persona.UID_persona)
-                && persona.IsConsigliereRegionale)
-            {
+            if (firma_personale == null && (firma_proponente || atto.UIDPersonaProponente == persona.UID_persona))
                 return true;
-            }
 
             return false;
         }
@@ -180,9 +167,7 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo)
         {
             if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO && tipo == FirmeTipoEnum.DOPO_DEPOSITO)
-            {
                 return new List<ATTI_FIRME>();
-            }
 
             var firmaProponente = await PRContext
                 .ATTI_FIRME
@@ -202,16 +187,12 @@ namespace PortaleRegione.Persistance
                     break;
                 case FirmeTipoEnum.PRIMA_DEPOSITO:
                     if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-                    {
                         query = query.Where(f => f.Timestamp < atto.Timestamp);
-                    }
 
                     break;
                 case FirmeTipoEnum.DOPO_DEPOSITO:
                     if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-                    {
                         query = query.Where(f => f.Timestamp > atto.Timestamp);
-                    }
                     break;
                 case FirmeTipoEnum.ATTIVI:
                     query = query.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
@@ -225,16 +206,13 @@ namespace PortaleRegione.Persistance
             var lst = await query
                 .ToListAsync();
 
-            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO)
-            {
-                lst.Insert(0, firmaProponente);
-            }
+            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
 
             return lst;
         }
 
         /// <summary>
-        /// Ritorna singola firma
+        ///     Ritorna singola firma
         /// </summary>
         /// <param name="attoUId"></param>
         /// <param name="personaUId"></param>
@@ -244,7 +222,6 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .ATTI_FIRME
                 .FindAsync(attoUId, personaUId);
-
         }
     }
 }
