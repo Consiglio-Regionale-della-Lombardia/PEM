@@ -19,6 +19,7 @@
 using AutoMapper;
 using ExpressionBuilder.Generics;
 using PortaleRegione.API.Controllers;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -267,8 +268,8 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
-                        var n_atto = atto.NAtto;
-                        
+                        var n_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+
                         var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
                         if (check == false)
                         {
