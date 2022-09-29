@@ -1187,9 +1187,9 @@ namespace PortaleRegione.API.Controllers
                             DA = persona.email,
                             A =
                                 AppSettingsConfiguration.EmailInvioDASI,
-                            OGGETTO = $"[PRESENTATO] {new_nome_atto}",
+                            OGGETTO = $"DASI: deposito {new_nome_atto} da parte di [{persona.DisplayName_GruppoCode}]",
                             MESSAGGIO =
-                                $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato l'atto {new_nome_atto} con oggetto: </br> {atto.Oggetto}."
+                                $"E' stato effettuato il deposito dell'atto. <br> {new_nome_atto} - \"{atto.Oggetto}\" a prima firma [{persona.DisplayName_GruppoCode}] <br><br>Collegati alla piattaforma per gestire l'atto."
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
