@@ -943,15 +943,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logic.Get(id);
-                if (em == null)
+                var atto = await _logic.Get(id);
+                if (atto == null)
                 {
                     return NotFound();
                 }
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var response = ResponseMessage(await _logic.DownloadPDFIstantaneo(em, persona));
+                var response = ResponseMessage(await _logic.DownloadPDFIstantaneo(atto, persona));
 
                 return response;
             }

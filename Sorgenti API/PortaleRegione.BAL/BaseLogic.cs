@@ -712,7 +712,7 @@ namespace PortaleRegione.BAL
                     var nameFileQrCode = $"QR_{atto.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
                     var qrFilePathComplete =
                         Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
-                    var qrLink = $"{AppSettingsConfiguration.urlDASI_ViewATTO}{atto.UID_QRCode}";
+                    var qrLink = $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
                     var qrGenerator = new QRCodeGenerator();
                     var urlPayload = new PayloadGenerator.Url(qrLink);
                     var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);

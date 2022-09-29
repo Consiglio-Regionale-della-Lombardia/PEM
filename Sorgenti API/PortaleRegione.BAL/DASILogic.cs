@@ -1129,7 +1129,7 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    var new_nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
+                    var new_nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
 
                     results.Add(idGuid, $"{new_nome_atto} - OK");
 
@@ -1191,7 +1191,7 @@ namespace PortaleRegione.API.Controllers
                                 AppSettingsConfiguration.EmailInvioDASI,
                             OGGETTO = $"DASI: deposito {new_nome_atto} da parte di [{persona.DisplayName_GruppoCode}]",
                             MESSAGGIO =
-                                $"E' stato effettuato il deposito dell'atto. <br> {new_nome_atto} - \"{atto.Oggetto}\" a prima firma [{persona.DisplayName_GruppoCode}] <br><br>Collegati alla piattaforma per gestire l'atto."
+                                $"E' stato effettuato il deposito dell'atto. <br> {new_nome_atto} - \"{atto.Oggetto}\" a prima firma {persona.DisplayName_GruppoCode} <br><br>Collegati alla piattaforma per gestire l'atto <a href=\"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}\">qui</a>."
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
@@ -1275,7 +1275,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                if (anomalie.Length > 0)
+                if (anomalie.Length > 0 && count_firme < minimo_firme)
                     return
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
             }

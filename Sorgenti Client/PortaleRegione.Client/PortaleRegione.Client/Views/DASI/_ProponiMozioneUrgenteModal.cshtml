@@ -1,6 +1,6 @@
 ﻿<script>
     function ProponiUrgenzaDASI(uidAtto, nomeAtto) {
-        
+        waiting(true);
         var listaAtti = [];
         var obj = {};
 
@@ -16,6 +16,7 @@
         }).done(function(data) {
             console.log(data.message);
             if (data.message) {
+                waiting(false);
                 swal({
                     title: "Esito salvataggio",
                     text: data.message,
@@ -27,6 +28,7 @@
             }
         }).fail(function(err) {
             console.log("error", err);
+            waiting(false);
             Error(err);
         });
     }
