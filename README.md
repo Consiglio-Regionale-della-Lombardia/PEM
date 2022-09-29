@@ -1,8 +1,22 @@
 # Portale digitalizzazione atti
-# Portale PEM - Presentazione Emendamenti
+
+Il Portale PEM-DASI aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM) e di atti di indirizzo e sindacato ispettivo.
+
+## Modulo PEM - Presentazione Emendamenti
   
 Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un progetto di legge (titolo, articolo, comma, allegato, ecc.) prima che questo venga votato dall’assemblea legislativa regionale. I subemendamenti sono invece proposte di modifica riferite ad un emendamento precedentemente presentato. Il Portale PEM aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM).
 
+## Modulo DASI – Presentazione Atti di indirizzo e di sindacato ispettivo
+
+Gli atti di indirizzo e di sindacato ispettivo sono atti, tipici della tradizione parlamentare, attraverso i quali il Consiglio esercita la funzione di controllo sull’esecutivo e concorre alla determinazione dell’indirizzo politico (articolo 14, comma 1, dello Statuto d’autonomia).
+
+Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal Regolamento generale sono mozioni, ordini del giorno e risoluzioni:
+
+- La mozione (MOZ) è il tipico strumento assembleare, è uno strumento autonomo e, quanto ai contenuti, non subisce limiti espressi;
+- L’ordine del giorno (ODG) è uno strumento accessorio ad altro atto, in genere un progetto di legge; è anche lo strumento tipico con cui l’Aula conclude i dibattiti su un determinato argomento;
+- La risoluzione (RIS) è il frutto del dibattito e dell’elaborazione in una Commissione consiliare di un tema specifico a contenuto settoriale e non viene pertanto trattata attraverso questo strumento informatico.
+
+La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
 
 ### Note sul copyright
 - Copyright: Consiglio regionale della Lombardia
@@ -26,15 +40,21 @@ Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un 
 
 # Introduzione
 
-Questo repository contiene il codice sorgente e la documentazione del portale PEM - Presentazione Emendamenti. 
+Questo repository contiene il codice sorgente e la documentazione del portale PEM-DASI. 
 L'obiettivo del Portale PEM è di rendere più efficiente e funzionale l’intera procedura di gestione degli emendamenti ai progetti di legge, con un’applicazione multiutente con livelli di informatizzazione e automazione più o meno ampi, a seconda delle varie fasi del processo.
  
-Il Portale PEM permette di:
+Il Modulo PEM permette di:
 - gestire da remoto la predisposizione dei testi degli EM/SUBEM, la firma e l’operazione di deposito;
 - garantire autenticità del testo, intesa come integrità del testo, provenienza del documento dal suo autore e certezza temporale sulla sua presentazione;
 - snellire le operazioni per la lavorazione degli EM/SUBEM (numerazione, marcatura, autenticazione, ecc…);
 - ridurre i tempi necessari alla generazione di output finalizzati alla discussione in aula e alle fasi post-seduta, attraverso la loro generazione automatica;
 - agevolare i lavori d'aula: visualizzare, gestire e modificare in Aula il testo degli emendamenti;
+- ridurre l’utilizzo della carta e dei supporti per la stampa.
+
+Il Modulo DASI permette di:
+- gestire da remoto la predisposizione dei testi degli ATTI, la firma e l’operazione di deposito;
+- garantire autenticità del testo, intesa come integrità del testo, provenienza del documento dal suo autore e certezza temporale sulla sua presentazione;
+- snellire le operazioni per la lavorazione degli ATTI (numerazione, marcatura, autenticazione, ecc…);
 - ridurre l’utilizzo della carta e dei supporti per la stampa.
 
 Maggiori dettagli sulle funzionalità possono essere lette nella documentazione per l’utente finale:
@@ -47,11 +67,11 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
   
   - Database: struttura di configurazione del database e sua documentazione
   
-  - Documentazione: documentazione varia sull'installazione e sull'utilizzo del Portale PEM
+  - Documentazione: documentazione varia sull'installazione e sull'utilizzo del Portale PEM-DASI
   
-  - Sorgenti API: sorgenti dei moduli API utilizzati dal Portale PEM
+  - Sorgenti API: sorgenti dei moduli API utilizzati dal Portale PEM-DASI
   
-  - Sorgenti Client: sorgenti della parte client del Portale PEM
+  - Sorgenti Client: sorgenti della parte client del Portale PEM-DASI
   
   - Sorgenti modulo di stampa asincrona: Sorgenti del modulo di stampa asincrona degli Emendamenti in formato pdf
   
@@ -59,10 +79,10 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
 
 #### INTRODUZIONE
 
-La versione pubblicata del software PEM è l’evoluzione di una prima versione di PEM, sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
+La versione pubblicata del software PEM-DASI è l’evoluzione di una prima versione di PEM, sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
 La nuova versione è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
 -	Eliminazione di librerie di terze parti coperte da licenza non opensource;
--	Separazione della parte client da quella server realizzando API dedicate che gestiscono tutta la logica applicativa di PEM e facilitano l'eventuale sviluppo di applicazioni mobile per dispositivi Apple e Android;
+-	Separazione della parte client da quella server realizzando API dedicate che gestiscono tutta la logica applicativa di PEM-DASI e facilitano l'eventuale sviluppo di applicazioni mobile per dispositivi Apple e Android;
 -	Aumento della modularità per consentire l’evoluzione del portale per la gestione di altre tipologie di ATTI (es. atti d’indirizzo e di sindacato ispettivo);
 -	Miglioramento delle performance soprattutto nella parte di generazione delle stampe;
 -	Miglioramento della sicurezza;
@@ -71,7 +91,7 @@ La nuova versione è stata realizzata con l’obiettivo di migliorare e superare
 La nuova versione è sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
 
 #### STRUTTURA DEL SISTEMA
-Come accennato, il nuovo portale PEM è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client. 
+Come accennato, il nuovo portale PEM-DASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client. 
 
 ![Struttura_sistema](/Documentazione/Screenshot/Struttura_sistema.jpg)
  
@@ -79,7 +99,7 @@ Le componenti principale del sistema risultano essere quelle in figura e descrit
 -	DATABASE:
 Motore di database contenente i dati dell’applicazione, le funzioni e le procedure di basso livello. Si è scelto di utilizzate MS Sql Server come DBMS.
 -	API:
-È la parte core del sistema che contiene tutta la logica applicativa e di interfacciamento ad alto livello, tramite la modellazione di opportune classi, con la base dati di PEM. L’interfacciamento con la base dati è stato realizzato utilizzando un layer con EntityFramework 6
+È la parte core del sistema che contiene tutta la logica applicativa e di interfacciamento ad alto livello, tramite la modellazione di opportune classi, con la base dati di PEM-DASI. L’interfacciamento con la base dati è stato realizzato utilizzando un layer con EntityFramework 6
 -	CLIENT:
 È il modulo che interroga l’API e genera l’output finale (html, javascript, css) da inviare ai dispositivi client.
 -	PROXYAD (WEBSERVICES DI AUTENTICAZIONE):
@@ -91,7 +111,7 @@ NOTA:
 Il progetto in produzione presso il Consiglio regionale della Lombardia utilizza un ulteriore webservices per la pubblicazione dei dai dati relativi agli emendamenti sul dataset dedicato all’interno del portale www.dati.lombardia.it. Questa funzionzionalità non è attiva nel sorgente pubblicato e tutte le chiamate al webservices sono state disabilitate attraverso l’impostazione della chiave presente nel web.config (AbilitaOpenData = 0)
 
 #### API
-Come accennato il modulo API è la parte core della soluzione PEM e contiene tutta la logica applicativa e di interfacciamento alla base dati.
+Come accennato il modulo API è la parte core della soluzione PEM-DASI e contiene tutta la logica applicativa e di interfacciamento alla base dati.
 L’API dialoga pertanto sia con il modulo client, per l’invio di tutte le informazioni necessarie alla creazione delle pagine web finali, sia con il DBMS per la lettura e la memorizzazione dei dati.
 Per l’interfacciamento con il database è stato sviluppato un layer con EntityFramework 6. Questo agevola l’utilizzo anche di altri provider nel caso non si voglia usare Microsoft SQL server. Per tutti i database supportati fare riferimento alla guida [Panoramica di Entity Framework 6 - EF6 | Microsoft Docs](https://docs.microsoft.com/it-it/ef/ef6/)
 
@@ -101,7 +121,7 @@ Per informazioni più dettagliate su JWT token si può consultare la seguente gu
 
 Per evitare il proliferare di utenze e password, in Consiglio regionale della Lombardia, si è scelto di utilizzare, come primo livello di accesso al portale PEM, gli stessi user name e password utilizzati per l’accesso al dominio. Per effettuare l’autenticazione viene utilizzato un webservice soap che si interfaccia con il repository delle utenze di rete.
 
-Per rendere il portale PEM immediatamente riusabile, è possibile utilizzare delle credenziali (username e password) memorizzate sul database interno di PEM. Per attivare questo tipo di autenticazione è necessario impostare la chiave AutenticazioneAD = 0 nel web.config dell’applicazione.
+Per rendere il portale PEM-DASI immediatamente riusabile, è possibile utilizzare delle credenziali (username e password) memorizzate sul database interno di PEM-DASI. Per attivare questo tipo di autenticazione è necessario impostare la chiave AutenticazioneAD = 0 nel web.config dell’applicazione.
 
 #### API – STRUTTURA (SOTTO-PROGETTI)
 Il modulo API è stato sviluppato secondo una logica di sotto-progetti per separare logicamente le diverse tipologie di operazioni.
@@ -138,7 +158,7 @@ Il sotto-progetto API costituisce la parte principale della parte API in quanto 
 -	ADMINCONTROLLER: contiene le funzioni per la gestione amministrativa del portale (definizione di utenti e password, impostazione dei ruoli, reset pin, configurazione gruppi politici, ecc.)
 
 #### CLIENT
-Il modulo client si occupa si generare le pagine web finali composte da html e librerie javscript e css. Le pagine vengono inviate ai web-browser per la visualizzazione. Il modulo CLIENT dialoga con il modulo API per la creazione delle pagine e la gestione dei diversi comandi e funzionalità del portale PEM. Come detto tutta la logica applicativa, la gestione dei permessi e l’interfacciamento con il database viene effettuato dal modulo API. Questo tipo di struttura separa in maniera netta l’interfaccia utente dalle logiche di business consentendo un’agevole sostituzione della parte client, ad esempio con un’App per dispositivi mobili Apple o Android.
+Il modulo client si occupa si generare le pagine web finali composte da html e librerie javscript e css. Le pagine vengono inviate ai web-browser per la visualizzazione. Il modulo CLIENT dialoga con il modulo API per la creazione delle pagine e la gestione dei diversi comandi e funzionalità del portale PEM-DASI. Come detto tutta la logica applicativa, la gestione dei permessi e l’interfacciamento con il database viene effettuato dal modulo API. Questo tipo di struttura separa in maniera netta l’interfaccia utente dalle logiche di business consentendo un’agevole sostituzione della parte client, ad esempio con un’App per dispositivi mobili Apple o Android.
 
 #### CLIENT – STRUTTURA (SOTTO-PROGETTI)
 Così come effettuato per il modulo API anche il modulo CLIENT è stato sviluppato secondo una logica di sotto-progetti per separare logicamente le diverse tipologie di operazioni per agevolare il riuso dell’applicazione permettendo la sostituzione/rielaborazione di singole componenti. 
@@ -206,7 +226,7 @@ La soluzione del progetto in Visual Studio risulta quella in figura:
 
 ## Note sulla release
 
-Il codice sorgente pubblicato è relativo alla piattaforma PEM nella release 2.0, che sostituirà la versione attualmente in uso presso il Consiglio regionale della Lombardia.
+Il codice sorgente pubblicato è relativo alla piattaforma PEM-DASI nella release 2.0, che sostituirà la versione attualmente in uso presso il Consiglio regionale della Lombardia.
 Questa nuova versione, oltre ad utilizzare esclusivamente librerie e componenti opensource, separa la parte client dell’applicazione da quella server attraverso lo sviluppo di API dedicate e introduce miglioramenti nelle performance e nella gestione delle stampe pdf. L’introduzione delle API per la gestione dei dati e delle elaborazioni principali facilita lo sviluppo di un’app per dispositivi mobili (Apple e Android).
 NOTA: Questa release è attualmente in fase di test e viene rilasciata in versione beta.
 
