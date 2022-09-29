@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Contracts
 {
@@ -29,8 +29,9 @@ namespace PortaleRegione.Contracts
     {
         Task Firma(Guid attoUId, Guid personaUId, int gruppoIdGruppo, string firmaCert, string dataFirmaCert,
             bool ufficio = false,
-            bool primoFirmatario = false, 
-            bool valida = true);
+            bool primoFirmatario = false,
+            bool valida = true,
+            bool capogruppo = false);
         Task<int> CountFirme(Guid attoUId);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(Guid attoUId);

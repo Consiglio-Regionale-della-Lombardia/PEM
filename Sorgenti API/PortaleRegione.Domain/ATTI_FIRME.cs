@@ -52,5 +52,6 @@ namespace PortaleRegione.Domain
 
         public virtual UTENTI_NoCons UTENTI_NoCons { get; set; }
         public bool Valida { get; set; } = true;
+        public bool Capogruppo { get; set; } = false;
     }
 }

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Data.Entity;
 using PortaleRegione.Domain;
+using System.Data.Entity;
 
 namespace PortaleRegione.DataBase
 {
@@ -76,6 +76,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_gruppi_politici_con_giunta> View_gruppi_politici_con_giunta { get; set; }
         public virtual DbSet<View_PINS> View_PINS { get; set; }
         public virtual DbSet<View_UTENTI> View_UTENTI { get; set; }
+        public virtual DbSet<View_CAPIGRUPPO> View_CAPIGRUPPO { get; set; }
         public virtual DbSet<View_Conteggi_EM_Gruppi_Politici> View_Conteggi_EM_Gruppi_Politici { get; set; }
         public virtual DbSet<View_Conteggi_EM_Area_Politica> View_Conteggi_EM_Area_Politica { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }

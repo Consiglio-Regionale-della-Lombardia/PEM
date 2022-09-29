@@ -1,7 +1,7 @@
-USE [dbEmendamenti]
+USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_FIRME]    Script Date: 18/07/2022 15:49:24 ******/
+/****** Object:  Table [dbo].[ATTI_FIRME]    Script Date: 29/09/2022 02:49:01 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -19,7 +19,8 @@ CREATE TABLE [dbo].[ATTI_FIRME](
 	[ufficio] [bit] NOT NULL,
 	[PrimoFirmatario] [bit] NOT NULL,
 	[id_gruppo] [int] NOT NULL,
-	[Valida] [bit] NOT NULL
+	[Valida] [bit] NOT NULL,
+	[Capogruppo] [bit] NOT NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -33,5 +34,8 @@ ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_id_gruppo]  DEFAUL
 GO
 
 ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_Valida]  DEFAULT ((1)) FOR [Valida]
+GO
+
+ALTER TABLE [dbo].[ATTI_FIRME] ADD  CONSTRAINT [DF_ATTI_FIRME_Capogruppo]  DEFAULT ((0)) FOR [Capogruppo]
 GO
 
