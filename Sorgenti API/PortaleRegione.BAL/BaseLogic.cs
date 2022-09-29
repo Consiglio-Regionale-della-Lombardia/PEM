@@ -604,8 +604,8 @@ namespace PortaleRegione.BAL
                     //DEPOSITATO
                     body = body.Replace("{lblDepositoATTOView}",
                         firmeDtos.Any(s => s.ufficio)
-                            ? "Atto presentato d'ufficio"
-                            : $"Atto presentato il {atto.DataPresentazione}");
+                            ? "Atto depositato d'ufficio"
+                            : $"Atto depositato il {atto.DataPresentazione}");
 
                     var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));
