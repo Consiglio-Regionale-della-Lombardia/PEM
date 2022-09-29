@@ -920,7 +920,7 @@ namespace PortaleRegione.API.Controllers
                             AppSettingsConfiguration.masterKey);
 
                     await _unitOfWork.CompleteAsync();
-                    results.Add(idGuid, $"{dto} - OK");
+                    results.Add(idGuid, $"{nome_atto} - OK");
                     jumpMail = false;
                 }
 
