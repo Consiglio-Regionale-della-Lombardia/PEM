@@ -16,19 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.Linq;
-using System.Security.Permissions;
-using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
 {
@@ -57,7 +55,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(EmendamentiDto em, PersonaDto persona)
         {
-            if (em.IDStato >= (int) StatiEnum.Depositato) return false;
+            if (em.IDStato >= (int)StatiEnum.Depositato) return false;
 
             if (em.ATTI.Chiuso) return false;
 
@@ -84,7 +82,10 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (atto.UIDSeduta.HasValue && atto.Tipo != (int)TipoAttoEnum.ODG)
+            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                return false;
+
+            if (atto.DataIscrizioneSeduta.HasValue && atto.Tipo != (int)TipoAttoEnum.ODG)
             {
                 return false;
             }
@@ -95,9 +96,7 @@ namespace PortaleRegione.Persistance
             if (persona.Gruppo == null) return false;
             if (atto.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
-            if (persona.IsConsigliereRegionale ||
-                persona.IsAssessore ||
-                persona.IsPresidente)
+            if (persona.IsConsigliereRegionale)
             {
                 if (atto.UIDPersonaProponente.Value != persona.UID_persona) return false;
 
