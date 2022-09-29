@@ -22,16 +22,9 @@ namespace PortaleRegione.DTO.Domain
 {
     public class RuoliDto
     {
-        public string ADGroupShort => $"{ADGroup.Replace(@"CONSIGLIO\", "").ToLower()}";
-
         [Key] public int IDruolo { get; set; }
+        public string Ruolo { get; set; }
+        public string ADGroup { get; set; }
 
-        [Required] [StringLength(50)] public string Ruolo { get; set; }
-
-        public int? Priorita { get; set; }
-
-        [StringLength(100)] public string ADGroup { get; set; }
-
-        public bool Ruolo_di_Giunta { get; set; }
     }
 }
