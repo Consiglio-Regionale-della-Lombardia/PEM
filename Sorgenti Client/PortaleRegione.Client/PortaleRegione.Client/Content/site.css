@@ -493,6 +493,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeIQT {
     background-color: white;
+    border: 1px solid #e91e63;
     border-left: 1em solid #e91e63;
     color: black;
     font-weight: bold;
@@ -501,6 +502,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeITL {
     background-color: white;
+    border: 1px solid #2196f3;
     border-left: 1em solid #2196f3;
     color: black;
     font-weight: bold;
@@ -509,6 +511,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeMOZ {
     background-color: white;
+    border: 1px solid #ff5722;
     border-left: 1em solid #ff5722;
     color: black;
     font-weight: bold;
@@ -517,6 +520,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeITR {
     background-color: white;
+    border: 1px solid #673ab7;
     border-left: 1em solid #673ab7;
     color: black;
     font-weight: bold;
@@ -525,6 +529,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeODG {
     background-color: white;
+    border: 1px solid #4caf50;
     border-left: 1em solid #4caf50;
     color: black;
     font-weight: bold;
@@ -580,6 +585,7 @@ div.input-field > label { line-height: initial; }
 
 .badgeALL {
     background-color: white;
+    border: 1px solid black;
     border-left: 1em solid black;
     color: black;
     font-weight: bold;

@@ -1,7 +1,7 @@
-USE [dbEmendamenti_beta]
+USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 29/09/2022 01:34:23 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 29/09/2022 01:39:38 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -16,8 +16,8 @@ CREATE TABLE [dbo].[SEDUTE](
 	[Data_effettiva_fine] [datetime] NULL,
 	[IDOrgano] [int] NULL,
 	[Scadenza_presentazione] [datetime] NULL,
-	[DataScadenzaPresentazioneIQT] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZ] [datetime] NULL,
+	[DataScadenzaPresentazioneIQT] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZA] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZU] [datetime] NULL,
 	[DataScadenzaPresentazioneODG] [datetime] NULL,

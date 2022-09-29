@@ -439,6 +439,16 @@ namespace PortaleRegione.Client.Helpers
                         Connector = FilterStatementConnector.And
                     });
                 }
+                else
+                {
+                    model.filtro.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = nameof(AttoDASIDto.IDStato),
+                        Operation = Operation.EqualTo,
+                        Value = ((int)StatiAttoEnum.BOZZA).ToString(),
+                        Connector = FilterStatementConnector.And
+                    });
+                }
         }
 
         public void AddFilter_ByTipoRisposta(ref BaseRequest<AttoDASIDto> model, string filtroTipoRisposta)

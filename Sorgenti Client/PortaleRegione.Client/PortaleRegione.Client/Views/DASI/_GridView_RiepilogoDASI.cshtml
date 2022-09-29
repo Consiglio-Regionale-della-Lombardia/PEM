@@ -37,12 +37,16 @@ else
         var title = $"{Utility.GetText_Tipo(item)} ";
         title += item.NAtto;
 
+        var codice_gruppo = item.gruppi_politici.codice_gruppo;
+
+        var proponente = $"{item.PersonaProponente.DisplayName} ({codice_gruppo})";
+
         <li class="active badgeBody">
         <div class="collapsible-header @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" tabindex="0">
-            <div class="col s10 valign-wrapper">
+            <div class="col s8 valign-wrapper">
                 <p>
                     <label>
-                        <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');" />
+                        <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
                         <span>@title</span>
                     </label>
                 </p>
@@ -65,7 +69,7 @@ else
                 @if (item.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
                 {
                     <i class="close material-icons orange-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>
-                    <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UID_MOZ_Abbinata})')">@item.MOZ_Abbinata</a>
+                    <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
                 }
                 @if (item.Tipo == (int)TipoAttoEnum.ODG)
                 {
@@ -76,6 +80,10 @@ else
                 {
                     <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Ordine del giorno di NON passaggio in esame">new_releases</i>
                 }
+            </div>
+
+            <div class="col s2 valign-wrapper">
+                @Html.Raw(proponente)
             </div>
             
             <div class="col s2 valign-wrapper">
@@ -98,7 +106,7 @@ else
             <div class="col s2 right-align" style="margin-top: 15px">
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-                    if (item.Tipo != (int)TipoAttoEnum.ITL 
+                    if (item.Tipo != (int)TipoAttoEnum.ITL
                         && item.Tipo != (int)TipoAttoEnum.ITR
                         && item.Tipo != (int)TipoAttoEnum.ODG)
                     {
@@ -189,7 +197,7 @@ else
                         </a>
                     }
                 }
-                <a class="black-text tooltipped" data-tooltip="Entra" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')">
+                <a class="black-text tooltipped" data-tooltip="Entra" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
                     <i class="icon material-icons">chevron_right</i>
                 </a>
             </div>
@@ -207,7 +215,7 @@ else
                 </div>
                 <div class="col s12">
                     <label>Oggetto:</label>
-                    <span style="font-weight:normal!important">
+                    <span style="font-weight: normal !important">
                         @if (string.IsNullOrEmpty(item.Oggetto_Modificato))
                         {
                             @Html.Raw(item.Oggetto)
@@ -248,11 +256,7 @@ else
                     }
                 </div>
                 <div class="col s12 right-align">
-                    @{
-                        var codice_gruppo = item.gruppi_politici.codice_gruppo;
 
-                        var proponente = $"{item.PersonaProponente.DisplayName} ({codice_gruppo})";
-                    }
                     @if (!item.Firmato_Dal_Proponente)
                     {
                         <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
@@ -268,7 +272,7 @@ else
 
                     @if (item.ConteggioFirme > 1)
                     {
-                        <br />
+                        <br/>
                         <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
                             + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
                         </a>
@@ -291,14 +295,15 @@ else
                 {
                     accordion: false
                 });
-            instanceGridView.close(); 
+            instanceGridView.close();
         });
 
-    $('#expandAll').on("change", function() {
-        if ($('#expandAll').is(":checked")) {
-            instanceGridView.open();
-        } else {
-            instanceGridView.close();
-        }
-    });
+    $('#expandAll').on("change",
+        function() {
+            if ($('#expandAll').is(":checked")) {
+                instanceGridView.open();
+            } else {
+                instanceGridView.close();
+            }
+        });
 </script>
