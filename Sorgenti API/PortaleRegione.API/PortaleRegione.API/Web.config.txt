@@ -79,6 +79,7 @@
     <add key="MessaggioInizialeInvito" value="Gentile Consigliere/Assessore, {br}la invito a firmare il seguente emendamento:" />
 
     <!--DASI-->
+    <add key="EmailInvioDASI" value="YOUR_EMAIL" />
     <add key="LimitePresentazioneMassivo" value="1" />
     <add key="MinimoConsiglieriIQT" value="1" />
     <add key="MinimoConsiglieriMOZU" value="1" />

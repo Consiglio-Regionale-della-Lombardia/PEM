@@ -68,6 +68,7 @@ namespace PortaleRegione.BAL
         public static string urlDASI_ViewATTO => ConfigurationManager.AppSettings["urlDASI_ViewATTO"];
 
         //DASI
+        public static string EmailInvioDASI => ConfigurationManager.AppSettings["EmailInvioDASI"];
         public static string LimitePresentazioneMassivo => ConfigurationManager.AppSettings["LimitePresentazioneMassivo"];
         public static int MinimoConsiglieriIQT => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriIQT"]);
         public static int MinimoConsiglieriMOZU => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZU"]);

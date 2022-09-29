@@ -488,7 +488,8 @@ namespace PortaleRegione.API.Controllers
 
                     if (!dto.UIDSeduta.HasValue)
                     {
-                        sedutaInDb = await _logicSedute.GetSeduta(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
+                        sedutaInDb =
+                            await _logicSedute.GetSeduta(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
                     }
                     else
                     {
@@ -1144,8 +1145,6 @@ namespace PortaleRegione.API.Controllers
                         DASI = true
                     });
 
-                    var ruoloSegreterie =
-                        await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                     if (atto.Tipo == (int)TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
                     {
                         //proposta di iscrizione in seduta
@@ -1163,7 +1162,7 @@ namespace PortaleRegione.API.Controllers
                                 {
                                     DA = persona.email,
                                     A =
-                                        $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                                        AppSettingsConfiguration.EmailInvioDASI,
                                     OGGETTO =
                                         "[ODG DI NON PASSAGGIO ALL'ESAME]",
                                     MESSAGGIO =
@@ -1186,7 +1185,7 @@ namespace PortaleRegione.API.Controllers
                         {
                             DA = persona.email,
                             A =
-                                $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                                AppSettingsConfiguration.EmailInvioDASI,
                             OGGETTO = $"[PRESENTATO] {new_nome_atto}",
                             MESSAGGIO =
                                 $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato l'atto {new_nome_atto} con oggetto: </br> {atto.Oggetto}."
@@ -1634,8 +1633,6 @@ namespace PortaleRegione.API.Controllers
                 try
                 {
                     var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
-                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
-
                     var gruppiMail = listaRichieste.GroupBy(item => item.Key);
                     foreach (var gruppo in gruppiMail)
                     {
@@ -1643,7 +1640,7 @@ namespace PortaleRegione.API.Controllers
                         var mailModel = new MailModel
                         {
                             DA =
-                                $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                                AppSettingsConfiguration.EmailInvioDASI,
                             A = personaMail.email,
                             OGGETTO =
                                 "[ISCRIZIONE ATTI]",
@@ -1679,10 +1676,12 @@ namespace PortaleRegione.API.Controllers
 
                     if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     {
-                        var checkIscrizioneSeduta = await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta, persona.UID_persona);
+                        var checkIscrizioneSeduta =
+                            await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta, persona.UID_persona);
                         if (!checkIscrizioneSeduta)
                         {
-                            throw new Exception("ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
+                            throw new Exception(
+                                "ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
                         }
                     }
 
@@ -1697,13 +1696,11 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
-
                     var mailModel = new MailModel
                     {
                         DA = persona.email,
                         A =
-                            $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                            AppSettingsConfiguration.EmailInvioDASI,
                         OGGETTO =
                             "[RICHIESTA ISCRIZIONE]",
                         MESSAGGIO =
@@ -1798,10 +1795,12 @@ namespace PortaleRegione.API.Controllers
                 var checkIfFirmatoDaiCapigruppo = await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(attoInDb.UIDAtto);
                 if (!checkIfFirmatoDaiCapigruppo)
                 {
-                    var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta_attiva, attoInDb.DataRichiestaIscrizioneSeduta, persona);
+                    var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta_attiva,
+                        attoInDb.DataRichiestaIscrizioneSeduta, persona);
                     if (!checkMozUrgente)
                     {
-                        throw new Exception($"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta_attiva.Data_seduta:dd/MM/yyyy}.");
+                        throw new Exception(
+                            $"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta_attiva.Data_seduta:dd/MM/yyyy}.");
                     }
                 }
 
