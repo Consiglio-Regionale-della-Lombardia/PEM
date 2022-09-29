@@ -406,7 +406,9 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
                 if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
+                {
                     dto.DataRichiestaIscrizioneSeduta = Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
+                }
 
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
                     dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
@@ -480,13 +482,26 @@ namespace PortaleRegione.API.Controllers
                 dto.Commissioni = commissioni
                     .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
 
-                if (attoInDb.UIDSeduta.HasValue)
+                if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                 {
-                    var sedutaInDb = await _logicSedute.GetSeduta(attoInDb.UIDSeduta.Value);
-                    dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+                    SEDUTE sedutaInDb = null;
 
-                    var presentato_oltre_termini = IsOutdate(dto);
-                    dto.PresentatoOltreITermini = presentato_oltre_termini;
+                    if (!dto.UIDSeduta.HasValue)
+                    {
+                        sedutaInDb = await _logicSedute.GetSeduta(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
+                    }
+                    else
+                    {
+                        sedutaInDb = await _logicSedute.GetSeduta(dto.UIDSeduta.Value);
+                    }
+
+                    if (sedutaInDb != null)
+                    {
+                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+
+                        var presentato_oltre_termini = IsOutdate(dto);
+                        dto.PresentatoOltreITermini = presentato_oltre_termini;
+                    }
                 }
 
                 if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
@@ -2121,6 +2136,12 @@ namespace PortaleRegione.API.Controllers
                             case TipoMOZEnum.ABBINATA:
                                 {
                                     if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
+
+                                    break;
+                                }
+                            case TipoMOZEnum.ORDINARIA:
+                                {
+                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
 
                                     break;
                                 }

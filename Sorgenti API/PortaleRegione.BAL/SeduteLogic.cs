@@ -80,6 +80,19 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+        public async Task<SEDUTE> GetSeduta(DateTime dataSeduta)
+        {
+            try
+            {
+                var result = await _unitOfWork.Sedute.Get(dataSeduta);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduta", e);
+                throw e;
+            }
+        }
 
         public async Task DeleteSeduta(SeduteDto sedutaDto, PersonaDto persona)
         {

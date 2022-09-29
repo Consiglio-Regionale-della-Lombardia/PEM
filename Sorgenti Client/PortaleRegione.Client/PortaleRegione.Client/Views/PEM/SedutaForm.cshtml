@@ -88,6 +88,11 @@
                     <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneIQT')">close</i>
                 </div>
                 <div class="form-group">
+                    @Html.LabelFor(s => s.DataScadenzaPresentazioneMOZ)
+                    @Html.TextBoxFor(s => s.DataScadenzaPresentazioneMOZ, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                    <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneMOZ')">close</i>
+                </div>
+                <div class="form-group">
                     @Html.LabelFor(s => s.DataScadenzaPresentazioneMOZA)
                     @Html.TextBoxFor(s => s.DataScadenzaPresentazioneMOZA, "{0:s}", new {@class = "form-control", type = "datetime-local"})
                     <i class="icon material-icons tiny" style="margin-left: 5px; margin-top: 15px; position: absolute;" onclick="clearData('DataScadenzaPresentazioneMOZA')">close</i>

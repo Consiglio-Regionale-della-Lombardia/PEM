@@ -47,6 +47,14 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<SEDUTE> Get(DateTime dataSeduta)
+        {
+            return await PRContext.SEDUTE.FirstOrDefaultAsync(item =>
+                item.Data_seduta.Day == dataSeduta.Day
+                && item.Data_seduta.Month == dataSeduta.Month
+                && item.Data_seduta.Year == dataSeduta.Year);
+        }
+
         public async Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize,
             Filter<SEDUTE> filtro = null)
         {

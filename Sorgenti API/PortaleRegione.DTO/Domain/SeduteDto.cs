@@ -41,6 +41,8 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Data scadenza presentazione - Interrogation question time")]
 
         public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni")]
+        public DateTime? DataScadenzaPresentazioneMOZ { get; set; }
         [Display(Name = "Data scadenza presentazione - Mozioni abbinate")]
         public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
         [Display(Name = "Data scadenza presentazione - Mozioni urgenti")]
@@ -61,7 +63,7 @@ namespace PortaleRegione.DTO.Domain
 
         public DateTime? DataModifica { get; set; }
     }
-    
+
     public class SeduteFormUpdateDto
     {
         public Guid UIDSeduta { get; set; }
@@ -80,6 +82,8 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Data scadenza presentazione - Interrogation question time")]
 
         public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni")]
+        public DateTime? DataScadenzaPresentazioneMOZ { get; set; }
         [Display(Name = "Data scadenza presentazione - Mozioni abbinate")]
         public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
         [Display(Name = "Data scadenza presentazione - Mozioni urgenti")]

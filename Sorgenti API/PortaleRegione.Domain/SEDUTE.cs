@@ -47,6 +47,7 @@ namespace PortaleRegione.Domain
 
         public DateTime? Scadenza_presentazione { get; set; }
         public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        public DateTime? DataScadenzaPresentazioneMOZ { get; set; }
         public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
         public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
         public DateTime? DataScadenzaPresentazioneODG { get; set; }
