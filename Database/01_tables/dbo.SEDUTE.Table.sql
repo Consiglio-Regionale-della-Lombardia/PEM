@@ -1,7 +1,7 @@
-USE [dbEmendamenti]
+USE [dbEmendamenti_beta]
 GO
 
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 15/07/2022 10:06:06 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 29/09/2022 01:34:23 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -17,6 +17,7 @@ CREATE TABLE [dbo].[SEDUTE](
 	[IDOrgano] [int] NULL,
 	[Scadenza_presentazione] [datetime] NULL,
 	[DataScadenzaPresentazioneIQT] [datetime] NULL,
+	[DataScadenzaPresentazioneMOZ] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZA] [datetime] NULL,
 	[DataScadenzaPresentazioneMOZU] [datetime] NULL,
 	[DataScadenzaPresentazioneODG] [datetime] NULL,
@@ -30,7 +31,7 @@ CREATE TABLE [dbo].[SEDUTE](
  CONSTRAINT [PK_SEDUTE] PRIMARY KEY CLUSTERED 
 (
 	[UIDSeduta] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
