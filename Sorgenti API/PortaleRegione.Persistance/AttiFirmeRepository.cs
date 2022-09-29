@@ -52,7 +52,7 @@ namespace PortaleRegione.Persistance
         /// <param name="em"></param>
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
             string dataFirmaCert,
-            bool ufficio = false, bool primoFirmatario = false, bool valida = true)
+            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false)
         {
             PRContext
                 .ATTI_FIRME
@@ -66,7 +66,8 @@ namespace PortaleRegione.Persistance
                     ufficio = ufficio,
                     PrimoFirmatario = primoFirmatario,
                     id_gruppo = id_gruppo,
-                    Valida = valida
+                    Valida = valida,
+                    Capogruppo = capogruppo
                 });
             await PRContext.SaveChangesAsync();
         }

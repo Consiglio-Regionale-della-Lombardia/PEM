@@ -769,7 +769,7 @@ namespace PortaleRegione.API.Controllers
                     var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
                     var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null);
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
-                        firmaUfficio, primoFirmatario, valida);
+                        firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo);
 
                     if (destinatario_notifica != null)
                     {
@@ -1788,19 +1788,22 @@ namespace PortaleRegione.API.Controllers
                 var sedute_attive = await _unitOfWork.Sedute.GetAttive();
                 var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
 
-                var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta_attiva.UIDSeduta, persona.UID_persona);
-                if (!checkMozUrgente)
-                {
-                    throw new Exception($"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta_attiva.Data_seduta:dd/MM/yyyy}.");
-                }
-
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
-
 
                 attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                var checkIfFirmatoDaiCapigruppo = await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(attoInDb.UIDAtto);
+                if (!checkIfFirmatoDaiCapigruppo)
+                {
+                    var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta_attiva, attoInDb.DataRichiestaIscrizioneSeduta, persona);
+                    if (!checkMozUrgente)
+                    {
+                        throw new Exception($"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta_attiva.Data_seduta:dd/MM/yyyy}.");
+                    }
+                }
 
                 var count_firme = atto.ConteggioFirme;
                 var controllo_firme =

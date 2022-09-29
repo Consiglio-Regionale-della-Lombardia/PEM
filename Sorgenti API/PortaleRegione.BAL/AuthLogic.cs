@@ -10,7 +10,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -80,7 +79,7 @@ namespace PortaleRegione.BAL
                         //var authResult = true;
                         if (!authResult)
                         {
-                            throw new Exception( 
+                            throw new Exception(
                                 "Nome Utente o Password non validi! Utilizza le credenziali di accesso al pc ([nome.cognome] - [propriapassword])");
                         }
                     }
@@ -89,7 +88,7 @@ namespace PortaleRegione.BAL
                         var authResult_NoAD = await _unitOfWork
                             .Persone
                             .Autentica(
-                                loginModel.Username, 
+                                loginModel.Username,
                                 EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
                             );
                         if (!authResult_NoAD)
@@ -124,7 +123,7 @@ namespace PortaleRegione.BAL
 
                 if (Gruppi_Utente.Count == 0)
                 {
-                    throw new Exception( "Utente non configurato correttamente.");
+                    throw new Exception("Utente non configurato correttamente.");
                 }
 
                 var lRuoli = Gruppi_Utente.Select(@group => $"CONSIGLIO\\{@group}").ToList();
@@ -148,7 +147,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var ruoloInDb = await _unitOfWork.Ruoli.Get((int) ruolo);
+                var ruoloInDb = await _unitOfWork.Ruoli.Get((int)ruolo);
                 if (ruoloInDb == null)
                 {
                     throw new Exception("Ruolo non trovato");
@@ -164,7 +163,7 @@ namespace PortaleRegione.BAL
 
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli);
 
-                var ruoloAccessibile = ruoli_utente.SingleOrDefault(r => r.IDruolo == (int) ruolo);
+                var ruoloAccessibile = ruoli_utente.SingleOrDefault(r => r.IDruolo == (int)ruolo);
                 if (ruoloAccessibile == null)
                 {
                     throw new Exception("Ruolo non accessibile");
@@ -245,7 +244,7 @@ namespace PortaleRegione.BAL
 
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli_Gruppi);
                 personaDto.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
-                personaDto.CurrentRole = (RuoliIntEnum) ruoli_utente.First().IDruolo;
+                personaDto.CurrentRole = (RuoliIntEnum)ruoli_utente.First().IDruolo;
                 personaDto.Gruppo = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                     await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi, personaDto.CurrentRole));
                 personaDto.Carica = await _unitOfWork.Persone.GetCarica(personaDto.UID_persona);
@@ -253,7 +252,7 @@ namespace PortaleRegione.BAL
                 if (personaDto.Gruppo != null)
                 {
                     var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(personaDto.Gruppo.id_gruppo);
-                    if (capogruppo!=null)
+                    if (capogruppo != null)
                         if (capogruppo.id_persona == personaDto.id_persona)
                         {
                             personaDto.IsCapoGruppo = true;

@@ -609,13 +609,12 @@ namespace PortaleRegione.Persistance
             return res;
         }
 
-        public async Task<bool> CheckMOZUrgente(Guid uidSeduta, Guid uidPersona)
+        public async Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, PersonaDto persona)
         {
             var res = true;
-
             var atti_proposti_in_seduta = await PRContext.DASI
-                .Where(i => i.UIDSeduta == uidSeduta
-                            && i.DataIscrizioneSeduta.HasValue
+                .Where(i => (i.UIDSeduta == seduta.UIDSeduta
+                             || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
                             && i.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                 .ToListAsync();
@@ -623,13 +622,25 @@ namespace PortaleRegione.Persistance
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
                 var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto).ToListAsync();
-                if (firmatari.Any(i => i.UID_persona == uidPersona))
+                if (firmatari.Any(i => i.UID_persona == persona.UID_persona))
                 {
                     res = false;
                 }
             }
 
             return res;
+        }
+
+        public async Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto)
+        {
+            var firme = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == uidAtto).ToListAsync();
+            if (!firme.All(i => i.Capogruppo))
+            {
+                return false;
+            }
+
+            var capigruppo = await PRContext.View_CAPIGRUPPO.ToListAsync();
+            return capigruppo.Count == firme.Count;
         }
     }
 }
