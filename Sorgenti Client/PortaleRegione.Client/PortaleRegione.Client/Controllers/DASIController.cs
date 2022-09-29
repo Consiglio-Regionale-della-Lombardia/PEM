@@ -173,7 +173,7 @@ namespace PortaleRegione.Client.Controllers
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                     _CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, _Token);
 
-                if (atto.IDStato <= (int)StatiAttoEnum.PRESENTATO)
+                if (atto.IDStato != (int)StatiAttoEnum.CHIUSO)
                     atto.Destinatari =
                         await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), _Token);
 
