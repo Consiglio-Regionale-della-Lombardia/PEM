@@ -241,6 +241,9 @@
 
 <script>
     $(window).on('load', async function() {
+        $('li[class*="menuTrattazione"]').hide();
+        $('li[class*="menuItem"]').hide();
+
         var url = '@Request.Url';
         if (url.includes("notifiche")) {
             $('.menuItem_Notifiche').addClass("active");
@@ -265,7 +268,7 @@
         var mode = getClientMode();
         if (mode == 2) {
             $('#pnlLogout').hide();
-            $('li[class*="menuItem"]').hide();
+            $('li[class*="menuTrattazione"]').show();
             var data = await GetSeduteAttive();
             var seduteAttive = data.Results;
             var url = '@Html.Raw(Url.Action("Index", "AttiTrattazione"))';
@@ -278,7 +281,7 @@
                         .replace("{URL}", url + "?id=" + item.UIDSeduta));
                 });
         } else {
-            $('li[class*="menuTrattazione"]').hide();
+            $('li[class*="menuItem"]').show();
             $('#pnlLogout').show();
         }
         await LoadCounterNotifiche();
