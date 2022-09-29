@@ -29,11 +29,13 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -2177,5 +2179,25 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
         }
+
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        {
+            try
+            {
+                var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+                var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
+                var attoDto = await GetAttoDto(atto.UIDAtto);
+                var content = PdfStamper.CreaPDFInMemory(body, attoDto, "");
+
+                var res = await ComposeFileResponse(content, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}.pdf");
+                return res;
+            }
+            catch (Exception e)
+            {
+                Log.Error("DownloadPDFIstantaneo", e);
+                throw e;
+            }
+        }
+
     }
 }

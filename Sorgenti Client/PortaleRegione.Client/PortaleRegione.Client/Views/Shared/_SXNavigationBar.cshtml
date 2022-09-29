@@ -98,44 +98,48 @@
                 </div>
                 <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
                     <div class="col s12">
-                        @if (ruoli.Any())
+                        @if (ruoli != null)
                         {
-                            var testo = string.Empty;
-                            var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int) currentRole);
+                            if (ruoli.Any())
+                            {
+                                var testo = string.Empty;
+                                var ruoliDto = ruoli.SingleOrDefault(r => r.IDruolo == (int)currentRole);
 
-                            if (ruoliDto != null)
-                            {
-                                testo = ruoliDto.Ruolo;
-                            }
-                            else
-                            {
-                                testo = "Responsabile Segreteria Politica";
-                            }
+                                if (ruoliDto != null)
+                                {
+                                    testo = ruoliDto.Ruolo;
+                                }
+                                else
+                                {
+                                    testo = "Responsabile Segreteria Politica";
+                                }
 
-                            var triggerClass = "";
-                            var iconClassSwapRuoli = "";
-                            if (ruoli.Count() > 1)
-                            {
-                                //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
-                                triggerClass = "dropdown-trigger";
-                                iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
-                                <ul id='ddlCambioRuolo' class='dropdown-content'>
-                                    @foreach (var ruolo in ruoli)
-                                    {
-                                        if (ruolo.IDruolo != (int) currentRole)
+                                var triggerClass = "";
+                                var iconClassSwapRuoli = "";
+                                if (ruoli.Count() > 1)
+                                {
+                                    //Aggiungo la classe solo se ho un drop down da aprire, altrimenti materialize va in errore
+                                    triggerClass = "dropdown-trigger";
+                                    iconClassSwapRuoli = "<i class='material-icons tiny'>swap_horiz</i>";
+                                    <ul id='ddlCambioRuolo' class='dropdown-content'>
+                                        @foreach (var ruolo in ruoli)
                                         {
-                                            <li>
-                                                <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
-                                            </li>
+                                            if (ruolo.IDruolo != (int)currentRole)
+                                            {
+                                                <li>
+                                                    <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
+                                                </li>
+                                            }
                                         }
-                                    }
-                                </ul>
-                            }
+                                    </ul>
+                                }
 
-                            <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
-                                @testo @Html.Raw(iconClassSwapRuoli)
-                            </a>
+                                <a class='@triggerClass truncate chip black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioRuolo'>
+                                    @testo @Html.Raw(iconClassSwapRuoli)
+                                </a>
+                            }
                         }
+
                     </div>
                     <div class="col s12" style="margin-top: -15px">
                         @{

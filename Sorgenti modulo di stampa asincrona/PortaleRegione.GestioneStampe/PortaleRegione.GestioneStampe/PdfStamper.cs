@@ -102,11 +102,87 @@ namespace PortaleRegione.GestioneStampe
                 //could pass them to another function for further PDF processing.
                 //var testFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.pdf");
                 File.WriteAllBytes(path, bytes);
-
             }
             catch (Exception ex)
             {
                 Log.Error("CreaPDF Error-->", ex);
+                throw ex;
+            }
+        }
+
+        public static byte[] CreaPDFInMemory(string txtHTML, EmendamentiDto em, string urlPEM)
+        {
+            byte[] bytes;
+            try
+            {
+                if (string.IsNullOrEmpty(txtHTML))
+                    throw new Exception("Nessun testo da inserire nel PDF.");
+
+                //Boilerplate iTextSharp setup here
+                //Create a stream that we can write to, in this case a MemoryStream
+                using (var ms = new MemoryStream())
+                {
+                    //Create an iTextSharp Document which is an abstraction of a PDF but **NOT** a PDF
+                    using (var doc = new Document(new Rectangle(600, 800), 20, 20, 20, 60))
+                    {
+                        //Create a writer that's bound to our PDF abstraction and our stream
+                        using (var writer = PdfWriter.GetInstance(doc, ms))
+                        {
+                            var ev = new ITextEvents { EM = em };
+                            writer.PageEvent = ev;
+                            //Open the document for writing
+                            doc.Open();
+
+                            //XMLWorker also reads from a TextReader and not directly from a string
+                            var hDocument = new HtmlDocument
+                            {
+                                OptionWriteEmptyNodes = true,
+                                OptionAutoCloseOnEnd = true
+                            };
+                            hDocument.LoadHtml(txtHTML);
+                            txtHTML = hDocument.DocumentNode.WriteTo();
+
+                            try
+                            {
+                                //Parse the HTML
+                                using (var srHtml = new StringReader(txtHTML))
+                                {
+                                    XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                try
+                                {
+                                    using (var srHtml =
+                                        new StringReader(txtHTML.Replace("<ol", "<div").Replace("</ol>", "</div>")))
+                                    {
+                                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    var linkPemError = urlPEM;
+                                    using (var srHtml_ERR = new StringReader(
+                                        $"<html><body>ATTENZIONE, Si è verificato un problema durante la generazione del pdf di questo EM/SUBEM: {ex2.Message} <br/> L'emendamento/subemendamento è stato comunque correttamente acquisito dal sistema ed è visualizzabile attraverso la piattaforma PEM all'indirizzo <a href='{linkPemError}'>{linkPemError}</a></body></html>")
+                                    )
+                                    {
+                                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml_ERR);
+                                    }
+                                }
+                            }
+
+                            doc.Close();
+                        }
+                    }
+                    bytes = ms.ToArray();
+                }
+
+                return bytes;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CreaPDFInMemory Error-->", ex);
                 throw ex;
             }
         }
@@ -286,6 +362,85 @@ namespace PortaleRegione.GestioneStampe
             catch (Exception ex)
             {
                 Log.Error("CreaPDF DASI Error-->", ex);
+                throw ex;
+            }
+
+        }
+
+        public static byte[] CreaPDFInMemory(string txtHTML, AttoDASIDto atto, string url)
+        {
+            byte[] bytes;
+            try
+            {
+                if (string.IsNullOrEmpty(txtHTML))
+                    throw new Exception("Nessun testo da inserire nel PDF.");
+
+                //Boilerplate iTextSharp setup here
+                //Create a stream that we can write to, in this case a MemoryStream
+                using (var ms = new MemoryStream())
+                {
+                    //Create an iTextSharp Document which is an abstraction of a PDF but **NOT** a PDF
+                    using (var doc = new Document(new Rectangle(600, 800), 20, 20, 20, 60))
+                    {
+                        //Create a writer that's bound to our PDF abstraction and our stream
+                        using (var writer = PdfWriter.GetInstance(doc, ms))
+                        {
+                            var ev = new ITextEvents { Atto = atto };
+                            writer.PageEvent = ev;
+                            //Open the document for writing
+                            doc.Open();
+
+                            //XMLWorker also reads from a TextReader and not directly from a string
+                            var hDocument = new HtmlDocument
+                            {
+                                OptionWriteEmptyNodes = true,
+                                OptionAutoCloseOnEnd = true
+                            };
+                            hDocument.LoadHtml(txtHTML);
+                            txtHTML = hDocument.DocumentNode.WriteTo();
+
+                            try
+                            {
+                                //Parse the HTML
+                                using (var srHtml = new StringReader(txtHTML))
+                                {
+                                    XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                try
+                                {
+                                    using (var srHtml =
+                                        new StringReader(txtHTML.Replace("<ol", "<div").Replace("</ol>", "</div>")))
+                                    {
+                                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    var linkPemError = url;
+                                    using (var srHtml_ERR = new StringReader(
+                                        $"<html><body>ATTENZIONE, Si è verificato un problema durante la generazione del pdf di questo atto: {ex2.Message} <br/> L'atto è stato comunque correttamente acquisito dal sistema ed è visualizzabile attraverso la piattaforma all'indirizzo <a href='{linkPemError}'>{linkPemError}</a></body></html>")
+                                    )
+                                    {
+                                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml_ERR);
+                                    }
+                                }
+                            }
+
+                            doc.Close();
+                        }
+                    }
+
+                    bytes = ms.ToArray();
+                }
+
+                return bytes;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CreaPDFInMemory DASI Error-->", ex);
                 throw ex;
             }
 

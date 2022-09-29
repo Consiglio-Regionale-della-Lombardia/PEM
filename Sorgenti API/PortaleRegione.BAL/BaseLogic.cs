@@ -84,6 +84,21 @@ namespace PortaleRegione.BAL
             return result;
         }
 
+        internal async Task<HttpResponseMessage> ComposeFileResponse(byte[] content, string filename)
+        {
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(content)
+            };
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = filename.Replace(' ', '_').Replace("'", "_")
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+            return result;
+        }
+
         public async Task<HttpResponseMessage> Download(string path)
         {
             var complete_path = Path.Combine(

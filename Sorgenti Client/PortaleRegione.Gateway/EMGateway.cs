@@ -16,10 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
@@ -29,6 +25,10 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
@@ -913,6 +913,29 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public async Task<FileResponse> Download(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/emendamenti/file?id={id}";
+
+                var lst = await GetFile(requestUrl, _token);
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("DownloadEM", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("DownloadEM", ex);
+                throw ex;
+            }
+        }
+
 
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
         {

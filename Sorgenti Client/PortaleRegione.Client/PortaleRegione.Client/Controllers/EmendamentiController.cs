@@ -16,12 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Caching;
-using System.Web.Mvc;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -30,6 +24,12 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Caching;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -501,7 +501,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 Session["RiepilogoEmendamenti"] = null;
-                var mode = (ClientModeEnum) HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
                 var apiGateway = new ApiGateway(_Token);
                 if (model.Lista == null || !model.Lista.Any())
                 {
@@ -1009,6 +1009,29 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(_Token);
             var result = await apiGateway.Emendamento.GetTags();
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        ///     Controller per scaricare il documento pdf dell'emendamento
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file")]
+        public async Task<ActionResult> Download(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.Emendamento.Download(id);
+                return File(file.Content, "application/pdf",
+                    file.FileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
         }
 
         //FILTRI

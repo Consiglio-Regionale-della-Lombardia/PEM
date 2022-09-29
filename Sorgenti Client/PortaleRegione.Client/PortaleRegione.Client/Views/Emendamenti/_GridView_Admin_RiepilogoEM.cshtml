@@ -231,6 +231,9 @@ else
                             </a>
                         }
 
+                        <a class="black-text tooltipped" style="margin: 2px" data-position="left" data-tooltip="Stampa" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })" target="_blank">
+                            <i class="material-icons">print</i>
+                        </a>
                         <a class="blue-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
                             <i class="material-icons">edit</i>
                         </a>

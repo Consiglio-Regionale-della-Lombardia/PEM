@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using iTextSharp.text;
+﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.IO;
 
 namespace PortaleRegione.GestioneStampe.Helpers
 {
@@ -136,9 +136,6 @@ namespace PortaleRegione.GestioneStampe.Helpers
                         case StatiAttoEnum.IN_TRATTAZIONE:
                             text = nameof(StatiAttoEnum.IN_TRATTAZIONE).Replace("_", " ");
                             break;
-                        case StatiAttoEnum.RITIRATO:
-                            text = nameof(StatiAttoEnum.RITIRATO);
-                            break;
                         case StatiAttoEnum.CHIUSO:
                             text = nameof(StatiAttoEnum.CHIUSO);
                             break;
@@ -184,8 +181,6 @@ namespace PortaleRegione.GestioneStampe.Helpers
                         cb.AddTemplate(footerTemplate2, document.PageSize.GetRight(500) + 300, document.PageSize.GetBottom(20));
                     }
                 }
-
-
 
                 cb.MoveTo(40, document.PageSize.GetBottom(50));
                 cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));
