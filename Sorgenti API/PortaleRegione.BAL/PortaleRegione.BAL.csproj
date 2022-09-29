@@ -150,6 +150,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sorgenti modulo di stampa asincrona\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe.csproj">
+      <Project>{5602b3d8-cb8c-434e-89ed-8a290729ef98}</Project>
+      <Name>PortaleRegione.GestioneStampe</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ExpressionBuilder\ExpressionBuilder.csproj">
       <Project>{70BF550D-5943-4162-8FAB-0BBA743A3D93}</Project>
       <Name>ExpressionBuilder</Name>

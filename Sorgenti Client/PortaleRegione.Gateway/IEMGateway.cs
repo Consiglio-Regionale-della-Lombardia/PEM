@@ -71,5 +71,6 @@ namespace PortaleRegione.Gateway
         Task SPOSTA_EM_TRATTAZIONE(Guid id, int pos);
         Task UP_EM_TRATTAZIONE(Guid id);
         Task<List<TagDto>> GetTags();
+        Task<FileResponse> Download(Guid id);
     }
 }

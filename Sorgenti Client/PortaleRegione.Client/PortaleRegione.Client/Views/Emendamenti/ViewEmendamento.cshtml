@@ -207,7 +207,7 @@
                 @* NOTE RISERVATE *@
                 @if (!string.IsNullOrEmpty(Model.NOTE_EM) && 
                      (User.IsInRole(RuoliExt.Amministratore_PEM)
-                    || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
+                      || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
                 {
                     <div class="row">
                         <div class="col s12 red-text">
@@ -238,6 +238,12 @@
         </div>
 
     </div>
+</div>
+
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large white black-text tooltipped" data-position="left" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = Model.UIDEM })">
+        <i class="large material-icons">print</i>
+    </a>
 </div>
 
 @Html.Partial("_InvitoPanel", new InvitoPanelModel

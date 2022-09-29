@@ -30,6 +30,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
@@ -1273,7 +1274,7 @@ namespace PortaleRegione.BAL
 
                     if (!atto.Fascicoli_Da_Aggiornare &&
                         (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
-                        !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
+                         !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
                     {
                         if (!string.IsNullOrEmpty(em.DataDeposito))
                         {
@@ -1697,6 +1698,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
         public async Task<EmendamentoExtraLightDto> GetEM_DTO_Light(Guid uidEM)
         {
             try
@@ -1870,8 +1872,11 @@ namespace PortaleRegione.BAL
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     ViewMode = (ViewModeEnum)Convert.ToInt16(VIEW_MODE),
                     Ordinamento = model.ordine,
-                    ConteggiGruppi = conteggiGruppi.Select(Mapper.Map<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>).ToList(),
-                    ConteggiAreePolitiche = conteggiAreePolitiche.Select(Mapper.Map<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>).ToList(),
+                    ConteggiGruppi = conteggiGruppi
+                        .Select(Mapper.Map<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>)
+                        .ToList(),
+                    ConteggiAreePolitiche = conteggiAreePolitiche
+                        .Select(Mapper.Map<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>).ToList(),
                     CurrentUser = persona
                 };
             }
@@ -2316,6 +2321,25 @@ namespace PortaleRegione.BAL
             return result
                 .Select(Mapper.Map<TAGS, TagDto>)
                 .ToList();
+        }
+
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(EM em, PersonaDto persona)
+        {
+            try
+            {
+                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
+                var emDto = await GetEM_DTO(em);
+                var content = PdfStamper.CreaPDFInMemory(body, emDto, "");
+
+                var res = await ComposeFileResponse(content, $"{emDto.N_EM}.pdf");
+                return res;
+            }
+            catch (Exception e)
+            {
+                Log.Error("DownloadPDFIstantaneo", e);
+                throw e;
+            }
         }
     }
 }
