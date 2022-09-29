@@ -263,19 +263,6 @@
                     </div>
                 </li>
             }
-            @if (attoDasi.CountBarData.ODG > 0 || seduta.DataScadenzaPresentazioneODG.HasValue)
-            {
-                <li>
-                    <div class="collapsible-header">
-                        <i class="material-icons pink-text">textsms</i>
-                        @PortaleRegione.Common.Utility.GetText_Tipo((int) TipoAttoEnum.ODG)
-                        <div class="collapsabile-secondary-header">
-                            <div class="chip">@(attoDasi.CountBarData.ODG) Atti</div>
-                        </div>
-                    </div>
-                </li>
-            }
-
         </ul>
     </div>
     </div>
@@ -292,9 +279,6 @@
     $(document).ready(function() {
         set_Filtri_DASI({});
         set_Filtri_EM({});
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
         setListaAtti([]);
 
         $('#btnSearch').hide();

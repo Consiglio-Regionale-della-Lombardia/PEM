@@ -236,7 +236,7 @@ namespace PortaleRegione.Persistance
                 }
                 else
                 {
-                    query = query.Where(item => item.UIDSeduta == sedutaId);
+                    query = query.Where(item => item.UIDSeduta == sedutaId && item.DataIscrizioneSeduta.HasValue);
                     if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int)stato);
                     if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
                 }
@@ -585,7 +585,7 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .CountAsync(item => !item.Eliminato
                                     && item.UID_Atto_ODG == uidAtto
-                                    && item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+                                    && item.DataIscrizioneSeduta.HasValue);
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
