@@ -858,6 +858,7 @@ namespace PortaleRegione.Client.Controllers
             var result = await apiGateway.DASI.Get(model);
             result.CurrentUser = _CurrentUser;
             result.ClientMode = mode;
+            SetCache(result.Data.Paging.Page, result.Data.Paging.Limit, (int)result.Tipo, (int)result.Stato, Convert.ToInt16(view));
             if (Convert.ToInt16(view) == (int)ViewModeEnum.PREVIEW)
                 foreach (var atti in result.Data.Results)
                 {

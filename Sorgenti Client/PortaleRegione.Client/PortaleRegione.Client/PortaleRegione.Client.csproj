@@ -463,6 +463,9 @@
     <Content Include="Views\Emendamenti\_DataRiepilogoEMPartial.cshtml" />
     <Content Include="Views\Atti\_Testi_Articoli_Commi_Lettere_Partial.cshtml" />
     <Content Include="Views\Atti\_AttoFormScript.cshtml" />
+    <Content Include="Views\Shared\_MenuStandard.cshtml" />
+    <Content Include="Views\Shared\_MenuAdmin.cshtml" />
+    <Content Include="Views\Shared\_MenuCapogruppo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

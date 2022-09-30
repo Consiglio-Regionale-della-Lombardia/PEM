@@ -190,7 +190,7 @@
                 }
 
                 @* INVITI *@
-                @if (!string.IsNullOrEmpty(Model.Destinatari))
+                @if (!string.IsNullOrEmpty(Model.Destinatari) && !User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 {
                     <div class="row">
                         <div class="col s12">

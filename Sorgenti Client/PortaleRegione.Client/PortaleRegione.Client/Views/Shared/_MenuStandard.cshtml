@@ -1,0 +1,18 @@
+﻿<li class="menuItem_Home bold" style="margin-top: -8px">
+    <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
+</li>
+<li class="menuItem_PEM bold">
+    <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
+</li>
+<li class="menuItem_DASI bold">
+    <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
+</li>
+<li class="menuItem_Notifiche bold">
+    <a class="waves-effect" href="@Url.Action("RiepilogoNotifiche", "Notifiche", new { is_inviate = false, archivio = false })">
+        <i class="material-icons">email</i>Notifiche
+        <div id="counterNotifiche" class="chip pink white-text right" style="margin-top: 8px; min-width: unset;"></div>
+    </a>
+</li>
+<li class="menuItem_Stampe bold">
+    <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
+</li>

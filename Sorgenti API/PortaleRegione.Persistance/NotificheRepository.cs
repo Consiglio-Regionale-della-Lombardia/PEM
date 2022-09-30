@@ -91,7 +91,7 @@ namespace PortaleRegione.Persistance
             }
 
             if (persona.IsSegreteriaAssemblea)
-                return true;
+                return false;
 
             if (persona.Gruppo == null) return false;
             if (atto.id_gruppo != persona.Gruppo.id_gruppo) return false;
