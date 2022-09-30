@@ -515,11 +515,11 @@ Il processo di presentazione delle MOZ si concluderà con la firma dell’atto e
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea della tipologia di mozione depositata.
 
-### Ordine Del Giorno (ODG)
-L’ordine del giorno (d’ora in avanti ODG) consiste in un documento motivato sottoscritto da uno o più consiglieri volto a promuovere una deliberazione del Consiglio regionale.
+### Ordine del Giorno (OdG)
+L’ordine del giorno (d’ora in avanti OdG) consiste in un documento motivato sottoscritto da uno o più consiglieri volto a promuovere una deliberazione del Consiglio regionale.
 Gli ordini del giorno sono iscritti per la trattazione in aula collegati a un provvedimento o a un dibattito consiliare. 
 
-Tramite la piattaforma accedendo alla tipologia ODG, il Consigliere proponente dell’ODG compila il format che prevede le seguenti caratteristiche:
+Tramite la piattaforma accedendo alla tipologia OdG, il Consigliere proponente dell’OdG compila il format che prevede le seguenti caratteristiche:
 - Argomento a cui abbinare l’ordine del giorno: può essere un Progetto di legge o un altro tipo di atto
 - Oggetto dell’ordine del griono
 - Premesse
@@ -530,11 +530,11 @@ Tramite la piattaforma accedendo alla tipologia ODG, il Consigliere proponente d
 
 ![PEM_20]
 
-Il processo di presentazione dell’ODG si concluderà con la firma dell’atto e la sua presentazione (deposito).
+Il processo di presentazione dell’OdG si concluderà con la firma dell’atto e la sua presentazione (deposito).
 
-Il sistema permetterà di iscrivere tutti gli ODG depositati, a prescindere dalla data di deposito, alla seduta d’Aula prescelta, selezionandola tra quelle disponibili e preventivamente codificate da parte della segreteria del Servizio Assemblea. Gli ordini del giorno possono essere presentati solo se è presente una seduta aperta (si veda la procedura descritta per le IQT).
+Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dalla data di deposito, alla seduta d’Aula prescelta, selezionandola tra quelle disponibili e preventivamente codificate da parte della segreteria del Servizio Assemblea. Gli ordini del giorno possono essere presentati solo se è presente una seduta aperta (si veda la procedura descritta per le IQT).
 
-Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’ODG.
+Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
 ## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
 Sotto il profilo degli applicativi, nell’iter di ciascun ATTO intervengono principalmente la banca dati GEASI, (banca dati per la Gestione degli atti di sindacato e di indirizzo), dinamicamente correlata alle pagine web del sito istituzionale, e la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Queste integrazioni possono essere disabilitate tramite opportuni parametri di configurazione.
