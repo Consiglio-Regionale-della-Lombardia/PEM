@@ -41,7 +41,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 
 A seguire, verranno illustrate le differenti funzionalità del Portale PEM-DASI a seconda del ruolo dell'utente loggato al sistema.
 
-## Modlulo PEM - Presentazione Emendamenti 
+## Modulo PEM - Presentazione Emendamenti 
 - [Introduzione](#introduzione)
 - [Ruoli degli utenti](#ruoli-degli-utenti)
 - [Servizio Segreteria dell’Assemblea](#servizio-segreteria-dellassemblea)
