@@ -78,9 +78,9 @@ A seguire, verranno illustrate le differenti funzionalità del Portale PEM-DASI 
 Gli utenti del Servizio Segreteria dell’Assemblea si possono collegare al sistema utilizzando le proprie credenziali di rete.
 Tramite il Portale PEM, predispongono le informazioni relative alle sedute consiliari e inseriscono a sistema gli atti emendabili, in base all’OdG della seduta consiliare, indicando la data della seduta e il termine (data e orario) stabilito per la presentazione degli emendamenti. A decorrere da tale orario il sistema “marcherà” gli emendamenti come “pervenuti oltre il termine ordinario”.
 
-![PEM_1](Documentazione/Screenshot/PEM_1.jpg)
+![PEM_1](/Documentazione/Screenshot/PEM_1.jpg)
 
-![PEM_2]
+![PEM_2](/Documentazione/Screenshot/PEM_2.jpg)
 
 Creata la seduta, è possibile inserire i Progetti di Legge, sui quali potranno essere proposti degli emendamenti, indicando le seguenti informazioni: TIPO DI ATTO, NUMERO DI ATTO, OGGETTO, INDICAZIONE DEGLI ARTICOLI CON RELATIVI COMMI e LETTERE, RELATORI e ASSESSORE DI RIFERIMENTO.
 
