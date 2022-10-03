@@ -151,11 +151,11 @@ Grazie alla predisposizione del Progetto di Legge codificato in base alle singol
 
 Cliccando sulla parte da emendare il sistema predisporrà in automatico il format per l’inserimento dell’emendamento:
 
-![PEM_21 Segreteria dei diversi gruppi consiliari](/Documentazione/Screenshot/PEM_21 Segreteria dei diversi gruppi consiliari.jpg)
+![PEM_21_Segreteria_dei_diversi_gruppi_consiliari](/Documentazione/Screenshot/PEM_21_Segreteria_dei_diversi_gruppi_consiliari.jpg)
 
 Dopo aver inserito un emendamento/subemendamento in bozza si ha sempre la possibilità di gestirlo attraverso un’apposita GrigliadiLavoro dedicata al gruppo politico:
 
-![PEM_22 Segreteria dei diversi gruppi consiliari](/Documentazione/Screenshot/PEM_22 Segreteria dei diversi gruppi consiliari.jpg)
+![PEM_22 Segreteria_dei_diversi_gruppi_consiliari](/Documentazione/Screenshot/PEM_22_Segreteria_dei_diversi_gruppi_consiliari.jpg)
 
 Attraverso questa griglia, gli utenti della segreteria dei diversi gruppi consiliari possono visualizzare tutti gli EM/SUBEM depositati da parte del proprio gruppo politico e modificare gli EM/SUBEM ancora in “stato di bozza” e non firmati.
 Hanno facoltà di “alertare”, tramite messaggio email preconfigurato e contenente il link diretto a uno specifico EM/SUBEM, un consigliere appartenente al proprio gruppo alla firma di un EM/SUBEM in bozza e che deve essere depositato.
@@ -183,7 +183,7 @@ NOTA: il deposito di un EM/SUBEM può essere effettuato direttamente dal consigl
 Il responsabile di segreteria può visualizzare gli EM/SUBEM depositati relativi al proprio gruppo ma anche quelli presentati con consiglieri di altro gruppo, previo invito.
 Per questo può accedere all’AREA INVITI contenente l’elenco dei EM/SUBEM per i quali un consigliere del proprio gruppo politico ha ricevuto o effettuato un invito a firmare.
 
-![PEM_24 Responsabile di segreteria dei diversi gruppi consiliari](/Documentazione/Screenshot/PEM_24 Responsabile di segreteria dei diversi gruppi consiliari.jpg)
+![PEM_24_Responsabile_di_segreteria_dei_diversi_gruppi_consiliari](/Documentazione/Screenshot/PEM_24_Responsabile_di_segreteria_dei_diversi_gruppi_consiliari.jpg)
 
 Come la sua segreteria, il responsabile ha a disposizione un set di report che gli permettono di visualizzare/esportare l’elenco (in vari formati) e gli emendamenti depositati in base al PDL di riferimento, alla seduta, allo stato (approvato/respinto/ritirato), al firmatario (primo/successivo), all’articolo, ecc…
 
