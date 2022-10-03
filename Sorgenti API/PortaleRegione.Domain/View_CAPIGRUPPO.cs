@@ -31,32 +31,10 @@ namespace PortaleRegione.Domain
 
         [StringLength(50)] public string nome { get; set; }
 
-        [StringLength(250)] public string email { get; set; }
-
         [StringLength(255)] public string foto { get; set; }
-
-        [StringLength(50)] public string userAD { get; set; }
-
-        [StringLength(1000)] public string legislature { get; set; }
-
-        public bool? legislatura_attuale { get; set; }
 
         [StringLength(255)] public string GruppoPolitico_attuale { get; set; }
 
         public int? id_gruppo_politico_rif { get; set; }
-
-        public bool? notifica_firma { get; set; }
-
-        public bool? notifica_deposito { get; set; }
-
-        public int No_Cons { get; set; }
-
-        public bool? attivo { get; set; }
-
-        public bool? deleted { get; set; }
-
-        public string pass_locale_crypt { get; set; }
-
-        public string gruppi_autorizzazione { get; set; }
     }
 }

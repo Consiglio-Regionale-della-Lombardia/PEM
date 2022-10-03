@@ -692,10 +692,10 @@ namespace PortaleRegione.API.Controllers
                     var atto = await GetAttoDto(idGuid, persona, personeInDbLight);
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
 
-                    if (atto.IDStato >= (int)StatiAttoEnum.IN_TRATTAZIONE)
+                    if (!atto.Firmabile)
                     {
                         results.Add(idGuid,
-                            $"ERROR: Atto {nome_atto} si trova nello stato: [{Utility.GetText_StatoDASI(atto.IDStato)}] e non è più sottoscrivibile");
+                            $"ERROR: Atto {nome_atto} non è più sottoscrivibile");
                         continue;
                     }
 
@@ -836,15 +836,10 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    var dto = await GetAttoDto(idGuid);
-                    var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
-                    SEDUTE seduta = null;
-                    if (atto.UIDSeduta.HasValue)
+                    if (atto.DataIscrizioneSeduta.HasValue)
                     {
-                        seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
-                        if (DateTime.Now > seduta.Data_seduta)
-                            throw new InvalidOperationException(
-                                "Non è possibile ritirare la firma durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
+                        throw new InvalidOperationException(
+                            "Non è possibile ritirare la firma durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
                     }
 
                     var richiestaPresente =
@@ -852,6 +847,15 @@ namespace PortaleRegione.API.Controllers
                     if (richiestaPresente)
                         throw new InvalidOperationException(
                             "Richiesta di ritiro già inviata al proponente.");
+
+                    var dto = await GetAttoDto(idGuid);
+                    var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
+
+                    SEDUTE seduta = null;
+                    if (atto.DataIscrizioneSeduta.HasValue)
+                    {
+                        seduta = await _unitOfWork.Sedute.Get(atto.DataIscrizioneSeduta.Value);
+                    }
 
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
@@ -1220,7 +1224,8 @@ namespace PortaleRegione.API.Controllers
                 || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
             {
                 var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
-                var firmatari_di_altri_gruppi = firmatari.Any(i => i.id_gruppo != atto.id_gruppo);
+                var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
+                var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
                 var minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriIQT;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
@@ -1253,7 +1258,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
-                    foreach (var firma in firmatari)
+                    foreach (var firma in firme)
                     {
                         var firmatario_indagato =
                             $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
@@ -1261,7 +1266,8 @@ namespace PortaleRegione.API.Controllers
                         foreach (var moz in moz_in_seduta)
                         {
                             var firmatari_moz = await _unitOfWork.Atti_Firme.GetFirmatari(moz.UIDAtto);
-                            if (firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            var _firmatari_moz = firmatari_moz.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
+                            if (_firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
                             var mozDto = await GetAttoDto(moz.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
@@ -1343,6 +1349,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (atto.DataIscrizioneSeduta.HasValue)
+                {
+                    throw new InvalidOperationException(
+                        "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
+                }
+
                 atto.Eliminato = true;
                 atto.DataElimina = DateTime.Now;
                 atto.UIDPersonaElimina = sessionCurrentUId;
@@ -1360,6 +1372,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (atto.DataIscrizioneSeduta.HasValue)
+                {
+                    throw new InvalidOperationException(
+                        "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
+                }
+
                 atto.IDStato = (int)StatiAttoEnum.CHIUSO;
                 atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
                 atto.UIDPersonaRitiro = persona.UID_persona;
@@ -1680,7 +1698,7 @@ namespace PortaleRegione.API.Controllers
                     if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     {
                         var checkIscrizioneSeduta =
-                            await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta, persona.UID_persona);
+                            await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta, atto.UIDPersonaProponente.Value);
                         if (!checkIscrizioneSeduta)
                         {
                             throw new Exception(
@@ -1785,31 +1803,35 @@ namespace PortaleRegione.API.Controllers
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
 
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
-                var seduta_attiva = sedute_attive.OrderBy(s => s.Data_seduta).First();
+                if (atto.DataIscrizioneSeduta.HasValue)
+                {
+                    throw new InvalidOperationException(
+                        "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
+                }
+
+                var seduta = await _logicSedute.GetSeduta(model.DataRichiesta);
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
-
-                attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
+                attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                 var checkIfFirmatoDaiCapigruppo = await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(attoInDb.UIDAtto);
                 if (!checkIfFirmatoDaiCapigruppo)
                 {
-                    var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta_attiva,
-                        attoInDb.DataRichiestaIscrizioneSeduta, persona);
+                    var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta,
+                        attoInDb.DataRichiestaIscrizioneSeduta, attoInDb.UIDPersonaProponente.Value);
                     if (!checkMozUrgente)
                     {
                         throw new Exception(
-                            $"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta_attiva.Data_seduta:dd/MM/yyyy}.");
+                            $"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta.Data_seduta:dd/MM/yyyy}.");
                     }
                 }
 
                 var count_firme = atto.ConteggioFirme;
                 var controllo_firme =
-                    await ControlloFirmePresentazione(atto, count_firme, seduta_attiva,
+                    await ControlloFirmePresentazione(atto, count_firme, seduta,
                         "Non è possibile proporre l'urgenza");
                 if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
 
@@ -1831,6 +1853,12 @@ namespace PortaleRegione.API.Controllers
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
+
+                if (atto.DataIscrizioneSeduta.HasValue)
+                {
+                    throw new InvalidOperationException(
+                        "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
+                }
 
                 //1 sola mozione per gruppo politico
 

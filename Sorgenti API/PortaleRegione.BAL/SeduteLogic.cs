@@ -80,6 +80,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
         public async Task<SEDUTE> GetSeduta(DateTime dataSeduta)
         {
             try
@@ -137,6 +138,11 @@ namespace PortaleRegione.BAL
             {
                 var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
                 Mapper.Map(sedutaDto, sedutaInDb);
+                if (sedutaDto.Data_effettiva_inizio == null)
+                {
+                    sedutaInDb.Data_effettiva_inizio = null;
+                }
+
                 if (sedutaDto.Data_effettiva_fine == null)
                 {
                     sedutaInDb.Data_effettiva_fine = null;

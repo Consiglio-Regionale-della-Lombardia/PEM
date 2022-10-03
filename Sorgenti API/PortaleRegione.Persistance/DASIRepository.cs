@@ -568,7 +568,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.UIDSeduta == uidSeduta
-                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                                                     && atto.DataIscrizioneSeduta.HasValue
                                                      && atto.Tipo == (int)tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
@@ -609,11 +609,12 @@ namespace PortaleRegione.Persistance
             return res;
         }
 
-        public async Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, PersonaDto persona)
+        public async Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID)
         {
             var res = true;
             var atti_proposti_in_seduta = await PRContext.DASI
-                .Where(i => (i.UIDSeduta == seduta.UIDSeduta
+                .Where(i => !i.Eliminato
+                            && (i.UIDSeduta == seduta.UIDSeduta
                              || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
                             && i.TipoMOZ == (int)TipoMOZEnum.URGENTE)
@@ -621,10 +622,11 @@ namespace PortaleRegione.Persistance
 
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
-                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto).ToListAsync();
-                if (firmatari.Any(i => i.UID_persona == persona.UID_persona))
+                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma)).ToListAsync();
+                if (firmatari.Any(i => i.UID_persona == personaUID))
                 {
                     res = false;
+                    break;
                 }
             }
 
@@ -633,7 +635,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto)
         {
-            var firme = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == uidAtto).ToListAsync();
+            var firme = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == uidAtto && string.IsNullOrEmpty(i.Data_ritirofirma)).ToListAsync();
             if (!firme.All(i => i.Capogruppo))
             {
                 return false;

@@ -59,7 +59,7 @@ namespace PortaleRegione.Contracts
         Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
         Task<int> CountODGByAttoPEM(Guid appoggioUidAtto);
         Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona);
-        Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, PersonaDto persona);
+        Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);
         Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto);
     }
 }
