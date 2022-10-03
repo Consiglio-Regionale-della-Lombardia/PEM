@@ -21,7 +21,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 ### Note sul copyright
 - Copyright: Consiglio regionale della Lombardia
 - Stato del progetto: Beta
-- Mantenimento in carico 2C Solution Srl a socio unico - https://www.namirial.it/
+- Mantenimento in carico Namirial S.p.A. a socio unico - https://www.namirial.it/
 - Per segnalare CVE e problemi di sicurezza scrivere a opensource@2Csolution.it
  
 # Contenuti
