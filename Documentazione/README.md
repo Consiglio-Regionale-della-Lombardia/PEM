@@ -84,19 +84,19 @@ Tramite il Portale PEM, predispongono le informazioni relative alle sedute consi
 
 Creata la seduta, è possibile inserire i Progetti di Legge, sui quali potranno essere proposti degli emendamenti, indicando le seguenti informazioni: TIPO DI ATTO, NUMERO DI ATTO, OGGETTO, INDICAZIONE DEGLI ARTICOLI CON RELATIVI COMMI e LETTERE, RELATORI e ASSESSORE DI RIFERIMENTO.
 
-![PEM_3]
+![PEM_3](/Documentazione/Screenshot/PEM_3.jpg)
 
 All’atto di inserimento del PDL per ogni parte emendabile codificata a sistema (articolo, comma, lettera) si potrà aggiungere il relativo testo e l’eventuale rubrica. L’inserimento è facilitato da una griglia che compone in maniera “visuale” il testo del progetto di legge man mano che vengono inserite le informazioni. 
 
-![PEM_4]
+![PEM_4](/Documentazione/Screenshot/PEM_4.jpg)
 
 Cliccando sull’ articolo/comma/lettera si aprirà una tendina editabile all’interno della quale sarà possibile inserire il testo. 
 
-![PEM_5]
+![PEM_5](/Documentazione/Screenshot/PEM_5.jpg)
 
 Terminata la predisposizione della seduta potranno visualizzare in un’apposita GrigliadiLavoro gli EM/SUBEM man mano depositati, raggruppati per atto (datati e numerati automaticamente dal sistema) e ordinati a partire dagli ultimi EM/SUBEM depositati.
 
-![PEM_6]
+![PEM_6](/Documentazione/Screenshot/PEM_6.jpg)
 
 Scaduto il termine di presentazione, rendono pubblico l’elenco degli EM/SUBEM in ordine cronologico.
 
@@ -131,7 +131,7 @@ A votazione avvenuta, dispongono la “chiusura” dei PDL trattati per bloccare
 
 Dopo aver correttamente classificato gli emendamenti/subemendamenti in base all’esito della votazione in Aula (approvati, respinti, decaduti, ecc) possono visualizzare gli EM/SUBEM approvati posizionati direttamente sul “PDL strutturato in parti” (articoli, commi, lettere, ecc). Gli EM/SUBEM verranno posizionati in corrispondenza della parte che modificano, visualizzando un badge con foto del proponente, nominativo e numero di EM/SUBEM. Cliccando sul badge si potrà visualizzare il testo dell’EM.
 
-![PEM_7]
+![PEM_7](/Documentazione/Screenshot/PEM_7.jpg)
 
 Gli utenti del Servizio Segreteria dell’Assemblea hanno anche a disposizione un set di report che permettono di visualizzare/esportare l’elenco (in vari formati) e gli emendamenti depositati in base al pdl di riferimento, alla seduta, allo stato (approvato/respinto/ritirato), al firmatario (primo/successivo), all’articolo, ecc…
 
@@ -147,7 +147,7 @@ Inseriscono gli EM/SUBEM in bozza e li visualizzano in un’apposita GrigliadiLa
 
 Grazie alla predisposizione del Progetto di Legge codificato in base alle singole parti con i relativi testi (Articolo, Comma, Lettera) la piattaforma permette di creare emendamenti posizionandosi con il mouse direttamente sulla parte del PDL visualizzato “in anteprima” a video. Questo processo visuale e assistito consente di ridurre al minimo gli errori sulle parti del PDL che si intende emendare nonché evitare l’utilizzo di versioni errate (modificate) del PDL e il possibile inserimento di emendamenti duplicati.
  
-![PEM_8]
+![PEM_8](/Documentazione/Screenshot/PEM_8.jpg)
 
 Cliccando sulla parte da emendare il sistema predisporrà in automatico il format per l’inserimento dell’emendamento:
 
@@ -202,13 +202,13 @@ Il consigliere regionale firma, utilizzando il proprio “PIN dispositivo”, i 
 - testo dell’EM/SUBEM;
 - indicazione se l’EM/SUBEM ha effetti finanziari.
 
-![PEM_9]
+![PEM_9](/Documentazione/Screenshot/PEM_9.jpg)
 
 Dopo la prima firma, il testo dell’EM/SUBEM viene crittografato e non può più essere modificato.
 
 Il consigliere regionale può firmare, fino alla votazione, un EM/SUBEM afferente al proprio gruppo politico o per il quale ha ricevuto un “invito” da parte del primo firmatario dell’atto (quindi prima del deposito, previo invito, anche se l’EM/SUBEM è di un altro gruppo politico). La firma apposta successivamente al deposito è riconoscibile, visualizzata diversamente, rispetto alle firme effettuate prima del deposito.
 
-![PEM_10]
+![PEM_10](/Documentazione/Screenshot/PEM_10.jpg)
 
 Il consigliere regionale può anche rimuovere la propria firma da un EM/SUBEM rispettando i seguenti vincoli:
 
@@ -333,7 +333,7 @@ Possono gestire completamente gli utenti del sistema, che possono accedere al mo
 
 Gestiscono tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
 
-![PEM_11]
+![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
 ## Allegati
 
@@ -401,7 +401,7 @@ Una volta fatto il login si verrà reindirizzati nella schermata principale del 
 Per la redazione delle varie tipologie di ATTI è necessario entrare nel Modulo DASI. 
 Apparirà la schermata riepilogativa degli ATTI. Mediante il pulsante + in basso a destra apparirà un menù a scomparsa che permetterà di selezionare il tipo di atto che si vuole redigere. 
 
-![PEM_12]
+![PEM_12](/Documentazione/Screenshot/PEM_12.jpg)
 
 ### Interrogazione (ITR)
 I consiglieri regionali presentano le Interrogazioni (d’ora in avanti ITR) al Presidente del Consiglio regionale per il tramite del Servizio Segreteria dell’Assemblea. Non vi sono vincoli temporali per la loro presentazione.
@@ -417,7 +417,7 @@ Mediante una GrigliadiLavoro, riservata a ogni gruppo politico, i consiglieri e 
 - Firma: il Consigliere proponente firma l’interrogazione con le proprie credenziali e PIN ed è identificato come “primo firmatario” dal sistema 
 - Allegati: è possibile allegare all’interrogazione anche la documentazione che si ritiene opportuna 
 
-![PEM_13]
+![PEM_13](/Documentazione/Screenshot/PEM_13.jpg)
 
 Al termine della compilazione di tutti i campi l’Interrogazione è salvata a sistema come bozza e rinominata come ITR TEMP e a seguire un numero progressivo datole dal sistema. 
 Il consigliere può scegliere di firmare, modificare o eliminare la ITR in bozza. Dopo la firma può invitare altri consiglieri, del proprio gruppo o di altri gruppi, a sottoscrivere l’ITR e infine depositarla, sempre utilizzando il proprio PIN dispositivo.
@@ -439,7 +439,7 @@ Seguendo quanto sopra descritto per la presentazione delle ITR, il consigliere p
 - Firma: Le modalità e il numero delle firme necessari per la presentazione delle diverse tipologie di ATTI sono attualmente impostate sulla base del regolamento generale del consiglio regionale della Lombardia. Tuttavia, il sistema permette di definire, attraverso opportuni parametri di configurazione, le regole da applicare a ciascuna tipologia di ATTO.
 - Allegati: è possibile allegare all’interrogazione anche la documentazione che si ritiene opportuna
 
-![PEM_14]
+![PEM_14](/Documentazione/Screenshot/PEM_14.jpg)
 
 Come le ITR, anche la IQT, una volta redatta, è salvata a sistema come bozza e rinominata come IQT TEMP e a seguire un numero progressivo datole dal sistema.
 
@@ -448,11 +448,11 @@ Le IQT vengono presentate unicamente per la trattazione in una seduta. La presen
 Le IQT, predisposte in bozza, possono essere depositate solo se è presente a sistema una seduta d’Aula in cui è prevista la trattazione degli ATTI (una spunta selezionabile dalla segreteria del Servizio Assemblea indicherà questa possibilità).
 L’iscrizione dell’atto a una seduta prevede solo il collegamento dell’atto ad una seduta specifica ma non dovrà comportare il cambio di stato dell’atto che rimarrà “depositato”.
 
-![PEM_15]
+![PEM_15](/Documentazione/Screenshot/PEM_15.jpg)
 
 Il consigliere proponente la IQT cliccherà sul pulsante a forma di ingranaggio e apparirà la dicitura “proponi iscrizione”. Selezionandola, apparirà una finestra dove verrà proposta dal sistema la seduta d’Aula codificata a sistema dal personale della Segreteria dell’Assemblea consiliare.
 
-![PEM_16]
+![PEM_16](/Documentazione/Screenshot/PEM_16.jpg)
 
 Dopo aver selezionato la seduta in cui trattare l’atto, si potrà procedere al deposito. Al momento del deposito, il sistema effettuerà il conteggio delle firme secondo le regole previste dal Consiglio regionale della Lombardia e nel caso tali regole non siano state rispettate, avvisa il consigliere e non procede all’operazione di deposito.
 
@@ -472,11 +472,11 @@ Le interpellanze si distinguono in base alla tipologia di risposta richiesta:
 
 Il tipo di risposta condiziona la procedura e la numerazione (in Consiglio regionale le ITL seguono una particolare codifica a seconda del tipo di risposta richiesto).
 
-![PEM_17]
+![PEM_17](/Documentazione/Screenshot/PEM_17.jpg)
 
 Per la risposta in commissione il proponente deve indicare anche la commissione (permanente o speciale) a cui indirizzare il quesito. ll format di inserimento prevede l’elenco delle commissioni tra cui scegliere. 
 
-![PEM_18]
+![PEM_18](/Documentazione/Screenshot/PEM_18.jpg)
 
 Il consigliere presentatore della ITL accederà alla sua area riservata, dove avrà a disposizione l’elenco delle ITL inserite a sistema e riferite al proprio gruppo, e con modalità del tutto simili a quelle descritte per gli altri Atti, compilerà il format per l’inserimento delle ITL con i seguenti campi obbligatori:
 -	Tipo di risposta richiesta: L’indicazione del tipo di risposta è un campo obbligatorio 
@@ -509,7 +509,7 @@ Il consigliere presentatore della MOZ accederà alla sua area riservata e potrà
   - La mozione di censura nei confronti di un assessore deve essere presentata da almeno un quinto dei componenti del Consiglio regionale). 
   - Le mozioni abbinate (mozione abbinata ad altra mozione presentata) possono essere richieste dal presidente del gruppo con il limite massimo di una mozione abbinata per gruppo politico, nella medesima seduta.
 
-![PEM_19]
+![PEM_19](/Documentazione/Screenshot/PEM_19.jpg)
 
 Il processo di presentazione delle MOZ si concluderà con la firma dell’atto e la sua presentazione (come descritto per i precedenti ATTI).
 
@@ -528,7 +528,7 @@ Tramite la piattaforma accedendo alla tipologia OdG, il Consigliere proponente d
 - Tipo ordine del giorno: indicazione se l’ODG è di “non passaggio all’esame degli articoli”
 - Firma dell’ordine del giorno: il consigliere proponente firma l’atto e viene identificato come primo firmatario. Altri consiglieri possono firmare come pure possono essere invitati consiglieri di gruppi differenti a firmare l’atto
 
-![PEM_20]
+![PEM_20](/Documentazione/Screenshot/PEM_20.jpg)
 
 Il processo di presentazione dell’OdG si concluderà con la firma dell’atto e la sua presentazione (deposito).
 
