@@ -407,6 +407,10 @@ namespace PortaleRegione.API.Controllers
 
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
+                    dto.DataPresentazione_MOZ_URGENTE = Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
+                    dto.DataPresentazione_MOZ_ABBINATA = Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
                 if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
                 {
                     dto.DataRichiestaIscrizioneSeduta = Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
@@ -1813,6 +1817,8 @@ namespace PortaleRegione.API.Controllers
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
+                attoInDb.DataPresentazione_MOZ_URGENTE = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                    AppSettingsConfiguration.masterKey);
                 attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
@@ -1860,10 +1866,12 @@ namespace PortaleRegione.API.Controllers
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
                 }
 
-                //1 sola mozione per gruppo politico
+                //TODO: 1 sola mozione per gruppo politico e seduta in cui è iscritta alla mozione
 
                 atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;
+                atto.DataPresentazione_MOZ_ABBINATA = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                    AppSettingsConfiguration.masterKey);
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -2162,12 +2170,14 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
+                                    data_presentazione = Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE);
                                     if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
 
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
+                                    data_presentazione = Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA);
                                     if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
 
                                     break;

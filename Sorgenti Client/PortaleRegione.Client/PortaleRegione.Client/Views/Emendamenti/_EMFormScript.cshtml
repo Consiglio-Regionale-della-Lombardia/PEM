@@ -124,6 +124,8 @@
                 else if ($('#chkProponentiAssessori').is(":checked")) {
                     proponente = $('#selectProponentiAssessori').val();
                     $('#Emendamento_id_gruppo').val(10000);
+                } else {
+                    proponente = $('#Emendamento_UIDPersonaProponente').val();
                 }
             }
 

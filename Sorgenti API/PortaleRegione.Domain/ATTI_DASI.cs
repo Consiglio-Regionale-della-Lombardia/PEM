@@ -54,6 +54,8 @@ namespace PortaleRegione.Domain
         public DateTime? DataModifica { get; set; }
         public Guid? UIDPersonaModifica { get; set; }
         public string DataPresentazione { get; set; }
+        public string DataPresentazione_MOZ_URGENTE { get; set; }
+        public string DataPresentazione_MOZ_ABBINATA { get; set; }
         public string DataRichiestaIscrizioneSeduta { get; set; }
         public Guid? UIDPersonaProponente { get; set; }
         public Guid? UIDPersonaPrimaFirma { get; set; }

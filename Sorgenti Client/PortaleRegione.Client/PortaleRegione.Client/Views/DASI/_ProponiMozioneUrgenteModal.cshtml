@@ -1,35 +1,81 @@
-﻿<script>
+﻿<!-- Modal Structure -->
+<div id="modalMozioneUrgente" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="txtMozioneUrgente"></h4>
+        <ul class="collection with-header" id="lstSeduteAttiveMU">
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnMozioneUrgente_Salva">Proponi Urgenza</a>
+    </div>
+</div>
+
+<script>
     function ProponiUrgenzaDASI(uidAtto, nomeAtto) {
-        waiting(true);
-        var listaAtti = [];
-        var obj = {};
+        $('#modalMozioneUrgente>div>ul').empty();
+        var checked = sedute.length == 1;
+        $.each(sedute,
+            function (i, item) {
+                var resultDate = GetFormattedDate(item.Data_seduta);
+                var text = "Seduta del " + resultDate;
+                $('#modalMozioneUrgente>div>ul').append(templateSeduteAttive
+                    .replace("{TEXT}", text)
+                    .replace("{VALUE}", resultDate)
+                    .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+            });
+        $('#txtMozioneUrgente').html("Proponi urgenza <b>" + nomeAtto + "</b> in data:");
+        $("#btnMozioneUrgente_Salva").on("click",
+            function() {
+                
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    swal({
+                        title: "Attenzione",
+                        text: "Seleziona una seduta disponibile",
+                        icon: "warning"
+                    }).then(function() {
+                        $("#modalMozioneUrgente").modal("open");
+                    }); 
+                    
+                    return;
+                }
 
-        listaAtti.push(uidAtto);
-        obj.Lista = listaAtti;
+                waiting(true);
+                var listaAtti = [];
+                var obj = {};
 
-        $.ajax({
-            url: '@Url.Action("ProponiUrgenzaMozione")',
-            method: "POST",
-            data: JSON.stringify(obj),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
-        }).done(function(data) {
-            console.log(data.message);
-            if (data.message) {
-                waiting(false);
-                swal({
-                    title: "Esito salvataggio",
-                    text: data.message,
-                    icon: "error",
-                    button: "OK"
+                listaAtti.push(uidAtto);
+
+                var sedutaSelezionata = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                obj.DataRichiesta = sedutaSelezionata;
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("ProponiUrgenzaMozione")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    waiting(false);
+                    $("#modalMozioneUrgente").modal("close");
+                    $("#btnMozioneUrgente_Salva").off("click");
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    waiting(false);
+                    $("#modalMozioneUrgente").modal("close");
+                    Error(err);
                 });
-            } else {
-                go(data);
-            }
-        }).fail(function(err) {
-            console.log("error", err);
-            waiting(false);
-            Error(err);
-        });
+
+            });
+        $('#modalMozioneUrgente').modal("open");
     }
 </script>

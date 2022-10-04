@@ -839,7 +839,8 @@ namespace PortaleRegione.Client.Controllers
         {
             Session["RiepilogoDASI"] = null;
             int.TryParse(Request.Form["reset"], out var reset_enabled);
-            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
             var view = Request.Form["view"];
 
             if (reset_enabled == 1)
@@ -877,7 +878,8 @@ namespace PortaleRegione.Client.Controllers
 
         private async Task<BaseRequest<AttoDASIDto>> ElaboraFiltri()
         {
-            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
             int.TryParse(Request.Form["page"], out var filtro_page);
             int.TryParse(Request.Form["size"], out var filtro_size);
             var view = Request.Form["view"];

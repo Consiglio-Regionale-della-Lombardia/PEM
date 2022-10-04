@@ -466,6 +466,7 @@
     <Content Include="Views\Shared\_MenuStandard.cshtml" />
     <Content Include="Views\Shared\_MenuAdmin.cshtml" />
     <Content Include="Views\Shared\_MenuCapogruppo.cshtml" />
+    <Content Include="Views\Shared\_MenuTrattazione.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -62,6 +62,10 @@ namespace PortaleRegione.DTO.Domain
         public Guid? UIDPersonaModifica { get; set; }
 
         public DateTime? DataModifica { get; set; }
+
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
+
+        public bool Riservato_DASI { get; set; }
     }
 
     public class SeduteFormUpdateDto
@@ -93,5 +97,9 @@ namespace PortaleRegione.DTO.Domain
 
         [AllowHtml]
         public string Intervalli { get; set; }
+
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
+
+        public bool Riservato_DASI { get; set; }
     }
 }

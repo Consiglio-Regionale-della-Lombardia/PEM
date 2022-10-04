@@ -341,9 +341,8 @@ function go(link, switchMode) {
     document.location = link;
 }
 
-async function AbilitaTrattazione() {
-    var mode = getClientMode();
-    if (mode == 1) {
+async function AbilitaTrattazione(mode) {
+    if (mode == 2) {
         setClientMode(2);
         var data = await GetSeduteAttive();
         var seduta = data.Results[0];

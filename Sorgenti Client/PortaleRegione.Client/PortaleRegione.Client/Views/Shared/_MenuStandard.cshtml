@@ -1,4 +1,5 @@
-﻿<li class="menuItem_Home bold" style="margin-top: -8px">
+﻿@using PortaleRegione.DTO.Enum
+<li class="menuItem_Home bold" style="margin-top: -8px">
     <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="material-icons">home</i>Home</a>
 </li>
 <li class="menuItem_PEM bold">
@@ -15,4 +16,7 @@
 </li>
 <li class="menuItem_Stampe bold">
     <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
+</li>
+<li class="menuItem_Trattazione bold">
+    <a class="waves-effect blue-text" href="#!" onclick="AbilitaTrattazione(@Html.Raw((int)ClientModeEnum.TRATTAZIONE))"><i class="material-icons blue-text">settings_input_antenna</i>Entra in Aula</a>
 </li>
