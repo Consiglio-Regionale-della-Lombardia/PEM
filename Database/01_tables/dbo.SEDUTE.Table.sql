@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 29/09/2022 01:39:38 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 04/10/2022 12:02:16 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -28,6 +28,7 @@ CREATE TABLE [dbo].[SEDUTE](
 	[UIDPersonaModifica] [uniqueidentifier] NULL,
 	[DataModifica] [datetime] NULL,
 	[Eliminato] [bit] NULL,
+	[Riservato_DASI] [bit] NOT NULL,
  CONSTRAINT [PK_SEDUTE] PRIMARY KEY CLUSTERED 
 (
 	[UIDSeduta] ASC
@@ -39,5 +40,8 @@ ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_UIDSeduta]  DEFAULT (newse
 GO
 
 ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_IDOrgano]  DEFAULT ((1)) FOR [IDOrgano]
+GO
+
+ALTER TABLE [dbo].[SEDUTE] ADD  CONSTRAINT [DF_SEDUTE_Riservato_DASI]  DEFAULT ((0)) FOR [Riservato_DASI]
 GO
 
