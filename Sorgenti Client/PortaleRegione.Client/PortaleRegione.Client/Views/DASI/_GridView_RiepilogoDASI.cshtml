@@ -82,7 +82,7 @@ else
                 }
             </div>
 
-            <div class="col s3 valign-wrapper">
+            <div class="col s2 valign-wrapper">
                 @{
                     var tooltipStato = "Non ancora depositato";
                     if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
@@ -97,8 +97,26 @@ else
                     </span>
                 }
             </div>
-            <div class="col s3 right-align" style="margin-top: 15px">
-                @Html.Raw(proponente)
+            <div class="col s4 valign-wrapper">
+                @if (!item.Firmato_Dal_Proponente)
+                {
+                    <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
+                        @Html.Raw(proponente)
+                    </span>
+                }
+                else
+                {
+                    <b>
+                        @Html.Raw(proponente)
+                    </b>
+                }
+
+                @if (item.ConteggioFirme > 1)
+                {
+                    <a class='chip tooltipped blue white-text' data-tooltip='@item.Firme' style="min-width: unset; margin-left: 10px;">
+                        + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset; margin-right: -5px;">group</i>
+                    </a>
+                }
             </div>
 
             @*COMANDI*@
@@ -145,9 +163,12 @@ else
                 </div>
                 <div class="col s6 right-align">
                     @{
-                        if (item.Tipo != (int)TipoAttoEnum.ITL
+                        if (!item.DataIscrizioneSeduta.HasValue
+                            && item.Tipo != (int)TipoAttoEnum.ITL
                             && item.Tipo != (int)TipoAttoEnum.ITR
                             && item.Tipo != (int)TipoAttoEnum.ODG
+                            && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
+                            && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
                             && Model.CurrentUser.IsCapoGruppo || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente))
                         {
                             <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
@@ -256,29 +277,6 @@ else
                         else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
                         {
                         }
-                    }
-                </div>
-                <div class="col s12 right-align">
-
-                    @if (!item.Firmato_Dal_Proponente)
-                    {
-                        <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
-                            @Html.Raw(proponente)
-                        </span>
-                    }
-                    else
-                    {
-                        <b>
-                            @Html.Raw(proponente)
-                        </b>
-                    }
-
-                    @if (item.ConteggioFirme > 1)
-                    {
-                        <br/>
-                        <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
-                            + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
-                        </a>
                     }
                 </div>
             </div>

@@ -21,11 +21,8 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Generics;
 using SeduteDto = PortaleRegione.DTO.Domain.SeduteDto;
 
 namespace PortaleRegione.Gateway
@@ -155,7 +152,28 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        
+        public async Task<BaseResponse<SeduteDto>> GetAttiveDashboard()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/sedute/attive-dashboard";
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAttiveDashboard", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttiveDashboard", ex);
+                throw ex;
+            }
+        }
+
 
         public async Task Modifica(SeduteFormUpdateDto seduta)
         {

@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.Gateway;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -39,7 +39,7 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(_Token);
                 var model = new DashboardModel
                 {
-                    Sedute = await apiGateway.Sedute.GetAttive(),
+                    Sedute = await apiGateway.Sedute.GetAttiveDashboard(),
                     CurrentUser = _CurrentUser
                 };
                 foreach (var seduta in model.Sedute.Results)

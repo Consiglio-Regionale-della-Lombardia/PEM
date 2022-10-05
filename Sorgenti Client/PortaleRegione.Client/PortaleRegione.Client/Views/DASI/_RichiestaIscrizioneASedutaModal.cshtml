@@ -12,26 +12,6 @@
 </div>
 
 <script>
-    var sedute = [];
-    $(window).on('load',
-        async function () {
-            if (sedute.length == 0) {
-                $('#modalIscriviSeduta>div>ul').empty();
-                var data = await GetSeduteAttive();
-                sedute = data.Results;
-                var checked = sedute.length == 1;
-                $.each(sedute,
-                    function (i, item) {
-                        var resultDate = GetFormattedDate(item.Data_seduta);
-                        var text = "Seduta del " + resultDate;
-                        $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
-                            .replace("{TEXT}", text)
-                            .replace("{VALUE}", resultDate)
-                            .replace("{CHECKED}", checked ? "checked='checked'" : ""));
-                    });
-            }
-        });
-
     function ProponiSedutaDASI() {
         $('#btnProponiSedutaDASI').hide();
         $('#dtRichiestaIscrizione').show();
@@ -40,23 +20,42 @@
     }
 
     function RichiediIscrizioneSedutaDASI(uidAtto, nomeAtto) {
+        $('#modalIscriviSeduta>div>ul').empty();
+        var checked = sedute.length == 1;
+        $.each(sedute,
+            function (i, item) {
+                var resultDate = GetFormattedDate(item.Data_seduta);
+                var text = "Seduta del " + resultDate;
+                $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
+                    .replace("{TEXT}", text)
+                    .replace("{VALUE}", resultDate)
+                    .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+            });
+
         $('#btnProponiSedutaDASI').show();
         $('#dtRichiestaIscrizione').hide();
         $('#txtIscriviSeduta').html("Proponi iscrizione dell'atto <b>" + nomeAtto + "</b> in data:");
         $('#dtRichiestaIscrizione').val("");
         $("#btnIscriviSeduta_Salva").on("click",
             function() {
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    swal({
+                        title: "Attenzione",
+                        text: "Seleziona una seduta disponibile",
+                        icon: "warning"
+                    }).then(function () {
+                        $("#modalIscriviSeduta").modal("open");
+                    });
+
+                    return;
+                }
+                waiting(true);
                 var listaAtti = [];
                 var obj = {};
 
                 listaAtti.push(uidAtto);
                 var sedutaSelezionata = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
-                if (sedutaSelezionata) {
-                    obj.DataRichiesta = sedutaSelezionata;
-                } else {
-                    obj.DataRichiesta = $('#dtRichiestaIscrizione').val();
-                }
-
+                obj.DataRichiesta = sedutaSelezionata;
                 obj.Lista = listaAtti;
                 
                 $.ajax({
@@ -66,9 +65,9 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function(data) {
+                    waiting(false);
                     $("#modalIscriviSeduta").modal("close");
                     $("#btnIscriviSeduta_Salva").off("click");
-                    console.log(data.message);
                     if (data.message) {
                         swal({
                             title: "Errore",
@@ -79,6 +78,7 @@
                         go(data);
                     }
                 }).fail(function(err) {
+                    waiting(false);
                     console.log("error", err);
                     Error(err);
                 });
@@ -129,6 +129,4 @@
             }
         });
     }
-
-    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
 </script>

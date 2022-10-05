@@ -97,11 +97,24 @@ namespace PortaleRegione.Persistance
                         .Where(item => list.Contains(item.UIDAtto));
                 }
 
+            var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
+            if (statoFilter != null)
+            {
+                if (Convert.ToInt16(statoFilter.Value) == (int)StatiAttoEnum.BOZZA)
+                {
+                    return await query
+                        .OrderBy(item => item.Tipo)
+                        .ThenByDescending(item => item.DataCreazione)
+                        .Select(item => item.UIDAtto)
+                        .Skip((page - 1) * size)
+                        .Take(size)
+                        .ToListAsync();
+                }
+            }
+
             return await query
                 .OrderBy(item => item.Tipo)
-                .ThenBy(item => item.IDTipo_Risposta)
-                .ThenBy(item => item.TipoMOZ)
-                .ThenByDescending(item => item.OrdineVisualizzazione)
+                .ThenByDescending(item => item.NAtto_search)
                 .Select(item => item.UIDAtto)
                 .Skip((page - 1) * size)
                 .Take(size)
@@ -557,10 +570,7 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(a => !a.Eliminato
                             && a.Tipo == (int)TipoAttoEnum.MOZ
-                            && a.UIDSeduta == sedutaUId);
-
-            query = query.Where(a => a.IDStato == (int)StatiAttoEnum.PRESENTATO
-                                     || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE);
+                            && a.DataIscrizioneSeduta.HasValue);
             return await query.ToListAsync();
         }
 
@@ -568,7 +578,21 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.UIDSeduta == uidSeduta
-                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                                                     && atto.DataIscrizioneSeduta.HasValue
+                                                     && atto.Tipo == (int)tipo);
+
+            if (tipoMoz != TipoMOZEnum.ORDINARIA)
+            {
+                query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
+        {
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
+                                                     && atto.id_gruppo == gruppoId
                                                      && atto.Tipo == (int)tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
@@ -609,11 +633,12 @@ namespace PortaleRegione.Persistance
             return res;
         }
 
-        public async Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, PersonaDto persona)
+        public async Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID)
         {
             var res = true;
             var atti_proposti_in_seduta = await PRContext.DASI
-                .Where(i => (i.UIDSeduta == seduta.UIDSeduta
+                .Where(i => !i.Eliminato
+                            && (i.UIDSeduta == seduta.UIDSeduta
                              || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
                             && i.TipoMOZ == (int)TipoMOZEnum.URGENTE)
@@ -621,10 +646,11 @@ namespace PortaleRegione.Persistance
 
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
-                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto).ToListAsync();
-                if (firmatari.Any(i => i.UID_persona == persona.UID_persona))
+                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma)).ToListAsync();
+                if (firmatari.Any(i => i.UID_persona == personaUID))
                 {
                     res = false;
+                    break;
                 }
             }
 
@@ -633,7 +659,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto)
         {
-            var firme = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == uidAtto).ToListAsync();
+            var firme = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == uidAtto && string.IsNullOrEmpty(i.Data_ritirofirma)).ToListAsync();
             if (!firme.All(i => i.Capogruppo))
             {
                 return false;

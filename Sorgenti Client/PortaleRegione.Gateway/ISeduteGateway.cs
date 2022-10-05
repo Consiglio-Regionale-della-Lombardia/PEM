@@ -19,7 +19,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
@@ -33,5 +32,6 @@ namespace PortaleRegione.Gateway
         Task Modifica(SeduteFormUpdateDto seduta);
         Task Salva(SeduteFormUpdateDto seduta);
         Task<BaseResponse<SeduteDto>> GetAttive();
+        Task<BaseResponse<SeduteDto>> GetAttiveDashboard();
     }
 }

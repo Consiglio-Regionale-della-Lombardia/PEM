@@ -1,4 +1,5 @@
 ﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
@@ -9,6 +10,12 @@
     GruppiDto gruppo = null;
     var currentRole = RuoliIntEnum.Utente;
     var carica = string.Empty;
+
+    var viewFromCache = Convert.ToInt16(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE));
+    if (viewFromCache == 0)
+    {
+        viewFromCache = (int)ClientModeEnum.GRUPPI;
+    }
 
     if (HttpContext.Current.User.Identity.IsAuthenticated)
     {
@@ -127,7 +134,7 @@
                                             if (ruolo.IDruolo != (int)currentRole)
                                             {
                                                 <li>
-                                                    <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new {ruolo = ruolo.IDruolo, returnUrl = Request.Url})">@ruolo.Ruolo</a>
+                                                    <a style="overflow: hidden; text-overflow: ellipsis;" href="@Url.Action("CambioRuolo", "Autenticazione", new { ruolo = ruolo.IDruolo, returnUrl = Request.Url })">@ruolo.Ruolo</a>
                                                 </li>
                                             }
                                         }
@@ -159,7 +166,7 @@
                                     {
                                         <li>
                                             <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
-                                               href="@Url.Action("CambioGruppo", "Autenticazione", new {gruppo = gruppiDto.id, returnUrl = Request.Url})">
+                                               href="@Url.Action("CambioGruppo", "Autenticazione", new { gruppo = gruppiDto.id, returnUrl = Request.Url })">
                                                 <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
                                             </a>
                                         </li>
@@ -178,7 +185,9 @@
                 </div>
             </div>
         </li>
-        @{
+
+        @if (viewFromCache == (int)ClientModeEnum.GRUPPI)
+        {
             if (persona.IsAmministratorePEM)
             {
                 Html.RenderPartial("_MenuAdmin");
@@ -192,82 +201,61 @@
                 Html.RenderPartial("_MenuStandard");
             }
         }
-
-        <li class="menuItem_Trattazione bold">
-            <a class="waves-effect blue-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons blue-text">settings_input_antenna</i>Entra in Aula</a>
-        </li>
-
-        <li class="menuTrattazione itemSeduteAttive bold">
-            <a class="collapsible-header waves-effect"><i class="material-icons">event</i>Sedute Attive</a>
-            <div class="collapsible-body" style="display: block;">
-                <ul id="lstSeduteAttive">
-                </ul>
-            </div>
-        </li>
-        <li class="menuTrattazione itemArchivio bold">
-            <a class="waves-effect" href="@Url.Action("Archivio", "AttiTrattazione")"><i class="material-icons">chevron_right</i>Tutte le sedute</a>
-        </li>
-        <li class="menuTrattazione itemStampe bold">
-            <a class="waves-effect" href="@Url.Action("Index", "Stampe")"><i class="material-icons">print</i>Stampe</a>
-        </li>
-        <li class="menuTrattazione itemAreaGruppi bold">
-            <a class="waves-effect red-text" href="#!" onclick="AbilitaTrattazione()"><i class="material-icons red-text">exit_to_app</i>Esci dall' Aula</a>
-        </li>
+        else if (viewFromCache == (int)ClientModeEnum.TRATTAZIONE)
+        {
+            Html.RenderPartial("_MenuTrattazione");
+        }
     </ul>
 </div>
 
-@using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new {id = "formLogout"}))
+@using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new { id = "formLogout" }))
 {
     @Html.AntiForgeryToken()
 }
 
 <script>
-    $(window).on('load', async function() {
-        $('li[class*="menuTrattazione"]').hide();
-        $('li[class*="menuItem"]').hide();
-
-        var url = '@Request.Url';
-        if (url.includes("notifiche")) {
-            $('.menuItem_Notifiche').addClass("active");
-        } else if (url.includes("stampe")) {
-            $('.menuItem_Stampe').addClass("active");
-            $('.itemStampe').addClass("active");
-        } else if (url.includes("adminpanel")) {
-            $('.menuItem_Amministrazione').addClass("active");
-        } else if (url.includes("riepilogodasi")) {
-            $('.menuItem_DASI').addClass("active");
-        } else if (url.includes("attitrattazione/archivio")) {
-            $('.itemArchivio').addClass("active");
-        } else if (url.includes("attitrattazione/view")) {
-            $('.itemSeduteAttive').addClass("active");
-        } else if (url.includes("pem") || url.includes("atti") || url.includes("emendamenti")) {
-            $('.menuItem_PEM').addClass("active");
-        } else if (url.includes("cruscotto")) {
-            $('.menuItem_Cruscotto').addClass("active");
-        } else {
-            $('.menuItem_Home').addClass("active");
-        }
-        var mode = getClientMode();
-        if (mode == 2) {
-            $('#pnlLogout').hide();
-            $('li[class*="menuTrattazione"]').show();
-            var data = await GetSeduteAttive();
-            var seduteAttive = data.Results;
-            var url = '@Html.Raw(Url.Action("Index", "AttiTrattazione"))';
-            $.each(seduteAttive,
-                function(i, item) {
-                    var resultDate = GetFormattedDate(item.Data_seduta);
-                    var text = "Seduta del " + resultDate;
-                    $('#lstSeduteAttive').append(templateSXSeduteAttive
-                        .replace("{TEXT}", text)
-                        .replace("{URL}", url + "?id=" + item.UIDSeduta));
-                });
-        } else {
-            $('li[class*="menuItem"]').show();
-            $('#pnlLogout').show();
-        }
-        await LoadCounterNotifiche();
-    });
+    $(window).on('load',
+        async function() {
+            var url = '@Request.Url';
+            if (url.includes("notifiche")) {
+                $('.menuItem_Notifiche').addClass("active");
+            } else if (url.includes("stampe")) {
+                $('.menuItem_Stampe').addClass("active");
+                $('.itemStampe').addClass("active");
+            } else if (url.includes("adminpanel")) {
+                $('.menuItem_Amministrazione').addClass("active");
+            } else if (url.includes("riepilogodasi")) {
+                $('.menuItem_DASI').addClass("active");
+            } else if (url.includes("attitrattazione/archivio")) {
+                $('.itemArchivio').addClass("active");
+            } else if (url.includes("attitrattazione/view")) {
+                $('.itemSeduteAttive').addClass("active");
+            } else if (url.includes("pem") || url.includes("atti") || url.includes("emendamenti")) {
+                $('.menuItem_PEM').addClass("active");
+            } else if (url.includes("cruscotto")) {
+                $('.menuItem_Cruscotto').addClass("active");
+            } else {
+                $('.menuItem_Home').addClass("active");
+            }
+            var mode = getClientMode();
+            if (mode == 2) {
+                $('#pnlLogout').hide();
+                var data = await GetSeduteAttiveDashboard();
+                var seduteAttive = data.Results;
+                var url = '@Html.Raw(Url.Action("Index", "AttiTrattazione"))';
+                $.each(seduteAttive,
+                    function(i, item) {
+                        var resultDate = GetFormattedDate(item.Data_seduta);
+                        var text = "Seduta del " + resultDate;
+                        $('#lstSeduteAttive').append(templateSXSeduteAttive
+                            .replace("{TEXT}", text)
+                            .replace("{URL}", url + "?id=" + item.UIDSeduta));
+                    });
+            } else {
+                $('#pnlLogout').show();
+            }
+            await LoadCounterNotifiche();
+        });
 
     function LoadCounterNotifiche() {
         return new Promise(async function(resolve, reject) {

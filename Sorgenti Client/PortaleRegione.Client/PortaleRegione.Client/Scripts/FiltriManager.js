@@ -135,6 +135,20 @@ function GetSeduteAttive() {
     });
 }
 
+function GetSeduteAttiveDashboard() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/sedute-attive-dashboard",
+            type: "GET"
+        }).done(function (result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetTags() {
     
     return new Promise(async function(resolve, reject) {

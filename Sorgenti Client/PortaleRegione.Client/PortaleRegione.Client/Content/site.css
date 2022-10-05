@@ -50,7 +50,11 @@ main { margin-bottom: 150px; }
 
 .collapsabile-primary-header { width: 20%; }
 
-.form-group > label { font-weight: bold !important }
+.secondary-content { color: black;}
+
+.form-group > label {
+    font-weight: bold !important
+}
 
 .input-field > label { font-weight: bold !important }
 
@@ -80,6 +84,10 @@ a { cursor: pointer }
 .bodyEMClass > table > tbody > tr > td { text-align: center }
 
 .bodyEMClass > div > table > tbody > tr { border-bottom: unset !important; }
+
+.collection-item {
+    cursor: pointer!important;
+}
 
 .icon_info_grid {
     margin-left: 15px;

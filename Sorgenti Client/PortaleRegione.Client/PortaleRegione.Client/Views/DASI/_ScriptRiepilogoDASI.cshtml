@@ -6,6 +6,16 @@
         openDasiSearch();
     });
 
+    var sedute = [];
+    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+    $(window).on('load',
+        async function () {
+            if (sedute.length == 0) {
+                var data = await GetSeduteAttive();
+                sedute = data.Results;
+            }
+        });
+
     $(document).ready(async function () {
         setSelezionaTutti_DASI(false);
         var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));

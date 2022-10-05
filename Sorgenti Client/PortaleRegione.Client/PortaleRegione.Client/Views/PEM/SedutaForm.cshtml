@@ -75,6 +75,25 @@
                     @Html.LabelFor(s => s.Intervalli)
                     @Html.TextAreaFor(model => model.Intervalli, new {@class = "materialize-textarea"})
                 </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input id="Riservato_DASI" name="Riservato_DASI" type="checkbox" value="true"
+                                       @Html.Raw(Model.Riservato_DASI ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Riservato_DASI)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+                @if (!isNew)
+                {
+                    <div class="input-field" style="padding-top: 50px">
+                        <div class="btn chip hoverable red center white-text" onclick="openDeleteModal('@Model.UIDSeduta')" title="Elimina">
+                            <i class="icon material-icons">delete</i> Elimina
+                        </div>
+                    </div>
+                }
             </div>
             <div id="scadenzeTab" class="col s12">
                 <div class="form-group">
@@ -115,6 +134,17 @@
                 </button>
             </div>
         }
+    </div>
+</div>
+
+<div id="modalDeleteSeduta" class="modal" style="max-height: 20%">
+    <div class="modal-content">
+        <h5>Attenzione</h5>
+        <p>Sei sicuro di voler eliminare questa seduta?</p>
+        <div class="modal-footer">
+            <button type="button" class="btn modal-close grey">Annulla</button>
+            <a id="btnConfermaEliminazione" class="btn red" href="#">Elimina</a>
+        </div>
     </div>
 </div>
 
@@ -164,4 +194,9 @@
             return false; //This doesn't prevent the form from submitting.
         }
     });
+
+    function openDeleteModal(id) {
+        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaSeduta","PEM")?id=' + id);
+        $('#modalDeleteSeduta').modal('open');
+    }
 </script>

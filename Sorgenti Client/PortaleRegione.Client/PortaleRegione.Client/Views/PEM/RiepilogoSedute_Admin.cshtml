@@ -8,7 +8,7 @@
     }
 }
 
-<div class="row" style="margin-bottom: unset!important">
+<div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
             <i class="material-icons">arrow_back</i>
@@ -22,7 +22,7 @@
         </div>
     </div>
 </div>
-<hr />
+<hr/>
 
 @{
     Html.RenderPartial("_PaginationBar", Model.Paging);
@@ -43,58 +43,102 @@
         </div>
     }
 
-    @foreach (var seduta in Model.Results)
-    {
-        var css_sedutaAttiva = "green lighten-4 black-text";
-        if (seduta.Data_effettiva_fine.HasValue)
+    <ul id="gridView" class="collapsible expandable">
+        @foreach (var seduta in Model.Results)
         {
-            if (seduta.Data_effettiva_fine.Value < DateTime.Now)
+            var css_sedutaAttiva = "green lighten-4 black-text";
+            if (seduta.Data_effettiva_fine.HasValue)
             {
-                css_sedutaAttiva = string.Empty;
+                if (seduta.Data_effettiva_fine.Value < DateTime.Now)
+                {
+                    css_sedutaAttiva = string.Empty;
+                }
             }
-        }
 
-        <div class="col l4 m6 s12">
-            <div class="card hoverable @css_sedutaAttiva">
-                <div class="card-action grey lighten-4 center">
-                    <div class="row valign-wrapper" style="margin: 0 !important; padding: 0 !important">
-                        <div class="col s12 right-align">
-                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new {id = seduta.UIDSeduta})')" title="Modifica">
-                                <i class="material-icons">edit</i>
-                            </a>
-                            <a class="hoverable center red-text" onclick="openDeleteModal('@seduta.UIDSeduta')" title="Elimina">
-                                <i class="material-icons">delete</i>
-                            </a>
-                        </div>
+            <li class="badgeBody">
+                <div class="collapsible-header" tabindex="0">
+                    <div class="col s8 valign-wrapper">
+                        <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
+                        @if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                        {
+                            <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
+                        }
+                        @if (seduta.Riservato_DASI)
+                        {
+                            <div class="chip white red-text tooltipped" data-tooltip="Seduta dedicata agli atti d’indirizzo e sindacato ispettivo" style="min-width: unset; border: 1px solid red">DASI</div>
+                        }
+                    </div>
+
+                    @*COMANDI*@
+                    <div class="col s4 right-align" style="margin-top: 15px">
+                        <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            <i class="material-icons">edit</i>
+                        </a>
+                        <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <i class="material-icons">chevron_right</i>
+                        </a>
                     </div>
                 </div>
-                <div class="card-content">
-                    <h5 class="">
-                        <span>Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
-                    </h5>
-                    <div class="row valign-wrapper">
-                        <div class="col s10">
-                            <p>
-                                @{
-                                    var scadenza_text = "Non impostata";
-                                    if (seduta.Scadenza_presentazione.HasValue)
-                                    {
-                                        scadenza_text = @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm");
-                                    }
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="collection">
+                                @if (seduta.Scadenza_presentazione.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza EM:</label><a href="#!" class="secondary-content">@seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
                                 }
-                                Scadenza presentazione: @scadenza_text
-                            </p>
-                        </div>
-                        <div class="col s2">
-                            <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
-                                <i class="material-icons">chevron_right</i>
-                            </a>
+                                @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza IQT:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneIQT.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza MOZ:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZ.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza MOZ Urgenti:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZU.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza MOZ Abbinate:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZA.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza ODG:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneODG.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    }
+            </li>
+        }
+    </ul>
+
 </div>
 
 <div class="fixed-action-btn">
@@ -103,23 +147,26 @@
     </a>
 </div>
 
-<div id="modalDeleteSeduta" class="modal">
-    <div class="modal-content">
-        <h5>Attenzione</h5>
-        <p>Sei sicuro di voler eliminare questa seduta?</p>
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaEliminazione" class="btn red" href="#">Elimina</a>
-        </div>
-    </div>
-</div>
 
 @{
     Html.RenderPartial("_SeduteFiltri", Model.Paging);
 }
 
 <script>
-    $(document).ready(function () {
+    var instanceGridView;
+    $(window).on('load',
+        function() {
+            var elem = document.querySelector('#gridView');
+            instanceGridView = M.Collapsible.init(elem,
+                {
+                    accordion: false
+                });
+            instanceGridView.close();
+        });
+</script>
+
+<script>
+    $(document).ready(function() {
         var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
         if (filters == 0)
             set_Filtri_Sedute({});
@@ -129,28 +176,28 @@
         Filtri_Sedute_CaricaDa("filter_sedute_da");
         Filtri_Sedute_CaricaA("filter_sedute_a");
 
-        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta","PEM")');
-        $('#btnSearch').on("click", function() {
-            openSearch();
-        });
+        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta", "PEM")');
+        $('#btnSearch').on("click",
+            function() {
+                openSearch();
+            });
     });
 
     function filtra() {
-        setTimeout(function () {
-            $('body').removeClass('loaded');
-        }, 200);
-        $('#formFiltraSedute').submit();
-    }
-    function filtra(page) {
-        $('#inputFilterPage').val(page);
-        setTimeout(function () {
-            $('body').removeClass('loaded');
-        }, 200);
+        setTimeout(function() {
+                $('body').removeClass('loaded');
+            },
+            200);
         $('#formFiltraSedute').submit();
     }
 
-    function openDeleteModal(id) {
-        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaSeduta","PEM")?id=' + id);
-        $('#modalDeleteSeduta').modal('open');
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function() {
+                $('body').removeClass('loaded');
+            },
+            200);
+        $('#formFiltraSedute').submit();
     }
+
 </script>

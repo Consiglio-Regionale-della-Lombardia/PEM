@@ -31,10 +31,7 @@
 
 <script>
     $(document).ready(function() {
-        console.log('mode', getClientMode());
         var modeCache = @Html.Raw((int)Model.ClientMode);
-        console.log('cache mode', modeCache);
-
         if (mode != modeCache) {
             setClientMode(modeCache);
         }

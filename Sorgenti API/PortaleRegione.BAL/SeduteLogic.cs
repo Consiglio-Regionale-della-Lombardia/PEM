@@ -80,6 +80,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
         public async Task<SEDUTE> GetSeduta(DateTime dataSeduta)
         {
             try
@@ -137,6 +138,11 @@ namespace PortaleRegione.BAL
             {
                 var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
                 Mapper.Map(sedutaDto, sedutaInDb);
+                if (sedutaDto.Data_effettiva_inizio == null)
+                {
+                    sedutaInDb.Data_effettiva_inizio = null;
+                }
+
                 if (sedutaDto.Data_effettiva_fine == null)
                 {
                     sedutaInDb.Data_effettiva_fine = null;
@@ -173,6 +179,28 @@ namespace PortaleRegione.BAL
                 Log.Error("Logic - GetSeduteAttive", e);
                 throw e;
             }
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveDashboard()
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttiveDashboard();
+
+                return new BaseResponse<SeduteDto>(
+                    1,
+                    10,
+                    sedute_attive
+                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    null,
+                    sedute_attive.Count());
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduteAttiveDashboard", e);
+                throw e;
+            }
+
         }
     }
 }

@@ -85,9 +85,23 @@ namespace PortaleRegione.Persistance
         public async Task<IEnumerable<SEDUTE>> GetAttive()
         {
             var query = PRContext.SEDUTE.Include(s => s.legislature)
-                .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
+                .Where(c => (c.Eliminato == false
+                            || !c.Eliminato.HasValue)
+                            && !c.Data_effettiva_fine.HasValue
+                            && c.Data_apertura.Value < DateTime.Now
+                            && c.Riservato_DASI);
 
-            query = query.Where(s => !s.Data_effettiva_fine.HasValue || s.Data_effettiva_fine >= DateTime.Now);
+            return await query.OrderBy(c => c.Data_seduta)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SEDUTE>> GetAttiveDashboard()
+        {
+            var query = PRContext.SEDUTE.Include(s => s.legislature)
+                .Where(c => (c.Eliminato == false
+                            || !c.Eliminato.HasValue)
+                            && !c.Data_effettiva_fine.HasValue
+                            && c.Data_apertura < DateTime.Now);
 
             return await query.OrderBy(c => c.Data_seduta)
                 .ToListAsync();

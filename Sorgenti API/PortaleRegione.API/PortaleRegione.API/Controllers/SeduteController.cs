@@ -97,7 +97,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere le sedute attive
         /// </summary>
@@ -115,6 +115,27 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetSeduteAttive", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere le sedute attive per la dashboard
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("attive-dashboard")]
+        public async Task<IHttpActionResult> GetSeduteAttiveDashboard()
+        {
+            try
+            {
+                var result = await _logic.GetSeduteAttiveDashboard();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteAttiveDashboard", e);
                 return ErrorHandler(e);
             }
         }

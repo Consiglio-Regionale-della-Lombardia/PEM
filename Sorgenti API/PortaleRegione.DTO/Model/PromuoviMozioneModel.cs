@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO.Model
 {
     public class PromuoviMozioneModel
     {
+        public DateTime DataRichiesta { get; set; }
         public List<Guid> Lista { get; set; }
         public Guid AttoUId { get; set; }
     }
