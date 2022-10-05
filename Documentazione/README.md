@@ -1,6 +1,5 @@
-# Portale digitalizzazione atti
+# Portale digitalizzazione atti - Manuale per gli utenti
 
-# Manuale per gli utenti
 ## Introduzione 
 Il portale PEM-DASI è stato realizzato per digitalizzare e gestire a distanza la fase di presentazioni degli Atti di iniziativa dei consiglieri regionali ed automatizzare alcune fasi del loro iter. Il suo sviluppo è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI.
 
@@ -11,6 +10,60 @@ Il modulo DASI e il modulo PEM sono ospitati nella medesima piattaforma, ci sar�
 Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
 
 ![00_login](/Documentazione/Screenshot/00_login.jpg)
+
+### Procedura di autenticazione, di firma e immodificabilità
+
+Il portale prevede per entrambi i moduli due livelli di autenticazione: un primo livello per l’accesso al sistema e la gestione delle bozze degli emendamenti; un secondo livello per effettuare le operazioni con rilevanza pubblica che garantisca l’identificabilità del soggetto che effettua l’operazione.
+
+### Accesso al sistema (autenticazione di primo livello)
+
+Per accedere al sistema vengono fornite, ad ogni utilizzatore, uno username e una password di dominio personali. Attraverso queste credenziali avviene l’identificazione dell’utente e sono concessi i diversi livelli di visibilità e autorizzazione.
+Gli utenti appartenenti alla Giunta Regionale (Presidente, Assessori, Sottosegretari e relativo personale di segreteria) normalmente non fanno parte del dominio del Consiglio Regionale. L’applicativo fornisce quindi un’interfaccia web che permette ad ogni titolare la modifica in autonomia della propria password.
+
+### PIN dispositivo (autenticazione di secondo livello)
+
+Per effettuare le operazioni di firma e di deposito viene scelto, da ogni soggetto titolato, un PIN dispositivo di 4 caratteri alfanumerici case-sensitive (o di 4 cifre).
+Come previsto dall’attuale normativa in materia di trattamento dati personali, il PIN deve essere scelto dall’intestatario stesso.
+I PIN dispositivi sono forniti ai seguenti soggetti:
+- Consiglieri regionali: uno per ogni consigliere (che ne sarà custode). Può essere utilizzato per le operazioni di firma e di deposito di atti già firmati.
+- Dirigenti delle segreterie del gruppo: uno per ogni dirigente (che ne sarà custode). Può essere utilizzato esclusivamente per le operazioni di deposito di atti già firmati.
+- Assessori/Sottosegretari regionali: uno per ogni assessore/sottosegretario (che ne sarà custode). Può essere utilizzato per le operazioni di firma e di deposito di atti già firmati.
+- Dirigenti delle segreterie degli assessori/sottosegretari: uno per ogni dirigente (che ne sarà custode). Può essere utilizzato esclusivamente per le operazioni di deposito di atti già firmati.
+- Personale delle segreterie politiche, su indicazione del Capogruppo. Può essere utilizzato esclusivamente per le operazioni di deposito di atti già firmati.
+
+Di particolare importanza, sotto il profilo della sicurezza del sistema, è la modalità con cui vengono forniti/generati e conservati i PIN dispositivi. Il portale comprende delle funzionalità in grado di rispettare quanto prescritto dall'attuale normativa riguardante l’utilizzo di sistemi informatici (soprattutto se trattano dati personali o riservati) e allo stesso tempo garantire che i PIN siano conservati in maniera sicura.
+La gestione dei PIN dispositivi rispetta le seguenti caratteristiche:
+
+- SEGRETEZZA: il PIN viene conosciuto esclusivamente dal titolare ed eventualmente dall’amministratore del sistema PEM (che vi può accedere solo per necessità tecniche o in caso di contestazioni);
+- SICUREZZA: il PIN viene custodito in un archivio sicuro, accessibile solo al personale incaricato e protetto da sistemi crittografici che ne impediscono la visualizzazione “in chiaro” e la modifica manuale degli stessi. Sono inoltre previsti adeguati piani di Backup dell’archivio;
+- IMMODIFICABILITA’: il PIN, una volta generato/creato, non può più essere né cancellato né modificato. L’amministratore del sistema o l’intestatario del PIN, attraverso apposita funzionalità messa a disposizione dalla piattaforma, può generare/creare un nuovo PIN che sostituisce il precedente (che viene marcato temporalmente e mantenuto in archivio per poter decrittografare vecchi ATTI firmati). Prevista per l’Amministratore del Sistema una funzionalità che permette di generare un nuovo PIN dispositivo casuale e che va obbligatoriamente sostituito dall’intestatario al primo accesso.
+
+### Modalità di utilizzo del PIN dispositivo
+
+Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema PEM-DASI.
+L’utilizzo dei PIN dispositivi avverrà e sarà regolato come descritto successivamente.
+
+1. FIRMA DI UN EMENDAMENTO DA PARTE DEL TITOLARE DELL’INIZIATIVA
+Al momento della firma da parte del “primo firmatario”: il software richiede l’immissione del PIN all’utente/consigliere/assessore/sottosegretario e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene al soggetto titolato a firmare l’emendamento). Utilizza il PIN immesso dal primo firmatario per crittografare l'ATTO (arricchito con i metadati relativi ad articolo, comma, ecc…) rendendolo immodificabile. Utilizzando una chiave conosciuta solo allo sviluppatore del sw, che chiameremo chiave-embedded, crittografa la firma ovvero l’identificativo del firmatario e la data e l’orario in cui è avvenuta l’operazione.
+
+2. FIRME SUCCESSIVE ALLA PRIMA
+Al momento della firma: il software richiede all’utente l’immissione del PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato a firmare l’ATTO). Utilizzando la chiave embedded, crittografa la firma ovvero l’identificativo del firmatario e l’orario in cui è avvenuta l’operazione.
+
+3. INVITO PER LA SOTTOSCRIZIONE DI UN EMENDAMENTO
+Al fine di identificare in maniera certa il primo firmatario di un emendamento, unico soggetto titolato ad invitare per la sottoscrizione di un ATTO un consigliere appartenente ad un altro gruppo, al momento dell’invito il software richiede il PIN dispositivo e ne verifica l’appartenenza al primo firmatario per procedere con l’operazione.
+
+4. DEPOSITO DEGLI EMENDAMENTI
+Al momento del deposito: il software richiede l’immissione di un PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato ad effettuare il deposito). Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
+ - il numero dell’ATTO appena generato dal sistema;
+ - la data e l’ora di deposito rilevata dal server;
+ - una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO;
+ - l’identificativo del soggetto che ha effettuato il deposito.
+La crittografia viene effettuata utilizzando la chiave-embedded.
+Dopo il deposito, l’ATTO diventa immodificabile.
+
+### Ritiro di una firma
+Per poter ritirare una firma ad un ATTO il software richiede l’immissione del proprio PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN appartiene al soggetto a cui appartiene anche la firma che si sta tentando di ritirare).
+Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro della firma ovvero l’orario in cui è avvenuta l’operazione. (Nel caso un ATTO non sia ancora stato depositato, la firma viene eliminata dal sistema)
 
 # Modulo PEM - Presentazione Emendamenti
 Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un progetto di legge (titolo, articolo, comma, allegato, ecc.) prima che questo venga votato dall’assemblea legislativa regionale. I subemendamenti sono invece proposte di modifica riferite ad un emendamento precedentemente presentato. Il Portale PEM aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM).
@@ -27,6 +80,8 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 
 ## Contenuti
 ## Ruoli degli utenti
+Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
+
 - Servizio Segreteria Dell’assemblea (PEM-DASI)
 - Segreteria Dei Diversi Gruppi Consiliari (PEM-DASI)
 - Responsabile Di Segreteria Dei Diversi Gruppi Consiliari (PEM-DASI)
@@ -38,6 +93,17 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 - Amministratori Di Giunta (PEM)
 - Amministratori del sistema (PEM-DASI)
 - Segreterie particolari dei componenti dell’Ufficio di presidenza (PEM-DASI)
+
+## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
+Sotto il profilo degli applicativi, nell’iter di ciascun ATTO intervengono principalmente la banca dati GEASI, (banca dati per la Gestione degli atti di sindacato e di indirizzo), dinamicamente correlata alle pagine web del sito istituzionale, e la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Queste integrazioni possono essere disabilitate tramite opportuni parametri di configurazione.
+
+Altro applicativo con cui i moduli PEM-DASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma PEM-DASI “recupera” tutte le informazioni relative a:
+- Anagrafica dei consiglieri regionali
+-	Anagrafica degli assessori e sottosegretari
+-	Anagrafica e composizione dei gruppi politici
+-	Cariche dei consiglieri e degli assessori
+-	Anagrafica delle commissioni consiliari
+Per tale motivo il funzionamento della piattaforma è strettamente legato a questa integrazione. In assenza di tale integrazione, per poter utilizzare la piattaforma, è necessario sviluppare opportuni moduli per la gestione/integrazione delle suddette anagrafiche.
 
 A seguire, verranno illustrate le differenti funzionalità del Portale PEM-DASI a seconda del ruolo dell'utente loggato al sistema.
 
@@ -56,23 +122,18 @@ A seguire, verranno illustrate le differenti funzionalità del Portale PEM-DASI 
 - [Amministratori del sistema](#amministratori-del-sistema)
 - [Allegati](#allegati)
 
-## Modulo DASI 
-- [Introduzione Modulo DASI](#Introduzione-Modulo-DASI)
-- [Modalità di digitalizzazione degli Atti](#Modalità-di-digitalizzazione-degli-Atti)
-- [Caratteristiche peculiari delle diverse tipologie degli atti](#Caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
-  - [Atti di sindacato ispettivo](#Atti-di-sindacato-ispettivo):
-    - [Interrogazione (ITR)](#Interrogazione-(ITR))
-    - [Interrogazione a Risposta Immediata (IQT)](#Interrogazione-a-Risposta-Immediata)
-    - [Interpellanza (ITL)](#Interpellanza-(ITL))
-  - [Atti di indirizzo](#Atti-di-indirizzo):
-    - [Mozione (MOZ)](#Mozione-(MOZ))
-    - [Ordine del Giorno (OdG)](#Ordine-del-Giorno-(OdG))
-
-## Procedura di autenticazione, di firma e immodificabilità
-
-## Integrazione con altri applicativi presenti in consiglio
-
 ## Introduzione Modulo PEM
+
+L'obiettivo del Portale PEM è di rendere più efficiente e funzionale l’intera procedura di gestione degli emendamenti ai progetti di legge, con un’applicazione multiutente con livelli di informatizzazione e automazione più o meno ampi, a seconda delle varie fasi del processo.
+
+Il Portale PEM permette di:
+
+- gestire da remoto la predisposizione dei testi degli EM/SUBEM, la firma e l’operazione di deposito;
+- garantire autenticità del testo, intesa come integrità del testo, provenienza del documento dal suo autore e certezza temporale sulla sua presentazione;
+- snellire le operazioni per la lavorazione degli EM/SUBEM (numerazione, marcatura, autenticazione, ecc…);
+- ridurre i tempi necessari alla generazione di output finalizzati alla discussione in aula e alle fasi post-seduta, attraverso la loro generazione automatica
+- agevolare i lavori d'aula: visualizzare, gestire e modificare in Aula il testo degli emendamenti;
+- ridurre l’utilizzo della carta e dei supporti per la stampa.
 
 ## Servizio Segreteria dell’Assemblea 
 Gli utenti del Servizio Segreteria dell’Assemblea si possono collegare al sistema utilizzando le proprie credenziali di rete.
@@ -320,27 +381,24 @@ Gli Amministratori di Giunta gestiscono gli utenti “GIUNTA” del sistema e po
 - creazione/disabilitazione di utenze: al nuovo utente dovrà essere richiesto il cambio password al primo accesso;
 - reset delle password operative gestite tramite Active directory.
 
-## Amministratori del sistema
-
-Gli Amministratori del sistema accedono al portale con visibilità completa sugli atti inseriti e in qualsiasi stato si trovino.
-Possono autenticarsi al sistema “impersonando” una qualsiasi tipologia d’utenza (Segreteria dell’Assemblea, Consigliere, Responsabile di Segreteria, Assessore, ecc…).
-Possono gestire completamente gli utenti del sistema, che possono accedere al modulo PEM e al modulo DASI, per quanto riguarda le operazioni di:
-- ricerca di utenze;
-- creazione/disabilitazione di utenze;
-- modifica delle password operative;
-- generazione, ma non visibilità, di nuovi PIN: il PIN generato viene notificato all’interessato, che dovrà modificarlo obbligatoriamente al primo accesso al sistema;
-- assegnazione, utilizzando un’apposita funzionalità web d’interfacciamento con i gruppi Active directory, delle diverse visibilità sulle aree del sistema.
-
-Gestiscono tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
-
-![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
-
 ## Allegati
 
 ### Allegato 1. Output di un emendamento generato dal sistema
 
 ![Allegato 1](/Documentazione/Screenshot/Allegato_1.jpg)
 
+## Modulo DASI 
+- [Introduzione Modulo DASI](#Introduzione-Modulo-DASI)
+- [Modalità di digitalizzazione degli Atti](#Modalità-di-digitalizzazione-degli-Atti)
+- [Caratteristiche peculiari delle diverse tipologie degli atti](#Caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
+  - [Atti di sindacato ispettivo](#Atti-di-sindacato-ispettivo):
+    - [Interrogazione (ITR)](#Interrogazione-(ITR))
+    - [Interrogazione a Risposta Immediata (IQT)](#Interrogazione-a-Risposta-Immediata)
+    - [Interpellanza (ITL)](#Interpellanza-(ITL))
+  - [Atti di indirizzo](#Atti-di-indirizzo):
+    - [Mozione (MOZ)](#Mozione-(MOZ))
+    - [Ordine del Giorno (OdG)](#Ordine-del-Giorno-(OdG))
+    
 ## Introduzione Modulo DASI 
 L'obiettivo del Portale DASI è mettere a disposizione strumenti e procedure atte a consentire ai Consiglieri la presentazione in forma dematerializzata degli atti di sindacato ispettivo e di indirizzo. 
 Il modulo DASI è in grado di dialogare con le piattaforme e le banche dati che gestiscono, con modalità̀ diverse e con finalità̀ diverse, le varie operazioni relative al successivo iter di ciascun atto.
@@ -536,71 +594,20 @@ Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dall
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
-## Integrazione con altri applicativi presenti nel Consiglio regionale della Lombardia
-Sotto il profilo degli applicativi, nell’iter di ciascun ATTO intervengono principalmente la banca dati GEASI, (banca dati per la Gestione degli atti di sindacato e di indirizzo), dinamicamente correlata alle pagine web del sito istituzionale, e la piattaforma EDMA (sistema documentale e di protocollazione) per la gestione delle comunicazioni elettroniche relative a ciascun atto. Queste integrazioni possono essere disabilitate tramite opportuni parametri di configurazione.
+## Amministratori del sistema
 
-Altro applicativo con cui i moduli PEM-DASI dialogano è Ge.CO. disponibile su gitHub all’url https://github.com/Consiglio-Regionale-della-Lombardia/GeCo. L’applicazione GeCo (GEstione COnsiglieri) permette la gestione e consultazione delle informazioni istituzionali relative ai Consiglieri e agli Assessori regionali. Attraverso questa integrazione la piattaforma PEM-DASI “recupera” tutte le informazioni relative a:
-- Anagrafica dei consiglieri regionali
--	Anagrafica degli assessori e sottosegretari
--	Anagrafica e composizione dei gruppi politici
--	Cariche dei consiglieri e degli assessori
--	Anagrafica delle commissioni consiliari
-Per tale motivo il funzionamento della piattaforma è strettamente legato a questa integrazione. In assenza di tale integrazione, per poter utilizzare la piattaforma, è necessario sviluppare opportuni moduli per la gestione/integrazione delle suddette anagrafiche.
+Gli Amministratori del sistema accedono al portale con visibilità completa sugli atti inseriti e in qualsiasi stato si trovino.
+Possono autenticarsi al sistema “impersonando” una qualsiasi tipologia d’utenza (Segreteria dell’Assemblea, Consigliere, Responsabile di Segreteria, Assessore, ecc…).
+Possono gestire completamente gli utenti del sistema, che possono accedere al modulo PEM e al modulo DASI, per quanto riguarda le operazioni di:
+- ricerca di utenze;
+- creazione/disabilitazione di utenze;
+- modifica delle password operative;
+- generazione, ma non visibilità, di nuovi PIN: il PIN generato viene notificato all’interessato, che dovrà modificarlo obbligatoriamente al primo accesso al sistema;
+- assegnazione, utilizzando un’apposita funzionalità web d’interfacciamento con i gruppi Active directory, delle diverse visibilità sulle aree del sistema.
 
-## Procedura di autenticazione, di firma e immodificabilità
+Gestiscono tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
 
-Il portale prevede due livelli di autenticazione: un primo livello per l’accesso al sistema e la gestione delle bozze degli emendamenti; un secondo livello per effettuare le operazioni con rilevanza pubblica che garantisca l’identificabilità del soggetto che effettua l’operazione.
-
-### Accesso al sistema (autenticazione di primo livello)
-
-Per accedere al sistema vengono fornite, ad ogni utilizzatore, uno username e una password di dominio personali. Attraverso queste credenziali avviene l’identificazione dell’utente e sono concessi i diversi livelli di visibilità e autorizzazione.
-Gli utenti appartenenti alla Giunta Regionale (Presidente, Assessori, Sottosegretari e relativo personale di segreteria) normalmente non fanno parte del dominio del Consiglio Regionale. L’applicativo fornisce quindi un’interfaccia web che permette ad ogni titolare la modifica in autonomia della propria password.
-
-### PIN dispositivo (autenticazione di secondo livello)
-
-Per effettuare le operazioni di firma e di deposito viene scelto, da ogni soggetto titolato, un PIN dispositivo di 4 caratteri alfanumerici case-sensitive (o di 4 cifre).
-Come previsto dall’attuale normativa in materia di trattamento dati personali, il PIN deve essere scelto dall’intestatario stesso.
-I PIN dispositivi sono forniti ai seguenti soggetti:
-- Consiglieri regionali: uno per ogni consigliere (che ne sarà custode). Può essere utilizzato per le operazioni di firma e di deposito di atti già firmati.
-- Dirigenti delle segreterie del gruppo: uno per ogni dirigente (che ne sarà custode). Può essere utilizzato esclusivamente per le operazioni di deposito di atti già firmati.
-- Assessori/Sottosegretari regionali: uno per ogni assessore/sottosegretario (che ne sarà custode). Può essere utilizzato per le operazioni di firma e di deposito di atti già firmati.
-- Dirigenti delle segreterie degli assessori/sottosegretari: uno per ogni dirigente (che ne sarà custode). Può essere utilizzato esclusivamente per le operazioni di deposito di atti già firmati.
-- Personale delle segreterie politiche, su indicazione del Capogruppo. Può essere utilizzato esclusivamente per le operazioni di deposito di atti già firmati.
-
-Di particolare importanza, sotto il profilo della sicurezza del sistema, è la modalità con cui vengono forniti/generati e conservati i PIN dispositivi. Il portale comprende delle funzionalità in grado di rispettare quanto prescritto dall'attuale normativa riguardante l’utilizzo di sistemi informatici (soprattutto se trattano dati personali o riservati) e allo stesso tempo garantire che i PIN siano conservati in maniera sicura.
-La gestione dei PIN dispositivi rispetta le seguenti caratteristiche:
-
-- SEGRETEZZA: il PIN viene conosciuto esclusivamente dal titolare ed eventualmente dall’amministratore del sistema PEM (che vi può accedere solo per necessità tecniche o in caso di contestazioni);
-- SICUREZZA: il PIN viene custodito in un archivio sicuro, accessibile solo al personale incaricato e protetto da sistemi crittografici che ne impediscono la visualizzazione “in chiaro” e la modifica manuale degli stessi. Sono inoltre previsti adeguati piani di Backup dell’archivio;
-- IMMODIFICABILITA’: il PIN, una volta generato/creato, non può più essere né cancellato né modificato. L’amministratore del sistema o l’intestatario del PIN, attraverso apposita funzionalità messa a disposizione dalla piattaforma, può generare/creare un nuovo PIN che sostituisce il precedente (che viene marcato temporalmente e mantenuto in archivio per poter decrittografare vecchi ATTI firmati). Prevista per l’Amministratore del Sistema una funzionalità che permette di generare un nuovo PIN dispositivo casuale e che va obbligatoriamente sostituito dall’intestatario al primo accesso.
-
-### Modalità di utilizzo del PIN dispositivo
-
-Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema PEM-DASI.
-L’utilizzo dei PIN dispositivi avverrà e sarà regolato come descritto successivamente.
-
-1. FIRMA DI UN EMENDAMENTO DA PARTE DEL TITOLARE DELL’INIZIATIVA
-Al momento della firma da parte del “primo firmatario”: il software richiede l’immissione del PIN all’utente/consigliere/assessore/sottosegretario e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene al soggetto titolato a firmare l’emendamento). Utilizza il PIN immesso dal primo firmatario per crittografare l'ATTO (arricchito con i metadati relativi ad articolo, comma, ecc…) rendendolo immodificabile. Utilizzando una chiave conosciuta solo allo sviluppatore del sw, che chiameremo chiave-embedded, crittografa la firma ovvero l’identificativo del firmatario e la data e l’orario in cui è avvenuta l’operazione.
-
-2. FIRME SUCCESSIVE ALLA PRIMA
-Al momento della firma: il software richiede all’utente l’immissione del PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato a firmare l’ATTO). Utilizzando la chiave embedded, crittografa la firma ovvero l’identificativo del firmatario e l’orario in cui è avvenuta l’operazione.
-
-3. INVITO PER LA SOTTOSCRIZIONE DI UN EMENDAMENTO
-Al fine di identificare in maniera certa il primo firmatario di un emendamento, unico soggetto titolato ad invitare per la sottoscrizione di un ATTO un consigliere appartenente ad un altro gruppo, al momento dell’invito il software richiede il PIN dispositivo e ne verifica l’appartenenza al primo firmatario per procedere con l’operazione.
-
-4. DEPOSITO DEGLI EMENDAMENTI
-Al momento del deposito: il software richiede l’immissione di un PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato ad effettuare il deposito). Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
- - il numero dell’ATTO appena generato dal sistema;
- - la data e l’ora di deposito rilevata dal server;
- - una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO;
- - l’identificativo del soggetto che ha effettuato il deposito.
-La crittografia viene effettuata utilizzando la chiave-embedded.
-Dopo il deposito, l’ATTO diventa immodificabile.
-
-### Ritiro di una firma
-Per poter ritirare una firma ad un ATTO il software richiede l’immissione del proprio PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN appartiene al soggetto a cui appartiene anche la firma che si sta tentando di ritirare).
-Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro della firma ovvero l’orario in cui è avvenuta l’operazione. (Nel caso un ATTO non sia ancora stato depositato, la firma viene eliminata dal sistema)
-
+![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
 
 
