@@ -1139,7 +1139,7 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    var new_nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                    var new_nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
 
                     results.Add(idGuid, $"{new_nome_atto} - OK");
 
@@ -1279,6 +1279,34 @@ namespace PortaleRegione.API.Controllers
                             var mozDto = await GetAttoDto(moz.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
                                 $"{Utility.GetText_Tipo(atto.Tipo)} {mozDto.NAtto}");
+                            break;
+                        }
+
+                        if (firmatario_valido) continue;
+                        count_firme--;
+                        anomalie.AppendLine(firmatario_indagato);
+                    }
+                }
+
+                if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                {
+                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
+                        TipoAttoEnum.IQT, 0);
+                    foreach (var firma in firme)
+                    {
+                        var firmatario_indagato =
+                            $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
+                        var firmatario_valido = true;
+                        foreach (var odg in odg_in_seduta)
+                        {
+                            var firmatari_odg = await _unitOfWork.Atti_Firme.GetFirmatari(odg.UIDAtto);
+                            var _firmatari_odg = firmatari_odg.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                                .ToList();
+                            if (_firmatari_odg.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            firmatario_valido = false;
+                            var odgDto = await GetAttoDto(odg.UIDAtto);
+                            firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
+                                $"{Utility.GetText_Tipo(atto.Tipo)} {odgDto.NAtto}");
                             break;
                         }
 

@@ -88,7 +88,6 @@ namespace PortaleRegione.Persistance
                 .Where(c => (c.Eliminato == false
                             || !c.Eliminato.HasValue)
                             && !c.Data_effettiva_fine.HasValue
-                            && c.Data_apertura.Value < DateTime.Now
                             && c.Riservato_DASI);
 
             return await query.OrderBy(c => c.Data_seduta)

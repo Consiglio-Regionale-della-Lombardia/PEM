@@ -570,7 +570,8 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(a => !a.Eliminato
                             && a.Tipo == (int)TipoAttoEnum.MOZ
-                            && a.DataIscrizioneSeduta.HasValue);
+                            && a.DataIscrizioneSeduta.HasValue
+                            && a.UIDSeduta == sedutaUId);
             return await query.ToListAsync();
         }
 
@@ -625,7 +626,7 @@ namespace PortaleRegione.Persistance
 
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
-                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto).ToListAsync();
+                var firmatari = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma)).ToListAsync();
                 if (firmatari.Any(i => i.UID_persona == uidPersona))
                 {
                     res = false;
