@@ -240,7 +240,7 @@
             var mode = getClientMode();
             if (mode == 2) {
                 $('#pnlLogout').hide();
-                var data = await GetSeduteAttive();
+                var data = await GetSeduteAttiveDashboard();
                 var seduteAttive = data.Results;
                 var url = '@Html.Raw(Url.Action("Index", "AttiTrattazione"))';
                 $.each(seduteAttive,

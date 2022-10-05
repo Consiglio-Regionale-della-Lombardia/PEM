@@ -1044,7 +1044,8 @@ namespace PortaleRegione.API.Controllers
                         }
 
                         if (attoPEM.Jolly)
-                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >= AppSettingsConfiguration.MassimoODG_Jolly)
+                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >=
+                                AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1074,7 +1075,8 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >= AppSettingsConfiguration.MassimoODG)
+                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >=
+                                AppSettingsConfiguration.MassimoODG)
                             {
                                 if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
                                 {
@@ -1270,7 +1272,8 @@ namespace PortaleRegione.API.Controllers
                         foreach (var moz in moz_in_seduta)
                         {
                             var firmatari_moz = await _unitOfWork.Atti_Firme.GetFirmatari(moz.UIDAtto);
-                            var _firmatari_moz = firmatari_moz.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
+                            var _firmatari_moz = firmatari_moz.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                                .ToList();
                             if (_firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
                             var mozDto = await GetAttoDto(moz.UIDAtto);
@@ -1508,14 +1511,24 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
+        public async Task<List<AttoDASIDto>> GetMOZAbbinabili(PersonaDto persona)
         {
             try
             {
+                var proposte_di_abbinata = await _unitOfWork.DASI.GetProposteAtti(persona.Gruppo.id_gruppo,
+                    TipoAttoEnum.MOZ,
+                    TipoMOZEnum.ABBINATA);
+                var sedute_da_escludere = new List<Guid>();
+                foreach (var proposta_abbinata in proposte_di_abbinata)
+                {
+                    var moz_abbinata = await Get(proposta_abbinata.UID_MOZ_Abbinata.Value);
+                    sedute_da_escludere.Add(moz_abbinata.UIDSeduta.Value);
+                }
+
                 var sedute_attive = await _unitOfWork.Sedute.GetAttive();
 
                 var result = new List<AttoDASIDto>();
-                foreach (var seduta in sedute_attive)
+                foreach (var seduta in sedute_attive.Where(i => !sedute_da_escludere.Contains(i.UIDSeduta)))
                 {
                     var atti = await _unitOfWork.DASI.GetMOZAbbinabili(seduta.UIDSeduta);
                     foreach (var atto in atti) result.Add(await GetAttoDto(atto.UIDAtto));
@@ -1702,7 +1715,8 @@ namespace PortaleRegione.API.Controllers
                     if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     {
                         var checkIscrizioneSeduta =
-                            await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta, atto.UIDPersonaProponente.Value);
+                            await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta,
+                                atto.UIDPersonaProponente.Value);
                         if (!checkIscrizioneSeduta)
                         {
                             throw new Exception(
@@ -2227,7 +2241,8 @@ namespace PortaleRegione.API.Controllers
                 var attoDto = await GetAttoDto(atto.UIDAtto);
                 var content = PdfStamper.CreaPDFInMemory(body, attoDto, "");
 
-                var res = await ComposeFileResponse(content, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}.pdf");
+                var res = await ComposeFileResponse(content,
+                    $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}.pdf");
                 return res;
             }
             catch (Exception e)
@@ -2236,6 +2251,5 @@ namespace PortaleRegione.API.Controllers
                 throw e;
             }
         }
-
     }
 }

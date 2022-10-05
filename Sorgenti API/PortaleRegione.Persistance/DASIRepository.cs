@@ -97,6 +97,21 @@ namespace PortaleRegione.Persistance
                         .Where(item => list.Contains(item.UIDAtto));
                 }
 
+            var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
+            if (statoFilter != null)
+            {
+                if (Convert.ToInt16(statoFilter.Value) == (int)StatiAttoEnum.BOZZA)
+                {
+                    return await query
+                        .OrderBy(item => item.Tipo)
+                        .ThenByDescending(item => item.DataCreazione)
+                        .Select(item => item.UIDAtto)
+                        .Skip((page - 1) * size)
+                        .Take(size)
+                        .ToListAsync();
+                }
+            }
+
             return await query
                 .OrderBy(item => item.Tipo)
                 .ThenByDescending(item => item.NAtto_search)
@@ -555,10 +570,7 @@ namespace PortaleRegione.Persistance
                 .DASI
                 .Where(a => !a.Eliminato
                             && a.Tipo == (int)TipoAttoEnum.MOZ
-                            && a.UIDSeduta == sedutaUId);
-
-            query = query.Where(a => a.IDStato == (int)StatiAttoEnum.PRESENTATO
-                                     || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE);
+                            && a.DataIscrizioneSeduta.HasValue);
             return await query.ToListAsync();
         }
 
@@ -567,6 +579,20 @@ namespace PortaleRegione.Persistance
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.UIDSeduta == uidSeduta
                                                      && atto.DataIscrizioneSeduta.HasValue
+                                                     && atto.Tipo == (int)tipo);
+
+            if (tipoMoz != TipoMOZEnum.ORDINARIA)
+            {
+                query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
+        {
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
+                                                     && atto.id_gruppo == gruppoId
                                                      && atto.Tipo == (int)tipo);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)

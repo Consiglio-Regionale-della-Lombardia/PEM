@@ -865,7 +865,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logic.GetMOZAbbinabili());
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                return Ok(await _logic.GetMOZAbbinabili(persona));
             }
             catch (Exception e)
             {

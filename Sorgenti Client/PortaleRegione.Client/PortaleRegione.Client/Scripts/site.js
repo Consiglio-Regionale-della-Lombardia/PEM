@@ -344,9 +344,18 @@ function go(link, switchMode) {
 async function AbilitaTrattazione(mode) {
     if (mode == 2) {
         setClientMode(2);
-        var data = await GetSeduteAttive();
-        var seduta = data.Results[0];
-        go("/attitrattazione/view?id=" + seduta.UIDSeduta);
+        var data = await GetSeduteAttiveDashboard();
+        if (data.Results.length > 0) {
+            var seduta = data.Results[0];
+            go("/attitrattazione/view?id=" + seduta.UIDSeduta);
+        } else {
+            swal({
+                title: "Attenzione",
+                text: "Nessuna seduta aperta disponibile",
+                icon: "warning"
+            });
+            return;
+        }
     } else {
         setClientMode(1);
         go("/home");
@@ -1418,10 +1427,7 @@ async function GetArticoliAtto(attoUId) {
 }
 
 async function GetCommiArticolo(articoloUId) {
-
-    set_ListaCommiEM([]);
-
-    $("#tableArticoli").find("li").removeClass("active");
+        $("#tableArticoli").find("li").removeClass("active");
     $("#tableArticoli").find("li[uid='" + articoloUId + "']").addClass("active");
 
     var tableLettere = $("#tableLettere");

@@ -85,6 +85,10 @@ a { cursor: pointer }
 
 .bodyEMClass > div > table > tbody > tr { border-bottom: unset !important; }
 
+.collection-item {
+    cursor: pointer!important;
+}
+
 .icon_info_grid {
     margin-left: 15px;
 }

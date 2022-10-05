@@ -113,7 +113,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpGet]
         [Route("sedute-attive")]
         public async Task<ActionResult> SeduteAttive()
@@ -122,6 +122,22 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(_Token);
                 return Json(await apiGateway.Sedute.GetAttive(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("sedute-attive-dashboard")]
+        public async Task<ActionResult> SeduteAttiveDashboard()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Sedute.GetAttiveDashboard(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
