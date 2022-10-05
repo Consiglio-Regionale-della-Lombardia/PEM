@@ -207,13 +207,7 @@ Inseriscono gli EM/SUBEM in bozza e li visualizzano in un’apposita GrigliadiLa
 - testo dell’EM/SUBEM. Indicano poi, obbligatoriamente, in fase di predisposizione dell’EM/SUBEM, il consigliere titolare dell’iniziativa dell’atto. Tale consigliere verrà identificato dal sistema come “primo firmatario” dell’EM/SUBEM.
 
 Grazie alla predisposizione del Progetto di Legge codificato in base alle singole parti con i relativi testi (Articolo, Comma, Lettera) la piattaforma permette di creare emendamenti posizionandosi con il mouse direttamente sulla parte del PDL visualizzato “in anteprima” a video. Questo processo visuale e assistito consente di ridurre al minimo gli errori sulle parti del PDL che si intende emendare nonché evitare l’utilizzo di versioni errate (modificate) del PDL e il possibile inserimento di emendamenti duplicati.
- 
-![PEM_8](/Documentazione/Screenshot/PEM_8.jpg)
-
-Cliccando sulla parte da emendare il sistema predisporrà in automatico il format per l’inserimento dell’emendamento:
-
-![PEM_21](/Documentazione/Screenshot/PEM_21.jpg)
-
+Cliccando sulla parte da emendare il sistema predisporrà in automatico il format per l’inserimento dell’emendamento.
 Dopo aver inserito un emendamento/subemendamento in bozza si ha sempre la possibilità di gestirlo attraverso un’apposita GrigliadiLavoro dedicata al gruppo politico:
 
 ![PEM_22](/Documentazione/Screenshot/PEM_22.jpg)
@@ -235,16 +229,13 @@ Inserisce gli EM/SUBEM in bozza e li visualizza adeguatamente separati e raggrup
 Anche il responsabile di segreteria può “sollecitare”, tramite messaggio email preconfigurato e contenente il link diretto a un EM/SUBEM, un consigliere appartenente al proprio gruppo alla firma di un EM/SUBEM in bozza e che deve essere depositato.
 
 Soprattutto può eseguire il deposito degli EM/SUBEM: attraverso una password dispositiva (codice PIN) può effettuare l’operazione di deposito degli EM/SUBEM, solo quelli firmati dal consigliere titolare dell’iniziativa (primo firmatario). Al momento del deposito, il documento EM/SUBEM viene numerato e marcato temporalmente dal sistema. Il numero e il testo dell’EM/SUBEM, la data, l’ora e le firme diverranno immodificabili: un algoritmo crittografico infatti genera un codice di controllo dipendente dalle suddette informazioni. Nessun controllo temporale verrà effettuato dal sistema che pertanto accetta in qualunque momento emendamenti sui PDL attivi.
-Affinché un emendamento possa essere depositato devono essere compilate le TUTTE informazioni obbligatorie e deve essere presente almeno la firma del consigliere proponente.
-
-![06_deposito_em](/Documentazione/Screenshot/06_deposito_em.jpg)
-
+Affinché un emendamento possa essere depositato devono essere compilate le TUTTE informazioni obbligatorie e deve essere presente almeno la firma del consigliere proponente utilizzando il proprio PIN.
 NOTA: il deposito di un EM/SUBEM può essere effettuato direttamente dal consigliere, se primo firmatario, ovvero dal responsabile di segreteria del gruppo per gli EM/SUBEM per i quali il primo firmatario appartiene a quello specifico gruppo.
 
 Il responsabile di segreteria può visualizzare gli EM/SUBEM depositati relativi al proprio gruppo ma anche quelli presentati con consiglieri di altro gruppo, previo invito.
 Per questo può accedere all’AREA INVITI contenente l’elenco dei EM/SUBEM per i quali un consigliere del proprio gruppo politico ha ricevuto o effettuato un invito a firmare.
 
-![PEM_24](/Documentazione/Screenshot/PEM_24.jpg)
+![PEM_25](/Documentazione/Screenshot/PEM_25.jpg)
 
 Come la sua segreteria, il responsabile ha a disposizione un set di report che gli permettono di visualizzare/esportare l’elenco (in vari formati) e gli emendamenti depositati in base al PDL di riferimento, alla seduta, allo stato (approvato/respinto/ritirato), al firmatario (primo/successivo), all’articolo, ecc…
 
