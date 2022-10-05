@@ -330,10 +330,10 @@ namespace PortaleRegione.Persistance
 
             if (dto.DataRitiro.HasValue) return false;
 
-            if (dto.IDStato != (int)StatiAttoEnum.PRESENTATO) return false;
+            if (dto.IDStato == (int)StatiAttoEnum.BOZZA || dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA) return false;
+            if (dto.DataIscrizioneSeduta.HasValue) return false;
 
-            return persona.UID_persona == dto.UIDPersonaProponente
-                   || persona.CurrentRole == RuoliIntEnum.Presidente_Regione;
+            return persona.UID_persona == dto.UIDPersonaProponente;
         }
 
         public bool CheckIfEliminabile(AttoDASIDto dto, PersonaDto persona)
@@ -345,7 +345,7 @@ namespace PortaleRegione.Persistance
             if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
 
             return persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
-                   || persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
+                   || persona.CurrentRole == RuoliIntEnum.Segreteria_Politica
                    || persona.UID_persona == dto.UIDPersonaCreazione
                    || persona.UID_persona == dto.UIDPersonaProponente;
         }
@@ -593,7 +593,9 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.id_gruppo == gruppoId
-                                                     && atto.Tipo == (int)tipo);
+                                                     && atto.Tipo == (int)tipo
+                                                     && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.RITIRATO
+                                                     && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.DECADUTO);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA)
             {

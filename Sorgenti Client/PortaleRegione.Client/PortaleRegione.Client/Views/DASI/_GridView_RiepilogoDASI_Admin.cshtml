@@ -239,9 +239,7 @@ else
                             }
                             else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
                             {
-                                textSeduta = "Richiesta non avanzata";
-                                tooltipSeduta = "Richiesta non ancora avanzata dal richiedente";
-                                <div class="chip hoverable badgeSedutaSenzaRichiesta tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
                                     Iscrivi
                                 </div>
                             }
