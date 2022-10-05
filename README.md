@@ -1,6 +1,14 @@
 # Portale digitalizzazione atti
 
-Il Portale PEM-DASI aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM) e di atti di indirizzo e sindacato ispettivo.
+Il portale PEM-DASI è stato realizzato per digitalizzare e gestire a distanza la fase di presentazioni degli Atti di iniziativa dei consiglieri regionali ed automatizzare alcune fasi del loro iter. Il suo sviluppo è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI.
+
+Il modulo DASI e il modulo PEM sono ospitati nella medesima piattaforma, ci sarà quindi un doppio canale di accesso:
+
+1. un canale per la presentazione degli Emendamenti ai progetti di legge, nell’ambiente quindi legato a una specifica seduta e attivato in concomitanza della stessa;
+
+2. un canale per la presentazione degli ATTI di indirizzo e sindacato ispettivo, non necessariamente legato a una specifica seduta del Consiglio.
+
+Va puntualizzato che, per i due canali di accesso, la categoria di utenti non è coincidente: gli assessori, in quanto non sono consiglieri o sono sospesi dalla carica, non accederanno al canale DASI.
 
 ## Modulo PEM - Presentazione Emendamenti
   
