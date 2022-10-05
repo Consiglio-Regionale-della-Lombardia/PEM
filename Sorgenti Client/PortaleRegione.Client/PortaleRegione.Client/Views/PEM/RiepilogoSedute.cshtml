@@ -8,7 +8,7 @@
     }
 }
 
-<div class="row" style="margin-bottom: unset!important">
+<div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
             <i class="material-icons">arrow_back</i>
@@ -22,7 +22,7 @@
         </div>
     </div>
 </div>
-<hr />
+<hr/>
 
 @{
     Html.RenderPartial("_PaginationBar", Model.Paging);
@@ -43,98 +43,115 @@
         </div>
     }
 
-<ul id="gridView" class="collapsible expandable">
-    @foreach (var seduta in Model.Results)
-    {
-        var css_sedutaAttiva = "green lighten-4 black-text";
-        if (seduta.Data_effettiva_fine.HasValue)
+    <ul id="gridView" class="collapsible expandable">
+        @foreach (var seduta in Model.Results)
         {
-            if (seduta.Data_effettiva_fine.Value < DateTime.Now)
+            var chiusa = false;
+            var css_sedutaAttiva = "green lighten-4 black-text";
+            if (seduta.Data_effettiva_fine.HasValue)
             {
-                css_sedutaAttiva = string.Empty;
+                if (seduta.Data_effettiva_fine.Value < DateTime.Now)
+                {
+                    css_sedutaAttiva = string.Empty;
+                }
             }
-        }
 
-        <li class="badgeBody">
-            <div class="collapsible-header" tabindex="0">
-                <div class="col s8 valign-wrapper">
-                    <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
-                    @if (!string.IsNullOrEmpty(css_sedutaAttiva))
-                    {
-                        <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
-                    }
-                    @if (seduta.Riservato_DASI)
-                    {
-                        <div class="chip white red-text tooltipped" data-tooltip="Seduta dedicata agli atti d’indirizzo e sindacato ispettivo" style="min-width: unset; border: 1px solid red">DASI</div>
-                    }
-                </div>
+            <li class="badgeBody">
+                <div class="collapsible-header" tabindex="0">
+                    <div class="col s8 valign-wrapper">
+                        <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
+                        @if (!seduta.Data_apertura.HasValue)
+                        {
+                            chiusa = true;
+                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                        }
+                        else if (seduta.Data_apertura > DateTime.Now)
+                        {
+                            chiusa = true;
+                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                        }
+                        else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                        {
+                            <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
+                        }
+                        @if (seduta.Riservato_DASI)
+                        {
+                            <div class="chip white red-text tooltipped" data-tooltip="Seduta dedicata agli atti d’indirizzo e sindacato ispettivo" style="min-width: unset; border: 1px solid red">DASI</div>
+                        }
+                    </div>
 
-                @*COMANDI*@
-                <div class="col s4 right-align" style="margin-top: 15px;">
-                    <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                        <i class="material-icons">chevron_right</i>
-                    </a>
-                </div>
-            </div>
-            <div class="collapsible-body">
-                <div class="row">
-                    <div class="col s12">
-                        <ul class="collection">
-                            @if (seduta.Scadenza_presentazione.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Scadenza EM:</label><a href="#!" class="secondary-content">@seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                    </div>
-                                </li>
-                            }
-                            @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Scadenza IQT:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneIQT.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                    </div>
-                                </li>
-                            }
-                            @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Scadenza MOZ:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZ.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                    </div>
-                                </li>
-                            }
-                            @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Scadenza MOZ Urgenti:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZU.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                    </div>
-                                </li>
-                            }
-                            @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Scadenza MOZ Abbinate:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZA.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                    </div>
-                                </li>
-                            }
-                            @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <div>
-                                        <label>Scadenza ODG:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneODG.Value.ToString("dd/MM/yyyy HH:mm")</a>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
+                    @*COMANDI*@
+                    <div class="col s4 right-align" style="margin-top: 15px;">
+                        @if (!chiusa)
+                        {
+                            <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        }
                     </div>
                 </div>
-            </div>
-        </li>
-    }
-</ul>
+                @if (!chiusa)
+                {
+                    <div class="collapsible-body">
+                        <div class="row">
+                            <div class="col s12">
+                                <ul class="collection">
+                                    @if (seduta.Scadenza_presentazione.HasValue)
+                                    {
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Scadenza EM:</label><a href="#!" class="secondary-content">@seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                            </div>
+                                        </li>
+                                    }
+                                    @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
+                                    {
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Scadenza IQT:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneIQT.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                            </div>
+                                        </li>
+                                    }
+                                    @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                                    {
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Scadenza MOZ:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZ.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                            </div>
+                                        </li>
+                                    }
+                                    @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                                    {
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Scadenza MOZ Urgenti:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZU.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                            </div>
+                                        </li>
+                                    }
+                                    @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                                    {
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Scadenza MOZ Abbinate:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZA.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                            </div>
+                                        </li>
+                                    }
+                                    @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                                    {
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Scadenza ODG:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneODG.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </li>
+        }
+    </ul>
 </div>
 
 @{
@@ -143,7 +160,7 @@
 
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
         if (filters == 0)
             set_Filtri_Sedute({});
@@ -153,22 +170,26 @@
         Filtri_Sedute_CaricaDa("filter_sedute_da");
         Filtri_Sedute_CaricaA("filter_sedute_a");
 
-        $('#btnSearch').on("click", function() {
-            openSearch();
-        });
+        $('#btnSearch').on("click",
+            function() {
+                openSearch();
+            });
     });
 
     function filtra() {
-        setTimeout(function () {
-            $('body').removeClass('loaded');
-        }, 200);
+        setTimeout(function() {
+                $('body').removeClass('loaded');
+            },
+            200);
         $('#formFiltraSedute').submit();
     }
+
     function filtra(page) {
         $('#inputFilterPage').val(page);
-        setTimeout(function () {
-            $('body').removeClass('loaded');
-        }, 200);
+        setTimeout(function() {
+                $('body').removeClass('loaded');
+            },
+            200);
         $('#formFiltraSedute').submit();
     }
 </script>

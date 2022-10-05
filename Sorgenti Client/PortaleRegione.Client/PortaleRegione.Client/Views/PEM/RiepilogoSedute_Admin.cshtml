@@ -59,7 +59,15 @@
                 <div class="collapsible-header" tabindex="0">
                     <div class="col s8 valign-wrapper">
                         <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
-                        @if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                        @if (!seduta.Data_apertura.HasValue)
+                        {
+                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                        }
+                        else if (seduta.Data_apertura > DateTime.Now)
+                        {
+                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                        }
+                        else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                         {
                             <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
                         }

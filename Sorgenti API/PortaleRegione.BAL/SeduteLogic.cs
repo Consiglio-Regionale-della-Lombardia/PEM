@@ -138,6 +138,10 @@ namespace PortaleRegione.BAL
             {
                 var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
                 Mapper.Map(sedutaDto, sedutaInDb);
+                if (sedutaDto.Data_apertura == null)
+                {
+                    sedutaInDb.Data_apertura = null;
+                }
                 if (sedutaDto.Data_effettiva_inizio == null)
                 {
                     sedutaInDb.Data_effettiva_inizio = null;
