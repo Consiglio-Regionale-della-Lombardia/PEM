@@ -49,7 +49,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 # Introduzione
 
 Questo repository contiene il codice sorgente e la documentazione del portale PEM-DASI. 
-L'obiettivo del Portale PEM è di rendere più efficiente e funzionale l’intera procedura di gestione degli emendamenti ai progetti di legge, con un’applicazione multiutente con livelli di informatizzazione e automazione più o meno ampi, a seconda delle varie fasi del processo.
+L'obiettivo del Portale è di informatizzare e rendere più efficiente e funzionale la procedura di deposito (numerazione e marcatura temporale) degli emendamenti ai progetti di legge e degli atti di indirizzo e di sindacato ispettivo, con un’applicazione multiutente con livelli di informatizzazione e automazione più o meno ampi, a seconda delle varie fasi del processo. L'applicazione, unica, è stata divisa a livello funzionale in due moduli denominati modulo PEM e modulo DASI.
  
 Il Modulo PEM permette di:
 - gestire da remoto la predisposizione dei testi degli EM/SUBEM, la firma e l’operazione di deposito;
