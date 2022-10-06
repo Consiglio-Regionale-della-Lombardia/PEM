@@ -200,7 +200,7 @@ La parte di interfaccia utente di PEM-DASI è stata realizzata utilizzando le te
 -	Trumbowyg (editor testo) - [https://alex-d.github.io/Trumbowyg/](https://alex-d.github.io/Trumbowyg/))
 
 #### TEMPLATE
-Per rendere il portale PEM adattabile ad esigenze di layout differenti e personalizzabili, la visualizzazione degli emendamenti, la stampa dei fascicoli e dei singoli emendamenti è stata sviluppata utilizzando dei templates html. Attraverso questi templates, contenuti nella cartella Template nel progetto API, è possibile personalizzare il layout degli emendamenti e dei fascicoli sia nella versione html (per visualizzazione a video e per invio tramite email) sia nella versione pdf.
+Per rendere il portale PEM-DASI adattabile ad esigenze di layout differenti e personalizzabili, la visualizzazione e la stampa degli atti e dei fascicoli è stata sviluppata utilizzando dei templates html. Attraverso questi templates, contenuti nella cartella Template nel progetto API, è possibile personalizzare il layout degli emendamenti, degli atti e dei fascicoli sia nella versione html (per visualizzazione a video e per invio tramite email) sia nella versione pdf.
 
 #### GESTIONE DELLE STAMPE
 Come detto precedentemente, per una questione di performance, le stampe in pdf vengono generalmente effettuate in modalità asincrona.
@@ -220,11 +220,11 @@ La configurazione viene gestita tramite file jobs_config.json.
 E’ un estensione dell’interfaccia IJob ereditata da Quartz ed esegue queste lavorazioni:
 -	Autenticazione con utente di servizio all’api (ruolo SERVIZIO_JOB)
 -	Elabora fino a 20 stampe
--	Ogni stampa ha un tot di emendamenti da stampare
+-	Ogni stampa ha un tot di atti da stampare
 -	Scarica dall’api i template precompilati
--	Crea N task per creare i PDF degli emendamenti
+-	Crea N task per creare i PDF degli emendamenti/atti di indirizzo e sindacato ispettivo
 -	Manda la mail con il link al fascicolo
--	In caso di deposito differito, viene anche generato il pdf dell’emendamento appena depositato e inviato via mail
+-	In caso di deposito differito, viene anche generato il pdf dell’atto appena depositato e inviato via mail
 
 La soluzione del progetto in Visual Studio risulta quella in figura:
 
@@ -234,26 +234,26 @@ La soluzione del progetto in Visual Studio risulta quella in figura:
 
 ## Note sulla release
 
-Il codice sorgente pubblicato è relativo alla piattaforma PEM-DASI nella release 2.0, che sostituirà la versione attualmente in uso presso il Consiglio regionale della Lombardia.
+Il codice sorgente pubblicato è relativo alla piattaforma PEM-DASI nella release 2.2, che integra il modulo PEM e il modulo DASI ed è l'evoluzione di una prima versione di PEM sviluppata in asp.net.
 Questa nuova versione, oltre ad utilizzare esclusivamente librerie e componenti opensource, separa la parte client dell’applicazione da quella server attraverso lo sviluppo di API dedicate e introduce miglioramenti nelle performance e nella gestione delle stampe pdf. L’introduzione delle API per la gestione dei dati e delle elaborazioni principali facilita lo sviluppo di un’app per dispositivi mobili (Apple e Android).
-NOTA: Questa release è attualmente in fase di test e viene rilasciata in versione beta.
+NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versione beta.
 
 ## Requisiti del sistema
 
 Specifiche tecniche server:
 
-- Sistema Operativo: Windows 2008 Server R2 + Active Directory
-- Web e Application server: IIS 7.5 + Entity Framework 6.0
+- Sistema Operativo: Windows 2008 Server R2 o superiore + Active Directory
+- Web e Application server: IIS 7.5 o superiore + Entity Framework 6.0
 - Database: Microsoft SQL server 2012 o superiore
 
 Specifiche tecniche client:
 - Sistema Operativo: Microsoft windows (7 – 8 - 10), Mac OsX
-- Browser: Internet Explorer (ver. 9.0-10.0-11.0), FireFox (ultima versione disponibile), Chrome (ultima versione disponibile), Safari (ultima versione disponibile)
-- Dispositivi mobile (tablet/cellulari): iOS, Android e WindowsPhone, il portale è completamente responsive
+- Browser: Internet Explorer (ver. 9.0-10.0-11.0), FireFox, Chrome, Safari
+- Dispositivi mobile (tablet/cellulari): iOS, Android - il portale è completamente responsive escluso le pagine contenenti la griglia di lavoro dedicata alla Segreteria dell'Assemblea
 
 ## Procedura di installazione
 
-L'installazione prevede la creazione del database tramite lo script fornito, la compilazione dei sorgenti Client, la creazione di due application su IIS, una per le Api e una per il Client compilato, con la configurazione del file web.config dell'application Client con la connessione al database. Al termine, la schedulazione del modulo di stampa asincrona.
+L'installazione prevede la creazione del database tramite lo script fornito; la compilazione dei sorgenti Client e Api; la creazione di due application su IIS, una per la Api e una per il Client; la configurazione dei file web.config, sia dell'Api sia del Client, impostando i parametri di configurazione del proprio ambiente. Al termine, la compilazione, l'installazione e la schedulazione del modulo di stampa asincrona.
 
 Per la procedura completa di installazione fare riferimento alla documentazione specifica:
 
@@ -264,14 +264,14 @@ Per la procedura completa di installazione fare riferimento alla documentazione 
 
 ## Autore / Copyright
 
-Portale PEM - Presentazione Emendamenti
-2020 (c) Regione Lombardia
+Portale PEM-DASI - Presentazione EMendamenti e Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo
+2020-2022 (c) Consiglio Regionale dell Lombardia
 
 Concesso in licenza [GNU Affero General Public Licence version 3](https://www.gnu.org/licenses/agpl-3.0.html) (SPDX: AGPL-3.0)
 
 ## Licenze dei componenti di terze parti
 
-All'interno del codice del Portale PEM sono stati utilizzati i seguenti componenti di terze parti, nell'ambito delle relative licenze qui indicate:
+All'interno del codice del Portale PEM-DASI sono stati utilizzati i seguenti componenti di terze parti, nell'ambito delle relative licenze qui indicate:
   
 - Log4net
  https://github.com/apache/logging-log4net
