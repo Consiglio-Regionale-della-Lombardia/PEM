@@ -87,8 +87,8 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
 
 #### INTRODUZIONE
 
-La versione pubblicata del software PEM-DASI è l’evoluzione di una prima versione di PEM, sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
-La nuova versione è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
+La versione pubblicata del software PEM-DASI è l’evoluzione di una prima versione di PEM (PEM v 1.0), sviluppata con tecnologia Microsoft ASP.net su Framework .NET 4.5.
+La nuova versione (PEM 2.0) è stata realizzata con l’obiettivo di migliorare e superare alcuni limiti del vecchio portale offrendo i seguenti vantaggi:
 -	Eliminazione di librerie di terze parti coperte da licenza non opensource;
 -	Separazione della parte client da quella server realizzando API dedicate che gestiscono tutta la logica applicativa di PEM-DASI e facilitano l'eventuale sviluppo di applicazioni mobile per dispositivi Apple e Android;
 -	Aumento della modularità per consentire l’evoluzione del portale per la gestione di altre tipologie di ATTI (es. atti d’indirizzo e di sindacato ispettivo);
@@ -96,7 +96,9 @@ La nuova versione è stata realizzata con l’obiettivo di migliorare e superare
 -	Miglioramento della sicurezza;
 -	Introduzione di funzionalità che permetto di utilizzare la piattaforma in modalità stand-alone, gestendo in modalità nativa le funzioni di autenticazione, profilazione e di anagrafica.
  
-La nuova versione è sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
+La nuova versione (PEM 2.0) è stata sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
+
+Successivamente la piattaforma PEM v 2.0, utilizzata per digitalizzare gli emendamenti/subemendamenti ai progetti di legge, è stata estesa per la digitalizzazione degli altri atti tipici delle assemblee regionali sviluppando il modulo DASI per la Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo (PEM-DASI v 2.2)
 
 #### STRUTTURA DEL SISTEMA
 Il portale PEM-DASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client e allo stesso tempo fornire intefacce progrmmabili (API) di tipo web che possono essere richiamate ed utilizzate per altri scopi da altre applicazioni. 
