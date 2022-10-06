@@ -99,7 +99,7 @@ La nuova versione è stata realizzata con l’obiettivo di migliorare e superare
 La nuova versione è sviluppata utilizzando la tecnologia Microsoft MVC (model view controller) utilizzando C# come linguaggio di programmazione e il Framework .NET 4.7.2. 
 
 #### STRUTTURA DEL SISTEMA
-Come accennato, il nuovo portale PEM-DASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client. 
+Il portale PEM-DASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client e allo stesso tempo fornire intefacce progrmmabili (API) di tipo web che possono essere richiamate ed utilizzate per altri scopi da altre applicazioni. 
 
 ![Struttura_sistema](/Documentazione/Screenshot/Struttura_sistema.jpg)
  
@@ -127,7 +127,7 @@ Per l’interfacciamento con il database è stato sviluppato un layer con Entity
 Le richieste all’API vengono soddisfatte solo se il richiedente risulta correttamente autenticato ed autorizzato ad accedere alla risorsa/funzionalità richiesta. Per l’autenticazione, l’API fornisce un endpoint (di tipo allow-anonimous) che permette il riconoscimento tramite username e password. In caso di corretta autenticazione viene fornito un token (JWT) che dovrà essere utilizzato per tutte le successive richieste all’API. Il token è una stringa crittografata di caratteri con una scadenza configurabile e contiene i dati dell’utente (ruoli e gruppi di appartenenza).
 Per informazioni più dettagliate su JWT token si può consultare la seguente guida: [JSON Web Tokens - jwt.io](https://jwt.io/)
 
-Per evitare il proliferare di utenze e password, in Consiglio regionale della Lombardia, si è scelto di utilizzare, come primo livello di accesso al portale PEM, gli stessi user name e password utilizzati per l’accesso al dominio. Per effettuare l’autenticazione viene utilizzato un webservice soap che si interfaccia con il repository delle utenze di rete.
+Per evitare il proliferare di utenze e password, in Consiglio regionale della Lombardia, si è scelto di utilizzare, come primo livello di accesso al portale, gli stessi user name e password utilizzati per l’accesso al dominio di rete interna. Per effettuare l’autenticazione viene utilizzato un webservice soap che si interfaccia con il repository delle utenze di rete.
 
 Per rendere il portale PEM-DASI immediatamente riusabile, è possibile utilizzare delle credenziali (username e password) memorizzate sul database interno di PEM-DASI. Per attivare questo tipo di autenticazione è necessario impostare la chiave AutenticazioneAD = 0 nel web.config dell’applicazione.
 
@@ -155,7 +155,7 @@ Il sotto-progetto API costituisce la parte principale della parte API in quanto 
 -	SEDUTECONTROLLER: contiene tutte le operazioni per gestire le sedute
 -	ATTICONTROLLER: Contiene tutte le operazioni per gestire gli atti (Gestione articoli/commi/lettere, salvataggio relatori, gestione dei fascicoli in ordine di votazione/presentazione, ecc.)
 -	EMENDAMENTICONTROLLER: Contiene tutte le operazioni per gestire gli emendamenti (Gestione firme/inviti/depositi, visualizzazioni di preview, modifica metadati, gestione stati, ordinamenti e fascicolazione, ecc.)
--	DASICONTROLLER: contiene tutte le operazioni per gestire gli atti di sindacato ispettivo.
+-	DASICONTROLLER: contiene tutte le operazioni per gestire gli atti di indirizzo e di sindacato ispettivo.
 -	PERSONECONTROLLER: contiene tutte le operazioni inerenti gli utenti del sistema e la gestione dei relativi ruoli e gruppi di appartenenza (swap ruoli/gruppi, visualizzazione utenti e ruoli del sistema, cambio pin, ecc.)
 -	NOTIFICHECONTROLLER: contiene tutte le operazioni sulle notifiche
 -	AUTENTICAZIONECONTROLLER: contiene tutte le operazioni di autenticazione al portale
@@ -194,7 +194,7 @@ Il sotto-progetto Client costituisce la parte principale della parte CLIENT. Sec
 -	VIDEOTUTORIAL: Contiene i tutorial per l’utilizzo del PEM.
 
 #### CLIENT – LIBRERIE
-La parte di interfaccia utente di PEM è stata realizzata utilizzando le tecnologie attualmente più evolute che consentono la visualizzazione responsive dell’applicazione. In particolare, sono stati utilizzati:
+La parte di interfaccia utente di PEM-DASI è stata realizzata utilizzando le tecnologie attualmente più evolute che consentono la visualizzazione responsive dell’applicazione. Particolare attenzione è stata dedicata alla scelta di librerie opensource in modo da rendere tutta l'applicazione priva di strumenti coperti da licenze proprietarie e quindi con codice sorgente non modificabile. In quest'ottica si può affermare che la piattaforma PEM-DASI è pianmente in linea con la logica del riuso e consente la più ampia possibilità di personalizzazione. In particolare, sono stati utilizzati:
 -	Materialize (stile) - [Documentation - Materialize (materializecss.com)](https://materializecss.com/)
 -	jQuery (javascript) - [jQuery](https://jquery.com/)
 -	Trumbowyg (editor testo) - [https://alex-d.github.io/Trumbowyg/](https://alex-d.github.io/Trumbowyg/))
