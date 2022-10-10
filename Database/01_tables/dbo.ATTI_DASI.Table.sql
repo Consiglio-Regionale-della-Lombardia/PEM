@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 04/10/2022 13:48:53 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 06/10/2022 18:43:16 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -68,6 +68,8 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[UID_MOZ_Abbinata] [uniqueidentifier] NULL,
 	[UID_Atto_ODG] [uniqueidentifier] NULL,
 	[Non_Passaggio_In_Esame] [bit] NOT NULL,
+	[Inviato_Al_Protocollo] [bit] NOT NULL,
+	[DataInvioAlProtocollo] [datetime] NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -91,5 +93,8 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_IDStato_Motivazione]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Inviato_Al_Protocollo]  DEFAULT ((0)) FOR [Inviato_Al_Protocollo]
 GO
 

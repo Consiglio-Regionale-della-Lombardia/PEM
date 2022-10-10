@@ -2264,18 +2264,56 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-                var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
-                var attoDto = await GetAttoDto(atto.UIDAtto);
-                var content = PdfStamper.CreaPDFInMemory(body, attoDto, "");
-
+                var content = await PDFIstantaneo(atto, persona);
                 var res = await ComposeFileResponse(content,
-                    $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}.pdf");
+                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}.pdf");
                 return res;
             }
             catch (Exception e)
             {
                 Log.Error("DownloadPDFIstantaneo", e);
+                throw e;
+            }
+        }
+
+        private async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        {
+            try
+            {
+                var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+                var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
+                var attoDto = await GetAttoDto(atto.UIDAtto);
+                return PdfStamper.CreaPDFInMemory(body, attoDto, "");
+            }
+            catch (Exception e)
+            {
+                Log.Error("PDFIstantaneo", e);
+                throw e;
+            }
+        }
+
+        public async Task InviaAlProtocollo(Guid id)
+        {
+            try
+            {
+                var atto = await _unitOfWork.DASI.Get(id);
+                var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                var content = await PDFIstantaneo(atto, null);
+                var mailModel = new MailModel
+                {
+                    DA = AppSettingsConfiguration.EmailInvioDASI,
+                    A = AppSettingsConfiguration.EmailProtocolloDASI,
+                    OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
+                    MESSAGGIO =
+                        $"Si chiede di protocollare e inserire l’atto {nome_atto} con oggetto \"{atto.Oggetto}\" <br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
+                    bufferAttachment = content,
+                    nameAttachment = $"{nome_atto}.pdf"
+                };
+                await _logicUtil.InvioMail(mailModel);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - InviaAlProtocollo", e);
                 throw e;
             }
         }

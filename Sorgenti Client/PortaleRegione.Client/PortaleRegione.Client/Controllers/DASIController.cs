@@ -978,6 +978,28 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        /// <summary>
+        ///     Controller per inviare l'atto al protocollo
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("invia-al-protocollo")]
+        [HttpPost]
+        public async Task<ActionResult> InviaAlProtocollo(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.DASI.InviaAlProtocollo(id);
+                return Json(Url.Action("RiepilogoDASI", "DASI"), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         //FILTRI
 
         [HttpGet]

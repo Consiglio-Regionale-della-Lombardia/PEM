@@ -752,6 +752,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route("presentazione-cartacea")]
         public async Task<IHttpActionResult> PresentazioneCartacea(PresentazioneCartaceaModel model)
@@ -960,6 +961,29 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Download", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        /// Endpoint per inviare l'atto al protocollo
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpGet]
+        [Route("{id:guid}/invia-al-protocollo")]
+        public async Task<IHttpActionResult> InviaAlProtocollo(Guid id)
+        {
+            try
+            {
+                await _logic.InviaAlProtocollo(id);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Invio al protocollo", e);
                 return ErrorHandler(e);
             }
         }

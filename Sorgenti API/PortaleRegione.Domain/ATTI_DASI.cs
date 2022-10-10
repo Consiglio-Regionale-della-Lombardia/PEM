@@ -91,5 +91,7 @@ namespace PortaleRegione.Domain
         public Guid? UIDPersonaRichiestaIscrizione { get; set; }
         public bool Non_Passaggio_In_Esame { get; set; } = false;
         public int NAtto_search { get; set; } = 0;
+        public bool Inviato_Al_Protocollo { get; set; } = false;
+        public DateTime? DataInvioAlProtocollo { get; set; }
     }
 }
