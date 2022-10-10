@@ -69,5 +69,6 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin);
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
         Task<FileResponse> Download(Guid id);
+        Task InviaAlProtocollo(Guid id);
     }
 }

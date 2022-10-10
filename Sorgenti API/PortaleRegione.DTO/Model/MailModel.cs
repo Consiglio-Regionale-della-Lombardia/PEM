@@ -26,6 +26,8 @@ namespace PortaleRegione.DTO.Model
         public string OGGETTO { get; set; }
         public string MESSAGGIO { get; set; }
         public string pathAttachment { get; set; } = string.Empty;
+        public byte[] bufferAttachment { get; set; }
+        public string nameAttachment { get; set; } = string.Empty;
         public bool IsDeposito { get; set; } = false;
     }
 }

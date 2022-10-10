@@ -87,6 +87,12 @@ namespace PortaleRegione.BAL
                     msg.Attachments.Add(new Attachment(model.pathAttachment));
                 }
 
+                if (model.bufferAttachment != null)
+                {
+                    var stream = new MemoryStream(model.bufferAttachment);
+                    msg.Attachments.Add(new Attachment(stream, model.nameAttachment, "application/pdf"));
+                }
+
                 var smtp = new SmtpClient(AppSettingsConfiguration.SMTP);
 
                 await smtp.SendMailAsync(msg);

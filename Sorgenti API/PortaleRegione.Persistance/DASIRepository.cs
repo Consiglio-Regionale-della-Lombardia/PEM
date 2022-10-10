@@ -83,6 +83,10 @@ namespace PortaleRegione.Persistance
                          && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
             }
+            else
+            {
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+            }
 
             if (soggetti != null)
                 if (soggetti.Count > 0)
@@ -154,6 +158,10 @@ namespace PortaleRegione.Persistance
                 else if (!persona.IsSegreteriaAssemblea
                          && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
+            }
+            else
+            {
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
             }
 
             if (soggetti != null)

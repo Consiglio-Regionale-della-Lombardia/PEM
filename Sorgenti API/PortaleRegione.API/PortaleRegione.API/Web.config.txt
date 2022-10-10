@@ -80,6 +80,7 @@
 
     <!--DASI-->
     <add key="EmailInvioDASI" value="YOUR_EMAIL" />
+    <add key="EmailProtocolloDASI" value="YOUR_PROTOCOL_EMAIL" />
     <add key="urlDASI_ViewATTO" value="LINK_DASI" />
     <add key="LimitePresentazioneMassivo" value="1" />
     <add key="MinimoConsiglieriIQT" value="1" />

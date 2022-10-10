@@ -910,6 +910,26 @@ namespace PortaleRegione.Gateway
                 Log.Error("DownloadDASI", ex);
                 throw ex;
             }
+        }
+
+        public async Task InviaAlProtocollo(Guid id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/dasi/{id}/invia-al-protocollo";
+
+                await Get(requestUrl, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("InviaAlProtocollo", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("InviaAlProtocollo", ex);
+                throw ex;
+            }
 
         }
 
