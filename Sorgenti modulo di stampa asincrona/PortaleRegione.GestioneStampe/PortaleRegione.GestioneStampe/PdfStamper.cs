@@ -19,7 +19,6 @@ namespace PortaleRegione.GestioneStampe
 
         public PdfStamper()
         {
-
         }
 
         public static void CreaPDF(string txtHTML, string path, EmendamentiDto em, string urlPEM)
@@ -437,6 +436,23 @@ namespace PortaleRegione.GestioneStampe
                 }
 
                 return bytes;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CreaPDFInMemory DASI Error-->", ex);
+                throw ex;
+            }
+
+        }
+
+        public static byte[] CreaPDFInMemory_IRON(string txtHTML, AttoDASIDto atto, string url)
+        {
+            byte[] bytes;
+            try
+            {
+                var Renderer = new IronPdf.ChromePdfRenderer();
+                var pdf = Renderer.RenderHtmlAsPdf(txtHTML);
+                return pdf.Stream.ToArray();
             }
             catch (Exception ex)
             {
