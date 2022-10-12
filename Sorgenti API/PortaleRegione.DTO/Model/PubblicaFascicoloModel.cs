@@ -31,6 +31,8 @@ namespace PortaleRegione.DTO.Model
         /// Fascicolazione in base all'enum
         /// </summary>
         public OrdinamentoEnum Ordinamento { get; set; }
+
+        public int ClientMode { get; set; } = (int)ClientModeEnum.GRUPPI;
         /// <summary>
         /// Abilita o disabilita
         /// </summary>

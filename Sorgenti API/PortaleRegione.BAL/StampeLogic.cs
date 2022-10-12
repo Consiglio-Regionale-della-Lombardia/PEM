@@ -68,46 +68,57 @@ namespace PortaleRegione.BAL
 
                 var firmatari = new List<Guid>();
                 var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
-                {
-                    firmatari_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == "Firmatario"));
-                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
-                }
-
-                var proponenti = new List<Guid>();
-                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
-                {
-                    proponenti_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
-                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
-                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
-                }
 
                 var gruppi = new List<int>();
                 var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
-                {
-                    gruppi_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
-                    gruppi.AddRange(gruppi_request.Select(gruppo => Convert.ToInt32(gruppo.Value.ToString())));
-                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
-                }
 
                 var stati = new List<int>();
                 var stati_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
+
+                var proponenti = new List<Guid>();
+                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro != null)
                 {
-                    stati_request =
-                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
-                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                    if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
+                    {
+                        firmatari_request =
+                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                                statement.PropertyId == "Firmatario"));
+                        firmatari.AddRange(
+                            firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
+                        foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
+                    }
+
+                    if (model.filtro.Any(statement =>
+                        statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
+                    {
+                        proponenti_request =
+                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                                statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
+                        proponenti.AddRange(proponenti_request.Select(proponente =>
+                            new Guid(proponente.Value.ToString())));
+                        foreach (var proponenteStatement in proponenti_request)
+                            model.filtro.Remove(proponenteStatement);
+                    }
+
+                    if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
+                    {
+                        gruppi_request =
+                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                                statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
+                        gruppi.AddRange(gruppi_request.Select(gruppo => Convert.ToInt32(gruppo.Value.ToString())));
+                        foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
+                    }
+
+
+                    if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
+                    {
+                        stati_request =
+                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                                statement.PropertyId == nameof(EmendamentiDto.IDStato)));
+                        stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                        foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                    }
                 }
 
                 queryFilter.ImportStatements(model.filtro);
@@ -116,7 +127,8 @@ namespace PortaleRegione.BAL
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
 
                 var queryEM =
-                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
+                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter,
+                        model.ordine, firmatari, proponenti, gruppi, stati);
                 stampa.QueryEM = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
@@ -126,14 +138,10 @@ namespace PortaleRegione.BAL
                 stampa.Lock = false;
                 stampa.Tentativi = 0;
                 if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDEM.HasValue)
-                {
                     stampa.Scadenza = null;
-                }
                 else
-                {
                     stampa.Scadenza =
                         DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
-                }
 
                 _unitOfWork.Stampe.Add(stampa);
                 await _unitOfWork.CompleteAsync();
@@ -286,7 +294,6 @@ namespace PortaleRegione.BAL
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
                     || persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta
                     || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
-                {
                     foreach (var stampa in stampe)
                     {
                         var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
@@ -294,12 +301,10 @@ namespace PortaleRegione.BAL
                         stampaDto.Info = infos?.Message;
                         stampaDto.Richiedente =
                             Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                 await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
+                                await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
                         result.Add(stampaDto);
                     }
-                }
                 else
-                {
                     foreach (var stampa in stampe)
                     {
                         var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
@@ -307,7 +312,6 @@ namespace PortaleRegione.BAL
                         stampaDto.Info = infos?.Message;
                         result.Add(stampaDto);
                     }
-                }
 
                 return new BaseResponse<StampaDto>(
                     model.page,

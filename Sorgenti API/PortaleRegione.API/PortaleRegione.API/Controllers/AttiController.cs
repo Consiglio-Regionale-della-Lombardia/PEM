@@ -17,6 +17,8 @@
  */
 
 using AutoMapper;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Domain;
@@ -26,6 +28,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -119,7 +122,7 @@ namespace PortaleRegione.API.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+
         /// <summary>
         /// Endpoint per avere un singolo atto
         /// </summary>
@@ -142,7 +145,7 @@ namespace PortaleRegione.API.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per eliminare virtualmente un atto
         /// </summary>
@@ -584,9 +587,19 @@ namespace PortaleRegione.API.Controllers
                             UIDAtto = model.Id,
                             Da = 0,
                             A = 0,
-                            Ordine = (int) model.Ordinamento
+                            Ordine = (int)model.Ordinamento
                         },
-                        ordine = model.Ordinamento
+                        ordine = model.Ordinamento,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", model.ClientMode } },
+                        filtro = new List<FilterStatement<EmendamentiDto>>()
+                        {
+                            new FilterStatement<EmendamentiDto>
+                            {
+                                PropertyId = nameof(EmendamentiDto.UIDAtto),
+                                Operation = Operation.EqualTo,
+                                Value = model.Id
+                            }
+                        }
                     }, persona);
                 }
 
