@@ -13,7 +13,7 @@ Va puntualizzato che, per i due canali di accesso, la categoria di utenti non e�
 
 ### Procedura di autenticazione, di firma e immodificabilità
 
-Il portale prevede per entrambi i moduli due livelli di autenticazione: un primo livello per l’accesso al sistema e la gestione delle bozze degli emendamenti; un secondo livello per effettuare le operazioni con rilevanza pubblica che garantisca l’identificabilità del soggetto che effettua l’operazione.
+Il portale prevede per entrambi i moduli due livelli di autenticazione: un primo livello per l’accesso al sistema e la gestione delle bozze degli atti; un secondo livello per effettuare le operazioni con rilevanza pubblica che garantisca l’identificabilità del soggetto che effettua l’operazione.
 
 ### Accesso al sistema (autenticazione di primo livello)
 
@@ -35,8 +35,10 @@ Di particolare importanza, sotto il profilo della sicurezza del sistema, è la m
 La gestione dei PIN dispositivi rispetta le seguenti caratteristiche:
 
 - SEGRETEZZA: il PIN viene conosciuto esclusivamente dal titolare ed eventualmente dall’amministratore del sistema PEM (che vi può accedere solo per necessità tecniche o in caso di contestazioni);
-- SICUREZZA: il PIN viene custodito in un archivio sicuro, accessibile solo al personale incaricato e protetto da sistemi crittografici che ne impediscono la visualizzazione “in chiaro” e la modifica manuale degli stessi. Sono inoltre previsti adeguati piani di Backup dell’archivio;
-- IMMODIFICABILITA’: il PIN, una volta generato/creato, non può più essere né cancellato né modificato. L’amministratore del sistema o l’intestatario del PIN, attraverso apposita funzionalità messa a disposizione dalla piattaforma, può generare/creare un nuovo PIN che sostituisce il precedente (che viene marcato temporalmente e mantenuto in archivio per poter decrittografare vecchi ATTI firmati). Prevista per l’Amministratore del Sistema una funzionalità che permette di generare un nuovo PIN dispositivo casuale e che va obbligatoriamente sostituito dall’intestatario al primo accesso.
+- SICUREZZA: il PIN viene custodito in un archivio sicuro, accessibile solo al personale incaricato e protetto da sistemi crittografici che ne impediscono la visualizzazione “in chiaro” e la modifica manuale dello stesso. Sono inoltre previsti adeguati piani di Backup dell’archivio;
+- IMMODIFICABILITA’: il PIN, una volta generato/creato, non può più essere né cancellato né modificato. L’amministratore del sistema o l’intestatario del PIN, attraverso apposita funzionalità messa a disposizione dalla piattaforma, può generare/creare un nuovo PIN che sostituisce il precedente (che viene marcato temporalmente e mantenuto in archivio per poter decrittografare vecchi ATTI firmati). 
+
+E' inoltre prevista per l’Amministratore del Sistema una funzionalità che permette di generare un nuovo PIN dispositivo casuale e che va obbligatoriamente sostituito dall’intestatario al primo accesso.
 
 ### Modalità di utilizzo del PIN dispositivo
 
