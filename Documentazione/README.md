@@ -56,12 +56,7 @@ Al fine di identificare in maniera certa il primo firmatario di un atto, unico s
 
 4. DEPOSITO DEGLI ATTI
 Al momento del deposito: il software richiede l’immissione di un PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato ad effettuare il deposito). 
-Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
-  - il numero dell’ATTO appena generato dal sistema;
-  - la data e l’ora di deposito rilevata dal server;
-  - una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO;
-  - l’identificativo del soggetto che ha effettuato il deposito.
-La crittografia viene effettuata utilizzando la chiave-embedded. Dopo il deposito, l’ATTO diventa immodificabile.
+Se il PIN è valido effettua il deposito dell’ATTO, crittografando: il numero dell’ATTO appena generato dal sistema; la data e l’ora di deposito rilevata dal server; una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO; l’identificativo del soggetto che ha effettuato il deposito. La crittografia viene effettuata utilizzando la chiave-embedded. Dopo il deposito, l’ATTO diventa immodificabile.
 
 5. RITIRO DI UNA FIRMA
 Per poter ritirare una firma ad un ATTO il software richiede l’immissione del proprio PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN appartiene al soggetto a cui appartiene anche la firma che si sta tentando di ritirare).
