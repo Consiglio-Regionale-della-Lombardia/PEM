@@ -52,14 +52,15 @@ Al momento della firma da parte del “primo firmatario”: il software richiede
 Al momento della firma: il software richiede all’utente l’immissione del PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato a firmare l’ATTO). Utilizzando la chiave embedded, crittografa la firma ovvero l’identificativo del firmatario e l’orario in cui è avvenuta l’operazione.
 
 3. INVITO PER LA SOTTOSCRIZIONE DI UN ATTO
-Al fine di identificare in maniera certa il primo firmatario di un emendamento, unico soggetto titolato ad invitare per la sottoscrizione di un ATTO un consigliere appartenente ad un altro gruppo, al momento dell’invito il software richiede il PIN dispositivo e ne verifica l’appartenenza al primo firmatario per procedere con l’operazione.
+Al fine di identificare in maniera certa il primo firmatario di un atto, unico soggetto titolato ad invitare per la sottoscrizione un consigliere appartenente ad un altro gruppo, al momento dell’invito il software richiede il PIN dispositivo e ne verifica l’appartenenza al primo firmatario per procedere con l’operazione.
 
 4. DEPOSITO DEGLI ATTI
-Al momento del deposito: il software richiede l’immissione di un PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato ad effettuare il deposito). Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
- - il numero dell’ATTO appena generato dal sistema;
- - la data e l’ora di deposito rilevata dal server;
- - una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO;
- - l’identificativo del soggetto che ha effettuato il deposito.
+Al momento del deposito: il software richiede l’immissione di un PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato ad effettuare il deposito). 
+Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
+  - il numero dell’ATTO appena generato dal sistema;
+  - la data e l’ora di deposito rilevata dal server;
+  - una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO;
+  - l’identificativo del soggetto che ha effettuato il deposito.
 
 La crittografia viene effettuata utilizzando la chiave-embedded.
 Dopo il deposito, l’ATTO diventa immodificabile.
