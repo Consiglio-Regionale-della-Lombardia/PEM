@@ -104,7 +104,6 @@ Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un 
 - [Segreterie di presidente/assessori/sottosegretari](#segreterie-di-presidenteassessorisottosegretari)
 - [Responsabili di segreteria di presidente/assessori/sottosegretari](#responsabili-di-segreteria-di-presidenteassessorisottosegretari)
 - [Amministratori di Giunta](#amministratori-di-giunta)
-- [Amministratori del sistema](#amministratori-del-sistema)
 - [Allegati](#allegati)
 
 ## Introduzione Modulo PEM
