@@ -45,21 +45,22 @@ E' inoltre prevista per l’Amministratore del Sistema una funzionalità che per
 Per gestire il requisito di immodificabilità del numero e del testo degli ATTI firmati, della data e ora, nonché delle firme, si utilizza la crittografia. Attraverso la crittografia tutte le informazioni che non devono poter essere modificate sono rese “trattabili” solo attraverso il Sistema PEM-DASI.
 L’utilizzo dei PIN dispositivi avverrà e sarà regolato come descritto successivamente.
 
-1. FIRMA DI UN EMENDAMENTO DA PARTE DEL TITOLARE DELL’INIZIATIVA
+1. FIRMA DI UN ATTO DA PARTE DEL TITOLARE DELL’INIZIATIVA
 Al momento della firma da parte del “primo firmatario”: il software richiede l’immissione del PIN all’utente/consigliere/assessore/sottosegretario e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene al soggetto titolato a firmare l’emendamento). Utilizza il PIN immesso dal primo firmatario per crittografare l'ATTO (arricchito con i metadati relativi ad articolo, comma, ecc…) rendendolo immodificabile. Utilizzando una chiave conosciuta solo allo sviluppatore del sw, che chiameremo chiave-embedded, crittografa la firma ovvero l’identificativo del firmatario e la data e l’orario in cui è avvenuta l’operazione.
 
 2. FIRME SUCCESSIVE ALLA PRIMA
 Al momento della firma: il software richiede all’utente l’immissione del PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato a firmare l’ATTO). Utilizzando la chiave embedded, crittografa la firma ovvero l’identificativo del firmatario e l’orario in cui è avvenuta l’operazione.
 
-3. INVITO PER LA SOTTOSCRIZIONE DI UN EMENDAMENTO
+3. INVITO PER LA SOTTOSCRIZIONE DI UN ATTO
 Al fine di identificare in maniera certa il primo firmatario di un emendamento, unico soggetto titolato ad invitare per la sottoscrizione di un ATTO un consigliere appartenente ad un altro gruppo, al momento dell’invito il software richiede il PIN dispositivo e ne verifica l’appartenenza al primo firmatario per procedere con l’operazione.
 
-4. DEPOSITO DEGLI EMENDAMENTI
+4. DEPOSITO DEGLI ATTI
 Al momento del deposito: il software richiede l’immissione di un PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN, seppur corretto, appartiene a un soggetto titolato ad effettuare il deposito). Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
  - il numero dell’ATTO appena generato dal sistema;
  - la data e l’ora di deposito rilevata dal server;
  - una stringa contente l’elenco (nominativo – data e ora) dei firmatari dell’ATTO;
  - l’identificativo del soggetto che ha effettuato il deposito.
+
 La crittografia viene effettuata utilizzando la chiave-embedded.
 Dopo il deposito, l’ATTO diventa immodificabile.
 
