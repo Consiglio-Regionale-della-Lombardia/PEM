@@ -62,20 +62,6 @@ Se il PIN è valido effettua il deposito dell’ATTO, crittografando: il numero 
 Per poter ritirare una firma ad un ATTO il software richiede l’immissione del proprio PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN appartiene al soggetto a cui appartiene anche la firma che si sta tentando di ritirare).
 Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro della firma ovvero l’orario in cui è avvenuta l’operazione. (Nel caso un ATTO non sia ancora stato depositato, la firma viene eliminata dal sistema)
 
-# Modulo PEM - Presentazione Emendamenti
-Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un progetto di legge (titolo, articolo, comma, allegato, ecc.) prima che questo venga votato dall’assemblea legislativa regionale. I subemendamenti sono invece proposte di modifica riferite ad un emendamento precedentemente presentato. Il Portale PEM aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM).
-
-# Modulo DASI – Presentazione Atti di indirizzo e di sindacato ispettivo
-Gli atti di indirizzo e di sindacato ispettivo sono atti, tipici della tradizione parlamentare, attraverso i quali il Consiglio esercita la funzione di controllo sull’esecutivo e concorre alla determinazione dell’indirizzo politico (articolo 14, comma 1, dello Statuto d’autonomia).
-
-Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal Regolamento generale sono mozioni, ordini del giorno e risoluzioni:
--	La mozione (MOZ) è il tipico strumento assembleare, è uno strumento autonomo e, quanto ai contenuti, non subisce limiti espressi;
--	L’ordine del giorno (ODG) è uno strumento accessorio ad altro atto, in genere un progetto di legge; è anche lo strumento tipico con cui l’Aula conclude i dibattiti su un determinato argomento;
--	La risoluzione (RIS) è il frutto del dibattito e dell’elaborazione in una Commissione consiliare di un tema specifico a contenuto settoriale e non viene pertanto trattata attraverso questo strumento informatico.
-
-La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
-
-## Contenuti
 ## Ruoli degli utenti
 Di seguito sono riportati i ruouli ricoperti dagli utenti all'interno dei moduli PEM e DASI, fatto salvo per gli utenti della Giunta regionale i quali possono operare solo all'interno del modulo PEM:
 
@@ -102,11 +88,13 @@ Altro applicativo con cui i moduli PEM-DASI dialogano è Ge.CO. disponibile su g
 -	Anagrafica delle commissioni consiliari
 Per tale motivo il funzionamento della piattaforma è strettamente legato a questa integrazione. In assenza di tale integrazione, per poter utilizzare la piattaforma, è necessario sviluppare opportuni moduli per la gestione/integrazione delle suddette anagrafiche.
 
-A seguire, verranno illustrate le differenti funzionalità del Portale PEM-DASI a seconda del ruolo dell'utente loggato al sistema.
+A seguire, verranno illustrate le differenti funzionalità del Portale suddivise per i due moduli PEM e DASI.
 
-## Modulo PEM - Presentazione Emendamenti 
+
+# Modulo PEM - Presentazione Emendamenti
+Gli emendamenti sono proposte di modifica riferite ad uno specifico punto di un progetto di legge (titolo, articolo, comma, allegato, ecc.) prima che questo venga votato dall’assemblea legislativa regionale. I subemendamenti sono invece proposte di modifica riferite ad un emendamento precedentemente presentato. Il Portale PEM aiuta a de-materializzare e informatizzare le procedure del Consiglio Regionale per la presentazione di emendamenti/subemendamenti (EM/SUBEM).
+
 - [Introduzione](#introduzione)
-- [Ruoli degli utenti](#ruoli-degli-utenti)
 - [Servizio Segreteria dell’Assemblea](#servizio-segreteria-dellassemblea)
 - [Segreteria dei diversi gruppi consiliari](#segreteria-dei-diversi-gruppi-consiliari)
 - [Responsabile di segreteria dei diversi gruppi consiliari](#responsabile-di-segreteria-dei-diversi-gruppi-consiliari)
@@ -375,7 +363,13 @@ Gli Amministratori di Giunta gestiscono gli utenti “GIUNTA” del sistema e po
 
 ![Allegato 1](/Documentazione/Screenshot/Allegato_1.jpg)
 
-## Modulo DASI 
+
+# Modulo DASI – Presentazione Atti di indirizzo e di sindacato ispettivo
+Gli atti di indirizzo e di sindacato ispettivo sono atti, tipici della tradizione parlamentare, attraverso i quali il Consiglio esercita la funzione di controllo sull’esecutivo e concorre alla determinazione dell’indirizzo politico (articolo 14, comma 1, dello Statuto d’autonomia).
+
+Gli strumenti di indirizzo politico, denominati ATTI DI INDIRIZZO, previsti dal Regolamento generale sono mozioni, ordini del giorno e risoluzioni.
+La funzione di controllo invece, come definita a livello parlamentare, si estrinseca (anche) nell’attività di sindacato ispettivo (ATTI DI SINDACATO ISPETTIVO), e viene tradizionalmente esercitata attraverso gli strumenti tipici dell’interpellanza (ITL), dell’interrogazione (ITR) e dell’interrogazione a risposta immediata (IQT).
+
 - [Introduzione Modulo DASI](#Introduzione-Modulo-DASI)
 - [Modalità di digitalizzazione degli Atti](#Modalità-di-digitalizzazione-degli-Atti)
 - [Caratteristiche peculiari delle diverse tipologie degli atti](#Caratteristiche-peculiari-delle-diverse-tipologie-degli-atti)
