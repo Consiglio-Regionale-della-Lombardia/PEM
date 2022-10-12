@@ -63,7 +63,7 @@ Se il PIN è valido effettua il deposito dell’ATTO, crittografando:
   - l’identificativo del soggetto che ha effettuato il deposito.
 La crittografia viene effettuata utilizzando la chiave-embedded. Dopo il deposito, l’ATTO diventa immodificabile.
 
-5. Ritiro di una firma
+5. RITIRO DI UNA FIRMA
 Per poter ritirare una firma ad un ATTO il software richiede l’immissione del proprio PIN e accedendo all’archivio delle chiavi, ne verifica la validità e la coerenza (ovvero verifica se quel PIN appartiene al soggetto a cui appartiene anche la firma che si sta tentando di ritirare).
 Utilizzando la chiave embedded crittografa e memorizza i dati relativi al ritiro della firma ovvero l’orario in cui è avvenuta l’operazione. (Nel caso un ATTO non sia ancora stato depositato, la firma viene eliminata dal sistema)
 
