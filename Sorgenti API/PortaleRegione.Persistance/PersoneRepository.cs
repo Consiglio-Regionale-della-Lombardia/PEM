@@ -264,7 +264,8 @@ namespace PortaleRegione.Persistance
                     .View_UTENTI
                     .Where(u =>
                         u.legislatura_attuale == true
-                        && u.No_Cons == 0);
+                        && u.No_Cons == 0
+                        && u.attivo == true);
 
                 return await query.ToListAsync();
             }
@@ -285,13 +286,20 @@ namespace PortaleRegione.Persistance
 
         public async Task UpdateUtente_NoCons(Guid uid_persona, int id_persona, string userAd)
         {
-            var effrow =
-                await PRContext.Database.ExecuteSqlCommandAsync(
-                    $"UPDATE join_persona_AD set userAD='{userAd}' where UID_persona='{uid_persona}'");
-            if (effrow < 1)
+            try
             {
-                await PRContext.Database.ExecuteSqlCommandAsync(
-                    $"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
+                var effrow =
+                    await PRContext.Database.ExecuteSqlCommandAsync(
+                        $"UPDATE join_persona_AD set userAD='{userAd}' where UID_persona='{uid_persona}'");
+                if (effrow < 1)
+                {
+                    await PRContext.Database.ExecuteSqlCommandAsync(
+                        $"INSERT INTO join_persona_AD(userAD,UID_persona,id_persona) values ('{userAd}','{uid_persona}', {id_persona})");
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
 

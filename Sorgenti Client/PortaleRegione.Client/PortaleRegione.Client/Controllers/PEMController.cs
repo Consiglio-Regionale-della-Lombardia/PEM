@@ -231,8 +231,6 @@ namespace PortaleRegione.Client.Controllers
                     Value = Convert.ToDateTime(filtro_a).ToString("yyyy-MM-dd")
                 });
 
-            if (!model.filtro.Any())
-                return RedirectToAction("RiepilogoSedute");
             var apiGateway = new ApiGateway(_Token);
             var results = await apiGateway.Sedute.Get(model);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||

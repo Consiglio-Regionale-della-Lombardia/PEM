@@ -55,23 +55,23 @@
         switch (persona.Stato_Pin)
         {
             case StatoPinEnum.VALIDO:
-            {
-                messaggio = "Pin valido";
-                colorPin = "green";
-                break;
-            }
+                {
+                    messaggio = "Pin valido";
+                    colorPin = "green";
+                    break;
+                }
             case StatoPinEnum.RESET:
-            {
-                messaggio = "Pin da resettare";
-                colorPin = "orange";
-                break;
-            }
+                {
+                    messaggio = "Pin da resettare";
+                    colorPin = "orange";
+                    break;
+                }
             case StatoPinEnum.NESSUNO:
-            {
-                messaggio = "Nessun pin impostato";
-                colorPin = "red";
-                break;
-            }
+                {
+                    messaggio = "Nessun pin impostato";
+                    colorPin = "red";
+                    break;
+                }
         }
         <div class="col l6 m6 s12">
             <div class="card hoverable" title="@persona.DisplayName">
@@ -134,103 +134,12 @@
     }
 </div>
 
-<div id="slide-out-DX" class="sidenav sidenav-search" style="overflow: auto !important">
-    <div class="row">
-        <div class="col s12">
-            @using (Html.BeginForm("SearchUsers", "AdminPanel", FormMethod.Post, new { id = "formSearchUsers" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="hfPage" name="page" value="@Model.Data.Paging.Page"/>
-                <input type="hidden" id="hfSize" name="size" value="@Model.Data.Paging.Limit"/>
-
-                <div class="form-group">
-                    <label>Ricerca per persona</label>
-                    <input id="txtQ" type="text" name="q" class="form-control" placeholder="Cerca" value="@Html.Raw(Model.Data.Filters.Any(f => f.PropertyId == nameof(PersonaDto.cognome)) ? Model.Data.Filters.First(f => f.PropertyId == nameof(PersonaDto.cognome)).Value : "")"/>
-                </div>
-                if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
-                {
-                    <div class="form-group">
-                        <label>Ruoli</label>
-                        <select id="filter_ruoli" name="ruoli" class="form-control" multiple="multiple">
-                            <option value="">--</option>
-                            <option value="@((int)RuoliIntEnum.Amministratore_PEM)">Amministratore PEM</option>
-                            <option value="@((int)RuoliIntEnum.Presidente_Regione)">Presidente della Regione Lombardia</option>
-                            <option value="@((int)RuoliIntEnum.Amministratore_Giunta)">Amministratore Giunta</option>
-                            <option value="@((int)RuoliIntEnum.Assessore_Sottosegretario_Giunta)">Assessore/Sottosegretario Giunta</option>
-                            <option value="@((int)RuoliIntEnum.Segreteria_Assemblea)">Segreteria dell'Assemblea</option>
-                            <option value="@((int)RuoliIntEnum.Consigliere_Regionale)">Consigliere</option>
-                            <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Politica)">Responsabile di segreteria Politica</option>
-                            <option value="@((int)RuoliIntEnum.Responsabile_Segreteria_Giunta)">Responsabile di segreteria Giunta</option>
-                            <option value="@((int)RuoliIntEnum.Segreteria_Giunta_Regionale)">Segreteria Giunta</option>
-                            <option value="@((int)RuoliIntEnum.Segreteria_Politica)">Segreteria Politica</option>
-                            <option value="@((int)RuoliIntEnum.Utente)">Utente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Gruppi</label>
-                        <select id="filter_gruppi" name="gruppi" class="form-control" multiple="multiple">
-                            <option value="">--</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <p>
-                            <label>
-                                <input type="checkbox" name="no_cons" @Html.Raw(Model.Data.Filters.Any(f => f.PropertyId == nameof(PersonaDto.No_Cons)) ? "checked='checked'" : "")/>
-                                <span>Solo non consiglieri</span>
-                            </label>
-                        </p>
-                    </div>
-                    <div class="form-group">
-                        <label>Legislatura</label>
-                        <select id="filter_legislature" name="legislatura" class="form-control" multiple="multiple"></select>
-                    </div>
-                }
-            }
-        </div>
-    </div>
-    <div class="row">
-        <div class="col s12 center">
-            <a class="btn chip blue white-text" style="min-width: unset" onclick="$('#hfPage').val(1);$('#formSearchUsers').submit();">Cerca</a>
-            <a href="@Url.Action("RiepilogoUtenti")" class="btn chip grey white-text" style="min-width: unset">Reset</a>
-        </div>
-    </div>
-</div>
-
-<input type="hidden" id="hdPersonaUID"/>
-
-<div id="modalResetPin" class="modal">
-    <div class="modal-content">
-        <h5>Attenzione</h5>
-        <p>Sei sicuro di voler resettare il pin di <b id="txtDisplayNamePersonaPin"></b>?</p>
-        <div class="form-group">
-            <label>Inserisci nuovo pin</label>
-            <input type="text" id="txtResetPin"/>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnResetPin" class="btn red" href="#">RESET PIN</a>
-        </div>
-    </div>
-</div>
-
-<div id="modalResetPassword" class="modal">
-    <div class="modal-content">
-        <h5>Attenzione</h5>
-        <p>Sei sicuro di voler resettare la password di <b id="txtDisplayNamePersonaPassword"></b>?</p>
-        <div class="form-group">
-            <label>Inserisci nuova password</label>
-            <input type="text" id="txtResetPassword"/>
-        </div>
-        <div class="form-group">
-            <label>Conferma password</label>
-            <input type="text" id="txtResetPassword_Confirm"/>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnResetPassword" class="btn red" href="#">RESET PASSWORD</a>
-        </div>
-    </div>
-</div>
+<input type="hidden" id="hdPersonaUID" />
+@{
+    Html.RenderPartial("_RiepilogoUtentiFiltri", Model);
+    Html.RenderPartial("_RiepilogoUtenti_ModalResetPin");
+    Html.RenderPartial("_RiepilogoUtenti_ModalResetPassword");
+}
 
 @if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
 {
@@ -242,187 +151,8 @@
     </div>
 }
 
-<script>
 
-    function filtra(page) {
-        $('#hfPage').val(page);
-        $('#formSearchUsers').submit();
-    }
-
-    function filtra_Paginazione(size) {
-        $('#hfSize').val(size);
-        $('#formSearchUsers').submit();
-    }
-
-    async function loadLegislature() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters.Where(f => f.PropertyId == nameof(PersonaDto.legislature))));
-        var legislature = await GetLegislature();
-        if (legislature.length > 0) {
-            var select = $("#filter_legislature");
-            select.empty();
-            select.append('<option value="0">Seleziona</option>');
-
-            $.each(legislature,
-                function(index, item) {
-                    var template = "<option></option>";
-                    select.append($(template).val(item.num_legislatura).html(item.num_legislatura));
-                });
-
-            var elems = document.querySelectorAll("#filter_legislature");
-            M.FormSelect.init(elems, null);
-
-            if (currentFilter.length > 0) {
-                var selected_filter = [];
-                $.each(currentFilter,
-                    function(index, item) {
-                        selected_filter.push(item.Value.replace(/-/g, ""));
-                    });
-                $('#filter_legislature').val(selected_filter);
-                $('#filter_legislature').formSelect();
-            }
-        }
-    }
-
-    async function loadGruppi() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif))));
-        var gruppi = await GetGruppiInDb();
-        if (gruppi.length > 0) {
-            var select = $("#filter_gruppi");
-            select.empty();
-            select.append('<option value="0">Seleziona</option>');
-
-            $.each(gruppi,
-                function(index, item) {
-                    var template = "<option></option>";
-                    select.append($(template).val(item.id).html(item.descr_con_legislatura));
-                });
-
-            var elems = document.querySelectorAll("#filter_gruppi");
-            M.FormSelect.init(elems, null);
-
-            if (currentFilter.length > 0) {
-                var selected_filter = [];
-                $.each(currentFilter,
-                    function(index, item) {
-                        selected_filter.push(item.Value.replace(/-/g, ""));
-                    });
-                $('#filter_gruppi').val(selected_filter);
-                $('#filter_gruppi').formSelect();
-            }
-        }
-    }
-
-    function loadRuoli() {
-        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli))));
-        if (currentFilter.length > 0) {
-            var selected_filter = [];
-            $.each(currentFilter,
-                function(index, item) {
-                    selected_filter.push(item.Value.replace(/-/g, ""));
-                });
-            $('#filter_ruoli').val(selected_filter);
-            $('#filter_ruoli').formSelect();
-        }
-    }
-
-    $('#btnResetPin').click(function() {
-        $('#btnResetPin').attr("disabled", true);
-        var pin = {
-            new_value: $('#txtResetPin').val(),
-            persona_UId: $('#hdPersonaUID').val()
-        };
-        $.ajax({
-            url: '@Url.Action("ResetPin", "AdminPanel")',
-            type: "POST",
-            data: JSON.stringify(pin),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
-        }).done(async function(data) {
-            if (data.message) {
-                swal({
-                    title: "Errore",
-                    text: data.message,
-                    icon: "error"
-                });
-                $('#btnResetPin').attr("disabled", false);
-                return;
-            }
-            SuccessModal("Reset pin effettuato correttamente", $('#modalResetPin'));
-            $('#btnResetPin').attr("disabled", false);
-        }).fail(function(err) {
-            $('#btnResetPin').attr("disabled", false);
-            console.log("error", err);
-            Error(err);
-        });
-    });
-
-    $('#btnResetPassword').click(function() {
-        if ($('#txtResetPassword').val() != $('#txtResetPassword_Confirm').val()) {
-            swal({
-                title: "Attenzione",
-                text: "Le password non coincidono",
-                icon: "warning",
-                button: {
-                    confirm: "Ok"
-                }
-            });
-            return;
-        }
-        $('#btnResetPassword').attr("disabled", true);
-        var password = {
-            new_value: $('#txtResetPassword').val(),
-            persona_UId: $('#hdPersonaUID').val()
-        };
-        $.ajax({
-            url: '@Url.Action("ResetPassword", "AdminPanel")',
-            type: "POST",
-            data: JSON.stringify(password),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
-        }).done(function(data) {
-            if (data.message) {
-                swal({
-                    title: "Errore",
-                    text: data.message,
-                    icon: "error"
-                });
-                $('#btnResetPassword').attr("disabled", false);
-                return;
-            }
-            SuccessModal("Reset password effettuato correttamente", $('#modalResetPassword'));
-            $('#btnResetPassword').attr("disabled", false);
-        }).fail(function(err) {
-            $('#btnResetPassword').attr("disabled", false);
-            console.log("error", err);
-            Error(err);
-        });
-    });
-
-    function openResetPin(id, displayName) {
-        $('#btnResetPin').attr("disabled", false);
-        $('#hdPersonaUID').val(id);
-        $('#txtDisplayNamePersonaPin').text(displayName);
-        $('#modalResetPin').modal('open');
-    }
-
-    function openResetPassword(id, displayName) {
-        $('#btnResetPassword').attr("disabled", false);
-        $('#hdPersonaUID').val(id);
-        $('#txtDisplayNamePersonaPassword').text(displayName);
-        $('#modalResetPassword').modal('open');
-    }
-
-    $(document).ready(async function() {
-        await loadLegislature();
-        await loadGruppi();
-        loadRuoli();
-
-        var text = $("#txtQ").val();
-        highlight(text);
-
-        $('#btnSearch').on("click",
-            function() {
-                openSearch();
-            });
-    });
-</script>
+@{
+    Html.RenderPartial("_RiepilogoUtentiScript", Model.Filters);
+}
+}

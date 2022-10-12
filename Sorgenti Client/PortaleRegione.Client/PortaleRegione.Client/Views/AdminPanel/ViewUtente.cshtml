@@ -10,7 +10,7 @@
     else
     {
         ViewBag.Title = Model.Persona.DisplayName;
-        disable_fields = true;
+        disable_fields = Model.Persona.No_Cons == 0;
     }
     var backUrl = Url.Action("RiepilogoUtenti");
 }

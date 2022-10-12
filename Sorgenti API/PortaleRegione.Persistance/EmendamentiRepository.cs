@@ -523,21 +523,6 @@ namespace PortaleRegione.Persistance
 
             if (CLIENT_MODE == (int)ClientModeEnum.TRATTAZIONE)
             {
-                var filter_value = filtro.Statements.FirstOrDefault(item => item.PropertyId == nameof(AttiDto.UIDAtto)).Value;
-                var uidAtto = new Guid(filter_value.ToString());
-                var atto = await PRContext
-                    .ATTI
-                    .SingleAsync(a => a.UIDAtto == uidAtto);
-                if (atto.OrdinePresentazione == false && ordinamentoEnum == OrdinamentoEnum.Presentazione)
-                {
-                    return default;
-                }
-
-                if (atto.OrdineVotazione == false && ordinamentoEnum == OrdinamentoEnum.Votazione)
-                {
-                    return default;
-                }
-
                 query = query.Where(em => em.IDStato >= (int)StatiEnum.Depositato && !string.IsNullOrEmpty(em.DataDeposito));
             }
             else

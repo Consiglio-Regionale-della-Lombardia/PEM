@@ -17,6 +17,8 @@
  */
 
 using AutoMapper;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
@@ -28,6 +30,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.Logger;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -588,7 +591,17 @@ namespace PortaleRegione.API.Controllers
                             A = 0,
                             Ordine = (int)model.Ordinamento
                         },
-                        ordine = model.Ordinamento
+                        ordine = model.Ordinamento,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", model.ClientMode } },
+                        filtro = new List<FilterStatement<EmendamentiDto>>()
+                        {
+                            new FilterStatement<EmendamentiDto>
+                            {
+                                PropertyId = nameof(EmendamentiDto.UIDAtto),
+                                Operation = Operation.EqualTo,
+                                Value = model.Id
+                            }
+                        }
                     }, persona);
 
                 return Ok();
