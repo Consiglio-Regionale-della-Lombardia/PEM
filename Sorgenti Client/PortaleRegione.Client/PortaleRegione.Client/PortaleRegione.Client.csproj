@@ -387,6 +387,11 @@
     <Content Include="Views\Emendamenti\_MetaDatiPanelAdmin.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiFormPartial.cshtml" />
     <Content Include="Views\Emendamenti\_MetaDatiPanelPartial.cshtml" />
+    <Content Include="Views\Sedute\_SeduteScript.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtentiScript.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtentiFiltri.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPin.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

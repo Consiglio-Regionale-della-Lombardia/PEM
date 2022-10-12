@@ -19,6 +19,7 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.Gateway;
+using System;
 using System.Configuration;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -57,15 +58,24 @@ namespace PortaleRegione.Client.Controllers
             get
             {
                 if (!HttpContext.User.Identity.IsAuthenticated) return default;
-                var jwtCookie1 = Request.Cookies["SCookies1"];
-                var jwtCookie2 = Request.Cookies["SCookies2"];
-                var jwtCookie3 = Request.Cookies["SCookies3"];
-                var jwtTicket1 = FormsAuthentication.Decrypt(jwtCookie1.Value);
-                var jwtTicket2 = FormsAuthentication.Decrypt(jwtCookie2.Value);
-                var jwtTicket3 = FormsAuthentication.Decrypt(jwtCookie3.Value);
-                var current_jwt = string.Join("", jwtTicket1.UserData, jwtTicket2.UserData, jwtTicket3.UserData);
+                try
+                {
+                    var jwtCookie1 = Request.Cookies["SCookies1"];
+                    var jwtCookie2 = Request.Cookies["SCookies2"];
+                    var jwtCookie3 = Request.Cookies["SCookies3"];
+                    var jwtTicket1 = FormsAuthentication.Decrypt(jwtCookie1.Value);
+                    var jwtTicket2 = FormsAuthentication.Decrypt(jwtCookie2.Value);
+                    var jwtTicket3 = FormsAuthentication.Decrypt(jwtCookie3.Value);
+                    var current_jwt = string.Join("", jwtTicket1.UserData, jwtTicket2.UserData, jwtTicket3.UserData);
 
-                return current_jwt;
+                    return current_jwt;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    FormsAuthentication.SignOut();
+                    throw new UnauthorizedAccessException("Sessione scaduta");
+                }
             }
         }
 

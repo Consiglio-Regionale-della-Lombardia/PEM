@@ -13,8 +13,8 @@
     {
         @Html.AntiForgeryToken()
 
-        <input type="hidden" name="page" value="@Model.Page" />
-        <input type="hidden" name="size" value="@Model.Limit" />
+        <input type="hidden" id="inputFilterPage" name="page" value="@Model.Page" />
+        <input type="hidden" id="inputFilterSize" name="size" value="@Model.Limit" />
         <div class="row">
             <div class="col s12">
                 <div class="form-group">

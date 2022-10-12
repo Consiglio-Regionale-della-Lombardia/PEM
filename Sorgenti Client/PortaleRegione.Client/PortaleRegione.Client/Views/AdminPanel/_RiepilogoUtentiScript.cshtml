@@ -1,0 +1,181 @@
+﻿@using Newtonsoft.Json
+@using PortaleRegione.DTO.Domain
+@model System.Collections.Generic.List<ExpressionBuilder.Generics.FilterStatement<PortaleRegione.DTO.Domain.PersonaDto>>
+
+<script>
+
+    async function loadLegislature() {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Where(f=> f.PropertyId == nameof(PersonaDto.legislature))));
+        var legislature = await GetLegislature();
+        if (legislature.length > 0) {
+            var select = $("#filter_legislature");
+            select.empty();
+            select.append('<option value="0">Seleziona</option>');
+
+            $.each(legislature,
+                function(index, item) {
+                    var template = "<option></option>";
+                    select.append($(template).val(item.num_legislatura).html(item.num_legislatura));
+                });
+
+            var elems = document.querySelectorAll("#filter_legislature");
+            M.FormSelect.init(elems, null);
+
+            if(currentFilter.length > 0) {
+                var selected_filter = [];
+                $.each(currentFilter, function(index, item) {
+                    selected_filter.push(item.Value.replace(/-/g, ""));
+                });
+                $('#filter_legislature').val(selected_filter);
+                $('#filter_legislature').formSelect();
+            }
+        }
+    }
+
+    async function loadGruppi() {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Where(f=> f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif))));
+        var gruppi = await GetGruppiInDb();
+        if (gruppi.length > 0) {
+            var select = $("#filter_gruppi");
+            select.empty();
+            select.append('<option value="0">Seleziona</option>');
+
+            $.each(gruppi,
+                function(index, item) {
+                    var template = "<option></option>";
+                    select.append($(template).val(item.id).html(item.descr_con_legislatura));
+                });
+
+            var elems = document.querySelectorAll("#filter_gruppi");
+            M.FormSelect.init(elems, null);
+
+            if(currentFilter.length > 0) {
+                var selected_filter = [];
+                $.each(currentFilter, function(index, item) {
+                    selected_filter.push(item.Value.replace(/-/g, ""));
+                });
+                $('#filter_gruppi').val(selected_filter);
+                $('#filter_gruppi').formSelect();
+            }
+        }
+    }
+
+    function loadRuoli() {
+        var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Where(f=> f.PropertyId == nameof(PersonaDto.Ruoli))));
+        if(currentFilter.length > 0) {
+            var selected_filter = [];
+            $.each(currentFilter, function(index, item) {
+                selected_filter.push(item.Value.replace(/-/g, ""));
+            });
+            $('#filter_ruoli').val(selected_filter);
+            $('#filter_ruoli').formSelect();
+        }
+    }
+
+    $('#btnResetPin').click(function() {
+        $('#btnResetPin').attr("disabled", true);
+        var pin = {
+            new_value: $('#txtResetPin').val(),
+            persona_UId: $('#hdPersonaUID').val()
+        };
+        $.ajax({
+            url: '@Url.Action("ResetPin", "AdminPanel")',
+            type: "POST",
+            data: JSON.stringify(pin),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        }).done(async function(data) {
+            if (data.message) {
+                ErrorAlert(data.message);
+                $('#btnResetPin').attr("disabled", false);
+                return;
+            }
+            SuccessModal("Reset pin effettuato correttamente", $('#modalResetPin'));
+            $('#btnResetPin').attr("disabled", false);
+        }).fail(function(err) {
+            $('#btnResetPin').attr("disabled", false);
+            console.log("error", err);
+            ErrorAlert(err);
+        });
+    });
+
+    $('#btnResetPassword').click(function() {
+        if ($('#txtResetPassword').val() != $('#txtResetPassword_Confirm').val()) {
+            swal({
+                title: "Attenzione",
+                text: "Le password non coincidono",
+                icon: "warning",
+                button: {
+                    confirm: "Ok"
+                }
+            });
+            return;
+        }
+        $('#btnResetPassword').attr("disabled", true);
+        var password = {
+            new_value: $('#txtResetPassword').val(),
+            persona_UId: $('#hdPersonaUID').val()
+        };
+        $.ajax({
+            url: '@Url.Action("ResetPassword", "AdminPanel")',
+            type: "POST",
+            data: JSON.stringify(password),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        }).done(function(data) {
+            if (data.message) {
+                ErrorAlert(data.message);
+                $('#btnResetPassword').attr("disabled", false);
+                return;
+            }
+            SuccessModal("Reset password effettuato correttamente", $('#modalResetPassword'));
+            $('#btnResetPassword').attr("disabled", false);
+        }).fail(function(err) {
+            $('#btnResetPassword').attr("disabled", false);
+            console.log("error", err);
+            ErrorAlert(err);
+        });
+    });
+
+    function openResetPin(id, displayName) {
+        $('#btnResetPin').attr("disabled", false);
+        $('#hdPersonaUID').val(id);
+        $('#txtDisplayNamePersonaPin').text(displayName);
+        $('#modalResetPin').modal('open');
+    }
+
+    function openResetPassword(id, displayName) {
+        $('#btnResetPassword').attr("disabled", false);
+        $('#hdPersonaUID').val(id);
+        $('#txtDisplayNamePersonaPassword').text(displayName);
+        $('#modalResetPassword').modal('open');
+    }
+
+    $(document).ready(async function() {
+        await loadLegislature();
+        await loadGruppi();
+        loadRuoli();
+    });
+
+    function filtra() {
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formSearchUsers').submit();
+    }
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formSearchUsers').submit();
+    }
+
+    function filtra_Paginazione(size) {
+        $('#inputFilterSize').val(size);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formSearchUsers').submit();
+    }
+</script>

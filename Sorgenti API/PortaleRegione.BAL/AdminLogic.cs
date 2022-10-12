@@ -599,20 +599,32 @@ namespace PortaleRegione.BAL
                     }
 
 
-                    if (request.no_Cons == 1)
+                    try
                     {
-                        //Consigliere/Assessore
-                        UTENTI_NoCons persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
-                        persona.id_gruppo_politico_rif = request.id_gruppo_politico_rif;
-                        persona.UserAD = request.userAD;
-                        persona.notifica_firma = request.notifica_firma;
-                        persona.notifica_deposito = request.notifica_deposito;
-                        await _unitOfWork.CompleteAsync();
+                        if (request.no_Cons == 1)
+                        {
+                            //Consigliere/Assessore
+                            UTENTI_NoCons persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
+                            persona.nome = request.nome;
+                            persona.cognome = request.cognome;
+                            persona.email = request.email;
+                            persona.foto = request.foto;
+                            persona.id_gruppo_politico_rif = request.id_gruppo_politico_rif;
+                            persona.UserAD = request.userAD;
+                            persona.notifica_firma = request.notifica_firma;
+                            persona.notifica_deposito = request.notifica_deposito;
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        else
+                        {
+                            await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
+                                request.userAD.Replace(@"CONSIGLIO\", ""));
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                            request.userAD.Replace(@"CONSIGLIO\", ""));
+                        Log.Error($"Salvataggio", e);
+                        throw;
                     }
                 }
 
@@ -620,6 +632,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
+                Log.Error($"SalvaUtente", e);
                 throw e;
             }
         }
