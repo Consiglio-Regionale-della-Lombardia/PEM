@@ -576,18 +576,20 @@ Il sistema permetterà di iscrivere tutti gli OdG depositati, a prescindere dall
 
 Al momento del deposito il sistema avvisa tramite messaggio e-mail il Servizio segreteria assemblea dell’avvenuto depositato dell’OdG.
 
-## Amministratori del sistema
+# Amministrazione del sistema
 
+L'area amministrativa del sistema è comune ad entrambi moduli e consente di gestire gli utenti della piattaform e i relativi permessi, sfruttando un'integrazione con l'Active Directory di dominio.
 Gli Amministratori del sistema accedono al portale con visibilità completa sugli atti inseriti e in qualsiasi stato si trovino.
 Possono autenticarsi al sistema “impersonando” una qualsiasi tipologia d’utenza (Segreteria dell’Assemblea, Consigliere, Responsabile di Segreteria, Assessore, ecc…).
-Possono gestire completamente gli utenti del sistema, che possono accedere al modulo PEM e al modulo DASI, per quanto riguarda le operazioni di:
+Possono gestire completamente gli utenti del sistema che possono accedere al modulo PEM e al modulo DASI.
+L'area amministrativa mette a disposizione degli ads tutti gli strumenti per effettuare le operazioni di:
 - ricerca di utenze;
 - creazione/disabilitazione di utenze;
 - modifica delle password operative;
 - generazione, ma non visibilità, di nuovi PIN: il PIN generato viene notificato all’interessato, che dovrà modificarlo obbligatoriamente al primo accesso al sistema;
 - assegnazione, utilizzando un’apposita funzionalità web d’interfacciamento con i gruppi Active directory, delle diverse visibilità sulle aree del sistema.
 
-Gestiscono tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
+Gli amministratori del sistema PEM-DASI gestiscono inoltre tutti i parametri di configurazione del portale e sono gli unici a poter eseguire le operazioni per il cambio legislatura.
 
 ![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
