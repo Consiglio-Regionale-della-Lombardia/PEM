@@ -2283,7 +2283,7 @@ namespace PortaleRegione.API.Controllers
                 var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
                 var attoDto = await GetAttoDto(atto.UIDAtto);
-                return PdfStamper.CreaPDFInMemory(body, attoDto, "");
+                return PdfStamper.CreaPDFInMemory_IRON(body, attoDto, "");
             }
             catch (Exception e)
             {
@@ -2310,6 +2310,11 @@ namespace PortaleRegione.API.Controllers
                     nameAttachment = $"{nome_atto}.pdf"
                 };
                 await _logicUtil.InvioMail(mailModel);
+
+                atto.Inviato_Al_Protocollo = true;
+                atto.DataInvioAlProtocollo = DateTime.Now;
+
+                await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
             {
