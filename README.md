@@ -242,7 +242,7 @@ La versione 2.0 separa la parte client dell’applicazione da quella server attr
 La piattaforma PEM/DASI è stata realizzata con librerie opensource gratuite e tutte le sue funzionalità sono state sviluppate utilizzando queste librerie.
 Per quanto riguarda la stampa in PDF, per migliorare le performance, la qualità dell'output e gestire le criticità dovute al "copia/incolla" dei testi da documenti Microsoft Word, nella versione installata presso il Consiglio regionale della lombardia è in uso la libreria **a pagamento** IronPDF (vedere il paragrafo "Licenze dei componenti di terze parti" per maggiori informazioni).
 
-Nel progetto è comunque disponibile la libreria opensource ITextSharp e tutto il codice per generare le stampe pdf degli atti utilizzando questa libreria, mettendo così a disposizione una versione completamente opensource e gratuita di PEM/DASI (il codice è tenuto aggiornato e compatibile con la libreria ITextSharp fino alla versione corrente della piattaforma - ver 2.2)
+Nel progetto è comunque disponibile la libreria opensource ITextSharp e tutto il codice per generare le stampe pdf degli atti utilizzando questa libreria, mettendo così a disposizione una versione completamente opensource e gratuita di PEM/DASI (il codice è tenuto aggiornato e compatibile con la libreria ITextSharp **fino** alla versione corrente della piattaforma - ver 2.2 - nelle versioni successive non si garantisce lo sviluppo di codice che utilizza ITextSharp)
 
 
 NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versione beta.
