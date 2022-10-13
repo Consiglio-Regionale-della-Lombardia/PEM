@@ -221,39 +221,45 @@ else
                 </td>
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI && item.Tipo != (int)TipoAttoEnum.ITR)
                 {
-                    <td style="width: 9%;">
-                        @{
-                            var textSeduta = string.Empty;
-                            var tooltipSeduta = string.Empty;
+            <td style="width: 9%;">
+                @{
+                    if (item.Tipo == (int)TipoAttoEnum.ITL && (item.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO || item.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
+                    {
 
-                            if (item.DataIscrizioneSeduta.HasValue)
-                            {
-                                textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
-                                tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                                <span class="tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                                    <b>@textSeduta</b>
-                                    <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
-                                </span>
-                            }
-                            else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
-                            {
-                                textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
-                                tooltipSeduta = "Richiesta in attesa di elaborazione";
+                    }
+                    else
+                    {
+                        var textSeduta = string.Empty;
+                        var tooltipSeduta = string.Empty;
 
-                                <span class="tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                                    <i>@textSeduta</i>
-                                    <i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
-                                </span>
-                            }
-                            else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int) StatiAttoEnum.PRESENTATO)
-                            {
-                                <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                                    Iscrivi
-                                </div>
-                            }
+                        if (item.DataIscrizioneSeduta.HasValue)
+                        {
+                            textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
+                            tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
+                            <span class="tooltipped" data-tooltip="@tooltipSeduta" onclick="RimuoviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                <b>@textSeduta</b>
+                                <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
+                            </span>
                         }
+                        else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int)StatiAttoEnum.PRESENTATO)
+                        {
+                            textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
+                            tooltipSeduta = "Richiesta in attesa di elaborazione";
 
-                    </td>
+                            <span class="tooltipped" data-tooltip="@tooltipSeduta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                <i>@textSeduta</i>
+                                <i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
+                            </span>
+                        }
+                        else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int)StatiAttoEnum.PRESENTATO)
+                        {
+                            <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                Iscrivi
+                            </div>
+                        }
+                    }
+                }
+            </td>
                 }
                 <td class="center" style="width: 5%;">
 

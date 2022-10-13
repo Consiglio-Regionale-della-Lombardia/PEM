@@ -1681,6 +1681,18 @@ namespace PortaleRegione.API.Controllers
                 {
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                    if (atto.Tipo == (int)TipoAttoEnum.ITL
+                    && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
+                    {
+                        throw new Exception(
+                            "ERROR: Non è possibile iscrivere in seduta per le ITL SCRITTE o IN COMMISSIONE.");
+                    }
+                    if (atto.Tipo == (int)TipoAttoEnum.ITR)
+                    {
+                        throw new Exception(
+                            "ERROR: Non è possibile iscrivere in seduta le ITR.");
+                    }
                     atto.UIDSeduta = model.UidSeduta;
                     atto.DataIscrizioneSeduta = DateTime.Now;
                     atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
@@ -1739,6 +1751,16 @@ namespace PortaleRegione.API.Controllers
                 {
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                    if (atto.Tipo == (int)TipoAttoEnum.ITL)
+                    {
+                        throw new Exception(
+                            "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITL.");
+                    }
+                    if (atto.Tipo == (int)TipoAttoEnum.ITR)
+                    {
+                        throw new Exception(
+                            "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITR.");
+                    }
 
                     if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     {
