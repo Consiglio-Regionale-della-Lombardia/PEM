@@ -237,7 +237,10 @@ La soluzione del progetto in Visual Studio risulta quella in figura:
 ## Note sulla release
 
 Il codice sorgente pubblicato è relativo alla piattaforma PEM-DASI nella release 2.2, che integra il modulo PEM e il modulo DASI ed è l'evoluzione di una prima versione di PEM sviluppata in asp.net.
-Questa nuova versione, oltre ad utilizzare esclusivamente librerie e componenti opensource, separa la parte client dell’applicazione da quella server attraverso lo sviluppo di API dedicate e introduce miglioramenti nelle performance e nella gestione delle stampe pdf. L’introduzione delle API per la gestione dei dati e delle elaborazioni principali facilita lo sviluppo di un’app per dispositivi mobili (Apple e Android).
+La versione 2.0 separa la parte client dell’applicazione da quella server attraverso lo sviluppo di API dedicate e introduce miglioramenti nelle performance e nella gestione delle stampe pdf. L’introduzione delle API per la gestione dei dati e delle elaborazioni principali facilita lo sviluppo di App per dispositivi mobili (Apple e Android).
+La piattaforma PEM/DASI è stata realizzata con librerie opensource gratuite e tutte le sue funzionalità sono state sviluppate utilizzando queste librerie.
+Per quanto riguarda la stampa in PDF, per migliorare le performance, la qualità dell'output e gestire le criticità dovute al "copia/incolla" dei testi da documenti Microsoft Word, nella versione installata presso il Consiglio regionale della lombardia è in utilizzo la libreria **a pagamento** IronPDF (vedere il paragrafo "Licenze dei componenti di terze parti" per maggiori informazioni).
+Nel progetto è comunque disponibile la libreria opensource ITextSharp e tutto il codice per generare stampe pdf con questa libreria. In questo modo è resa comunque disponibile ed utilizzabile una versione completamente opensource e gratuita di PEM/DASI.
 NOTA: Io modulo DASI è attualmente in fase di test e viene rilasciato in versione beta.
 
 ## Requisiti del sistema
@@ -284,6 +287,9 @@ All'interno del codice del Portale PEM-DASI sono stati utilizzati i seguenti com
  https://github.com/itext/itextsharp
  con licenza [GNU Affero General Public License version 3](https://github.com/itext/itextsharp/blob/develop/LICENSE.md)
  
+ - IronPDF
+ https://ironpdf.com/licensing/
+ con licenza commerciale EULA **non opensource** e **NON GRATUITA**
  
 - Trumbowyg
  https://github.com/Alex-D/Trumbowyg
