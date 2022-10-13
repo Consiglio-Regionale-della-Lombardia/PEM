@@ -1758,6 +1758,7 @@ function JollyODG(attoUId, jolly) {
                 text: data.message,
                 icon: "error"
             });
+            return;
         }
         if (blocca == true) {
             SuccessAlert("Ordini del giorno: jolly disabilitato");
@@ -1778,6 +1779,14 @@ function InviaAlProtocollo(attoUId) {
         type: "GET"
     }).done(function(result) {
         waiting(false);
+        if (result.message) {
+            swal({
+                title: "Errore",
+                text: result.message,
+                icon: "error"
+            });
+            return;
+        }
         swal("Atto inviato al protocollo con successo!").then((val) => {
                 location.reload();
             });

@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Helpers\ITextEvents.cs" />
     <Compile Include="PdfStamper.cs" />
+    <Compile Include="PdfStamper_IronPDF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

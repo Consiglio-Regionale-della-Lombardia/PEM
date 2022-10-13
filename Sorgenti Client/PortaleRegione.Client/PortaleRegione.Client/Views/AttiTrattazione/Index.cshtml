@@ -158,29 +158,6 @@
                     </div>
                 </li>
             }
-            @if (attoDasi.CountBarData.ITR > 0)
-            {
-                <li>
-                    <div class="collapsible-header">
-                        <i class="material-icons pink-text">textsms</i>
-                        @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.ITR)
-                        <div class="collapsabile-secondary-header">
-                            <div class="chip">@(attoDasi.CountBarData.ITR) Atti</div>
-                        </div>
-                    </div>
-                    <div class="collapsible-body">
-                        <div class="row">
-                            <div class="col s12 right-align">
-                                <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = sedutaUid, tipo = (int) TipoAttoEnum.ITR})')" title="Riepilogo atti in seduta">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo Atti In Seduta
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            }
             @if (attoDasi.CountBarData.IQT > 0)
             {
                 <li>

@@ -341,7 +341,9 @@ namespace PortaleRegione.BAL
                                 await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
                         result.Add(stampaDto);
                     }
+                }
                 else
+                {
                     foreach (var stampa in stampe)
                     {
                         var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
@@ -349,6 +351,7 @@ namespace PortaleRegione.BAL
                         stampaDto.Info = infos?.Message;
                         result.Add(stampaDto);
                     }
+                }
 
                 return new BaseResponse<StampaDto>(
                     model.page,

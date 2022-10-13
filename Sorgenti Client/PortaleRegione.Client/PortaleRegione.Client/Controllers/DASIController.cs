@@ -984,7 +984,7 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Route("invia-al-protocollo")]
-        [HttpPost]
+        [HttpGet]
         public async Task<ActionResult> InviaAlProtocollo(Guid id)
         {
             try

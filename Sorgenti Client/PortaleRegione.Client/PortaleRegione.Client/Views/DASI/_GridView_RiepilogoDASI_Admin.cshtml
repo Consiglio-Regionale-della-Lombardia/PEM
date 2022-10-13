@@ -42,7 +42,7 @@ else
             @*<th>Soggetto</th>*@
             <th>Firmatari</th>
             <th>Stato</th>
-            @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+            @if (Model.ClientMode == ClientModeEnum.GRUPPI && Model.Tipo != TipoAttoEnum.ITR)
             {
                 <th>Seduta</th>
             }
@@ -98,11 +98,11 @@ else
                     </div>
                     @if (item.Inviato_Al_Protocollo)
                     {
-                        <i class="material-icons green-text tooltipped" data-tooltip="Inviato il @item.DataInvioAlProtocollo.Value.ToString("dd/MM/yyyy HH:mm")" style="position: absolute; margin-top: 3px;">sync</i>
+                        <i class="material-icons green-text tooltipped" data-tooltip="Inviato il @item.DataInvioAlProtocollo.Value.ToString("dd/MM/yyyy HH:mm")" style="position: absolute; margin-top: 3px; cursor: pointer;">sync</i>
                     }
                     else if(Model.ClientMode == ClientModeEnum.GRUPPI)
                     {
-                        <i class="material-icons orange-text tooltipped" data-tooltip="Invia al protocollo" style="position: absolute; margin-top: 3px;" onclick="InviaAlProtocollo('@item.UIDAtto')">sync_problem</i>
+                        <i class="material-icons orange-text tooltipped" data-tooltip="Invia al protocollo" style="position: absolute; margin-top: 3px; cursor: pointer;" onclick="InviaAlProtocollo('@item.UIDAtto')">sync_problem</i>
                     }
                 </td>
                 @if (item.Tipo != (int) TipoAttoEnum.MOZ)
@@ -219,7 +219,7 @@ else
                         </ul>
                     }
                 </td>
-                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI && item.Tipo != (int)TipoAttoEnum.ITR)
                 {
                     <td style="width: 9%;">
                         @{

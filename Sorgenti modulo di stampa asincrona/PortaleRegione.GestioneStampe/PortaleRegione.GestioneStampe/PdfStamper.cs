@@ -445,21 +445,6 @@ namespace PortaleRegione.GestioneStampe
 
         }
 
-        public static byte[] CreaPDFInMemory_IRON(string txtHTML, AttoDASIDto atto, string url)
-        {
-            byte[] bytes;
-            try
-            {
-                var Renderer = new IronPdf.ChromePdfRenderer();
-                var pdf = Renderer.RenderHtmlAsPdf(txtHTML);
-                return pdf.Stream.ToArray();
-            }
-            catch (Exception ex)
-            {
-                Log.Error("CreaPDFInMemory DASI Error-->", ex);
-                throw ex;
-            }
 
-        }
     }
 }

@@ -2283,7 +2283,8 @@ namespace PortaleRegione.API.Controllers
                 var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
                 var attoDto = await GetAttoDto(atto.UIDAtto);
-                return PdfStamper.CreaPDFInMemory_IRON(body, attoDto, "");
+                var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+                return await stamper.CreaPDFInMemory(body, attoDto, "");
             }
             catch (Exception e)
             {
