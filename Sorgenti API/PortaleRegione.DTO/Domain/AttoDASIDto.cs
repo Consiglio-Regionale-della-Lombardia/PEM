@@ -56,6 +56,7 @@ namespace PortaleRegione.DTO.Domain
         public DateTime? DataModifica { get; set; }
         public Guid? UIDPersonaModifica { get; set; }
         public string DataPresentazione { get; set; }
+        public string DataPresentazione_MOZ { get; set; }
         public string DataPresentazione_MOZ_URGENTE { get; set; }
         public string DataPresentazione_MOZ_ABBINATA { get; set; }
         public string DataRichiestaIscrizioneSeduta { get; set; }
@@ -122,5 +123,46 @@ namespace PortaleRegione.DTO.Domain
         public string ODG_Atto_PEM { get; set; }
         public bool Inviato_Al_Protocollo { get; set; } = false;
         public DateTime? DataInvioAlProtocollo { get; set; }
+
+        public bool IsMOZ()
+        {
+            return Tipo == (int)TipoAttoEnum.MOZ;
+        }
+        public bool IsMOZOrdinaria()
+        {
+            return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ORDINARIA;
+        }
+        public bool IsMOZUrgente()
+        {
+            return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.URGENTE;
+        }
+        public bool IsMOZAbbinata()
+        {
+            return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ABBINATA;
+        }
+        public bool IsMOZSfiducia()
+        {
+            return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.SFIDUCIA;
+        }
+        public bool IsMOZCensura()
+        {
+            return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.CENSURA;
+        }
+        public bool IsIQT()
+        {
+            return Tipo == (int)TipoAttoEnum.IQT;
+        }
+        public bool IsITL()
+        {
+            return Tipo == (int)TipoAttoEnum.ITL;
+        }
+        public bool IsITR()
+        {
+            return Tipo == (int)TipoAttoEnum.ITR;
+        }
+        public bool IsODG()
+        {
+            return Tipo == (int)TipoAttoEnum.ODG;
+        }
     }
 }

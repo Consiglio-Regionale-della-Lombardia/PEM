@@ -52,26 +52,37 @@ else
                 </p>
                 @if (item.PresentatoOltreITermini)
                 {
-                    <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Depositato oltre i termini">warning</i>
+                    var txtOltreItermini = "Depositato oltre i termini";
+                    if (item.IsMOZAbbinata())
+                    {
+                        txtOltreItermini = "Richiesta di abbinamento effettuata fuori termine";
+                    }else if (item.IsMOZUrgente())
+                    {
+                        txtOltreItermini = "Richiesta di urgenza effettuata fuori termine";
+                    }else if (item.IsMOZ())
+                    {
+                        txtOltreItermini = "Richiesta di iscrizione effettuata fuori termine";
+                    }
+                    <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="@txtOltreItermini">warning</i>
                 }
-                @if (item.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                @if (item.IsMOZUrgente())
                 {
                     <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di urgenza">priority_high</i>
                 }
-                @if (item.TipoMOZ == (int)TipoMOZEnum.CENSURA)
+                @if (item.IsMOZCensura())
                 {
                     <i class="close material-icons purple-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di censura">speaker_notes_off</i>
                 }
-                @if (item.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
+                @if (item.IsMOZSfiducia())
                 {
                     <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di sfiducia">thumb_down</i>
                 }
-                @if (item.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                @if (item.IsMOZAbbinata())
                 {
                     <i class="close material-icons orange-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Proposta di abbinata">insert_link</i>
                     <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
                 }
-                @if (item.Tipo == (int)TipoAttoEnum.ODG)
+                @if (item.IsODG())
                 {
                     <i class="close material-icons orange-text icon_info_grid">insert_link</i>
                     <label class="blue-text">@item.ODG_Atto_PEM</label>
@@ -169,7 +180,8 @@ else
                             && item.Tipo != (int)TipoAttoEnum.ODG
                             && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
                             && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
-                            && Model.CurrentUser.IsCapoGruppo || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente))
+                            && Model.CurrentUser.IsCapoGruppo || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                            || (item.Tipo == (int)TipoAttoEnum.MOZ && Model.CurrentUser.UID_persona == item.UIDPersonaProponente))
                         {
                             <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
                                 <i class="icon material-icons black-text">settings</i>
@@ -177,7 +189,7 @@ else
 
                             <!-- Dropdown Structure -->
                             <ul id='dropdown_@item.UIDAtto' class='dropdown-content' style="max-width: 300px">
-                                @if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA)
+                                @if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && Model.CurrentUser.IsCapoGruppo)
                                 {
                                     <li>
                                         <a onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">

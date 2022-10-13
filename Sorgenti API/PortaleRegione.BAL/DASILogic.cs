@@ -407,6 +407,8 @@ namespace PortaleRegione.API.Controllers
 
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
+                    dto.DataPresentazione_MOZ = Decrypt(attoInDb.DataPresentazione_MOZ);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
                     dto.DataPresentazione_MOZ_URGENTE = Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
@@ -1761,7 +1763,6 @@ namespace PortaleRegione.API.Controllers
                         throw new Exception(
                             "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITR.");
                     }
-
                     if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     {
                         var checkIscrizioneSeduta =
@@ -1775,16 +1776,27 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        atto.DataPresentazione_MOZ = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"), AppSettingsConfiguration.masterKey);
+                    }
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
 
                     var nomeAtto =
                         $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                    if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                        continue;
                     listaRichieste.Add(nomeAtto);
                 }
 
                 try
                 {
+                    if (!listaRichieste.Any())
+                    {
+                        return;
+                    }
+
                     var mailModel = new MailModel
                     {
                         DA = persona.email,
@@ -1881,7 +1893,7 @@ namespace PortaleRegione.API.Controllers
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
-                attoInDb.DataPresentazione_MOZ_URGENTE = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                attoInDb.DataPresentazione_MOZ_URGENTE = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
@@ -1930,11 +1942,9 @@ namespace PortaleRegione.API.Controllers
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
                 }
 
-                //TODO: 1 sola mozione per gruppo politico e seduta in cui è iscritta alla mozione
-
                 atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;
-                atto.DataPresentazione_MOZ_ABBINATA = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                atto.DataPresentazione_MOZ_ABBINATA = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
 
                 await _unitOfWork.CompleteAsync();
@@ -2218,14 +2228,12 @@ namespace PortaleRegione.API.Controllers
         private bool IsOutdate(AttoDASIDto atto)
         {
             if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO) return false;
-            var data_presentazione = Convert.ToDateTime(atto.DataPresentazione);
             var result = false;
             switch ((TipoAttoEnum)atto.Tipo)
             {
                 case TipoAttoEnum.IQT:
                     {
-                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
-
+                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
                         break;
                     }
                 case TipoAttoEnum.MOZ:
@@ -2234,32 +2242,25 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
-                                    data_presentazione = Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE);
-                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
-
+                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) > atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
-                                    data_presentazione = Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA);
-                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
-
+                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) > atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
-                                    if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
-
+                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ) > atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
                                     break;
                                 }
                         }
-
                         break;
                     }
                 case TipoAttoEnum.ODG:
                     {
-                        if (data_presentazione > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
-
+                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
                     }
             }
