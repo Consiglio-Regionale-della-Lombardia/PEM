@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 06/10/2022 18:43:16 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 13/10/2022 14:02:05 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -30,6 +30,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataModifica] [datetime] NULL,
 	[UIDPersonaModifica] [uniqueidentifier] NULL,
 	[DataPresentazione] [varchar](255) NULL,
+	[DataPresentazione_MOZ] [varchar](255) NULL,
 	[DataPresentazione_MOZ_URGENTE] [varchar](255) NULL,
 	[DataPresentazione_MOZ_ABBINATA] [varchar](255) NULL,
 	[UIDPersonaPresentazione] [uniqueidentifier] NULL,
