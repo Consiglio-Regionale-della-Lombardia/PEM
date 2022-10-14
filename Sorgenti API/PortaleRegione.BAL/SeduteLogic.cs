@@ -168,7 +168,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(true, false);
 
                 return new BaseResponse<SeduteDto>(
                     1,

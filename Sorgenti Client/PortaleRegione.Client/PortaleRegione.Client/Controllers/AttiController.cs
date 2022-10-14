@@ -143,7 +143,7 @@ namespace PortaleRegione.Client.Controllers
                 else
                     attoSalvato = await apiGateway.Atti.Modifica(atto);
 
-                return Json(new ClientJsonResponse<AttiDto>
+                var result = Json(new ClientJsonResponse<AttiDto>
                 {
                     entity = attoSalvato,
                     url = Url.Action("RiepilogoAtti", "Atti", new
@@ -151,6 +151,7 @@ namespace PortaleRegione.Client.Controllers
                         id = atto.UIDSeduta
                     })
                 }, JsonRequestBehavior.AllowGet);
+                return result;
             }
             catch (Exception e)
             {
@@ -333,9 +334,17 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
+                var atto = await apiGateway.Atti.Get(model.Id);
                 await apiGateway.Atti.SalvaRelatori(model);
 
-                return Json("", JsonRequestBehavior.AllowGet);
+                var result = Json(new ClientJsonResponse<AttiDto>
+                {
+                    url = Url.Action("RiepilogoAtti", "Atti", new
+                    {
+                        id = atto.UIDSeduta
+                    })
+                }, JsonRequestBehavior.AllowGet);
+                return result;
             }
             catch (Exception e)
             {

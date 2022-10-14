@@ -414,9 +414,7 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
                     dto.DataPresentazione_MOZ_ABBINATA = Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
                 if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
-                {
                     dto.DataRichiestaIscrizioneSeduta = Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
-                }
 
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
                     dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
@@ -495,14 +493,10 @@ namespace PortaleRegione.API.Controllers
                     SEDUTE sedutaInDb = null;
 
                     if (!dto.UIDSeduta.HasValue)
-                    {
                         sedutaInDb =
                             await _logicSedute.GetSeduta(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
-                    }
                     else
-                    {
                         sedutaInDb = await _logicSedute.GetSeduta(dto.UIDSeduta.Value);
-                    }
 
                     if (sedutaInDb != null)
                     {
@@ -680,10 +674,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!persona.IsConsigliereRegionale)
-                {
-                    throw new Exception("Ruolo non abilitato alla firma di atti");
-                }
+                if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato alla firma di atti");
 
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
@@ -843,10 +834,8 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     if (atto.DataIscrizioneSeduta.HasValue)
-                    {
                         throw new InvalidOperationException(
                             "Non è possibile ritirare la firma durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
-                    }
 
                     var richiestaPresente =
                         await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
@@ -859,9 +848,7 @@ namespace PortaleRegione.API.Controllers
 
                     SEDUTE seduta = null;
                     if (atto.DataIscrizioneSeduta.HasValue)
-                    {
                         seduta = await _unitOfWork.Sedute.Get(atto.DataIscrizioneSeduta.Value);
-                    }
 
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
@@ -992,10 +979,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!persona.IsConsigliereRegionale)
-                {
-                    throw new Exception("Ruolo non abilitato al deposito di atti");
-                }
+                if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
 
                 var results = new Dictionary<Guid, string>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
@@ -1054,7 +1038,10 @@ namespace PortaleRegione.API.Controllers
                                 continue;
                             }
 
-                        if (seduta.Data_seduta <= DateTime.Now)
+                        var dataOdierna = DateTime.Now;
+                        if (seduta.Data_seduta.Day == dataOdierna.Day
+                            && seduta.Data_seduta.Month == dataOdierna.Month
+                            && seduta.Data_seduta.Year == dataOdierna.Year)
                         {
                             var atti_dopo_scadenza =
                                 my_atti.Where(a => a.Timestamp > seduta.Data_seduta)
@@ -1062,34 +1049,26 @@ namespace PortaleRegione.API.Controllers
                             if (atti_dopo_scadenza.Count >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                {
                                     results.Add(idGuid,
                                         $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per la {attoPEM.Oggetto}.");
-                                }
                                 else
-                                {
                                     results.Add(idGuid,
                                         $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-                                }
 
                                 continue;
                             }
                         }
                         else
                         {
-                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >=
+                            if (my_atti.Count(i => i.IDStato >= (int)StatiAttoEnum.PRESENTATO) >=
                                 AppSettingsConfiguration.MassimoODG)
                             {
                                 if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                {
                                     results.Add(idGuid,
                                         $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per la {attoPEM.Oggetto}.");
-                                }
                                 else
-                                {
                                     results.Add(idGuid,
                                         $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-                                }
 
                                 continue;
                             }
@@ -1141,7 +1120,8 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    var new_nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                    var new_nome_atto =
+                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
 
                     results.Add(idGuid, $"{new_nome_atto} - OK");
 
@@ -1248,9 +1228,9 @@ namespace PortaleRegione.API.Controllers
                 var consiglieriGruppo =
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
-                var minimo_firme = (count_consiglieri < minimo_consiglieri && !firmatari_di_altri_gruppi)
-                                   && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
-                                   && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
+                var minimo_firme = count_consiglieri < minimo_consiglieri && !firmatari_di_altri_gruppi
+                                                                          && atto.TipoMOZ != (int)TipoMOZEnum.SFIDUCIA
+                                                                          && atto.TipoMOZ != (int)TipoMOZEnum.CENSURA
                     ? count_consiglieri
                     : minimo_consiglieri;
 
@@ -1387,10 +1367,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (atto.DataIscrizioneSeduta.HasValue)
-                {
                     throw new InvalidOperationException(
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
-                }
 
                 atto.Eliminato = true;
                 atto.DataElimina = DateTime.Now;
@@ -1410,10 +1388,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (atto.DataIscrizioneSeduta.HasValue)
-                {
                     throw new InvalidOperationException(
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
-                }
 
                 atto.IDStato = (int)StatiAttoEnum.CHIUSO;
                 atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
@@ -1555,7 +1531,7 @@ namespace PortaleRegione.API.Controllers
                     sedute_da_escludere.Add(moz_abbinata.UIDSeduta.Value);
                 }
 
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(true, true);
 
                 var result = new List<AttoDASIDto>();
                 foreach (var seduta in sedute_attive.Where(i => !sedute_da_escludere.Contains(i.UIDSeduta)))
@@ -1577,7 +1553,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive();
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, true);
 
                 var result = new List<AttiDto>();
                 foreach (var seduta in sedute_attive)
@@ -1684,17 +1660,13 @@ namespace PortaleRegione.API.Controllers
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
                     if (atto.Tipo == (int)TipoAttoEnum.ITL
-                    && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
-                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
-                    {
+                        && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
+                            || atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
                         throw new Exception(
                             "ERROR: Non è possibile iscrivere in seduta per le ITL SCRITTE o IN COMMISSIONE.");
-                    }
                     if (atto.Tipo == (int)TipoAttoEnum.ITR)
-                    {
                         throw new Exception(
                             "ERROR: Non è possibile iscrivere in seduta le ITR.");
-                    }
                     atto.UIDSeduta = model.UidSeduta;
                     atto.DataIscrizioneSeduta = DateTime.Now;
                     atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
@@ -1754,32 +1726,25 @@ namespace PortaleRegione.API.Controllers
                     var atto = await Get(guid);
                     if (atto == null) throw new Exception("ERROR: NON TROVATO");
                     if (atto.Tipo == (int)TipoAttoEnum.ITL)
-                    {
                         throw new Exception(
                             "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITL.");
-                    }
                     if (atto.Tipo == (int)TipoAttoEnum.ITR)
-                    {
                         throw new Exception(
                             "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITR.");
-                    }
                     if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     {
                         var checkIscrizioneSeduta =
                             await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta,
                                 atto.UIDPersonaProponente.Value);
                         if (!checkIscrizioneSeduta)
-                        {
                             throw new Exception(
                                 "ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
-                        }
                     }
 
                     atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                     if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                    {
-                        atto.DataPresentazione_MOZ = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"), AppSettingsConfiguration.masterKey);
-                    }
+                        atto.DataPresentazione_MOZ = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                            AppSettingsConfiguration.masterKey);
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
 
@@ -1792,10 +1757,7 @@ namespace PortaleRegione.API.Controllers
 
                 try
                 {
-                    if (!listaRichieste.Any())
-                    {
-                        return;
-                    }
+                    if (!listaRichieste.Any()) return;
 
                     var mailModel = new MailModel
                     {
@@ -1882,14 +1844,18 @@ namespace PortaleRegione.API.Controllers
                 var atto = await GetAttoDto(guid);
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
-
                 if (atto.DataIscrizioneSeduta.HasValue)
-                {
                     throw new InvalidOperationException(
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
-                }
 
                 var seduta = await _logicSedute.GetSeduta(model.DataRichiesta);
+                var dateNow = DateTime.Now;
+                var data_seduta_odierna = dateNow.Day == seduta.Data_seduta.Day
+                                          && dateNow.Month == seduta.Data_seduta.Month
+                                          && dateNow.Year == seduta.Data_seduta.Year;
+                if (!data_seduta_odierna)
+                    throw new InvalidOperationException(
+                        "Attendi l’inizio della seduta per chiedere la trattazione d’urgenza.");
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
@@ -1905,10 +1871,8 @@ namespace PortaleRegione.API.Controllers
                     var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta,
                         attoInDb.DataRichiestaIscrizioneSeduta, attoInDb.UIDPersonaProponente.Value);
                     if (!checkMozUrgente)
-                    {
                         throw new Exception(
                             $"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta.Data_seduta:dd/MM/yyyy}.");
-                    }
                 }
 
                 var count_firme = atto.ConteggioFirme;
@@ -1935,12 +1899,9 @@ namespace PortaleRegione.API.Controllers
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
-
                 if (atto.DataIscrizioneSeduta.HasValue)
-                {
                     throw new InvalidOperationException(
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
-                }
 
                 atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;
@@ -2211,10 +2172,8 @@ namespace PortaleRegione.API.Controllers
 
                 await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
                 if (model.Commissioni != null)
-                {
                     foreach (var commissioneDto in model.Commissioni)
                         _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
-                }
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -2242,20 +2201,24 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) > atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
+                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
+                                        atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) > atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
+                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
+                                        atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ) > atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
+                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
+                                        atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
                                     break;
                                 }
                         }
+
                         break;
                     }
                 case TipoAttoEnum.ODG:

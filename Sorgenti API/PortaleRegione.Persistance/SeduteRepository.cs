@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -62,19 +61,13 @@ namespace PortaleRegione.Persistance
                 .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
 
             if (filtro == null)
-            {
                 query = query.Where(s => s.id_legislatura == legislaturaId);
-            }
             else
-            {
                 filtro.BuildExpression(ref query);
-            }
 
             if (pageIndex == 0 && pageSize == 0)
-            {
                 return await query.OrderByDescending(c => c.Data_seduta)
                     .ToListAsync();
-            }
 
             return await query.OrderByDescending(c => c.Data_seduta)
                 .Skip((pageIndex - 1) * pageSize)
@@ -82,23 +75,11 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<SEDUTE>> GetAttive()
-        {
-            var query = PRContext.SEDUTE.Include(s => s.legislature)
-                .Where(c => (c.Eliminato == false
-                            || !c.Eliminato.HasValue)
-                            && !c.Data_effettiva_fine.HasValue
-                            && c.Riservato_DASI);
-
-            return await query.OrderBy(c => c.Data_seduta)
-                .ToListAsync();
-        }
-
         public async Task<IEnumerable<SEDUTE>> GetAttiveDashboard()
         {
             var query = PRContext.SEDUTE.Include(s => s.legislature)
                 .Where(c => (c.Eliminato == false
-                            || !c.Eliminato.HasValue)
+                             || !c.Eliminato.HasValue)
                             && !c.Data_effettiva_fine.HasValue
                             && c.Data_apertura < DateTime.Now);
 
@@ -112,15 +93,23 @@ namespace PortaleRegione.Persistance
                 .Where(c => c.Eliminato == false || !c.Eliminato.HasValue);
 
             if (filtro == null)
-            {
                 query = query.Where(s => s.id_legislatura == legislaturaId);
-            }
             else
-            {
                 filtro.BuildExpression(ref query);
-            }
 
             return await query.CountAsync();
+        }
+
+        public async Task<IEnumerable<SEDUTE>> GetAttive(bool riservato_dasi = false, bool convocata = false)
+        {
+            var query = PRContext.SEDUTE.Include(s => s.legislature).Where(c => (c.Eliminato == false
+                    || !c.Eliminato.HasValue)
+                && !c.Data_effettiva_fine.HasValue);
+            if (convocata) query = query.Where(c => c.Data_apertura <= DateTime.Now);
+            if (riservato_dasi) query = query.Where(c => c.Riservato_DASI);
+
+            return await query.OrderBy(c => c.Data_seduta)
+                .ToListAsync();
         }
     }
 }

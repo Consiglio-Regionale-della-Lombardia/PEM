@@ -140,8 +140,8 @@
                             contentType: "application/json; charset=utf-8",
                             dataType: "json"
                         }).done(function (data) {
-                            M.toast({ html: 'Salvataggio completato', classes: 'rounded' });
-
+                            console.log('RESULT', data)
+                            go(data.url);
                         }).fail(function (err) {
                             console.log("ERROR - RELATORI", err);
                         });

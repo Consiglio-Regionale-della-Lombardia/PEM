@@ -34,7 +34,7 @@ namespace PortaleRegione.Contracts
         Task<SEDUTE> Get(DateTime dataSeduta);
 
         Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize, Filter<SEDUTE> filtro = null);
-        Task<IEnumerable<SEDUTE>> GetAttive();
+        Task<IEnumerable<SEDUTE>> GetAttive(bool riservato_dasi, bool convocata);
         Task<IEnumerable<SEDUTE>> GetAttiveDashboard();
     }
 }
