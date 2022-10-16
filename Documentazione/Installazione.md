@@ -6,7 +6,6 @@ Qui di seguito elenchiamo la procedura completa di installazione del Portale PEM
 ## Contenuti
 
 - [Creazione del database](#creazione-del-database)
-- [Registrazione libreria TNYMCE](#Registrazione-libreria-TNYMCE)
 - [Verifica configurazione IIS](#verifica-configurazione-IIS)
 - [Compilazione della soluzione client e API](#compilazione-soluzione)
 - [Creazione Application su IIS](#creazione-application-su-IIS)
@@ -25,13 +24,6 @@ Nella stessa cartella Database della release, sono contenuti gli script singoli 
 - 03_functions (funzioni)
 - 04_storeprocedures (stored procedure)
 - 05_data_populate (popolamento tabelle)
-
-
-## Registrazione libreria TNYMCE
-
-Per avere accesso alla libreria, registrarsi al portale tinyMCE ([community "Free Forever"](https://www.tiny.cloud/auth/signup/)) e copiare il link fornito dal provider nel progetto CLIENT
-
-![Chiave_licenza_TNYMCE](/Documentazione/Screenshot/Chiave_licenza_TNYMCE.jpg)
 
 ## Verifica configurazione IIS
 
@@ -59,9 +51,12 @@ Spostarsi poi sulla scheda **Features** e anche qui verificare che siano present
 
 
 ## Compilazione Soluzione
-Dopo aver scaricato sorgenti della soluzione client e API, è necessario copiare dalla cartella.... i file di configurazione:
-- web.config
-- 
+Dopo aver scaricato sorgenti della soluzione client e API, è necessario aprire la soluzione Client e la soluzione Api ed effettuare la compilazione delle due soluzioni. Se la compilazione non restituisce errori è possibile copiare le due soluzioni compilate nelle rispettive cartelle predisposte sul server IIS (tipicamente c:\inetpub\wwwroot\PEM\client e c:\inetpub\wwwroot\PEM\API) e i file di configurazione:
+
+- c:\inetpub\wwwroot\PEM\client\web.config (https://github.com/Consiglio-Regionale-della-Lombardia/PEM/blob/master/Sorgenti%20Client/PortaleRegione.Client/PortaleRegione.Client/Web.config.txt)
+- c:\inetpub\wwwroot\PEM\API\web.config (https://github.com/Consiglio-Regionale-della-Lombardia/PEM/blob/v2.2/Sorgenti%20API/PortaleRegione.API/PortaleRegione.API/Web.config.txt)
+
+I due file di configurazione devono essere aggiornati inserendo correttamente i parametri di configurazione con valori relativi al proprio ambiente (connessione al database server, attivazione funzionalità, ecc). Nella versione pubblicata su questo repository i due web.config sono in versione testuale (.txt) e quindi vanno rinominati togliendo l'estensione .txt affinchè possano essere correttamente interpretati dal framework.net. Nelle versioni testuali dei due file di configurazione è stata inserita una breve descrizione esplicativa su ogni parametro per facilitare le impostazioni.
 
 ## Creazione Application su IIS
 
