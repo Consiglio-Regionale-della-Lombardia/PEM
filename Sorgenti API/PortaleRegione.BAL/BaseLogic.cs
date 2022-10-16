@@ -596,6 +596,10 @@ namespace PortaleRegione.BAL
                 var firmeDtos = firme.ToList();
                 var title = $"{tipoAtto} {atto.NAtto}";
                 body = body.Replace("{lblTitoloATTOView}", title);
+                body = body.Replace("{STATO}", Utility.GetText_StatoDASI(atto.IDStato).ToUpper());
+                body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
+                body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
+                body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 
                 if (!string.IsNullOrEmpty(atto.Oggetto_Modificato)
                     || !string.IsNullOrEmpty(atto.Premesse_Modificato)
@@ -614,26 +618,15 @@ namespace PortaleRegione.BAL
 
                 #region Firme
 
-                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-                {
-                    //DEPOSITATO
-                    body = body.Replace("{lblDepositoATTOView}",
-                        firmeDtos.Any(s => s.ufficio)
-                            ? "Atto depositato d'ufficio"
-                            : $"Atto depositato il {atto.DataPresentazione}");
-
-                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
-                    var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));
-
-                    if (firmeAnte.Any())
-                        body = body.Replace("{radGridFirmeView}", GetFirmatari(firmeAnte))
-                            .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
-                            .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
-                    else
-                        body = body.Replace("{radGridFirmeView}", string.Empty)
-                            .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
-
-                    var TemplatefirmePOST = @"<div>
+                var TemplatefirmeANTE = @"<div>
+                             <div style='width:100%;'>
+                                      <h5>Firme</h5>
+                              </div>
+                              <div style='text-align:left'>
+                                {firme}
+                            </div>
+                        </div>";
+                var TemplatefirmePOST = @"<div>
                              <div style='width:100%;'>
                                       <h5>Firme dopo la presentazione</h5>
                               </div>
@@ -641,14 +634,24 @@ namespace PortaleRegione.BAL
                                 {firme}
                             </div>
                         </div>";
+
+                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                {
+                    //DEPOSITATO
+                    body = body.Replace("{lblDepositoATTOView}", $"Atto depositato il {atto.DataPresentazione}");
+
+                    var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
+                    var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));
+
+                    if (firmeAnte.Any())
+                        body = body.Replace("{radGridFirmeView}",
+                            TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)));
+
                     if (firmePost.Any())
                         body = body.Replace("{radGridFirmePostView}",
-                                TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)))
-                            .Replace("{FIRME_COMMENTO_START}", string.Empty)
-                            .Replace("{FIRME_COMMENTO_END}", string.Empty);
+                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)));
                     else
-                        body = body.Replace("{radGridFirmePostView}", string.Empty)
-                            .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
+                        body = body.Replace("{radGridFirmePostView}", string.Empty);
                 }
                 else
                 {
@@ -657,21 +660,14 @@ namespace PortaleRegione.BAL
                     if (!string.IsNullOrEmpty(firmatari))
                     {
                         body = body.Replace("{lblDepositoATTOView}", string.Empty);
-                        body = body.Replace("{radGridFirmeView}", firmatari)
-                            .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
-                            .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
-                        body = body.Replace("{radGridFirmePostView}", string.Empty)
-                            .Replace("{FIRME_COMMENTO_START}", "<!--")
-                            .Replace("{FIRME_COMMENTO_END}", "-->");
+                        body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", firmatari));
+                        body = body.Replace("{radGridFirmePostView}", string.Empty);
                     }
                     else
                     {
                         body = body.Replace("{lblDepositoATTOView}", string.Empty);
-                        body = body.Replace("{FIRMEANTE_COMMENTO_START}", "<!--")
-                            .Replace("{FIRMEANTE_COMMENTO_END}", "-->");
-                        body = body.Replace("{radGridFirmePostView}", string.Empty)
-                            .Replace("{FIRME_COMMENTO_START}", "<!--")
-                            .Replace("{FIRME_COMMENTO_END}", "-->");
+                        body = body.Replace("{radGridFirmeView}", string.Empty);
+                        body = body.Replace("{radGridFirmePostView}", string.Empty);
                     }
                 }
 
@@ -709,20 +705,23 @@ namespace PortaleRegione.BAL
                 var textQr = string.Empty;
                 if (enableQrCode)
                 {
-                    var nameFileQrCode = $"QR_{atto.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
-                    var qrFilePathComplete =
-                        Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
-                    var qrLink = $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
+                    var qr_contentString = "data:image/png;base64,{{DATA}}";
+                    var qrLink =
+                        $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
                     var qrGenerator = new QRCodeGenerator();
                     var urlPayload = new PayloadGenerator.Url(qrLink);
                     var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
                     var qrCode = new QRCode(qrData);
                     using (var qrCodeImage = qrCode.GetGraphic(20))
                     {
-                        qrCodeImage.Save(qrFilePathComplete);
+                        MemoryStream ms = new MemoryStream();
+                        qrCodeImage.Save(ms, ImageFormat.Png);
+                        byte[] byteImage = ms.ToArray();
+                        qr_contentString =
+                            qr_contentString.Replace("{{DATA}}", Convert.ToBase64String(byteImage));
                     }
 
-                    textQr = $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />";
+                    textQr = $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
                 }
 
                 body = body.Replace("{QRCode}", textQr);
@@ -743,8 +742,8 @@ namespace PortaleRegione.BAL
                 var firmeDtos = firme.ToList();
                 if (!firmeDtos.Any()) return string.Empty;
                 var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
-                        ? $"<label style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy}</label><br/>"
-                        : $"<div style='text-decoration:line-through;'><label style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy} ({item.Data_ritirofirma})</label></div><br/>")
+                        ? $"<h6>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy}</h6><br/>"
+                        : $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy} ({item.Data_ritirofirma})</h6></div><br/>")
                     .ToList();
 
                 return result.Aggregate((i, j) => i + j);

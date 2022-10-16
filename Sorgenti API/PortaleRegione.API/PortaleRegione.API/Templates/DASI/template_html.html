@@ -1,70 +1,46 @@
-﻿<style>
-    .left-border {
-        border-left: 1px solid !important;
-        border-right: 1px solid !important;
-    }
-
-    .parte {
-        border: solid !important;
-        font-size: 13px;
-        margin: 10px;
-        padding: 10px;
-        text-align: center;
-        width: 40%;
-    }
-</style>
-
-<table style="width: 100%">
-    {NOTE_PUBBLICHE_COMMENTO_START}
-    <tr style="border: unset !important">
-        <td style="text-align: left; border: unset !important">
-            <h5 style="font-size: 15px">
+﻿{NOTE_PUBBLICHE_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left">
+        <div>
+            <p style="padding-top: 10px">
+                <b>Nota ufficio dei lavori assembleari: </b>
                 {lblNotePubblicheATTOView}
-            </h5>
-        </td>
-    </tr>
-    {NOTE_PUBBLICHE_COMMENTO_END}
-    <tr style="border: unset !important">
-        <td style="text-align: center; border: unset !important">
-            <h3>
-                <b>{lblTitoloATTOView}</b>
-            </h3>
-        </td>
-    </tr>
-    <tr style="border: unset !important">
-        <td style="text-align: center; width: 100%; border: unset !important">
-            <table style="width: 100%;">
-                <tr style="border: unset !important">
-                    <td style="border: unset !important">
-                        {ltATTOView}
-                        <br />
-                        <table>
-                            {FIRMEANTE_COMMENTO_START}
-                            <tr style="border: unset !important">
-                                <td style="text-align: left!important">
-                                    <h5>Firme</h5>
-                                    {radGridFirmeView}
-                                </td>
-                            </tr>
-                            {FIRMEANTE_COMMENTO_END}
-                            {FIRME_COMMENTO_START}
-                            <tr style="border: unset !important">
-                                <td style="text-align: left!important">
-                                    {radGridFirmePostView}
-                                </td>
-                            </tr>
-                            {FIRME_COMMENTO_END}
-                        </table>
-                        {NOTEPRIV_COMMENTO_START}
-                        <div style="margin: 2px; padding: 2px">
-                            <div style="font-size: 15px; font-style: italic; padding: 10px; text-align: left;">
-                                {lblNotePrivateATTOView}
-                            </div>
-                        </div>
-                        {NOTEPRIV_COMMENTO_END}
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+            </p>
+        </div>
+    </div>
+</div>
+{NOTE_PUBBLICHE_COMMENTO_END}
+
+<div class="row" style="margin: 0 !important">
+    <div class="col s12 center">
+        <h3>
+            <b>{lblTitoloATTOView}</b>
+        </h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 center bodyEMClass">
+        {ltATTOView}
+    </div>
+</div>
+<div class="row">
+    <div class="col s12">
+        <h6 class="green-text">
+            <b>{lblDepositoATTOView}</b>
+        </h6>
+    </div>
+    <div class="col s12">
+        {radGridFirmeView}
+        {radGridFirmePostView}
+    </div>
+</div>
+{NOTEPRIV_COMMENTO_START}
+<div class="row">
+    <div class="col s12 red-text">
+        <p>
+            <b>Nota riservata:</b>
+            {lblNotePrivateATTOView}
+        </p>
+    </div>
+</div>
+{NOTEPRIV_COMMENTO_END}

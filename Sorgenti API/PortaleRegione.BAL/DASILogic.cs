@@ -1327,6 +1327,11 @@ namespace PortaleRegione.API.Controllers
 
                     var body = GetTemplate(template, true);
 
+                    body =
+                        "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                        "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                        "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                        body;
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
@@ -2270,7 +2275,7 @@ namespace PortaleRegione.API.Controllers
                 var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
                 var attoDto = await GetAttoDto(atto.UIDAtto);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-                return await stamper.CreaPDFInMemory(body, attoDto, "");
+                return await stamper.CreaPDFInMemory(body, attoDto);
             }
             catch (Exception e)
             {

@@ -71,6 +71,9 @@
     <add key="Service_Password" value="YOUR_SERVICE_PASSWORD" />
 
     <!--STAMPE-->
+    <add key="Logo" value="YOUR_LOGO" />
+    <add key="Titolo" value="YOUR_NAME" />
+    <add key="NomePiattaforma" value="YOUR_NAME" />
     <add key="RootRepository" value="C:\YOUR_PATH\Repository" />
     <add key="CartellaLavoroStampe" value="C:\YOUR_PATH\Stampe" />
     <add key="LimiteGeneraStampaImmediata" value="20" />

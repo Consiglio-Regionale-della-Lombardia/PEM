@@ -18,6 +18,7 @@
 
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using PortaleRegione.API.Controllers;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -37,10 +38,12 @@ namespace PortaleRegione.BAL
     public class StampeLogic : BaseLogic
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly DASILogic _logicDasi;
 
-        public StampeLogic(IUnitOfWork unitOfWork)
+        public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi)
         {
             _unitOfWork = unitOfWork;
+            _logicDasi = logicDasi;
         }
 
         public async Task<STAMPE> GetStampa(Guid id)

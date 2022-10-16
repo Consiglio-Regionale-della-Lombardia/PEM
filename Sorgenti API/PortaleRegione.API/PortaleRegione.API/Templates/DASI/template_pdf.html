@@ -1,70 +1,86 @@
-﻿<table style="width: 100%">
-    {NOTE_PUBBLICHE_COMMENTO_START}
-    <tr>
-        <td style="text-align: left" colspan="2">
-            <h5 style="font-size: 15px">
-                {lblNotePubblicheATTOView}
-            </h5>
-        </td>
-    </tr>
-    {NOTE_PUBBLICHE_COMMENTO_END}
-    <tr>
-        <td style="" colspan="2">
-            <img src="http://pem.consiglio.regione.lombardia.it/images/LogoCRL120px.gif" style="width: 150px" />
-        </td>
-        
-    </tr>
-    <tr>
-        <td style="text-align: center" colspan="2">
-            <h1>
-                <b>{lblTitoloATTOView}</b>
-            </h1>
-        </td>
-    </tr>
-    <tr>
-        <td style="width: 100%; text-align: center" colspan="2">
-            <table style="width: 90%; vertical-align: top">
-                <tr>
-                    <td>
-                        {ltATTOView}
-                        <br />
-                        <table style="margin-top: 20px">
-                            {FIRMEANTE_COMMENTO_START}
-                            <tr>
-                                <td>
-                                    <div style="margin: 2px; padding: 10px">
-                                        <div style="width: 100%; text-align: left;">
-                                            <h5>Firme</h5>
-                                        </div>
-                                        <div style="text-align: left; font-style: normal;">
-                                            {radGridFirmeView}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            {FIRMEANTE_COMMENTO_END}
-                            {FIRME_COMMENTO_START}
-                            <tr>
-                                <td>
-                                    <div style="margin: 2px; padding: 10px">
-                                        <div style="width: 100%; text-align: left; font-style: normal;">
-                                            {radGridFirmePostView}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            {FIRME_COMMENTO_END}
-                        </table>
-                        {NOTEPRIV_COMMENTO_START}
-                        <div style='margin: 2px; padding: 2px'>
-                            <div style='padding: 10px; text-align: left; font-size: 15px; font-style: italic;'>
-                                {lblNotePrivateATTOView}
-                            </div>
-                        </div>
-                        {NOTEPRIV_COMMENTO_END}
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+﻿<div class="row">
+    <div class="col s4 center">
+        <img src='{urlLogo}' width='50'/>
+        <br>
+        <h5>
+            {nomePiattaforma}
+            <span>
+                <h6 style='margin: 2px'>IL CONSIGLIO</h6>
+            </span>
+        </h5>
+    </div>
+    <div class="col s4">
+
+    </div>
+    <div class="col s4 center">
+        {QRCode}
+    </div>
+</div>
+<div>
+    <div class="card-action grey lighten-4">
+        <div class="row" style="margin: 0 !important">
+            <div class="col s8">
+                <h6>
+                    <b>
+                        {GRUPPO_POLITICO}
+                    </b>
+                </h6>
+            </div>
+            <div class="col s4 right-align" style="margin-top: 10px">
+                {STATO}
+            </div>
+        </div>
+    </div>
+
+    <div class="card-content">
+        {NOTE_PUBBLICHE_COMMENTO_START}
+        <div class="row">
+            <div class="col s12 left">
+                <div>
+                    <p style="padding-top: 10px">
+                        <b>Nota ufficio dei lavori assembleari: </b>
+                        {lblNotePubblicheATTOView}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {NOTE_PUBBLICHE_COMMENTO_END}
+
+        <div class="row" style="margin: 0 !important">
+            <div class="col s12 center">
+                <h3>
+                    <b>{lblTitoloATTOView}</b>
+                </h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 center bodyEMClass">
+                {ltATTOView}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <h6 class="green-text">
+                    <b>{lblDepositoATTOView}</b>
+                </h6>
+            </div>
+            <div class="col s12">
+                {radGridFirmeView}
+                {radGridFirmePostView}
+            </div>
+        </div>
+
+        {NOTEPRIV_COMMENTO_START}
+        <div class="row">
+            <div class="col s12 red-text">
+                <p>
+                    <b>Nota riservata:</b>
+                    {lblNotePrivateATTOView}
+                </p>
+            </div>
+        </div>
+        {NOTEPRIV_COMMENTO_END}
+    </div>
+</div>

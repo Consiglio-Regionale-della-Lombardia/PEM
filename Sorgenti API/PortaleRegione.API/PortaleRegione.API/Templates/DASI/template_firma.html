@@ -1,49 +1,38 @@
-﻿<table style="width: 100%;">
-    {TIPO_RISPOSTA_COMMENTO_START}
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; text-align: left !important; border: unset !important ">
-            <span>
-                Tipo di risposta: <i>{lblTipoRispostaATTOView}</i>
-            </span>
-        </td>
-    </tr>
-    {TIPO_RISPOSTA_COMMENTO_END}
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; text-align: right !important; border: unset !important">
-            <span style="font-weight: bold;">
-                Al Presidente del Consiglio regionale della Lombardia
-            </span>
-        </td>
-    </tr>
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; text-align: left !important; border: unset !important">
-            <span style="font-weight: bold; text-decoration: underline;">
-                Oggetto: {lblSubTitoloATTOView}
-            </span>
-        </td>
-    </tr>
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; border: unset !important">
-        </td>
-    </tr>
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; border: unset !important">
-            <span>
-                {lblPremesseATTOView}
-            </span>
-        </td>
-    </tr>
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; border: unset !important">
-            <span>
-                {lblRichiestaATTOView}
-            </span>
-        </td>
-    </tr>
-    <tr style="border: unset !important">
-        <td colspan="2" style="padding: 10px; text-align: left !important; border: unset !important">
-            <br />
-            {lblAllegati}
-        </td>
-    </tr>
-</table>
+﻿{TIPO_RISPOSTA_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left-align">
+        <span>
+            <b>Tipo di risposta:</b> <i>{lblTipoRispostaATTOView}</i>
+        </span>
+    </div>
+</div>
+{TIPO_RISPOSTA_COMMENTO_END}
+<div class="row">
+    <div class="col s12 right-align">
+        <span>
+            <b>Al Presidente del Consiglio regionale della Lombardia</b>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 left-align">
+        <span>
+            <b>Oggetto: <span style="text-decoration: underline;">{lblSubTitoloATTOView}</span></b>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 left-align">
+        {lblPremesseATTOView}
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 left-align">
+        {lblRichiestaATTOView}
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 left-align">
+        {lblAllegati}
+    </div>
+</div>
