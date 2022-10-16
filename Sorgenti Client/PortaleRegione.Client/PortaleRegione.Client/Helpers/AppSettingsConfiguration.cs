@@ -27,6 +27,7 @@ namespace PortaleRegione.Client.Helpers
             .Equals("Debug", StringComparison.InvariantCultureIgnoreCase);
         public static string Logo => ConfigurationManager.AppSettings["logo"];
         public static string Title => ConfigurationManager.AppSettings["title"];
+        public static string NomePiattaforma => ConfigurationManager.AppSettings["NomePiattaforma"];
         public static string LimiteDocumentiDaProcessare => ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"];
         public static string URL_CLIENT => ConfigurationManager.AppSettings["URL_CLIENT"];
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];

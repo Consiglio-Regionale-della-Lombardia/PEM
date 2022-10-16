@@ -34,6 +34,7 @@
     <add key="LimiteDocumentiDaProcessare" value="10" />
     <add key="logo" value="YOUR_LOGO" />
     <add key="title" value="YOUR_NAME" />
+    <add key="NomePiattaforma" value="YOUR_NAME" />
 
     <add key="COOKIE_EXPIRE_IN" value="TEMPO_IN_ORE" />
   </appSettings>
