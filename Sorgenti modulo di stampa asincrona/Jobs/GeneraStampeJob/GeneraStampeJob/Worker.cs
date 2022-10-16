@@ -1,4 +1,5 @@
-﻿using PortaleRegione.DTO.Domain;
+﻿using PortaleRegione.Common;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
@@ -11,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using PortaleRegione.Common;
 using ByQueryModel = PortaleRegione.DTO.Model.ByQueryModel;
 
 namespace GeneraStampeJob
@@ -161,17 +161,17 @@ namespace GeneraStampeJob
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
                 _stampa.PathFile = nameFileTarget;
                 await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
-                
+
                 try
                 {
                     var bodyMail = $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
                     var resultInvio = await BaseGateway.SendMail(new MailModel
-                        {
-                            DA = _model.EmailFrom,
-                            A = persona.email,
-                            OGGETTO = "Link download fascicolo",
-                            MESSAGGIO = bodyMail
-                        },
+                    {
+                        DA = _model.EmailFrom,
+                        A = persona.email,
+                        OGGETTO = "Link download fascicolo",
+                        MESSAGGIO = bodyMail
+                    },
                         _auth.jwt);
                     if (resultInvio)
                         await apiGateway.Stampe.JobSetInvioStampa(_stampa);
@@ -435,7 +435,7 @@ namespace GeneraStampeJob
                         await BaseGateway.SendMail(new MailModel
                         {
                             DA = _model.EmailFrom,
-                            A = $"{ruoloSegreteriaAssempblea.ADGroupShort}@consiglio.regione.lombardia.it",
+                            A = $"{ruoloSegreteriaAssempblea.ADGroup}@consiglio.regione.lombardia.it",
                             OGGETTO =
                                     $"[TRATTAZIONE AULA] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
                             MESSAGGIO = bodyMail
