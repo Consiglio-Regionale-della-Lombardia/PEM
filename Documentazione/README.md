@@ -11,7 +11,7 @@ Va puntualizzato che, per i due canali di accesso, la categoria di utenti non e�
 
 ![00_login](/Documentazione/Screenshot/00_login.jpg)
 
-### Procedura di autenticazione, di firma e immodificabilità
+## Procedura di autenticazione, di firma e immodificabilità
 
 Il portale prevede per entrambi i moduli due livelli di autenticazione: un primo livello per l’accesso al sistema e la gestione delle bozze degli atti; un secondo livello per effettuare le operazioni con rilevanza pubblica che garantisca l’identificabilità del soggetto che effettua l’operazione.
 
@@ -118,6 +118,8 @@ Il Portale PEM permette di:
 - ridurre i tempi necessari alla generazione di output finalizzati alla discussione in aula e alle fasi post-seduta, attraverso la loro generazione automatica
 - agevolare i lavori d'aula: visualizzare, gestire e modificare in Aula il testo degli emendamenti;
 - ridurre l’utilizzo della carta e dei supporti per la stampa.
+
+Per illustrare le funzionalità del modulo PEM verranno di seguito descritte le principali attività e funzionalità dei diversi attori del sistema.
 
 ## Servizio Segreteria dell’Assemblea 
 Gli utenti del Servizio Segreteria dell’Assemblea si possono collegare al sistema utilizzando le proprie credenziali di rete.
