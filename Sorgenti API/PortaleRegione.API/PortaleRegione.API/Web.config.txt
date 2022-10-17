@@ -44,6 +44,7 @@
     <add key="TOKEN_W" value="YOUR_TOKEN_W" />
     <add key="MasterPIN" value="YOUR_MASTER_PIN" />
     <add key="masterKey" value="YOUR_MASTER_KEY" />
+    <add key="PDF_LICENSE" value="IRONPDF_LICENSE" />
     <add key="URLPEM" value="YOUR_URL_PEM" />
     <add key="urlPEM_ViewEM" value="YOUR_URL_CLIENT/emendamenti/view/{0}" />
     <add key="urlPEM_RiepilogoEM" value="YOUR_URL_CLIENT/emendamenti/{0}" />

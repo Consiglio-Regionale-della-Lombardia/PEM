@@ -1126,19 +1126,6 @@ namespace PortaleRegione.API.Controllers
                     results.Add(idGuid, $"{new_nome_atto} - OK");
 
                     _unitOfWork.DASI.IncrementaContatore(contatore);
-                    _unitOfWork.Stampe.Add(new STAMPE
-                    {
-                        UIDStampa = Guid.NewGuid(),
-                        UIDUtenteRichiesta = atto.UIDPersonaPresentazione.Value,
-                        DataRichiesta = DateTime.Now,
-                        UIDAtto = atto.UIDAtto,
-                        Da = 1,
-                        A = 1,
-                        Ordine = 1,
-                        Notifica = true,
-                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
-                        DASI = true
-                    });
 
                     if (atto.Tipo == (int)TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
                     {
@@ -1176,14 +1163,16 @@ namespace PortaleRegione.API.Controllers
 
                     try
                     {
+                        var content = await PDFIstantaneo(atto, null);
                         var mailModel = new MailModel
                         {
                             DA = persona.email,
                             A =
                                 AppSettingsConfiguration.EmailInvioDASI,
-                            OGGETTO = $"DASI: deposito {new_nome_atto} da parte di [{persona.DisplayName_GruppoCode}]",
+                            OGGETTO = $"DASI: deposito {new_nome_atto} da parte di {persona.DisplayName_GruppoCode}",
                             MESSAGGIO =
-                                $"E' stato effettuato il deposito dell'atto. <br> {new_nome_atto} - \"{atto.Oggetto}\" a prima firma {persona.DisplayName_GruppoCode} <br><br>Collegati alla piattaforma per gestire l'atto <a href=\"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}\">qui</a>."
+                                $"E' stato effettuato il deposito dell'atto. <br> {new_nome_atto} - \"{atto.Oggetto}\" a prima firma {persona.DisplayName_GruppoCode} <br><br>Collegati alla piattaforma per gestire l'atto <a href=\"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}\">qui</a>.",
+                            bufferAttachment = content
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
