@@ -119,6 +119,8 @@ Il Portale PEM permette di:
 - agevolare i lavori d'aula: visualizzare, gestire e modificare in Aula il testo degli emendamenti;
 - ridurre l’utilizzo della carta e dei supporti per la stampa.
 
+Per illustrare le funzionalità del modulo PEM verranno di seguito descritte le principali attività e funzionalità dei diversi attori del sistema.
+
 ## Servizio Segreteria dell’Assemblea 
 Gli utenti del Servizio Segreteria dell’Assemblea si possono collegare al sistema utilizzando le proprie credenziali di rete.
 Tramite il Portale PEM, predispongono le informazioni relative alle sedute consiliari e inseriscono a sistema gli atti emendabili, in base all’OdG della seduta consiliare, indicando la data della seduta e il termine (data e orario) stabilito per la presentazione degli emendamenti. A decorrere da tale orario il sistema “marcherà” gli emendamenti come “pervenuti oltre il termine ordinario”.
