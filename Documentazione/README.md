@@ -11,7 +11,7 @@ Va puntualizzato che, per i due canali di accesso, la categoria di utenti non e�
 
 ![00_login](/Documentazione/Screenshot/00_login.jpg)
 
-### Procedura di autenticazione, di firma e immodificabilità
+## Procedura di autenticazione, di firma e immodificabilità
 
 Il portale prevede per entrambi i moduli due livelli di autenticazione: un primo livello per l’accesso al sistema e la gestione delle bozze degli atti; un secondo livello per effettuare le operazioni con rilevanza pubblica che garantisca l’identificabilità del soggetto che effettua l’operazione.
 
