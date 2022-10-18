@@ -136,7 +136,7 @@
 
 <input type="hidden" id="hdPersonaUID" />
 @{
-    Html.RenderPartial("_RiepilogoUtentiFiltri", Model);
+    Html.RenderPartial("_RiepilogoUtentiFiltri", Model.Data);
     Html.RenderPartial("_RiepilogoUtenti_ModalResetPin");
     Html.RenderPartial("_RiepilogoUtenti_ModalResetPassword");
 }
@@ -153,6 +153,5 @@
 
 
 @{
-    Html.RenderPartial("_RiepilogoUtentiScript", Model.Filters);
-}
+    Html.RenderPartial("_RiepilogoUtentiScript", Model.Data.Filters);
 }

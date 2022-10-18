@@ -577,6 +577,7 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .DASI
                 .Where(a => !a.Eliminato
+                            && a.IDStato >= (int)StatiAttoEnum.PRESENTATO
                             && a.Tipo == (int)TipoAttoEnum.MOZ
                             && a.DataIscrizioneSeduta.HasValue
                             && a.UIDSeduta == sedutaUId);
@@ -587,6 +588,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.UIDSeduta == uidSeduta
+                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.DataIscrizioneSeduta.HasValue
                                                      && atto.Tipo == (int)tipo);
 
@@ -602,7 +604,25 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.id_gruppo == gruppoId
+                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
+                                                     && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.RITIRATO
+                                                     && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.DECADUTO);
+
+            if (tipoMoz != TipoMOZEnum.ORDINARIA)
+            {
+                query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<ATTI_DASI>> GetProposteAtti(string dataRichiesta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
+        {
+            var query = PRContext.DASI.Where(atto => !atto.Eliminato
+                                                     && atto.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
+                                                     && atto.Tipo == (int)tipo
+                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.RITIRATO
                                                      && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.DECADUTO);
 
@@ -619,6 +639,7 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .DASI
                 .CountAsync(item => !item.Eliminato
+                                    && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
                                     && item.DataIscrizioneSeduta.HasValue);
         }
@@ -629,7 +650,8 @@ namespace PortaleRegione.Persistance
 
             var atti_proposti_in_seduta = await PRContext.DASI
                 .Where(i => i.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
-                            && i.Tipo == (int)TipoAttoEnum.IQT)
+                            && i.Tipo == (int)TipoAttoEnum.IQT
+                            && i.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                 .ToListAsync();
 
             foreach (var attiDasi in atti_proposti_in_seduta)
@@ -649,6 +671,7 @@ namespace PortaleRegione.Persistance
             var res = true;
             var atti_proposti_in_seduta = await PRContext.DASI
                 .Where(i => !i.Eliminato
+                            && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
                             && (i.UIDSeduta == seduta.UIDSeduta
                              || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ

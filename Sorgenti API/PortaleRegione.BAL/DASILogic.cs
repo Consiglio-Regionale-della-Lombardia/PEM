@@ -990,6 +990,7 @@ namespace PortaleRegione.API.Controllers
 
                 ManagerLogic.BloccaPresentazione = true;
 
+                var attachList = new List<AllegatoMail>();
                 foreach (var idGuid in model.Lista)
                 {
                     if (counterPresentazioni ==
@@ -1082,8 +1083,17 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     //controllo max firme
+                    SEDUTE sedutaRichiesta = null;
                     var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
-                    var controllo_firme = await ControlloFirmePresentazione(attoDto, count_firme);
+                    string controllo_firme = string.Empty;
+                    if (!string.IsNullOrEmpty(attoDto.DataRichiestaIscrizioneSeduta))
+                    {
+                        sedutaRichiesta =
+                            await _unitOfWork.Sedute.Get(Convert.ToDateTime(attoDto.DataRichiestaIscrizioneSeduta));
+                    }
+
+                    controllo_firme = await ControlloFirmePresentazione(attoDto, count_firme, sedutaRichiesta);
+
                     if (!string.IsNullOrEmpty(controllo_firme))
                     {
                         results.Add(idGuid, controllo_firme);
@@ -1123,6 +1133,8 @@ namespace PortaleRegione.API.Controllers
                     var new_nome_atto =
                         $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
 
+                    var content = await PDFIstantaneo(atto, null);
+                    attachList.Add(new AllegatoMail(content, $"{new_nome_atto}.pdf"));
                     results.Add(idGuid, $"{new_nome_atto} - OK");
 
                     _unitOfWork.DASI.IncrementaContatore(contatore);
@@ -1160,26 +1172,21 @@ namespace PortaleRegione.API.Controllers
 
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
+                }
 
-                    try
+                if (attachList.Any())
+                {
+                    var mailModel = new MailModel
                     {
-                        var content = await PDFIstantaneo(atto, null);
-                        var mailModel = new MailModel
-                        {
-                            DA = persona.email,
-                            A =
-                                AppSettingsConfiguration.EmailInvioDASI,
-                            OGGETTO = $"DASI: deposito {new_nome_atto} da parte di {persona.DisplayName_GruppoCode}",
-                            MESSAGGIO =
-                                $"E' stato effettuato il deposito dell'atto. <br> {new_nome_atto} - \"{atto.Oggetto}\" a prima firma {persona.DisplayName_GruppoCode} <br><br>Collegati alla piattaforma per gestire l'atto <a href=\"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}\">qui</a>.",
-                            bufferAttachment = content
-                        };
-                        await _logicUtil.InvioMail(mailModel);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error("Logic - Presenta - Invio Mail", e);
-                    }
+                        DA = persona.email,
+                        A =
+                            AppSettingsConfiguration.EmailInvioDASI,
+                        OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
+                        MESSAGGIO =
+                            $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato<br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
+                        ATTACHMENTS = attachList
+                    };
+                    await _logicUtil.InvioMail(mailModel);
                 }
 
                 return results;
@@ -1235,21 +1242,31 @@ namespace PortaleRegione.API.Controllers
                 {
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                    var moz_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                        TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                    var moz_da_esaminare = new List<ATTI_DASI>();
+                    moz_da_esaminare.AddRange(moz_in_seduta);
+                    moz_da_esaminare.AddRange(moz_proposte);
+                    if (moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
+                    {
+                        moz_da_esaminare.RemoveAt(moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
+                    }
+
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
                             $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
-                        foreach (var moz in moz_in_seduta)
+                        foreach (var moz in moz_da_esaminare)
                         {
                             var firmatari_moz = await _unitOfWork.Atti_Firme.GetFirmatari(moz.UIDAtto);
                             var _firmatari_moz = firmatari_moz.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
                                 .ToList();
                             if (_firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
-                            var mozDto = await GetAttoDto(moz.UIDAtto);
+                            var dto = await GetAttoDto(moz.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
-                                $"{Utility.GetText_Tipo(atto.Tipo)} {mozDto.NAtto}");
+                                $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
                             break;
                         }
 
@@ -1261,23 +1278,34 @@ namespace PortaleRegione.API.Controllers
 
                 if (atto.Tipo == (int)TipoAttoEnum.IQT)
                 {
-                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
+                    var iqt_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.IQT, 0);
+                    var iqt_proposte = await _unitOfWork.DASI.GetProposteAtti(
+                        EncryptString(atto.DataRichiestaIscrizioneSeduta, AppSettingsConfiguration.masterKey),
+                        TipoAttoEnum.IQT, 0);
+                    var iqt_da_esaminare = new List<ATTI_DASI>();
+                    iqt_da_esaminare.AddRange(iqt_in_seduta);
+                    iqt_da_esaminare.AddRange(iqt_proposte);
+                    if (iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
+                    {
+                        iqt_da_esaminare.RemoveAt(iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
+                    }
+
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
                             $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
-                        foreach (var odg in odg_in_seduta)
+                        foreach (var odg in iqt_da_esaminare)
                         {
                             var firmatari_odg = await _unitOfWork.Atti_Firme.GetFirmatari(odg.UIDAtto);
                             var _firmatari_odg = firmatari_odg.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
                                 .ToList();
                             if (_firmatari_odg.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
-                            var odgDto = await GetAttoDto(odg.UIDAtto);
+                            var dto = await GetAttoDto(odg.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
-                                $"{Utility.GetText_Tipo(atto.Tipo)} {odgDto.NAtto}");
+                                $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
                             break;
                         }
 
@@ -2256,13 +2284,13 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        private async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
         {
             try
             {
+                var attoDto = await GetAttoDto(atto.UIDAtto);
                 var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
-                var attoDto = await GetAttoDto(atto.UIDAtto);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
                 return await stamper.CreaPDFInMemory(body, attoDto);
             }
@@ -2287,8 +2315,7 @@ namespace PortaleRegione.API.Controllers
                     OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
                     MESSAGGIO =
                         $"Si chiede di protocollare e inserire l’atto {nome_atto} con oggetto \"{atto.Oggetto}\" <br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
-                    bufferAttachment = content,
-                    nameAttachment = $"{nome_atto}.pdf"
+                    ATTACHMENTS = new List<AllegatoMail> { new AllegatoMail(content, $"{nome_atto}.pdf") }
                 };
                 await _logicUtil.InvioMail(mailModel);
 

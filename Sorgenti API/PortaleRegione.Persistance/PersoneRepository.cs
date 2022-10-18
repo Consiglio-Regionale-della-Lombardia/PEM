@@ -20,6 +20,7 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -67,11 +68,19 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, Filter<View_UTENTI> filtro = null)
+        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null, Filter<View_UTENTI> filtro = null)
         {
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty);
+
+            if (persona != null)
+            {
+                if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                {
+                    query = query.Where(u => u.deleted == false);
+                }
+            }
 
             filtro?.BuildExpression(ref query);
 
@@ -84,7 +93,8 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size, Filter<View_UTENTI> filtro = null)
+        public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size,
+            Filter<View_UTENTI> filtro = null)
         {
             var gruppi_giunta = await PRContext
                 .JOIN_GRUPPO_AD
@@ -108,11 +118,18 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<int> CountAll(Filter<View_UTENTI> filtro = null)
+        public async Task<int> CountAll(PersonaDto persona = null, Filter<View_UTENTI> filtro = null)
         {
             var query = PRContext
                 .View_UTENTI
                 .Where(u => u.UID_persona != Guid.Empty);
+            if (persona != null)
+            {
+                if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                {
+                    query = query.Where(u => u.deleted == false);
+                }
+            }
 
             filtro?.BuildExpression(ref query);
 
@@ -167,6 +184,7 @@ namespace PortaleRegione.Persistance
                 var persona = await PRContext.View_UTENTI.FindAsync(assessoriInCarica.UID_persona);
                 result.Add(persona);
             }
+
             return result;
         }
 
@@ -214,6 +232,7 @@ namespace PortaleRegione.Persistance
                 var persona = await PRContext.View_UTENTI.FindAsync(consigliere.UID_persona);
                 result.Add(persona);
             }
+
             return result;
         }
 

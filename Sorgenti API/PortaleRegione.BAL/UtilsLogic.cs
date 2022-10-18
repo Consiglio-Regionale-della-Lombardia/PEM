@@ -22,6 +22,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.Logger;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
@@ -68,7 +69,7 @@ namespace PortaleRegione.BAL
                     {
                         if (!string.IsNullOrEmpty(destinatario))
                         {
-                            msg.CC.Add(new MailAddress(destinatario));
+                            msg.Bcc.Add(new MailAddress(destinatario));
                         }
                     }
                 }
@@ -78,7 +79,7 @@ namespace PortaleRegione.BAL
                 {
                     if (!string.IsNullOrEmpty(destinatario))
                     {
-                        msg.To.Add(new MailAddress(destinatario));
+                        msg.Bcc.Add(new MailAddress(destinatario));
                     }
                 }
 
@@ -87,10 +88,13 @@ namespace PortaleRegione.BAL
                     msg.Attachments.Add(new Attachment(model.pathAttachment));
                 }
 
-                if (model.bufferAttachment != null)
+                if (model.ATTACHMENTS.Any())
                 {
-                    var stream = new MemoryStream(model.bufferAttachment);
-                    msg.Attachments.Add(new Attachment(stream, model.nameAttachment, "application/pdf"));
+                    foreach (var allegatoMail in model.ATTACHMENTS)
+                    {
+                        var stream = new MemoryStream(allegatoMail.content);
+                        msg.Attachments.Add(new Attachment(stream, allegatoMail.nomeFile, "application/pdf"));
+                    }
                 }
 
                 var smtp = new SmtpClient(AppSettingsConfiguration.SMTP);

@@ -179,6 +179,7 @@ else
                 <td style="width: 6%;">
                     @{
                         var tooltipStato = "Non ancora depositato";
+                        var labelStato = Utility.GetText_StatoDASI(item.IDStato);
                         if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                         {
                             tooltipStato = $"Depositato il {item.DataPresentazione}";
@@ -186,12 +187,13 @@ else
                             {
                                 var motivazione = item.IDStato_Motivazione != 1 ? "Decaduto" : "Ritirato";
                                 tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
+                                labelStato += $" - {motivazione}";
                             }
                         }
                     }
 
                     <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
-                        @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                        @labelStato
                     </span>
                     @if (item.IDStato != (int)StatiAttoEnum.CHIUSO)
                     {

@@ -16,18 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
+
 namespace PortaleRegione.DTO.Model
 {
     public class MailModel
     {
+        public MailModel()
+        {
+            ATTACHMENTS = new List<AllegatoMail>();
+        }
         public string DA { get; set; }
         public string A { get; set; }
         public string CC { get; set; }
         public string OGGETTO { get; set; }
         public string MESSAGGIO { get; set; }
         public string pathAttachment { get; set; } = string.Empty;
-        public byte[] bufferAttachment { get; set; }
-        public string nameAttachment { get; set; } = string.Empty;
         public bool IsDeposito { get; set; } = false;
+        public List<AllegatoMail> ATTACHMENTS { get; set; }
     }
 }

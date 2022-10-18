@@ -58,6 +58,7 @@ namespace PortaleRegione.DTO.Domain
         public bool? notifica_deposito { get; set; }
 
         public string legislature { get; set; }
+        public bool? legislatura_attuale { get; set; } = false;
 
         [Display(Name = "Eliminato")] public bool? deleted { get; set; }
 
@@ -89,7 +90,7 @@ namespace PortaleRegione.DTO.Domain
         public bool IsResponsabileSegreteriaPolitica => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
         public bool IsResponsabileSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
 
-        public bool IsGiunta => IsPresidente 
+        public bool IsGiunta => IsPresidente
                                 || IsAmministratoreGiunta
                                 || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
                                 || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale

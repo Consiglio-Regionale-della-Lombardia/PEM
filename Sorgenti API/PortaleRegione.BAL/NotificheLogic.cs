@@ -178,7 +178,8 @@ namespace PortaleRegione.BAL
                         model.size,
                         result,
                         model.filtro,
-                        await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio), Convert.ToBoolean(Solo_Non_Viste)),
+                        await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio),
+                            Convert.ToBoolean(Solo_Non_Viste)),
                         uri),
                     CurrentUser = currentUser
                 };
@@ -252,6 +253,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var bodyMail = string.Empty;
+                var attachMail = new List<AllegatoMail>();
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
@@ -309,21 +311,21 @@ namespace PortaleRegione.BAL
                         if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
                         await _unitOfWork.CompleteAsync();
+
                         var attoInDb = await _logicDasi.Get(atto.UIDAtto);
-                        var firme = await _logicFirmeDasi.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
-                        bodyMail += await _logicDasi.GetBodyDASI(attoInDb, firme, currentUser, TemplateTypeEnum.HTML);
-                        bodyMail +=
-                            $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{atto.UID_QRCode}'>Vedi online</a>";
+                        var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
+                        attachMail.Add(new AllegatoMail(content, $"{n_atto}.pdf"));
                         results.Add(idGuid, $"{n_atto} - OK");
                     }
 
-                    if (!string.IsNullOrEmpty(bodyMail))
+                    if (attachMail.Any())
                         await _logicUtil.InvioMail(new MailModel
                         {
                             OGGETTO = "Invito a firmare i seguenti atti",
                             DA = currentUser.email,
                             A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
-                            MESSAGGIO = bodyMail
+                            MESSAGGIO = "E' richiesta la firma per gli atti in allegato",
+                            ATTACHMENTS = attachMail
                         });
 
                     #endregion

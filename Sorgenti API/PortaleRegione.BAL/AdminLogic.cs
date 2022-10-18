@@ -49,7 +49,8 @@ namespace PortaleRegione.BAL
             _logicUtil = logicUtil;
         }
 
-        public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model)
+        public async Task<IEnumerable<PersonaDto>> GetPersoneIn_DB(BaseRequest<PersonaDto> model,
+            PersonaDto personaDto = null)
         {
             try
             {
@@ -84,6 +85,7 @@ namespace PortaleRegione.BAL
                         .Persone
                         .GetAll(model.page,
                             model.size,
+                            personaDto,
                             queryFilter))
                     .Select(Mapper.Map<View_UTENTI, PersonaDto>);
 
@@ -178,7 +180,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<int> Count(BaseRequest<PersonaDto> model)
+        public async Task<int> Count(BaseRequest<PersonaDto> model, PersonaDto personaDto = null)
         {
             try
             {
@@ -207,7 +209,7 @@ namespace PortaleRegione.BAL
 
                 return await _unitOfWork
                     .Persone
-                    .CountAll(queryFilter);
+                    .CountAll(personaDto, queryFilter);
             }
             catch (Exception e)
             {
@@ -406,6 +408,11 @@ namespace PortaleRegione.BAL
                         filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
                     }
                 }
+                else if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                {
+                    var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(persona.Gruppo.id_gruppo);
+                    filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                }
 
                 if (filtri_ruoli_gruppi.Any())
                 {
@@ -427,18 +434,8 @@ namespace PortaleRegione.BAL
                 var persone_In_Db = new List<PersonaDto>();
                 var counter = 0;
 
-                if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
-                {
-                    var consiglieri_gruppo = await _unitOfWork.Gruppi.GetConsiglieriGruppo(await _unitOfWork.Legislature.Legislatura_Attiva(),
-                        persona.Gruppo.id_gruppo);
-                    persone_In_Db.AddRange(consiglieri_gruppo.Select(Mapper.Map<View_UTENTI,PersonaDto>));
-                    counter = consiglieri_gruppo.Count();
-                }
-                else
-                {
-                    counter = await Count(model);
-                    persone_In_Db.AddRange(await GetPersoneIn_DB(model));
-                }
+                counter = await Count(model, persona);
+                persone_In_Db.AddRange(await GetPersoneIn_DB(model, persona));
 
                 foreach (var persona_in_db in persone_In_Db)
                 {
@@ -493,7 +490,8 @@ namespace PortaleRegione.BAL
                         Gruppo = gruppiDto,
                     };
 
-                    var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""), AppSettingsConfiguration.TOKEN_R);
+                    var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""),
+                        AppSettingsConfiguration.TOKEN_R);
 
                     if (gruppiDto.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID)
                     {
@@ -520,7 +518,8 @@ namespace PortaleRegione.BAL
 
                     gruppoModel.Error_AD = !string.IsNullOrEmpty(gruppoModel.Error_AD_Message);
                     if (gruppoModel.Error_AD_Message.Length > 0)
-                        gruppoModel.Error_AD_Message = gruppoModel.Error_AD_Message.Substring(0, gruppoModel.Error_AD_Message.Length - 1);
+                        gruppoModel.Error_AD_Message =
+                            gruppoModel.Error_AD_Message.Substring(0, gruppoModel.Error_AD_Message.Length - 1);
                     result.Add(gruppoModel);
                 }
 
@@ -550,7 +549,9 @@ namespace PortaleRegione.BAL
                         ruolo == RuoliIntEnum.Amministratore_Giunta,
                         AppSettingsConfiguration.TOKEN_W
                     );
-                    autoPassword = ruolo == RuoliIntEnum.Amministratore_Giunta ? $"{autoPassword}" : "[Stessa usata per accedere al tuo pc]";
+                    autoPassword = ruolo == RuoliIntEnum.Amministratore_Giunta
+                        ? $"{autoPassword}"
+                        : "[Stessa usata per accedere al tuo pc]";
 
                     request.UID_persona = Guid.NewGuid();
                     request.no_Cons = 1;
@@ -566,13 +567,11 @@ namespace PortaleRegione.BAL
                         CC = "max.pagliaro@consiglio.regione.lombardia.it",
                         OGGETTO = "PEM - Utenza aperta",
                         MESSAGGIO =
- $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                            $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
                     });
-
                 }
                 else
                 {
-
                     foreach (var item in request.gruppiAd)
                     {
                         if (item.Membro)
@@ -582,7 +581,8 @@ namespace PortaleRegione.BAL
                                 var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
                                     AppSettingsConfiguration.TOKEN_W);
                                 if (resultAdd != 0)
-                                    throw new InvalidOperationException($"Errore inserimento gruppo AD [{item.GruppoAD}]");
+                                    throw new InvalidOperationException(
+                                        $"Errore inserimento gruppo AD [{item.GruppoAD}]");
                             }
                             catch (Exception e)
                             {
@@ -597,7 +597,8 @@ namespace PortaleRegione.BAL
                                     request.userAD,
                                     AppSettingsConfiguration.TOKEN_W);
                                 if (resultRemove == false)
-                                    throw new InvalidOperationException($"Errore rimozione gruppo AD [{item.GruppoAD}]");
+                                    throw new InvalidOperationException(
+                                        $"Errore rimozione gruppo AD [{item.GruppoAD}]");
                             }
                             catch (Exception e)
                             {
@@ -698,7 +699,6 @@ namespace PortaleRegione.BAL
                     throw ex;
                 }
 #endif
-
             }
             catch (Exception e)
             {

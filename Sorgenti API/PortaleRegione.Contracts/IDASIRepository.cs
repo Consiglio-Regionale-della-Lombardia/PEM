@@ -58,6 +58,7 @@ namespace PortaleRegione.Contracts
         Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId);
         Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
         Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
+        Task<List<ATTI_DASI>> GetProposteAtti(string dataRichiesta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
         Task<int> CountODGByAttoPEM(Guid appoggioUidAtto);
         Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona);
         Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);

@@ -57,6 +57,7 @@ namespace PortaleRegione.BAL
         //STAMPE
         public static string Logo => ConfigurationManager.AppSettings["Logo"];
         public static string Titolo => ConfigurationManager.AppSettings["Titolo"];
+        public static string NomePiattaforma => ConfigurationManager.AppSettings["NomePiattaforma"];
         public static string CartellaLavoroStampe => ConfigurationManager.AppSettings["CartellaLavoroStampe"];
         public static string LimiteGeneraStampaImmediata => ConfigurationManager.AppSettings["LimiteGeneraStampaImmediata"];
         public static string MessaggioInizialeDeposito => ConfigurationManager.AppSettings["MessaggioInizialeDeposito"];

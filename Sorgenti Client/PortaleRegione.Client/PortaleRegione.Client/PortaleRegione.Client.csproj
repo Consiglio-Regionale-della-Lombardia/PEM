@@ -467,6 +467,10 @@
     <Content Include="Views\Shared\_MenuAdmin.cshtml" />
     <Content Include="Views\Shared\_MenuCapogruppo.cshtml" />
     <Content Include="Views\Shared\_MenuTrattazione.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtentiFiltri.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtentiScript.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPassword.cshtml" />
+    <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
