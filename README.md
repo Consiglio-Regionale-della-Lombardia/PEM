@@ -30,7 +30,7 @@ La funzione di controllo invece, come definita a livello parlamentare, si estrin
 - Copyright: Consiglio regionale della Lombardia
 - Stato del progetto: Beta
 - Mantenimento in carico Namirial S.p.A. a socio unico - https://www.namirial.it/
-- Per segnalare CVE e problemi di sicurezza scrivere a opensource@2Csolution.it
+- Per segnalare CVE e problemi di sicurezza scrivere a opensource@2Csolution.it (**ATTENZIONE:** utilizzare esclusivamente questo canale per segnalazioni relative alla sicurezza, non utilizzare lo strumento di issue tracking del repository)
  
 # Contenuti
 
