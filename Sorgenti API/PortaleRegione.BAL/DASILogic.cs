@@ -2314,7 +2314,9 @@ namespace PortaleRegione.API.Controllers
                     A = AppSettingsConfiguration.EmailProtocolloDASI,
                     OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
                     MESSAGGIO =
-                        $"Si chiede di protocollare e inserire l’atto {nome_atto} con oggetto \"{atto.Oggetto}\" <br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
+                        $"Si invia in allegato l'atto {nome_atto} con oggetto \"{atto.Oggetto}\". " +
+                        $"Si chiede l'apertura del fascicolo dedicato e la protocollazione dell'atto con preghiera di comunicare i relativi protocolli inviando una email a: {AppSettingsConfiguration.EmailInvioDASI} " +
+                        "<br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
                     ATTACHMENTS = new List<AllegatoMail> { new AllegatoMail(content, $"{nome_atto}.pdf") }
                 };
                 await _logicUtil.InvioMail(mailModel);
