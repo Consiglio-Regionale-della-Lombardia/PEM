@@ -595,4 +595,13 @@ Gli amministratori del sistema PEM-DASI gestiscono inoltre tutti i parametri di 
 ![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
 
+##Dettagli della licenza##
+La documentazione di PEM-DASI è rilasciata con licenza 
 
+Salvo diversamente indicato dalla legge applicabile o concordato per iscritto, la documentazione rilasciata secondo i termini della Licenza è distribuita "TAL QUALE", SENZA GARANZIE O CONDIZIONI DI ALCUN TIPO, esplicite o implicite.
+
+Si veda la Licenza per la lingua specifica che disciplina le autorizzazioni e le limitazioni secondo i termini della Licenza.
+
+Si veda il file LICENSE.md all'interno della cartella Documentazione del repository per i riferimenti completi.
+
+Il logo della Regione Lombardia è di proprietà esclusiva di Regione Lombardia e per tanto non è rilasciato sotto licenza aperta.
