@@ -595,8 +595,8 @@ Gli amministratori del sistema PEM-DASI gestiscono inoltre tutti i parametri di 
 ![PEM_11](/Documentazione/Screenshot/PEM_11.jpg)
 
 
-##Dettagli della licenza##
-La documentazione di PEM-DASI è rilasciata con licenza 
+## Dettagli della licenza
+La documentazione di PEM-DASI è rilasciata con licenza Creative Commons Attribution-ShareAlike 4.0 International
 
 Salvo diversamente indicato dalla legge applicabile o concordato per iscritto, la documentazione rilasciata secondo i termini della Licenza è distribuita "TAL QUALE", SENZA GARANZIE O CONDIZIONI DI ALCUN TIPO, esplicite o implicite.
 
