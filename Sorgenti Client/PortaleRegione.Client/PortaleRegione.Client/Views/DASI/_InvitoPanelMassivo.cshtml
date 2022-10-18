@@ -1,8 +1,9 @@
 ﻿@using PortaleRegione.DTO.Enum
 
-<div id="modalDASINotificaA" class="modal modal-fixed-footer">
+<div id="modalDASINotificaA" class="modal bottom-sheet">
     <div class="modal-content">
-        <h5 id="attoProponenteDisplayName"></h5>
+        <h5 id="attoProponenteDisplayName"><b>Invito Massivo</b></h5>
+        <hr/>
         @using (Html.BeginForm("EseguiAzione", "DASI", FormMethod.Post, new { id = "formNotificaA" }))
         {
             @Html.AntiForgeryToken()
@@ -51,7 +52,7 @@
 
         var autocompleteDataOptions = {
             data: persone,
-            limit: 10,
+            limit: 3,
             minLength: 1
         };
         if (chipInstanceNotificaADASI != null) {
