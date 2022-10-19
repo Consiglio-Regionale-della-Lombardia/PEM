@@ -86,131 +86,141 @@ DataUltimaModificaEM: DateTime //memorizza la data/ora in cui è avvenuta l’ul
 Tabella per la gestione degli ATTI di indirizzo e di sindacato ispettivo
 
 ##### Campi
-	UIDAtto: uniqueidentifier 
+UIDAtto: uniqueidentifier 
  
-	Tipo: int //id del tipo di atto (MOZ, IQT, ODG, ITL, ITR)
+Tipo: int //id del tipo di atto (MOZ, IQT, ODG, ITL, ITR)
  
-	TipoMOZ: int //specifico tipo di mozione (ordinaria, sfiducia, censura)
+TipoMOZ: int //specifico tipo di mozione (ordinaria, sfiducia, censura)
  
-	Progressivo: int  //ordine di inserimento di un emendamento riferito al singolo gruppo politico
+Progressivo: int  //ordine di inserimento di un emendamento riferito al singolo gruppo politico
  
-	Etichetta: varchar(255) //descrizione univoca dell'atto
+Etichetta: varchar(255) //descrizione univoca dell'atto
  
-	NAtto: varchar(max) //numero crittografato dell'atto
+NAtto: varchar(max) //numero crittografato dell'atto
  
-	NAtto_search: int //numero dell'atto ai fini della ricerca
+NAtto_search: int //numero dell'atto ai fini della ricerca
  
-	Oggetto: varchar(max) //oggetto dell'atto
+Oggetto: varchar(max) //oggetto dell'atto
  
-	Oggetto_Modificato: varchar(max) //oggetto modificato dell'atto
+Oggetto_Modificato: varchar(max) //oggetto modificato dell'atto
  
-	Premesse: varchar(max) //premesse dell'atto
+Premesse: varchar(max) //premesse dell'atto
  
-	Premesse_Modificato: varchar(max) //premesse eventualmente modificate ai fini privacy
+Premesse_Modificato: varchar(max) //premesse eventualmente modificate ai fini privacy
  
-	TipoRichiesta: int //tipo di richiesta (INVITA IMPEGNA ECC) - campo non utilizzato in quanto il valore è stato inserito nel campo testo della richiesta
+TipoRichiesta: int //tipo di richiesta (INVITA IMPEGNA ECC) - campo non utilizzato in quanto il valore è stato inserito nel campo testo della richiesta
  
-	TipoRichiestaDestinatario: int //identificativo del destinatario della richiesta - campo non utilizzato in quanto il valore è stato inserito nel campo testo della richiesta
+TipoRichiestaDestinatario: int //identificativo del destinatario della richiesta - campo non utilizzato in quanto il valore è stato inserito nel campo testo della richiesta
  
-	Richiesta: varchar(max) //richiesta effettuata dal proponente dell'atto
+Richiesta: varchar(max) //richiesta effettuata dal proponente dell'atto
  
-	Richiesta_Modificata: varchar(max) //richiesta eventualmente modificata ai fini privacy
+Richiesta_Modificata: varchar(max) //richiesta eventualmente modificata ai fini privacy
  
-	DataCreazione: datetime 
+DataCreazione: datetime 
  
-	UIDPersonaCreazione: uniqueidentifier 
+UIDPersonaCreazione: uniqueidentifier 
  
-	idRuoloCreazione: int 
+idRuoloCreazione: int 
  
-	DataModifica: datetime 
+DataModifica: datetime 
  
-	UIDPersonaModifica: uniqueidentifier 
+UIDPersonaModifica: uniqueidentifier 
 
-	DataPresentazione: varchar(255) 
+DataPresentazione: varchar(255) 
  
-	DataPresentazione_MOZ: varchar(255) //Data di presentazione dell'atto mozione
+DataPresentazione_MOZ: varchar(255) //Data di presentazione dell'atto mozione
  
-	DataPresentazione_MOZ_URGENTE: varchar(255) //Data della richiesta di urgenza effettuata dal capogruppo
+DataPresentazione_MOZ_URGENTE: varchar(255) //Data della richiesta di urgenza effettuata dal capogruppo
  
-	DataPresentazione_MOZ_ABBINATA: varchar(255) //Data della richiesta di abbinamento ad altra mozione effettuata dal capogruppo
+DataPresentazione_MOZ_ABBINATA: varchar(255) //Data della richiesta di abbinamento ad altra mozione effettuata dal capogruppo
  
-	UIDPersonaPresentazione: uniqueidentifier //identificativo di chi deposita l'att0
+UIDPersonaPresentazione: uniqueidentifier //identificativo di chi deposita l'att0
  
-	DataRichiestaIscrizioneSeduta: varchar(255) //data indicata dal presentatore/capogruppo per la trattazione in Aula
+DataRichiestaIscrizioneSeduta: varchar(255) //data indicata dal presentatore/capogruppo per la trattazione in Aula
  
-	UIDPersonaRichiestaIscrizione: uniqueidentifier
+UIDPersonaRichiestaIscrizione: uniqueidentifier
  
-	UIDPersonaProponente: uniqueidentifier
+UIDPersonaProponente: uniqueidentifier
  
-	UIDPersonaPrimaFirma: uniqueidentifier //identificativo del primo firmatario
+UIDPersonaPrimaFirma: uniqueidentifier //identificativo del primo firmatario
  
-	DataPrimaFirma: datetime
+DataPrimaFirma: datetime
  
-	Proietta: bit //bit che indica che l'atto è in proiezione - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
+Proietta: bit //bit che indica che l'atto è in proiezione - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
  
-	DataProietta: datetime //data che indica il momento in cui l'atto è in proiezione - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
+DataProietta: datetime //data che indica il momento in cui l'atto è in proiezione - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
  
-	UIDPersonaProietta: uniqueidentifier //identificativo di colui che proietta l'atto - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
+UIDPersonaProietta: uniqueidentifier //identificativo di colui che proietta l'atto - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
  
-	DataRitiro: datetime //data relativa all'eventuale ritiro dell'atto
+DataRitiro: datetime //data relativa all'eventuale ritiro dell'atto
  
-	UIDPersonaRitiro: uniqueidentifier //identificativo di chi ha ritirato l'atto
+UIDPersonaRitiro: uniqueidentifier //identificativo di chi ha ritirato l'atto
  
-	Hash: varchar(max) //codice di sicurezza per la verifica della crittografia
+Hash: varchar(max) //codice di sicurezza per la verifica della crittografia
  
-	IDTipo_Risposta: int //tipo di risposta per gli atti che lo richiedono
+IDTipo_Risposta: int //tipo di risposta per gli atti che lo richiedono
  
-	OrdineVisualizzazione int //campo per ordinare gli atti in ordine di presentazione
+OrdineVisualizzazione int //campo per ordinare gli atti in ordine di presentazione
  
-	PATH_AllegatoGenerico varchar(max) //percorso dell'allegato generico
+PATH_AllegatoGenerico varchar(max) //percorso dell'allegato generico
  
-	Note_Pubbliche varchar(max) //campo contenente eventuali note visibili a tutti
+Note_Pubbliche varchar(max) //campo contenente eventuali note visibili a tutti
  
-	Note_Private varchar(max) //campo contenente eventuali note visibili solo al ruolo Segreteria dell'Assemblea e Ads
+Note_Private varchar(max) //campo contenente eventuali note visibili solo al ruolo Segreteria dell'Assemblea e Ads
  
-	IDStato int //stato dell'atto
+IDStato int //stato dell'atto
  
-	IDStato_Motivazione int //tipologia specifica di chiusura di un atto (decaduto, ritirato, iter concluso, ecc)
+IDStato_Motivazione int //tipologia specifica di chiusura di un atto (decaduto, ritirato, iter concluso, ecc)
  
-	Firma_su_invito bit //atto che può essere firmato solo se invitati - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i. ma è stata ereditata da PEM
+Firma_su_invito bit //atto che può essere firmato solo se invitati - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i. ma è stata ereditata da PEM
  
-	UID_QRCode uniqueidentifier //identificativo per il QRCode che viene stampato sull'atto
+UID_QRCode uniqueidentifier //identificativo per il QRCode che viene stampato sull'atto
  
-	AreaPolitica int //Area politica dell'atto
+AreaPolitica int //Area politica dell'atto
  
-	id_gruppo int //identificativo del gruppo politico a cui appartiene il proponente dell'atto
+id_gruppo int //identificativo del gruppo politico a cui appartiene il proponente dell'atto
  
-	Eliminato bit //identifica un atto eliminato (eliminazione logica)
+Eliminato bit //identifica un atto eliminato (eliminazione logica)
  
-	UIDPersonaElimina uniqueidentifier //
+UIDPersonaElimina uniqueidentifier //
  
-	DataElimina datetime
+DataElimina datetime
  
-	chkf varchar(255)
+chkf varchar(255)
  
-	Timestamp datetime 
+Timestamp datetime 
  
-	Atto_Certificato varchar(max)
+Atto_Certificato varchar(max)
  
-	Legislatura int
+Legislatura int
  
-	UIDSeduta uniqueidentifier
+UIDSeduta uniqueidentifier
  
-	DataIscrizioneSeduta datetime
+DataIscrizioneSeduta datetime
  
-	UIDPersonaIscrizioneSeduta uniqueidentifier 
+UIDPersonaIscrizioneSeduta uniqueidentifier 
  
-	UID_MOZ_Abbinata uniqueidentifier 
+UID_MOZ_Abbinata uniqueidentifier 
  
-	UID_Atto_ODG uniqueidentifier
+UID_Atto_ODG uniqueidentifier
  
-	Non_Passaggio_In_Esame bit
+Non_Passaggio_In_Esame bit
  
-	Inviato_Al_Protocollo bit 
+Inviato_Al_Protocollo bit 
  
-	DataInvioAlProtocollo datetime
+DataInvioAlProtocollo datetime
  
+ 
+#### ATTI_DASI_CONTATORI
+Tabella che mappa la codifica da dare a ogni tipologia di atto quando viene depositato (i contatori andranno ripristinati all'avvio di legislatura)
 
+##### Campi
+Id: int //identificativo univoco del record
+Tipo: int //tipo di atto (MOZ, IQT, ODG, ITL, ITR)
+Risposta: int //tipo di risposta dell'atto (scritta, orale, in commissione)
+Contatore: int //progressivo da aggiungere alla codifica iniziale dello specifico tipo di atto (da azzerare a inizio legislatura)
+Inizio: int //codifica iniziale relativa allo specifico tipo di atto/risposta
+Fine: int //limite superiore della specifica codifica
 
 #### ATTI_RELATORI
 Tabella che mette in relazione un atto a uno o più consiglieri individuati come relatori
