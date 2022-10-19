@@ -6,15 +6,15 @@ Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calc
 
 ## Contenuti
 
-- [Tabelle proprietarie](#tabelle proprietarie)
-- [Tabelle replicate](#tabelle replicate)
+- [Tabelle proprietarie](#Tabelle_proprietarie)
+- [Tabelle replicate](#Tabelle_replicate)
 - [Viste](#viste)
 - [Funzioni](#funzioni)
 - [Stored procedure](#stored procedure)
 - [Diagramma Entità-Relazioni](#diagramma entità-relazioni)
 
 
-## Tabelle proprietarie
+## Tabelle_proprietarie
 
 #### ARTICOLI
 Tabella per la gestione degli articoli contenuti in un ATTO (progetto di legge – PDL)
