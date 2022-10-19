@@ -10,7 +10,7 @@ Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calc
 - [Tabelle replicate](#Tabelle_replicate)
 - [Viste](#viste)
 - [Funzioni](#funzioni)
-- [Stored procedure](#stored procedure)
+- [Stored procedure](#stored_procedure)
 - [Diagramma Entità-Relazioni](#diagramma entità-relazioni)
 
 
