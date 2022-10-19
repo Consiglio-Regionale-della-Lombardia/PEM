@@ -215,10 +215,15 @@ Tabella che mappa la codifica da dare a ogni tipologia di atto quando viene depo
 
 ##### Campi
 Id: int //identificativo univoco del record
+
 Tipo: int //tipo di atto (MOZ, IQT, ODG, ITL, ITR)
+
 Risposta: int //tipo di risposta dell'atto (scritta, orale, in commissione)
+
 Contatore: int //progressivo da aggiungere alla codifica iniziale dello specifico tipo di atto (da azzerare a inizio legislatura)
+
 Inizio: int //codifica iniziale relativa allo specifico tipo di atto/risposta
+
 Fine: int //limite superiore della specifica codifica
 
 #### ATTI_SOGGETTI_INTERROGATI
@@ -226,8 +231,11 @@ Tabella per mappare tutti i soggetti interrogati (attualmente non implementata, 
 
 ##### Campi
 Uid: uniqueidentifier
+
 UIDAtto: uniqueidentifier
+
 id_carica: int
+
 DataCreazione: datetime
 
 #### ATTI_RELATORI
@@ -402,18 +410,29 @@ ufficio: Boolean //indica che l’em/subem è stato firmato dal Dirigente del Se
 Tabella per la gestione delle FIRME degli ATTI DI INDIRIZZO E SINDACATO ISPETTIVO
 
 ##### Campi
-UIDAtto uniqueidentifier
-UID_persona uniqueidentifier
-FirmaCert varchar(max) 
-Data_firma varchar(255)
-Data_ritirofirma varchar(255)
-id_AreaPolitica int 
-Timestamp datetime
-ufficio bit
-PrimoFirmatario bit
-id_gruppo int
-Valida bit 
-Capogruppo bit 
+UIDAtto: uniqueidentifier
+
+UID_persona: uniqueidentifier
+
+FirmaCert: varchar(max) 
+
+Data_firma: varchar(255)
+
+Data_ritirofirma: varchar(255)
+
+id_AreaPolitica: int 
+
+Timestamp: datetime
+
+ufficio: bit
+
+PrimoFirmatario: bit
+
+id_gruppo: int
+
+Valida: bit 
+
+Capogruppo: bit 
 
 #### LETTERE
 Tabella per la gestione delle lettere contenute nei COMMI degli ARTICOLI di un ATTO
