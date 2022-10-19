@@ -8,10 +8,10 @@ Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calc
 
 - [Tabelle proprietarie](#Tabelle_proprietarie)
 - [Tabelle replicate](#Tabelle_replicate)
-- [Viste](#viste)
-- [Funzioni](#funzioni)
-- [Stored procedure](#stored_procedure)
-- [Diagramma Entità-Relazioni](#diagramma entità-relazioni)
+- [Viste](#Viste)
+- [Funzioni](#Funzioni)
+- [Stored procedure](#Stored_procedure)
+- [Diagramma Entità-Relazioni](#Diagramma_Entita-Relazioni)
 
 
 ## Tabelle_proprietarie
@@ -778,7 +778,7 @@ pass_locale_crypt: String
 
 
 
-## Tabelle replicate
+## Tabelle_replicate
 
 Queste tabelle vengono replicate da un'altra base dati, per la gestione dei Consiglieri.
 Indichiamo solamente la loro funzione, senza scendere nel dettaglio dei campi di ognuna.
@@ -879,7 +879,7 @@ Vista che estrae l’anagrafica completa (GUID, id, nominativo, gruppo politico 
 
 
 
-## Stored procedure
+## Stored_procedure
 
 #### COPIA_ATTO
 
@@ -893,7 +893,7 @@ Vista che estrae l’anagrafica completa (GUID, id, nominativo, gruppo politico 
 
 
 
-## Diagramma Entità-Relazioni
+## Diagramma_Entita-Relazioni
 
 ![EntityDesignerDiagram](/Database/EntityDesignerDiagram.jpg)
 
