@@ -138,13 +138,13 @@ UIDPersonaPresentazione: uniqueidentifier //identificativo di chi deposita l'att
  
 DataRichiestaIscrizioneSeduta: varchar(255) //data indicata dal presentatore/capogruppo per la trattazione in Aula
  
-UIDPersonaRichiestaIscrizione: uniqueidentifier
+UIDPersonaRichiestaIscrizione: uniqueidentifier //identificativo della persona che richiede l'iscrizione
  
-UIDPersonaProponente: uniqueidentifier
+UIDPersonaProponente: uniqueidentifier //identificativo del propoenente dell'atto
  
 UIDPersonaPrimaFirma: uniqueidentifier //identificativo del primo firmatario
  
-DataPrimaFirma: datetime
+DataPrimaFirma: datetime //data della prima firma effettuata sull'atto
  
 Proietta: bit //bit che indica che l'atto è in proiezione - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i.
  
@@ -160,55 +160,55 @@ Hash: varchar(max) //codice di sicurezza per la verifica della crittografia
  
 IDTipo_Risposta: int //tipo di risposta per gli atti che lo richiedono
  
-OrdineVisualizzazione int //campo per ordinare gli atti in ordine di presentazione
+OrdineVisualizzazione: int //campo per ordinare gli atti in ordine di presentazione
  
-PATH_AllegatoGenerico varchar(max) //percorso dell'allegato generico
+PATH_AllegatoGenerico: varchar(max) //percorso dell'allegato generico
  
-Note_Pubbliche varchar(max) //campo contenente eventuali note visibili a tutti
+Note_Pubbliche: varchar(max) //campo contenente eventuali note visibili a tutti
  
-Note_Private varchar(max) //campo contenente eventuali note visibili solo al ruolo Segreteria dell'Assemblea e Ads
+Note_Private: varchar(max) //campo contenente eventuali note visibili solo al ruolo Segreteria dell'Assemblea e Ads
  
-IDStato int //stato dell'atto
+IDStato: int //stato dell'atto
  
-IDStato_Motivazione int //tipologia specifica di chiusura di un atto (decaduto, ritirato, iter concluso, ecc)
+IDStato_Motivazione: int //tipologia specifica di chiusura di un atto (decaduto, ritirato, iter concluso, ecc)
  
-Firma_su_invito bit //atto che può essere firmato solo se invitati - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i. ma è stata ereditata da PEM
+Firma_su_invito: bit //atto che può essere firmato solo se invitati - campo non utilizzato in quanto la funzionalità non è stata sviluppata sugli atti di indirizzo e s.i. ma è stata ereditata da PEM
  
-UID_QRCode uniqueidentifier //identificativo per il QRCode che viene stampato sull'atto
+UID_QRCode: uniqueidentifier //identificativo per il QRCode che viene stampato sull'atto
  
-AreaPolitica int //Area politica dell'atto
+AreaPolitica: int //Area politica dell'atto
  
-id_gruppo int //identificativo del gruppo politico a cui appartiene il proponente dell'atto
+id_gruppo: int //identificativo del gruppo politico a cui appartiene il proponente dell'atto
  
-Eliminato bit //identifica un atto eliminato (eliminazione logica)
+Eliminato: bit //identifica un atto eliminato (eliminazione logica)
  
-UIDPersonaElimina uniqueidentifier //
+UIDPersonaElimina: uniqueidentifier //identificativo della persona che ha effettuato l'eliminazione logica dell'atto
  
-DataElimina datetime
+DataElimina: datetime //data in cui è stato eliminato l'atto
  
-chkf varchar(255)
+chkf: varchar(255) //campo contentente un valore di sicurezza per il controllo della regolatità dell'atto
  
-Timestamp datetime 
+Timestamp: datetime //marca temporale dell'atto
  
-Atto_Certificato varchar(max)
+Atto_Certificato: varchar(max) //testo dell'atto (composto da premesse+richieste) depositato, certificato tramite crittografia (immodificabile)
  
-Legislatura int
+Legislatura: int //identificativo della legislatura a cui si riferisce l'atto
  
-UIDSeduta uniqueidentifier
+UIDSeduta: uniqueidentifier //identificativo della seduta a cui è stato iscritto l'atto (per gli atti che si iscrivono in seduta)
  
-DataIscrizioneSeduta datetime
+DataIscrizioneSeduta: datetime //data in cui l'atto è stato iscritto in seduta
  
-UIDPersonaIscrizioneSeduta uniqueidentifier 
+UIDPersonaIscrizioneSeduta: uniqueidentifier //identificativo della persona che ha iscritto l'atto in seduta
  
-UID_MOZ_Abbinata uniqueidentifier 
+UID_MOZ_Abbinata: uniqueidentifier //identificativo delle mozione a cui viene abbinato l'atto (mozione abbinata)
  
-UID_Atto_ODG uniqueidentifier
+UID_Atto_ODG: uniqueidentifier //identificativo dell'atto/argomento sul quale è stato depositato l'odg (chiave esterna alla tabella ATTI)
  
-Non_Passaggio_In_Esame bit
+Non_Passaggio_In_Esame: bit //se true indica che l'atto (ODG) è di non passaggio alla votazione degli articoli
  
-Inviato_Al_Protocollo bit 
+Inviato_Al_Protocollo: bit //indica se è già stata inoltrata la richiesta di protocollazione dell'atto
  
-DataInvioAlProtocollo datetime
+DataInvioAlProtocollo: datetime //data della richiesta di protocollazione
  
  
 #### ATTI_DASI_CONTATORI
