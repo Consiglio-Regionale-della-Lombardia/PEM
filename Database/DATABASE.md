@@ -892,6 +892,9 @@ Vista che unisce (esegue una union) di tutti gli attori del sistema: consiglieri
 #### View_consiglieri_in_carica
 Vista che estrae l’anagrafica completa (GUID, id, nominativo, gruppo politico attuale, legislatura, ecc) dei consiglieri attualmente in carica
 
+#### View_CAPIGRUPPO
+Vista che estrae l’anagrafica completa (GUID, id, nominativo, gruppo politico attuale, legislatura, ecc) dei consiglieri capogruppo di tutti i gruppi politici
+
 
 ## Funzioni
 
