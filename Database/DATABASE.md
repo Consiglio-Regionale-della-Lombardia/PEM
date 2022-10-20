@@ -82,6 +82,14 @@ DataCreazioneVotazione: DateTime //memorizza la data/ora in cui è stato pubblic
 
 DataUltimaModificaEM: DateTime //memorizza la data/ora in cui è avvenuta l’ultima modifica su un emendamento (es. aggiunta o ritiro di una firma)
 
+BloccoODG: bit //Viene messo a true alla fine della discussione generale di un atto e provoca il blocco della presentazione degli ODG riferiti a quell'atto
+ 
+Jolly: bit //Viene messo a true per consentire il deposito illimitato di ODG sull'atto
+ 
+Emendabile: bit //indica che l'atto inserito è emendabile e attiva le funzionalità per il deposito degli emendamenti sull'atto
+ 
+Fascicoli_Da_Aggiornare: bit //indica che dopo la pubblicazione del fascicolo degli emendamenti (in ordine di votazione presentazione) sono intervenute delle modifiche sugli emendamenti e quindi è necessario rigenerare il fascicolo
+
 #### ATTI_DASI
 Tabella per la gestione degli ATTI di indirizzo e di sindacato ispettivo
 
@@ -607,7 +615,7 @@ UID_persona: Guid
 IDruolo: Int32
 
 #### SEDUTE
-Tabella per la gestione delle SEDUTE d’Aula in cui vengono trattati i PDL e votati gli EM/SUBEM
+Tabella per la gestione delle SEDUTE d’Aula in cui vengono trattati i PDL e votati gli EM/SUBEM e per le sedute dedicate agli atti di indirizzo e di sindacato isperrico
 
 ##### Campi
 UIDSeduta: Guid
@@ -623,6 +631,16 @@ Data_effettiva_fine: DateTime
 IDOrgano: Int32 //Campo non utilizzato. Previsto per poter estendere PEM alla gestione degli emendamenti presentati in commissione
 
 Scadenza_presentazione: DateTime //Data-ora che memorizza il termine di presentazione degli emendamenti. Dopo questo orario gli emendamenti saranno marcati come “Presentato fuori termine”
+	
+DataScadenzaPresentazioneIQT: DateTime //Data-ora che memorizza il termine di presentazione delle IQT. Dopo questo orario le IQT saranno marcatr come “Presentate fuori termine”
+
+DataScadenzaPresentazioneMOZ: DateTime //Data-ora che memorizza il termine di presentazione delle MOZ ordinarie. Dopo questo orario le MOZ saranno marcate come “Presentate fuori termine”
+
+DataScadenzaPresentazioneMOZA: DateTime //Data-ora che memorizza il termine di presentazione delle MOZ urgenti. Dopo questo orario gli le MOZ saranno marcate come “Richiesta di abbinamento fuori termine”
+
+DataScadenzaPresentazioneMOZU: DateTime //Data-ora che memorizza il termine di presentazione delle MOZ urgenti. Dopo questo orario gli le MOZ saranno marcate come “Richiesta d'urgenza fuori termine”
+
+DataScadenzaPresentazioneODG: DateTime //Data-ora che memorizza il termine di presentazione degli ODG. Dopo questo orario gli ODG saranno marcati come “Presentato fuori termine”
 
 id_legislatura: Int32
 
@@ -633,6 +651,8 @@ UIDPersonaModifica: Guid
 DataModifica: DateTime
 
 Eliminato: Boolean
+
+Riservato_DASI: bit //Se true indica che la seduta è dedicata agli atti d'indirizzo e di sindacato ispettivo
 
 #### STAMPE
 Tabella per la gestione differita delle STAMPE (utilizzata dal modulo Gestione Stampe)
