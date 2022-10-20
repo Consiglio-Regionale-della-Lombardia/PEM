@@ -386,6 +386,8 @@ Timestamp: DateTime //Data-ora di presentazione dell’em/subem
 
 Colore: String //Colore dell’emendamento, utilizzato per gestire la funzione “Uguali tra loro”
 
+Tags: varchar(max) //memorizza i #tags dell'emendamento
+
 #### FIRME
 Tabella per la gestione delle FIRME degli EMENDAMENTI/SUBEMENDAMENTI
 
@@ -394,7 +396,7 @@ UIDEM: Guid
 
 UID_persona: Guid
 
-FirmaCert: String
+FirmaCert: String //Firma certificata e immodificabile
 
 Data_firma: String //Data assegnata dal sistema al momento della firma di un emendamento/subemendamento. Campo crittografato e immodificabile
 
@@ -414,25 +416,25 @@ UIDAtto: uniqueidentifier
 
 UID_persona: uniqueidentifier
 
-FirmaCert: varchar(max) 
+FirmaCert: varchar(max) //Firma certificata e immodificabile
 
-Data_firma: varchar(255)
+Data_firma: varchar(255) //Data assegnata dal sistema al momento della firma di un atto. Campo crittografato e immodificabile
 
-Data_ritirofirma: varchar(255)
+Data_ritirofirma: varchar(255) //Data assegnata dal sistema al momento del ritiro di una firma da un atto. Campo crittografato e immodificabile
 
-id_AreaPolitica: int 
+id_AreaPolitica: int //area politica (maggioranza, minoranza, misto, ecc) a cui appartiene il consigliere firmatario
 
-Timestamp: datetime
+Timestamp: datetime //data in cui è avvenuta l’operazione sulla firma
 
-ufficio: bit
+ufficio: bit //indica che l’em/subem è stato firmato dal Dirigente del Servizio Segreteria dell’Assemblea
 
-PrimoFirmatario: bit
+PrimoFirmatario: bit //indica che la firma appartiene al primo firmatario
 
-id_gruppo: int
+id_gruppo: int //identifica il gruppo del firmatario dell'atto
 
-Valida: bit 
+Valida: bit //indica che la firma è valida
 
-Capogruppo: bit 
+Capogruppo: bit //indica che la firma è di un capogruppo
 
 #### LETTERE
 Tabella per la gestione delle lettere contenute nei COMMI degli ARTICOLI di un ATTO
@@ -452,17 +454,33 @@ Ordine: Int32
 Tabella per la gestione delle MISSIONI di un ATTO
 
 ##### Campi
- UIDMissione: Guid
+UIDMissione: Guid
  
- NMissione: Int32
+NMissione: Int32
  
- DAL: DateTime
+DAL: DateTime
  
- AL: DateTime
+AL: DateTime
  
- Descrizione: String
+Descrizione: String
  
- Ordine: Int32
+Ordine: Int32
+
+#### PARTE_LR
+Tabella per la gestione delle parti riferite ad altre leggi presenti nei progetti di legge modificativi di leggi regionali vigenti (attualmente non implementata)
+
+##### Campi
+UIDParte_LR: uniqueidentifier
+
+UIDLettera: uniqueidentifier
+
+RifParte_LR varchar(250)
+
+Parte_LR varchar(50)
+
+TestoParte_LR varchar(max)
+
+Ordine int
 
 #### NOTIFICHE
 Tabella per la gestione degli INVITI alla FIRMA di un EM/SUBEM
