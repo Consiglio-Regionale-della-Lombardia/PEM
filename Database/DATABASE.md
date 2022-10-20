@@ -1,7 +1,7 @@
-# Portale PEM - Presentazione Emendamenti
+# Portale PEM-DASI - Presentazione Emendamenti e Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo
 # Struttura del database
 
-Qui di seguito elenchiamo gli oggetti contenuti nel database del Portale PEM. 
+Qui di seguito elenchiamo gli oggetti contenuti nel database del Portale PEM-DASI. 
 Il legame tra questi oggetti è visibile nel diagramma entità-relazioni in calce al presente documento.
 
 ## Contenuti
@@ -712,6 +712,14 @@ CssClass: String //la formattazione dell’etichetta dello stato visualizzata ne
 
 Ordinamento: Int32 //Campo utilizzato per ordinare gli em/subem in base al loro attuale stato
 
+#### Tags
+Tabella per la gestione dei tags inseriti sugli emendamenti
+
+##### Campi
+id: int 
+
+tag: varchar
+	
 #### TIPI_ATTO
 Tabella di supporto per la memorizzazione dei tipi di ATTI emendabili (per ora solo PDL)
 
@@ -888,47 +896,64 @@ Vista che estrae l’anagrafica completa (GUID, id, nominativo, gruppo politico 
 ## Funzioni
 
 #### consigliere_attivo
+Restituisce true se il consigliere è attivo (non cessato dalla carica)
 
 #### get_CaricaGiunta_from_UIDpersona
+Restituisce l'elenco delle cariche di Giunta della persona indicata
 
 #### get_CodGruppo_from_ID
+Restituisce la sigla del gruppo politico indicato (es. PD)
 
 #### get_GUIDCapogruppo_from_idGruppo
+Restituisce l'identificativo del capogruppo relativo al gruppo idicato
 
 #### get_GUIDgruppoAttuale_from_persona
+Restituisce l'identificativo in formato GUID del gruppo politico del consigliere indicato
 
 #### get_IDgruppoAttuale_from_persona
+Restituisce l'identificativo in formato int del gruppo politico del consigliere indicato (id replicato dall'anagrafica consiglieri)
 
 #### get_legislatura_attuale
+Restituisce l'identificativo della legislatura attuale
 
 #### get_legislatura_attuale_from_persona
+Indica se la persona indicata fa parte della legislatura attuale
 
 #### get_legislature_from_persona
+Restituisce le legislature di cui ha fatto parte la persona
 
 #### get_NomeGruppo_from_GUID
+Resituisce il nome del gruppo a partire dal suo GUID (es. Movimento 5 Stelle)
 
 #### get_PIN
+Restituisce il PIN di un consigliere
 
 #### get_ProgressivoEM
+Restituisce il primo numero progressivo libero da assegnare ad un emendamento 
 
 #### get_ProgressivoSUBEM
+Restituisce il primo numero progressivo libero da assegnare ad un subemendamento 
 
 #### get_SiglaGruppo_from_GUID
-
+Resituisce la sigla del gruppo a partire dal suo GUID (es. M5S)
 
 
 ## Stored_procedure
 
 #### COPIA_ATTO
+Store procedure che esegue tutte le operazioni per spostare un atto (es. PDL) in un'altra seduta
 
 #### DOWN_EM_TRATTAZIONE
+Store procedure che esegue tutte le operazioni per spostare in una posizione successiva l'ordine di votazione di un emendamento
 
 #### ORDINA_EM_TRATTAZIONE
+Store procedure che esegue le operazioni di ordinamento automatico (di votazione) di tutti gli emendamenti depositati su un pdl
 
 #### SPOSTA_EM_TRATTAZIONE
+Store procedure che esegue tutte le operazioni per spostare nella posizione specificata l'ordine di votazione di un emendamento
 
 #### UP_EM_TRATTAZIONE
-
+Store procedure che esegue tutte le operazioni per spostare in una posizione precedente l'ordine di votazione di un emendamento
 
 
 ## Diagramma_Entita-Relazioni
