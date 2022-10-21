@@ -83,6 +83,12 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
   
   - Sorgenti modulo di stampa asincrona: Sorgenti del modulo di stampa asincrona degli Emendamenti in formato pdf
   
+Il repository corrente ha 2 branches:
+
+- Branch master: contiene il codice e la documentazione della versione PEM 2.0 ovvero il modulo PEM per la digitalizzazione della presentazione degli emendamenti
+
+- Branch v2.2: contiene il codice e la documentazione di PEM-DASI 2.2 ovvero il modulo PEM e il modulo DASI per la digitalizzazione della presentazione degli atti di sindacato ispettivo e d'indirizzo 
+
 # Struttura del progetto
 
 #### INTRODUZIONE
