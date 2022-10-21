@@ -25,6 +25,8 @@ Nella stessa cartella Database della release, sono contenuti gli script singoli 
 - 04_storeprocedures (stored procedure)
 - 05_data_populate (popolamento tabelle)
 
+Dopo aver eseguito lo script completo di generazione del db, che viene aggiornato periodicamente ma non ad ogni singola modifica/correzione effettuata, è necessario verificare la coerenza delle tabelle/store/viste/function con gli script singoli che invece sono sempre aggiornati, in "tempo reale", al verificarsi di ogni cambiamento.
+
 ## Verifica configurazione IIS
 
 Prima di procedere all'installazione dell'interfaccia del Portale PEM, occorre verificare che l'IIS installato sul web server comprenda tutte le funzionalità richieste.
