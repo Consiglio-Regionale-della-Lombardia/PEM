@@ -55,7 +55,7 @@ Maggiori dettagli sulle funzionalità possono essere lette nella documentazione 
   - Sorgenti modulo di stampa asincrona: Sorgenti del modulo di stampa asincrona degli Emendamenti in formato pdf
   
 
-Il repository corrente ha 2 branch:
+Il repository corrente ha 2 branches:
 
 - Branch master: contiene il codice e la documentazione della versione PEM 2.0 ovvero il modulo PEM per la digitalizzazione della presentazione degli emendamenti
 
