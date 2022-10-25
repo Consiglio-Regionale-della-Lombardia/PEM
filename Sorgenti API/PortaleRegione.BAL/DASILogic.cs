@@ -834,10 +834,6 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    if (atto.DataIscrizioneSeduta.HasValue)
-                        throw new InvalidOperationException(
-                            "Non è possibile ritirare la firma durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
-
                     var richiestaPresente =
                         await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
                     if (richiestaPresente)
@@ -897,6 +893,12 @@ namespace PortaleRegione.API.Controllers
 
                     if (countFirme == 1)
                     {
+                        if (atto.Tipo == (int)TipoAttoEnum.ITL
+                            && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
+                            && atto.DataIscrizioneSeduta.HasValue)
+                            throw new InvalidOperationException(
+                                "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
+
                         //RITIRA ATTO
                         atto.IDStato = (int)StatiAttoEnum.CHIUSO;
                         atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
@@ -920,6 +922,29 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, $"{nome_atto} - OK");
                     jumpMail = false;
+
+                    if (atto.Tipo == (int)TipoAttoEnum.ITL
+                        && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
+                        && atto.DataIscrizioneSeduta.HasValue)
+                    {
+                        try
+                        {
+                            var mailModel = new MailModel
+                            {
+                                DA = persona.email,
+                                A =
+                                    AppSettingsConfiguration.EmailInvioDASI,
+                                OGGETTO = $"Ritiro firma effettuato da parte di {persona.DisplayName_GruppoCode}",
+                                MESSAGGIO =
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
+                        }
+                    }
                 }
 
                 return results;
