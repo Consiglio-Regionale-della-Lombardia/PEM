@@ -152,6 +152,29 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<BaseResponse<SeduteDto>> GetAttiveMOZU()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/sedute/attive-mozu";
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAttiveMOZU", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttiveMOZU", ex);
+                throw ex;
+            }
+
+        }
+
         public async Task<BaseResponse<SeduteDto>> GetAttiveDashboard()
         {
             try

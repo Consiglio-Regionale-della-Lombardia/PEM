@@ -131,6 +131,22 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpGet]
+        [Route("sedute-attive-mozu")]
+        public async Task<ActionResult> SeduteAttiveMOZU()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Sedute.GetAttiveMOZU(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
         [Route("sedute-attive-dashboard")]
         public async Task<ActionResult> SeduteAttiveDashboard()
         {

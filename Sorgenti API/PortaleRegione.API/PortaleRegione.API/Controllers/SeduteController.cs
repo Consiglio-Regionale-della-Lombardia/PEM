@@ -120,6 +120,27 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere le sedute attive per mozioni urgenti
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("attive-mozu")]
+        public async Task<IHttpActionResult> GetSeduteAttiveMOZU()
+        {
+            try
+            {
+                var result = await _logic.GetSeduteAttiveMOZU();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteAttiveMOZU", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere le sedute attive per la dashboard
         /// </summary>
         /// <param></param>

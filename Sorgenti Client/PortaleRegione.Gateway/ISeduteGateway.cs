@@ -32,6 +32,7 @@ namespace PortaleRegione.Gateway
         Task Modifica(SeduteFormUpdateDto seduta);
         Task Salva(SeduteFormUpdateDto seduta);
         Task<BaseResponse<SeduteDto>> GetAttive();
+        Task<BaseResponse<SeduteDto>> GetAttiveMOZU();
         Task<BaseResponse<SeduteDto>> GetAttiveDashboard();
     }
 }

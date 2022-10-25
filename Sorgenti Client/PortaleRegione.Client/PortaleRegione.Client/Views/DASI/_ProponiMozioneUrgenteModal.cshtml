@@ -13,8 +13,8 @@
 <script>
     function ProponiUrgenzaDASI(uidAtto, nomeAtto) {
         $('#modalMozioneUrgente>div>ul').empty();
-        var checked = sedute.length == 1;
-        $.each(sedute,
+        var checked = seduteMOZU.length == 1;
+        $.each(seduteMOZU,
             function (i, item) {
                 var resultDate = GetFormattedDate(item.Data_seduta);
                 var text = "Seduta del " + resultDate;

@@ -185,6 +185,27 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveMOZU()
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, false);
+
+                return new BaseResponse<SeduteDto>(
+                    1,
+                    10,
+                    sedute_attive
+                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    null,
+                    sedute_attive.Count());
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduteAttiveMOZU", e);
+                throw e;
+            }
+        }
+
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveDashboard()
         {
             try
