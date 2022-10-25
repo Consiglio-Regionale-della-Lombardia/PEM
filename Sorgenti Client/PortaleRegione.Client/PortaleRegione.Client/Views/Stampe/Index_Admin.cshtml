@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.StampaDto>
 
 @{
@@ -92,10 +93,13 @@
                     @if (!stampa.DASI)
                     {
                         <td>
-                            @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
-                            <a class="blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = (int) ClientModeEnum.GRUPPI})')" data-position="bottom" data-tooltip="Vai all'atto">
-                                <i class="material-icons">call_made</i>
-                            </a>
+                            @if (stampa.ATTI != null)
+                            {
+                                @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
+                                <a class="blue-text tooltipped" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = stampa.UIDAtto, mode = (int)ClientModeEnum.GRUPPI })')" data-position="bottom" data-tooltip="Vai all'atto">
+                                    <i class="material-icons">call_made</i>
+                                </a>
+                            }
                         </td>
                         <td>
                             @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")

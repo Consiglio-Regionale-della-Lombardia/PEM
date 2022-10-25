@@ -23,6 +23,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
@@ -157,13 +158,23 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+                var mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE);
                 var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+                var soggetti = new List<int>();
+                var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
+                {
+                    soggetti_request =
+                        new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "SoggettiDestinatari"));
+                    soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                    foreach (var s in soggetti_request) model.filtro.Remove(s);
+                }
 
                 var queryFilter = new Filter<ATTI_DASI>();
                 queryFilter.ImportStatements(model.filtro);
-
-                var query =
-                    _unitOfWork.DASI.GetAll_Query(queryFilter);
+                var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti);
                 stampa.Query = query;
 
                 stampa.DataRichiesta = DateTime.Now;

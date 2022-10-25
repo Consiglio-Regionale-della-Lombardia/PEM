@@ -1,46 +1,29 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title></title>
-    <meta charset="utf-8"/>
-</head>
-<body>
-<table style="width: 100%;">
-    <tr>
-        <td style="padding-bottom: 25px; text-align: center;">
-            <img src="http://pem.consiglio.regione.lombardia.it/images/logoCRL.gif" style="width: 200px"/>
-        </td>
-    </tr>
-    <tr>
-        <td style="padding: 20px; text-align: center;">
-            <b>{LEGISLATURA} LEGISLATURA</b>
-        </td>
-    </tr>
-    <tr>
-        <td style="padding: 20px; text-align: center;">
-            <b>Atti Sindacato Ispettivo</b>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-size: small; padding: 20px;">
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-        </td>
-    </tr>
-</table>
-<table style="width: 100%;">
-    <tr>
-        <td style="padding: 20px; text-align: center;">
-            <b>Indice</b>
-        </td>
-    </tr>
-</table>
-{LISTA_LIGHT}
-</body>
-</html>
+﻿<div class="row">
+    <div class="col s4 center">
+        <img src='{urlLogo}' width='50' />
+        <br>
+        <h5>
+            {nomePiattaforma}
+            <span>
+                <h6 style='margin: 2px'>IL CONSIGLIO</h6>
+            </span>
+        </h5>
+    </div>
+    <div class="col s4">
+
+    </div>
+    <div class="col s4 center">
+        <h3><b>{LEGISLATURA}</b></h3>
+        <h6>LEGISLATURA</h6>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col s12 center">
+        <h5>
+            <b>INDICE</b>
+        </h5>
+    </div>
+    <hr />
+    {LISTA_LIGHT}
+</div>

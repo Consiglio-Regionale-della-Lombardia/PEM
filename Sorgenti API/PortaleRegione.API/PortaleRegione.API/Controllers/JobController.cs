@@ -173,10 +173,10 @@ namespace PortaleRegione.API.Controllers
                 var countEM = await _logicEm.CountEM(model.Query);
                 return Ok(
                     new BaseResponse<EmendamentiDto>(
-                        model.page, 
-                        100, 
+                        model.page,
+                        100,
                         await _logicEm.GetEmendamenti(model),
-                    null, 
+                    null,
                         countEM)
                     );
             }
@@ -186,7 +186,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere il riepilogo di atti sindacato ispettivo in base ad una query
         /// </summary>
@@ -198,13 +198,14 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var count = await _logicDasi.CountByQuery(model.Query);
+                var results = await _logicDasi.GetByQuery(model);
+                var count = await _logicDasi.CountByQuery(model);
                 return Ok(
                     new BaseResponse<AttoDASIDto>(
-                        model.page, 
-                        100, 
-                        await _logicDasi.GetByQuery(model),
-                    null, 
+                        model.page,
+                        100,
+                        results,
+                    null,
                         count)
                     );
             }

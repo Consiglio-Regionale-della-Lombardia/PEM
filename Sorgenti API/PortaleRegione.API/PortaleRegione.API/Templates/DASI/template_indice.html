@@ -1,22 +1,17 @@
-﻿<div style='text-align:left; padding-bottom: 20px'>
-    <table style="border:1px solid black;border-collapse:collapse; width: 50%">
-        <tr>
-            <th style="border: 1px solid black; text-align: center;" colspan="2">{TipoAtto} {NAtto}</th>
-        </tr>
-        <tr>
-            <td style="border:1px solid black;" colspan="2">{Oggetto}</td>
-        </tr>
-        <tr>
-            <th style="border: 1px solid black; text-align: left;">Data Presentazione:</th>
-            <td style="border: 1px solid black; text-align: right;">{DataPresentazione}</td>
-        </tr>
-        <tr>
-            <th style="border: 1px solid black; text-align: left;">Iniziativa:</th>
-            <td style="border: 1px solid black; text-align: right;">{Firmatari}</td>
-        </tr>
-        <tr>
-            <th style="border: 1px solid black; text-align: left;">Stato:</th>
-            <td style="border: 1px solid black; text-align: right;">{Stato}</td>
-        </tr>
-    </table>
+﻿<div class="col s12">
+    <div class="card">
+        <div class="card-content black-text">
+            <span class="card-title">{TipoAtto} {NAtto}</span>
+            <ul class="collection">
+                <li class="collection-item">
+                    <p style="text-decoration: underline">
+                        <b>{Oggetto}</b>
+                    </p>
+                </li>
+                <li class="collection-item">Stato: {Stato}</li>
+                <li class="collection-item">Iniziativa: {Firmatari}</li>
+            </ul>
+            
+        </div>
+    </div>
 </div>

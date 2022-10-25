@@ -8,5 +8,6 @@ namespace GeneraStampeJob
         public string Body { get; set; }
         public EmendamentiDto EM { get; set; }
         public AttoDASIDto Atto { get; set; }
+        public object Content { get; set; }
     }
 }

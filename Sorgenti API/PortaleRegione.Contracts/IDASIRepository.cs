@@ -52,9 +52,8 @@ namespace PortaleRegione.Contracts
         void AggiungiSoggetto(Guid UidAtto, int soggetto);
         Task<List<View_cariche_assessori_in_carica>> GetSoggettiInterrogati(Guid uidAtto);
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetInvitati(Guid attoUId);
-        Task<int> CountByQuery(string query);
+        Task<int> CountByQuery(ByQueryModel model);
         List<Guid> GetByQuery(ByQueryModel model);
-        string GetAll_Query(Filter<ATTI_DASI> queryFilter);
         Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId);
         Task<List<ATTI_DASI>> GetAttiBySeduta(Guid uidSeduta, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
         Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz);
@@ -63,5 +62,6 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona);
         Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);
         Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto);
+        Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti);
     }
 }

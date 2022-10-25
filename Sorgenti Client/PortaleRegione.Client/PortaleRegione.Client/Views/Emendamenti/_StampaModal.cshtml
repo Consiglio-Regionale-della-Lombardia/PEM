@@ -68,8 +68,22 @@
             function() {
                 $("#formStampa").submit();
             });
+    }
 
-        var lstEM = getListaEmendamenti();
+    $("#formStampa").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+            var obj = {};
+
+            obj.param = {
+                UIDAtto: $("#hdUIdAtto").val(),
+                Da: $("#txtDa").val(),
+                A: $("#txtA").val(),
+                CLIENT_MODE: @Html.Raw(mode)
+            };
+
+            var lstEM = getListaEmendamenti();
         if (lstEM.length > 0) {
             obj.filtro = [];
             var selezionaTutti = getSelezionaTutti();
@@ -83,34 +97,35 @@
             }
         }
 
+            //submit via ajax
+            $.ajax({
+                url: baseUrl + "/stampe/nuova",
+                type: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                if (data.message)
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
+                else {
+                    $("#modalStampa").modal("close");
+                    $("#btnConfermaStampa").off("click");
+                    waiting(false);
+                    M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
+                }
 
-        //submit via ajax
-        $.ajax({
-            url: baseUrl + "/stampe/nuova",
-            type: "POST",
-            data: JSON.stringify(obj),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
-        }).done(function(data) {
-            if (data.message)
-                swal({
-                    title: "Errore",
-                    text: data.message,
-                    icon: "error"
-                });
-            else {
-                $("#modalStampa").modal("close");
-                $("#btnConfermaStampa").off("click");
-                waiting(false);
-                M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
-            }
+                setListaEmendamenti([]);
+                setSelezionaTutti(false);
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
 
-            setListaEmendamenti([]);
-            setSelezionaTutti(false);
-        }).fail(function(err) {
-            console.log("error", err);
-            Error(err);
-        });
-    }
-
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
 </script>

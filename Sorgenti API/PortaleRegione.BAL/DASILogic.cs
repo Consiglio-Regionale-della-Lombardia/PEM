@@ -517,7 +517,7 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
                 {
                     var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && !persona.IsSegreteriaAssemblea
+                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && persona != null && !persona.IsSegreteriaAssemblea
                         ? $"{attoPem.Oggetto}"
                         : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
                 }
@@ -2053,11 +2053,11 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<int> CountByQuery(string query)
+        public async Task<int> CountByQuery(ByQueryModel model)
         {
             try
             {
-                return await _unitOfWork.DASI.CountByQuery(query);
+                return await _unitOfWork.DASI.CountByQuery(model);
             }
             catch (Exception e)
             {
@@ -2095,7 +2095,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var count = await CountByQuery(model.Query);
+                var count = await CountByQuery(model);
                 var atti = new List<AttoDASIDto>();
                 atti.AddRange(await GetByQuery(model));
                 while (atti.Count < count)
@@ -2106,7 +2106,14 @@ namespace PortaleRegione.API.Controllers
 
                 var legislatura = await _unitOfWork.Legislature.Get(atti.First().Legislatura);
                 var body = GetTemplate(TemplateTypeEnum.PDF_COPERTINA, true);
+                body =
+                    "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                    "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                    "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                    body;
                 body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
+                body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
+                body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 
                 var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
 
@@ -2115,7 +2122,6 @@ namespace PortaleRegione.API.Controllers
                     bodyIndice.Append(templateItemIndice
                         .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                         .Replace("{NAtto}", dasiDto.NAtto)
-                        .Replace("{DataPresentazione}", dasiDto.DataPresentazione)
                         .Replace("{Oggetto}", dasiDto.Oggetto)
                         .Replace("{Firmatari}",
                             $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
