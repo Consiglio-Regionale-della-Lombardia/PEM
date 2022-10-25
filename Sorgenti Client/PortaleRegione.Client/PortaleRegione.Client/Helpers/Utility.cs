@@ -191,12 +191,6 @@ namespace PortaleRegione.Client.Helpers
             return atto.Commissioni.Select(c => c.nome_organo).Aggregate((i, j) => i + "<br>" + j);
         }
 
-        public static string GetText_TipoRispostaCommissioneCSSTooltipDASI(AttoDASIDto atto)
-        {
-            if (atto.IDTipo_Risposta != (int)TipoRispostaEnum.COMMISSIONE) return string.Empty;
-            return "tooltipped";
-        }
-
         #region GetFirmatari
 
         /// <summary>

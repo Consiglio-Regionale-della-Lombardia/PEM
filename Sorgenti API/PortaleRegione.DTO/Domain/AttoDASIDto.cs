@@ -123,6 +123,7 @@ namespace PortaleRegione.DTO.Domain
         public string ODG_Atto_PEM { get; set; }
         public bool Inviato_Al_Protocollo { get; set; } = false;
         public DateTime? DataInvioAlProtocollo { get; set; }
+        public bool CapogruppoNeiTermini { get; set; } = false;
 
         public bool IsMOZ()
         {

@@ -94,5 +94,6 @@ namespace PortaleRegione.Domain
         public int NAtto_search { get; set; } = 0;
         public bool Inviato_Al_Protocollo { get; set; } = false;
         public DateTime? DataInvioAlProtocollo { get; set; }
+        public bool CapogruppoNeiTermini { get; set; } = false;
     }
 }

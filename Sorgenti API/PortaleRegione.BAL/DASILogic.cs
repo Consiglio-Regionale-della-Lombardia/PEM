@@ -1101,6 +1101,8 @@ namespace PortaleRegione.API.Controllers
 
                                 continue;
                             }
+
+                            atto.CapogruppoNeiTermini = true;
                         }
                         else
                         {
@@ -2287,6 +2289,10 @@ namespace PortaleRegione.API.Controllers
                     }
                 case TipoAttoEnum.ODG:
                     {
+                        if (atto.CapogruppoNeiTermini)
+                        {
+                            break;
+                        }
                         if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
                     }

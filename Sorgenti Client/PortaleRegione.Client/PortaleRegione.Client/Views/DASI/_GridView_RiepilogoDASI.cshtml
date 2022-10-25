@@ -167,8 +167,12 @@ else
                     @if (item.Tipo != (int)TipoAttoEnum.MOZ && item.Tipo != (int)TipoAttoEnum.ODG)
                     {
                         <label>Tipo Risposta:</label>
-                        <span class="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneCSSTooltipDASI(item)" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">
+                        <span>
                             @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
+                            @if (item.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE)
+                            {
+                            <i style="position: absolute; margin-left: 5px;" class="material-icons tooltipped pink-text" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">info_outline</i>
+                            } 
                         </span>
                     }
                 </div>
