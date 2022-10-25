@@ -517,7 +517,8 @@ namespace PortaleRegione.API.Controllers
                 if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
                 {
                     var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && persona != null && !persona.IsSegreteriaAssemblea
+                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && persona != null &&
+                                       !persona.IsSegreteriaAssemblea
                         ? $"{attoPem.Oggetto}"
                         : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
                 }
@@ -1031,7 +1032,7 @@ namespace PortaleRegione.API.Controllers
                         }
 
                         if (attoPEM.Jolly)
-                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) >=
+                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) + 1 >=
                                 AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
@@ -1040,14 +1041,17 @@ namespace PortaleRegione.API.Controllers
                             }
 
                         var dataOdierna = DateTime.Now;
-                        if (seduta.Data_seduta.Day == dataOdierna.Day
+                        if (persona.IsCapoGruppo
+                            && seduta.Data_seduta.Day == dataOdierna.Day
                             && seduta.Data_seduta.Month == dataOdierna.Month
                             && seduta.Data_seduta.Year == dataOdierna.Year)
                         {
                             var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp > seduta.Data_seduta)
+                                my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
+                                                   && a.Timestamp.Month == dataOdierna.Month
+                                                   && a.Timestamp.Year == dataOdierna.Year)
                                     .ToList();
-                            if (atti_dopo_scadenza.Count >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            if (atti_dopo_scadenza.Count + 1 >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
                                     results.Add(idGuid,
@@ -1061,8 +1065,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count(i => i.IDStato >= (int)StatiAttoEnum.PRESENTATO) >=
-                                AppSettingsConfiguration.MassimoODG)
+                            if (my_atti.Count + 1 >= AppSettingsConfiguration.MassimoODG)
                             {
                                 if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
                                     results.Add(idGuid,
@@ -1085,12 +1088,10 @@ namespace PortaleRegione.API.Controllers
                     //controllo max firme
                     SEDUTE sedutaRichiesta = null;
                     var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
-                    string controllo_firme = string.Empty;
+                    var controllo_firme = string.Empty;
                     if (!string.IsNullOrEmpty(attoDto.DataRichiestaIscrizioneSeduta))
-                    {
                         sedutaRichiesta =
                             await _unitOfWork.Sedute.Get(Convert.ToDateTime(attoDto.DataRichiestaIscrizioneSeduta));
-                    }
 
                     controllo_firme = await ControlloFirmePresentazione(attoDto, count_firme, sedutaRichiesta);
 
@@ -1203,9 +1204,9 @@ namespace PortaleRegione.API.Controllers
             string error_title = "Atto non presentabile")
         {
             if (atto.Tipo == (int)TipoAttoEnum.IQT
-                || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE
-                || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
-                || atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
+                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
+                || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
             {
                 var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
@@ -1248,9 +1249,7 @@ namespace PortaleRegione.API.Controllers
                     moz_da_esaminare.AddRange(moz_in_seduta);
                     moz_da_esaminare.AddRange(moz_proposte);
                     if (moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
-                    {
                         moz_da_esaminare.RemoveAt(moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
-                    }
 
                     foreach (var firma in firme)
                     {
@@ -1287,9 +1286,7 @@ namespace PortaleRegione.API.Controllers
                     iqt_da_esaminare.AddRange(iqt_in_seduta);
                     iqt_da_esaminare.AddRange(iqt_proposte);
                     if (iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
-                    {
                         iqt_da_esaminare.RemoveAt(iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
-                    }
 
                     foreach (var firma in firme)
                     {
@@ -1695,8 +1692,8 @@ namespace PortaleRegione.API.Controllers
                     await _unitOfWork.CompleteAsync();
                     var nomeAtto =
                         $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                    if (!listaRichieste.Any(item => item.Value == nomeAtto
-                                                    && item.Key == atto.UIDPersonaRichiestaIscrizione.Value
+                    if (!listaRichieste.Any(item => (item.Value == nomeAtto
+                                                     && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
                                                     || item.Key == atto.UIDPersonaPresentazione.Value))
                         listaRichieste.Add(
                             atto.UIDPersonaRichiestaIscrizione.HasValue
