@@ -76,6 +76,7 @@ namespace PortaleRegione.Persistance
 
         public async Task SetSeen_DestinatarioNotifica(NOTIFICHE_DESTINATARI destinatario, Guid personaUId)
         {
+            destinatario.Chiuso = true;
             destinatario.Visto = true;
             destinatario.DataVisto = DateTime.Now;
 
