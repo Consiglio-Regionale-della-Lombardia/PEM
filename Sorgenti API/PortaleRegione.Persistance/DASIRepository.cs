@@ -343,8 +343,6 @@ namespace PortaleRegione.Persistance
                 || dto.IDStato == (int)StatiAttoEnum.CHIUSO)
                 return false;
 
-            if (dto.DataIscrizioneSeduta.HasValue) return false;
-
             return persona.UID_persona == dto.UIDPersonaProponente;
         }
 

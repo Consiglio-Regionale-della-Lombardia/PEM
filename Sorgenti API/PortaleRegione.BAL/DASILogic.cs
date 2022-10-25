@@ -1408,7 +1408,7 @@ namespace PortaleRegione.API.Controllers
             {
                 if (atto.DataIscrizioneSeduta.HasValue)
                     throw new InvalidOperationException(
-                        "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");
+                        "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
 
                 atto.IDStato = (int)StatiAttoEnum.CHIUSO;
                 atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
