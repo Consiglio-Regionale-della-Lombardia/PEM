@@ -595,6 +595,11 @@ namespace PortaleRegione.BAL
             {
                 var firmeDtos = firme.ToList();
                 var title = $"{tipoAtto} {atto.NAtto}";
+                if (atto.Non_Passaggio_In_Esame)
+                {
+                    title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
+                }
+
                 body = body.Replace("{lblTitoloATTOView}", title);
                 body = body.Replace("{STATO}", Utility.GetText_StatoDASI(atto.IDStato).ToUpper());
                 body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
