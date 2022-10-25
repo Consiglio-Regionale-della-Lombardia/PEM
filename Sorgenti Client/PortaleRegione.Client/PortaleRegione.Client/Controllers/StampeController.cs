@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -28,6 +23,10 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -73,26 +72,26 @@ namespace PortaleRegione.Client.Controllers
                 CLIENT_MODE = Convert.ToInt32(client_mode)
             };
 
-            
-                if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel modelInCache)
-                    try
-                    {
-                        if(model.filtro == null)
-                            model.filtro = new List<FilterStatement<EmendamentiDto>>();
-                        model.page = 1;
-                        model.size = modelInCache.Data.Paging.Total;
-                        model.filtro.AddRange(modelInCache.Data.Filters);
-                        model.ordine = modelInCache.Ordinamento;
-                        model.param = new Dictionary<string, object>
+
+            if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel modelInCache)
+                try
+                {
+                    if (model.filtro == null)
+                        model.filtro = new List<FilterStatement<EmendamentiDto>>();
+                    model.page = 1;
+                    model.size = modelInCache.Data.Paging.Total;
+                    model.filtro.AddRange(modelInCache.Data.Filters);
+                    model.ordine = modelInCache.Ordinamento;
+                    model.param = new Dictionary<string, object>
                         {
                             {
                                 "CLIENT_MODE", (int) modelInCache.Mode
                             }
                         };
-                    }
-                    catch (Exception)
-                    {
-                    }
+                }
+                catch (Exception)
+                {
+                }
 
 
             var apiGateway = new ApiGateway(_Token);
@@ -114,7 +113,7 @@ namespace PortaleRegione.Client.Controllers
                 Da = Convert.ToInt16(DA),
                 A = Convert.ToInt16(A)
             };
-            
+
             if (model.filtro == null)
             {
                 model.filtro = new List<FilterStatement<AttoDASIDto>>();

@@ -539,12 +539,14 @@ namespace PortaleRegione.Persistance
             }
         }
 
-        public async Task<int> CountByQuery(string query)
+        public async Task<int> CountByQuery(ByQueryModel model)
         {
-            return await PRContext
+            var query = await PRContext
                 .DASI
-                .SqlQuery(query.Replace(@"\r\n", " "))
-                .CountAsync();
+                .SqlQuery(model.Query)
+                .ToListAsync();
+
+            return query.Count;
         }
 
         public List<Guid> GetByQuery(ByQueryModel model)
@@ -560,16 +562,73 @@ namespace PortaleRegione.Persistance
                 .ToList();
         }
 
-        public string GetAll_Query(Filter<ATTI_DASI> filtro)
+        public async Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti)
         {
             var query = PRContext
                 .DASI
-                .Where(a => !a.Eliminato);
+                .Where(item => !item.Eliminato);
 
-            filtro?.BuildExpression(ref query);
+            var filtro2 = new Filter<ATTI_DASI>();
+            foreach (var f in filtro.Statements)
+                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
+                    filtro2._statements.Add(f);
+                else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                    query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
+                                                || item.Oggetto_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta_Modificata.Contains(f.Value.ToString())
+                                                || item.Premesse.Contains(f.Value.ToString())
+                                                || item.Premesse_Modificato.Contains(f.Value.ToString())
+                                                || item.Richiesta.Contains(f.Value.ToString()));
 
-            var sql = query.ToTraceQuery();
-            return sql;
+            filtro2.BuildExpression(ref query);
+
+            if (mode == ClientModeEnum.GRUPPI)
+            {
+                query = query.Where(atto => atto.IDStato != (int)StatiAttoEnum.BOZZA_RISERVATA
+                                            || atto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
+                                            && (atto.UIDPersonaCreazione == persona.UID_persona
+                                                || atto.UIDPersonaProponente == persona.UID_persona));
+
+                if (persona.IsSegreteriaAssemblea)
+                    query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
+                else if (!persona.IsSegreteriaAssemblea
+                         && !persona.IsPresidente)
+                    query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
+            }
+            else
+            {
+                query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
+            }
+
+            if (soggetti != null)
+                if (soggetti.Count > 0)
+                {
+                    //Avvio ricerca soggetti
+                    var list = await PRContext
+                        .ATTI_SOGGETTI_INTERROGATI
+                        .Where(f => soggetti.Contains(f.id_carica))
+                        .Select(f => f.UIDAtto)
+                        .ToListAsync();
+                    query = query
+                        .Where(item => list.Contains(item.UIDAtto));
+                }
+
+            var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
+            if (statoFilter != null)
+            {
+                if (Convert.ToInt16(statoFilter.Value) == (int)StatiAttoEnum.BOZZA)
+                {
+                    return query
+                        .OrderBy(item => item.Tipo)
+                        .ThenByDescending(item => item.DataCreazione)
+                        .ToTraceQuery();
+                }
+            }
+
+            return query
+                .OrderBy(item => item.Tipo)
+                .ThenByDescending(item => item.NAtto_search)
+                .ToTraceQuery();
         }
 
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)

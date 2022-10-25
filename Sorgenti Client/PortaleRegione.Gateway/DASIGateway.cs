@@ -189,7 +189,8 @@ namespace PortaleRegione.Gateway
                     {
                         PropertyId = nameof(AttoDASIDto.Tipo),
                         Operation = Operation.EqualTo,
-                        Value = (int)tipo
+                        Value = (int)tipo,
+                        Connector = FilterStatementConnector.And
                     };
                     model.filtro.Add(filtroTipo);
                 }

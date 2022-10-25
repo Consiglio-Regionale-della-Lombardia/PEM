@@ -22,6 +22,7 @@ namespace GeneraStampeJob
         private readonly ThreadWorkerModel _model;
         private StampaDto _stampa;
         private ApiGateway apiGateway;
+        private PdfStamper_IronPDF _stamper;
 
         public Worker(LoginResponse auth, ref ThreadWorkerModel model)
         {
@@ -29,12 +30,14 @@ namespace GeneraStampeJob
             _model = model;
             BaseGateway.apiUrl = _model.UrlAPI;
             apiGateway = new ApiGateway(_auth.jwt);
+            _stamper = new PdfStamper_IronPDF(_model.PDF_LICENSE);
         }
 
         public event EventHandler<bool> OnWorkerFinish;
 
-        public async Task ExecuteAsync(StampaDto stampa)
+        public async Task<bool> ExecuteAsync(StampaDto stampa)
         {
+            var result = false;
             _stampa = stampa;
             var utenteRichiedente = await apiGateway.Persone.Get(_stampa.UIDUtenteRichiesta);
             try
@@ -67,18 +70,21 @@ namespace GeneraStampeJob
                             DA = _model.EmailFrom,
                             A = utenteRichiedente.email,
                             OGGETTO = "Errore generazione stampa",
-                            MESSAGGIO = $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]. Motivo: [{_stampa.MessaggioErrore}]"
+                            MESSAGGIO =
+                                    $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]. Motivo: [{_stampa.MessaggioErrore}]"
                         },
                             _auth.jwt);
                     }
                     catch (Exception e)
                     {
                         Log.Debug($"[{_stampa.UIDStampa}] Invio mail EXCEPTION", e);
-                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail EXCEPTION ERRORE. Motivo: {e.Message}");
+                        await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
+                            $"Invio mail EXCEPTION ERRORE. Motivo: {e.Message}");
                     }
                 }
 
                 OnWorkerFinish?.Invoke(this, true);
+                result = true;
             }
             catch (Exception ex)
             {
@@ -111,6 +117,8 @@ namespace GeneraStampeJob
                     }
                 }
             }
+
+            return result;
         }
 
         private async Task ExecuteStampaDASI(PersonaDto persona, string path)
@@ -128,6 +136,7 @@ namespace GeneraStampeJob
         {
             try
             {
+                var docs = new List<object>();
                 if (_stampa.Da > 0 && _stampa.A > 0)
                 {
                     lista = lista.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
@@ -138,21 +147,21 @@ namespace GeneraStampeJob
                     Query = _stampa.Query
                 });
 
-                var nameFilePDFCopertina = $"COPERTINA_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                var DirCopertina = Path.Combine(path, nameFilePDFCopertina);
-                PdfStamper.CreaPDFCopertina(bodyCopertina, DirCopertina);
+                var cover = await _stamper.CreaPDFObject(bodyCopertina);
+                docs.Add(cover);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
 
                 var attiGenerati = await GeneraPDFAtti(lista, path);
 
-                var countNonGenerati = attiGenerati.Count(item => !File.Exists(item.Value.Path));
+                docs.AddRange(attiGenerati.Where(item => item.Value.Content != null).Select(i => i.Value.Content));
+
+                var countNonGenerati = attiGenerati.Count(item => item.Value.Content == null);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
 
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                PdfStamper.CreateMergedPDF(FilePathTarget, DirCopertina,
-                    attiGenerati.ToDictionary(item => item.Key, item => item.Value.Path));
+                _stamper.MergedPDF(FilePathTarget, docs);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
                 Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
@@ -164,7 +173,7 @@ namespace GeneraStampeJob
 
                 try
                 {
-                    var bodyMail = $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
+                    var bodyMail = $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
                     var resultInvio = await BaseGateway.SendMail(new MailModel
                     {
                         DA = _model.EmailFrom,
@@ -192,6 +201,7 @@ namespace GeneraStampeJob
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFAtti(List<AttoDASIDto> lista, string path)
         {
             var listaPercorsi = new Dictionary<Guid, BodyModel>();
+            var counter = 1;
             try
             {
                 listaPercorsi = lista.ToDictionary(atto => atto.UIDAtto, atto => new BodyModel());
@@ -208,8 +218,11 @@ namespace GeneraStampeJob
                         Body = bodyPDF,
                         Atto = item
                     };
+                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body);
+                    dettagliCreaPDF.Content = pdf;
                     listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
-                    await CreaPDF(dettagliCreaPDF, listaPercorsi.Count);
+                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
+                    counter++;
                 }
             }
             catch (Exception ex)
@@ -612,14 +625,7 @@ namespace GeneraStampeJob
 
         private async Task CreaPDF(BodyModel item, long total)
         {
-            if (item.EM != null)
-            {
-                PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/em?id={item.EM.UID_QRCode}"));
-            }
-            else
-            {
-                PdfStamper.CreaPDF(item.Body, item.Path, item.Atto, Path.Combine(_model.UrlCLIENT, $"public/a?id={item.Atto.UID_QRCode}"));
-            }
+            PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/em?id={item.EM.UID_QRCode}"));
 
             var dirInfo = new DirectoryInfo(Path.GetDirectoryName(item.Path));
             var files = dirInfo.GetFiles().Where(f => !f.Name.ToLower().Contains("copertina"));

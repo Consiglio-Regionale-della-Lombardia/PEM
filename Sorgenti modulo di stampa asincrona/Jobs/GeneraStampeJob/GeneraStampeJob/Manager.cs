@@ -21,7 +21,7 @@ namespace GeneraStampeJob
         {
             try
             {
-                Log.Debug($"User service [{_model.UrlAPI}]");
+                Log.Debug($"URL API [{_model.UrlAPI}]");
                 BaseGateway.apiUrl = _model.UrlAPI;
                 var apiGateway = new ApiGateway();
                 Log.Debug($"User service [{_model.Username}][{_model.Password}]");

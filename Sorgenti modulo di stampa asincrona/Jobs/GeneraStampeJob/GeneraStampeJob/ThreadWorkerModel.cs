@@ -11,5 +11,6 @@
         public string CartellaLavoroStampe { get; set; }
         public string RootRepository { get; set; }
         public string EmailFrom { get; set; }
+        public string PDF_LICENSE { get; set; }
     }
 }
