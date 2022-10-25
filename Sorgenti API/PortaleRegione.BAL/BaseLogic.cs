@@ -628,7 +628,7 @@ namespace PortaleRegione.BAL
                         </div>";
                 var TemplatefirmePOST = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme dopo la presentazione</h5>
+                                      <h5>Firme dopo il deposito</h5>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
