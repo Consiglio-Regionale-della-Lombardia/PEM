@@ -113,7 +113,7 @@ namespace Scheduler.Forms
                     };
                     foreach (var t in types)
                     {
-                        var interfaces= t.GetInterfaces();
+                        var interfaces = t.GetInterfaces();
                         if (interfaces.All(i => i != typeof(IJob))) continue;
                         job.scheduleclass = t.FullName;
                         var properties = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);

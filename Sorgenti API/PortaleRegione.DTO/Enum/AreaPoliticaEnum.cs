@@ -33,7 +33,9 @@ namespace PortaleRegione.DTO.Enum
         {
             var listaEnum= System.Enum.GetValues(typeof(AreaPoliticaIntEnum)).Cast<AreaPoliticaIntEnum>();
             var result = listaEnum.Select(itemArea => new KeyValueDto {id = (int) itemArea, descr = itemArea.ToString()}).ToList();
-            return result;
+            return result
+                .Where(i=>i.id != 0)
+                .ToList();
         }
     }
 
@@ -42,6 +44,7 @@ namespace PortaleRegione.DTO.Enum
         Maggioranza = 1,
         Minoranza = 2,
         Misto_Maggioranza = 3,
-        Misto_Minoranza = 4
+        Misto_Minoranza = 4,
+        Misto = 0
     }
 }

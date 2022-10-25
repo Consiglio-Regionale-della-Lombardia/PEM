@@ -16,16 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NPOI.OpenXmlFormats.Dml;
 
 namespace PortaleRegione.BAL
 {
@@ -46,17 +45,11 @@ namespace PortaleRegione.BAL
                     .Firme
                     .GetFirmatari(em, tipo);
 
-                if (firmeInDb == null)
-                {
-                    return new List<FirmeDto>();
-                }
+                if (firmeInDb == null) return new List<FirmeDto>();
 
                 var firme = firmeInDb.ToList();
 
-                if (!firme.Any())
-                {
-                    return new List<FirmeDto>();
-                }
+                if (!firme.Any()) return new List<FirmeDto>();
 
                 var result = new List<FirmeDto>();
                 foreach (var firma in firme)
@@ -68,8 +61,8 @@ namespace PortaleRegione.BAL
                         FirmaCert = Decrypt(firma.FirmaCert),
                         Data_firma = Decrypt(firma.Data_firma),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
-                        ? null
-                        : Decrypt(firma.Data_ritirofirma)
+                            ? null
+                            : Decrypt(firma.Data_ritirofirma)
                     };
 
                     result.Add(firmaDto);

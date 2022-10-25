@@ -1,12 +1,12 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model PortaleRegione.DTO.Model.CommandRiepilogoEMModel
+@model PortaleRegione.DTO.Model.CommandRiepilogoModel
 @{
     var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
     var q_ordine = HttpUtility.ParseQueryString(Request.Url.Query).Get("ordine");
     var ordine = OrdinamentoEnum.Presentazione;
     if (!string.IsNullOrEmpty(q_ordine))
     {
-        switch ((OrdinamentoEnum) Convert.ToInt16(q_ordine))
+        switch ((OrdinamentoEnum)Convert.ToInt16(q_ordine))
         {
             case OrdinamentoEnum.Presentazione:
             case OrdinamentoEnum.Default:
@@ -50,7 +50,15 @@
                        data-tooltip="Scarica fascicolo presentazione"
                        target="_blank"
                        style="margin-top: -10px;">
-                        <i class="material-icons right">file_download</i>
+                        @if (Model.Atto.Fascicoli_Da_Aggiornare)
+                        {
+                            <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
+                        }
+                        else
+                        {
+                            <i class="material-icons right">file_download</i>
+                        }
+
                         Fascicolo presentazione
                     </a>
                 }
@@ -64,7 +72,14 @@
                        data-tooltip="Scarica fascicolo votazione"
                        target="_blank"
                        style="margin-top: -10px;">
-                        <i class="material-icons right">file_download</i>
+                        @if (Model.Atto.Fascicoli_Da_Aggiornare)
+                        {
+                            <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
+                        }
+                        else
+                        {
+                            <i class="material-icons right">file_download</i>
+                        }
                         Fascicolo votazione
                     </a>
                 }
@@ -102,7 +117,7 @@
 
 <script>
     function filtraEM_RichiestaFirma(enable) {
-        var url = '@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = Model.Atto.UIDAtto, Model.mode, Model.view})';
+        var url = '@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = Model.Atto.UIDAtto, Model.mode, Model.view })';
         if (enable) {
             go(url + '&require_my_sign=true');
         } else {

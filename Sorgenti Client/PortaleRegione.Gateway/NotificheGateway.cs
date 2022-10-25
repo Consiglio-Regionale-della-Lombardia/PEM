@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
@@ -25,9 +28,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
 {
@@ -40,7 +40,28 @@ namespace PortaleRegione.Gateway
             _token = token;
         }
 
-        public async Task<BaseResponse<NotificaDto>> GetNotificheInviate(int page, int size,
+        public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/notifiche/destinatari-dasi?tipo={(int) tipo}";
+                var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetListaDestinatariDASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetListaDestinatariDASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size,
             bool Archivio = false)
         {
             try
@@ -51,21 +72,13 @@ namespace PortaleRegione.Gateway
                 {
                     param = new Dictionary<string, object>(),
                     page = page,
-                    size = size,
-                    filtro = new List<FilterStatement<NotificaDto>>
-                    {
-                        new FilterStatement<NotificaDto>
-                        {
-                            PropertyId = nameof(NotificaDto.IDTipo),
-                            Operation = Operation.EqualTo,
-                            Value = (int) TipoNotificaEnum.INVITO
-                        }
-                    }
+                    size = size
                 };
                 model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
                 var body = JsonConvert.SerializeObject(model);
 
-                var lst = JsonConvert.DeserializeObject<BaseResponse<NotificaDto>>(await Post(requestUrl, body, _token));
+                var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
+                    _token));
 
                 return lst;
             }
@@ -81,7 +94,8 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<BaseResponse<NotificaDto>> GetNotificheRicevute(int page, int size, bool Archivio, bool Solo_Non_Viste = false)
+        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool Archivio,
+            bool Solo_Non_Viste = false)
         {
             try
             {
@@ -91,22 +105,14 @@ namespace PortaleRegione.Gateway
                 {
                     param = new Dictionary<string, object>(),
                     page = page,
-                    size = size,
-                    filtro = new List<FilterStatement<NotificaDto>>
-                    {
-                        new FilterStatement<NotificaDto>
-                        {
-                            PropertyId = nameof(NotificaDto.IDTipo),
-                            Operation = Operation.EqualTo,
-                            Value = (int) TipoNotificaEnum.INVITO
-                        }
-                    }
+                    size = size
                 };
                 model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
                 model.param.Add(new KeyValuePair<string, object>("Solo_Non_Viste", Solo_Non_Viste));
                 var body = JsonConvert.SerializeObject(model);
 
-                var lst = JsonConvert.DeserializeObject<BaseResponse<NotificaDto>>(await Post(requestUrl, body, _token));
+                var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
+                    _token));
 
                 return lst;
             }
@@ -128,7 +134,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/notifiche/{id}/destinatari";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl, _token));
+                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
+                    _token));
 
                 return lst;
             }
@@ -150,7 +157,8 @@ namespace PortaleRegione.Gateway
             {
                 var requestUrl = $"{apiUrl}/notifiche/invita";
                 var body = JsonConvert.SerializeObject(model);
-                var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
                 return result;
             }
@@ -186,12 +194,75 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<Dictionary<Guid, string>> NotificaDASI(ComandiAzioneModel model)
+        {
+            try
+            {
+                model.IsDASI = true;
+
+                var requestUrl = $"{apiUrl}/notifiche/invita";
+                var body = JsonConvert.SerializeObject(model);
+                var result =
+                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+
+                return result;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("NotificaDASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("NotificaDASI", ex);
+                throw ex;
+            }
+        }
+
+        public async Task AccettaPropostaFirma(long id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/notifiche/accetta-proposta?id={id}";
+                await Get(requestUrl, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("AccettaPropostaFirma", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("AccettaPropostaFirma", ex);
+                throw ex;
+            }
+        }
+
+        public async Task AccettaRitiroFirma(long id)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/notifiche/accetta-ritiro?id={id}";
+                await Get(requestUrl, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("AccettaRitiroFirma", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("AccettaRitiroFirma", ex);
+                throw ex;
+            }
+        }
+
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto,
             TipoDestinatarioNotificaEnum tipo)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/notifiche/destinatari?atto={atto}&tipo={(int)tipo}";
+                var requestUrl = $"{apiUrl}/notifiche/destinatari?atto={atto}&tipo={(int) tipo}";
                 var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
                 return lst;

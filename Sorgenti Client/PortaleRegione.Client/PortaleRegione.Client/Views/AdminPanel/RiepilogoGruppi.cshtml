@@ -1,4 +1,4 @@
-﻿@model List<PortaleRegione.DTO.Model.AdminGruppiModel>
+﻿@model PortaleRegione.DTO.Model.RiepilogoGruppiModel
 
 @{
     ViewBag.Title = "Amministrazione Gruppi";
@@ -14,7 +14,7 @@
 
 <div id="gruppiTable" class="row">
 
-    @if (!Model.Any())
+    @if (!Model.Results.Any())
     {
         <div class="row">
             <div class="col s12">
@@ -27,7 +27,7 @@
         </div>
     }
 
-    @foreach (var gruppoDto in Model)
+    @foreach (var gruppoDto in Model.Results)
     {
         var gruppo = gruppoDto.Gruppo;
         var css_error = "";
@@ -106,23 +106,22 @@
                             </label>
                         </p>
                     </div>
-                    <div class="row" style="margin-bottom: 0 !important; margin-top: 0 !important;">
-                        <div class="col s12 right-align">
-                            <a class="btn chip blue white-text" style="min-width: unset" onclick="SalvaGruppo(@gruppo.id_gruppo)">Salva e Aggiorna</a>
+                    @if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+                    {
+                        <div class="row" style="margin-bottom: 0 !important; margin-top: 0 !important;">
+                            <div class="col s12 right-align">
+                                <a class="btn chip blue white-text" style="min-width: unset" onclick="SalvaGruppo(@gruppo.id_gruppo)">Salva e Aggiorna</a>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
-
             </div>
         </div>
     }
 </div>
 
 <script>
-
-    $(document).ready(async function() {
-    });
-
+    
     function SalvaGruppo(id) {
         var obj = {
             UID_Gruppo: $('#UID_Gruppo_' + id).val(),
@@ -142,7 +141,7 @@
         }).fail(function(err) {
             waiting(false);
             console.log("error", err);
-            ErrorAlert(err);
+            Error(err);
         });
     }
 </script>

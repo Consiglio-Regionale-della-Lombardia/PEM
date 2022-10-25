@@ -1,0 +1,44 @@
+﻿@model PortaleRegione.DTO.Response.Paging
+<div id="slide-out-DX" class="sidenav">
+    <div class="row">
+        <div class="col s12">
+            <h6>
+                <b>
+                    <span>Ricerca</span>
+                </b>
+            </h6>
+        </div>
+    </div>
+    @using (Html.BeginForm("", "", FormMethod.Post, new { id = "formFiltraSedute" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="page" value="@Model.Page" />
+        <input type="hidden" name="size" value="@Model.Limit" />
+        <div class="row">
+            <div class="col s12">
+                <div class="form-group">
+                    <label>Da</label>
+                    <input type="date" id="filter_sedute_da" name="filtro_da" class="form-control" onchange="filter_sedute_da_OnChange()" />
+                </div>
+                <div class="form-group">
+                    <label>A</label>
+                    <input type="date" id="filter_sedute_a" name="filtro_a" class="form-control" onchange="filter_sedute_a_OnChange()" />
+                </div>
+                <div class="form-group">
+                    <label>Anno</label>
+                    <select id="filter_sedute_anno" name="filtro_anno" class="form-control" onchange="filter_sedute_anno_OnChange()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Legislatura</label>
+                    <select id="filter_sedute_legislature" name="filtro_legislatura" class="form-control" onchange="filter_sedute_legislature_OnChange()"></select>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="fixed-action-btn" style="bottom: 150px !important; left: 23px; right: unset !important;">
+        <a class="btn chip hoverable blue center white-text" onclick="filtra()" style="width: 255px;">
+            <i class="icon material-icons">search</i> Filtra
+        </a>
+    </div>
+</div>

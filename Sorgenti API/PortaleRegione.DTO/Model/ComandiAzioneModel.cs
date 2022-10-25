@@ -24,12 +24,12 @@ namespace PortaleRegione.DTO.Model
 {
     public class ComandiAzioneModel
     {
-        public ICollection<Guid> ListaEmendamenti { get; set; }
+        public ICollection<Guid> Lista { get; set; }
         public ICollection<string> ListaDestinatari { get; set; }
         public string Pin { get; set; }
         public ActionEnum Azione { get; set; }
         public Guid AttoUId { get; set; }
-        public int ClientMode { get; set; }
         public bool Richiesta_Firma { get; set; }
+        public bool IsDASI { get; set; } = false;
     }
 }

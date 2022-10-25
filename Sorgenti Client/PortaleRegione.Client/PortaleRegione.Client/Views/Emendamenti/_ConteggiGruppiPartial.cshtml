@@ -1,0 +1,20 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+@if (Model.ConteggiGruppi.Any())
+{
+    if (Model.CurrentUser.IsSegreteriaAssemblea || Model.Mode == ClientModeEnum.TRATTAZIONE)
+    {
+
+        <ul class="collection">
+
+            @foreach (var conteggio in Model.ConteggiGruppi)
+            {
+                <li class="collection-item">
+                    <div>@conteggio.nome_gruppo<a href="#!" class="secondary-content">@conteggio.num_em</a></div></li>
+            }
+
+        </ul>
+
+    }
+}

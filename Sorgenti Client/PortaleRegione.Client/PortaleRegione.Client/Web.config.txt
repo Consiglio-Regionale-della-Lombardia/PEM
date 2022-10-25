@@ -28,11 +28,19 @@
     <add key="webpages:Enabled" value="false" />
     <add key="ClientValidationEnabled" value="true" />
     <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+    <add key="Environment" value="Debug"/>
     <add key="URL_API" value="YOUR_URL" />
     <add key="URL_CLIENT" value="YOUR_URL" />
     <add key="LimiteDocumentiDaProcessare" value="10" />
     <add key="logo" value="YOUR_LOGO" />
     <add key="title" value="YOUR_NAME" />
+    <add key="NomePiattaforma" value="YOUR_NAME" />
+
+    <add key="GEASI_URL" value="YOUR_LINK" />
+    <add key="GEASI_USERNAME" value="YOUR_GEASI_USERNAME" />
+    <add key="GEASI_PASSWORD" value="YOUR_GEASI_PASSWORD" />
+
+    <add key="COOKIE_EXPIRE_IN" value="TEMPO_IN_ORE" />
   </appSettings>
   <system.web>
     <authentication mode="Forms">
@@ -57,7 +65,7 @@
       </dependentAssembly>
       <dependentAssembly>
         <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" />
-        <bindingRedirect oldVersion="0.0.0.0-12.0.0.0" newVersion="12.0.0.0" />
+        <bindingRedirect oldVersion="0.0.0.0-13.0.0.0" newVersion="13.0.0.0" />
       </dependentAssembly>
       <dependentAssembly>
         <assemblyIdentity name="System.Web.Optimization" publicKeyToken="31bf3856ad364e35" />

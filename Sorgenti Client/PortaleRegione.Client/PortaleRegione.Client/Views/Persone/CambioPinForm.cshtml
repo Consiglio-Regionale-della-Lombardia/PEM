@@ -15,7 +15,7 @@
         @*<a class="btn-floating waves-effect waves-light grey header-back" href="javascript:void(0);" onclick="history.go(-1);">
                 <i class="material-icons">arrow_back</i>
             </a>*@
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
     </div>
@@ -80,7 +80,11 @@
                 dataType: "json"
             }).done(function(data) {
                 if (data.message)
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 else {
                     SuccessAlert("Il pin è stato correttamente cambiato!");
                     go(data)
@@ -88,7 +92,7 @@
                 
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.

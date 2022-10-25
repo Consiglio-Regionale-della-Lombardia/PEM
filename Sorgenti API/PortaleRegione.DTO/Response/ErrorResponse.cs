@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using Newtonsoft.Json;
 
 namespace PortaleRegione.DTO.Response
@@ -28,7 +29,14 @@ namespace PortaleRegione.DTO.Response
         }
         public ErrorResponse(string _message)
         {
-            message = JsonConvert.DeserializeObject<ErrorResponse>(_message).message;
+            try
+            {
+                message = JsonConvert.DeserializeObject<ErrorResponse>(_message).message;
+            }
+            catch (Exception e)
+            {
+                message = _message;
+            }
         }
         public string message { get; set; }
         public string exceptionMessage { get; set; }

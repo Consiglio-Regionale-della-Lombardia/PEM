@@ -1,4 +1,5 @@
-﻿@model IEnumerable<PortaleRegione.DTO.Domain.NotificaDto>
+﻿@using PortaleRegione.DTO.Model
+@model PortaleRegione.DTO.Model.RiepilogoNotificheModel
 
 @{
     var archivioReq = HttpUtility.ParseQueryString(Request.Url.Query).Get("archivio");
@@ -14,7 +15,7 @@
 </div>
 
 <div id="notificheRicevuteTable" class="row">
-    @if (!Model.Any())
+    @if (!Model.Data.Results.Any())
     {
         <div class="row">
             <div class="col s12">
@@ -27,11 +28,16 @@
         </div>
     }
     <ul class="collapsible">
-        @foreach (var notifica in Model)
+        @foreach (var notifica in Model.Data.Results)
         {
-            <li>
-                @Html.Partial("_CardInvito", notifica)
-            </li>
+        <li>
+            @Html.Partial("_CardInvito", new CardInvitoModel
+            {
+                Data = notifica,
+                User = Model.CurrentUser,
+                Ricevute = true
+            })
+        </li>
         }
     </ul>
 </div>

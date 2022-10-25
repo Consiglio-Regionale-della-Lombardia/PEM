@@ -1,0 +1,208 @@
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+@{
+    var isNew = Model.Atto.UIDAtto == Guid.Empty;
+    ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
+
+    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : Url.Action("ViewAtto", new {id = Model.Atto.UIDAtto});
+
+    bool _disabled = Model.Atto.IDStato == (int) StatiAttoEnum.PRESENTATO;
+}
+<script>
+    $(document).ready(function() {
+        $('#btnSearch').hide();
+    });
+</script>
+
+<div class="row">
+    <div class="col l1 s2">
+        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col l11 s10">
+        <h5>
+            <b>
+                <span>@ViewBag.Title</span>
+                <input id="hfIsNew" type="hidden" value="@isNew"/>
+            </b>
+        </h5>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-content">
+        <div class="row">
+            <div class="col s12 center">
+                <h5>
+                    <b>
+                        <span>@Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
+                    </b>
+                </h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                @using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(m => m.Atto.UIDAtto)
+                    @Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
+                    @Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
+                    @Html.HiddenFor(m => m.Atto.idRuoloCreazione)
+                    @Html.HiddenFor(m => m.Atto.Progressivo)
+                    @Html.HiddenFor(m => m.Atto.IDStato)
+                    @Html.HiddenFor(m => m.Atto.id_gruppo)
+                    @Html.HiddenFor(m => m.Atto.DataCreazione)
+                    @Html.HiddenFor(m => m.Atto.DataModifica)
+                    @Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
+                    @Html.HiddenFor(m => m.Atto.UID_QRCode)
+                    @Html.HiddenFor(m => m.Atto.Tipo)
+
+                    @Html.Partial("_TipoMOZPartial", Model)
+                    @Html.Partial("_TipoODGPartial", Model)
+                    @Html.Partial("_TipoRispostaPartial", Model)
+
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.LabelFor(s => s.Atto.Oggetto)
+                        @if (!_disabled)
+                        {
+                            @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control", @readonly = _disabled })
+                        }
+                    </div>
+                    <div class="form-group" style="padding-top: 10px">
+                        @Html.LabelFor(s => s.Atto.Premesse)
+                        @if (!_disabled)
+                        {
+                            @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
+                        }
+                        else
+                        {
+                            @Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg", disabled = _disabled })
+                        }
+
+                    </div>
+                    if (isNew)
+                    {
+                        if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
+                        && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+                        {
+                            <div class="row">
+                                <div class="col s12">
+                                    <label class="black-text" style="margin-left: 20px">
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
+                                    </label>
+                                    <label class="black-text" style="margin-left: 20px">
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
+                                    </label>
+                                    <label class="black-text" style="margin-left: 20px">
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)"/>
+                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="input-field">
+                            <p>
+                                <label>
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)</span>
+                                </label>
+                            </p>
+                            <p>
+                                <label>
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)</span>
+                                </label>
+                            </p>
+                            <p>
+                                <label>
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)</span>
+                                </label>
+                            </p>
+                            <p>
+                                <label>
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)</span>
+                                </label>
+                            </p>
+                        </div>
+                    }
+
+                    <div class="form-group" style="padding-top: 10px">
+                        @if (!_disabled)
+                        {
+                            @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
+                        }
+                        else
+                        {
+                            @Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg", disabled = _disabled })
+                        }
+
+                    </div>
+
+                    @Html.Partial("_DocsPanel", Model)
+
+                    if (Model.Atto.Tipo == (int)TipoAttoEnum.ODG)
+                    {
+                        <div class="form-group">
+                            <p>
+                                <label>
+                                    <input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
+                                           @Html.Raw((Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : ""))>
+                                    <span>ODG di NON passaggio in esame</span>
+                                </label>
+                            </p>
+                        </div>
+                    }
+                }
+
+                <div class="fixed-action-btn">
+                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
+                        <i class="large material-icons">save</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("_ScriptFormDASI")
+
+<script>
+    
+    function TipoRichiesta_OnChange(ctrl) {
+        var container_testo_richiesta = $("#Atto_Richiesta").parent();
+        var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+
+        var tipo_richiesta = $(ctrl).val();
+        var testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta + "</strong> ";
+        editor_testo_richiesta.html(testo);
+    }
+
+    function TipoRichiestaDest_OnChange(ctrl) {
+        var container_testo_richiesta = $("#Atto_Richiesta").parent();
+        var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+        
+        var tipo_richiesta_dest = $(ctrl).val();
+        var testo = "";
+        if (editor_testo_richiesta.html().indexOf(tipo_richiesta_dest) > -1) {
+            testo = editor_testo_richiesta.html().replace("<strong>" + tipo_richiesta_dest + "</strong>", "");
+        } else {
+            testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta_dest + "</strong> ";
+        }
+
+        editor_testo_richiesta.html(testo);
+    }
+</script>

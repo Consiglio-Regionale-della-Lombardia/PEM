@@ -1,4 +1,4 @@
-﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.NotificaDto>
+﻿@model PortaleRegione.DTO.Model.RiepilogoNotificheModel
 @{
     ViewBag.Title = "Riepilogo notifiche";
 }
@@ -42,20 +42,20 @@
 
 
 @{
-    Html.RenderPartial("_PaginationBar", Model.Paging);
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
 }
 
 @if (!is_inviate)
 {
-    @Html.Partial("RiepilogoNotificheRicevute", Model.Results)
+    @Html.Partial("RiepilogoNotificheRicevute", Model)
 }
 else if (is_inviate)
 {
-    @Html.Partial("RiepilogoNotificheInviate", Model.Results)
+    @Html.Partial("RiepilogoNotificheInviate", Model)
 }
 
 @{
-    Html.RenderPartial("_PaginationBar", Model.Paging);
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
 }
 
 <script>

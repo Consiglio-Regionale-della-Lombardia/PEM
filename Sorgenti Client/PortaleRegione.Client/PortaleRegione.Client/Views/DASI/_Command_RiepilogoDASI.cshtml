@@ -1,0 +1,70 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+<div class="row valign-wrapper">
+    <div class="col s3 left">
+        <label>
+            <input type="checkbox" id="checkAll"/>
+            <span for="checkAll">Seleziona tutti</span>
+        </label>
+    </div>
+    <div class="col s5 left">
+        @if (!Model.CurrentUser.IsSegreteriaAssemblea)
+        {
+            <label>
+                <input type="checkbox" id="expandAll"/>
+                <span for="expandAll">Espandi tutti</span>
+            </label>
+        }
+    </div>
+    <div class="col s6">
+        <div class="right">
+            <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+                <i class="material-icons">print</i>
+            </a>
+            @{
+                var text = "";
+                var icon = "";
+                var new_view = (int) ViewModeEnum.GRID;
+
+                if (Model.ViewMode == ViewModeEnum.PREVIEW)
+                {
+                    text = "Visualizza Atti in griglia";
+                    icon = "developer_board";
+                }
+                else if (Model.ViewMode == ViewModeEnum.GRID)
+                {
+                    new_view = (int) ViewModeEnum.PREVIEW;
+                    text = "Visualizza Atti in preview";
+                    icon = "desktop_windows";
+                }
+
+                var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
+                var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
+
+                var url = Url.Action("RiepilogoDASI", "DASI", new {view = new_view, stato = statoFromCache, tipo = tipoFromCache});
+                if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+                {
+                    var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+                    url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = uidSeduta, tipo = Model.Tipo, view = new_view});
+                }
+
+            }
+
+            <a class="blue-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="left">
+                <i class="icon material-icons">@icon</i>
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function gotoPreviewMode() {
+        var newMode = @Html.Raw(new_view);
+        $('#inputFilterView').val(newMode);
+        filtra();
+    }
+</script>

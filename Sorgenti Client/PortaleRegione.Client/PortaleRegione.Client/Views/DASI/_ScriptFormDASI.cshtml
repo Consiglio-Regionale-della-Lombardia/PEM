@@ -1,0 +1,156 @@
+﻿@using PortaleRegione.DTO.Enum
+<script>
+    var instanceModalDasi;
+
+    $("#btnSave").on("click",
+        function() {
+
+            if ($("#Atto_Tipo").val() == @Html.Raw((int) TipoAttoEnum.ODG) && $('#Atto_Non_Passaggio_In_Esame').is(":checked")) {
+                swal({
+                    title: "ATTENZIONE",
+                    text: "Stai presentando un odg per richiedere il non passaggio all'esame del provvedimento. Procedere comunque? In caso di dubbio contatta il personale della Segreteria dell'Assemblea",
+                    icon: "warning",
+                    buttons: {
+                        cancel: "Annulla",
+                        confirm: {
+                            className: "blue white-text",
+                            title: "Procedi",
+                            value: true
+                        }
+                    }
+                }).then((value) => {
+                    if (value == true) {
+                        $('#formDASI').submit();
+                    }
+                });
+            } else {
+                $('#formDASI').submit();
+            }
+        });
+    $("#formDASI").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+
+            var proponente;
+            if ($('input[name="Atto.UIDPersonaProponente"]').val())
+                proponente = $('input[name="Atto.UIDPersonaProponente"]').val();
+            else {
+                proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
+            }
+
+            var container_premesse = $("#Atto_Premesse").parent();
+            var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
+            var container_richiesta = $("#Atto_Richiesta").parent();
+            var editor_richiesta = $(container_richiesta).find(".trumbowyg-editor");
+
+            var form_data = new FormData();
+            form_data.append("IDTipo_Risposta", $('select[id="Atto_TipoRisposta"]').children("option:selected").val());
+            form_data.append("Oggetto", $("#Atto_Oggetto").val());
+            form_data.append("Premesse", editor_premesse.html());
+            form_data.append("Richiesta", editor_richiesta.html());
+            form_data.append("Tipo", $("#Atto_Tipo").val());
+            if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
+                form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
+                form_data.append("Non_Passaggio_In_Esame", $('#Atto_Non_Passaggio_In_Esame').is(":checked"));
+            }
+            if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.MOZ)) {
+                form_data.append("TipoMOZ", $('select[id="Atto_TipoMOZ"]').children("option:selected").val());
+            }
+            form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
+            form_data.append("UIDPersonaProponente", proponente);
+
+            var commissioni = [];
+            commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
+            form_data.append("Commissioni_client", commissioni);
+
+            var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
+            if (inputsAllegatoGenerico.length != 0) {
+                var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
+                if (!inputFileAllegatoGenerico.files) {
+                    alert("This browser doesn't seem to support the `files` property of file inputs.");
+                }
+                if (inputFileAllegatoGenerico.files.length > 0)
+                    form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
+            }
+
+            $.ajax({
+                url: '@Url.Action("SalvaAtto")',
+                type: "POST",
+                data: form_data,
+                processData: false,
+                contentType: false
+            }).done(function(data) {
+                console.log(data);
+                if (data.message) {
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
+                } else {
+                    swal({
+                        title: "Procedura completata",
+                        text: "Atto inserito correttamente a sistema.",
+                        icon: "success"
+                    }).then((value) => {
+                        go(data);
+                    });
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        }
+    });
+
+    function openFormDASI(tipo, edit) {
+        var tipo_dasi = tipo;
+        var title = GetTitle(tipo, edit);
+        $('#hdTipoAttoDasi').val(tipo);
+        $('#titleDasiModal').text(title);
+        $('select').formSelect();
+        var elemAutocomplete = document.querySelector('#autocompleteSoggettoDestinatarioDasi');
+
+        var autocompleteDataOptions = {
+            data: [
+                { tag: 'I Commissione permanente - Economia e Bilancio', id: '1' },
+                { tag: 'II Commissione', id: '2' },
+                { tag: 'III Commissione', id: '3' }
+            ],
+            limit: 10,
+            minLength: 1
+        };
+        M.Chips.init(elemAutocomplete,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                onChipAdd: function(e, chip) {
+                },
+                onChipSelect: function(e, chip) {
+                },
+                onChipDelete: function(e, chip) {
+                }
+            });
+        var elemModal = document.querySelector("#modalAggiungiDASI");
+        var options = {
+            dismissible: false
+        };
+        instanceModalDasi = M.Modal.init(elemModal, options);
+        instanceModalDasi.open();
+    }
+
+    function GetTitle(tipo_dasi, edit) {
+        var prefix = edit ? "Modifica" : "Nuovo";
+        if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ITL)) {
+            return prefix + " ITL";
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ITR)) {
+            return prefix + " ITR";
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.IQT)) {
+            return prefix + " IQT";
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.MOZ)) {
+            return prefix + " MOZ";
+        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ODG)) {
+            return prefix + " ODG";
+        }
+    }
+</script>

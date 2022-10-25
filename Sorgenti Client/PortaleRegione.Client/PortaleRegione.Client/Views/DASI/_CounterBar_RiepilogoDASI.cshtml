@@ -1,0 +1,45 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+<div class="col s8 offset-s2">
+    <div class="col s2 @(Model.Tipo == TipoAttoEnum.ITL ? "counter-active" : "")">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ITL)" onclick="filtraByTipo(@((int) TipoAttoEnum.ITL))">
+            ITL (@Model.CountBarData.ITL)
+        </div>
+    </div>
+    <div class="col s2 @(Model.Tipo == TipoAttoEnum.ITR ? "counter-active" : "")">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ITR)" onclick="filtraByTipo(@((int) TipoAttoEnum.ITR))">
+            ITR (@Model.CountBarData.ITR)
+        </div>
+    </div>
+    <div class="col s2 @(Model.Tipo == TipoAttoEnum.IQT ? "counter-active" : "")">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.IQT)" onclick="filtraByTipo(@((int) TipoAttoEnum.IQT))">
+            IQT (@Model.CountBarData.IQT)
+        </div>
+    </div>
+    <div class="col s2 @(Model.Tipo == TipoAttoEnum.MOZ ? "counter-active" : "")">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int) TipoAttoEnum.MOZ))">
+            MOZ (@Model.CountBarData.MOZ)
+        </div>
+    </div>
+    <div class="col s2 @(Model.Tipo == TipoAttoEnum.ODG ? "counter-active" : "")">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int) TipoAttoEnum.ODG))">
+            ODG (@Model.CountBarData.ODG)
+        </div>
+    </div>
+    <div class="col s2 @(Model.Tipo == TipoAttoEnum.TUTTI ? "counter-active" : "")">
+        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="filtraByTipo(@((int) TipoAttoEnum.TUTTI))">
+            Tutti (@Model.CountBarData.TUTTI)
+        </div>
+    </div>
+</div>
+
+<script>
+    function filtraByTipo(tipo) {
+        $('input[name="Tipo"]').val(tipo);
+        $('#qTipo').val(tipo);
+        $('#qTipo').formSelect();
+        filter_dasi_tipo_OnChange();
+        filtra();
+    }
+</script>

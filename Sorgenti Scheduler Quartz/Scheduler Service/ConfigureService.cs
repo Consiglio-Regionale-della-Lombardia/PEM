@@ -16,9 +16,9 @@ namespace SchedulerService
                 });  
                 //Setup Account that window service use to run.  
                 configure.RunAsLocalSystem();  
-                configure.SetServiceName("SchedulerService");  
-                configure.SetDisplayName("SchedulerService");  
-                configure.SetDescription("PEM - Run custom jobs with quartz");  
+                //configure.SetServiceName("SchedulerService");  
+                //configure.SetDisplayName("SchedulerService");  
+                configure.SetDescription("Run custom jobs with quartz");  
             });  
         }  
     }

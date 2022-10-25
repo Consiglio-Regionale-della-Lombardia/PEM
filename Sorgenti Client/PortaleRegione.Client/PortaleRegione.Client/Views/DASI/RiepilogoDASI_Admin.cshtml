@@ -1,0 +1,120 @@
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+@{
+    ViewBag.Title = "DASI";
+
+    var classTabPresentati = "";
+    var classTabInTrattazione = "";
+    var classTabChiuso = "";
+    switch (Model.Stato)
+    {
+        case StatiAttoEnum.PRESENTATO:
+            classTabPresentati = "active";
+            break;
+        case StatiAttoEnum.IN_TRATTAZIONE:
+            classTabInTrattazione = "active";
+            break;
+        case StatiAttoEnum.CHIUSO:
+            classTabChiuso = "active";
+            break;
+    }
+    var url = Url.Action("Index", "Home");
+
+    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+    {
+        var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+        url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
+    }
+
+    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
+    var textTitoloRicerca = filtri_attivi? " - Ricerca": string.Empty;
+}
+
+<div class="row" style="margin-bottom: unset!important">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
+            <i class="material-icons">arrow_back</i>
+        </a>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                <h5>
+                    <b>Riepilogo atti di indirizzo e di sindacato ispettivo @textTitoloRicerca</b>
+                </h5>
+                }
+                else
+                {
+                    var tipo = Convert.ToInt16(Model.Tipo);
+                <h5>
+                    <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
+                        @PortaleRegione.Common.Utility.GetText_Tipo(tipo)
+                    </div>
+                    <b> - Riepilogo atti di indirizzo e di sindacato ispettivo  @textTitoloRicerca</b>
+                </h5>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+@if (Model.ClientMode == ClientModeEnum.GRUPPI)
+{
+    <div class="row center">
+        @{
+            Html.RenderPartial("_CounterBar_RiepilogoDASI", Model);
+        }
+    </div>
+}
+
+<div id="contentTable" class="row">
+    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+    {
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s4">
+                    <a class="@classTabPresentati" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.PRESENTATO, tipo = (int)Model.Tipo})');">
+                        Depositati (@Model.CountBarData.PRESENTATI)
+                    </a>
+                </li>
+                <li class="tab col s4">
+                    <a class="@classTabInTrattazione" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.IN_TRATTAZIONE, tipo = (int)Model.Tipo})');">
+                        In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
+                    </a>
+                </li>
+                <li class="tab col s4">
+                    <a class="@classTabChiuso" onclick="resetGridSelection();go('@Url.Action("RiepilogoDASI", "DASI", new {stato = (int) StatiAttoEnum.CHIUSO, tipo = (int)Model.Tipo})');">
+                        CHIUSI (@Model.CountBarData.CHIUSO)
+                    </a>
+                </li>
+            </ul>
+        </div>
+    }
+    
+    <div class="col s12">
+        @{
+            if (Model.ViewMode == ViewModeEnum.GRID)
+            {
+                Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
+            }else
+            {
+                Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
+            }
+        }
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_IscriviASedutaModal");
+    Html.RenderPartial("_PannelloRicerche", Model);
+    Html.RenderPartial("_ComandiDASI_Admin");
+    Html.RenderPartial("_MetaDatiPanelPartial", Model);
+    Html.RenderPartial("_GeasiViewPartial");
+    Html.RenderPartial("_StampaModal");
+
+    Html.RenderPartial("_ScriptRiepilogoDASI", Model);
+}
+

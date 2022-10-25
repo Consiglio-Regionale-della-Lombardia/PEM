@@ -31,7 +31,10 @@ namespace PortaleRegione.Contracts
     {
         Task<int> Count(int legislaturaId, Filter<SEDUTE> filtro = null);
         Task<SEDUTE> Get(Guid sedutaUId);
+        Task<SEDUTE> Get(DateTime dataSeduta);
 
         Task<IEnumerable<SEDUTE>> GetAll(int legislaturaId, int pageIndex, int pageSize, Filter<SEDUTE> filtro = null);
+        Task<IEnumerable<SEDUTE>> GetAttive(bool riservato_dasi, bool convocata);
+        Task<IEnumerable<SEDUTE>> GetAttiveDashboard();
     }
 }

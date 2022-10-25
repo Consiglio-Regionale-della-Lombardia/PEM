@@ -18,6 +18,7 @@
 
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -39,22 +40,26 @@ namespace PortaleRegione.BAL
     public class AttiLogic : BaseLogic
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly EmendamentiLogic _logicEm;
 
-        public AttiLogic(IUnitOfWork unitOfWork)
+        public AttiLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM)
         {
             _unitOfWork = unitOfWork;
+            _logicEm = logicEM;
         }
 
         public async Task<BaseResponse<AttiDto>> GetAtti(BaseRequest<AttiDto> model, int CLIENT_MODE,
             PersonaDto currentUser,
-            Uri url)
+            List<PersonaLightDto> personeInDbLight,
+            Uri url = null)
         {
             try
             {
                 var queryFilter = new Filter<ATTI>();
                 queryFilter.ImportStatements(model.filtro);
 
-                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, queryFilter))
+                var appoggioAttiDtos = (await _unitOfWork.Atti.GetAll(model.id, model.page, model.size, CLIENT_MODE,
+                        currentUser, queryFilter))
                     .Select(Mapper.Map<ATTI, AttiDto>);
                 var result = new List<AttiDto>();
                 foreach (var appoggio in appoggioAttiDtos)
@@ -63,9 +68,8 @@ namespace PortaleRegione.BAL
                         currentUser, CounterEmendamentiEnum.EM, CLIENT_MODE);
                     appoggio.Conteggio_SubEM = await _unitOfWork.Emendamenti.Count(appoggio.UIDAtto,
                         currentUser, CounterEmendamentiEnum.SUB_EM, CLIENT_MODE);
-
-                    if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                    appoggio.CounterODG = await _unitOfWork.DASI.CountODGByAttoPEM(appoggio.UIDAtto);
+                    if (currentUser.IsSegreteriaAssemblea)
                     {
                         appoggio.CanMoveUp = _unitOfWork.Atti.CanMoveUp(appoggio.Priorita.Value);
                         appoggio.CanMoveDown =
@@ -77,6 +81,17 @@ namespace PortaleRegione.BAL
                         appoggio.Informazioni_Mancanti = listaArticoli.Any() || listaRelatori.Any() ? false : true;
                     }
 
+                    appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
+                    if (appoggio.UIDAssessoreRiferimento.HasValue)
+                        appoggio.PersonaAssessore =
+                            personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
+
+
+                    if (appoggio.NAtto == "$$")
+                    {
+                        appoggio.NAtto = "";
+                    }
+
                     result.Add(appoggio);
                 }
 
@@ -85,7 +100,7 @@ namespace PortaleRegione.BAL
                     model.size,
                     result,
                     model.filtro,
-                    await _unitOfWork.Atti.Count(model.id, queryFilter),
+                    await _unitOfWork.Atti.Count(model.id, CLIENT_MODE, currentUser, queryFilter),
                     url);
             }
             catch (Exception e)
@@ -121,6 +136,11 @@ namespace PortaleRegione.BAL
                 atto.OrdinePresentazione = false;
                 atto.OrdineVotazione = false;
                 atto.Priorita = await _unitOfWork.Atti.PrioritaAtto(atto.UIDSeduta.Value);
+                if (string.IsNullOrEmpty(attoModel.NAtto))
+                {
+                    atto.NAtto = "$$";
+                }
+
                 _unitOfWork.Atti.Add(atto);
                 await _unitOfWork.CompleteAsync();
 
@@ -157,7 +177,8 @@ namespace PortaleRegione.BAL
                 if (attoModel.DocAtto_Stream != null)
                 {
                     var path = ByteArrayToFile(attoModel.DocAtto_Stream);
-                    attoInDb.Path_Testo_Atto = Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+                    attoInDb.Path_Testo_Atto =
+                        Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
                     await _unitOfWork.CompleteAsync();
                 }
 
@@ -283,11 +304,24 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<IEnumerable<COMMI>> GetCommi(Guid id)
+        public async Task<IEnumerable<COMMI>> GetCommi(Guid id, bool expanded = false)
         {
             try
             {
-                return await _unitOfWork.Commi.GetCommi(id);
+                var result = new List<COMMI>();
+                var commInDb = await _unitOfWork.Commi.GetCommi(id);
+                if (!expanded) return commInDb;
+                foreach (var comma in commInDb)
+                {
+                    var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
+                    if (lettere.Count() > 0)
+                    {
+                        comma.Comma = $"{comma.Comma} ({lettere.Select(i => i.Lettera).Aggregate((k, j) => k + "-" + j)})";
+                    }
+                    result.Add(comma);
+                }
+
+                return result;
             }
             catch (Exception e)
             {
@@ -511,6 +545,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                attoInDb.Fascicoli_Da_Aggiornare = false;
                 switch (model.Ordinamento)
                 {
                     case OrdinamentoEnum.Default:
@@ -570,6 +605,160 @@ namespace PortaleRegione.BAL
         {
             var result = await _unitOfWork.Atti.GetRelatori(attoUId);
             return result;
+        }
+
+        public IEnumerable<Tipi_AttoDto> GetTipi(bool dasi = true)
+        {
+            var result = new List<Tipi_AttoDto>();
+            var tipi = Enum.GetValues(typeof(TipoAttoEnum));
+            foreach (var tipo in tipi)
+            {
+                if (dasi)
+                {
+                    if (Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (!Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo))
+                    {
+                        continue;
+                    }
+                }
+
+                result.Add(new Tipi_AttoDto
+                {
+                    IDTipoAtto = (int)tipo,
+                    Tipo_Atto = Utility.GetText_Tipo((int)tipo)
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm = false)
+        {
+            var result = new List<ArticoliModel>();
+
+            var articoli = await _unitOfWork.Articoli.GetArticoli(id);
+            foreach (var articolo in articoli)
+            {
+                var articoliModel = new ArticoliModel
+                {
+                    Data = Mapper.Map<ARTICOLI, ArticoliDto>(articolo)
+                };
+
+                if (viewEm)
+                {
+                    List<Guid> emArticolis =
+                        await _unitOfWork.Emendamenti.GetByArticolo(articolo.UIDArticolo, StatiEnum.Approvato);
+                    foreach (var emArticoloGuid in emArticolis)
+                    {
+                        var emArticolo = await _logicEm.GetEM_DTO_Light(emArticoloGuid);
+                        articoliModel.Emendamenti.Add(emArticolo);
+                    }
+                }
+
+                var commi = await _unitOfWork.Commi.GetCommi(articolo.UIDArticolo);
+
+                if (commi.Any())
+                {
+                    foreach (var comma in commi)
+                    {
+                        var commiModel = new CommiModel
+                        {
+                            Data = Mapper.Map<COMMI, CommiDto>(comma)
+                        };
+
+                        if (viewEm)
+                        {
+                            List<Guid> emCommis =
+                                await _unitOfWork.Emendamenti.GetByComma(comma.UIDComma, StatiEnum.Approvato);
+                            foreach (var emCommaGuid in emCommis)
+                            {
+                                var emComma = await _logicEm.GetEM_DTO_Light(emCommaGuid);
+                                commiModel.Emendamenti.Add(emComma);
+                            }
+                        }
+
+                        var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
+
+                        if (lettere.Any())
+                        {
+                            foreach (var lettera in lettere)
+                            {
+                                var letteraModel = new LettereModel
+                                {
+                                    Data = Mapper.Map<LETTERE, LettereDto>(lettera)
+                                };
+
+                                if (viewEm)
+                                {
+                                    List<Guid> emLetteras =
+                                        await _unitOfWork.Emendamenti.GetByLettera(lettera.UIDLettera,
+                                            StatiEnum.Approvato);
+                                    foreach (var emLetteraGuid in emLetteras)
+                                    {
+                                        var emLettera = await _logicEm.GetEM_DTO_Light(emLetteraGuid);
+                                        letteraModel.Emendamenti.Add(emLettera);
+                                    }
+                                }
+
+                                commiModel.Lettere.Add(letteraModel);
+                            }
+                        }
+
+                        articoliModel.Commi.Add(commiModel);
+                    }
+                }
+
+                result.Add(articoliModel);
+            }
+
+            return result;
+        }
+
+        public async Task SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var success = Guid.TryParse(model.Id, out var guid);
+                if (!success)
+                    throw new Exception("Identificativo non valido");
+
+                var articolo = await _unitOfWork.Articoli.GetArticolo(guid);
+                if (articolo != null)
+                {
+                    articolo.TestoArticolo = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                var comma = await _unitOfWork.Commi.GetComma(guid);
+                if (comma != null)
+                {
+                    comma.TestoComma = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                var lettera = await _unitOfWork.Lettere.GetLettera(guid);
+                if (lettera != null)
+                {
+                    lettera.TestoLettera = model.Testo;
+                    await _unitOfWork.CompleteAsync();
+                    return;
+                }
+
+                throw new Exception("Identificativo non valido");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

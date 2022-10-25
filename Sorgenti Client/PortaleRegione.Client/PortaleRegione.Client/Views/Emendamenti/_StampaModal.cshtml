@@ -1,5 +1,4 @@
 ﻿@using ExpressionBuilder.Common
-@using PortaleRegione.DTO.Enum
 @model Guid
 
 <div id="modalStampa" class="modal">
@@ -10,15 +9,15 @@
         {
             @Html.AntiForgeryToken()
             <input id="hdUIdAtto" name="UIDAtto" type="hidden" value="@Model"/>
-            <input id="hdOrdine" name="Ordine" type="hidden" value="" />
+            <input id="hdOrdine" name="Ordine" type="hidden" value=""/>
             <div id="pnlDaA">
-            <div class="form-group">
-                <label>Dall' emendamento in posizione:</label>
-                <input id="txtDa" name="Da" type="number" class="form-control" value="1" min="1" />
-            </div>
+                <div class="form-group">
+                    <label>Dall' emendamento in posizione:</label>
+                    <input id="txtDa" name="Da" type="number" class="form-control" value="1" min="1"/>
+                </div>
                 <div class="form-group">
                     <label>All' emendamento in posizione:</label>
-                    <input id="txtA" name="A" type="number" class="form-control" />
+                    <input id="txtA" name="A" type="number" class="form-control"/>
                 </div>
             </div>
         }
@@ -38,87 +37,95 @@
 
 <script>
     function ConfirmStampa() {
-            $("#emStampaDisplayName").empty();
+        $("#emStampaDisplayName").empty();
 
-            var documentiTotali = $("#hdTotaleDocumenti").val();
+        var documentiTotali = $("#hdTotaleDocumenti").val();
+        var selezionaTutti = getSelezionaTutti();
+        var listaEM = getListaEmendamenti();
+        var totaleDoc = selezionaTutti || listaEM.length == 0 ? documentiTotali - listaEM.length : listaEM.length;
+
+        if (totaleDoc <= 0) {
+            swal({
+                title: "Errore",
+                text: "Seleziona almeno un emendamento da stampare",
+                icon: "error"
+            });
+            ErrorAlert("Seleziona almeno un emendamento da stampare");
+            return;
+        }
+        if (totaleDoc >= 10) {
+            $('#pnlDaA').show();
+        } else {
+            $('#pnlDaA').hide();
+        }
+        $("#txtA").val(totaleDoc);
+        $("#txtA").prop("max", totaleDoc);
+
+        $("#emStampaDisplayName").append("GENERA FASCICOLO EMENDAMENTI (TOTALE EM DA ESPORTARE: " + totaleDoc + ")");
+
+        $("#modalStampa").modal("open");
+        $("#btnConfermaStampa").on("click",
+            function() {
+                $("#formStampa").submit();
+            });
+    }
+
+    $("#formStampa").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+            var obj = {};
+
+            obj.param = {
+                UIDAtto: $("#hdUIdAtto").val(),
+                Da: $("#txtDa").val(),
+                A: $("#txtA").val(),
+                CLIENT_MODE: @Html.Raw(mode)
+            };
+
+            var lstEM = getListaEmendamenti();
+        if (lstEM.length > 0) {
+            obj.filtro = [];
             var selezionaTutti = getSelezionaTutti();
-            var listaEM = getListaEmendamenti();
-            var totaleDoc = selezionaTutti || listaEM.length == 0 ? documentiTotali - listaEM.length : listaEM.length;
-
-            if (totaleDoc <= 0) {
-                ErrorAlert("Seleziona almeno un emendamento da stampare");
-                return;
-            }
-            if (totaleDoc >= 10) {
-                $('#pnlDaA').show();
-            } else {
-                $('#pnlDaA').hide();
-            }
-            $("#txtA").val(totaleDoc);
-            $("#txtA").prop("max", totaleDoc);
-
-            $("#emStampaDisplayName").append("GENERA FASCICOLO EMENDAMENTI (TOTALE EM DA ESPORTARE: " + totaleDoc + ")");
-
-            $("#modalStampa").modal("open");
-            $("#btnConfermaStampa").on("click",
-                function() {
-                    $("#formStampa").submit();
+            for (var i = 0; i < lstEM.length; i++) {
+                obj.filtro.push({
+                    PropertyId: "UIDEM",
+                    Operation: selezionaTutti ? 5 : 1,
+                    Value: lstEM[i],
+                    Connector: i == lstEM.length - 1 ? @((int)FilterStatementConnector.And) : @((int)FilterStatementConnector.Or)
                 });
+            }
         }
 
-        $("#formStampa").submit(function(e) {
-            e.preventDefault();
-        }).validate({
-            submitHandler: function(form) {
-                var obj = {};
-
-                obj.param = {
-                    UIDAtto: $("#hdUIdAtto").val(),
-                    Da: $("#txtDa").val(),
-                    A: $("#txtA").val(),
-                    Ordine: $("#hdOrdine").val(),
-                    CLIENT_MODE: @Html.Raw(mode)
-                };
-
-                var lstEM = getListaEmendamenti();
-                if (lstEM.length > 0) {
-                    obj.filtro = [];
-                    var selezionaTutti = getSelezionaTutti();
-                    for (var i = 0; i < lstEM.length; i++) {
-                        obj.filtro.push({
-                            PropertyId: "UIDEM",
-                            Operation: selezionaTutti ? 5 : 1,
-                            Value: lstEM[i],
-                            Connector: i == lstEM.length - 1 ? @((int)FilterStatementConnector.And) : @((int)FilterStatementConnector.Or)
-                        });
-                    }
+            //submit via ajax
+            $.ajax({
+                url: baseUrl + "/stampe/nuova",
+                type: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                if (data.message)
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
+                else {
+                    $("#modalStampa").modal("close");
+                    $("#btnConfermaStampa").off("click");
+                    waiting(false);
+                    M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
                 }
-                console.log("STampa", obj)
 
-                //submit via ajax
-                $.ajax({
-                    url: baseUrl + "/stampe/nuova",
-                    type: "POST",
-                    data: JSON.stringify(obj),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                }).done(function(data) {
-                    if (data.message)
-                        ErrorAlert(data.message);
-                    else {
-                        $("#modalStampa").modal("close");
-                        waiting(false);
-                        M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
-                    }
+                setListaEmendamenti([]);
+                setSelezionaTutti(false);
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
 
-                    setListaEmendamenti([]);
-                    setSelezionaTutti(false);
-                }).fail(function(err) {
-                    console.log("error", err);
-                    ErrorAlert(err.message);
-                });
-
-                return false; //This doesn't prevent the form from submitting.
-            }
-        });
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
 </script>

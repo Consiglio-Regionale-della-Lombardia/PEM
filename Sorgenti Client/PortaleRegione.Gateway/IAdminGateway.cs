@@ -28,11 +28,11 @@ namespace PortaleRegione.Gateway
 {
     public interface IAdminGateway
     {
-        Task<List<AdminGruppiModel>> GetGruppiAdmin(BaseRequest<GruppiDto> request);
+        Task<RiepilogoGruppiModel> GetGruppiAdmin(BaseRequest<GruppiDto> request);
         Task<IEnumerable<KeyValueDto>> GetGruppiInDb();
         Task<IEnumerable<GruppoAD_Dto>> GetGruppiPoliticiAD();
         Task<PersonaDto> GetPersona(Guid id);
-        Task<BaseResponse<PersonaDto>> GetPersone(BaseRequest<PersonaDto> request);
+        Task<RiepilogoUtentiModel> GetPersone(BaseRequest<PersonaDto> request);
         Task<IEnumerable<RuoliDto>> GetRuoliAD();
         Task ResetPassword(ResetRequest request);
         Task ResetPin(ResetRequest request);

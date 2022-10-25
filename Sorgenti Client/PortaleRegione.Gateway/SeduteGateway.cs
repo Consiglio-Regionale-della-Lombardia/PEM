@@ -21,8 +21,9 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using SeduteDto = PortaleRegione.DTO.Domain.SeduteDto;
 
 namespace PortaleRegione.Gateway
 {
@@ -33,27 +34,6 @@ namespace PortaleRegione.Gateway
         protected internal SeduteGateway(string token)
         {
             _token = token;
-        }
-
-        public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/legislature";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<LegislaturaDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Log.Error("GetLegislature", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("GetLegislature", ex);
-                throw ex;
-            }
         }
 
         public async Task<BaseResponse<SeduteDto>> Get(int page, int size)
@@ -149,6 +129,74 @@ namespace PortaleRegione.Gateway
                 throw ex;
             }
         }
+
+        public async Task<BaseResponse<SeduteDto>> GetAttive()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/sedute/attive";
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAttive", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttive", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetAttiveMOZU()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/sedute/attive-mozu";
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAttiveMOZU", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttiveMOZU", ex);
+                throw ex;
+            }
+
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetAttiveDashboard()
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/sedute/attive-dashboard";
+
+                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetAttiveDashboard", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetAttiveDashboard", ex);
+                throw ex;
+            }
+        }
+
 
         public async Task Modifica(SeduteFormUpdateDto seduta)
         {

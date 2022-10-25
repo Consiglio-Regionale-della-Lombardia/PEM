@@ -43,28 +43,42 @@ namespace PortaleRegione.Persistance
                 nd.UIDNotifica == notificaId && nd.UIDPersona == personaUId);
         }
 
-        public async Task<bool> ExistDestinatarioNotifica(Guid emendamentoUId, Guid personaUId)
+        public async Task<NOTIFICHE_DESTINATARI> ExistDestinatarioNotifica(Guid guid, Guid personaUId, bool dasi = false)
         {
+            if (dasi)
+            {
+                var notificheDASI = await PRContext
+                    .NOTIFICHE
+                    .Where(nd => nd.UIDAtto == guid)
+                    .Select(i => i.UIDNotifica)
+                    .ToListAsync();
 
-            var listaDestinatariEM = await PRContext
-                .NOTIFICHE_DESTINATARI
-                .Where(nd => nd.NOTIFICHE.UIDEM == emendamentoUId && nd.UIDPersona == personaUId)
+                var DestinatarioDASI = await PRContext
+                    .NOTIFICHE_DESTINATARI
+                    .Where(nd => nd.UIDPersona == personaUId && notificheDASI.Contains(nd.UIDNotifica))
+                    .FirstOrDefaultAsync();
+                return DestinatarioDASI;
+            }
+
+            var notifichePEM = await PRContext
+                .NOTIFICHE
+                .Where(nd => nd.UIDEM == guid)
+                .Select(i => i.UIDNotifica)
                 .ToListAsync();
 
-            return listaDestinatariEM.Any();
+            var DestinatarioEM = await PRContext
+                .NOTIFICHE_DESTINATARI
+                .Where(nd => nd.UIDPersona == personaUId && notifichePEM.Contains(nd.UIDNotifica))
+                .FirstOrDefaultAsync();
+
+            return DestinatarioEM;
         }
 
-        public async Task SetSeen_DestinatarioNotifica(Guid emendamentoUId, Guid personaUId)
+        public async Task SetSeen_DestinatarioNotifica(NOTIFICHE_DESTINATARI destinatario, Guid personaUId)
         {
-            var listaDestinatariEM = await PRContext
-                .NOTIFICHE_DESTINATARI
-                .Where(nd => nd.NOTIFICHE.UIDEM == emendamentoUId && nd.UIDPersona == personaUId)
-                .ToListAsync();
-            foreach (var notificheDestinatari in listaDestinatariEM)
-            {
-                notificheDestinatari.Visto = true;
-                notificheDestinatari.DataVisto = DateTime.Now;
-            }
+            destinatario.Chiuso = true;
+            destinatario.Visto = true;
+            destinatario.DataVisto = DateTime.Now;
 
             await PRContext.SaveChangesAsync();
         }

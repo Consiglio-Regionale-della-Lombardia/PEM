@@ -1,5 +1,73 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.DTO.Enum
 <script>
+    $(document).ready(async function() {
+        $('#btnSearch').hide();
+        await CaricaTesti();
+    });
+
+    function SwitchView(val) {
+        if (val == "1") {
+            $('#pnlFormEM').hide();
+            $('#pnlTestiAtto').show();
+        } else {
+            $('#pnlTestiAtto').hide();
+            $('#pnlFormEM').show();
+        }
+    }
+    
+    async function CaricaTesti() {
+        var attoUId = $('#Emendamento_UIDAtto').val();
+        var grigliaInDb = await GetGrigliaTesto(attoUId);
+        var table = $("#tableTesti");
+        $.each(grigliaInDb,
+            function (index, articoloModel) {
+                var testoArticolo = articoloModel.Data.TestoArticolo ? articoloModel.Data.TestoArticolo : "";
+                table.append('<tr class="hoverable" onclick="InserimentoEM_Articolo(\'' + articoloModel.Data.UIDArticolo +'\')"><td width="10%"><b>Articolo ' + articoloModel.Data.Articolo + '</b></td><td>' + testoArticolo + '</td></tr>');
+                if (articoloModel.Commi.length > 0) {
+                    $.each(articoloModel.Commi,
+                        function (index, commaModel) {
+                            var testoComma = commaModel.Data.TestoComma ? commaModel.Data.TestoComma : "";
+                            table.append('<tr class="hoverable" onclick="InserimentoEM_Comma(\'' + articoloModel.Data.UIDArticolo + '\', \'' + commaModel.Data.UIDComma +'\')"><td width="10%">&nbsp;&nbsp;Comma ' + commaModel.Data.Comma + '</td><td>' + testoComma + '</td></tr>');
+                            if (commaModel.Lettere.length > 0) {
+                                $.each(commaModel.Lettere,
+                                    function (index, letteraModel) {
+                                        var testoLettera = letteraModel.Data.TestoLettera ? letteraModel.Data.TestoLettera : "";
+                                        table.append('<tr class="hoverable" onclick="InserimentoEM_Lettera(\'' + articoloModel.Data.UIDArticolo + '\', \'' + commaModel.Data.UIDComma + '\', \'' + letteraModel.Data.UIDLettera +'\')"><td width="10%">&nbsp;&nbsp;&nbsp;&nbsp;<i>Lettera ' + letteraModel.Data.Lettera + '</i></td><td>' + testoLettera + '</td></tr>');
+                                    });
+                            }
+                        });
+                }
+            });
+    }
+
+    async function InserimentoEM_Articolo(articoloUId) {
+        $($('input[name="Emendamento.IDParte"]')[3]).click();
+        await Articoli_OnChange(articoloUId, null, null);
+        $('#viewManual').click();
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0,0);
+    }
+    async function InserimentoEM_Comma(articoloUId, commaUId) {
+        $($('input[name="Emendamento.IDParte"]')[3]).click();
+        await Articoli_OnChange(articoloUId, commaUId, null);
+        $('#viewManual').click();
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+    }
+    async function InserimentoEM_Lettera(articoloUId, commaUId, letteraUId) {
+        $($('input[name="Emendamento.IDParte"]')[3]).click();
+        await Articoli_OnChange(articoloUId, commaUId, letteraUId);
+        $('#viewManual').click();
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+    }
+
     function InitEffettiFinanziari(value) {
         $('input[id="Emendamento.EffettiFinanziari"]').each(function(index, item) {
             if (item.value == value) {
@@ -24,7 +92,7 @@
     $("#formEmendamento").submit(function(e) {
         e.preventDefault();
     }).validate({
-        submitHandler: function(form) {
+        submitHandler: function (form) {
 
             var docAllegatoGenerico;
             var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
@@ -75,12 +143,20 @@
             form_data.append("Progressivo", $('input[name="Emendamento.Progressivo"]').val());
             form_data.append("SubProgressivo", $('input[name="Emendamento.SubProgressivo"]').val());
             form_data.append("Rif_UIDEM", $('input[name="Emendamento.Rif_UIDEM"]').val());
-            form_data.append("IDStato", $('input[name="Emendamento.IDStato"]').val());
             form_data.append("id_gruppo", $('input[name="Emendamento.id_gruppo"]').val());
             form_data.append("DataCreazione", $('input[name="Emendamento.DataCreazione"]').val());
             form_data.append("DataModifica", $('input[name="Emendamento.DataModifica"]').val());
             form_data.append("UIDPersonaModifica", $('input[name="Emendamento.UIDPersonaModifica"]').val());
             form_data.append("UID_QRCode", $('input[name="Emendamento.UID_QRCode"]').val());
+            var riservato = $('input[name="Emendamento.Riservato"]').is(":checked");
+            if (riservato == true) {
+                form_data.append("IDStato", @Html.Raw((int)StatiEnum.Bozza_Riservata));
+            } else {
+                form_data.append("IDStato", @Html.Raw((int)StatiEnum.Bozza));
+            }
+
+            var Firma_su_invito = $('input[name="Emendamento.Firma_su_invito"]').is(":checked");
+            form_data.append("Firma_su_invito", Firma_su_invito);
 
             form_data.append("TestoEM_originale", editor_testo_originale.html());
             form_data.append("TestoREL_originale", editor_relazione.html());
@@ -108,6 +184,17 @@
             form_data.append("DocEffettiFinanziari", docAllegatoTecnico);
             form_data.append("DocAllegatoGenerico", docAllegatoGenerico);
 
+            //Tags
+            var tagData = [];
+            if (tagInstance != null) {
+                t = tagInstance[0];
+                $.each(t.chipsData, function(index, item) {
+                    tagData.push(item);
+                });
+
+                form_data.append("Tags", JSON.stringify(tagData));
+            }
+
             //submit via ajax
             $.ajax({
                 url: baseUrl + "/emendamenti/salva",
@@ -118,12 +205,16 @@
             }).done(function(data) {
                 console.log(data)
                 if (data.message)
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 else
                     go(data);
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.

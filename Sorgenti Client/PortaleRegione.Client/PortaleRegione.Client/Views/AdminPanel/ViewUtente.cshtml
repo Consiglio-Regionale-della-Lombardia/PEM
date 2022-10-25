@@ -216,11 +216,14 @@
                 }
             </div>
         </div>
-        <div class="fixed-action-btn">
-            <button id="btnSalvaUtente" class="btn-floating btn-large blue">
-                <i class="large material-icons">save</i>
-            </button>
-        </div>
+        @if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+        {
+            <div class="fixed-action-btn">
+                <button id="btnSalvaUtente" class="btn-floating btn-large blue">
+                    <i class="large material-icons">save</i>
+                </button>
+            </div>
+        }
     </div>
 </div>
 
@@ -279,7 +282,11 @@
                 }).done(function(dataResult) {
                     waiting(false);
                     if (dataResult.message)
-                        ErrorAlert(dataResult.message);
+                        swal({
+                            title: "Errore",
+                            text: dataResult.message,
+                            icon: "error"
+                        });
                     else {
                         if ($('input[name="Persona.UID_persona"]').val() == "@Html.Raw(Guid.Empty)") {
                             go(dataResult);
@@ -290,7 +297,7 @@
                 })
                 .fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
 
             return false; //This doesn't prevent the form from submitting.
@@ -317,7 +324,11 @@
                 }).done(function(dataResult) {
                     waiting(false);
                     if (dataResult.message)
-                        ErrorAlert(dataResult.message);
+                        swal({
+                            title: "Errore",
+                            text: dataResult.message,
+                            icon: "error"
+                        });
                     else {
                         if ($('input[name="Persona.UID_persona"]').val() == "@Html.Raw(Guid.Empty)") {
                             go(dataResult);
@@ -328,7 +339,7 @@
                 })
                 .fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
 
             return false; //This doesn't prevent the form from submitting.

@@ -136,6 +136,49 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task BloccoODG(BloccoODGModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/bloccoODG";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("BloccoODG", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("BloccoODG", ex);
+                throw ex;
+            }
+        }
+
+        public async Task JollyODG(JollyODGModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/jollyODG";
+                var body = JsonConvert.SerializeObject(model);
+
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("JollyODG", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("JollyODG", ex);
+                throw ex;
+            }
+
+        }
+
         public async Task<AttiDto> Salva(AttiFormUpdateModel atto)
         {
             try
@@ -161,6 +204,27 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("SalvaAtto", ex);
+                throw ex;
+            }
+        }
+
+        public async Task SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/salva-testo";
+
+                var body = JsonConvert.SerializeObject(model);
+                await Post(requestUrl, body, _token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("SalvaTesto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SalvaTesto", ex);
                 throw ex;
             }
         }
@@ -337,6 +401,54 @@ namespace PortaleRegione.Gateway
             }
         }
 
+        public async Task<IEnumerable<Tipi_AttoDto>> GetTipi(bool dasi = true)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/tipi";
+
+                if (dasi == false)
+                {
+                    requestUrl += "?dasi=false";
+                }
+
+                var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_AttoDto>>(await Get(requestUrl, _token));
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetTipi", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetTipi", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm = false)
+        {
+            try
+            {
+                var requestUrl = $"{apiUrl}/atti/griglia-testi?id={id}&viewEm={viewEm}";
+
+                var lst = JsonConvert.DeserializeObject<List<ArticoliModel>>(await Get(requestUrl, _token));
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("GetGrigliaTesto", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetGrigliaTesto", ex);
+                throw ex;
+            }
+        }
+
         #region ARTICOLI
 
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)
@@ -405,11 +517,11 @@ namespace PortaleRegione.Gateway
 
         #region COMMI
 
-        public async Task<IEnumerable<CommiDto>> GetComma(Guid id)
+        public async Task<IEnumerable<CommiDto>> GetComma(Guid id, bool expanded = false)
         {
             try
             {
-                var requestUrl = $"{apiUrl}/atti/commi?id={id}";
+                var requestUrl = $"{apiUrl}/atti/commi?id={id}&expanded={expanded}";
 
                 var lst = JsonConvert.DeserializeObject<IEnumerable<CommiDto>>(await Get(requestUrl, _token));
 

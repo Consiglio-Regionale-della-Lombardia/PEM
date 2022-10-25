@@ -12,8 +12,6 @@ namespace Scheduler.BusinessLogic
     {
         public LogLogic()
         {
-            BaseGateway.apiUrl = ConfigurationManager.AppSettings["UrlApi"];
-
             Task.Run(async () =>
             {
                 await Init();
@@ -45,7 +43,8 @@ namespace Scheduler.BusinessLogic
                 dt.Columns.Add("Data");
                 dt.Columns.Add("Messaggio");
 
-                var result = await StampeGate.GetInfo();
+                var apiGateway = new ApiGateway(currentServiceUser.jwt);
+                var result = await apiGateway.Stampe.GetInfo();
 
                 foreach (var item in result)
                 {

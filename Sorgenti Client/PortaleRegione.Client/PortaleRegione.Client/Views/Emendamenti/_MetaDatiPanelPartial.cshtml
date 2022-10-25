@@ -79,23 +79,19 @@
             ListaEM.push(em); // aggiungo em alla lista per gestire il reset delle modifiche
         }
 
-        set_ListaArticoliEM([]);
-        set_ListaCommiEM([]);
-        set_ListaLettereEM([]);
-
         await SetupMetaDati(em);
 
+        var container_testo = $('#EditorTesto').parent();
+        var editor_testo = $(container_testo).find(".trumbowyg-editor");
+
         $("#btnSposta_MetaDatiPartial").on("click",
-            function () {
+            function() {
                 $('#modalMetaDati').modal("close");
                 Sposta_EMTrattazione(em.UIDEM);
             });
 
-        $("input[type=radio][name='Parte']").change(async function () {
+        $("input[type=radio][name='Parte']").change(async function() {
             em.IDParte = this.value;
-            set_ListaArticoliEM([]);
-            set_ListaCommiEM([]);
-            set_ListaLettereEM([]);
             em.UIDArticolo = null;
             em.UIDComma = null;
             em.UIDLettera = null;
@@ -106,18 +102,18 @@
             await LoadMetaDati_Parte(em);
         });
 
-        $('#NTitolo').keyup(function () {
+        $('#NTitolo').keyup(function() {
             em.NTitolo = this.value;
         });
-        $('#NCapo').keyup(function () {
+        $('#NCapo').keyup(function() {
             em.NCapo = this.value;
         });
-        $('#NProgramma').change(function () {
+        $('#NProgramma').change(function() {
             em.NProgramma = this.value;
         });
         //EVENTI TESTO
         var carica_testo = true;
-        $('#EditorTesto').parent().keyup(function () {
+        $('#EditorTesto').parent().keyup(function() {
             if (carica_testo) {
                 if ($("input[type=radio][name='Testo']:checked").val() == 0) {
                     carica_testo = false;
@@ -125,7 +121,7 @@
                 }
             }
         });
-        $("input[type=radio][name='Testo']").change(function () {
+        $("input[type=radio][name='Testo']").change(function() {
             if (carica_testo) {
                 if (this.value == 0) {
                     editor_testo.html(em.TestoEM_originale);
@@ -147,18 +143,17 @@
                 }
             }
         });
-        $('#NotePubbliche').keyup(function () {
+        $('#NotePubbliche').keyup(function() {
             em.NOTE_Griglia = this.value;
         });
-        $('#NotePrivate').keyup(function () {
+        $('#NotePrivate').keyup(function() {
             em.NOTE_EM = this.value;
         });
+
         $('#btnSalvaMetaDatiPartial').click(function() {
             $('#modalMetaDati').modal("close");
             waiting(true);
-
-            var container_testo = $('#EditorTesto').parent();
-            var editor_testo = $(container_testo).find(".trumbowyg-editor");
+            
             var testo_modificabile = $("input[type=radio][name='Testo']:checked")[0];
             if ($(testo_modificabile).val() == 1) {
                 em.TestoEM_Modificabile = editor_testo.html();
@@ -177,7 +172,7 @@
                 waiting(false);
                 $('#modalMetaDati').modal("open");
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
     }
@@ -190,6 +185,7 @@
         await LoadMetaDati_Tipo(em);
         LoadMetaDati_Testo(em);
         LoadMetaDati_Note(em);
+        LoadMetaDati_AreaPolitica(em);
 
         waiting(false);
     }
@@ -216,6 +212,15 @@
     function LoadMetaDati_Note(em) {
         $('#NotePubbliche').val(em.NOTE_Griglia);
         $('#NotePrivate').val(em.NOTE_EM);
+    }
+
+    function LoadMetaDati_AreaPolitica(em) {
+        $("#ddlAreaPolitica").children('[value="' + em.AreaPolitica + '"]').prop('selected', true);
+        $('#ddlAreaPolitica').formSelect();
+
+        $("#ddlAreaPolitica").on("change", function() {
+            em.AreaPolitica = this.value;
+        });
     }
 
     async function LoadMetaDati_Parte(em) {
@@ -290,8 +295,6 @@
 
             $(select).unbind();
             $(select).change(async function() {
-                set_ListaCommiEM([]);
-                set_ListaLettereEM([]);
                 em.UIDArticolo = this.value;
                 em.UIDComma = null;
                 em.UIDLettera = null;
@@ -308,7 +311,7 @@
             $('#pnlParte_Articoli_Commi').hide();
             return;
         }
-        var parti_commi = await GetCommi(em.UIDArticolo);
+        var parti_commi = await GetCommi(em.UIDArticolo, false);
         if (parti_commi.length > 0) {
             $('#pnlParte_Articoli_Commi').show();
             var select = $("#Commi");
@@ -331,7 +334,6 @@
 
             $(select).unbind();
             $(select).change(async function() {
-                set_ListaLettereEM([]);
                 em.UIDComma = this.value;
                 em.UIDLettera = null;
                 await LoadMetaDati_Parte(em);

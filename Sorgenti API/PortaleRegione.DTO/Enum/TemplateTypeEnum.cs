@@ -25,6 +25,7 @@ namespace PortaleRegione.DTO.Enum
         MAIL = 3,
         HTML = 4,
         HTML_MODIFICABILE = 5,
-        FIRMA = 6
+        FIRMA = 6,
+        INDICE_DASI = 7
     }
 }

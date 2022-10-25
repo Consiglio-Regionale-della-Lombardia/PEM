@@ -26,7 +26,7 @@ namespace Scheduler.BusinessLogic
         {
             appoggio = GetJobConfig();
         }
-        
+
         /// <summary>
         ///     Get Jobs json config
         /// </summary>
@@ -55,7 +55,7 @@ namespace Scheduler.BusinessLogic
                 throw ex;
             }
         }
-        
+
         /// <summary>
         ///     Save Jobs json config
         /// </summary>
@@ -75,7 +75,7 @@ namespace Scheduler.BusinessLogic
                 throw ex;
             }
         }
-        
+
         /// <summary>
         ///     Remove a Job and save in json config
         /// </summary>
@@ -110,7 +110,8 @@ namespace Scheduler.BusinessLogic
             }
         }
 
-        private void setAttributesNormal(DirectoryInfo dir) {
+        private void setAttributesNormal(DirectoryInfo dir)
+        {
             foreach (var subDir in dir.GetDirectories())
                 setAttributesNormal(subDir);
             foreach (var file in dir.GetFiles())

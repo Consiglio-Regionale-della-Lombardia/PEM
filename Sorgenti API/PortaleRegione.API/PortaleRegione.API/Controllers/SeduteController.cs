@@ -99,6 +99,69 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere le sedute attive
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("attive")]
+        public async Task<IHttpActionResult> GetSeduteAttive()
+        {
+            try
+            {
+                var result = await _logic.GetSeduteAttive();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteAttive", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere le sedute attive per mozioni urgenti
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("attive-mozu")]
+        public async Task<IHttpActionResult> GetSeduteAttiveMOZU()
+        {
+            try
+            {
+                var result = await _logic.GetSeduteAttiveMOZU();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteAttiveMOZU", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere le sedute attive per la dashboard
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("attive-dashboard")]
+        public async Task<IHttpActionResult> GetSeduteAttiveDashboard()
+        {
+            try
+            {
+                var result = await _logic.GetSeduteAttiveDashboard();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetSeduteAttiveDashboard", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per eliminare virtualmente una seduta
         /// </summary>
         /// <param name="id">Guid seduta</param>
@@ -148,9 +211,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!sedutaDto.Data_seduta.HasValue)
+                if (sedutaDto.Data_seduta <= DateTime.Now)
                 {
-                    return BadRequest("Manca la data seduta");
+                    throw new InvalidOperationException("Data seduta non valida");
                 }
 
                 var session = GetSession();
@@ -180,11 +243,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!sedutaDto.Data_seduta.HasValue)
-                {
-                    return BadRequest("Manca la data seduta");
-                }
-
                 var sedutaInDb = await _logic.GetSeduta(sedutaDto.UIDSeduta);
 
                 if (sedutaInDb == null)

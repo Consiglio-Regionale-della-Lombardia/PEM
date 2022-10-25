@@ -33,32 +33,37 @@
     <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\PortaleRegione.Client\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\Sorgenti modulo di stampa asincrona\Jobs\GeneraStampeJob\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminGateway.cs" />
     <Compile Include="ApiGateway.cs" />
     <Compile Include="AttiGateway.cs" />
     <Compile Include="BaseGateway.cs" />
+    <Compile Include="DASIGateway.cs" />
     <Compile Include="EMGateway.cs" />
     <Compile Include="EMGateway_Pubblico.cs" />
     <Compile Include="EsportaGateway.cs" />
     <Compile Include="IAdminGateway.cs" />
     <Compile Include="IApiGateway.cs" />
     <Compile Include="IAttiGateway.cs" />
+    <Compile Include="IDASIGateway.cs" />
     <Compile Include="IEMGateway.cs" />
     <Compile Include="IEMGateway_Pubblico.cs" />
     <Compile Include="IEsportaGateway.cs" />
+    <Compile Include="ILegislatureGateway.cs" />
     <Compile Include="INotificheGateway.cs" />
     <Compile Include="IPersoneGateway.cs" />
     <Compile Include="ISeduteGateway.cs" />
     <Compile Include="IStampeGateway.cs" />
+    <Compile Include="LegislatureGateway.cs" />
     <Compile Include="NotificheGateway.cs" />
     <Compile Include="PersoneGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -27,7 +27,7 @@ namespace PortaleRegione.DTO.Domain
         public Guid UIDSeduta { get; set; }
 
         [Display(Name = "Data seduta")]
-        public DateTime? Data_seduta { get; set; }
+        public DateTime Data_seduta { get; set; }
         [Display(Name = "Data apertura")]
         public DateTime? Data_apertura { get; set; }
         [Display(Name = "Data effettiva inizio")]
@@ -36,8 +36,19 @@ namespace PortaleRegione.DTO.Domain
         public DateTime? Data_effettiva_fine { get; set; }
 
         public int? IDOrgano { get; set; }
-        [Display(Name = "Data scadenza presentazione")]
+        [Display(Name = "Data scadenza presentazione - Emendamenti")]
         public DateTime? Scadenza_presentazione { get; set; }
+        [Display(Name = "Data scadenza presentazione - Interrogation question time")]
+
+        public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni")]
+        public DateTime? DataScadenzaPresentazioneMOZ { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni abbinate")]
+        public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni urgenti")]
+        public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
+        [Display(Name = "Data scadenza presentazione - Ordini del giorno")]
+        public DateTime? DataScadenzaPresentazioneODG { get; set; }
 
         public int id_legislatura { get; set; }
 
@@ -51,14 +62,18 @@ namespace PortaleRegione.DTO.Domain
         public Guid? UIDPersonaModifica { get; set; }
 
         public DateTime? DataModifica { get; set; }
+
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
+
+        public bool Riservato_DASI { get; set; }
     }
-    
+
     public class SeduteFormUpdateDto
     {
         public Guid UIDSeduta { get; set; }
 
         [Display(Name = "Data seduta")]
-        public DateTime? Data_seduta { get; set; }
+        public DateTime Data_seduta { get; set; }
         [Display(Name = "Data apertura")]
         public DateTime? Data_apertura { get; set; }
         [Display(Name = "Data effettiva inizio")]
@@ -66,10 +81,25 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Data effettiva fine")]
         public DateTime? Data_effettiva_fine { get; set; }
 
-        [Display(Name = "Data scadenza presentazione")]
+        [Display(Name = "Data scadenza presentazione - Emendamenti")]
         public DateTime? Scadenza_presentazione { get; set; }
+        [Display(Name = "Data scadenza presentazione - Interrogation question time")]
+
+        public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni")]
+        public DateTime? DataScadenzaPresentazioneMOZ { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni abbinate")]
+        public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
+        [Display(Name = "Data scadenza presentazione - Mozioni urgenti")]
+        public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
+        [Display(Name = "Data scadenza presentazione - Ordini del giorno")]
+        public DateTime? DataScadenzaPresentazioneODG { get; set; }
 
         [AllowHtml]
         public string Intervalli { get; set; }
+
+        [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
+
+        public bool Riservato_DASI { get; set; }
     }
 }

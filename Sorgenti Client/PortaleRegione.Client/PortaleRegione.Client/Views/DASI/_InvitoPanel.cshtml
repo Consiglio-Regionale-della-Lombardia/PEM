@@ -1,0 +1,156 @@
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Domain.AttoDASIDto
+
+<div id="modalDASINotificaA" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="attoProponenteDisplayName"><b>@Utility.GetText_Tipo(Model.Tipo) @Model.NAtto</b></h4>
+        <hr/>
+        @using (Html.BeginForm("EseguiAzione", "DASI", FormMethod.Post, new { id = "formNotificaA" }))
+        {
+            @Html.AntiForgeryToken()
+
+            var isSegreteria = HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Politica) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM);
+
+            var displayPin = isSegreteria ? "none" : "block";
+
+            <div class="form-group" style="display: @displayPin">
+                <label>Pin:</label>
+                <input id="txtPinNotificheInviti" class="password" />
+            </div>
+            <div class="form-group">
+                <label>Destinatari:</label>
+                <div id="autocompleteInvitati" class="chips chips-autocomplete"></div>
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn modal-close grey">Annulla</button>
+        <a id="btnConfermaNotificaA" class="btn blue">Invita</a>
+    </div>
+</div>
+
+
+<script>
+    var chipInstanceNotificaADASI = null;
+
+    async function LoadDestinatari(tipo) {
+        var personeInDB = await GetPersonePerInvitiDASI(tipo);
+
+        var persone = [];
+        for (let [key, value] of Object.entries(personeInDB)) {
+            persone.push({
+                tag: value,
+                id: key
+            });
+        }
+
+        var data_preload = [];
+        var elems = document.querySelector("#autocompleteInvitati");
+
+        var autocompleteDataOptions = {
+            data: persone,
+            limit: 3,
+            minLength: 1
+        };
+        if (chipInstanceNotificaADASI != null) {
+            chipInstanceNotificaADASI.destroy();
+        }
+        chipInstanceNotificaADASI = M.Chips.init(elems,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                data: data_preload
+            });
+    }
+
+    async function NotificaADASI(attoUId, tipo) {
+        waiting(true);
+        await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
+        $("#modalDASINotificaA").modal("open");
+        waiting(false);
+
+        $("#btnConfermaNotificaA").on("click",
+            function() {
+                setTimeout(function() {
+                        $('body').removeClass('loaded');
+                        $("#modalDASINotificaA").modal("close");
+                    },
+                    200);
+                $("#formNotificaA").submit();
+            });
+    }
+
+    $("#formNotificaA").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function (form) {
+
+            var listaAtti = getListaAtti();
+            @{
+                var type = Model.GetType();
+                if (type == typeof(PortaleRegione.DTO.Domain.AttoDASIDto))
+                {
+                    @Html.Raw($"listaAtti.push('{Model.UIDAtto}');")
+                }
+            }
+            
+            console.log("listaAtti", listaAtti)
+            var destinatari = chipInstanceNotificaADASI.getData();
+            if (destinatari.length == 0) {
+                swal({
+                    title: "Errore",
+                    text: "Seleziona almeno un destinatario",
+                    icon: "error"
+                });
+                return;
+            }
+
+            var listaDestinatari = [];
+            $.each(destinatari,
+                function(index, item) {
+                    listaDestinatari.push(item.id);
+                });
+            var obj = {};
+            obj.Pin = $('#txtPinNotificheInviti').val();
+            obj.Azione = @((int)ActionEnum.INVITA);
+            obj.Lista = listaAtti.length > 0 ? listaAtti : [];
+            obj.ListaDestinatari = listaDestinatari;
+
+            $.ajax({
+                url: baseUrl + "/dasi/azioni-massive",
+                type: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
+                    swal({
+                        title: "Esito Inviti",
+                        text: data.message,
+                        icon: typeMessage,
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
+</script>

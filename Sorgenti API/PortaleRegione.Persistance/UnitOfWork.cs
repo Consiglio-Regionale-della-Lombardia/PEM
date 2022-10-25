@@ -47,6 +47,8 @@ namespace PortaleRegione.Persistance
             Firme = new FirmeRepository(_context);
             Notifiche = new NotificheRepository(_context);
             Notifiche_Destinatari = new Notifiche_DestinatariRepository(context);
+            DASI = new DASIRepository(context);
+            Atti_Firme = new AttiFirmeRepository(context);
         }
 
         public ISeduteRepository Sedute { get; }
@@ -63,6 +65,8 @@ namespace PortaleRegione.Persistance
         public IFirmeRepository Firme { get; }
         public INotificheRepository Notifiche { get; }
         public INotifiche_DestinatariRepository Notifiche_Destinatari { get; }
+        public IDASIRepository DASI { get; }
+        public IAttiFirmeRepository Atti_Firme { get; }
 
         public async Task<int> CompleteAsync()
         {

@@ -9,6 +9,17 @@ function setListaEmendamenti(lista) {
     sessionStorage.setItem("listaEmendamenti", JSON.stringify(lista));
 }
 
+function getListaAtti() {
+    var session_raw = sessionStorage.getItem("listaDASI");
+    if (session_raw == null)
+        return [];
+    return JSON.parse(session_raw);
+}
+
+function setListaAtti(lista) {
+    sessionStorage.setItem("listaDASI", JSON.stringify(lista));
+}
+
 function getSelezionaTutti() {
     var session_raw = sessionStorage.getItem("SelezionaTutti");
     return JSON.parse(session_raw);
@@ -16,6 +27,15 @@ function getSelezionaTutti() {
 
 function setSelezionaTutti(seleziona) {
     sessionStorage.setItem("SelezionaTutti", JSON.stringify(seleziona));
+}
+
+function getSelezionaTutti_DASI() {
+    var session_raw = sessionStorage.getItem("SelezionaTutti_DASI");
+    return JSON.parse(session_raw);
+}
+
+function setSelezionaTutti_DASI(seleziona) {
+    sessionStorage.setItem("SelezionaTutti_DASI", JSON.stringify(seleziona));
 }
 
 function getListaPersone() {
@@ -46,8 +66,19 @@ function get_ListaLegislature() {
     return JSON.parse(session_raw);
 }
 
+function get_ListaSeduteAttive() {
+    var session_raw = sessionStorage.getItem("ListaSeduteAttive");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
 function set_ListaLegislature(obj) {
     sessionStorage.setItem("ListaLegislature", JSON.stringify(obj));
+}
+
+function set_ListaSeduteAttive(obj) {
+    sessionStorage.setItem("ListaSeduteAttive", JSON.stringify(obj));
 }
 
 function get_ListaStatiEM() {
@@ -59,6 +90,61 @@ function get_ListaStatiEM() {
 
 function set_ListaStatiEM(obj) {
     sessionStorage.setItem("ListaStatiEM", JSON.stringify(obj));
+}
+
+function get_ListaStatiDASI() {
+    var session_raw = sessionStorage.getItem("ListaStatiDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaTipiDASI() {
+    var session_raw = sessionStorage.getItem("ListaTipiDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaTipiPEM() {
+    var session_raw = sessionStorage.getItem("ListaTipiPEM");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaTipiMOZDASI() {
+    var session_raw = sessionStorage.getItem("ListaTipiMOZDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function get_ListaSoggettiIterrogabiliDASI() {
+    var session_raw = sessionStorage.getItem("ListaSoggettiInterrogabiliDASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function set_ListaStatiDASI(obj) {
+    sessionStorage.setItem("ListaStatiDASI", JSON.stringify(obj));
+}
+
+function set_ListaTipiPEM(obj) {
+    sessionStorage.setItem("ListaTipiPEM", JSON.stringify(obj));
+}
+
+function set_ListaTipiDASI(obj) {
+    sessionStorage.setItem("ListaTipiDASI", JSON.stringify(obj));
+}
+
+function set_ListaTipiMOZDASI(obj) {
+    sessionStorage.setItem("ListaTipiMOZDASI", JSON.stringify(obj));
+}
+
+function set_ListaSoggettiInterrogabiliDASI(obj) {
+    sessionStorage.setItem("ListaSoggettiInterrogabiliDASI", JSON.stringify(obj));
 }
 
 function get_ListaTipiEM() {
@@ -105,39 +191,6 @@ function set_ListaTitoliMissioniEM(obj) {
     sessionStorage.setItem("ListaTitoliMissioniEM", JSON.stringify(obj));
 }
 
-function get_ListaArticoliEM() {
-    var session_raw = sessionStorage.getItem("ListaArticoliEM");
-    if (session_raw == null)
-        return {}
-    return JSON.parse(session_raw);
-}
-
-function set_ListaArticoliEM(obj) {
-    sessionStorage.setItem("ListaArticoliEM", JSON.stringify(obj));
-}
-
-function get_ListaCommiEM() {
-    var session_raw = sessionStorage.getItem("ListaCommiEM");
-    if (session_raw == null)
-        return {}
-    return JSON.parse(session_raw);
-}
-
-function set_ListaCommiEM(obj) {
-    sessionStorage.setItem("ListaCommiEM", JSON.stringify(obj));
-}
-
-function get_ListaLettereEM() {
-    var session_raw = sessionStorage.getItem("ListaLettereEM");
-    if (session_raw == null)
-        return {}
-    return JSON.parse(session_raw);
-}
-
-function set_ListaLettereEM(obj) {
-    sessionStorage.setItem("ListaLettereEM", JSON.stringify(obj));
-}
-
 function get_Gruppi() {
     var session_raw = sessionStorage.getItem("GruppiPoliticiLegislatura");
     if (session_raw == null)
@@ -177,4 +230,16 @@ function get_Filtri_EM() {
 
 function set_Filtri_EM(obj) {
     sessionStorage.setItem("Filtri_EM", JSON.stringify(obj));
+}
+
+//DASI
+function get_Filtri_DASI() {
+    var session_raw = sessionStorage.getItem("Filtri_DASI");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function set_Filtri_DASI(obj) {
+    sessionStorage.setItem("Filtri_DASI", JSON.stringify(obj));
 }

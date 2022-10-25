@@ -28,5 +28,6 @@ namespace PortaleRegione.DTO.Domain
 
         [StringLength(50)]
         public string Comma { get; set; }
+        public string TestoComma { get; set; }
     }
 }

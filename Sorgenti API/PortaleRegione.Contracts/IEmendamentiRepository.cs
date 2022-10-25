@@ -33,16 +33,15 @@ namespace PortaleRegione.Contracts
     public interface IEmendamentiRepository : IRepository<EM>
     {
         Task<int> Count(Guid attoUId, PersonaDto persona, CounterEmendamentiEnum counter_emendamenti, int CLIENT_MODE,
-            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
-            List<int> gruppi = null, List<int> stati = null);
+            Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null, List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
 
         Task<int> Count(string query);
 
         Task<IEnumerable<Guid>> GetAll(PersonaDto persona, OrdinamentoEnum ordine, int? page, int? size,
             int CLIENT_MODE, Filter<EM> filtro = null, List<Guid> firmatari = null, List<Guid> proponenti = null,
-            List<int> gruppi = null, List<int> stati = null);
+            List<int> gruppi = null, List<int> stati = null, List<TagDto> tagDtos = null);
 
-        IEnumerable<EM> GetAll(EmendamentiByQueryModel model);
+        IEnumerable<EM> GetAll(ByQueryModel model);
 
         Task<EM> Get(Guid emendamentoUId, bool includes = true);
         Task<EM> Get(string emendamentoUId);
@@ -51,6 +50,7 @@ namespace PortaleRegione.Contracts
         Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetInvitati(Guid emendamentoUId);
         Task<IEnumerable<PARTI_TESTO>> GetPartiEmendabili();
         Task<IEnumerable<TIPI_EM>> GetTipiEmendamento();
+        Task<List<TAGS>> GetTags();
         Task<IEnumerable<MISSIONI>> GetMissioniEmendamento();
         Task<IEnumerable<TITOLI_MISSIONI>> GetTitoliMissioneEmendamento();
         Task<IEnumerable<STATI_EM>> GetStatiEmendamento();
@@ -81,5 +81,12 @@ namespace PortaleRegione.Contracts
         bool CheckIfDepositabile(EmendamentiDto em, PersonaDto persona);
         bool CheckIfModificabile(EmendamentiDto em, PersonaDto persona);
         Task<int> GetOrdinePresentazione(Guid uidAtto);
+        Task<bool> TagExists(string tag);
+        void AddTag(string tag);
+        Task<List<View_Conteggi_EM_Gruppi_Politici>> GetConteggiGruppi(Guid uidAtto);
+        Task<List<View_Conteggi_EM_Area_Politica>> GetConteggiAreePolitiche(Guid uidAtto);
+        Task<List<Guid>> GetByLettera(Guid uGuid, StatiEnum stato);
+        Task<List<Guid>> GetByComma(Guid guid, StatiEnum stato);
+        Task<List<Guid>> GetByArticolo(Guid guid, StatiEnum stato);
     }
 }

@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -47,7 +46,6 @@ namespace PortaleRegione.Persistance
         {
             var result = await PRContext
                 .ATTI
-                .Include(a => a.TIPI_ATTO)
                 .Include(a => a.SEDUTE)
                 .SingleOrDefaultAsync(a => a.UIDAtto == attoUId);
             return result;
@@ -60,19 +58,25 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<IEnumerable<ATTI>> GetAll(Guid sedutaUId, int pageIndex, int pageSize,
+            int clientMode,
+            PersonaDto persona,
             Filter<ATTI> filtro = null)
         {
             var query = PRContext
                 .ATTI
-                .Include(a => a.TIPI_ATTO)
                 .Include(a => a.SEDUTE)
                 .Where(c => c.Eliminato == false && c.UIDSeduta == sedutaUId);
 
             filtro?.BuildExpression(ref query);
 
+            if (clientMode == (int) ClientModeEnum.GRUPPI)
+            {
+                if (!persona.IsSegreteriaAssemblea)
+                    query = query.Where(item => item.Emendabile);
+            }
+
             return await query
                 .OrderBy(c => c.Priorita)
-                .Include(c => c.TIPI_ATTO)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -130,7 +134,7 @@ namespace PortaleRegione.Persistance
                                           || em.IDStato == (int)StatiEnum.Bozza
                                           && (em.UIDPersonaCreazione == persona.UID_persona
                                               || em.UIDPersonaProponente == persona.UID_persona));
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                 {
                     //Solo segreteria
                     query = query.Where(e => !string.IsNullOrEmpty(e.DataDeposito));
@@ -154,11 +158,16 @@ namespace PortaleRegione.Persistance
             return (await query.ToListAsync()).Count;
         }
 
-        public async Task<int> Count(Guid sedutaUId, Filter<ATTI> filtro = null)
+        public async Task<int> Count(Guid sedutaUId, int clientMode, PersonaDto persona, Filter<ATTI> filtro = null)
         {
             var query = PRContext.ATTI.Where(c => c.UIDSeduta == sedutaUId && c.Eliminato == false);
 
             filtro?.BuildExpression(ref query);
+            if (clientMode == (int)ClientModeEnum.GRUPPI)
+            {
+                if (!persona.IsSegreteriaAssemblea)
+                    query = query.Where(item => item.Emendabile);
+            }
 
             return (await query.ToListAsync()).Count;
         }
@@ -217,7 +226,8 @@ namespace PortaleRegione.Persistance
                 {
                     UID_persona = persona.UID_persona.Value,
                     cognome = persona.cognome,
-                    nome = persona.nome
+                    nome = persona.nome,
+                    foto = persona.foto
                 });
             }
 

@@ -1,15 +1,18 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
 @model PortaleRegione.DTO.Domain.EmendamentiDto
 
 @{
-    var displayAtto = string.Format("{0} {1}", Model.ATTI.TIPI_ATTO.Tipo_Atto, Model.ATTI.NAtto);
-    ViewBag.Title = string.Format("{0}", displayAtto);
+    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.ATTI.IDTipoAtto)} {Model.ATTI.NAtto}";
+    ViewBag.Title = $"{displayAtto}";
 
-    var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
-    var viewFromCache = HttpContext.Current.Cache.Get("ViewMode");
-    var pageFromCache = HttpContext.Current.Cache.Get("Page");
-    var sizeFromCache = HttpContext.Current.Cache.Get("Size");
+    var ordineFromCache = HttpContext.Current.Cache.Get(CacheHelper.ORDINAMENTO_PEM);
+    var viewFromCache = HttpContext.Current.Cache.Get(CacheHelper.VIEW_MODE_PEM);
+    var pageFromCache = HttpContext.Current.Cache.Get(CacheHelper.PAGE_PEM);
+    var sizeFromCache = HttpContext.Current.Cache.Get(CacheHelper.SIZE_PEM);
     object objParams = null;
     objParams = new
     {
@@ -56,7 +59,7 @@
     <div class="col s12">
         <div class="card">
             <div class="card-action grey lighten-4 center">
-                <div class="chip @Model.STATI_EM.CssClass white-text" style="position: absolute;right: 10px;top: 18px;min-width: unset">@Model.STATI_EM.Stato</div>
+                <div class="chip @Model.STATI_EM.CssClass" style="position: absolute;right: 10px;top: 18px;min-width: unset">@Model.STATI_EM.Stato</div>
                 <h6>
                     <b>
                         <span>@Html.Raw(gruppoText)</span>
@@ -77,7 +80,7 @@
                             @if (Model.Depositabile)
                             {
                                 <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                    <i class="icon material-icons">lock</i> Deposita
+                                    <i class="icon material-icons">lock</i> Presenta
                                 </div>
                             }
                             @if (Model.Modificabile)
@@ -88,7 +91,7 @@
                             }
                             @if (Model.Invito_Abilitato)
                             {
-                                <div class="btn chip hoverable amber center" onclick="NotificaA('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))">
+                                <div class="btn chip hoverable amber center" onclick="NotificaAEM('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))">
                                     <i class="icon material-icons">share</i> Invita
                                 </div>
                             }
@@ -187,7 +190,7 @@
                 }
 
                 @* INVITI *@
-                @if (!string.IsNullOrEmpty(Model.Destinatari))
+                @if (!string.IsNullOrEmpty(Model.Destinatari) && !User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 {
                     <div class="row">
                         <div class="col s12">
@@ -204,7 +207,7 @@
                 @* NOTE RISERVATE *@
                 @if (!string.IsNullOrEmpty(Model.NOTE_EM) && 
                      (User.IsInRole(RuoliExt.Amministratore_PEM)
-                    || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
+                      || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
                 {
                     <div class="row">
                         <div class="col s12 red-text">
@@ -215,10 +218,32 @@
                         </div>
                     </div>
                 }
+                
+                @*TAGS*@
+                                        
+                @{
+                    var tags = new List<TagDto>();
+
+                    if (!string.IsNullOrEmpty(Model.Tags))
+                    {
+                        tags = JsonConvert.DeserializeObject<List<TagDto>>(Model.Tags);
+                    }
+                }
+                                        
+                @foreach (var t in tags)
+                {
+                    <label>#@t.tag</label>
+                }
             </div>
         </div>
 
     </div>
+</div>
+
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large white black-text tooltipped" data-position="left" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = Model.UIDEM })">
+        <i class="large material-icons">print</i>
+    </a>
 </div>
 
 @Html.Partial("_InvitoPanel", new InvitoPanelModel

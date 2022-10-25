@@ -58,14 +58,14 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<BaseResponse<PersonaDto>> GetPersone(BaseRequest<PersonaDto> request)
+        public async Task<RiepilogoUtentiModel> GetPersone(BaseRequest<PersonaDto> request)
         {
             try
             {
                 var requestUrl = $"{apiUrl}/admin/users/view";
                 var body = JsonConvert.SerializeObject(request);
 
-                var lst = JsonConvert.DeserializeObject<BaseResponse<PersonaDto>>(await Post(requestUrl, body, _token));
+                var lst = JsonConvert.DeserializeObject<RiepilogoUtentiModel>(await Post(requestUrl, body, _token));
 
                 return lst;
             }
@@ -231,13 +231,13 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task<List<AdminGruppiModel>> GetGruppiAdmin(BaseRequest<GruppiDto> request)
+        public async Task<RiepilogoGruppiModel> GetGruppiAdmin(BaseRequest<GruppiDto> request)
         {
             try
             {
                 var requestUrl = $"{apiUrl}/admin/groups/view";
                 var body = JsonConvert.SerializeObject(request);
-                var lst = JsonConvert.DeserializeObject<List<AdminGruppiModel>>(await Post(requestUrl, body, _token));
+                var lst = JsonConvert.DeserializeObject<RiepilogoGruppiModel>(await Post(requestUrl, body, _token));
 
                 return lst;
             }

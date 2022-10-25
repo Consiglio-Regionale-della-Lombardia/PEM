@@ -10,7 +10,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -70,11 +69,6 @@ namespace PortaleRegione.BAL
                 {
 #endif
 
-                    //var passwordExpire = intranetAdService.PasswordExpire(loginModel.Username, loginModel.Password,
-                    //    "CONSIGLIO",
-                    //    AppSettingsConfiguration.TOKEN_R);
-                    //Console.WriteLine($"Ingresso --> la password dell'utente scadrà tra {passwordExpire} giorni");
-
                     if (AppSettingsConfiguration.AutenticazioneAD == 1)
                     {
                         var authResult = intranetAdService.Authenticate(
@@ -85,7 +79,7 @@ namespace PortaleRegione.BAL
                         //var authResult = true;
                         if (!authResult)
                         {
-                            throw new Exception( 
+                            throw new Exception(
                                 "Nome Utente o Password non validi! Utilizza le credenziali di accesso al pc ([nome.cognome] - [propriapassword])");
                         }
                     }
@@ -94,7 +88,7 @@ namespace PortaleRegione.BAL
                         var authResult_NoAD = await _unitOfWork
                             .Persone
                             .Autentica(
-                                loginModel.Username, 
+                                loginModel.Username,
                                 EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
                             );
                         if (!authResult_NoAD)
@@ -129,12 +123,10 @@ namespace PortaleRegione.BAL
 
                 if (Gruppi_Utente.Count == 0)
                 {
-                    throw new Exception( "Utente non configurato correttamente.");
+                    throw new Exception("Utente non configurato correttamente.");
                 }
 
                 var lRuoli = Gruppi_Utente.Select(@group => $"CONSIGLIO\\{@group}").ToList();
-
-                persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
 
                 var token = await GetToken(persona, lRuoli);
 
@@ -155,7 +147,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var ruoloInDb = await _unitOfWork.Ruoli.Get((int) ruolo);
+                var ruoloInDb = await _unitOfWork.Ruoli.Get((int)ruolo);
                 if (ruoloInDb == null)
                 {
                     throw new Exception("Ruolo non trovato");
@@ -171,14 +163,14 @@ namespace PortaleRegione.BAL
 
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli);
 
-                var ruoloAccessibile = ruoli_utente.SingleOrDefault(r => r.IDruolo == (int) ruolo);
+                var ruoloAccessibile = ruoli_utente.SingleOrDefault(r => r.IDruolo == (int)ruolo);
                 if (ruoloAccessibile == null)
                 {
                     throw new Exception("Ruolo non accessibile");
                 }
 
                 persona.CurrentRole = ruolo;
-                persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli, persona.IsGiunta());
+                persona.Gruppo = await _unitOfWork.Gruppi.GetGruppoPersona(lRuoli, persona.IsGiunta);
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
                 persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
 
@@ -252,9 +244,20 @@ namespace PortaleRegione.BAL
 
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli_Gruppi);
                 personaDto.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);
-                personaDto.CurrentRole = (RuoliIntEnum) ruoli_utente.First().IDruolo;
+                personaDto.CurrentRole = (RuoliIntEnum)ruoli_utente.First().IDruolo;
                 personaDto.Gruppo = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                     await _unitOfWork.Gruppi.GetGruppoAttuale(lRuoli_Gruppi, personaDto.CurrentRole));
+                personaDto.Carica = await _unitOfWork.Persone.GetCarica(personaDto.UID_persona);
+
+                if (personaDto.Gruppo != null)
+                {
+                    var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(personaDto.Gruppo.id_gruppo);
+                    if (capogruppo != null)
+                        if (capogruppo.id_persona == personaDto.id_persona)
+                        {
+                            personaDto.IsCapoGruppo = true;
+                        }
+                }
 
                 var claims = new List<Claim>
                 {
@@ -273,7 +276,7 @@ namespace PortaleRegione.BAL
                     Issuer = AppSettingsConfiguration.URL_API,
                     Subject = new ClaimsIdentity(claims),
                     NotBefore = DateTime.UtcNow,
-                    Expires = DateTime.UtcNow.AddMinutes(AppSettingsConfiguration.JWT_EXPIRATION),
+                    Expires = DateTime.UtcNow.AddHours(AppSettingsConfiguration.JWT_EXPIRATION),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
                 };
@@ -316,7 +319,7 @@ namespace PortaleRegione.BAL
                     Issuer = AppSettingsConfiguration.URL_API,
                     Subject = new ClaimsIdentity(claims),
                     NotBefore = DateTime.UtcNow,
-                    Expires = DateTime.UtcNow.AddMinutes(AppSettingsConfiguration.JWT_EXPIRATION),
+                    Expires = DateTime.UtcNow.AddHours(AppSettingsConfiguration.JWT_EXPIRATION),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
                 };

@@ -40,5 +40,11 @@ namespace PortaleRegione.BAL
             var result = await _unitOfWork.Legislature.GetLegislature();
             return (result).Select(Mapper.Map<legislature, LegislaturaDto>);
         }
+
+        public async Task<LegislaturaDto> GetLegislatura(int id)
+        {
+            var legislatura = await _unitOfWork.Legislature.Get(id);
+            return Mapper.Map<legislature, LegislaturaDto>(legislatura);
+        }
     }
 }

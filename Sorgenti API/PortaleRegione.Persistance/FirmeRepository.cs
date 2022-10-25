@@ -43,11 +43,15 @@ namespace PortaleRegione.Persistance
         /// <summary>
         ///     Firma emendamento
         /// </summary>
-        /// <param name="em"></param>
+        /// <param name="emendamentoUId"></param>
         /// <param name="personaUId"></param>
         /// <param name="firmaCert"></param>
         /// <param name="dataFirmaCert"></param>
+        /// <param name="tipoAreaFirma"></param>
+        /// <param name="ufficio"></param>
+        /// <param name="em"></param>
         public async Task Firma(Guid emendamentoUId, Guid personaUId, string firmaCert, string dataFirmaCert,
+            int tipoAreaFirma = 0,
             bool ufficio = false)
         {
             PRContext
@@ -59,7 +63,8 @@ namespace PortaleRegione.Persistance
                     FirmaCert = firmaCert,
                     Data_firma = dataFirmaCert,
                     Timestamp = DateTime.Now,
-                    ufficio = ufficio
+                    ufficio = ufficio,
+                    id_AreaPolitica = tipoAreaFirma
                 });
             await PRContext.SaveChangesAsync();
         }
@@ -112,8 +117,7 @@ namespace PortaleRegione.Persistance
                 return true;
             }
 
-            if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM &&
-                persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+            if (!persona.IsSegreteriaAssemblea)
             {
                 return false;
             }

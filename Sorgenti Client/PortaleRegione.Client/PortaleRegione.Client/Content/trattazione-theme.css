@@ -1,8 +1,12 @@
-﻿.user-view { background-color: #BBDEFB !important; }
+﻿.user-view {
+    background-color: #43a4f4 !important;
+}
 
-.nav-wrapper { background-color: #BBDEFB !important; }
+.nav-wrapper {
+    background-color: #43a4f4 !important;
+}
 
-.page-footer { background-color: #BBDEFB !important; }
+.page-footer { background-color: #43a4f4 !important; }
 
 .tabs .tab a:hover, .tabs .tab a.active {
     background-color: #BBDEFB !important;
@@ -22,3 +26,9 @@
 .green { background-color: #73bbf7 !important; }
 
 .green.lighten-4 { background-color: #BBDEFB !important; }
+
+.sidenav li.active {
+    background-color: #f5fafe;
+    border-bottom: solid rgba(115,187,247, 0.8);
+    border-width: .05em;
+}

@@ -39,7 +39,7 @@ namespace PortaleRegione.Domain
 
         [StringLength(1000)] public string legislature { get; set; }
 
-        public bool? legislatura_attuale { get; set; }
+        public bool? legislatura_attuale { get; set; } = false;
 
         [StringLength(255)] public string GruppoPolitico_attuale { get; set; }
 

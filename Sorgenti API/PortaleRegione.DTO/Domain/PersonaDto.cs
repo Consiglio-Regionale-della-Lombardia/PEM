@@ -58,6 +58,7 @@ namespace PortaleRegione.DTO.Domain
         public bool? notifica_deposito { get; set; }
 
         public string legislature { get; set; }
+        public bool? legislatura_attuale { get; set; } = false;
 
         [Display(Name = "Eliminato")] public bool? deleted { get; set; }
 
@@ -79,20 +80,25 @@ namespace PortaleRegione.DTO.Domain
 
         //Parametro valorizzato solo da pannello amministratore
         public StatoPinEnum Stato_Pin { get; set; }
+        public bool IsSegreteriaAssemblea => IsAmministratorePEM || CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+        public bool IsConsigliereRegionale => CurrentRole == RuoliIntEnum.Consigliere_Regionale;
+        public bool IsAssessore => CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta;
+        public bool IsPresidente => CurrentRole == RuoliIntEnum.Presidente_Regione;
+        public bool IsSegreteriaPolitica => CurrentRole == RuoliIntEnum.Segreteria_Politica || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
 
-        public bool IsGiunta()
-        {
-            switch (CurrentRole)
-            {
-                case RuoliIntEnum.Presidente_Regione:
-                case RuoliIntEnum.Assessore_Sottosegretario_Giunta:
-                case RuoliIntEnum.Amministratore_Giunta:
-                case RuoliIntEnum.Responsabile_Segreteria_Giunta:
-                case RuoliIntEnum.Segreteria_Giunta_Regionale:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        public bool IsSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale;
+        public bool IsResponsabileSegreteriaPolitica => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica;
+        public bool IsResponsabileSegreteriaGiunta => CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta;
+
+        public bool IsGiunta => IsPresidente
+                                || IsAmministratoreGiunta
+                                || CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
+                                || CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale
+                                || IsAssessore;
+
+        public bool IsAmministratoreGiunta => CurrentRole == RuoliIntEnum.Amministratore_Giunta;
+        public bool IsAmministratorePEM => CurrentRole == RuoliIntEnum.Amministratore_PEM;
+
+        public bool IsCapoGruppo { get; set; }
     }
 }

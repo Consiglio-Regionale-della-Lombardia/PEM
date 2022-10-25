@@ -16,7 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
@@ -33,15 +35,15 @@ namespace PortaleRegione.Gateway
             _token = token;
         }
 
-        public async Task<FileResponse> EsportaXLS(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
-            bool is_report = false)
+        public async Task<FileResponse> EsportaXLS(EmendamentiViewModel model)
         {
             try
             {
                 var requestUrl =
-                    $"{apiUrl}/emendamenti/esporta-griglia-xls?id={attoUId}&ordine={ordine}&mode={mode}&is_report={is_report}";
+                    $"{apiUrl}/emendamenti/esporta-griglia-xls";
 
-                var lst = await GetFile(requestUrl, _token);
+                var body = JsonConvert.SerializeObject(model);
+                var lst = await GetFile(requestUrl, body, _token);
 
                 return lst;
             }
@@ -53,6 +55,54 @@ namespace PortaleRegione.Gateway
             catch (Exception ex)
             {
                 Log.Error("EsportaXLS", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model)
+        {
+            try
+            {
+                var requestUrl =
+                    $"{apiUrl}/emendamenti/esporta-griglia-xls-segreteria";
+
+                var body = JsonConvert.SerializeObject(model);
+                var lst = await GetFile(requestUrl, body, _token);
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("EsportaXLS_UOLA", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("EsportaXLS_UOLA", ex);
+                throw ex;
+            }
+        }
+
+        public async Task<FileResponse> EsportaXLSDASI(RiepilogoDASIModel model)
+        {
+            try
+            {
+                var requestUrl =
+                    $"{apiUrl}/dasi/esporta-griglia-xls";
+
+                var body = JsonConvert.SerializeObject(model);
+                var lst = await GetFile(requestUrl, body, _token);
+
+                return lst;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Log.Error("EsportaXLSDASI", ex);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("EsportaXLSDASI", ex);
                 throw ex;
             }
         }

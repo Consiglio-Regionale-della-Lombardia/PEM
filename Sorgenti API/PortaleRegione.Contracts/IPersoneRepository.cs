@@ -18,6 +18,7 @@
 
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,9 +34,12 @@ namespace PortaleRegione.Contracts
         Task<View_UTENTI> Get(Guid personaUId);
         Task<UTENTI_NoCons> Get_NoCons(Guid personaUId);
         Task<View_UTENTI> Get(int personaId);
-        Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, Filter<View_UTENTI> filtro = null);
+
+        Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null,
+            Filter<View_UTENTI> filtro = null);
+
         Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size, Filter<View_UTENTI> filtro = null);
-        Task<int> CountAll(Filter<View_UTENTI> filtro = null);
+        Task<int> CountAll(PersonaDto persona = null, Filter<View_UTENTI> filtro = null);
         Task<int> CountAllByGiunta(Filter<View_UTENTI> queryFilter);
         Task<IEnumerable<View_UTENTI>> GetAll();
         Task<IEnumerable<View_UTENTI>> GetAssessoriRiferimento(int id_legislatura);

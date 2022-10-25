@@ -18,6 +18,7 @@
 
 using AutoMapper;
 using ExpressionBuilder.Generics;
+using PortaleRegione.API.Controllers;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -38,10 +39,12 @@ namespace PortaleRegione.BAL
     public class StampeLogic : BaseLogic
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly DASILogic _logicDasi;
 
-        public StampeLogic(IUnitOfWork unitOfWork)
+        public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi)
         {
             _unitOfWork = unitOfWork;
+            _logicDasi = logicDasi;
         }
 
         public async Task<STAMPE> GetStampa(Guid id)
@@ -65,7 +68,6 @@ namespace PortaleRegione.BAL
                 var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
 
                 var queryFilter = new Filter<EM>();
-
                 var firmatari = new List<Guid>();
                 var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
 
@@ -127,9 +129,8 @@ namespace PortaleRegione.BAL
                 model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
 
                 var queryEM =
-                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter,
-                        model.ordine, firmatari, proponenti, gruppi, stati);
-                stampa.QueryEM = queryEM;
+                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
+                stampa.Query = queryEM;
 
                 stampa.DataRichiesta = DateTime.Now;
                 stampa.CurrentRole = (int)persona.CurrentRole;
@@ -143,6 +144,56 @@ namespace PortaleRegione.BAL
                     stampa.Scadenza =
                         DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
 
+                _unitOfWork.Stampe.Add(stampa);
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - InserisciStampa", e);
+                throw;
+            }
+        }
+
+        public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
+        {
+            try
+            {
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+                var mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE);
+                var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+                var soggetti = new List<int>();
+                var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
+                {
+                    soggetti_request =
+                        new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "SoggettiDestinatari"));
+                    soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                    foreach (var s in soggetti_request) model.filtro.Remove(s);
+                }
+
+                var queryFilter = new Filter<ATTI_DASI>();
+                queryFilter.ImportStatements(model.filtro);
+                var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti);
+                stampa.Query = query;
+
+                stampa.DataRichiesta = DateTime.Now;
+                stampa.CurrentRole = (int)persona.CurrentRole;
+                stampa.UIDStampa = Guid.NewGuid();
+                stampa.UIDUtenteRichiesta = persona.UID_persona;
+                stampa.Lock = false;
+                stampa.Tentativi = 0;
+                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+                {
+                    stampa.Scadenza = null;
+                }
+                else
+                {
+                    stampa.Scadenza =
+                        DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+                }
+
+                stampa.DASI = true;
                 _unitOfWork.Stampe.Add(stampa);
                 await _unitOfWork.CompleteAsync();
             }
@@ -267,7 +318,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var _pathTemp = string.Empty;
-                _pathTemp = stampa.NotificaDepositoEM
+                _pathTemp = stampa.Notifica
                     ? AppSettingsConfiguration.RootRepository
                     : AppSettingsConfiguration.CartellaLavoroStampe;
 
@@ -291,9 +342,9 @@ namespace PortaleRegione.BAL
 
                 var stampe = await _unitOfWork.Stampe.GetAll(persona, model.page, model.size, queryFilter);
                 var result = new List<StampaDto>();
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                    || persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta
-                    || persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea
+                    || persona.IsAmministratoreGiunta)
+                {
                     foreach (var stampa in stampe)
                     {
                         var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
@@ -304,7 +355,9 @@ namespace PortaleRegione.BAL
                                 await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
                         result.Add(stampaDto);
                     }
+                }
                 else
+                {
                     foreach (var stampa in stampe)
                     {
                         var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
@@ -312,6 +365,7 @@ namespace PortaleRegione.BAL
                         stampaDto.Info = infos?.Message;
                         result.Add(stampaDto);
                     }
+                }
 
                 return new BaseResponse<StampaDto>(
                     model.page,

@@ -1,14 +1,23 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using PortaleRegione.Gateway;
-using PortaleRegione.Logger;
+﻿using PortaleRegione.Logger;
 using Quartz;
+using System;
+using System.Threading.Tasks;
 
 namespace GeneraStampeJob
 {
     public class Genera : IJob
     {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string UrlApi { get; set; }
+        public string UrlClient { get; set; }
+        public string NumMaxTentativi { get; set; }
+        public string CartellaLavoroTemporanea { get; set; }
+        public string CartellaLavoroStampe { get; set; }
+        public string EmailFrom { get; set; }
+        public string RootRepository { get; set; }
+        public string PDF_LICENSE { get; set; }
+
         public async Task Execute(IJobExecutionContext context)
         {
             ConvertParameters(context.JobDetail.JobDataMap);
@@ -24,11 +33,12 @@ namespace GeneraStampeJob
                 NumMaxTentativi = NumMaxTentativi,
                 RootRepository = RootRepository,
                 CartellaLavoroStampe = CartellaLavoroStampe,
-                CartellaLavoroTemporanea = CartellaLavoroTemporanea
+                CartellaLavoroTemporanea = CartellaLavoroTemporanea,
+                PDF_LICENSE = PDF_LICENSE
             });
             await manager.Run();
         }
-        
+
         private void ConvertParameters(JobDataMap data)
         {
             foreach (var item in data) Log.Debug($"Key: [{item.Key}], Value: [{item.Value}]");
@@ -90,7 +100,7 @@ namespace GeneraStampeJob
                 error = true;
                 Log.Debug($"Parametro [{nameof(ThreadWorkerModel.CartellaLavoroStampe)}] non configurato");
             }
-            
+
             if (data.ContainsKey(nameof(ThreadWorkerModel.EmailFrom)))
                 EmailFrom = data.Get(nameof(ThreadWorkerModel.EmailFrom)).ToString();
             if (string.IsNullOrEmpty(EmailFrom))
@@ -106,19 +116,11 @@ namespace GeneraStampeJob
                 error = true;
                 Log.Debug($"Parametro [{nameof(ThreadWorkerModel.RootRepository)}] non configurato");
             }
+            if (data.ContainsKey(nameof(ThreadWorkerModel.PDF_LICENSE)))
+                PDF_LICENSE = data.Get(nameof(ThreadWorkerModel.PDF_LICENSE)).ToString();
 
             if (error)
                 throw new Exception("Mancano dei parametri alla configurazione.");
         }
-        
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string UrlApi { get; set; }
-        public string UrlClient { get; set; }
-        public string NumMaxTentativi { get; set; }
-        public string CartellaLavoroTemporanea { get; set; }
-        public string CartellaLavoroStampe { get; set; }
-        public string EmailFrom { get; set; }
-        public string RootRepository { get; set; }
     }
 }

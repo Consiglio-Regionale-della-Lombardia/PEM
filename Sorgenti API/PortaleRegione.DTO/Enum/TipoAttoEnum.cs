@@ -20,8 +20,22 @@ namespace PortaleRegione.DTO.Enum
 {
     public enum TipoAttoEnum
     {
+        TUTTI = 0,
         PDL = 1,
-        PDL_ABBINATI = 2,
-        PDA = 3
+        PDA = 2,
+        ITL = 3,
+        ITR = 4,
+        IQT = 5,
+        MOZ = 6,
+        ODG = 7,
+        PLP = 8,
+        PRE = 9,
+        PDN = 10,
+        DOC = 11,
+        REF = 12,
+        REL = 13,
+        ORG = 14,
+        RIS = 15,
+        ALTRO = 99
     }
 }

@@ -25,7 +25,6 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -82,6 +81,20 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task<SEDUTE> GetSeduta(DateTime dataSeduta)
+        {
+            try
+            {
+                var result = await _unitOfWork.Sedute.Get(dataSeduta);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduta", e);
+                throw e;
+            }
+        }
+
         public async Task DeleteSeduta(SeduteDto sedutaDto, PersonaDto persona)
         {
             try
@@ -125,13 +138,23 @@ namespace PortaleRegione.BAL
             {
                 var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
                 Mapper.Map(sedutaDto, sedutaInDb);
-                sedutaInDb.Scadenza_presentazione = sedutaDto.Scadenza_presentazione;
+                if (sedutaDto.Data_apertura == null)
+                {
+                    sedutaInDb.Data_apertura = null;
+                }
+                if (sedutaDto.Data_effettiva_inizio == null)
+                {
+                    sedutaInDb.Data_effettiva_inizio = null;
+                }
+
+                if (sedutaDto.Data_effettiva_fine == null)
+                {
+                    sedutaInDb.Data_effettiva_fine = null;
+                }
+
                 sedutaInDb.UIDPersonaModifica = persona.UID_persona;
                 sedutaInDb.DataModifica = DateTime.Now;
-                sedutaInDb.Data_apertura = sedutaDto.Data_apertura;
-                sedutaInDb.Data_effettiva_inizio = sedutaDto.Data_effettiva_inizio;
-                sedutaInDb.Data_effettiva_fine = sedutaDto.Data_effettiva_fine;
-                
+
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -139,6 +162,70 @@ namespace PortaleRegione.BAL
                 Log.Error("Logic - ModificaSeduta", e);
                 throw e;
             }
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttive()
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(true, false);
+
+                return new BaseResponse<SeduteDto>(
+                    1,
+                    10,
+                    sedute_attive
+                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    null,
+                    sedute_attive.Count());
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduteAttive", e);
+                throw e;
+            }
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveMOZU()
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, false);
+
+                return new BaseResponse<SeduteDto>(
+                    1,
+                    10,
+                    sedute_attive
+                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    null,
+                    sedute_attive.Count());
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduteAttiveMOZU", e);
+                throw e;
+            }
+        }
+
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveDashboard()
+        {
+            try
+            {
+                var sedute_attive = await _unitOfWork.Sedute.GetAttiveDashboard();
+
+                return new BaseResponse<SeduteDto>(
+                    1,
+                    10,
+                    sedute_attive
+                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                    null,
+                    sedute_attive.Count());
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetSeduteAttiveDashboard", e);
+                throw e;
+            }
+
         }
     }
 }

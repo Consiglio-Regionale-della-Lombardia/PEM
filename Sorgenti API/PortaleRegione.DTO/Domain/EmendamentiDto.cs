@@ -19,6 +19,7 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain.Essentials;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -174,6 +175,8 @@ namespace PortaleRegione.DTO.Domain
         public byte[] DocEffettiFinanziari_Stream { get; set; }
 
         public bool Eliminato { get; set; }
+
+        public string Tags { get; set; } = "[]";
 
         #region Campi consumabili lato client
 

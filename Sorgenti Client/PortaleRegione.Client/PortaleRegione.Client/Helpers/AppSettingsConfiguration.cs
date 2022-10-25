@@ -16,13 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Configuration;
 
 namespace PortaleRegione.Client.Helpers
 {
     public class AppSettingsConfiguration
     {
+        public static bool IsDebugMode => ConfigurationManager.AppSettings["Environment"]
+            .Equals("Debug", StringComparison.InvariantCultureIgnoreCase);
         public static string Logo => ConfigurationManager.AppSettings["logo"];
         public static string Title => ConfigurationManager.AppSettings["title"];
+        public static string NomePiattaforma => ConfigurationManager.AppSettings["NomePiattaforma"];
+        public static string LimiteDocumentiDaProcessare => ConfigurationManager.AppSettings["LimiteDocumentiDaProcessare"];
+        public static string URL_CLIENT => ConfigurationManager.AppSettings["URL_CLIENT"];
+        public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
+        public static string GEASI_URL => ConfigurationManager.AppSettings["GEASI_URL"];
+        public static string GEASI_USERNAME => ConfigurationManager.AppSettings["GEASI_USERNAME"];
+        public static string GEASI_PASSWORD => ConfigurationManager.AppSettings["GEASI_PASSWORD"];
+        public static int COOKIE_EXPIRE_IN => Convert.ToInt16(ConfigurationManager.AppSettings["COOKIE_EXPIRE_IN"]);
     }
 }

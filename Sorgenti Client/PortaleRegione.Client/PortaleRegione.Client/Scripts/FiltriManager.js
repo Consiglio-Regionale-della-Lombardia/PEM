@@ -90,14 +90,105 @@ function GetLegislature() {
 
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: "sedute/legislature",
+            url: baseUrl + "/pem/legislature",
             type: "GET"
         }).done(function(result) {
             set_ListaLegislature(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
+        });
+    });
+}
+
+function GetSedutaByData(dataSeduta) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/seduta-by-data?data=" + dataSeduta,
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetSeduteAttive() {
+    var sedute = get_ListaSeduteAttive();
+    if (sedute.length > 0) {
+        return sedute;
+    }
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/sedute-attive",
+            type: "GET"
+        }).done(function (result) {
+            set_ListaSeduteAttive(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetSeduteAttiveMOZU() {
+        return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/sedute-attive-mozu",
+            type: "GET"
+        }).done(function (result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetSeduteAttiveDashboard() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/pem/sedute-attive-dashboard",
+            type: "GET"
+        }).done(function (result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetTags() {
+    
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/emendamenti/tags",
+            type: "GET"
+        }).done(function (result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetRiepilogoFirmeAtto() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/sedute-attive",
+            type: "GET"
+        }).done(function (result) {
+            set_ListaSeduteAttive(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
         });
     });
 }
@@ -111,7 +202,7 @@ function GetGruppiInDb() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -155,6 +246,7 @@ function Filtri_EM_CaricaText1(ctrlSelect) {
     var filtri = get_Filtri_EM();
     if (filtri != null) {
         filterSelect = filtri.text1;
+        highlight(filterSelect);
     }
 
     var select = $("#" + ctrlSelect);
@@ -167,6 +259,7 @@ function Filtri_EM_CaricaText2(ctrlSelect) {
     var filtri = get_Filtri_EM();
     if (filtri != null) {
         filterSelect = filtri.text2;
+        highlight(filterSelect);
     }
 
     var select = $("#" + ctrlSelect);
@@ -268,7 +361,135 @@ function GetStatiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
+        });
+    });
+}
+
+function GetStatiDASI() {
+    var stati = get_ListaStatiDASI();
+    if (stati.length > 0) {
+        return stati;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/stati",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaStatiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetTipiDASI() {
+    var tipi = get_ListaTipiDASI();
+    if (tipi.length > 0) {
+        return tipi;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/tipi",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaTipiDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetTipiPEM() {
+    var tipi = get_ListaTipiPEM();
+    if (tipi.length > 0) {
+        return tipi;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/tipi?dasi=false",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaTipiPEM(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetTipiMOZDASI() {
+    var tipi = get_ListaTipiMOZDASI();
+    if (tipi.length > 0) {
+        return tipi;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/tipi-moz",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaTipiMOZDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetAttiSeduteAttive() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/odg/atti-sedute-attive",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetTipiMOZAbbinabiliDASI() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/moz-abbinabili",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetSoggettiInterrogabiliDASI() {
+    var soggetti = get_ListaSoggettiIterrogabiliDASI();
+    if (soggetti.length > 0) {
+        return soggetti;
+    }
+
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/soggetti-interrogabili",
+            type: "GET"
+        }).done(function(result) {
+            set_ListaSoggettiInterrogabiliDASI(result);
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
         });
     });
 }
@@ -316,7 +537,7 @@ function GetTipiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -432,7 +653,7 @@ async function Filtri_EM_CaricaPartiCommaEM(ctrlSelect) {
 
     if (!filterArticolo || filterArticolo == 0) return;
 
-    var parti_commi = await GetCommi(filterArticolo);
+    var parti_commi = await GetCommi(filterArticolo, false);
     if (parti_commi.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
@@ -556,75 +777,83 @@ function GetPartiEM() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
 
 function GetArticoli(attoUId) {
-    var articoli = get_ListaArticoliEM();
-    if (articoli.length > 0) {
-        console.log("Articoli", articoli);
-        return articoli;
-    }
-
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/articoli",
             data: { id: attoUId },
             type: "GET"
         }).done(function(result) {
-            set_ListaArticoliEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
 
-function GetCommi(articoloUId) {
-    var commi = get_ListaCommiEM();
-    if (commi.length > 0) {
-        console.log("Commi", commi);
-
-        return commi;
-    }
-
+function GetGrigliaTesto(attoUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
-            url: baseUrl + "/atti/commi",
-            data: { id: articoloUId },
+            url: baseUrl + "/atti/griglia-testi",
+            data: { id: attoUId, viewEm: false },
             type: "GET"
         }).done(function(result) {
-            set_ListaCommiEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
+        });
+    });
+}
+
+function GetGrigliaTestoEM(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/griglia-testi",
+            data: { id: attoUId, viewEm: true },
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
+function GetCommi(articoloUId, expanded) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/commi",
+            data: { id: articoloUId, expanded: expanded },
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
         });
     });
 }
 
 function GetLettere(commaUId) {
-    var lettere = get_ListaLettereEM();
-    if (lettere.length > 0) {
-        console.log("Lettere", lettere);
-
-        return lettere;
-    }
-
+    
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/atti/lettere",
             data: { id: commaUId },
             type: "GET"
         }).done(function(result) {
-            set_ListaLettereEM(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -644,7 +873,7 @@ function GetMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -664,11 +893,322 @@ function GetTitoliMissioni() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
 
+//DASI
+function Filtri_DASI_CaricaNAtto(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.natto;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function Filtri_DASI_CaricaNAtto2(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.natto2;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function Filtri_DASI_CaricaDataPresentazioneDA(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.da;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function Filtri_DASI_CaricaDataPresentazioneA(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.a;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function Filtri_DASI_CaricaDataSeduta(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.data_seduta;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+function Filtri_DASI_CaricaOggetto(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.oggetto;
+        highlight(filterSelect);
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
+async function Filtri_DASI_CaricaStato(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.stato;
+    }
+
+    var stati = await GetStatiDASI();
+    if (stati.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+        $.each(stati,
+            function(index, item) {
+                var template = "";
+                if (item.IDStato == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.IDStato).html(item.Stato));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+async function Filtri_DASI_CaricaTipo(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.tipo;
+    }
+
+    var tipi = await GetTipiDASI();
+    if (tipi.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+        $.each(tipi,
+            function(index, item) {
+                var template = "";
+                if (item.IDTipoAtto == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+function Filtri_DASI_CaricaTipoRisposta(ctrlSelect) {
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        $('#' + ctrlSelect).val(filtri.tipo_risposta);
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+async function Filtri_DASI_CaricaSoggetti(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.tipo;
+    }
+
+    var tipi = await GetTipiDASI();
+    if (tipi.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+        $.each(tipi,
+            function(index, item) {
+                var template = "";
+                if (item.IDTipoAtto == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+async function SetupFiltriSoggettiDestinatari() {
+    var filterSelect = [];
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        if (filtri.soggetti_dest)
+            filterSelect = filtri.soggetti_dest;
+    }
+    var soggetti = await GetSoggettiInterrogabiliDASI();
+    var select = $("#qSoggettoDestinatarioDasi");
+    select.empty();
+
+    $.each(soggetti,
+        function(index, item) {
+            var template = "";
+            var find_user = false;
+            for (var i = 0; i < filterSelect.length; i++) {
+                if (filterSelect[i].toString() == item.id_carica.toString()) {
+                    find_user = true;
+                    break;
+                }
+            }
+            if (find_user) {
+                template = "<option selected='selected'></option>";
+            } else
+                template = "<option></option>";
+            select.append($(template).val(item.id_carica).html(item.nome_carica));
+        });
+    var elems = document.querySelectorAll("#qSoggettoDestinatarioDasi");
+    M.FormSelect.init(elems, null);
+}
+
+async function Filtri_DASI_CaricaLegislature(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.legislatura;
+    }
+
+    var legislature = await GetLegislature();
+    if (!filterSelect) {
+        filterSelect = legislature[0].id_legislatura;
+    }
+    if (legislature.length > 0) {
+        var select = $("#" + ctrlSelect);
+        select.empty();
+
+        $.each(legislature,
+            function (index, item) {
+                var template = "";
+                if (item.id_legislatura == filterSelect)
+                    template = "<option selected='selected'></option>";
+                else
+                    template = "<option></option>";
+                select.append($(template).val(item.id_legislatura).html(item.num_legislatura));
+            });
+
+        var elems = document.querySelectorAll("#" + ctrlSelect);
+        M.FormSelect.init(elems, null);
+    }
+}
+
+function filter_dasi_da_OnChange() {
+    var value = $("#qDataPresentazioneDA").val();
+    var filtri = get_Filtri_DASI();
+    filtri.da = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_a_OnChange() {
+    var value = $("#qDataPresentazioneA").val();
+    var filtri = get_Filtri_DASI();
+    filtri.a = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_data_seduta_OnChange() {
+    var value = $("#qDataSeduta").val();
+    var filtri = get_Filtri_DASI();
+    filtri.data_seduta = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_oggetto_OnChange() {
+    var value = $("#qOggetto").val();
+    var filtri = get_Filtri_DASI();
+    filtri.oggetto = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_stato_OnChange() {
+    var value = $("#qStato").val();
+    var filtri = get_Filtri_DASI();
+    filtri.stato = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_natto_OnChange() {
+    var value = $("#qNAtto").val();
+    var filtri = get_Filtri_DASI();
+    filtri.natto = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_natto2_OnChange() {
+    var value = $("#qNAtto2").val();
+    var filtri = get_Filtri_DASI();
+    filtri.natto2 = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_legislatura_OnChange() {
+    var value = $("#qLegislatura").val();
+    var filtri = get_Filtri_DASI();
+    filtri.legislatura = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_tipo_risposta_OnChange() {
+    var value = $("#qTipoRisposta").val();
+    var filtri = get_Filtri_DASI();
+    filtri.tipo_risposta = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_tipo_OnChange() {
+    var value = $("#qTipo").val();
+    var filtri = get_Filtri_DASI();
+    filtri.tipo = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_soggetti_dest_OnChange() {
+    var filtri = get_Filtri_DASI();
+    if (filtri.soggetti_dest == null)
+        filtri.soggetti_dest = [];
+    var nuovi_soggetti = [];
+    if ($("#qSoggettoDestinatarioDasi option").length != 0) {
+        $("#qSoggettoDestinatarioDasi option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("SOGGETTO SELEZIONATO - ", $(opt).val());
+                nuovi_soggetti.push($(opt).val());
+            }
+        });
+        filtri.soggetti_dest = nuovi_soggetti;
+    }
+    set_Filtri_DASI(filtri);
+}
+
+
+//EM
 function filter_em_text1_OnChange() {
     var value = $("#filter_em_text1").val();
     var filtri_em = get_Filtri_EM();
@@ -760,8 +1300,6 @@ async function filter_em_parte_articolo_OnChange() {
     set_Filtri_EM(filtri_em);
     $("#pnlFiltroComma").show();
     $("#pnlFiltroLettera").hide();
-    set_ListaCommiEM([]);
-    set_ListaLettereEM([]);
     await Filtri_EM_CaricaPartiCommaEM("filter_em_parte_comma");
 }
 
@@ -773,7 +1311,6 @@ async function filter_em_parte_comma_OnChange() {
     filtri_em.parte_letteraOLD = "";
     set_Filtri_EM(filtri_em);
     $("#pnlFiltroLettera").show();
-    set_ListaLettereEM([]);
     await Filtri_EM_CaricaPartiLetteraEM("filter_em_parte_lettera");
 }
 
@@ -792,9 +1329,6 @@ function filter_em_parte_letteraOLD_OnChange() {
 }
 
 function filter_em_parte_titolo_OnChange() {
-    set_ListaArticoliEM([]);
-    set_ListaCommiEM([]);
-    set_ListaLettereEM([]);
     var value = $("#filter_em_parte_titolo").val();
     var filtri_em = get_Filtri_EM();
     filtri_em.parte_titolo = value;
@@ -802,9 +1336,6 @@ function filter_em_parte_titolo_OnChange() {
 }
 
 function filter_em_parte_capo_OnChange() {
-    set_ListaArticoliEM([]);
-    set_ListaCommiEM([]);
-    set_ListaLettereEM([]);
     var value = $("#filter_em_parte_capo").val();
     var filtri_em = get_Filtri_EM();
     filtri_em.parte_capo = value;
@@ -812,9 +1343,6 @@ function filter_em_parte_capo_OnChange() {
 }
 
 function filter_em_parte_missione_OnChange() {
-    set_ListaArticoliEM([]);
-    set_ListaCommiEM([]);
-    set_ListaLettereEM([]);
     var value = $("#filter_em_parte_missione").val();
     var filtri_em = get_Filtri_EM();
     filtri_em.parte_missione = value;

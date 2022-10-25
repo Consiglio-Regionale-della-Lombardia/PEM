@@ -151,6 +151,8 @@ namespace PortaleRegione.Domain
 
         [StringLength(50)] public string Colore { get; set; }
 
+        public string Tags { get; set; } = "[]";
+
         public virtual ARTICOLI ARTICOLI { get; set; }
 
         public virtual ATTI ATTI { get; set; }

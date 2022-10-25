@@ -1,19 +1,16 @@
-﻿@using PortaleRegione.DTO.Domain
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
-    var displayAtto = string.Format("{0} {1}", Model.Atto.TIPI_ATTO.Tipo_Atto, Model.Atto.NAtto);
+    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
     var isNew = Model.Emendamento.UIDEM == Guid.Empty;
     var tipo_descrizione = Model.Emendamento.Rif_UIDEM.HasValue ? "sub-emendamento" : "emendamento";
     ViewBag.Title = isNew ? string.Format("{0} - Nuovo {1}", displayAtto, tipo_descrizione) : string.Format("{0} - Modifica {1}", displayAtto, tipo_descrizione);
 
     var backUrl = isNew ? Url.Action("RiepilogoEmendamenti", new { id = Model.Atto.UIDAtto }) : Url.Action("ViewEmendamento", new { id = Model.Emendamento.UIDEM });
 }
-<script>
-    $(document).ready(function () {
-        $('#btnSearch').hide();
-    });
-</script>
 
 <div class="row">
     <div class="col l1 s2">
@@ -31,7 +28,48 @@
     </div>
 </div>
 
-<div class="card">
+@if (isNew)
+{
+    <div class="row">
+        <div class="col l6 right-align">
+            <label class="black-text" style="margin-left: 20px">
+                <input id="viewWizard" type="radio" name="switchView" onchange="SwitchView(1)" value="1" checked="checked" />
+                <span>
+                    Inserimento guidato
+                </span>
+            </label>
+        </div>
+        <div class="col l6 left-align">
+            <label class="black-text" style="margin-left: 20px">
+                <input id="viewManual" type="radio" name="switchView" onchange="SwitchView(0)" value="0" />
+                <span>
+                    Inserimento manuale
+                </span>
+            </label>
+        </div>
+    </div>
+}
+
+<div id="pnlTestiAtto" class="card" style="display: @Html.Raw(isNew?"block": "none")">
+    <div class="card-content">
+        <table id="tableTesti" class="tableTesti">
+            <tr>
+                <td colspan="2" style="text-align: center; font-weight: bold;">
+                    @Utility.GetText_Tipo(Model.Atto.IDTipoAtto)
+                    @Model.Atto.NAtto
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center">
+                    @Model.Atto.Oggetto
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<div id="pnlFormEM" class="card" style="display: @Html.Raw(isNew?"none": "block");">
     <div class="card-content">
         <div class="row">
             <div class="col s12 center">
@@ -81,6 +119,7 @@
                             </div>
                         </div>
                     </div>
+
                     @Html.Partial("_MetaDatiPanel", Model)
                     <div class="form-group">
                         @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
@@ -92,6 +131,7 @@
                     </div>
 
                     @Html.Partial("_DocsPanel", Model)
+                    @Html.Partial("_TagsPanel", Model)
                 }
                 <div class="fixed-action-btn">
                     <button class="btn-floating btn-large blue" id="btnSave">

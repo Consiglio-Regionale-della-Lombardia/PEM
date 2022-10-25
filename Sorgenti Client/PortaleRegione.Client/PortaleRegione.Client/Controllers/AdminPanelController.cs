@@ -35,7 +35,6 @@ namespace PortaleRegione.Client.Controllers
     /// <summary>
     ///     Controller amministrazione
     /// </summary>
-    [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
     [RoutePrefix("adminpanel")]
     public class AdminPanelController : BaseController
     {
@@ -189,6 +188,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per creare un nuovo utente
         /// </summary>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpGet]
         [Route("new")]
         public async Task<ActionResult> NuovoUtente()
@@ -224,6 +224,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="persona"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
         [Route("salva")]
         public async Task<ActionResult> SalvaPersona(PersonaUpdateRequest request)
@@ -248,6 +249,7 @@ namespace PortaleRegione.Client.Controllers
         /// </summary>
         /// <param name="persona"></param>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpGet]
         [Route("elimina")]
         public async Task<ActionResult> EliminaPersona(Guid id)
@@ -310,7 +312,7 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
-
+        
         [HttpGet]
         [Route("gruppi-in-db")]
         public async Task<ActionResult> GetGruppiInDb()
@@ -346,6 +348,7 @@ namespace PortaleRegione.Client.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
         public async Task<ActionResult> SalvaGruppo(SalvaGruppoRequest request)
         {

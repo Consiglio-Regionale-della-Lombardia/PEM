@@ -1,0 +1,179 @@
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
+    <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
+        <i class="large material-icons">playlist_add</i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating approvato tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
+                <i class="material-icons">assignment_turned_in</i> Assegna a seduta
+            </a>
+        </li>
+        
+        <li>
+            <a class="btn-floating tooltipped depositato" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@StatiAttoEnum.PRESENTATO')">
+                <i class="material-icons">lock</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating tooltipped trattazione" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@StatiAttoEnum.IN_TRATTAZIONE')">
+                <i class="material-icons">settings_input_antenna</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating tooltipped chiuso" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.CHIUSO), '@StatiAttoEnum.CHIUSO')">
+                <i class="material-icons">storage</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+                <i class="material-icons">undo</i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div id="pnlNuovoCartaceoDASI" class="fixed-action-btn" style="display: block">
+    <a id="btnNuovoCartaceoDASI" class="btn-floating btn-large blue darken-1">
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+<div id="modalNuovoCartaceo" class="modal">
+    <div class="modal-content">
+        <h4>Presentazione cartacea</h4>
+        <p>seleziona il tipo di atto e il tipo di risposta se necessario</p>
+        <div class="row">
+            <div class="input-field col s4">
+                <select id="NuovoCartaceo_Tipo">
+                </select>
+                <label for="NuovoCartaceo_Tipo">Tipo</label>
+            </div>
+            <div class="input-field col s4">
+                <select id="NuovoCartaceo_TipoRisposta">
+                    <option value="" selected="selected">--</option>
+                    <option value="@((int) TipoRispostaEnum.ORALE)">Orale</option>
+                    <option value="@((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
+                    <option value="@((int) TipoRispostaEnum.COMMISSIONE)">In Commissione</option>
+                </select>
+                <label for="NuovoCartaceo_TipoRisposta">Tipo Risposta</label>
+            </div>
+            <div class="input-field col s4">
+                <input id="NuovoCartaceo_Salto" type="number" min="1" step="1" value="1">
+                <label for="NuovoCartaceo_Salto">Quantità</label>
+            </div>
+        </div>
+        
+    </div>
+    <div class="modal-footer">
+        <a id="NuovoCartaceo_Presenta" href="#!" class="modal-close waves-effect waves-green btn-flat">Presenta</a>
+    </div>
+</div>
+
+
+<script>
+
+    function ModificaMetaDASI(tipo) {
+        openFormDASI(tipo, true);
+    }
+
+    function AbilitaComandiMassivi_DASI(uidAtto) {
+        if (uidAtto) {
+            var chk = $("#chk_Atto_" + uidAtto);
+            var selezionaTutti = getSelezionaTutti_DASI();
+            console.log("SEL.TUTTI", selezionaTutti);
+            if (chk[0].checked) {
+                if (selezionaTutti) {
+                    removeAtto(uidAtto); //listaEsclusiva
+                } else {
+                    addAtto(uidAtto); //listaInsclusiva
+                }
+            } else {
+                if (selezionaTutti) {
+                    addAtto(uidAtto); //listaEsclusiva
+                } else {
+                    removeAtto(uidAtto); //listaInsclusiva
+                }
+            }
+        }
+
+        var lchk = getListaAtti();
+
+        if (lchk.length > 0 || $("#checkAll")[0].checked) {
+            $("#btnComandiMassivi").show();
+            $("#pnlNuovoCartaceoDASI").hide();
+        } else {
+            $("#btnComandiMassivi").hide();
+            $("#pnlNuovoCartaceoDASI").show();
+        }
+    }
+
+    $('#btnNuovoCartaceoDASI').on("click",
+        async function() {
+            var tipi = await GetTipiDASI();
+            if (tipi.length > 0) {
+                var select = $("#NuovoCartaceo_Tipo");
+                select.empty();
+                $.each(tipi,
+                    function(index, item) {
+                        if (item.IDTipoAtto != @Html.Raw((int) TipoAttoEnum.TUTTI)) {
+                            var template = "<option></option>";
+                            select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
+                        }
+                    });
+
+                var elems = document.querySelectorAll("#NuovoCartaceo_Tipo");
+                M.FormSelect.init(elems, null);
+            }
+            $('#modalNuovoCartaceo').modal("open");
+        });
+
+    $('#NuovoCartaceo_Presenta').on("click",
+        function() {
+
+            var obj = {};
+            obj.Tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
+            obj.TipoRisposta = $('select[id="NuovoCartaceo_TipoRisposta"]').children("option:selected").val();
+            obj.Salto = $('#NuovoCartaceo_Salto').val();
+            $.ajax({
+                url: '@Url.Action("PresentazioneCartacea")',
+                method: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                console.log(data.message);
+                if (data.message) {
+                    swal({
+                        title: "Esito salvataggio",
+                        text: data.message,
+                        icon: "error",
+                        button: "OK"
+                    });
+                } else {
+                    SuccessAlert("Operazione completata");
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+
+
+
+    $("#checkAll").click(function() {
+        setSelezionaTutti_DASI(this.checked);
+        setListaAtti([]);
+        $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
+        AbilitaComandiMassivi_DASI(null);
+    });
+
+    function resetGridSelection() {
+        $("#checkAll").prop("checked", false);
+        $('input[id^="chk_Atto_"]').not(this).prop("checked", false);
+        setSelezionaTutti_DASI(false);
+        setListaAtti([]);
+        AbilitaComandiMassivi_DASI(null);
+    }
+</script>

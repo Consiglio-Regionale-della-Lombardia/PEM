@@ -20,7 +20,9 @@ namespace PortaleRegione.DTO.Enum
 {
     public enum TipoNotificaEnum
     {
-        GENERALE,
-        INVITO
+        GENERALE = 0,
+        INVITO = 1,
+        RICHIESTA = 2,
+        RITIRO = 3
     }
 }

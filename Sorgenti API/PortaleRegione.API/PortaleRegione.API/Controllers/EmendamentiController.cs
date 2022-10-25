@@ -116,7 +116,7 @@ namespace PortaleRegione.API.Controllers
                             Connector = FilterStatementConnector.And
                         }
                     }
-                }, session
+                }, persona
                     , Request.RequestUri);
                 var presidente = ricerca_presidente_regione.Results.First();
                 var results =
@@ -323,29 +323,29 @@ namespace PortaleRegione.API.Controllers
             {
                 if (model.UIDPersonaProponente == Guid.Empty)
                 {
-                    return BadRequest("L'emendamento deve avere un proponente");
+                    throw new InvalidOperationException("L'emendamento deve avere un proponente");
                 }
 
                 if (model.IDParte == 0)
                 {
-                    return BadRequest("E' obbligatorio indicare l'elemento da emendare");
+                    throw new InvalidOperationException("E' obbligatorio indicare l'elemento da emendare");
                 }
 
                 if (model.IDTipo_EM == 0)
                 {
-                    return BadRequest("E' obbligatorio indicare il modo");
+                    throw new InvalidOperationException("E' obbligatorio indicare il modo");
                 }
 
                 if (string.IsNullOrEmpty(model.TestoEM_originale))
                 {
-                    return BadRequest("Il testo dell'emendamento non può essere vuoto");
+                    throw new InvalidOperationException("Il testo dell'emendamento non può essere vuoto");
                 }
 
                 if (model.IDParte == (int)PartiEMEnum.Articolo)
                 {
                     if (!model.UIDArticolo.HasValue)
                     {
-                        return BadRequest("Manca il valore dell'articolo");
+                        throw new InvalidOperationException("Manca il valore dell'articolo");
                     }
                 }
 
@@ -353,7 +353,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (string.IsNullOrEmpty(model.NCapo))
                     {
-                        return BadRequest("Manca il valore del capo");
+                        throw new InvalidOperationException("Manca il valore del capo");
                     }
                 }
 
@@ -361,7 +361,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     if (string.IsNullOrEmpty(model.NTitolo))
                     {
-                        return BadRequest("Manca il valore del titolo");
+                        throw new InvalidOperationException("Manca il valore del titolo");
                     }
                 }
 
@@ -370,7 +370,7 @@ namespace PortaleRegione.API.Controllers
                     if (!model.NTitoloB.HasValue || !model.NMissione.HasValue ||
                         !model.NProgramma.HasValue)
                     {
-                        return BadRequest("I valori Missione - Programma - Titolo sono obbligatori");
+                        throw new InvalidOperationException("I valori Missione - Programma - Titolo sono obbligatori");
                     }
                 }
 
@@ -416,8 +416,7 @@ namespace PortaleRegione.API.Controllers
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                if (persona.CurrentRole != RuoliIntEnum.Amministratore_PEM
-                    && persona.CurrentRole != RuoliIntEnum.Segreteria_Assemblea)
+                if (!persona.IsSegreteriaAssemblea)
                 {
                     var countFirme = await _logicFirme.CountFirme(model.UIDEM);
                     if (countFirme > 1)
@@ -458,7 +457,7 @@ namespace PortaleRegione.API.Controllers
                 var countFirme = await _logicFirme.CountFirme(id);
                 if (countFirme > 0)
                 {
-                    return BadRequest("L'emendamento ha delle firme attive e non può essere eliminato");
+                    throw new InvalidOperationException("L'emendamento ha delle firme attive e non può essere eliminato");
                 }
 
                 var session = GetSession();
@@ -614,7 +613,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("template-body")]
-        public async Task<IHttpActionResult> GetBody(GetBodyEmendamentoModel model)
+        public async Task<IHttpActionResult> GetBody(GetBodyModel model)
         {
             try
             {
@@ -680,36 +679,35 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _logicEm.FirmaEmendamento(firmaModel, persona, null, true));
+                    return Ok(await _logicEm.Firma(firmaModel, persona, null, true));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logicEm.FirmaEmendamento(firmaModel, persona, pinInDb));
+                return Ok(await _logicEm.Firma(firmaModel, persona, pinInDb));
             }
             catch (Exception e)
             {
@@ -731,14 +729,13 @@ namespace PortaleRegione.API.Controllers
             {
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logicEm.RitiroFirmaEmendamento(firmaModel, persona));
@@ -747,17 +744,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logicEm.RitiroFirmaEmendamento(firmaModel, persona));
@@ -783,14 +780,13 @@ namespace PortaleRegione.API.Controllers
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
 
-                var firmaUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                   persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var firmaUfficio = persona.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
@@ -799,17 +795,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
@@ -840,14 +836,13 @@ namespace PortaleRegione.API.Controllers
 
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var depositoUfficio = persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                                      persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+                var depositoUfficio = persona.IsSegreteriaAssemblea;
 
                 if (depositoUfficio)
                 {
                     if (depositoModel.Pin != AppSettingsConfiguration.MasterPIN)
                     {
-                        return BadRequest("Pin inserito non valido");
+                        throw new InvalidOperationException("Pin inserito non valido");
                     }
 
                     return Ok(await _logicEm.DepositaEmendamento(depositoModel, persona));
@@ -856,17 +851,17 @@ namespace PortaleRegione.API.Controllers
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (depositoModel.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
                 return Ok(await _logicEm.DepositaEmendamento(depositoModel, persona));
@@ -941,7 +936,7 @@ namespace PortaleRegione.API.Controllers
                 var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                 if (firmatari_attivi.Any())
                 {
-                    return BadRequest("L'emendamento ha delle firme attive e non può essere eliminato");
+                    throw new InvalidOperationException("L'emendamento ha delle firme attive e non può essere eliminato");
                 }
 
                 var session = GetSession();
@@ -1020,7 +1015,7 @@ namespace PortaleRegione.API.Controllers
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
         [Route("modifica-stato")]
-        public async Task<IHttpActionResult> ModificaStatoEmendamento(ModificaStatoModel model)
+        public async Task<IHttpActionResult> ModificaStato(ModificaStatoModel model)
         {
             try
             {
@@ -1050,7 +1045,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var results = new Dictionary<Guid, string>();
 
-                foreach (var idGuid in model.ListaEmendamenti)
+                foreach (var idGuid in model.Lista)
                 {
                     var em = await _logicEm.GetEM(idGuid);
                     if (em == null)
@@ -1093,7 +1088,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var results = new Dictionary<Guid, string>();
 
-                foreach (var idGuid in model.ListaEmendamenti)
+                foreach (var idGuid in model.Lista)
                 {
                     var em = await _logicEm.GetEM(idGuid);
                     if (em == null)
@@ -1255,7 +1250,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per avere i tipi di emendmento
+        ///     Endpoint per avere i tipi di emendamento
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -1272,6 +1267,56 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per avere la lista dei tags
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("tags")]
+        public async Task<IHttpActionResult> GetTags()
+        {
+            try
+            {
+                return Ok(await _logicEm.GetTags());
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetTags", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per scaricare il file generato
+        /// </summary>
+        /// <param name="id">Guid emendamento</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file")]
+        public async Task<IHttpActionResult> Download(Guid id)
+        {
+            try
+            {
+                var em = await _logicEm.GetEM(id);
+                if (em == null)
+                {
+                    return NotFound();
+                }
+
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                var response = ResponseMessage(await _logicEm.DownloadPDFIstantaneo(em, persona));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Download", e);
+                return ErrorHandler(e);
+            }
+        }
+
 
         /// <summary>
         ///     Endpoint per avere le missioni

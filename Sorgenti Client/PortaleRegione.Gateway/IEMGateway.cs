@@ -33,12 +33,12 @@ namespace PortaleRegione.Gateway
         Task CambioStato(ModificaStatoModel model);
         Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> Deposita(Guid emendamentoUId, string pin);
-        Task DOWN_EM_TRATTAZIONE(Guid id);
-        Task Elimina(Guid id);
         Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> EliminaFirma(Guid emendamentoUId, string pin);
         Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model);
         Task<Dictionary<Guid, string>> Firma(Guid emendamentoUId, string pin);
+        Task DOWN_EM_TRATTAZIONE(Guid id);
+        Task Elimina(Guid id);
         Task<EmendamentiViewModel> Get(BaseRequest<EmendamentiDto> model);
         Task<EmendamentiDto> Get(Guid id);
         Task<EmendamentiViewModel> Get(Guid attoUId, ClientModeEnum mode, OrdinamentoEnum ordine, int page, int size);
@@ -70,5 +70,7 @@ namespace PortaleRegione.Gateway
         Task<EmendamentiDto> Salva(EmendamentiDto model);
         Task SPOSTA_EM_TRATTAZIONE(Guid id, int pos);
         Task UP_EM_TRATTAZIONE(Guid id);
+        Task<List<TagDto>> GetTags();
+        Task<FileResponse> Download(Guid id);
     }
 }

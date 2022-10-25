@@ -29,7 +29,7 @@ namespace PortaleRegione.DataBase
         public PortaleRegioneDbContext()
             : base("name=PortaleRegioneDbContext")
         {
-            base.Configuration.LazyLoadingEnabled = false;
+            Configuration.LazyLoadingEnabled = false;
         }
 
         public virtual DbSet<ARTICOLI> ARTICOLI { get; set; }
@@ -76,8 +76,19 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_gruppi_politici_con_giunta> View_gruppi_politici_con_giunta { get; set; }
         public virtual DbSet<View_PINS> View_PINS { get; set; }
         public virtual DbSet<View_UTENTI> View_UTENTI { get; set; }
+        public virtual DbSet<View_CAPIGRUPPO> View_CAPIGRUPPO { get; set; }
+        public virtual DbSet<View_Conteggi_EM_Gruppi_Politici> View_Conteggi_EM_Gruppi_Politici { get; set; }
+        public virtual DbSet<View_Conteggi_EM_Area_Politica> View_Conteggi_EM_Area_Politica { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }
         public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
+        public virtual DbSet<ATTI_DASI> DASI { get; set; } // DASI - Atti
+        public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; } // DASI - Firme
+        public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; } // DASI - Contatori per tipo atto e tipo risposta
+        public virtual DbSet<View_cariche_assessori_in_carica> View_cariche_assessori_in_carica { get; set; } // DASI - Soggetti interrogati
+        public virtual DbSet<ATTI_SOGGETTI_INTERROGATI> ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
+        public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
+        public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
+        public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -449,7 +460,7 @@ namespace PortaleRegione.DataBase
                 .IsUnicode(false);
 
             modelBuilder.Entity<STAMPE>()
-                .Property(e => e.QueryEM)
+                .Property(e => e.Query)
                 .IsUnicode(false);
 
             modelBuilder.Entity<tbl_recapiti>()

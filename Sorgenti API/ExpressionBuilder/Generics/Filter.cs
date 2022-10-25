@@ -37,7 +37,7 @@ namespace ExpressionBuilder.Generics
     [Serializable]
     public class Filter<T> : IFilter, IXmlSerializable where T : class
     {
-        private List<IFilterStatement> _statements;
+        public List<IFilterStatement> _statements;
 
         /// <summary>
         ///     Instantiates a new <see cref="Filter{TClass}" />
@@ -105,6 +105,7 @@ namespace ExpressionBuilder.Generics
         /// <typeparam name="TPropertyType"></typeparam>
         public void ImportStatements<TPropertyType>(ICollection<FilterStatement<TPropertyType>> filters)
         {
+            Clear();
             if (filters == null)
             {
                 return;

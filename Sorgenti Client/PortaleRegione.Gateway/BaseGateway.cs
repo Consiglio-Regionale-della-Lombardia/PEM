@@ -62,12 +62,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Post", e);
+                Log.Error($"Post [{requestUrl}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Post", e);
+                Log.Error($"Post [{requestUrl}][{body}]", e);
                 throw e;
             }
         }
@@ -94,12 +94,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Put", e);
+                Log.Error($"Put  [{requestUrl}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Put", e);
+                Log.Error($"Put [{requestUrl}][{body}]", e);
                 throw e;
             }
         }
@@ -123,12 +123,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
         }
@@ -152,12 +152,41 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Get", e);
+                Log.Error($"Get [{requestUrl}]", e);
+                throw e;
+            }
+        }
+
+        /// <summary>
+        ///     Metodo per avere scaricare il file
+        /// </summary>
+        /// <param name="requestUrl"></param>
+        /// <param name="auth"></param>
+        /// <returns></returns>
+        protected static async Task<FileResponse> GetFile(string url, string body, string token)
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                if (!string.IsNullOrEmpty(token))
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                var content = new StringContent(body, Encoding.UTF8, "application/json");
+                var result = await httpClient.PostAsync(url, content);
+                return await CheckResponseFile(result);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Log.Error($"Get [{url}][{body}]", e);
+                throw e;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Get [{url}][{body}]", e);
                 throw e;
             }
         }
@@ -181,12 +210,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error("Delete", e);
+                Log.Error($"Delete [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error("Delete", e);
+                Log.Error($"Delete [{requestUrl}]", e);
                 throw e;
             }
         }

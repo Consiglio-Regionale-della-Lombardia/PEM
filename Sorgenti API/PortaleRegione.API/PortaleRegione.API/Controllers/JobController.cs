@@ -39,16 +39,18 @@ namespace PortaleRegione.API.Controllers
     {
         private readonly StampeLogic _logic;
         private readonly EmendamentiLogic _logicEm;
+        private readonly DASILogic _logicDasi;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="logic"></param>
         /// <param name="logicEm"></param>
-        public JobController(StampeLogic logic, EmendamentiLogic logicEm)
+        public JobController(StampeLogic logic, EmendamentiLogic logicEm, DASILogic logicDasi)
         {
             _logic = logic;
             _logicEm = logicEm;
+            _logicDasi = logicDasi;
         }
 
         /// <summary>
@@ -164,23 +166,52 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("stampe/emendamenti")]
-        public async Task<IHttpActionResult> GetEmendamenti(EmendamentiByQueryModel model)
+        public async Task<IHttpActionResult> GetEmendamenti(ByQueryModel model)
         {
             try
             {
                 var countEM = await _logicEm.CountEM(model.Query);
                 return Ok(
                     new BaseResponse<EmendamentiDto>(
-                        model.page, 
-                        100, 
+                        model.page,
+                        100,
                         await _logicEm.GetEmendamenti(model),
-                    null, 
+                    null,
                         countEM)
                     );
             }
             catch (Exception e)
             {
                 Log.Error("JOB - GetEmendamenti", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere il riepilogo di atti sindacato ispettivo in base ad una query
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("stampe/dasi")]
+        public async Task<IHttpActionResult> GetDASI(ByQueryModel model)
+        {
+            try
+            {
+                var results = await _logicDasi.GetByQuery(model);
+                var count = await _logicDasi.CountByQuery(model);
+                return Ok(
+                    new BaseResponse<AttoDASIDto>(
+                        model.page,
+                        100,
+                        results,
+                    null,
+                        count)
+                    );
+            }
+            catch (Exception e)
+            {
+                Log.Error("JOB - Get DASI", e);
                 return ErrorHandler(e);
             }
         }

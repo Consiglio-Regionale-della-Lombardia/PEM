@@ -19,7 +19,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
@@ -30,8 +29,10 @@ namespace PortaleRegione.Gateway
         Task<BaseResponse<SeduteDto>> Get(BaseRequest<SeduteDto> model);
         Task<SeduteFormUpdateDto> Get(Guid id);
         Task<BaseResponse<SeduteDto>> Get(int page, int size);
-        Task<IEnumerable<LegislaturaDto>> GetLegislature();
         Task Modifica(SeduteFormUpdateDto seduta);
         Task Salva(SeduteFormUpdateDto seduta);
+        Task<BaseResponse<SeduteDto>> GetAttive();
+        Task<BaseResponse<SeduteDto>> GetAttiveMOZU();
+        Task<BaseResponse<SeduteDto>> GetAttiveDashboard();
     }
 }

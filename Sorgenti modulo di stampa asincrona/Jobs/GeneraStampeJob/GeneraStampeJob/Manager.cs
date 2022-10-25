@@ -13,7 +13,6 @@ namespace GeneraStampeJob
         public Manager(ThreadWorkerModel model)
         {
             _model = model;
-            BaseGateway.apiUrl = _model.UrlAPI;
         }
 
         public event EventHandler<bool> OnManagerFinish;
@@ -22,10 +21,14 @@ namespace GeneraStampeJob
         {
             try
             {
+                Log.Debug($"URL API [{_model.UrlAPI}]");
+                BaseGateway.apiUrl = _model.UrlAPI;
                 var apiGateway = new ApiGateway();
+                Log.Debug($"User service [{_model.Username}][{_model.Password}]");
                 var auth = await apiGateway.Persone.Login(_model.Username, _model.Password);
-                var apiGateway2 = new ApiGateway(auth.jwt);
-                var stampe = await apiGateway2.Stampe.JobGetStampe(1, 1);
+                Log.Debug($"User service [{auth.id}][{auth.jwt}]");
+                apiGateway = new ApiGateway(auth.jwt);
+                var stampe = await apiGateway.Stampe.JobGetStampe(1, 1);
                 Log.Debug($"Stampe da elaborare [{stampe.Results.Count()}]");
 
                 var work = new Worker(auth, ref _model);

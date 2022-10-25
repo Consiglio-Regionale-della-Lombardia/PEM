@@ -1,0 +1,270 @@
+﻿<!-- Modal Structure -->
+<div id="modalIscriviSeduta" class="modal bottom-sheet">
+    <div class="modal-content">
+        <input type="hidden" id="hfUidAtto">
+        <h4 id="txtIscriviSeduta"></h4>
+        <ul class="collection with-header" id="lstSeduteAttive">
+        </ul>
+
+        <a id="btnNuovaSedutaDASI" class="btn-flat blue-text"
+           onclick="NuovaSedutaDASI()" title="Crea nuova seduta">
+            <i class="material-icons right">plus</i>
+            Crea nuova seduta
+        </a>
+        <input id="dtSeduta" class="form-control" type="datetime-local" style="display: none"/>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
+    </div>
+</div>
+
+<script>
+    var sedute = [];
+    $(window).on('load',
+        async function() {
+            if (sedute.length == 0) {
+                $('#modalIscriviSeduta>div>ul').empty();
+                var data = await GetSeduteAttive();
+                sedute = data.Results;
+                var checked = sedute.length == 1;
+                $.each(sedute,
+                    function(i, item) {
+                        var resultDate = GetFormattedDate(item.Data_seduta);
+                        var text = "Seduta del " + resultDate;
+                        $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
+                            .replace("{TEXT}", text)
+                            .replace("{VALUE}", item.UIDSeduta)
+                            .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+                    });
+            }
+        });
+
+    function RimuoviSedutaDASI(uidAtto, nomeAtto) {
+
+        swal({
+            title: "Rimozione atto dalla seduta",
+            text: "Sei sicuro di voler rimuovere " + nomeAtto + " dalla seduta associata?",
+            icon: "warning",
+            buttons: ["Annulla", "Rimuovi"],
+            dangerMode: true
+        }).then((willDelete) => {
+            if (willDelete) {
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
+                var obj = {};
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("RimuoviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalRimuoviSeduta").modal("close");
+                    $("#btnRimuoviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
+    }
+
+    function IscriviASedutaMassivoDASI() {
+        var text = "";
+        var listaAtti = getListaAtti();
+        var selezionaTutti = getSelezionaTutti_DASI();
+        var text_counter = "";
+        if (selezionaTutti && listaAtti.length == 0) {
+            text_counter = $("#hdTotaleDocumenti").val();
+        } else if (selezionaTutti && listaAtti.length > 0) {
+            text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
+        } else {
+            text_counter = listaAtti.length;
+        }
+        text = "Iscrizione di " + text_counter + " atti in una delle seguenti sedute:";
+
+        $('#txtIscriviSeduta').html(text);
+        $('#btnNuovaSedutaDASI').show();
+        $('#dtSeduta').hide();
+        $('#dtSeduta').val("");
+        $('#btnIscriviSeduta_Salva').text("Iscrivi");
+        $('#btnIscriviSeduta_Salva').off("click");
+        $("#btnIscriviSeduta_Salva").on("click",
+            function() {
+
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    swal({
+                        title: "Errore",
+                        text: "Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto,
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                var listaAtti = getListaAtti();
+
+                var obj = {};
+                obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("IscriviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalIscriviSeduta").modal("close");
+                    $("#btnIscriviSeduta_Salva").off("click");
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
+    function IscriviSedutaDASI(uidAtto, nomeAtto) {
+        $('#hfUidAtto').val(uidAtto);
+        $('#btnNuovaSedutaDASI').show();
+        $('#dtSeduta').hide();
+        $('#dtSeduta').val("");
+        $('#txtIscriviSeduta').html("Iscrivi <b>" + nomeAtto + "</b> ad una delle seguenti sedute");
+        $('#btnIscriviSeduta_Salva').text("Iscrivi");
+        $('#btnIscriviSeduta_Salva').off("click");
+        $("#btnIscriviSeduta_Salva").on("click",
+            function() {
+
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    swal({
+                        title: "Errore",
+                        text: "Seleziona almeno una seduta dove iscrivere l'atto " + nomeAtto,
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
+                var obj = {};
+                obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("IscriviSeduta")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalIscriviSeduta").modal("close");
+                    $("#btnIscriviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
+    function NuovaSedutaDASI() {
+        $('#btnNuovaSedutaDASI').hide();
+        $('#dtSeduta').show();
+        $('#btnIscriviSeduta_Salva').text("Iscrivi a nuova seduta");
+        $('#btnIscriviSeduta_Salva').off("click");
+        $('#btnIscriviSeduta_Salva').on("click", function () {
+
+            var body = {};
+            body.Data_seduta = $('#dtSeduta').val();
+
+            $.ajax({
+                url: baseUrl + "/pem/salva",
+                type: "POST",
+                data: JSON.stringify(body),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(async function (data) {
+
+                if (data.message)
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
+                else {
+                    var seduta = await GetSedutaByData(body.Data_seduta);
+
+                    var listaAtti = [];
+
+                    listaAtti.push($('#hfUidAtto').val());
+
+                    var obj = {};
+                    obj.UidSeduta = seduta.UIDSeduta;
+                    obj.Lista = listaAtti;
+
+                    $.ajax({
+                        url: '@Url.Action("IscriviSeduta")',
+                        method: "POST",
+                        data: JSON.stringify(obj),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json"
+                    }).done(function(data) {
+                        $("#modalIscriviSeduta").modal("close");
+                        $("#btnIscriviSeduta_Salva").off("click");
+                        if (data.message) {
+                            swal({
+                                title: "Errore",
+                                text: data.message,
+                                icon: "error"
+                            });
+                        } else {
+                            go(data);
+                        }
+                    }).fail(function(err) {
+                        console.log("error", err);
+                        Error(err);
+                    });
+                }
+            }).fail(function (err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+    }
+
+</script>

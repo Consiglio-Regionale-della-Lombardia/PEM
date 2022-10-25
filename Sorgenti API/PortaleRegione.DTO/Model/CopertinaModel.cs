@@ -24,7 +24,7 @@ namespace PortaleRegione.DTO.Model
     public class CopertinaModel
     {
         public AttiDto Atto { get; set; }
-        public int TotaleEM { get; set; }
+        public int Totale { get; set; }
         public OrdinamentoEnum Ordinamento { get; set; }
     }
 }

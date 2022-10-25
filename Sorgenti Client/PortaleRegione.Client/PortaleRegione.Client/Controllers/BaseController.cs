@@ -17,10 +17,13 @@
  */
 
 using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 using PortaleRegione.Gateway;
 using System;
-using System.Configuration;
+using System.Collections.Generic;
+using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
@@ -32,6 +35,23 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     public class BaseController : Controller
     {
+        internal bool CanAccess(List<RuoliIntEnum> ruoli)
+        {
+            for (int i = 0; i < ruoli.Count; i++)
+            {
+                //if (_CurrentUser.Ruoli.Select(item=>item.IDruolo).Contains((int)ruoli[i]))
+                //{
+
+                //}
+
+                var check = User.IsInRole(((int)ruoli[i]).ToString());
+                if (check)
+                    return true;
+            }
+
+            return false;
+        }
+
         public PersonaDto _CurrentUser
         {
             get
@@ -82,7 +102,24 @@ namespace PortaleRegione.Client.Controllers
         protected override void Initialize(RequestContext requestContext)
         {
             base.Initialize(requestContext);
-            BaseGateway.apiUrl = ConfigurationManager.AppSettings["URL_API"];
+            BaseGateway.apiUrl = AppSettingsConfiguration.URL_API;
+        }
+
+        internal void CheckCacheClientMode(ClientModeEnum _mode)
+        {
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            if (mode != (int)_mode)
+            {
+                HttpContext.Cache.Insert(
+                    CacheHelper.CLIENT_MODE,
+                    (int)_mode,
+                    null,
+                    Cache.NoAbsoluteExpiration,
+                    Cache.NoSlidingExpiration,
+                    CacheItemPriority.NotRemovable,
+                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
+                );
+            }
         }
 
         protected void SliceBy3(string bodyMessage, ref string str1, ref string str2, ref string str3)

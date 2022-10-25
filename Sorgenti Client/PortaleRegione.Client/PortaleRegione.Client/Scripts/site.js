@@ -1,4 +1,8 @@
 ﻿var baseUrl = "";
+const MESSAGGIO_ERRORE_500 = "Errore generico. Contattare l'amministratore di sistema.";
+
+var templateSeduteAttive =
+    "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
 
 document.addEventListener("DOMContentLoaded",
     function() {
@@ -163,19 +167,28 @@ async function openMetaDati(emendamentoUId) {
     await LoadMetaDatiEM(em);
     $("#modalMetaDati").modal("open");
 
-    $("#btnSposta_MetaDatiPartial").on("click", function() {
-        Sposta_EMTrattazione(em);
-    });
-    $("#btnSpostaUP_MetaDatiPartial").on("click", function () {
-        SpostaUP_EMTrattazione(em);
-    });
-    $("#btnSpostaDOWN_MetaDatiPartial").on("click", function () {
-        SpostaDOWN_EMTrattazione(em);
-    });
+    $("#btnSposta_MetaDatiPartial").on("click",
+        function() {
+            Sposta_EMTrattazione(em);
+        });
+    $("#btnSpostaUP_MetaDatiPartial").on("click",
+        function() {
+            SpostaUP_EMTrattazione(em);
+        });
+    $("#btnSpostaDOWN_MetaDatiPartial").on("click",
+        function() {
+            SpostaDOWN_EMTrattazione(em);
+        });
+}
+
+async function openMetaDatiDASI(attoUId) {
+    var atto = await GetAtto(attoUId);
+    await LoadMetaDatiAtto(atto);
+    $("#modalMetaDati").modal("open");
 }
 
 function Sposta_EMTrattazione(em) {
-    
+
     swal("Sposta emendamento selezionato in una posizione precisa",
             {
                 content: {
@@ -185,9 +198,9 @@ function Sposta_EMTrattazione(em) {
                 buttons: { cancel: "Annulla", confirm: "Ok" }
             })
         .then((value) => {
-            console.log('response', value)
+            console.log("response", value);
             if (value == null || value == "") {
-                $('#modalMetaDati').modal("open");
+                $("#modalMetaDati").modal("open");
                 return;
             }
 
@@ -196,15 +209,19 @@ function Sposta_EMTrattazione(em) {
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
-            }).done(function (data) {
+            }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     location.reload();
                 }
-            }).fail(function (err) {
+            }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -228,22 +245,41 @@ function SpostaUP_EMTrattazione(em) {
 }
 
 function SpostaDOWN_EMTrattazione(em) {
-    
+
     $.ajax({
         url: baseUrl + "/emendamenti/ordina-down?id=" + em.UIDEM,
         type: "GET",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
-    }).done(function (data) {
+    }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             location.reload();
         }
-    }).fail(function (err) {
+    }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
     });
+}
+
+function highlight(text) {
+    if (isEmptyOrSpaces(text))
+        return;
+    var regex = new RegExp(text, "g");
+    var innerHTML = $("#contentTable").html().replace(regex, "<span class='highlight'>" + text + "</span>");
+    $("#contentTable").html(innerHTML);
+}
+
+function isEmptyOrSpaces(str) {
+    if (str) {
+        return str === null || str.match(/^ *$/) !== null;
+    } else
+        return true;
 }
 
 async function GetEM(emUId) {
@@ -255,11 +291,24 @@ async function GetEM(emUId) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
 
+async function GetAtto(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/" + attoUId + "/meta-data",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
 
 function go(link, switchMode) {
     var mode = getClientMode();
@@ -292,17 +341,28 @@ function go(link, switchMode) {
     document.location = link;
 }
 
-function AbilitaTrattazione(url) {
-    var mode = getClientMode();
-    if (mode == 1) {
+async function AbilitaTrattazione(mode) {
+    if (mode == 2) {
         setClientMode(2);
+        var data = await GetSeduteAttiveDashboard();
+        if (data.Results.length > 0) {
+            var seduta = data.Results[0];
+            go("/attitrattazione/view?id=" + seduta.UIDSeduta);
+        } else {
+            swal({
+                title: "Attenzione",
+                text: "Nessuna seduta aperta disponibile",
+                icon: "warning"
+            });
+            return;
+        }
     } else {
         setClientMode(1);
+        go("/home");
     }
-    go(url);
 }
 
-//EVENTI EMENDAMENTO
+//EVENTI
 
 function DeselectALLEM() {
     $("#checkAll").prop("checked", false);
@@ -310,6 +370,14 @@ function DeselectALLEM() {
     setSelezionaTutti(false);
     setListaEmendamenti([]);
     AbilitaComandiMassivi(null);
+}
+
+function DeselectALLDASI() {
+    $("#checkAll").prop("checked", false);
+    $('input[id^="chk_Atto_"]').not(this).prop("checked", false);
+    setSelezionaTutti(false);
+    setListaAtti([]);
+    AbilitaComandiMassivi_DASI(null);
 }
 
 function AbilitaComandiMassivi(uidEM) {
@@ -358,6 +426,20 @@ function checkSelectedEM() {
     AbilitaComandiMassivi(null);
 }
 
+function checkSelectedDASI() {
+    var selezionaTutti = getSelezionaTutti();
+    var lista = getListaAtti();
+
+    $("#checkAll").prop("checked", selezionaTutti);
+    $('input[id^="chk_Atto_"]').not(this).prop("checked", selezionaTutti);
+    $.each(lista,
+        function(index, item) {
+            $("#chk_Atto_" + item).prop("checked", selezionaTutti ? false : true);
+        });
+
+    AbilitaComandiMassivi_DASI(null);
+}
+
 function addEM(uidEM) {
     var lista = getListaEmendamenti();
     lista.push(uidEM);
@@ -369,6 +451,19 @@ function removeEM(uidEM) {
     var findIndex = jQuery.inArray(uidEM, lista);
     lista.splice(findIndex, 1);
     setListaEmendamenti(lista);
+}
+
+function addAtto(uidAtto) {
+    var lista = getListaAtti();
+    lista.push(uidAtto);
+    setListaAtti(lista);
+}
+
+function removeAtto(uidAtto) {
+    var lista = getListaAtti();
+    var findIndex = jQuery.inArray(uidAtto, lista);
+    lista.splice(findIndex, 1);
+    setListaAtti(lista);
 }
 
 function ConfirmAction(id, name, action) {
@@ -393,16 +488,58 @@ function ConfirmAction(id, name, action) {
                 $("#btnConfermaAction").off("click");
                 console.log(data.message);
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     go(data);
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
     $("#modalAction").modal("open");
+}
+
+function ConfirmActionDASI(id, name, action) {
+    $("#attoActionDisplayName").empty();
+    $("#attoActionDisplayName").append(name);
+    $("#attoActionMessage").empty();
+
+    if (action == 1) {
+        $("#btnConfermaActionDASI").text("ELIMINA");
+        $("#attoActionMessage").append("Stai per eliminare l'atto selezionato. Sei sicuro?");
+    } else if (action == 2) {
+        $("#btnConfermaActionDASI").text("RITIRA");
+        $("#attoActionMessage").append("Stai per ritirare l'atto selezionato. Sei sicuro?");
+    }
+    $("#btnConfermaActionDASI").on("click",
+        function() {
+            $.ajax({
+                url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action,
+                method: "GET"
+            }).done(function(data) {
+                $("#modalActionDASI").modal("close");
+                $("#btnConfermaActionDASI").off("click");
+                console.log(data.message);
+                if (data.message) {
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+    $("#modalActionDASI").modal("open");
 }
 
 function RitiraFirma(id) {
@@ -413,7 +550,8 @@ function RitiraFirma(id) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
-                buttons: { cancel: "Annulla", confirm: "Si" }
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Ritira" }
             })
         .then((value) => {
             if (value == null || value == "")
@@ -423,15 +561,23 @@ function RitiraFirma(id) {
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
             }).done(function(data) {
-                console.log(data);
-                if (data.message) {
-                    ErrorAlert(data.message);
-                } else {
-                    go(data);
+                var typeMessage = "error";
+                var str = data.message;
+                var pos = str.indexOf("OK");
+                if (pos > 0) {
+                    typeMessage = "success";
                 }
+                swal({
+                    title: "Esito ritiro firma",
+                    text: data.message,
+                    icon: typeMessage,
+                    button: "OK"
+                }).then(() => {
+                    location.reload();
+                });
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -444,7 +590,8 @@ function EliminaFirma(id) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
-                buttons: { cancel: "Annulla", confirm: "Si" }
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Elimina" }
             })
         .then((value) => {
             if (value == null || value == "")
@@ -455,10 +602,16 @@ function EliminaFirma(id) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf("OK");
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito ritiro firma",
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         location.reload();
@@ -468,7 +621,95 @@ function EliminaFirma(id) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
+            });
+        });
+}
+
+function RitiraFirmaDASI(id) {
+    swal("Inserisci il pin per ritirare la firma",
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Ritira" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            $.ajax({
+                url: baseUrl + "/dasi/ritiro-firma?id=" + id + "&pin=" + value,
+                method: "GET"
+            }).done(function(data) {
+                var typeMessage = "error";
+                var str = data.message;
+                var pos = str.indexOf("OK");
+                if (pos > 0) {
+                    typeMessage = "success";
+                }
+                pos = str.indexOf("INFO");
+                if (pos > 0) {
+                    typeMessage = "info";
+                    data.message = data.message.replace("INFO: ", "");
+                }
+                swal({
+                    title: "Esito ritiro firma",
+                    text: data.message,
+                    icon: typeMessage,
+                    button: "OK"
+                }).then(() => {
+                    location.reload();
+                });
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        });
+}
+
+function EliminaFirmaDASI(id) {
+
+    swal("Inserisci il pin per eliminare la firma",
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                icon: "warning",
+                buttons: { cancel: "Annulla", confirm: "Elimina" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            $.ajax({
+                url: baseUrl + "/dasi/elimina-firma?id=" + id + "&pin=" + value,
+                method: "GET"
+            }).done(function(data) {
+                if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf("OK");
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
+                    swal({
+                        title: "Esito ritiro firma",
+                        text: data.message,
+                        icon: typeMessage,
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
             });
         });
 }
@@ -495,7 +736,7 @@ function RevealFirmatari(uidem) {
             }
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -517,6 +758,7 @@ function RevealFirmaDeposito(id, action) {
                     element: "input",
                     attributes: { placeholder: "******", className: "password" }
                 },
+                icon: "info",
                 buttons: { cancel: "Annulla", confirm: button }
             })
         .then((value) => {
@@ -528,10 +770,16 @@ function RevealFirmaDeposito(id, action) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf("OK");
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito " + button,
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         location.reload();
@@ -541,7 +789,131 @@ function RevealFirmaDeposito(id, action) {
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
+            });
+        });
+}
+
+function AccettaPropostaFirmaAttoDASI(idNotifica) {
+
+    swal("Sei sicuro di voler accettare la proposta di firma?",
+        {
+            buttons: {
+                cancel: "Annulla",
+                confirm: {
+                    className: "blue white-text",
+                    title: "Accetta",
+                    value: true
+                }
+            }
+        }).then((value) => {
+        if (value == true) {
+            var url = baseUrl + '/notifiche/accetta-proposta?id=' + idNotifica;
+            $.ajax({
+                url: url,
+                type: "GET"
+            }).done(function(result) {
+
+                location.reload();
+
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        }
+    });
+
+}
+
+function AccettaRitiroFirmaAttoDASI(idNotifica) {
+
+    swal("Sei sicuro di voler accettare la richiesta di ritiro firma?",
+        {
+            buttons: {
+                cancel: "Annulla",
+                confirm: {
+                    className: "red white-text",
+                    title: "Accetta",
+                    value: true
+                }
+            }
+        }).then((value) => {
+        if (value == true) {
+            var url = baseUrl + '/notifiche/accetta-ritiro?id=' + idNotifica;
+            $.ajax({
+                url: url,
+                type: "GET"
+            }).done(function(result) {
+
+                location.reload();
+
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+        }
+    });
+
+}
+
+function RevealFirmaDepositoDASI(id, action) {
+    var text = "";
+    var button = "";
+    if (action == 3) {
+        text = "Inserisci il PIN per firmare";
+        button = "Firma";
+    } else if (action == 4) {
+        text = "Inserisci il PIN per depositare";
+        button = "Deposita";
+    }
+
+    swal(text,
+            {
+                content: {
+                    element: "input",
+                    attributes: { placeholder: "******", className: "password" }
+                },
+                icon: "info",
+                buttons: { cancel: "Annulla", confirm: button }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+            waiting(true);
+            $.ajax({
+                url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+                method: "GET"
+            }).done(function (data) {
+                waiting(false);
+                console.log('esito', data.message)
+                if (data.message) {
+                    var typeMessage = "error";
+                    var message = data.message;
+                    var str = data.message;
+                    var pos = str.indexOf("OK");
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
+                    pos = str.indexOf("?!?");
+                    if (pos > 0) {
+                        typeMessage = "info";
+                        message = "Proposta di firma inviata al proponente";
+                    }
+                    swal({
+                        title: "Esito " + button,
+                        text: message,
+                        icon: typeMessage,
+                        button: "OK"
+                    }).then(() => {
+                        if (data.message.includes("OK") || data.message.includes("?!?")) {
+                            location.reload();
+                        }
+                    });
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                waiting(false);
+                Error(err);
             });
         });
 }
@@ -580,8 +952,14 @@ function TestoEmendamento_ParteEM(value, text) {
 }
 
 async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected) {
-    console.log('Articoli_OnChange', value, valueCommaSelected, valueLetteraSelected);
-    set_ListaCommiEM([]);
+    console.log("ARTICOLI", value,valueCommaSelected, valueLetteraSelected)
+    if (value == 0 || value == null || value == undefined) {
+        $("#pnlCommi").hide();
+        $("#CommiList").empty();
+        $("#CommiList").formSelect();
+        return;
+    }
+
     $("#ArticoliList").val(value);
     var elemsArt = document.querySelectorAll("#ArticoliList");
     M.FormSelect.init(elemsArt, null);
@@ -592,13 +970,13 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
         var commiSelect = $("#CommiList");
         commiSelect.empty();
 
-        if (valueCommaSelected)
+        if (valueCommaSelected != 0)
             commiSelect.append('<option value="0">Seleziona comma</option>');
         else
             commiSelect.append('<option selected="selected" value="0">Seleziona comma</option>');
 
         $.each(commi,
-            function(index, item) {
+            function (index, item) {
                 var template = "";
                 if (item.UIDComma == valueCommaSelected)
                     template = "<option selected='selected'></option>";
@@ -609,16 +987,23 @@ async function Articoli_OnChange(value, valueCommaSelected, valueLetteraSelected
 
         var elems = document.querySelectorAll("#CommiList");
         M.FormSelect.init(elems, null);
-
-        if (valueLetteraSelected) {
-            await Commi_OnChange(valueCommaSelected, valueLetteraSelected);
-        }
-    } else
+        
+        await Commi_OnChange(valueCommaSelected, valueLetteraSelected);
+    } else {
+        $("#CommiList").empty();
+        $("#CommiList").formSelect();
         $("#pnlCommi").hide();
+    }
 }
 
 async function Commi_OnChange(value, valueLetteraSelected) {
-    set_ListaLettereEM([]);
+    console.log("COMMI", value, valueLetteraSelected)
+    if (value == 0 || value == null || value == undefined) {
+        $("#pnlLettere").hide();
+        $("#LettereList").empty();
+        $("#LettereList").formSelect();
+        return;
+    }
     var lettere = await GetLettere(value);
 
     if (lettere.length > 0) {
@@ -646,6 +1031,8 @@ async function Commi_OnChange(value, valueLetteraSelected) {
         M.FormSelect.init(elems, null);
     } else {
         $("#pnlLettere").hide();
+        $("#LettereList").empty();
+        $("#LettereList").formSelect();
 
         var letteraOLD = $("#txtLetteraOLD").val();
         if (letteraOLD != null && letteraOLD != "")
@@ -653,7 +1040,7 @@ async function Commi_OnChange(value, valueLetteraSelected) {
     }
 }
 
-function EsportaXLS(attoUId) {
+function EsportaXLS() {
     swal("In che ordine devo esportare gli emendamenti?",
             {
                 buttons: {
@@ -673,12 +1060,12 @@ function EsportaXLS(attoUId) {
             if (value == null || value == "")
                 return;
 
-            go("emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
+            go("emendamenti/esporta-xls");
         });
 }
 
-function EsportaXLS_Segreteria(attoUId) {
-    go("emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
+function EsportaXLS_Segreteria() {
+    go("emendamenti/esporta-xls-segreteria");
 }
 
 function EsportaDOC(attoUId) {
@@ -718,15 +1105,15 @@ function ResetStampa(stampaUId, url) {
         go(url);
     }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
     });
 }
 
 function CambioStato(uidem, stato) {
     var obj = {};
     obj.Stato = stato;
-    obj.ListaEmendamenti = [];
-    obj.ListaEmendamenti.push(uidem);
+    obj.Lista = [];
+    obj.Lista.push(uidem);
 
     $.ajax({
         url: baseUrl + "/emendamenti/modifica-stato",
@@ -736,7 +1123,11 @@ function CambioStato(uidem, stato) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             var label = $("#tdStato_" + uidem + ">label");
             var textStato = "";
@@ -769,7 +1160,36 @@ function CambioStato(uidem, stato) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
+    });
+}
+
+function CambioStatoDASI(uidatto, stato) {
+    console.log("uidatto", uidatto);
+    var obj = {};
+    obj.Stato = stato;
+    obj.Lista = [];
+    obj.Lista.push(uidatto);
+
+    $.ajax({
+        url: baseUrl + "/dasi/modifica-stato",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+        } else {
+            go(data);
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
     });
 }
 
@@ -797,7 +1217,7 @@ function CambioStatoMassivo(stato, descr) {
 
             var obj = {};
             obj.Stato = stato;
-            obj.ListaEmendamenti = listaEM;
+            obj.Lista = listaEM;
             obj.All = selezionaTutti;
             obj.AttoUId = $("#hdUIdAtto").val();
 
@@ -812,7 +1232,50 @@ function CambioStatoMassivo(stato, descr) {
                 location.reload();
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
+            });
+        });
+}
+
+function CambioStatoMassivoDASI(stato, descr) {
+    var text = "";
+    var listaAtti = getListaAtti();
+    var selezionaTutti = getSelezionaTutti();
+    var text_counter = "";
+    if (selezionaTutti && listaAtti.length == 0) {
+        text_counter = $("#hdTotaleDocumenti").val();
+    } else if (selezionaTutti && listaAtti.length > 0) {
+        text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
+    } else {
+        text_counter = listaAtti.length;
+    }
+    text = "Cambia stato di " + text_counter + " atti in " + descr;
+
+    swal(text,
+            {
+                buttons: { cancel: "Annulla", confirm: "Ok" }
+            })
+        .then((value) => {
+            if (value == null || value == "")
+                return;
+
+            var obj = {};
+            obj.Stato = stato;
+            obj.Lista = listaAtti;
+            obj.All = selezionaTutti;
+
+            $.ajax({
+                url: baseUrl + "/dasi/modifica-stato",
+                type: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                DeselectALLEM();
+                location.reload();
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
             });
         });
 }
@@ -826,7 +1289,7 @@ function GetPersoneFromDB() {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
         });
     });
 }
@@ -840,7 +1303,21 @@ function GetPersonePerInviti(attoUId, tipo) {
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
-            ErrorAlert(err.message);
+            Error(err);
+        });
+    });
+}
+
+function GetPersonePerInvitiDASI(tipo) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/notifiche/destinatari-dasi?tipo=" + tipo,
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
         });
     });
 }
@@ -854,7 +1331,11 @@ function Ordina_EMTrattazione(attoUId) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             swal({
                     title: "Ordinamento automatico",
@@ -869,7 +1350,7 @@ function Ordina_EMTrattazione(attoUId) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
     });
 }
 
@@ -882,7 +1363,11 @@ function OrdinamentoConcluso(attoUId) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         } else {
             swal("Email inviata con successo!").then((val) => {
                 location.reload();
@@ -890,7 +1375,7 @@ function OrdinamentoConcluso(attoUId) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
     });
 }
 
@@ -914,8 +1399,6 @@ async function GetArticoliAtto(attoUId) {
     var tableLettere = $("#tableLettere");
     tableCommi.empty();
     tableLettere.empty();
-    set_ListaCommiEM([]);
-    set_ListaLettereEM([]);
     tableCommi.append("<li class='collection-item'>Crea da un articolo</li>");
     tableLettere.append("<li class='collection-item'>Crea da un comma</li>");
 
@@ -944,17 +1427,14 @@ async function GetArticoliAtto(attoUId) {
 }
 
 async function GetCommiArticolo(articoloUId) {
-
-    set_ListaCommiEM([]);
-
-    $("#tableArticoli").find("li").removeClass("active");
+        $("#tableArticoli").find("li").removeClass("active");
     $("#tableArticoli").find("li[uid='" + articoloUId + "']").addClass("active");
 
     var tableLettere = $("#tableLettere");
     tableLettere.empty();
     tableLettere.append("<li class='collection-item'>Crea da un comma</li>");
-
-    var commi = await GetCommi(articoloUId);
+   
+    var commi = await GetCommi(articoloUId, true);
 
     var table = $("#tableCommi");
     table.empty();
@@ -980,9 +1460,6 @@ async function GetCommiArticolo(articoloUId) {
 }
 
 async function GetLettereComma(commaUId) {
-
-    set_ListaLettereEM([]);
-
     $("#tableCommi").find("li").removeClass("active");
     $("#tableCommi").find("li[uid='" + commaUId + "']").addClass("active");
 
@@ -1024,13 +1501,17 @@ function CreaArticolo(attoUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetArticoliAtto(attoUId);
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -1051,13 +1532,17 @@ function CreaComma(articoloUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetCommiArticolo(articoloUId);
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -1078,13 +1563,17 @@ function CreaLettera(commaUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetLettereComma(commaUId);
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -1105,13 +1594,17 @@ function EliminaArticolo(articoloUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     GetArticoliAtto($("#Atto_UIDAtto").val());
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -1132,14 +1625,18 @@ function EliminaComma(commaUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     var uidArticoloAttivo = $("#tableArticoli").find("li.active").attr("uid");
                     GetCommiArticolo(uidArticoloAttivo);
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -1160,14 +1657,18 @@ function EliminaLettera(letteraUId) {
                 method: "GET"
             }).done(function(data) {
                 if (data.message) {
-                    ErrorAlert(data.message);
+                    swal({
+                        title: "Errore",
+                        text: data.message,
+                        icon: "error"
+                    });
                 } else {
                     var uidCommaAttivo = $("#tableCommi").find("li.active").attr("uid");
                     GetLettereComma(uidCommaAttivo);
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
         });
 }
@@ -1192,7 +1693,11 @@ function PubblicaFascicolo(attoUId, ordine) {
         dataType: "json"
     }).done(function(data) {
         if (data.message) {
-            ErrorAlert(data.message);
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
         }
         if (obj.Abilita == true) {
             SuccessAlert("Fascicolo pubblicato");
@@ -1201,7 +1706,94 @@ function PubblicaFascicolo(attoUId, ordine) {
         }
     }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
+    });
+}
+
+function BloccaODG(attoUId, blocca) {
+    var obj = {};
+    obj.Id = attoUId;
+    obj.Blocco = blocca;
+
+    $.ajax({
+        url: baseUrl + "/atti/bloccoODG",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+        }
+        if (blocca == true) {
+            SuccessAlert("Presentazione ordini del giorno bloccata");
+        } else {
+            SuccessAlert("Presentazione ordini del giorno abilitata");
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
+    });
+}
+
+function JollyODG(attoUId, jolly) {
+    var obj = {};
+    obj.Id = attoUId;
+    obj.Jolly = jolly;
+
+    $.ajax({
+        url: baseUrl + "/atti/jollyODG",
+        type: "POST",
+        data: JSON.stringify(obj),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    }).done(function(data) {
+        if (data.message) {
+            swal({
+                title: "Errore",
+                text: data.message,
+                icon: "error"
+            });
+            return;
+        }
+        if (blocca == true) {
+            SuccessAlert("Ordini del giorno: jolly disabilitato");
+        } else {
+            SuccessAlert("Ordini del giorno: jolly abilitato");
+        }
+    }).fail(function(err) {
+        console.log("error", err);
+        Error(err);
+    });
+}
+
+function InviaAlProtocollo(attoUId) {
+    waiting(true);
+    $.ajax({
+        url: baseUrl + "/dasi/invia-al-protocollo",
+        data: { id: attoUId },
+        type: "GET"
+    }).done(function(result) {
+        waiting(false);
+        if (result.message) {
+            swal({
+                title: "Errore",
+                text: result.message,
+                icon: "error"
+            });
+            return;
+        }
+        swal("Atto inviato al protocollo con successo!").then((val) => {
+                location.reload();
+            });
+    }).fail(function(err) {
+        console.log("error", err);
+        waiting(false);
+        Error(err);
     });
 }
 
@@ -1217,8 +1809,19 @@ function GetDestinatariNotifica(notificaId) {
         panel.append(data);
     }).fail(function(err) {
         console.log("error", err);
-        ErrorAlert(err.message);
+        Error(err);
     });
+}
+
+function GetFormattedDate(value) {
+    var splitted_date_arr = value.split("(");
+    var splitted_date = splitted_date_arr[splitted_date_arr.length - 1]
+        .replace("/", "")
+        .replace(";", "")
+        .replace(")", "");
+    var dateX = new Date(parseInt(splitted_date));
+    var date = moment(dateX);
+    return date.format("DD/MM/YYYY HH:mm");
 }
 
 // NOTIFICATION SWEETALERT.JS
@@ -1256,17 +1859,20 @@ function SuccessAlert(message, url) {
     });
 }
 
-function ErrorAlert(message) {
+function Error(ex) {
     swal({
-        title: "Attenzione!",
-        text: message,
+        title: "Errore",
+        text: MESSAGGIO_ERRORE_500 + " Motivo: " + ex.statusText,
         icon: "error",
-        button: "Ooops!"
+        button: "Ok"
     });
-    setTimeout(function() {
-            $("body").addClass("loaded");
-        },
-        200);
+}
+
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
 }
 
 $.fn.serializeObject = function() {
@@ -1285,3 +1891,14 @@ $.fn.serializeObject = function() {
         });
     return o;
 };
+
+function removeA(arr) {
+    var what, a = arguments, L = a.length, ax;
+    while (L > 1 && arr.length) {
+        what = a[--L];
+        while ((ax= arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
+        }
+    }
+    return arr;
+}

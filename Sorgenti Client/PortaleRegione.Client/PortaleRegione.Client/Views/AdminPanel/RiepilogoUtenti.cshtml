@@ -1,8 +1,9 @@
 ﻿@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using System.Linq
+@using System.Web.Mvc.Html
 @using Newtonsoft.Json
-@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.PersonaDto>
+@model PortaleRegione.DTO.Model.RiepilogoUtentiModel
 
 @{
     ViewBag.Title = "Amministrazione";
@@ -29,12 +30,12 @@
 </div>
 
 @{
-    Html.RenderPartial("_PaginationBar", Model.Paging);
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
 }
 
-<div id="utentiTable" class="row">
+<div id="contentTable" class="row">
 
-    @if (!Model.Results.Any())
+    @if (!Model.Data.Results.Any())
     {
         <div class="row">
             <div class="col s12">
@@ -47,7 +48,7 @@
         </div>
     }
 
-    @foreach (var persona in Model.Results)
+    @foreach (var persona in Model.Data.Results)
     {
         var colorPin = "";
         var messaggio = "";
@@ -86,7 +87,7 @@
                             <a class="hoverable center black-text" onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')" title="RESET password">
                                 <i class="material-icons">vpn_key</i>
                             </a>
-                            <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new {id = persona.UID_persona})')" title="Modifica @persona.UID_persona">
+                            <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new { id = persona.UID_persona })')" title="Modifica @persona.UID_persona">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
@@ -134,20 +135,23 @@
 </div>
 
 <input type="hidden" id="hdPersonaUID" />
-
-<div class="fixed-action-btn">
-    <a class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo utente"
-       href="@Url.Action("NuovoUtente")">
-        <i class="large material-icons">add</i>
-    </a>
-</div>
-
 @{
-    Html.RenderPartial("_RiepilogoUtentiFiltri", Model);
+    Html.RenderPartial("_RiepilogoUtentiFiltri", Model.Data);
     Html.RenderPartial("_RiepilogoUtenti_ModalResetPin");
     Html.RenderPartial("_RiepilogoUtenti_ModalResetPassword");
 }
 
+@if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+{
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo utente"
+           href="@Url.Action("NuovoUtente")">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+}
+
+
 @{
-    Html.RenderPartial("_RiepilogoUtentiScript", Model.Filters);
+    Html.RenderPartial("_RiepilogoUtentiScript", Model.Data.Filters);
 }

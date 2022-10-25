@@ -38,7 +38,12 @@
   <ItemGroup>
     <Compile Include="ARTICOLI.cs" />
     <Compile Include="ATTI.cs" />
+    <Compile Include="ATTI_COMMISSIONI.cs" />
+    <Compile Include="ATTI_DASI.cs" />
+    <Compile Include="ATTI_DASI_CONTATORI.cs" />
+    <Compile Include="ATTI_FIRME.cs" />
     <Compile Include="ATTI_RELATORI.cs" />
+    <Compile Include="ATTI_SOGGETTI_INTERROGATI.cs" />
     <Compile Include="cariche.cs" />
     <Compile Include="COMMI.cs" />
     <Compile Include="EM.cs" />
@@ -68,6 +73,7 @@
     <Compile Include="STAMPE.cs" />
     <Compile Include="STAMPE_INFO.cs" />
     <Compile Include="STATI_EM.cs" />
+    <Compile Include="TAGS.cs" />
     <Compile Include="tbl_recapiti.cs" />
     <Compile Include="TIPI_ATTO.cs" />
     <Compile Include="TIPI_EM.cs" />
@@ -76,10 +82,15 @@
     <Compile Include="TITOLI_MISSIONI.cs" />
     <Compile Include="UTENTI_NoCons.cs" />
     <Compile Include="View_assessori_in_carica.cs" />
+    <Compile Include="View_CAPIGRUPPO.cs" />
+    <Compile Include="View_cariche_assessori_in_carica.cs" />
+    <Compile Include="View_Commissioni_attive.cs" />
     <Compile Include="View_Composizione_GiuntaRegionale.cs" />
     <Compile Include="View_CONSIGLIERE_GRUPPO.cs" />
     <Compile Include="View_consiglieri_in_carica.cs" />
     <Compile Include="View_CONSIGLIERI_PEM.cs" />
+    <Compile Include="View_Conteggi_EM_Area_Politica.cs" />
+    <Compile Include="View_Conteggi_EM_Gruppi_Politici.cs" />
     <Compile Include="View_gruppi_politici_con_giunta.cs" />
     <Compile Include="View_PINS.cs" />
     <Compile Include="View_UTENTI.cs" />

@@ -92,8 +92,7 @@
             });
     }
 
-    async function NotificaA(attoUId, tipo) {
-
+    async function NotificaAEM(attoUId, tipo) {
         var documentiTotali = $("#hdTotaleDocumenti").val();
         var selezionaTutti = getSelezionaTutti();
         var listaEM = getListaEmendamenti();
@@ -125,7 +124,11 @@
             }
             var destinatari = chipInstanceNotificaA.getData();
             if (destinatari.length == 0) {
-                ErrorAlert("Seleziona almeno un destinatario");
+                swal({
+                    title: "Errore",
+                    text: "Seleziona almeno un destinatario",
+                    icon: "error"
+                });
                 return;
             }
 
@@ -138,7 +141,7 @@
             obj.Pin = $('#txtPinNotificheInviti').val();
             obj.Azione = @((int)ActionEnum.INVITA);
             obj.AttoUId = '@Model.UIDAtto';
-            obj.ListaEmendamenti = listaEM.length > 0 ? listaEM : [];
+            obj.Lista = listaEM.length > 0 ? listaEM : [];
             obj.ListaDestinatari = listaDestinatari;
 
             $.ajax({
@@ -149,10 +152,16 @@
                 dataType: "json"
             }).done(function(data) {
                 if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
                     swal({
                         title: "Esito Inviti",
                         text: data.message,
-                        icon: "info",
+                        icon: typeMessage,
                         button: "OK"
                     }).then(() => {
                         location.reload();
@@ -162,7 +171,7 @@
                 }
             }).fail(function(err) {
                 console.log("error", err);
-                ErrorAlert(err.message);
+                Error(err);
             });
 
             return false; //This doesn't prevent the form from submitting.

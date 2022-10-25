@@ -15,12 +15,13 @@
             <input type="hidden" id="hdMode" name="mode" value="@((int)Model.Mode)"/>
             <input type="hidden" id="inputFilterOrdine" name="ordine" value="@((int) Model.Ordinamento)"/>
             <input type="hidden" id="inputFiltroAtto" name="atto" value="@Model.Atto.UIDAtto"/>
+            <input type="hidden" id="inputFiltroTags" name="tags" value=""/>
 
             <div class="row" style="margin: 0 !important">
                 <div class="col s12">
                     <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important;">
                         <div class="input-field col s5">
-                            <input placeholder="Immetti qui il testo che vuoi cercare" class="validate" type="text" id="filter_em_text1" name="filtro_text1" onchange="filter_em_text1_OnChange()"/>
+                            <input placeholder="Immetti qui il testo che vuoi cercare" class="validate" type="text" id="filter_em_text1" name="filtro_text1" onchange="filter_em_text1_OnChange()" />
                             <label for="filter_em_text1">Cerca nel testo</label>
                         </div>
                         <div class="input-field col s2">
@@ -28,7 +29,7 @@
                             </select>
                         </div>
                         <div class="input-field col s5">
-                            <input placeholder="Immetti qui il testo che vuoi cercare" class="validate" type="text" id="filter_em_text2" name="filtro_text2" onchange="filter_em_text2_OnChange()"/>
+                            <input placeholder="Immetti qui il testo che vuoi cercare" class="validate" type="text" id="filter_em_text2" name="filtro_text2" onchange="filter_em_text2_OnChange()" />
                             <label for="filter_em_text2">Cerca nel testo</label>
                         </div>
                     </div>
@@ -36,7 +37,7 @@
                 <div class="col s12">
                     <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important;">
                         <div class="input-field col s2">
-                            <input placeholder="..." class="validate" type="text" id="filter_em_n_em" name="filtro_n_em" onchange="filter_em_n_em_OnChange()"/>
+                            <input placeholder="..." class="validate" type="text" id="filter_em_n_em" name="filtro_n_em" onchange="filter_em_n_em_OnChange()" />
                             <label for="filter_em_n_em">Numero EM</label>
                         </div>
                         <div class="input-field col s5">
@@ -78,19 +79,19 @@
 
                         <div id="pnlFiltroLetteraOLD" class="input-field col s4" style="display: none;">
                             <label for="filter_em_parte_letteraOLD">Lettera</label>
-                            <input placeholder="Immetti qui la lettera" class="validate" type="text" id="filter_em_parte_letteraOLD" name="filtro_parte_letteraOLD" onchange="filter_em_parte_letteraOLD_OnChange()"/>
+                            <input placeholder="Immetti qui la lettera" class="validate" type="text" id="filter_em_parte_letteraOLD" name="filtro_parte_letteraOLD" onchange="filter_em_parte_letteraOLD_OnChange()" />
                         </div>
 
                         @*TITOLO*@
                         <div id="pnlFiltroTitolo" class="input-field col s12" style="display: none;">
                             <label for="filter_em_parte_titolo">Titolo</label>
-                            <input placeholder="Immetti qui il titolo che vuoi cercare" class="validate" type="text" id="filter_em_parte_titolo" name="filtro_parte_titolo" onchange="filter_em_parte_titolo_OnChange()"/>
+                            <input placeholder="Immetti qui il titolo che vuoi cercare" class="validate" type="text" id="filter_em_parte_titolo" name="filtro_parte_titolo" onchange="filter_em_parte_titolo_OnChange()" />
                         </div>
 
                         @*CAPO*@
                         <div id="pnlFiltroCapo" class="input-field col s12" style="display: none;">
                             <label for="filter_em_parte_capo">Capo</label>
-                            <input placeholder="Immetti qui il capo che vuoi cercare" class="validate" type="text" id="filter_em_parte_capo" name="filtro_parte_capo" onchange="filter_em_parte_capo_OnChange()"/>
+                            <input placeholder="Immetti qui il capo che vuoi cercare" class="validate" type="text" id="filter_em_parte_capo" name="filtro_parte_capo" onchange="filter_em_parte_capo_OnChange()" />
                         </div>
 
                         @*MISSIONE*@
@@ -104,7 +105,7 @@
                         @*PROGRAMMA*@
                         <div id="pnlFiltroProgramma" class="input-field col s4" style="display: none;">
                             <label for="filter_em_parte_programma">Programma</label>
-                            <input placeholder="Immetti qui il programma" class="validate" type="text" id="filter_em_parte_programma" name="filtro_parte_programma" class="form-control" onchange="filter_em_parte_programma_OnChange()"/>
+                            <input placeholder="Immetti qui il programma" class="validate" type="text" id="filter_em_parte_programma" name="filtro_parte_programma" class="form-control" onchange="filter_em_parte_programma_OnChange()" />
                         </div>
                     </div>
                 </div>
@@ -120,6 +121,14 @@
                 <div class="input-field col s12">
                     <select multiple id="filter_em_firmatari" name="filtro_firmatari" onchange="filter_em_firmatari_OnChange()"></select>
                     <label>Firmatari</label>
+                </div>
+                <div class="col s12">
+                    <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-top: unset !important;">
+                        <div class="input-field col s12">
+                            <div id="tagsEm" name="filtro_tags" class="chips"></div>
+                            <label style="margin-top: -10px">Tags</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-field col s12">
                     <label>
@@ -252,14 +261,15 @@
     <div class="collapsible-header light-blue lighten-4"><i class="material-icons">import_export</i>Esporta</div>
     <div class="collapsible-body">
         <div class="container">
-            <a id="btnExportXLS" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode, is_report = false})" style="width: 100%">
+            <a id="btnExportXLS" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS", "Emendamenti")" style="width: 100%">
                 <i class="icon material-icons">
                     grid_on</i> EXCEL
             </a>
 
-            @if (User.IsInRole(RuoliExt.Segreteria_Assemblea))
+            @if (User.IsInRole(RuoliExt.Segreteria_Assemblea)
+                || User.IsInRole(RuoliExt.Amministratore_PEM))
             {
-                <a id="btnExportXLS_Segreteria" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS", "Emendamenti", new {id = Model.Atto.UIDAtto, ordine=(int)Model.Ordinamento, mode=(int)Model.Mode, is_report = true})" style="width: 100%">
+                <a id="btnExportXLS_Segreteria" class="btn chip hoverable green lighten-1 center white-text" data-href="@Url.Action("EsportaXLS_UOLA", "Emendamenti")" style="width: 100%">
                     <i class="icon material-icons">grid_on</i> EXCEL SEGRETERIA
                 </a>
             }
@@ -279,7 +289,7 @@
 }
 
 <script>
-    $(document).ready(async function() {
+    $(window).on('load', async function() {
         var mode = getClientMode();
         $("#hdMode").val(mode);
         var load_gruppi = @Html.Raw(load_gruppi.ToString().ToLower());
@@ -291,6 +301,7 @@
         }
         await SetupFiltriFirmatari();
         await SetupFiltriProponenti();
+        await SetupFiltriTags();
 
         $('#btnExportXLS').on("click", function() {
             var url = $('#btnExportXLS').data("href");
@@ -375,13 +386,6 @@
         });
     });
 
-    function s2ab(s) {
-        var buf = new ArrayBuffer(s.length);
-        var view = new Uint8Array(buf);
-        for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-        return buf;
-    }
-
     async function SetupFiltriFirmatari() {
         var filterSelect = [];
         var filtri = get_Filtri_EM();
@@ -445,6 +449,37 @@
         var elems = document.querySelectorAll("#filter_em_proponente");
         M.FormSelect.init(elems, null);
     }
+    
+    async function SetupFiltriTags() {
+        var filtri = get_Filtri_EM();
+        var currentFilters = [];
+        if (filtri.tags) {
+            currentFilters = filtri.tags;
+        }
+        var tagsInDb = await GetTags();
+        var elems = document.querySelectorAll('#tagsEm');
+        var tagInstance = M.Chips.init(elems,
+            {
+                data: currentFilters,
+                placeholder: 'Aggiungi un tag',
+                secondaryPlaceholder: '+ Tag',
+                autocompleteOptions: {
+                    data: tagsInDb,
+                    limit: Infinity,
+                    minLength: 1
+                },
+                onChipAdd: () => {
+                    filtri.tags = tagInstance[0].chipsData;
+                    set_Filtri_EM(filtri);
+                    $('#inputFiltroTags').val(JSON.stringify(filtri.tags));
+                },
+                onChipDelete: () => {
+                    filtri.tags = tagInstance[0].chipsData;
+                    set_Filtri_EM(filtri);
+                    $('#inputFiltroTags').val(JSON.stringify(filtri.tags));
+                }
+            });
+    }
 
     async function SetupFiltriGruppi() {
         var filterSelect = [];
@@ -492,7 +527,7 @@
                 resolve(result);
             }).fail(function(err) {
                 console.log("query - GetGruppiPolitici - error", err);
-                ErrorAlert(err);
+                Error(err);
             });
         });
     }

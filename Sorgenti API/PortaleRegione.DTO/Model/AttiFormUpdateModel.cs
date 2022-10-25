@@ -64,5 +64,7 @@ namespace PortaleRegione.DTO.Model
         public string Path_Testo_Atto { get; set; }
 
         public IEnumerable<PersonaLightDto> Relatori { get; set; }
+        [Display(Name = "Emendabile")]
+        public bool Emendabile { get; set; } = false;
     }
 }

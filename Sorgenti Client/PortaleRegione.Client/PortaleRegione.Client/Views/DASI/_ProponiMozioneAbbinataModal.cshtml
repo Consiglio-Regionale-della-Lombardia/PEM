@@ -1,0 +1,79 @@
+﻿<!-- Modal Structure -->
+<div id="modalProponiAbbinata" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="txtProponiAbbinata"></h4>
+        <label>Mozione abbinabili: </label>
+        <select id="Atto_TipoMOZ_Abbinabili">
+        </select>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnProponiAbbinata_Salva">Proponi</a>
+    </div>
+</div>
+<script>
+    async function ProponiAbbinataDASI(uidAtto, nomeAtto) {
+        $('#txtProponiAbbinata').html("Proposta di mozione abbinata per l'atto <b>" + nomeAtto + "</b>:");
+        var mozioni = await GetTipiMOZAbbinabiliDASI();
+        if (mozioni.length > 0) {
+            var select = $("#Atto_TipoMOZ_Abbinabili");
+            select.empty();
+            var abbinata = '';
+            $.each(mozioni,
+                function (index, item) {
+                    var template = "";
+                    if (item.UIDAtto != uidAtto) {
+                        template = "<option></option>";
+                    }
+                    var oggetto = item.Oggetto == null ? "" : item.Oggetto;
+                    if (item.Oggetto_Modificato != null) {
+                        oggetto = ite.Oggetto_Modificato;
+                    }
+                    if (oggetto.length > 100) {
+                        oggetto = oggetto.slice(0, 100).concat('...');
+                    }
+                    select.append($(template).val(item.UIDAtto).html("MOZ " + item.NAtto + " " + oggetto));
+                });
+
+            var elems = document.querySelectorAll("#Atto_TipoMOZ_Abbinabili");
+            M.FormSelect.init(elems, null);
+        }
+
+        $('#modalProponiAbbinata').modal("open");
+
+        $('#btnProponiAbbinata_Salva').on("click",
+            function() {
+                var listaAtti = [];
+                var obj = {};
+
+                listaAtti.push(uidAtto);
+                obj.Lista = listaAtti;
+                obj.AttoUId = $('select[id="Atto_TipoMOZ_Abbinabili"]').children("option:selected").val();
+
+                $.ajax({
+                    url: '@Url.Action("ProponiAbbinataMozione")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    console.log(data.message);
+                    if (data.message) {
+                        swal({
+                            title: "Esito salvataggio",
+                            text: data.message,
+                            icon: "error",
+                            button: "OK"
+                        });
+                    } else {
+                        go(data);
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+
+                $('#btnProponiAbbinata_Salva').off("click");
+                $('#modalProponiAbbinata').modal("close");
+            });
+    }
+</script>

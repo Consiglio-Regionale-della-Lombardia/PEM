@@ -33,6 +33,7 @@ namespace PortaleRegione.BAL
         public static string TOKEN_W => ConfigurationManager.AppSettings["TOKEN_W"];
         public static string MasterPIN => ConfigurationManager.AppSettings["MasterPIN"];
         public static string masterKey => ConfigurationManager.AppSettings["masterKey"];
+        public static string PDF_LICENSE => ConfigurationManager.AppSettings["PDF_LICENSE"];
         public static string urlPEM => ConfigurationManager.AppSettings["URLPEM"];
         public static string URL_API => ConfigurationManager.AppSettings["URL_API"];
         public static string SMTP => ConfigurationManager.AppSettings["SMTP"];
@@ -54,6 +55,9 @@ namespace PortaleRegione.BAL
         public static string Service_Password => ConfigurationManager.AppSettings["Service_Password"];
 
         //STAMPE
+        public static string Logo => ConfigurationManager.AppSettings["Logo"];
+        public static string Titolo => ConfigurationManager.AppSettings["Titolo"];
+        public static string NomePiattaforma => ConfigurationManager.AppSettings["NomePiattaforma"];
         public static string CartellaLavoroStampe => ConfigurationManager.AppSettings["CartellaLavoroStampe"];
         public static string LimiteGeneraStampaImmediata => ConfigurationManager.AppSettings["LimiteGeneraStampaImmediata"];
         public static string MessaggioInizialeDeposito => ConfigurationManager.AppSettings["MessaggioInizialeDeposito"];
@@ -65,5 +69,17 @@ namespace PortaleRegione.BAL
         public static string RootRepository => ConfigurationManager.AppSettings["RootRepository"];
         public static string PrefissoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PrefissoCompatibilitaDocumenti"];
         public static string PercorsoCompatibilitaDocumenti => ConfigurationManager.AppSettings["PercorsoCompatibilitaDocumenti"];
+        public static string urlDASI_ViewATTO => ConfigurationManager.AppSettings["urlDASI_ViewATTO"];
+
+        //DASI
+        public static string EmailInvioDASI => ConfigurationManager.AppSettings["EmailInvioDASI"];
+        public static string EmailProtocolloDASI => ConfigurationManager.AppSettings["EmailProtocolloDASI"];
+        public static string LimitePresentazioneMassivo => ConfigurationManager.AppSettings["LimitePresentazioneMassivo"];
+        public static int MinimoConsiglieriIQT => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriIQT"]);
+        public static int MinimoConsiglieriMOZU => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZU"]);
+        public static int MinimoConsiglieriMOZC_MOZS => Convert.ToInt16(ConfigurationManager.AppSettings["MinimoConsiglieriMOZC_MOZS"]);
+        public static int MassimoODG => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG"]);
+        public static int MassimoODG_DuranteSeduta => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG_DuranteSeduta"]);
+        public static int MassimoODG_Jolly => Convert.ToInt16(ConfigurationManager.AppSettings["MassimoODG_Jolly"]);
     }
 }

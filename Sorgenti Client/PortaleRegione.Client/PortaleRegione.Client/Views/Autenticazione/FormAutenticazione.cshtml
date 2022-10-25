@@ -10,9 +10,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Portale @Html.Raw(AppSettingsConfiguration.Title)</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -64,13 +69,13 @@
                 </div>
                 <div class="form-group">
                     @Html.LabelFor(s => s.Password)
-                    @Html.PasswordFor(s => s.Password, new {@class = "form-control", autocomplete = "off"})
+                    @Html.TextBoxFor(s => s.Password, new {@class = "form-control", type = "password"})
                     @Html.ValidationMessageFor(s => s.Password)
                 </div>
             </div>
             <div class="card-action right-align">
                 <div class="btn chip hoverable green lighten-1 center white-text" onclick="login()">
-                    <i class="icon material-icons">lock_open</i> Entra
+                    <i class="icon material-icons">lock_open</i> Accedi
                 </div>
 
                 @{

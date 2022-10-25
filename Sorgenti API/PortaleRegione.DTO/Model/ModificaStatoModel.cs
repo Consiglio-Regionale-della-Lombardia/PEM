@@ -24,7 +24,7 @@ namespace PortaleRegione.DTO.Model
 {
     public class ModificaStatoModel
     {
-        public ICollection<Guid> ListaEmendamenti { get; set; }
+        public ICollection<Guid> Lista { get; set; }
         public StatiEnum Stato { get; set; }
         public bool All { get; set; } = false;
         public Guid AttoUId { get; set; }

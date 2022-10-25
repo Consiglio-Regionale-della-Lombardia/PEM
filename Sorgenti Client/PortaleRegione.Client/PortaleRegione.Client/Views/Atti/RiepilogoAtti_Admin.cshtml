@@ -1,13 +1,9 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.Client.Models.AttiViewModel
 
 @{
-    var scadenza_text = "Non impostata";
-    if (Model.Seduta.Scadenza_presentazione.HasValue)
-    {
-        scadenza_text = @Convert.ToDateTime(Model.Seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm");
-    }
-    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), scadenza_text);
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0:dd/MM/yyyy}.", Model.Seduta.Data_seduta);
 }
 
 <script>
@@ -16,25 +12,27 @@
     });
 
     function openDeleteModal(id) {
-        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaAtto", "Atti", new {sedutaUId = Model.Seduta.UIDSeduta})?id=' + id);
+        $('#btnConfermaEliminazione').attr("href", '@Url.Action("EliminaAtto", "Atti", new { sedutaUId = Model.Seduta.UIDSeduta })?id=' + id);
         $('#modalDeleteAtto').modal('open');
     }
 
     $(document).ready(function() {
-        $('#btnCreaAtto').attr('href', '@Url.Action("NuovoAtto", "Atti", new {sedutaUId = Model.Seduta.UIDSeduta})');
+        $('#btnCreaAtto').attr('href', '@Url.Action("NuovoAtto", "Atti", new { sedutaUId = Model.Seduta.UIDSeduta })');
     });
 </script>
 
 <div class="row">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
-    </div>
-    <div class="col l11 s10">
-        <h5>
-            <b>@ViewBag.Title</b>
-        </h5>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                <h5>
+                    <b>@ViewBag.Title</b>
+                </h5>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -59,7 +57,7 @@
 
     @foreach (var atto in Model.Data.Results)
     {
-        var titolo_atto = string.Format("{0} {1}", atto.TIPI_ATTO.Tipo_Atto, atto.NAtto);
+        var titolo_atto = $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}";
 
         var statoAtto = "";
         var coloreStatoAtto = "";
@@ -93,52 +91,69 @@
                     }
                     else
                     {
-                        statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
+                        statoAtto = $"Mancano {totalMinutes} minuti all'apertura";
                     }
                 }
                 else
                 {
-                    statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
+                    statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
                 coloreStatoAtto = "amber darken-3";
             }
         }
 
         <div class="col s12">
-            <div class="card green lighten-4 hoverable">
+            <div class="card lighten-4 hoverable">
                 <div class="card-action grey lighten-4">
                     <div class="row" style="margin: 0 !important; padding: 0 !important">
                         <div class="col s6" style="display: inline-block">
-                            <p style="display: inline-block">
+                            @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                            {
+                                <p style="display: inline-block">
+                                    <label>
+                                        <input data-val="true" id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Presentazione))"
+                                               @Html.Raw(atto.OrdinePresentazione.Value ? "checked=\"checked\"" : "")>
+                                        <span>Abilita fascicolo presentazione</span>
+                                    </label>
+                                </p>
+                                <p style="display: inline-block; padding-left: 30px">
+                                    <label>
+                                        <input data-val="true" id="chkAbilitaFascicoloVotazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int)OrdinamentoEnum.Votazione))"
+                                               @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
+                                        <span>Abilita fascicolo votazione</span>
+                                    </label>
+                                </p>
+                            }
+                            <p style="display: inline-block; padding-left: 30px">
                                 <label>
-                                    <input data-val="true" id="chkAbilitaFascicoloPresentazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Presentazione))"
-                                           @Html.Raw(atto.OrdinePresentazione.Value ? "checked=\"checked\"" : "")>
-                                    <span>Abilita fascicolo presentazione</span>
+                                    <input data-val="true" id="chkBloccoODG_@atto.UIDAtto" type="checkbox" onchange="BloccaODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.BloccoODG)))"
+                                           @Html.Raw(atto.BloccoODG ? "checked=\"checked\"" : "")>
+                                    <span class="red-text" style="font-weight: bold">Blocco ODG</span>
                                 </label>
                             </p>
                             <p style="display: inline-block; padding-left: 30px">
                                 <label>
-                                    <input data-val="true" id="chkAbilitaFascicoloVotazione_@atto.UIDAtto" type="checkbox" onchange="PubblicaFascicolo('@atto.UIDAtto', @((int) OrdinamentoEnum.Votazione))"
-                                           @Html.Raw(atto.OrdineVotazione.Value ? "checked=\"checked\"" : "")>
-                                    <span>Abilita fascicolo votazione</span>
+                                    <input data-val="true" id="chkJollyODG_@atto.UIDAtto" type="checkbox" onchange="JollyODG('@atto.UIDAtto', @(Convert.ToInt16(!atto.Jolly)))"
+                                           @Html.Raw(atto.Jolly ? "checked=\"checked\"" : "")>
+                                    <span class="purple-text" style="font-weight: bold">Jolly</span>
                                 </label>
                             </p>
                         </div>
                         <div class="col s6 right-align">
                             @if (atto.CanMoveUp)
                             {
-                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new {id = atto.UIDAtto})')" title="Sposta su">
+                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveUp", "Atti", new { id = atto.UIDAtto })')" title="Sposta su">
                                     <i class="material-icons" style="margin-top: 15px">arrow_upward</i>
                                 </a>
                             }
                             @if (atto.CanMoveDown)
                             {
-                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new {id = atto.UIDAtto})')" title="Sposta giù">
+                                <a class="hoverable center orange-text" onclick="go('@Url.Action("MoveDown", "Atti", new { id = atto.UIDAtto })')" title="Sposta giù">
                                     <i class="material-icons" style="margin-top: 15px">arrow_downward</i>
                                 </a>
                             }
-                            
-                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new {id = atto.UIDAtto})')" title="Modifica">
+
+                            <a class="hoverable center blue-text" onclick="go('@Url.Action("ModificaAtto", "Atti", new { id = atto.UIDAtto })')" title="Modifica">
                                 <i class="material-icons" style="margin-top: 15px">edit</i>
                             </a>
                             <a class="hoverable center red-text" onclick="openDeleteModal('@atto.UIDAtto')" title="Elimina">
@@ -150,48 +165,54 @@
                 <div class="card-content">
                     <div class="card-title">
                         <div class="row valign-wrapper" style="margin: 0 !important;">
-                            <div class="col s12">
+                            <div class="col s8">
                                 <h5>
                                     <b>@titolo_atto</b>
-                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
-                                    {
-                                        <a href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})">
-                                            <i class="material-icons pink-text">cloud_download</i>
-                                        </a>
-                                    }
                                 </h5>
                                 <h6 class="active">
                                     <i>@Html.Raw(atto.Oggetto)</i>
                                 </h6>
                             </div>
-                        </div>
-                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
-                            <div class="col s6">
+                            <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
-                                    <div class="chip white-text @coloreStatoAtto" style="min-width: unset">@statoAtto</div>
-                                }
-                            </div>
-                            <div class="col s6 right-align">
-                                @if (atto.Informazioni_Mancanti)
-                                {
-                                    <div class="chip yellow black-text" style="min-width: unset">
-                                        <i class="icon material-icons">warning</i> Mancano alcune informazioni
-                                    </div>
+                                    <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
                                 }
                             </div>
                         </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
-                            <div class="col s6">
-                                <h6 class="black-text">
-                                    <b>@atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM</b>
-                                </h6>
+                            <div class="col s4">
+                                @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                {
+                                    <a class="btn-flat pink-text"
+                                       href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
+                                        <i class="material-icons right pink-text">cloud_download</i>
+                                        SCARICA DOCUMENTO
+                                    </a>
+                                }
+
                             </div>
-                            <div class="col s6 right-align">
-                                <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
-                                    <i class="material-icons" style="line-height: unset">chevron_right</i>
-                                </a>
-                            </div>
+                            @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
+                            {
+                                <div class="col s7 right-align">
+                                    @if (atto.Fascicoli_Da_Aggiornare)
+                                    {
+                                        <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale" style="margin-top: 4px">report</i>
+                                    }
+                                    <h6 class="black-text">
+                                        @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
+                                    </h6>
+
+                                </div>
+                                <div class="col s1 right-align">
+                                    @if (atto.Data_apertura.HasValue)
+                                    {
+                                        <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti">
+                                            <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                        </a>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

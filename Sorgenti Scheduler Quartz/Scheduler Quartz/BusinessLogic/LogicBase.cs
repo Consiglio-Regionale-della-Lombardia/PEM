@@ -8,6 +8,8 @@ namespace Scheduler.BusinessLogic
 {
     public abstract class LogicBase
     {
+        internal LoginResponse currentServiceUser { get; set; }
+
         protected bool IsValidConfigPath(string path)
         {
             return File.Exists(path);
@@ -15,10 +17,12 @@ namespace Scheduler.BusinessLogic
 
         protected async Task<LoginResponse> Init()
         {
-            var result = await PersoneGate.Login(
+            BaseGateway.apiUrl = ConfigurationManager.AppSettings["UrlApi"];
+            var apiGateway = new ApiGateway();
+            var result = await apiGateway.Persone.Login(
                 ConfigurationManager.AppSettings["ServiceUsername"],
                 ConfigurationManager.AppSettings["ServicePassword"]);
-            BaseGateway.access_token = result.jwt;
+            currentServiceUser = result;
             return result;
         }
     }

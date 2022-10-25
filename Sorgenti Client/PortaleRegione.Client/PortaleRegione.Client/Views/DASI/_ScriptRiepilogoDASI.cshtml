@@ -1,0 +1,58 @@
+﻿@using Newtonsoft.Json
+@using PortaleRegione.DTO.Domain
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+<script>
+    $('#btnSearch').on("click", async function () {
+        openDasiSearch();
+    });
+
+    var sedute = [];
+    var seduteMOZU = [];
+    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+    $(window).on('load',
+        async function () {
+            if (sedute.length == 0) {
+                var data = await GetSeduteAttive();
+                sedute = data.Results;
+            }
+            if (seduteMOZU.length == 0) {
+                var data = await GetSeduteAttiveMOZU();
+                seduteMOZU = data.Results;
+            }
+        });
+
+    $(document).ready(async function () {
+        setSelezionaTutti_DASI(false);
+        var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
+        if (filters == 0) {
+            set_Filtri_DASI({});
+        } else {
+            var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters));
+            console.log("filtri", filtri)
+            var filtri_cache = get_Filtri_DASI();
+            $.each(filtri,
+                function(i, item) {
+                    if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
+                        filtri_cache.stato = item.Value;
+                        set_Filtri_DASI(filtri_cache);
+                    }else if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
+                        filtri_cache.tipo = item.Value;
+                        set_Filtri_DASI(filtri_cache);
+                    }
+                });
+        }
+
+        Filtri_DASI_CaricaNAtto("qNAtto");
+        Filtri_DASI_CaricaNAtto2("qNAtto2");
+        Filtri_DASI_CaricaDataPresentazioneDA("qDataPresentazioneDA");
+        Filtri_DASI_CaricaDataPresentazioneA("qDataPresentazioneA");
+        Filtri_DASI_CaricaDataSeduta("qDataSeduta");
+        Filtri_DASI_CaricaOggetto("qOggetto");
+        Filtri_DASI_CaricaTipoRisposta("qTipoRisposta");
+        await Filtri_DASI_CaricaStato("qStato");
+        await Filtri_DASI_CaricaTipo("qTipo");
+        await Filtri_DASI_CaricaLegislature("qLegislatura");
+
+        checkSelectedDASI();
+    });
+</script>

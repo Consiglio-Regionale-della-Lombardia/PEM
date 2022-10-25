@@ -47,6 +47,7 @@
         <table>
             <thead>
             <tr>
+                <th width="5"></th>
                 <th>Atto</th>
                 <th>Data stampa</th>
                 <th>Da</th>
@@ -54,61 +55,96 @@
                 <th>Stato</th>
                 <th>Stato Invio</th>
                 <th width="100">Scarica</th>
-                <th></th>
+                <th width="10"></th>
             </tr>
             </thead>
             <tbody>
             @foreach (var stampa in Model.Results)
             {
                 <tr>
-                    <td>
-                        @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
-                        <a class="blue-text tooltipped" href="@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = (int)ClientModeEnum.GRUPPI})" data-position="bottom" data-tooltip="Vai all'atto">
-                            <i class="material-icons">call_made</i>
-                        </a>
-                    </td>
-                    <td>
-                        @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
-                    </td>
-                    @if (stampa.UIDEM.HasValue)
+                    @if (!stampa.DASI)
                     {
-                        <td colspan="2">
-                            <div class="chip center purple lighten-5" style="min-width: unset">
-                                Stampa singola
-                            </div>
+                        <td>
+                            <div class="chip blue-text white" style="border: 1px solid #7EADF3; min-width: unset;">PEM</div>
                         </td>
-                    }
-                    else if (stampa.Da == 0 && stampa.A == 0)
-                    {
-                        <td colspan="2">
-                            @switch ((OrdinamentoEnum) stampa.Ordine.Value)
-                            {
-                                case OrdinamentoEnum.Presentazione:
-                                    <div class="chip center" style="min-width: unset">
-                                        Fascicolo Presentazione
-                                    </div>
-                                    break;
-                                case OrdinamentoEnum.Votazione:
-                                    <div class="chip center" style="min-width: unset">
-                                        Fascicolo Votazione
-                                    </div>
-                                    break;
-                                case OrdinamentoEnum.Default:
-                                    break;
-                                default:
-                                    throw new ArgumentOutOfRangeException();
-                            }
+                        <td>
+                            @stampa.ATTI.TIPI_ATTO.Tipo_Atto @stampa.ATTI.NAtto
+                            <a class="blue-text tooltipped" href="@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = stampa.UIDAtto, mode = (int) ClientModeEnum.GRUPPI})" data-position="bottom" data-tooltip="Vai all'atto">
+                                <i class="material-icons">call_made</i>
+                            </a>
                         </td>
+                        <td>
+                            @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        if (stampa.UIDEM.HasValue)
+                        {
+                            <td colspan="2">
+                                <div class="chip center purple lighten-5" style="min-width: unset">
+                                    Stampa singola
+                                </div>
+                            </td>
+                        }
+                        else if (stampa.Da == 0 && stampa.A == 0)
+                        {
+                            <td colspan="2">
+                                @switch ((OrdinamentoEnum) stampa.Ordine.Value)
+                                {
+                                    case OrdinamentoEnum.Presentazione:
+                                        <div class="chip center" style="min-width: unset">
+                                            Fascicolo Presentazione
+                                        </div>
+                                        break;
+                                    case OrdinamentoEnum.Votazione:
+                                        <div class="chip center" style="min-width: unset">
+                                            Fascicolo Votazione
+                                        </div>
+                                        break;
+                                    case OrdinamentoEnum.Default:
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @stampa.Da
+                            </td>
+                            <td>
+                                @stampa.A
+                            </td>
+                        }
                     }
                     else
                     {
                         <td>
-                            @stampa.Da
+                            <div class="chip red-text white" style="border: 1px solid #F4433C; min-width: unset;">DASI</div>
                         </td>
                         <td>
-                            @stampa.A
                         </td>
+                        <td>
+                            @stampa.DataRichiesta.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        if (stampa.UIDAtto.HasValue)
+                        {
+                            <td colspan="2">
+                                <div class="chip center purple lighten-5" style="min-width: unset">
+                                    Stampa singola
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @stampa.Da
+                            </td>
+                            <td>
+                                @stampa.A
+                            </td>
+                        }
                     }
+
                     <td>
                         @if (string.IsNullOrEmpty(stampa.MessaggioErrore))
                         {
@@ -180,6 +216,18 @@
 }
 
 <script>
+    var url = '@Url.Action("Index", "Stampe")';
+    var currentPage = @Html.Raw(Model.Paging.Page);
+    var currentSize = @Html.Raw(Model.Paging.Limit);
+
+    function filtra_Paginazione(size) {
+        go(url + "?page=" + currentPage + "&size=" + size);
+    }
+
+    function filtra(page) {
+        go(url + "?page=" + page + "&size=" + currentSize);
+    }
+
     var interval = null;
     var initial_start = 30;
     $(document).ready(function() {
@@ -204,7 +252,8 @@
 
                 if (parseInt(seconds) - 1 == 0) {
                     clearInterval(interval);
-                    location.reload();
+                    var redirectUrl = url + "?page=" + currentPage + "&size=" + currentSize;
+                    go(redirectUrl);
                 }
             },
             1000);
@@ -236,7 +285,7 @@
 
                 }).fail(function(err) {
                     console.log("error", err);
-                    ErrorAlert(err.message);
+                    Error(err);
                 });
             }
         });

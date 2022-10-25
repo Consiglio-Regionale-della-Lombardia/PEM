@@ -143,7 +143,7 @@ namespace PortaleRegione.Client.Controllers
                 else
                     attoSalvato = await apiGateway.Atti.Modifica(atto);
 
-                return Json(new ClientJsonResponse<AttiDto>
+                var result = Json(new ClientJsonResponse<AttiDto>
                 {
                     entity = attoSalvato,
                     url = Url.Action("RiepilogoAtti", "Atti", new
@@ -151,6 +151,25 @@ namespace PortaleRegione.Client.Controllers
                         id = atto.UIDSeduta
                     })
                 }, JsonRequestBehavior.AllowGet);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("salva-testo")]
+        [HttpPost]
+        public async Task<ActionResult> SalvaTesto(TestoAttoModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Atti.SalvaTesto(model);
+                return Json("OK", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -242,10 +261,10 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="id">Guid articolo</param>
         /// <returns></returns>
         [Route("commi")]
-        public async Task<ActionResult> GetCommi(Guid id)
+        public async Task<ActionResult> GetCommi(Guid id, bool expanded = false)
         {
             var apiGateway = new ApiGateway(_Token);
-            var commi = await apiGateway.Atti.GetComma(id);
+            var commi = await apiGateway.Atti.GetComma(id, expanded);
             return Json(commi, JsonRequestBehavior.AllowGet);
         }
 
@@ -315,9 +334,17 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(_Token);
+                var atto = await apiGateway.Atti.Get(model.Id);
                 await apiGateway.Atti.SalvaRelatori(model);
 
-                return Json("", JsonRequestBehavior.AllowGet);
+                var result = Json(new ClientJsonResponse<AttiDto>
+                {
+                    url = Url.Action("RiepilogoAtti", "Atti", new
+                    {
+                        id = atto.UIDSeduta
+                    })
+                }, JsonRequestBehavior.AllowGet);
+                return result;
             }
             catch (Exception e)
             {
@@ -371,5 +398,87 @@ namespace PortaleRegione.Client.Controllers
             await apiGateway.Atti.SPOSTA_DOWN(id);
             return RedirectToAction("RiepilogoAtti", "Atti", new { id = atto.UIDSeduta });
         }
+
+        /// <summary>
+        /// Controller per bloccare la presentazione degli ordini del giorno per un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("bloccoODG")]
+        [HttpPost]
+        public async Task<ActionResult> BloccoODG(BloccoODGModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Atti.BloccoODG(model);
+
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Controller per attivare o disattivare il jolly che toglie il limite alla presentazione degli ordini del giorno
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [Route("jollyODG")]
+        [HttpPost]
+        public async Task<ActionResult> JollyODG(JollyODGModel model)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                await apiGateway.Atti.JollyODG(model);
+
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("tipi")]
+        public async Task<ActionResult> GetTipi(bool dasi = true)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Atti.GetTipi(dasi), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("griglia-testi")]
+        public async Task<ActionResult> GetGrigliaTesto(Guid id, bool viewEm = false)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(_Token);
+                return Json(await apiGateway.Atti.GetGrigliaTesto(id, viewEm), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
     }
 }

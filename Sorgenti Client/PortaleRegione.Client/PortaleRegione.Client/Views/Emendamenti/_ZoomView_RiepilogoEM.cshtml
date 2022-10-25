@@ -68,7 +68,7 @@ else
                     </div>
                     <div class='col s4'>
                         <div class='card-action center'>
-                            <div class="chip center white-text @itemEM.STATI_EM.CssClass" style="min-width: 180px">
+                            <div class="chip center @itemEM.STATI_EM.CssClass" style="min-width: 180px">
                                 @itemEM.STATI_EM.Stato
                             </div>
                         </div>
@@ -107,21 +107,24 @@ else
                         <div class='col s12'>
                             <div class='card-action right'>
                                 @{
-                                    if (itemEM.IDStato <= (int) StatiEnum.Depositato)
+                                    if (itemEM.IDStato <= (int)StatiEnum.Depositato)
                                     {
                                         if (itemEM.Firmabile)
                                         {
-                                            <a class='green-text' style='margin: 5px' onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
-                                                <i class="icon material-icons" title="Firma">gavel</i>
+                                            <a class="btn-flat green-text" onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
+                                                <i class="material-icons right green-text">gavel</i>
+                                                FIRMA
                                             </a>
                                         }
                                     }
-                                    if (itemEM.IDStato <= (int) StatiEnum.Bozza)
+                                    if (itemEM.IDStato <= (int)StatiEnum.Bozza)
                                     {
                                         if (itemEM.Depositabile)
                                         {
-                                            <a class='purple-text' style='margin: 5px' onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                                <i class="icon material-icons" title="Deposita">lock</i>
+                                            <a class="btn-flat purple-text"
+                                               onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                                <i class="material-icons right purple-text">lock</i>
+                                                DEPOSITA
                                             </a>
                                         }
                                     }

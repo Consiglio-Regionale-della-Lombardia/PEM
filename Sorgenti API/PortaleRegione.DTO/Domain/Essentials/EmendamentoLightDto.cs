@@ -32,6 +32,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [Required(ErrorMessage = "E' obbligatorio indicare il modo")]
         public int IDTipo_EM { get; set; }
 
+        public int IDStato { get; set; }
+
         [Required(ErrorMessage = "E' obbligatorio indicare l'elemento da emendare")]
         public int IDParte { get; set; }
 
@@ -50,7 +52,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [StringLength(5)]
         public string NLettera { get; set; }
 
-        [StringLength(5)] 
+        [StringLength(5)]
         public string NNumero { get; set; }
 
         public int? NMissione { get; set; }
@@ -59,9 +61,9 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         public int? NTitoloB { get; set; }
 
-        [AllowHtml] 
+        [AllowHtml]
         public string TestoEM_originale { get; set; }
-        
+
         [AllowHtml]
         public string TestoREL_originale { get; set; }
 
@@ -74,5 +76,13 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [AllowHtml] public string NOTE_EM { get; set; }
 
         [AllowHtml] public string NOTE_Griglia { get; set; }
+    }
+
+    public class EmendamentoExtraLightDto
+    {
+        [Key] public Guid UIDEM { get; set; }
+        [StringLength(50)] public string N_EM { get; set; }
+        public PersonaExtraLightDto PersonaProponente { get; set; }
+        [StringLength(255)] public string DataDeposito { get; set; }
     }
 }

@@ -1,0 +1,209 @@
+﻿@using System.Configuration
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
+<div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
+    <a class="btn-floating btn-large pink">
+        <i class="large material-icons">playlist_add</i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating tooltipped btn-firma" data-position="left" data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
+                <i class="material-icons">gavel</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating tooltipped btn-presenta" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
+                <i class="material-icons">lock</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating tooltipped btn-invita" data-position="left" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
+                <i class="material-icons">send</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+                <i class="material-icons">undo</i>
+            </a>
+        </li>
+    </ul>
+</div>
+@{
+    var mode = Convert.ToInt16(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE));
+    var block = mode == (int) ClientModeEnum.GRUPPI || mode == 0 ? "block" : "none";
+}
+<div id="pnlNuovoDASI" class="fixed-action-btn" style="display: @Html.Raw(block)">
+    <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
+        <i class="large material-icons">add</i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ITL})">@Utility.GetText_Tipo((int) TipoAttoEnum.ITL)</a>
+        </li>
+
+        <li>
+            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ITR})">@Utility.GetText_Tipo((int) TipoAttoEnum.ITR)</a>
+        </li>
+        <li>
+            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.IQT})">@Utility.GetText_Tipo((int) TipoAttoEnum.IQT)</a>
+        </li>
+        <li>
+            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.MOZ})">@Utility.GetText_Tipo((int) TipoAttoEnum.MOZ)</a>
+        </li>
+        <li>
+            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ODG})">@Utility.GetText_Tipo((int) TipoAttoEnum.ODG)</a>
+        </li>
+    </ul>
+</div>
+
+@Html.Partial("_InvitoPanelMassivo")
+
+<script>
+
+    async function MassivoDASI(action) {
+        var text = "";
+        var button = "";
+
+        var documentiTotali = $("#hdTotaleDocumenti").val();
+        var selezionaTutti = getSelezionaTutti_DASI();
+        var lista = getListaAtti();
+        var totaleDoc = selezionaTutti ? documentiTotali - lista.length : lista.length;
+
+        if (totaleDoc <= 0) {
+            swal({
+                title: "Errore",
+                text: "Seleziona almeno un atto da elaborare",
+                icon: "error"
+            });
+            return;
+        }
+
+        if (action == @((int) ActionEnum.FIRMA)) {
+            text = "Inserisci il PIN per firmare ";
+            button = "Firma";
+        } else if (action == @((int) ActionEnum.DEPOSITA)) {
+            text = "Inserisci il PIN per depositare ";
+            button = "Deposita";
+        } else if (action == @((int) ActionEnum.INVITA)) {
+            await NotificaADASI(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI));
+            return;
+        }
+        var limite_file = @Html.Raw(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
+        if (totaleDoc > limite_file) {
+            text = text + " (Verranno processati solamente i primi " + limite_file + ")";
+        } else {
+            text = text + totaleDoc + " atti";
+        }
+        swal(text,
+                {
+                    content: {
+                        element: "input",
+                        attributes: { placeholder: "******", className: "password" }
+                    },
+                    buttons: { cancel: "Annulla", confirm: button }
+                })
+            .then((value) => {
+                if (value == null || value == "")
+                    return;
+
+                var obj = {};
+                obj.Pin = value;
+                obj.Azione = action;
+                obj.Lista = lista.length > 0 ? lista : [];
+
+                $.ajax({
+                    url: baseUrl + "/dasi/azioni-massive",
+                    type: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
+                    swal({
+                        title: "Esito procedura",
+                        text: data.message,
+                        icon: typeMessage,
+                        button: "Ok"
+                    }).then(() => {
+                        DeselectALLEM();
+                        location.reload();
+                    });
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            });
+    }
+
+    function FirmaMassivo_DASI() {
+        MassivoDASI(@Html.Raw((int) ActionEnum.FIRMA));
+    }
+
+    function PresentaMassivo_DASI() {
+        MassivoDASI(@Html.Raw((int) ActionEnum.DEPOSITA));
+    }
+
+    function InvitoMassivo_DASI() {
+        MassivoDASI(@Html.Raw((int) ActionEnum.INVITA));
+    }
+
+    function AbilitaComandiMassivi_DASI(uidAtto) {
+        if (uidAtto) {
+            var chk = $("#chk_Atto_" + uidAtto);
+            var selezionaTutti = getSelezionaTutti_DASI();
+            if (chk[0].checked) {
+                if (selezionaTutti) {
+                    removeAtto(uidAtto); //listaEsclusiva
+                } else {
+                    addAtto(uidAtto); //listaInsclusiva
+                }
+            } else {
+                if (selezionaTutti) {
+                    addAtto(uidAtto); //listaEsclusiva
+                } else {
+                    removeAtto(uidAtto); //listaInsclusiva
+                }
+            }
+        }
+
+        var lchk = getListaAtti();
+        var check_all = false;
+        if ($("#checkAll").length > 0) {
+            check_all = $("#checkAll")[0].checked;
+        }
+        if (lchk.length > 0 || check_all) {
+            $("#btnComandiMassivi").show();
+            $("#pnlNuovoDASI").hide();
+        } else {
+            $("#btnComandiMassivi").hide();
+            var mode = getClientMode();
+            if (mode == @((int) ClientModeEnum.GRUPPI)) {
+                $("#pnlNuovoDASI").show();
+            } else {
+                $("#pnlNuovoDASI").hide();
+
+            }
+        }
+    }
+
+    $("#checkAll").click(function() {
+        setSelezionaTutti_DASI(this.checked);
+        setListaAtti([]);
+        $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);
+        AbilitaComandiMassivi_DASI(null);
+    });
+
+    function resetGridSelection() {
+        $("#checkAll").prop("checked", false);
+        $('input[id^="chk_Atto_"]').not(this).prop("checked", false);
+        setSelezionaTutti_DASI(false);
+        setListaAtti([]);
+        AbilitaComandiMassivi_DASI(null);
+    }
+</script>

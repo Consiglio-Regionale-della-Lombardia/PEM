@@ -1,7 +1,9 @@
-﻿@model PortaleRegione.Client.Models.AttiViewModel
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.Client.Models.AttiViewModel
 
 @{
-    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0}. Scadenza Presentazione EM: {1}", Model.Seduta.Data_seduta.Value.ToString("dd/MM/yyyy"), Model.Seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm"));
+    ViewBag.Title = string.Format("Riepilogo Atti Iscritti alla Seduta del {0:dd/MM/yyyy}.", Model.Seduta.Data_seduta);
 }
 
 <script>
@@ -11,15 +13,17 @@
 </script>
 
 <div class="row">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "Sedute")">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoSedute", "PEM")">
             <i class="material-icons">arrow_back</i>
         </a>
-    </div>
-    <div class="col l11 s10">
-        <h5>
-            <b>@ViewBag.Title</b>
-        </h5>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                <h5>
+                    <b>@ViewBag.Title</b>
+                </h5>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -44,7 +48,7 @@
 
     @foreach (var atto in Model.Data.Results)
     {
-        var titolo_atto = string.Format("{0} {1}", atto.TIPI_ATTO.Tipo_Atto, atto.NAtto);
+        var titolo_atto = $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}";
 
         var statoAtto = "";
         var coloreStatoAtto = "";
@@ -75,11 +79,11 @@
 
                 if (totalMinutes <= 60)
                 {
-                    statoAtto = string.Format("Mancano {0} minuti all'apertura", totalMinutes);
+                    statoAtto = $"Mancano {totalMinutes} minuti all'apertura";
                 }
                 else
                 {
-                    statoAtto = string.Format("Apertura prevista: {0:dd/MM/yyyy HH:mm}", atto.Data_apertura.Value);
+                    statoAtto = $"Apertura prevista: {atto.Data_apertura.Value:dd/MM/yyyy HH:mm}";
                 }
 
                 coloreStatoAtto = "green";
@@ -87,48 +91,55 @@
         }
 
         <div class="col s12">
-            <div class="card green lighten-4 hoverable">
+            <div class="card hoverable">
                 <div class="card-content">
                     <div class="card-title">
-                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
-                            <div class="col s12">
-                                <span>
+                        <div class="row" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s8">
+                                <h5>
                                     <b>@titolo_atto</b>
-                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
-                                    {
-                                        <a href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})">
-                                            <i class="material-icons pink-text">cloud_download</i>
-                                        </a>
-                                    }
-                                </span>
+                                </h5>
                                 <h6 class="active">
                                     <i>@Html.Raw(atto.Oggetto)</i>
                                 </h6>
                             </div>
-                        </div>
-                        <div class="row valign-wrapper" style="margin: 0; margin-bottom: 0 !important">
-                            <div class="col s12">
+                            <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
-                                    <div class="chip white-text @coloreStatoAtto" style="min-width: unset">@statoAtto</div>
+                                    <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
                                 }
                             </div>
                         </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
-                            <div class="col s6">
-                                <h6 class="black-text">
-                                    <b>@atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM</b>
-                                </h6>
-                            </div>
-                            <div class="col s6 right-align">
-                                @if (atto.Data_apertura.HasValue)
+                            <div class="col s4">
+                                @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
-                                    <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
-                                        <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                    <a class="btn-flat pink-text"
+                                       href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})" title="Scarica documento">
+                                        <i class="material-icons right pink-text">cloud_download</i>
+                                        SCARICA DOCUMENTO
                                     </a>
                                 }
+
                             </div>
+                            @if (atto.IDTipoAtto == (int) TipoAttoEnum.PDL)
+                            {
+                                <div class="col s7 right-align">
+                                    <h6 class="black-text">
+                                        @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
+                                    </h6>
+                                </div>
+                                <div class="col s1 right-align">
+                                    @if (atto.Data_apertura.HasValue)
+                                    {
+                                        <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">
+                                            <i class="material-icons" style="line-height: unset">chevron_right</i>
+                                        </a>
+                                    }
+                                </div>
+                            }
                         </div>
+
                     </div>
                 </div>
             </div>

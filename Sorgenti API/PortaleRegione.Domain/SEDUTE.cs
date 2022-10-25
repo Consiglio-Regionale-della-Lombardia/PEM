@@ -46,6 +46,11 @@ namespace PortaleRegione.Domain
         public int? IDOrgano { get; set; }
 
         public DateTime? Scadenza_presentazione { get; set; }
+        public DateTime? DataScadenzaPresentazioneIQT { get; set; }
+        public DateTime? DataScadenzaPresentazioneMOZ { get; set; }
+        public DateTime? DataScadenzaPresentazioneMOZA { get; set; }
+        public DateTime? DataScadenzaPresentazioneMOZU { get; set; }
+        public DateTime? DataScadenzaPresentazioneODG { get; set; }
 
         public int id_legislatura { get; set; }
 
@@ -60,6 +65,7 @@ namespace PortaleRegione.Domain
         public DateTime? DataModifica { get; set; }
 
         public bool? Eliminato { get; set; }
+        public bool Riservato_DASI { get; set; } = false;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ATTI> ATTI { get; set; }

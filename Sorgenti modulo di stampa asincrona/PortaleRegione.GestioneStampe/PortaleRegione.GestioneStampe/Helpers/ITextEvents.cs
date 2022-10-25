@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using iTextSharp.text;
+﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System;
+using System.IO;
 
 namespace PortaleRegione.GestioneStampe.Helpers
 {
@@ -47,74 +47,139 @@ namespace PortaleRegione.GestioneStampe.Helpers
             try
             {
                 base.OnEndPage(writer, document);
-                var text = String.Empty;
-                switch ((StatiEnum)EM.IDStato)
+                if (EM != null)
                 {
-                    case StatiEnum.Bozza_Riservata:
-                        text = nameof(StatiEnum.Bozza_Riservata).Replace("_", " ");
-                        break;
-                    case StatiEnum.Bozza:
-                        text = nameof(StatiEnum.Bozza);
-                        break;
-                    case StatiEnum.Depositato:
-                        break;
-                    case StatiEnum.Approvato:
-                        text = nameof(StatiEnum.Approvato);
-                        break;
-                    case StatiEnum.Non_Approvato:
-                        text = nameof(StatiEnum.Non_Approvato).Replace("_", " ");
-                        break;
-                    case StatiEnum.Ritirato:
-                        text = nameof(StatiEnum.Ritirato);
-                        break;
-                    case StatiEnum.Decaduto:
-                        text = nameof(StatiEnum.Decaduto);
-                        break;
-                    case StatiEnum.Inammissibile:
-                        text = nameof(StatiEnum.Inammissibile);
-                        break;
-                    case StatiEnum.Approvato_Con_Modifiche:
-                        text = nameof(StatiEnum.Approvato_Con_Modifiche).Replace("_", " ");
-                        break;
+                    var text = String.Empty;
+                    switch ((StatiEnum)EM.IDStato)
+                    {
+                        case StatiEnum.Bozza_Riservata:
+                            text = nameof(StatiEnum.Bozza_Riservata).Replace("_", " ");
+                            break;
+                        case StatiEnum.Bozza:
+                            text = nameof(StatiEnum.Bozza);
+                            break;
+                        case StatiEnum.Depositato:
+                            break;
+                        case StatiEnum.Approvato:
+                            text = nameof(StatiEnum.Approvato);
+                            break;
+                        case StatiEnum.Non_Approvato:
+                            text = nameof(StatiEnum.Non_Approvato).Replace("_", " ");
+                            break;
+                        case StatiEnum.Ritirato:
+                            text = nameof(StatiEnum.Ritirato);
+                            break;
+                        case StatiEnum.Decaduto:
+                            text = nameof(StatiEnum.Decaduto);
+                            break;
+                        case StatiEnum.Inammissibile:
+                            text = nameof(StatiEnum.Inammissibile);
+                            break;
+                        case StatiEnum.Approvato_Con_Modifiche:
+                            text = nameof(StatiEnum.Approvato_Con_Modifiche).Replace("_", " ");
+                            break;
+                    }
+                    var dtdeposito = "--"; //MAX: cambio il nome della variabile da dtscadenza in dtdeposito
+                    if (EM.IDStato >= (int)StatiEnum.Depositato)
+                        dtdeposito = EM.DataDeposito;
+
+                    //Add paging to header
+                    {
+                        cb.BeginText();
+                        cb.SetFontAndSize(bf, 10);
+                        cb.SetTextMatrix(document.PageSize.GetRight(170), document.PageSize.GetTop(20));
+                        cb.ShowText(text);
+                        cb.EndText();
+                        var len = bf.GetWidthPoint(text, 12);
+                        cb.AddTemplate(headerTemplate, document.PageSize.GetRight(120) + len, document.PageSize.GetTop(20));
+                    }
+                    //Add paging to footer
+                    {
+                        cb.BeginText();
+                        cb.SetFontAndSize(bf, 12);
+                        cb.SetTextMatrix(document.PageSize.GetRight(200), document.PageSize.GetBottom(20));
+
+                        cb.EndText();
+                        cb.AddTemplate(footerTemplate, document.PageSize.GetRight(200) + 50, document.PageSize.GetBottom(20));
+                    }
+                    //Add paging to footer
+                    {
+                        cb.BeginText();
+                        cb.SetFontAndSize(bf, 12);
+                        cb.SetTextMatrix(document.PageSize.GetRight(500), document.PageSize.GetBottom(20));
+
+                        if (EM.Firma_da_ufficio)
+                            cb.ShowText($"{EM.N_EM} depositato d'ufficio");
+                        else if (dtdeposito != "--")
+                            cb.ShowText($"{EM.N_EM} depositato il {dtdeposito}");
+
+                        cb.EndText();
+                        var len = bf.GetWidthPoint(text, 12);
+                        cb.AddTemplate(footerTemplate2, document.PageSize.GetRight(500) + 300, document.PageSize.GetBottom(20));
+                    }
                 }
 
-                var dtdeposito = "--"; //MAX: cambio il nome della variabile da dtscadenza in dtdeposito
-                if (EM.IDStato >= (int) StatiEnum.Depositato)
-                    dtdeposito = EM.DataDeposito;
-
-                //Add paging to header
+                if (Atto != null)
                 {
-                    cb.BeginText();
-                    cb.SetFontAndSize(bf, 10);
-                    cb.SetTextMatrix(document.PageSize.GetRight(170), document.PageSize.GetTop(20));
-                    cb.ShowText(text);
-                    cb.EndText();
-                    var len = bf.GetWidthPoint(text, 12);
-                    cb.AddTemplate(headerTemplate, document.PageSize.GetRight(120) + len, document.PageSize.GetTop(20));
-                }
-                //Add paging to footer
-                {
-                    cb.BeginText();
-                    cb.SetFontAndSize(bf, 12);
-                    cb.SetTextMatrix(document.PageSize.GetRight(200), document.PageSize.GetBottom(20));
+                    var text = String.Empty;
+                    switch ((StatiAttoEnum)Atto.IDStato)
+                    {
+                        case StatiAttoEnum.BOZZA_RISERVATA:
+                            text = nameof(StatiAttoEnum.BOZZA_RISERVATA).Replace("_", " ");
+                            break;
+                        case StatiAttoEnum.BOZZA:
+                            text = nameof(StatiAttoEnum.BOZZA);
+                            break;
+                        case StatiAttoEnum.PRESENTATO:
+                            text = nameof(StatiAttoEnum.PRESENTATO);
+                            break;
+                        case StatiAttoEnum.IN_TRATTAZIONE:
+                            text = nameof(StatiAttoEnum.IN_TRATTAZIONE).Replace("_", " ");
+                            break;
+                        case StatiAttoEnum.CHIUSO:
+                            text = nameof(StatiAttoEnum.CHIUSO);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    var dtpresentazione = "--";
+                    if (Atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        dtpresentazione = Atto.DataPresentazione;
 
-                    cb.EndText();
-                    cb.AddTemplate(footerTemplate, document.PageSize.GetRight(200) + 50, document.PageSize.GetBottom(20));
-                }
-                //Add paging to footer
-                {
-                    cb.BeginText();
-                    cb.SetFontAndSize(bf, 12);
-                    cb.SetTextMatrix(document.PageSize.GetRight(500), document.PageSize.GetBottom(20));
+                    //Add paging to header
+                    {
+                        cb.BeginText();
+                        cb.SetFontAndSize(bf, 10);
+                        cb.SetTextMatrix(document.PageSize.GetRight(170), document.PageSize.GetTop(20));
+                        cb.ShowText(text);
+                        cb.EndText();
+                        var len = bf.GetWidthPoint(text, 12);
+                        cb.AddTemplate(headerTemplate, document.PageSize.GetRight(120) + len, document.PageSize.GetTop(20));
+                    }
+                    //Add paging to footer
+                    {
+                        cb.BeginText();
+                        cb.SetFontAndSize(bf, 12);
+                        cb.SetTextMatrix(document.PageSize.GetRight(200), document.PageSize.GetBottom(20));
 
-                    if (EM.Firma_da_ufficio)
-                        cb.ShowText($"{EM.N_EM} depositato d'ufficio");
-                    else if (dtdeposito != "--")
-                        cb.ShowText($"{EM.N_EM} depositato il {dtdeposito}");
+                        cb.EndText();
+                        cb.AddTemplate(footerTemplate, document.PageSize.GetRight(200) + 50, document.PageSize.GetBottom(20));
+                    }
+                    //Add paging to footer
+                    {
+                        cb.BeginText();
+                        cb.SetFontAndSize(bf, 12);
+                        cb.SetTextMatrix(document.PageSize.GetRight(500), document.PageSize.GetBottom(20));
 
-                    cb.EndText();
-                    var len = bf.GetWidthPoint(text, 12);
-                    cb.AddTemplate(footerTemplate2, document.PageSize.GetRight(500) + 300, document.PageSize.GetBottom(20));
+                        if (Atto.Firma_da_ufficio)
+                            cb.ShowText($"{Atto.NAtto} presentato d'ufficio");
+                        else if (dtpresentazione != "--")
+                            cb.ShowText($"{Common.Utility.GetText_Tipo(Atto.Tipo)} {Atto.NAtto} presentato il {dtpresentazione}");
+
+                        cb.EndText();
+                        var len = bf.GetWidthPoint(text, 12);
+                        cb.AddTemplate(footerTemplate2, document.PageSize.GetRight(500) + 300, document.PageSize.GetBottom(20));
+                    }
                 }
 
                 cb.MoveTo(40, document.PageSize.GetBottom(50));
@@ -150,6 +215,7 @@ namespace PortaleRegione.GestioneStampe.Helpers
         public string Header { get; set; }
 
         public EmendamentiDto EM { get; set; }
+        public AttoDASIDto Atto { get; set; }
 
         #endregion
     }

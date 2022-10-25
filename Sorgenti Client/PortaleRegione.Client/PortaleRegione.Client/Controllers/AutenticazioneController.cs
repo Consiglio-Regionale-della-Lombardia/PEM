@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using PortaleRegione.Client.Helpers;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -66,7 +67,7 @@ namespace PortaleRegione.Client.Controllers
 
             if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
 
-            return RedirectToAction("RiepilogoSedute", "Sedute");
+            return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
@@ -90,7 +91,7 @@ namespace PortaleRegione.Client.Controllers
 
             //if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
 
-            return RedirectToAction("RiepilogoSedute", "Sedute");
+            return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
@@ -112,7 +113,7 @@ namespace PortaleRegione.Client.Controllers
 
             await SalvaDatiInCookies(response.persona, response.jwt, response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
-            return RedirectToAction("RiepilogoSedute", "Sedute");
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task SalvaDatiInCookies(PersonaDto persona, string jwt, string username)
@@ -129,25 +130,25 @@ namespace PortaleRegione.Client.Controllers
 
             var authTicket1 = new FormsAuthenticationTicket
             (
-                1, $"{username}1", DateTime.Now, DateTime.Now.AddHours(2), false, p1
+                1, $"{username}1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, p1
             );
             var authTicket2 = new FormsAuthenticationTicket
             (
-                1, $"{username}2", DateTime.Now, DateTime.Now.AddHours(2), false, p2
+                1, $"{username}2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, p2
             );
             var authTicket3 = new FormsAuthenticationTicket
             (
-                1, $"{username}3", DateTime.Now, DateTime.Now.AddHours(2), false, p3
+                1, $"{username}3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, p3
             );
 
             var enTicket1 = FormsAuthentication.Encrypt(authTicket1);
-            var faCookie1 = new HttpCookie("PRCookies1", enTicket1) { HttpOnly = true };
+            var faCookie1 = new HttpCookie("PRCookies1", enTicket1) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie1);
             var enTicket2 = FormsAuthentication.Encrypt(authTicket2);
-            var faCookie2 = new HttpCookie("PRCookies2", enTicket2) { HttpOnly = true };
+            var faCookie2 = new HttpCookie("PRCookies2", enTicket2) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie2);
             var enTicket3 = FormsAuthentication.Encrypt(authTicket3);
-            var faCookie3 = new HttpCookie("PRCookies3", enTicket3) { HttpOnly = true };
+            var faCookie3 = new HttpCookie("PRCookies3", enTicket3) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie3);
 
             #endregion
@@ -156,25 +157,25 @@ namespace PortaleRegione.Client.Controllers
 
             var securetyTicket1 = new FormsAuthenticationTicket
             (
-                1, "token_jwt1", DateTime.Now, DateTime.Now.AddHours(2), false, jwt1
+                1, "token_jwt1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, jwt1
             );
             var securetyTicket2 = new FormsAuthenticationTicket
             (
-                1, "token_jwt2", DateTime.Now, DateTime.Now.AddHours(2), false, jwt2
+                1, "token_jwt2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, jwt2
             );
             var securetyTicket3 = new FormsAuthenticationTicket
             (
-                1, "token_jwt3", DateTime.Now, DateTime.Now.AddHours(2), false, jwt3
+                1, "token_jwt3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, jwt3
             );
 
             var sTicket1 = FormsAuthentication.Encrypt(securetyTicket1);
-            var sCookie1 = new HttpCookie("SCookies1", sTicket1) { HttpOnly = true };
+            var sCookie1 = new HttpCookie("SCookies1", sTicket1) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie1);
             var sTicket2 = FormsAuthentication.Encrypt(securetyTicket2);
-            var sCookie2 = new HttpCookie("SCookies2", sTicket2) { HttpOnly = true };
+            var sCookie2 = new HttpCookie("SCookies2", sTicket2) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie2);
             var sTicket3 = FormsAuthentication.Encrypt(securetyTicket3);
-            var sCookie3 = new HttpCookie("SCookies3", sTicket3) { HttpOnly = true };
+            var sCookie3 = new HttpCookie("SCookies3", sTicket3) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie3);
 
             #endregion
@@ -191,34 +192,40 @@ namespace PortaleRegione.Client.Controllers
 
                 var groupsTicket1 = new FormsAuthenticationTicket
                 (
-                    1, "gruppi1", DateTime.Now, DateTime.Now.AddHours(2), false, g1
+                    1, "gruppi1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, g1
                 );
                 var groupsTicket2 = new FormsAuthenticationTicket
                 (
-                    1, "gruppi2", DateTime.Now, DateTime.Now.AddHours(2), false, g2
+                    1, "gruppi2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, g2
                 );
                 var groupsTicket3 = new FormsAuthenticationTicket
                 (
-                    1, "gruppi3", DateTime.Now, DateTime.Now.AddHours(2), false, g3
+                    1, "gruppi3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, g3
                 );
                 var gTicket1 = FormsAuthentication.Encrypt(groupsTicket1);
-                var gCookie1 = new HttpCookie("GCookies1", gTicket1) { HttpOnly = true };
+                var gCookie1 = new HttpCookie("GCookies1", gTicket1) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
                 Response.Cookies.Add(gCookie1);
                 var gTicket2 = FormsAuthentication.Encrypt(groupsTicket2);
-                var gCookie2 = new HttpCookie("GCookies2", gTicket2) { HttpOnly = true };
+                var gCookie2 = new HttpCookie("GCookies2", gTicket2) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
                 Response.Cookies.Add(gCookie2);
                 var gTicket3 = FormsAuthentication.Encrypt(groupsTicket3);
-                var gCookie3 = new HttpCookie("GCookies3", gTicket3) { HttpOnly = true };
+                var gCookie3 = new HttpCookie("GCookies3", gTicket3) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
                 Response.Cookies.Add(gCookie3);
             }
 
             #endregion
 
-            FormsAuthentication.SetAuthCookie(username, false);
+            FormsAuthentication.SetAuthCookie(username, true);
         }
 
         [HttpPost]
         public ActionResult Logout()
+        {
+            LogoutFlow();
+            return RedirectToAction("FormAutenticazione", "Autenticazione");
+        }
+
+        private void LogoutFlow()
         {
             if (Response != null)
             {
@@ -243,7 +250,34 @@ namespace PortaleRegione.Client.Controllers
             }
 
             FormsAuthentication.SignOut();
-            return RedirectToAction("FormAutenticazione", "Autenticazione");
         }
+
+#if DEBUG == true
+        [Authorize]
+        [HttpGet]
+        [Route("cambio-utente")]
+        public async Task<ActionResult> CambiaUtente(Guid id)
+        {
+            var apiGateway = new ApiGateway(_Token);
+            var persona = await apiGateway.Persone.Get(id);
+
+            LogoutFlow();
+
+            return RedirectToAction("FormAutenticazioneDEBUG", new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx"});
+        }
+
+        [AllowAnonymous]
+        [Route("login-debug")]
+        public ActionResult FormAutenticazioneDEBUG(string username, string password)
+        {
+            return View("FormAutenticazione", new LoginRequest
+            {
+                Username = username,
+                Password = password
+            });
+        }
+#endif
+
+
     }
 }

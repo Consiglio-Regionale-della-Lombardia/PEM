@@ -59,20 +59,48 @@ namespace PortaleRegione.Persistance
 
             if (em.ATTI.Chiuso) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (persona.IsSegreteriaAssemblea)
                 return true;
 
             if (persona.Gruppo == null) return false;
             if (em.id_gruppo != persona.Gruppo.id_gruppo) return false;
 
-            if (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta ||
-                persona.CurrentRole == RuoliIntEnum.Presidente_Regione)
+            if (persona.IsConsigliereRegionale ||
+                persona.IsAssessore ||
+                persona.IsPresidente)
             {
                 if (em.UIDPersonaProponente != persona.UID_persona) return false;
 
                 var firma = PRContext.FIRME.Find(em.UIDEM, persona.UID_persona);
+                if (firma == null) return false;
+
+                if (!string.IsNullOrEmpty(firma.Data_ritirofirma)) return false;
+            }
+
+            return true;
+        }
+
+        public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
+        {
+            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                return false;
+
+            if (atto.DataIscrizioneSeduta.HasValue && atto.Tipo != (int)TipoAttoEnum.ODG)
+            {
+                return false;
+            }
+
+            if (persona.IsSegreteriaAssemblea)
+                return false;
+
+            if (persona.Gruppo == null) return false;
+            if (atto.id_gruppo != persona.Gruppo.id_gruppo) return false;
+
+            if (persona.IsConsigliereRegionale)
+            {
+                if (atto.UIDPersonaProponente.Value != persona.UID_persona) return false;
+
+                var firma = PRContext.ATTI_FIRME.Find(atto.UIDAtto, persona.UID_persona);
                 if (firma == null) return false;
 
                 if (!string.IsNullOrEmpty(firma.Data_ritirofirma)) return false;
@@ -86,15 +114,11 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .NOTIFICHE
-                .Where(n => n.ATTI.Eliminato == false);
-            query = query.Where(n => n.Mittente == currentUser.UID_persona);
+                .Where(n => n.Mittente == currentUser.UID_persona);
 
             if (idGruppo > 0) query = query.Where(nd => nd.IdGruppo == idGruppo);
 
-            if (Archivio == false)
-                query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
-            else
-                query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            query = query.Where(n => n.Chiuso == Archivio);
 
             if (currentUser.CurrentRole == RuoliIntEnum.Consigliere_Regionale
                 || currentUser.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta
@@ -119,7 +143,7 @@ namespace PortaleRegione.Persistance
         {
             var queryDestinatari = PRContext
                 .NOTIFICHE_DESTINATARI
-                .Where(n => n.NOTIFICHE.ATTI.Eliminato == false);
+                .Where(n => true);
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
@@ -139,18 +163,14 @@ namespace PortaleRegione.Persistance
                     .NOTIFICHE
                     .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
-                if (Archivio == false)
-                    query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
-                else
-                    query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+                query = query.Where(n => n.Chiuso == Archivio);
 
                 filtro?.BuildExpression(ref query);
 
                 return await query.CountAsync();
             }
 
-            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (currentUser.IsSegreteriaAssemblea)
                 return 0;
 
             var resultNotificheNonViste = await queryDestinatari
@@ -159,9 +179,7 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
             var query2 = PRContext
                 .NOTIFICHE
-                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && !n.ATTI.SEDUTE.Eliminato.Value &&
-                            !n.ATTI.Eliminato.Value &&
-                            (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
+                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && n.Chiuso == false);
             filtro?.BuildExpression(ref query2);
 
             var result = await query2.CountAsync();
@@ -174,27 +192,13 @@ namespace PortaleRegione.Persistance
             int pageSize,
             Filter<NOTIFICHE> filtro = null)
         {
-            await PRContext.ATTI
-                .Include(a => a.SEDUTE)
-                .Include(a => a.TIPI_ATTO)
-                .Where(a => a.Eliminato == false)
-                .LoadAsync();
-
             var query = PRContext
                 .NOTIFICHE
-                .Include(n => n.ATTI)
-                .Include(n => n.EM)
-                .Include(n => n.TIPI_NOTIFICA)
-                .Where(n => n.ATTI.Eliminato == false);
-
-            query = query.Where(n => n.Mittente == currentUser.UID_persona);
+                .Where(n => n.Mittente == currentUser.UID_persona);
 
             if (idGruppo > 0) query = query.Where(nd => nd.IdGruppo == idGruppo);
 
-            if (Archivio == false)
-                query = query.Where(n => n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null);
-            else
-                query = query.Where(n => n.ATTI.Data_chiusura <= DateTime.Now);
+            query = query.Where(n => n.Chiuso == Archivio);
 
             if (currentUser.CurrentRole == RuoliIntEnum.Consigliere_Regionale
                 || currentUser.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta
@@ -211,7 +215,7 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            return await query.OrderByDescending(n => n.ATTI.SEDUTE.Scadenza_presentazione)
+            return await query.OrderByDescending(n => n.DataCreazione)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -231,8 +235,10 @@ namespace PortaleRegione.Persistance
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
+                !currentUser.IsAmministratorePEM)
+            {
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
+            }
 
             if (idGruppo > 0) queryDestinatari = queryDestinatari.Where(nd => nd.IdGruppo == idGruppo);
 
@@ -242,48 +248,46 @@ namespace PortaleRegione.Persistance
                     .Select(n => n.UIDNotifica)
                     .ToListAsync();
 
-                await PRContext.ATTI
-                    .Include(a => a.SEDUTE)
-                    .Include(a => a.TIPI_ATTO)
-                    .Where(a => a.Eliminato == false)
-                    .LoadAsync();
-
                 var query = PRContext
                     .NOTIFICHE
                     .Where(n => resultDestinatari.Contains(n.UIDNotifica));
 
-                if (Archivio == false)
-                    query = query.Where(n =>
-                        !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value &&
-                        (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
-                else
-                    query = query.Where(n =>
-                        !n.ATTI.SEDUTE.Eliminato.Value && !n.ATTI.Eliminato.Value &&
-                        n.ATTI.Data_chiusura <= DateTime.Now);
+                query = query.Where(n => n.Chiuso == Archivio);
 
                 filtro?.BuildExpression(ref query);
 
-                return await query.OrderByDescending(n => n.ATTI.SEDUTE.Scadenza_presentazione)
+                return await query.OrderByDescending(n => n.DataCreazione)
                     .Skip((pageIndex - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
             }
 
-            if (currentUser.CurrentRole == RuoliIntEnum.Amministratore_PEM ||
-                currentUser.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+            if (currentUser.IsSegreteriaAssemblea)
                 return new List<NOTIFICHE>();
             queryDestinatari = queryDestinatari
                 .Where(nd => nd.Visto == false);
             var resultNotificheNonViste = await queryDestinatari.Select(nd => nd.UIDNotifica).ToListAsync();
             var query2 = PRContext
                 .NOTIFICHE
-                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && !n.ATTI.SEDUTE.Eliminato.Value &&
-                            !n.ATTI.Eliminato.Value &&
-                            (n.ATTI.Data_chiusura >= DateTime.Now || n.ATTI.Data_chiusura == null));
+                .Where(n => resultNotificheNonViste.Contains(n.UIDNotifica) && n.Chiuso == false);
             filtro?.BuildExpression(ref query2);
 
             var result = await query2.ToListAsync();
             return result;
+        }
+
+        public async Task<NOTIFICHE> Get(long id)
+        {
+            return await PRContext.NOTIFICHE.FindAsync(id);
+        }
+
+        public async Task<bool> EsisteRitiroDasi(Guid attoUId, Guid personaUId)
+        {
+            return await PRContext
+                .NOTIFICHE
+                .AnyAsync(item => item.UIDAtto == attoUId
+                               && item.Mittente == personaUId
+                               && item.IDTipo == (int)TipoNotificaEnum.RITIRO);
         }
     }
 }

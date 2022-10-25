@@ -31,9 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\PortaleRegione.API\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\Sorgenti modulo di stampa asincrona\Jobs\GeneraStampeJob\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -47,7 +46,11 @@
   <ItemGroup>
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
+    <Compile Include="Domain\AssessoreInCaricaDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
+    <Compile Include="Domain\AttiFirmeDto.cs" />
+    <Compile Include="Domain\AttoDASIDto.cs" />
+    <Compile Include="Domain\CommissioneDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />
@@ -63,22 +66,41 @@
     <Compile Include="Domain\StampaDto.cs" />
     <Compile Include="Domain\Stampa_InfoDto.cs" />
     <Compile Include="Domain\TipoNotificaDto.cs" />
+    <Compile Include="Domain\View_Conteggi_EM_Area_PoliticaDto.cs" />
+    <Compile Include="Domain\View_Conteggi_EM_Gruppi_PoliticiDto.cs" />
     <Compile Include="Enum\ActionEnum.cs" />
     <Compile Include="Enum\AreaPoliticaEnum.cs" />
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
-    <Compile Include="Enum\DocTypeEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
+    <Compile Include="Enum\MotivazioneStatoAttoEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
+    <Compile Include="Enum\StatiAttoCSSConst.cs" />
+    <Compile Include="Enum\StatiAttoEnum.cs" />
     <Compile Include="Enum\StatoPinEnum.cs" />
     <Compile Include="Enum\TemplateTypeEnum.cs" />
     <Compile Include="Enum\TipiEMEnum.cs" />
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
+    <Compile Include="Enum\TipoAttoCSSConst.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
+    <Compile Include="Enum\TipoMOZEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
+    <Compile Include="Enum\TipoRichiestaEnum.cs" />
+    <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
+    <Compile Include="Model\AllegatoMail.cs" />
+    <Compile Include="Model\ArticoliModel.cs" />
+    <Compile Include="Model\BloccoODGModel.cs" />
+    <Compile Include="Model\CardInvitoModel.cs" />
+    <Compile Include="Model\CommiModel.cs" />
+    <Compile Include="Model\JollyODGModel.cs" />
+    <Compile Include="Model\LettereModel.cs" />
+    <Compile Include="Model\PresentazioneCartaceaModel.cs" />
+    <Compile Include="Model\PromuoviMozioneModel.cs" />
+    <Compile Include="Model\RichiestaIscrizioneDASIModel.cs" />
+    <Compile Include="Model\IscriviSedutaDASIModel.cs" />
     <Compile Include="Model\AssegnaProponenteModel.cs" />
     <Compile Include="Model\AttiFormUpdateModel.cs" />
     <Compile Include="Domain\CommiDto.cs" />
@@ -98,26 +120,37 @@
     <Compile Include="Enum\TipoAttoEnum.cs" />
     <Compile Include="Model\AttoRelatoriModel.cs" />
     <Compile Include="Model\CambioPinModel.cs" />
-    <Compile Include="Model\CommandRiepilogoEMModel.cs" />
+    <Compile Include="Model\CommandRiepilogoModel.cs" />
     <Compile Include="Model\CopertinaModel.cs" />
-    <Compile Include="Model\EmendamentiByQueryModel.cs" />
+    <Compile Include="Model\CountBarData.cs" />
+    <Compile Include="Model\DashboardModel.cs" />
+    <Compile Include="Model\DASIFormModel.cs" />
+    <Compile Include="Model\ByQueryModel.cs" />
     <Compile Include="Model\EmendamentiFormModel.cs" />
     <Compile Include="Model\ComandiAzioneModel.cs" />
-    <Compile Include="Model\GetBodyEmendamentoModel.cs" />
+    <Compile Include="Model\GetBodyModel.cs" />
     <Compile Include="Model\InvitoPanelModel.cs" />
     <Compile Include="Model\KeyValueDto.cs" />
     <Compile Include="Model\MailModel.cs" />
+    <Compile Include="Model\ModificaStatoAttoModel.cs" />
     <Compile Include="Model\ModificaStatoModel.cs" />
     <Compile Include="Model\PubblicaFascicoloModel.cs" />
     <Compile Include="Model\RaggruppaEmendamentiModel.cs" />
     <Compile Include="Model\ResetPinModel.cs" />
+    <Compile Include="Model\RiepilogoDASIModel.cs" />
+    <Compile Include="Model\RiepilogoGruppiModel.cs" />
+    <Compile Include="Model\RiepilogoNotificheModel.cs" />
+    <Compile Include="Model\RiepilogoUtentiModel.cs" />
     <Compile Include="Model\SessionManager.cs" />
+    <Compile Include="Domain\TagDto.cs" />
+    <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />
+    <Compile Include="Enum\TipoRispostaEnum.cs" />
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\SeduteDto.cs" />

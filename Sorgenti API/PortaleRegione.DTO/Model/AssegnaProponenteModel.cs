@@ -23,7 +23,7 @@ namespace PortaleRegione.DTO.Model
 {
     public class AssegnaProponenteModel
     {
-        public ICollection<Guid> ListaEmendamenti { get; set; }
+        public ICollection<Guid> Lista { get; set; }
         public Guid NuovoProponente { get; set; }
         public bool IsAssessore { get; set; }
     }

@@ -54,6 +54,8 @@ namespace PortaleRegione.DTO.Domain
 
         public virtual AttiDto ATTI { get; set; }
 
+        public virtual AttoDASIDto ATTO_DASI { get; set; }
+
         public virtual EmendamentiDto EM { get; set; }
 
         public virtual GruppiDto gruppi_politici { get; set; }
@@ -61,5 +63,9 @@ namespace PortaleRegione.DTO.Domain
         public virtual TipoNotificaDto TIPI_NOTIFICA { get; set; }
 
         public virtual PersonaDto UTENTI_NoCons { get; set; }
+        public bool Valida { get; set; } = true;
+
+        public bool IsDasi => UIDEM == Guid.Empty;
+        public bool IsPem => UIDEM != Guid.Empty;
     }
 }

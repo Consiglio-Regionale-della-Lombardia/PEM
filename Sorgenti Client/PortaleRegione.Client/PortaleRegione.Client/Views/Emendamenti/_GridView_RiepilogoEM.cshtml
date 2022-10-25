@@ -1,5 +1,9 @@
-﻿@using PortaleRegione.Common
+﻿@using System.Web.Services.Description
+@using Newtonsoft.Json
+@using PortaleRegione.Common
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Client.Helpers.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @if (!Model.Data.Results.Any())
@@ -49,7 +53,7 @@ else
                                     </label>
                                 </div>
                                 <div class="col l11 center">
-                                    <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip white-text @itemEM.STATI_EM.CssClass" style="width: 100%">
+                                    <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip @itemEM.STATI_EM.CssClass" style="width: 100%">
                                         @if (itemEM.Depositabile)
                                         {
                                             <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top: -2px">gavel</i>
@@ -71,7 +75,7 @@ else
                                         <h5 style="margin-top: 7px">
                                             <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
                                         </h5>
-                                        <h6>@Utility.MetaDatiEM_Label(itemEM)</h6>
+                                        <h6>@PortaleRegione.Common.Utility.MetaDatiEM_Label(itemEM)</h6>
                                         @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
                                         {
                                             <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
@@ -131,6 +135,23 @@ else
                                         }
                                     </div>
                                         }
+                                        
+                                        
+                                        @*TAGS*@
+                                        
+                                        @{
+                                            var tags = new List<TagDto>();
+
+                                            if (!string.IsNullOrEmpty(itemEM.Tags))
+                                            {
+                                                tags = JsonConvert.DeserializeObject<List<TagDto>>(itemEM.Tags);
+                                            }
+                                        }
+                                        
+                                        @foreach (var t in tags)
+                                        {
+                                            <label>#@t.tag</label>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -181,6 +202,9 @@ else
                             </h6>
                         </div>
                         <div class="col s5 right-align" style="margin-top: 9px">
+                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
+                                <i class="material-icons">print</i>
+                            </a>
                             <a class="btn-floating green tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
                                 <i class="material-icons">chevron_right</i>
                             </a>

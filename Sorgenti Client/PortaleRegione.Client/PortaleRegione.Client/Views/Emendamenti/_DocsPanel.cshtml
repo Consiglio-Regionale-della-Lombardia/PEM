@@ -1,4 +1,5 @@
-﻿@model PortaleRegione.DTO.Model.EmendamentiFormModel
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
     var placeholder_allegato_generico_text = string.Empty;
@@ -50,5 +51,35 @@
 {
     <div class="form-group pnl-doc">
         <div class="chip">@Model.Emendamento.PATH_AllegatoTecnico</div>
+    </div>
+}
+
+@if (Model.Emendamento.IDStato == (int) StatiEnum.Bozza_Riservata)
+{
+<div class="row">
+    <div class="col s12">
+        <p>
+            <label>
+                <input id="Riservato" name="Emendamento.Riservato" type="checkbox" value="true"
+                       @Html.Raw(Model.Emendamento.IDStato == (int)StatiEnum.Bozza_Riservata ? "checked=\"checked\"" : "")>
+                <span>Riservato</span>
+            </label>
+        </p>
+    </div>
+</div>
+}
+
+@if (Model.CurrentUser.IsCapoGruppo)
+{
+    <div class="row">
+        <div class="col s12">
+            <p>
+                <label>
+                    <input id="Firma_su_invito" name="Emendamento.Firma_su_invito" type="checkbox" value="true"
+                           @Html.Raw(Model.Emendamento.Firma_su_invito ? "checked=\"checked\"" : "")>
+                    <span>Sottoscrivibile solo su invito</span>
+                </label>
+            </p>
+        </div>
     </div>
 }

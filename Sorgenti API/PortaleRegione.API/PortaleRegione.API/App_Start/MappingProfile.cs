@@ -90,6 +90,10 @@ namespace PortaleRegione.API
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<PersonaLightDto, PersonaDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<PersonaDto, PersonaExtraLightDto>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<PersonaExtraLightDto, PersonaDto>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<RUOLI, RuoliDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<RuoliDto, RUOLI>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<gruppi_politici, GruppiDto>()
@@ -116,6 +120,10 @@ namespace PortaleRegione.API
             Mapper.CreateMap<EM, EmendamentoLightDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<EmendamentoLightDto, EM>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<EM, EmendamentoExtraLightDto>()
+                .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<EmendamentoExtraLightDto, EM>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<EmendamentiDto, EmendamentoLightDto>()
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
@@ -181,6 +189,27 @@ namespace PortaleRegione.API
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
 
             #endregion
+
+            #region DASI
+
+            Mapper.CreateMap<ATTI_DASI, AttoDASIDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<AttoDASIDto, ATTI_DASI>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<ATTI_FIRME, AttiFirmeDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+
+            Mapper.CreateMap<View_cariche_assessori_in_carica, AssessoreInCaricaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<View_Commissioni_attive, CommissioneDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+
+            #endregion
+
+            Mapper.CreateMap<TAGS, TagDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<TagDto, TAGS>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+
+            Mapper.CreateMap<View_Conteggi_EM_Gruppi_Politici, View_Conteggi_EM_Gruppi_PoliticiDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<View_Conteggi_EM_Gruppi_PoliticiDto, View_Conteggi_EM_Gruppi_Politici>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+
+            Mapper.CreateMap<View_Conteggi_EM_Area_Politica, View_Conteggi_EM_Area_PoliticaDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
+            Mapper.CreateMap<View_Conteggi_EM_Area_PoliticaDto, View_Conteggi_EM_Area_Politica>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
         }
     }
 }

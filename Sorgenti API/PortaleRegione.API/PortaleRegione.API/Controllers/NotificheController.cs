@@ -66,15 +66,12 @@ namespace PortaleRegione.API.Controllers
                 model.param.TryGetValue("Archivio", out Archivio);
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.GetNotificheInviate(model, persona, Convert.ToBoolean(Archivio));
+                var result = await _logic.GetNotificheInviate(model, 
+                    persona, 
+                    Convert.ToBoolean(Archivio),
+                    Request.RequestUri);
 
-                return Ok(new BaseResponse<NotificaDto>(
-                    model.page,
-                    model.size,
-                    result,
-                    model.filtro,
-                    await _logic.CountInviate(model, persona, Convert.ToBoolean(Archivio)),
-                    Request.RequestUri));
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -122,15 +119,13 @@ namespace PortaleRegione.API.Controllers
                 model.param.TryGetValue("Solo_Non_Viste", out Solo_Non_Viste);
                 var session = GetSession();
                 var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.GetNotificheRicevute(model, persona, Convert.ToBoolean(Archivio),Convert.ToBoolean(Solo_Non_Viste));
+                var result = await _logic.GetNotificheRicevute(model, 
+                    persona, 
+                    Convert.ToBoolean(Archivio),
+                    Convert.ToBoolean(Solo_Non_Viste), 
+                    Request.RequestUri);
 
-                return Ok(new BaseResponse<NotificaDto>(
-                    model.page,
-                    model.size,
-                    result,
-                    model.filtro,
-                    await _logic.CountRicevute(model, persona, Convert.ToBoolean(Archivio),Convert.ToBoolean(Solo_Non_Viste)),
-                    Request.RequestUri));
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -167,7 +162,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("invita")]
-        public async Task<IHttpActionResult> InvitaAFirmareEmendamento(ComandiAzioneModel model)
+        public async Task<IHttpActionResult> InvitaAFirmare(ComandiAzioneModel model)
         {
             try
             {
@@ -182,30 +177,30 @@ namespace PortaleRegione.API.Controllers
 
                 if (invitoDaSegreteria)
                 {
-                    return Ok(await _logic.InvitaAFirmareEmendamento(model, persona));
+                    return Ok(await _logic.InvitaAFirmare(model, persona));
                 }
 
                 var pinInDb = await _logicPersone.GetPin(persona);
                 if (pinInDb == null)
                 {
-                    return BadRequest("Pin non impostato");
+                    throw new InvalidOperationException("Pin non impostato");
                 }
 
                 if (pinInDb.RichiediModificaPIN)
                 {
-                    return BadRequest("E' richiesto il reset del pin");
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
                 }
 
                 if (model.Pin != pinInDb.PIN_Decrypt)
                 {
-                    return BadRequest("Pin inserito non valido");
+                    throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logic.InvitaAFirmareEmendamento(model, persona));
+                return Ok(await _logic.InvitaAFirmare(model, persona));
             }
             catch (Exception e)
             {
-                Log.Error("InvitaAFirmareEmendamento", e);
+                Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }
@@ -229,6 +224,70 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("GetListaDestinatari", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere i destinatari da invitare alla firma
+        /// </summary>
+        /// <param name="tipo"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("destinatari-dasi")]
+        public async Task<IHttpActionResult> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
+        {
+            try
+            {
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+                return Ok(await _logic.GetListaDestinatari(tipo, persona));
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetListaDestinatari", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("accetta-proposta")]
+        public async Task<IHttpActionResult> AccettaPropostaFirma(long id)
+        {
+            try
+            {
+                await _logic.AccettaPropostaFirma(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("AccettaPropostaFirma", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("accetta-ritiro")]
+        public async Task<IHttpActionResult> AccettaRitiroFirma(long id)
+        {
+            try
+            {
+                await _logic.AccettaRitiroFirma(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("AccettaRitiroFirma", e);
                 return ErrorHandler(e);
             }
         }
