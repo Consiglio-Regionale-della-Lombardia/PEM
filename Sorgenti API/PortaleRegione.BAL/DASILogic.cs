@@ -834,6 +834,12 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
+                    if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                    {
+                        throw new InvalidOperationException(
+                            "Non è possibile ritirare la firma di un atto chiuso.");
+                    }
+
                     if (atto.DataIscrizioneSeduta.HasValue)
                     {
                         if (atto.Tipo == (int)TipoAttoEnum.ITL
@@ -1447,6 +1453,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                {
+                    throw new InvalidOperationException(
+                        "Non è possibile ritirare un atto chiuso.");
+                }
+
                 if (atto.DataIscrizioneSeduta.HasValue)
                     throw new InvalidOperationException(
                         "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
