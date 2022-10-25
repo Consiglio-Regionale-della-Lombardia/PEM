@@ -2104,6 +2104,37 @@ namespace PortaleRegione.BAL
             return result;
         }
 
+        public async Task<IEnumerable<EmendamentiDto>> ScaricaEmendamenti(EmendamentiViewModel model,
+            PersonaDto persona,
+            List<PersonaLightDto> personeInDbLight,
+            bool open_data_enabled = false,
+            bool light_version = false)
+        {
+            var result = new List<EmendamentiDto>();
+
+            var counter_em = await _unitOfWork.Emendamenti.Count(model.Atto.UIDAtto, persona, CounterEmendamentiEnum.NONE,
+                (int)model.Mode);
+
+            var emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>
+            {
+                id = model.Atto.UIDAtto,
+                ordine = model.Ordinamento,
+                page = 1,
+                size = counter_em,
+                filtro = model.Data.Filters
+            },
+                persona,
+                (int)model.Mode,
+                new Uri(AppSettingsConfiguration.urlPEM),
+                personeInDbLight,
+                open_data_enabled,
+                light_version);
+
+            result.AddRange(emList.Data.Results);
+
+            return result;
+        }
+
         /// <summary>
         ///     Restituisce la stringa da aggiornare/inserire in OpenData
         /// </summary>

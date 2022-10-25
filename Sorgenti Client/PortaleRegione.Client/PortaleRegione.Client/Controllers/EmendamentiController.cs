@@ -697,15 +697,40 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="ordine"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("esportaXLS")]
-        public async Task<ActionResult> EsportaXLS(Guid id, OrdinamentoEnum ordine = OrdinamentoEnum.Default,
-            bool is_report = false)
+        [Route("esporta-xls")]
+        public async Task<ActionResult> EsportaXLS()
         {
             try
             {
-                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+                var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+
                 var apiGateway = new ApiGateway(_Token);
-                var file = await apiGateway.Esporta.EsportaXLS(id, ordine, mode, is_report);
+                var file = await apiGateway.Esporta.EsportaXLS(modelInCache);
+                return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Log.Error("EsportaXLS", e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli emendamenti di un atto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ordine"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("esporta-xls-segreteria")]
+        public async Task<ActionResult> EsportaXLS_UOLA()
+        {
+            try
+            {
+                var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+
+                var apiGateway = new ApiGateway(_Token);
+                var file = await apiGateway.Esporta.EsportaXLS_UOLA(modelInCache);
                 return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1086,14 +1111,12 @@ namespace PortaleRegione.Client.Controllers
 
             int.TryParse(Request.Form["reset"], out var reset_enabled);
             if (reset_enabled == 1)
-            {
                 return RedirectToAction("RiepilogoEmendamenti", "Emendamenti", new
                 {
                     model.id,
                     mode,
                     ordine = (int)model.ordine
                 });
-            }
 
             var apiGateway = new ApiGateway(_Token);
             var modelResult = await apiGateway.Emendamento.Get(model);

@@ -33,6 +33,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
@@ -65,18 +66,14 @@ namespace PortaleRegione.BAL
             _logicPersone = logicPersone;
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode,
-            PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaExcel(EmendamentiViewModel model, PersonaDto persona)
         {
             try
             {
                 var FilePathComplete = GetLocalPath("xlsx");
 
-                var atto = await _unitOfWork.Atti.Get(id);
-
-
                 IWorkbook workbook = new XSSFWorkbook();
-                var excelSheet = workbook.CreateSheet($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto.Replace('/', '-')}");
+                var excelSheet = workbook.CreateSheet($"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}");
 
                 var row = excelSheet.CreateRow(0);
                 SetColumnValue(ref row, "Ordine");
@@ -97,7 +94,7 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, "Titolo");
                 SetColumnValue(ref row, "Capo");
 
-                if (atto.VIS_Mis_Prog)
+                if (model.Atto.VIS_Mis_Prog)
                 {
                     SetColumnValue(ref row, "Missione");
                     SetColumnValue(ref row, "Programma");
@@ -113,24 +110,24 @@ namespace PortaleRegione.BAL
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var emList =
-                    await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, personeInDbLight, false, true);
+                    await _logicEm.ScaricaEmendamenti(model, persona, personeInDbLight, false, true);
                 var totalProcessTime = 0f;
                 foreach (var em in emList)
                 {
                     var startTimer = DateTime.Now;
                     var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
 
-                    if (ordine == OrdinamentoEnum.Presentazione)
+                    if (model.Ordinamento == OrdinamentoEnum.Presentazione)
                         SetColumnValue(ref rowEm, em.OrdinePresentazione.ToString());
-                    else if (ordine == OrdinamentoEnum.Votazione)
+                    else if (model.Ordinamento == OrdinamentoEnum.Votazione)
                         SetColumnValue(ref rowEm, em.OrdineVotazione.ToString());
 
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                     {
                         SetColumnValue(ref rowEm, em.UIDEM.ToString());
-                        var legislatura = await _unitOfWork.Legislature.Get(atto.SEDUTE.id_legislatura);
+                        var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
                         SetColumnValue(ref rowEm,
-                            $"{atto.TIPI_ATTO.Tipo_Atto}-{atto.NAtto}-{legislatura.num_legislatura}");
+                            $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}");
                     }
 
                     SetColumnValue(ref rowEm, em.N_EM);
@@ -179,7 +176,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowEm, em.NTitolo);
                     SetColumnValue(ref rowEm, em.NCapo);
 
-                    if (atto.VIS_Mis_Prog)
+                    if (model.Atto.VIS_Mis_Prog)
                     {
                         SetColumnValue(ref rowEm, em.NMissione.ToString());
                         SetColumnValue(ref rowEm, em.NProgramma.ToString());
@@ -441,8 +438,7 @@ namespace PortaleRegione.BAL
             return $"<td>{column_body}</td>";
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(Guid id, OrdinamentoEnum ordine,
-            ClientModeEnum mode, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(EmendamentiViewModel model, PersonaDto persona)
         {
             try
             {
@@ -458,13 +454,13 @@ namespace PortaleRegione.BAL
                 styleReport.Alignment = HorizontalAlignment.Center;
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var emList = await _logicEm.ScaricaEmendamenti(id, ordine, mode, persona, personeInDbLight);
+                var emList = await _logicEm.ScaricaEmendamenti(model, persona, personeInDbLight);
 
                 var uolaSheet =
                     await NewSheet(
                         workbook.CreateSheet(
                             nameof(ReportType.UOLA)),
-                        id,
+                        model.Atto.UIDAtto,
                         ReportType.UOLA,
                         emList
                             .OrderBy(em => em.OrdineVotazione)
@@ -472,13 +468,13 @@ namespace PortaleRegione.BAL
                             .ThenBy(em => em.IDStato),
                         style,
                         styleReport);
-                var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), id, ReportType.PCR, emList
+                var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), model.Atto.UIDAtto, ReportType.PCR, emList
                         .OrderBy(em => em.OrdineVotazione)
                         .ThenBy(em => em.Rif_UIDEM)
                         .ThenBy(em => em.IDStato),
                     style,
                     styleReport);
-                var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), id,
+                var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), model.Atto.UIDAtto,
                     ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
                         .ThenBy(em => em.OrdinePresentazione),
                     style,

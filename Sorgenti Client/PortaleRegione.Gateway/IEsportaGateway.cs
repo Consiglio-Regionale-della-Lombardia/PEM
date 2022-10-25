@@ -17,17 +17,18 @@
  */
 
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Threading.Tasks;
-using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Gateway
 {
     public interface IEsportaGateway
     {
         Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode);
-        Task<FileResponse> EsportaXLS(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode, bool is_report = false);
+        Task<FileResponse> EsportaXLS(EmendamentiViewModel model);
+        Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model);
         Task<FileResponse> EsportaXLSDASI(RiepilogoDASIModel model);
     }
 }

@@ -19,11 +19,12 @@
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
-using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -79,7 +80,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per esportare la griglia emendamenti in formato excel
         /// </summary>
@@ -89,9 +90,36 @@ namespace PortaleRegione.API.Controllers
         /// <param name="is_report"></param>
         /// <returns></returns>
         [Route("emendamenti/esporta-griglia-xls")]
-        [HttpGet]
-        public async Task<IHttpActionResult> EsportaGrigliaExcel(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode,
-            bool is_report = false)
+        [HttpPost]
+        public async Task<IHttpActionResult> EsportaGrigliaExcel(EmendamentiViewModel model)
+        {
+            try
+            {
+                var session = GetSession();
+
+                var persona = await _logicPersone.GetPersona(session);
+
+                var file = await _logicEsporta.EsportaGrigliaExcel(model, persona);
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("EsportaGrigliaXLS", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per esportare la griglia emendamenti in formato excel
+        /// </summary>
+        /// <param name="id">Guid atto</param>
+        /// <param name="ordine">ordinamento emendamenti atto</param>
+        /// <param name="mode"></param>
+        /// <param name="is_report"></param>
+        /// <returns></returns>
+        [Route("emendamenti/esporta-griglia-xls-segreteria")]
+        [HttpPost]
+        public async Task<IHttpActionResult> EsportaGrigliaExcel_UOLA(EmendamentiViewModel model)
         {
             try
             {
@@ -100,20 +128,12 @@ namespace PortaleRegione.API.Controllers
                 if (session._currentRole != RuoliIntEnum.Amministratore_PEM
                     && session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
                 {
-                    if (is_report)
-                    {
-                        throw new InvalidOperationException("Operazione non eseguibile per il ruolo assegnato");
-                    }
+                    throw new InvalidOperationException("Operazione non eseguibile per il ruolo assegnato");
                 }
 
                 var persona = await _logicPersone.GetPersona(session);
 
-                if (is_report)
-                {
-                    return ResponseMessage(await _logicEsporta.EsportaGrigliaReportExcel(id, ordine, mode, persona));
-                }
-
-                var file = await _logicEsporta.EsportaGrigliaExcel(id, ordine, mode, persona);
+                var file = await _logicEsporta.EsportaGrigliaReportExcel(model, persona);
                 return ResponseMessage(file);
             }
             catch (Exception e)

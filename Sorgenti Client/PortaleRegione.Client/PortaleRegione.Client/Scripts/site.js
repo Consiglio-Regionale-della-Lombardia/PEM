@@ -1040,7 +1040,7 @@ async function Commi_OnChange(value, valueLetteraSelected) {
     }
 }
 
-function EsportaXLS(attoUId) {
+function EsportaXLS() {
     swal("In che ordine devo esportare gli emendamenti?",
             {
                 buttons: {
@@ -1060,12 +1060,12 @@ function EsportaXLS(attoUId) {
             if (value == null || value == "")
                 return;
 
-            go("emendamenti/esportaXLS?id=" + attoUId + "&ordine=" + value);
+            go("emendamenti/esporta-xls");
         });
 }
 
-function EsportaXLS_Segreteria(attoUId) {
-    go("emendamenti/esportaXLS?id=" + attoUId + "&is_report=true");
+function EsportaXLS_Segreteria() {
+    go("emendamenti/esporta-xls-segreteria");
 }
 
 function EsportaDOC(attoUId) {
