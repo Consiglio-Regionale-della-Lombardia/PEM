@@ -834,6 +834,20 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
+                    if (atto.DataIscrizioneSeduta.HasValue)
+                    {
+                        if (atto.Tipo == (int)TipoAttoEnum.ITL
+                            && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE)
+                        {
+                            //https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/467
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
+                        }
+                    }
+
                     var richiestaPresente =
                         await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
                     if (richiestaPresente)
