@@ -461,7 +461,7 @@ namespace PortaleRegione.API.Controllers
                         .CheckIfFirmabile(dto,
                             persona);
 
-                    if (!dto.DataRitiro.HasValue && dto.IDStato == (int)StatiAttoEnum.PRESENTATO)
+                    if (!dto.DataRitiro.HasValue)
                         dto.Ritirabile = _unitOfWork
                             .DASI
                             .CheckIfRitirabile(dto,
