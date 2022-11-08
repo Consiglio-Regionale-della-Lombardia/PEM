@@ -173,6 +173,11 @@ Il sotto-progetto API costituisce la parte principale della parte API in quanto 
 -	UTILCONTROLLER: contiene tutte le operazioni comuni dell’applicazione (es. invio mail)
 -	ADMINCONTROLLER: contiene le funzioni per la gestione amministrativa del portale (definizione di utenti e password, impostazione dei ruoli, reset pin, configurazione gruppi politici, ecc.)
 
+#### API – LIBRERIE
+La parte API di PEM-DASI è stata realizzata utilizzando librerie opensource in modo da rendere tutta l'applicazione priva di strumenti coperti da licenze proprietarie e quindi con codice sorgente non modificabile. Per quanto riguarda la stampa in PDF degli Atti di Sindacato ispettivo e d'Indirizzo (Modulo DASI), per migliorare le performance, la qualità dell'output e soprattutto gestire le criticità dovute all'inserimento di testi complessi effettuando il "copia/incolla" da documenti Microsoft Word, la libreria opensource ITextSharp è stata sostituita con libreria **a pagamento** IronPDF (vedere il paragrafo "Licenze dei componenti di terze parti" per costi e maggiori informazioni).
+
+Nel progetto è comunque disponibile la libreria opensource ITextSharp, ancora utilizzata per la stampa degli emendamenti, e  il codice per generare le stampe pdf utilizzando questa libreria, mettendo così a disposizione una versione completamente opensource e gratuita di PEM/DASI (il codice è tenuto aggiornato e compatibile con la libreria ITextSharp **fino** alla versione corrente della piattaforma - ver 2.2 - nelle versioni successive non si garantisce lo sviluppo di codice che utilizza ITextSharp)
+
 #### CLIENT
 Il modulo client si occupa si generare le pagine web finali composte da html e librerie javscript e css. Le pagine vengono inviate ai web-browser per la visualizzazione. Il modulo CLIENT dialoga con il modulo API per la creazione delle pagine e la gestione dei diversi comandi e funzionalità del portale PEM-DASI. Come detto tutta la logica applicativa, la gestione dei permessi e l’interfacciamento con il database viene effettuato dal modulo API. Questo tipo di struttura separa in maniera netta l’interfaccia utente dalle logiche di business consentendo un’agevole sostituzione della parte client, ad esempio con un’App per dispositivi mobili Apple o Android.
 
