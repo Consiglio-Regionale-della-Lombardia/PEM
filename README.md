@@ -106,7 +106,7 @@ La nuova versione (PEM 2.0) è stata sviluppata utilizzando la tecnologia Micros
 
 Successivamente la piattaforma PEM v2.0, utilizzata per digitalizzare gli emendamenti/subemendamenti ai progetti di legge, è stata estesa per la digitalizzazione degli altri atti tipici delle assemblee regionali sviluppando il modulo DASI per la Digitalizzazione Atti di Sindacato ispettivo e d'Indirizzo PEM-DASI v2.2
 
-#### STRUTTURA DEL SISTEMA
+### STRUTTURA DEL SISTEMA
 Il portale PEM-DASI è stato progettato e sviluppato in modo da separare in maniera netta la parte server da quella client e allo stesso tempo fornire intefacce progrmmabili (API) di tipo web che possono essere richiamate ed utilizzate per altri scopi da altre applicazioni. 
 
 ![Struttura_sistema](/Documentazione/Screenshot/Struttura_sistema.jpg)
@@ -126,7 +126,7 @@ Al fine di migliorare le performance, le stampe in pdf generate da PEM avvengono
 NOTA: 
 Il progetto in produzione presso il Consiglio regionale della Lombardia utilizza un ulteriore webservices per la pubblicazione dei dai dati relativi agli emendamenti sul dataset dedicato all’interno del portale www.dati.lombardia.it. Questa funzionzionalità non è attiva nel sorgente pubblicato e tutte le chiamate al webservices sono state disabilitate attraverso l’impostazione della chiave presente nel web.config (AbilitaOpenData = 0)
 
-#### API
+### API
 Come accennato il modulo API è la parte core della soluzione PEM-DASI e contiene tutta la logica applicativa e di interfacciamento alla base dati.
 L’API dialoga pertanto sia con il modulo client, per l’invio di tutte le informazioni necessarie alla creazione delle pagine web finali, sia con il DBMS per la lettura e la memorizzazione dei dati.
 Per l’interfacciamento con il database è stato sviluppato un layer con EntityFramework 6. Questo agevola l’utilizzo anche di altri provider nel caso non si voglia usare Microsoft SQL server. Per tutti i database supportati fare riferimento alla guida [Panoramica di Entity Framework 6 - EF6 | Microsoft Docs](https://docs.microsoft.com/it-it/ef/ef6/)
@@ -178,7 +178,7 @@ La parte API di PEM-DASI è stata realizzata utilizzando librerie opensource in 
 
 Nel progetto è comunque disponibile la libreria opensource ITextSharp, ancora utilizzata per la stampa degli emendamenti, e  il codice per generare le stampe pdf utilizzando questa libreria, mettendo così a disposizione una versione completamente opensource e gratuita di PEM/DASI (il codice è tenuto aggiornato e compatibile con la libreria ITextSharp **fino** alla versione corrente della piattaforma - ver 2.2 - nelle versioni successive non si garantisce lo sviluppo di codice che utilizza ITextSharp)
 
-#### CLIENT
+### CLIENT
 Il modulo client si occupa si generare le pagine web finali composte da html e librerie javscript e css. Le pagine vengono inviate ai web-browser per la visualizzazione. Il modulo CLIENT dialoga con il modulo API per la creazione delle pagine e la gestione dei diversi comandi e funzionalità del portale PEM-DASI. Come detto tutta la logica applicativa, la gestione dei permessi e l’interfacciamento con il database viene effettuato dal modulo API. Questo tipo di struttura separa in maniera netta l’interfaccia utente dalle logiche di business consentendo un’agevole sostituzione della parte client, ad esempio con un’App per dispositivi mobili Apple o Android.
 
 #### CLIENT – STRUTTURA (SOTTO-PROGETTI)
