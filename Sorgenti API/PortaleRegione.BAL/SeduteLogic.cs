@@ -21,10 +21,12 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -142,6 +144,7 @@ namespace PortaleRegione.BAL
                 {
                     sedutaInDb.Data_apertura = null;
                 }
+
                 if (sedutaDto.Data_effettiva_inizio == null)
                 {
                     sedutaInDb.Data_effettiva_inizio = null;
@@ -152,10 +155,60 @@ namespace PortaleRegione.BAL
                     sedutaInDb.Data_effettiva_fine = null;
                 }
 
+                if (sedutaDto.Scadenza_presentazione == null)
+                {
+                    sedutaInDb.Scadenza_presentazione = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneIQT == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneIQT = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneMOZ == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneMOZ = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneMOZA == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneMOZA = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneMOZU == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneMOZU = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneODG == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneODG = null;
+                }
+
+
                 sedutaInDb.UIDPersonaModifica = persona.UID_persona;
                 sedutaInDb.DataModifica = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();
+
+                if (sedutaDto.Data_effettiva_fine.HasValue)
+                {
+                    //Matteo Cattapan #486
+                    //Quando viene chiusa la seduta, vengono 'declassate' tutte le mozioni depositate e iscritte in seduta da UOLA
+
+                    var mozioni_abbinate = await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.ABBINATA);
+                    var mozioni_urgenti = await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                    var mozioni_da_declassare = new List<ATTI_DASI>();
+                    mozioni_da_declassare.AddRange(mozioni_abbinate);
+                    mozioni_da_declassare.AddRange(mozioni_urgenti);
+
+                    mozioni_da_declassare.ForEach(moz =>
+                    {
+                        moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                    });
+
+                    await _unitOfWork.CompleteAsync();
+                }
             }
             catch (Exception e)
             {
@@ -225,7 +278,6 @@ namespace PortaleRegione.BAL
                 Log.Error("Logic - GetSeduteAttiveDashboard", e);
                 throw e;
             }
-
         }
     }
 }
