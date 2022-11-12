@@ -117,16 +117,11 @@ function GetSedutaByData(dataSeduta) {
 }
 
 function GetSeduteAttive() {
-    var sedute = get_ListaSeduteAttive();
-    if (sedute.length > 0) {
-        return sedute;
-    }
     return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/pem/sedute-attive",
             type: "GET"
         }).done(function (result) {
-            set_ListaSeduteAttive(result);
             resolve(result);
         }).fail(function(err) {
             console.log("error", err);
@@ -136,7 +131,7 @@ function GetSeduteAttive() {
 }
 
 function GetSeduteAttiveMOZU() {
-        return new Promise(async function(resolve, reject) {
+    return new Promise(async function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/pem/sedute-attive-mozu",
             type: "GET"

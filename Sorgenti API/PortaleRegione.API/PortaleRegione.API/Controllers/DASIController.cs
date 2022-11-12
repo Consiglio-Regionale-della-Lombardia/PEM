@@ -357,7 +357,7 @@ namespace PortaleRegione.API.Controllers
                 if (ManagerLogic.BloccaPresentazione)
                 {
                     throw new InvalidOperationException(
-                        "E' in corso un'altra operazione di presentazione. Riprova tra qualche secondo.");
+                        "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
                 }
 
                 var session = GetSession();

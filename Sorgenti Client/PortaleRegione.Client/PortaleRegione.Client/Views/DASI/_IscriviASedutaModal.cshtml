@@ -5,13 +5,6 @@
         <h4 id="txtIscriviSeduta"></h4>
         <ul class="collection with-header" id="lstSeduteAttive">
         </ul>
-
-        <a id="btnNuovaSedutaDASI" class="btn-flat blue-text"
-           onclick="NuovaSedutaDASI()" title="Crea nuova seduta">
-            <i class="material-icons right">plus</i>
-            Crea nuova seduta
-        </a>
-        <input id="dtSeduta" class="form-control" type="datetime-local" style="display: none"/>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Iscrivi</a>
@@ -200,71 +193,6 @@
                 });
             });
         $('#modalIscriviSeduta').modal("open");
-    }
-
-    function NuovaSedutaDASI() {
-        $('#btnNuovaSedutaDASI').hide();
-        $('#dtSeduta').show();
-        $('#btnIscriviSeduta_Salva').text("Iscrivi a nuova seduta");
-        $('#btnIscriviSeduta_Salva').off("click");
-        $('#btnIscriviSeduta_Salva').on("click", function () {
-
-            var body = {};
-            body.Data_seduta = $('#dtSeduta').val();
-
-            $.ajax({
-                url: baseUrl + "/pem/salva",
-                type: "POST",
-                data: JSON.stringify(body),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(async function (data) {
-
-                if (data.message)
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                else {
-                    var seduta = await GetSedutaByData(body.Data_seduta);
-
-                    var listaAtti = [];
-
-                    listaAtti.push($('#hfUidAtto').val());
-
-                    var obj = {};
-                    obj.UidSeduta = seduta.UIDSeduta;
-                    obj.Lista = listaAtti;
-
-                    $.ajax({
-                        url: '@Url.Action("IscriviSeduta")',
-                        method: "POST",
-                        data: JSON.stringify(obj),
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json"
-                    }).done(function(data) {
-                        $("#modalIscriviSeduta").modal("close");
-                        $("#btnIscriviSeduta_Salva").off("click");
-                        if (data.message) {
-                            swal({
-                                title: "Errore",
-                                text: data.message,
-                                icon: "error"
-                            });
-                        } else {
-                            go(data);
-                        }
-                    }).fail(function(err) {
-                        console.log("error", err);
-                        Error(err);
-                    });
-                }
-            }).fail(function (err) {
-                console.log("error", err);
-                Error(err);
-            });
-        });
     }
 
 </script>
