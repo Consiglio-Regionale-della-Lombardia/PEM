@@ -56,10 +56,12 @@ else
                     if (item.IsMOZAbbinata())
                     {
                         txtOltreItermini = "Richiesta di abbinamento effettuata fuori termine";
-                    }else if (item.IsMOZUrgente())
+                    }
+                    else if (item.IsMOZUrgente())
                     {
                         txtOltreItermini = "Richiesta di urgenza effettuata fuori termine";
-                    }else if (item.IsMOZ())
+                    }
+                    else if (item.IsMOZ())
                     {
                         txtOltreItermini = "Richiesta di iscrizione effettuata fuori termine";
                     }
@@ -128,7 +130,7 @@ else
                         + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset; margin-right: -5px;">group</i>
                     </a>
                 }
-                @if(Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                @if (Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
                 {
                     <i style="margin-left: 5px;" class="material-icons tooltipped pink-text pulse" data-tooltip="MIO">face</i>
                 }
@@ -175,21 +177,28 @@ else
                             @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
                             @if (item.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE)
                             {
-                            <i style="position: absolute; margin-left: 5px;" class="material-icons tooltipped pink-text" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">info_outline</i>
-                            } 
+                                <i style="position: absolute; margin-left: 5px;" class="material-icons tooltipped pink-text" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">info_outline</i>
+                            }
                         </span>
                     }
                 </div>
                 <div class="col s6 right-align">
                     @{
-                        if (!item.DataIscrizioneSeduta.HasValue
-                            && item.Tipo != (int)TipoAttoEnum.ITL
-                            && item.Tipo != (int)TipoAttoEnum.ITR
-                            && item.Tipo != (int)TipoAttoEnum.ODG
-                            && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
-                            && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
-                            && Model.CurrentUser.IsCapoGruppo || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
-                            || (item.Tipo == (int)TipoAttoEnum.MOZ && Model.CurrentUser.UID_persona == item.UIDPersonaProponente))
+                        if (Model.CurrentUser.IsConsigliereRegionale
+                            && !Model.CurrentUser.IsCapoGruppo
+                            && item.Tipo == (int)TipoAttoEnum.MOZ)
+                        {
+                            //Matteo Cattapan #481 
+                            //Il consigliere non ha possibilità di eseguire azioni sulle mozioni
+                        }
+                        else if (!item.DataIscrizioneSeduta.HasValue
+                                 && item.Tipo != (int)TipoAttoEnum.ITL
+                                 && item.Tipo != (int)TipoAttoEnum.ITR
+                                 && item.Tipo != (int)TipoAttoEnum.ODG
+                                 && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
+                                 && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
+                                 && Model.CurrentUser.IsCapoGruppo || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                                 || (item.Tipo == (int)TipoAttoEnum.MOZ && Model.CurrentUser.UID_persona == item.UIDPersonaProponente))
                         {
                             <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
                                 <i class="icon material-icons black-text">settings</i>
