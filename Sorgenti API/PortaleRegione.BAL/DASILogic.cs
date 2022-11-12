@@ -1926,8 +1926,10 @@ namespace PortaleRegione.API.Controllers
                                           && dateNow.Month == seduta.Data_seduta.Month
                                           && dateNow.Year == seduta.Data_seduta.Year;
                 if (!data_seduta_odierna)
+                {
                     throw new InvalidOperationException(
                         "Attendi l’inizio della seduta per chiedere la trattazione d’urgenza.");
+                }
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
