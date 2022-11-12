@@ -109,7 +109,10 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetSeduteAttive();
+                var session = GetSession();
+                var persona = await _logicPersone.GetPersona(session);
+
+                var result = await _logic.GetSeduteAttive(persona);
                 return Ok(result);
             }
             catch (Exception e)
