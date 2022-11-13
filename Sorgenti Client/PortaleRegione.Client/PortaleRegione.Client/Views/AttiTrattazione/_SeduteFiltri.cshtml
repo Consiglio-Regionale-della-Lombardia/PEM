@@ -9,7 +9,7 @@
             </h6>
         </div>
     </div>
-    @using (Html.BeginForm("", "", FormMethod.Post, new { id = "formFiltraSedute" }))
+    @using (Html.BeginForm("Filtri_RiepilogoSedute", "PEM", FormMethod.Post, new { id = "formFiltraSedute" }))
     {
         @Html.AntiForgeryToken()
 
