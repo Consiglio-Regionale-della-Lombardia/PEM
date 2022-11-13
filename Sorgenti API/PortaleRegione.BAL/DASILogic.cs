@@ -835,10 +835,8 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
-                    {
                         throw new InvalidOperationException(
                             "Non è possibile ritirare la firma di un atto chiuso.");
-                    }
 
                     if (atto.DataIscrizioneSeduta.HasValue)
                     {
@@ -946,7 +944,6 @@ namespace PortaleRegione.API.Controllers
                     if (atto.Tipo == (int)TipoAttoEnum.ITL
                         && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
                         && atto.DataIscrizioneSeduta.HasValue)
-                    {
                         try
                         {
                             var mailModel = new MailModel
@@ -956,7 +953,7 @@ namespace PortaleRegione.API.Controllers
                                     AppSettingsConfiguration.EmailInvioDASI,
                                 OGGETTO = $"Ritiro firma effettuato da parte di {persona.DisplayName_GruppoCode}",
                                 MESSAGGIO =
-                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>."
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
@@ -964,7 +961,6 @@ namespace PortaleRegione.API.Controllers
                         {
                             Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
                         }
-                    }
                 }
 
                 return results;
@@ -1060,15 +1056,27 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
+                    ATTI attoPEM = null;
+                    SEDUTE seduta = null;
                     if (atto.Tipo == (int)TipoAttoEnum.ODG)
                     {
-                        var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG,
-                            0);
-                        var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona)
-                            .ToList();
-                        var attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                        /*
+                         *  Ogni consigliere può depositare, come primo firmatario, fino a {MassimoODG} ODG per atto/argomento e fino alla "data scadenza ODG"
+                         *  (poi risultano fuori orario se < {MassimoODG} e comunque sono bloccati se > {MassimoODG}).
+                         *
+                         *  I capigruppo il giorno della seduta possono presentare fino a {MassimoODG_DuranteSeduta} ODG per atto/argomento, a prescindere da quanti ne hanno presentati prima
+                         *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il falg BloccoODG                         
+                         */
 
+                        //proposta di iscrizione in seduta
+
+
+                        //Atto PEM associato all'ODG
+                        attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
+                        //Seduta associata all'atto PEM
+                        seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+
+                        //Blocco inserimento ODG
                         if (attoPEM.BloccoODG)
                         {
                             results.Add(idGuid,
@@ -1076,8 +1084,31 @@ namespace PortaleRegione.API.Controllers
                             continue;
                         }
 
+                        var dataRichiesta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey);
+                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                        //Ricava tutti gli ODG iscritti in seduta
+                        var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                            TipoAttoEnum.ODG, 0);
+                        //Ricava tutti gli ODG proposti in seduta
+                        var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                            TipoAttoEnum.ODG, 0);
+
+                        var atti = new List<ATTI_DASI>();
+                        atti.AddRange(odg_in_seduta);
+                        atti.AddRange(odg_proposte);
+
+                        //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
+                        var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona
+                                                      && a.IDStato < (int)StatiAttoEnum.CHIUSO
+                                                      && a.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                            .ToList();
+
+                        //Jolly attivo limite impostato {MassimoODG_Jolly}
                         if (attoPEM.Jolly)
-                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) + 1 >=
+                            if (my_atti.Count + 1 >=
                                 AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
@@ -1098,12 +1129,8 @@ namespace PortaleRegione.API.Controllers
                                     .ToList();
                             if (atti_dopo_scadenza.Count + 1 >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
-                                if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per la {attoPEM.Oggetto}.");
-                                else
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                results.Add(idGuid,
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
                                 continue;
                             }
@@ -1112,14 +1139,20 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count + 1 >= AppSettingsConfiguration.MassimoODG)
+                            //Matteo Cattapan #484
+                            //Massimo ODG presentabili per provvedimento
+                            var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
+                                .OrderBy(group => group.Key)
+                                .Select(group => Tuple.Create(group.Key, group.Count()));
+                            var current_group =
+                                group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
+                            var count_odg_per_atto = 0;
+                            if (current_group != null) count_odg_per_atto = current_group.Item2;
+
+                            if (count_odg_per_atto + 1 >= AppSettingsConfiguration.MassimoODG)
                             {
-                                if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per la {attoPEM.Oggetto}.");
-                                else
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                results.Add(idGuid,
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
                                 continue;
                             }
@@ -1187,16 +1220,7 @@ namespace PortaleRegione.API.Controllers
 
                     _unitOfWork.DASI.IncrementaContatore(contatore);
 
-                    if (atto.Tipo == (int)TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
-                    {
-                        //proposta di iscrizione in seduta
-                        var attoPem = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        var seduta = await _unitOfWork.Sedute.Get(attoPem.UIDSeduta.Value);
-                        var dataRichiesta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
-                            AppSettingsConfiguration.masterKey);
-                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
-                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
-
+                    if (atto.Tipo == (int)TipoAttoEnum.ODG)
                         if (atto.Non_Passaggio_In_Esame)
                             try
                             {
@@ -1208,7 +1232,7 @@ namespace PortaleRegione.API.Controllers
                                     OGGETTO =
                                         "[ODG DI NON PASSAGGIO ALL'ESAME]",
                                     MESSAGGIO =
-                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
+                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto} - {attoPEM.Oggetto}."
                                 };
                                 await _logicUtil.InvioMail(mailModel);
                             }
@@ -1216,7 +1240,6 @@ namespace PortaleRegione.API.Controllers
                             {
                                 Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
                             }
-                    }
 
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
@@ -1454,10 +1477,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
-                {
                     throw new InvalidOperationException(
                         "Non è possibile ritirare un atto chiuso.");
-                }
 
                 if (atto.DataIscrizioneSeduta.HasValue)
                     throw new InvalidOperationException(
@@ -1940,11 +1961,9 @@ namespace PortaleRegione.API.Controllers
                 if (!data_seduta_odierna)
                 {
                     if (seduta.Data_effettiva_inizio < DateTime.Now)
-                    {
                         //durante la seduta
                         throw new InvalidOperationException(
                             "Non è possibile richiedere l'urgenza durante la seduta. Rivolgiti alla Segreteria dell'Assemblea per chiedere informazioni.");
-                    }
 
                     throw new InvalidOperationException(
                         "Attendi l’inizio della seduta per chiedere la trattazione d’urgenza.");
@@ -2327,10 +2346,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 case TipoAttoEnum.ODG:
                     {
-                        if (atto.CapogruppoNeiTermini)
-                        {
-                            break;
-                        }
+                        if (atto.CapogruppoNeiTermini) break;
 
                         if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
