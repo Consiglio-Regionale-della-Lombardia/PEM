@@ -1645,6 +1645,11 @@ namespace PortaleRegione.API.Controllers
 
                     foreach (var atto in atti.Results)
                     {
+                        //Matteo Cattapan #439
+                        //Aggiunta funzione per controllare che l'atto in seduta sia effettivamente aperto
+                        if (!atto.IsAperto())
+                            continue;
+
                         var tipo = Utility.GetText_Tipo(atto.IDTipoAtto);
                         var titolo_atto = $"{tipo} {atto.NAtto}";
                         if (atto.IDTipoAtto == (int)TipoAttoEnum.ALTRO) titolo_atto = atto.Oggetto;
