@@ -1593,9 +1593,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                //Ricava tutte le mozioni abbinate proposte dal gruppo
                 var proposte_di_abbinata = await _unitOfWork.DASI.GetProposteAtti(persona.Gruppo.id_gruppo,
                     TipoAttoEnum.MOZ,
                     TipoMOZEnum.ABBINATA);
+
+                //Se è già presente una mozione abbinata allora escludo la seduta per evitare che vengano proposte altre mozioni abbinate dalla stessa persona
                 var sedute_da_escludere = new List<Guid>();
                 foreach (var proposta_abbinata in proposte_di_abbinata)
                 {
@@ -1603,8 +1606,11 @@ namespace PortaleRegione.API.Controllers
                     sedute_da_escludere.Add(moz_abbinata.UIDSeduta.Value);
                 }
 
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive(true, true);
+                //Matteo Cattapan #460
+                //Vengono prese tutte le sedute attive NON CHIUSE (con data chiusura vuota o con data chiusura futura) E CONVOCATE (data_apertura <= “a ora”)
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, true);
 
+                //Ricavo dalle sedute le mozioni a cui è possibile creare l'abbinamento
                 var result = new List<AttoDASIDto>();
                 foreach (var seduta in sedute_attive.Where(i => !sedute_da_escludere.Contains(i.UIDSeduta)))
                 {
