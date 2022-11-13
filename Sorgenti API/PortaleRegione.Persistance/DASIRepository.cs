@@ -663,10 +663,13 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
         {
+            //Matteo Cattapan #460
+            //Aggiunta clausola per rimuovere gli atti in stato "CHIUSO"
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
                                                      && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.RITIRATO
                                                      && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.DECADUTO);
 
