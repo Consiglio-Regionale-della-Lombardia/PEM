@@ -18,6 +18,7 @@
 
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
@@ -208,6 +209,9 @@ namespace PortaleRegione.Client.Controllers
             int.TryParse(Request.Form["page"], out var filtro_page);
             int.TryParse(Request.Form["size"], out var filtro_size);
 
+            if (filtro_page == 0)
+                filtro_page = 1;
+
             var model = new BaseRequest<SeduteDto>
             {
                 page = filtro_page,
@@ -219,7 +223,8 @@ namespace PortaleRegione.Client.Controllers
                 {
                     PropertyId = nameof(SeduteDto.id_legislatura),
                     Operation = Operation.EqualTo,
-                    Value = filtro_legislatura
+                    Value = filtro_legislatura,
+                    Connector = FilterStatementConnector.And
                 });
 
             if (filtro_anno > 0)
@@ -228,7 +233,8 @@ namespace PortaleRegione.Client.Controllers
                     PropertyId = nameof(SeduteDto.Data_seduta),
                     Operation = Operation.Between,
                     Value = new DateTime(filtro_anno, 1, 1).ToString("yyyy-MM-dd"),
-                    Value2 = new DateTime(filtro_anno, 12, 31).ToString("yyyy-MM-dd")
+                    Value2 = new DateTime(filtro_anno, 12, 31).ToString("yyyy-MM-dd"),
+                    Connector = FilterStatementConnector.And
                 });
 
             if (!string.IsNullOrEmpty(filtro_da))
@@ -236,7 +242,8 @@ namespace PortaleRegione.Client.Controllers
                 {
                     PropertyId = nameof(SeduteDto.Data_seduta),
                     Operation = Operation.GreaterThan,
-                    Value = Convert.ToDateTime(filtro_da).ToString("yyyy-MM-dd")
+                    Value = Convert.ToDateTime(filtro_da).ToString("yyyy-MM-dd"),
+                    Connector = FilterStatementConnector.And
                 });
 
             if (!string.IsNullOrEmpty(filtro_a))
@@ -244,11 +251,19 @@ namespace PortaleRegione.Client.Controllers
                 {
                     PropertyId = nameof(SeduteDto.Data_seduta),
                     Operation = Operation.LessThan,
-                    Value = Convert.ToDateTime(filtro_a).ToString("yyyy-MM-dd")
+                    Value = Convert.ToDateTime(filtro_a).ToString("yyyy-MM-dd"),
+                    Connector = FilterStatementConnector.And
                 });
 
             var apiGateway = new ApiGateway(_Token);
             var results = await apiGateway.Sedute.Get(model);
+
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            if (mode == (int)ClientModeEnum.TRATTAZIONE)
+            {
+                return View("~/Views/AttiTrattazione/Archivio.cshtml", results);
+            }
+
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
                 return View("RiepilogoSedute_Admin", results);
