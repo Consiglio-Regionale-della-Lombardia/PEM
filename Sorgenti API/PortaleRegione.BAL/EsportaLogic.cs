@@ -269,19 +269,20 @@ namespace PortaleRegione.BAL
                     await NewSheetDASI_Atti(
                         workbook.CreateSheet(
                             "Atti"),
-                        attiList,
-                        persona,
-                        personeInDbLight,
-                        style,
-                        styleReport);
+                        attiList);
                 var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
                 var firmatariSheet =
                     await NewSheetDASI_Firmatari(
                         workbook.CreateSheet(
                             "Firmatari"),
-                        firmatariList,
-                        style,
-                        styleReport);
+                        firmatariList);
+
+                var controlliSheet =
+                    await NewSheetDASI_Controlli(
+                        workbook.CreateSheet(
+                            "Controlli"));
+
+                var lookupSheet = workbook.CreateSheet("LOOKUP");
 
                 return await Response(FilePathComplete, workbook);
             }
@@ -292,8 +293,28 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task<ISheet> NewSheetDASI_Firmatari(ISheet sheet, List<AttiFirmeDto> firmatariList,
-            ICellStyle style, ICellStyle styleReport)
+        private async Task<ISheet> NewSheetDASI_Controlli(ISheet sheet)
+        {
+            try
+            {
+                var row = sheet.CreateRow(0);
+                SetColumnValue(ref row, "Codice di controllo del template:");
+                SetColumnValue(ref row, "TY86Z5s6VfZtRFF46fi54qskISyv36_v007");
+
+                var row1 = sheet.CreateRow(1);
+                SetColumnValue(ref row1, "Numero massimo atti da importare:");
+                SetColumnValue(ref row1, "1000");
+
+                return sheet;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private async Task<ISheet> NewSheetDASI_Firmatari(ISheet sheet, List<AttiFirmeDto> firmatariList)
         {
             //HEADER
             try
@@ -315,14 +336,14 @@ namespace PortaleRegione.BAL
                         gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
                     var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
                     SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
-                    SetColumnValue(ref rowBody, atto.NAtto); // numero atto
+                    SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
                     var firmacert = firma.FirmaCert;
                     var indiceParentesiApertura = firmacert.IndexOf('(');
                     firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                     SetColumnValue(ref rowBody, firmacert); // firmatario
                     SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
-                    SetColumnValue(ref rowBody, firma.Data_firma); // data firma
-                    SetColumnValue(ref rowBody, firma.Data_ritirofirma); // data ritiro firma
+                    SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 8)); // data firma
+                    SetColumnValue(ref rowBody, firma.Data_ritirofirma.Substring(0, 8)); // data ritiro firma
                     SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
                 }
 
@@ -661,8 +682,7 @@ namespace PortaleRegione.BAL
             return sheet;
         }
 
-        private async Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList,
-            PersonaDto persona, List<PersonaLightDto> personeInDbLight, ICellStyle style, ICellStyle styleR)
+        private async Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList)
         {
             //HEADER
             try
@@ -715,17 +735,30 @@ namespace PortaleRegione.BAL
                     var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
                     SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
                     SetColumnValue(ref rowBody, ""); // tipo mozione
-                    SetColumnValue(ref rowBody, atto.NAtto); // numero atto
+                    SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
                     SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
-                    SetColumnValue(ref rowBody, atto.DataPresentazione); // data presentazione
-                    SetColumnValue(ref rowBody,
-                        string.IsNullOrEmpty(atto.Oggetto_Modificato)
-                            ? atto.Oggetto
-                            : atto.Oggetto_Modificato); // oggetto
-                    SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione
-                    SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea
+                    SetColumnValue(ref rowBody, atto.DataPresentazione.Substring(0, 8)); // data presentazione
+                    SetColumnValue(ref rowBody, ""); // oggetto
+
+                    //Matteo Cattapan #500
+                    switch ((TipoAttoEnum)atto.Tipo)
+                    {
+                        case TipoAttoEnum.MOZ:
+                        case TipoAttoEnum.ODG:
+                            {
+                                SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
+                                SetColumnValue(ref rowBody, atto.Oggetto); // oggetto presentato / oggetto commissione 
+                                break;
+                            }
+                        default:
+                            {
+                                SetColumnValue(ref rowBody, atto.Oggetto); // oggetto approvato / oggetto assemblea 
+                                SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione 
+                                break;
+                            }
+                    }
                     SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
                 }
 
@@ -738,9 +771,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private void SetColumnValue(ref IRow row, string val)
+        private void SetColumnValue(ref IRow row, string val, CellType type = CellType.String)
         {
-            row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(val);
+            row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
         }
 
         private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
