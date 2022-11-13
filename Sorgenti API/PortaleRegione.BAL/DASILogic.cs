@@ -1931,8 +1931,16 @@ namespace PortaleRegione.API.Controllers
                 var data_seduta_odierna = dateNow.Day == seduta.Data_seduta.Day
                                           && dateNow.Month == seduta.Data_seduta.Month
                                           && dateNow.Year == seduta.Data_seduta.Year;
+                //E' possibile richiedere l'urgenza dalle 00 del giorno della seduta fino all'effettivo inizio
                 if (!data_seduta_odierna)
                 {
+                    if (seduta.Data_effettiva_inizio < DateTime.Now)
+                    {
+                        //durante la seduta
+                        throw new InvalidOperationException(
+                            "Non è possibile richiedere l'urgenza durante la seduta. Rivolgiti alla Segreteria dell'Assemblea per chiedere informazioni.");
+                    }
+
                     throw new InvalidOperationException(
                         "Attendi l’inizio della seduta per chiedere la trattazione d’urgenza.");
                 }
@@ -1945,21 +1953,26 @@ namespace PortaleRegione.API.Controllers
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
+                //Matteo Cattapan #501
+                //Controllo se la mozione è firmata dai capigruppo, in questo caso la mozione può passare avanti senza ulteriori controlli
+
                 var checkIfFirmatoDaiCapigruppo = await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(attoInDb.UIDAtto);
                 if (!checkIfFirmatoDaiCapigruppo)
                 {
+                    //Se non sono presenti tutti i capigruppo è necessario che si possa proporre l'urgenza solo di 1 mozione per seduta
                     var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta,
                         attoInDb.DataRichiestaIscrizioneSeduta, attoInDb.UIDPersonaProponente.Value);
                     if (!checkMozUrgente)
-                        throw new Exception(
+                        throw new InvalidOperationException(
                             $"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta.Data_seduta:dd/MM/yyyy}.");
-                }
 
-                var count_firme = atto.ConteggioFirme;
-                var controllo_firme =
-                    await ControlloFirmePresentazione(atto, count_firme, seduta,
-                        "Non è possibile proporre l'urgenza");
-                if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
+                    //Controllo validità firme
+                    var count_firme = atto.ConteggioFirme;
+                    var controllo_firme =
+                        await ControlloFirmePresentazione(atto, count_firme, seduta,
+                            "Non è possibile proporre l'urgenza");
+                    if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
+                }
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -2313,6 +2326,7 @@ namespace PortaleRegione.API.Controllers
                         {
                             break;
                         }
+
                         if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
                     }
