@@ -739,7 +739,8 @@ namespace PortaleRegione.Persistance
                             && (i.UIDSeduta == seduta.UIDSeduta
                              || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
-                            && i.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                            && i.TipoMOZ == (int)TipoMOZEnum.URGENTE
+                            && !i.MOZU_Capigruppo)
                 .ToListAsync();
 
             foreach (var attiDasi in atti_proposti_in_seduta)

@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 25/10/2022 14:49:23 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 15/11/2022 09:52:22 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -72,6 +72,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[Inviato_Al_Protocollo] [bit] NOT NULL,
 	[DataInvioAlProtocollo] [datetime] NULL,
 	[CapogruppoNeiTermini] [bit] NOT NULL,
+	[MOZU_Capigruppo] [bit] NOT NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC
@@ -102,5 +103,8 @@ GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_public bool CapogruppoNeiTermini { get; set; } = false;
 CapogruppoNeiTermini]  DEFAULT ((0)) FOR [CapogruppoNeiTermini]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_MOZU_Capigruppo]  DEFAULT ((0)) FOR [MOZU_Capigruppo]
 GO
 

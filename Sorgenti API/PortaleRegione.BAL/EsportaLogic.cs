@@ -342,8 +342,14 @@ namespace PortaleRegione.BAL
                     firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                     SetColumnValue(ref rowBody, firmacert); // firmatario
                     SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
-                    SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 8)); // data firma
-                    SetColumnValue(ref rowBody, firma.Data_ritirofirma.Substring(0, 8)); // data ritiro firma
+                    SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 10)); // data firma
+                    var data_ritiro_firma = firma.Data_ritirofirma;
+                    if (!string.IsNullOrEmpty(data_ritiro_firma))
+                    {
+                        data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
+                    }
+
+                    SetColumnValue(ref rowBody, data_ritiro_firma); // data ritiro firma
                     SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
                 }
 
@@ -739,7 +745,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
-                    SetColumnValue(ref rowBody, atto.DataPresentazione.Substring(0, 8)); // data presentazione
+                    SetColumnValue(ref rowBody, atto.DataPresentazione.Substring(0, 10)); // data presentazione
                     SetColumnValue(ref rowBody, ""); // oggetto
 
                     //Matteo Cattapan #500

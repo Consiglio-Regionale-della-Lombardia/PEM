@@ -1127,7 +1127,7 @@ namespace PortaleRegione.API.Controllers
                                                    && a.Timestamp.Month == dataOdierna.Month
                                                    && a.Timestamp.Year == dataOdierna.Year)
                                     .ToList();
-                            if (atti_dopo_scadenza.Count + 1 >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1149,7 +1149,7 @@ namespace PortaleRegione.API.Controllers
                             var count_odg_per_atto = 0;
                             if (current_group != null) count_odg_per_atto = current_group.Item2;
 
-                            if (count_odg_per_atto + 1 >= AppSettingsConfiguration.MassimoODG)
+                            if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
                             {
                                 results.Add(idGuid,
                                     $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
@@ -1997,6 +1997,8 @@ namespace PortaleRegione.API.Controllers
                             "Non è possibile proporre l'urgenza");
                     if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
                 }
+
+                attoInDb.MOZU_Capigruppo = checkIfFirmatoDaiCapigruppo;
 
                 await _unitOfWork.CompleteAsync();
             }
