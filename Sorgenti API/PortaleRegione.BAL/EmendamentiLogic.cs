@@ -1826,11 +1826,11 @@ namespace PortaleRegione.BAL
                         CurrentUser = persona
                     };
 
-                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First(), false);
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                var atto_uid = model.filtro.First(f => f.PropertyId == nameof(EmendamentiDto.UIDAtto)).Value;
+                var atto = await _unitOfWork.Atti.Get(new Guid(atto_uid.ToString()));
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var relatori = await _unitOfWork.Atti.GetRelatori(firstEM.UIDAtto);
+                var relatori = await _unitOfWork.Atti.GetRelatori(new Guid(atto_uid.ToString()));
 
                 var result = new List<EmendamentiDto>();
                 foreach (var em in em_in_db)
