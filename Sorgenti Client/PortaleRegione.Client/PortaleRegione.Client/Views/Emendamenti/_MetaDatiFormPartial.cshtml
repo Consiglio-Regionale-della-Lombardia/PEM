@@ -49,7 +49,8 @@
                         <div class="input-field col s12">
                             <label class="active">Area Politica</label>
                             <select id="ddlAreaPolitica" name="AreaPolitica">
-                                <option value="@((int)AreaPoliticaIntEnum.Maggioranza)" selected="selected">@AreaPoliticaEnum.Maggioranza</option>
+                                <option value="-1" selected="selected"></option>
+                                <option value="@((int)AreaPoliticaIntEnum.Maggioranza)">@AreaPoliticaEnum.Maggioranza</option>
                                 <option value="@((int)AreaPoliticaIntEnum.Minoranza)">@AreaPoliticaEnum.Minoranza</option>
                                 <option value="@((int)AreaPoliticaIntEnum.Misto_Maggioranza)">@AreaPoliticaEnum.Misto_Maggioranza</option>
                                 <option value="@((int)AreaPoliticaIntEnum.Misto_Minoranza)">@AreaPoliticaEnum.Misto_Minoranza</option>
