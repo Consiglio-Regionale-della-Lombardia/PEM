@@ -16,7 +16,6 @@ CREATE TABLE [dbo].[gruppi_politici](
 	[data_fine] [datetime] NULL,
 	[attivo] [bit] NOT NULL,
 	[id_causa_fine] [int] NULL,
-	[TipoArea] [int] NOT NULL,
 	[deleted] [bit] NOT NULL,
  CONSTRAINT [PK_gruppi_politici] PRIMARY KEY CLUSTERED 
 (

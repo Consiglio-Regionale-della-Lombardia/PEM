@@ -53,7 +53,6 @@ namespace PortaleRegione.Domain
         public bool attivo { get; set; }
 
         public int? id_causa_fine { get; set; }
-        public int TipoArea { get; set; } = 0;
 
         public bool deleted { get; set; }
 
