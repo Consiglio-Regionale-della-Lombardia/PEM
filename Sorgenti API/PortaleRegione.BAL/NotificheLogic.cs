@@ -279,6 +279,8 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
+                        var sync_guid = Guid.NewGuid();
+
                         var newNotifica = new NOTIFICHE
                         {
                             UIDAtto = atto.UIDAtto,
@@ -288,8 +290,14 @@ namespace PortaleRegione.BAL
                             Messaggio = string.Empty,
                             DataCreazione = DateTime.Now,
                             IdGruppo = atto.id_gruppo,
-                            SyncGUID = Guid.NewGuid()
+                            SyncGUID = sync_guid
                         };
+
+                        _unitOfWork.Notifiche.Add(newNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+
+                        var notificaInDb = await _unitOfWork.Notifiche.GetBySync(sync_guid);
 
                         var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
                         foreach (var destinatario in listaDestinatari)
@@ -301,16 +309,23 @@ namespace PortaleRegione.BAL
                             if (existDestinatario == null)
                                 destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                                 {
-                                    NOTIFICHE = newNotifica,
+                                    UIDNotifica = notificaInDb.UIDNotifica,
                                     UIDPersona = destinatario.UID_persona,
                                     IdGruppo = atto.id_gruppo,
                                     UID = Guid.NewGuid()
                                 });
                         }
 
-                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+                        try
+                        {
+                            if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
-                        await _unitOfWork.CompleteAsync();
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
 
                         var attoInDb = await _logicDasi.Get(atto.UIDAtto);
                         var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
@@ -361,6 +376,8 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
+                        var sync_guid = Guid.NewGuid();
+
                         var newNotifica = new NOTIFICHE
                         {
                             UIDEM = em.UIDEM,
@@ -372,8 +389,14 @@ namespace PortaleRegione.BAL
                             DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
                             DataCreazione = DateTime.Now,
                             IdGruppo = em.id_gruppo,
-                            SyncGUID = Guid.NewGuid()
+                            SyncGUID = sync_guid
                         };
+
+                        _unitOfWork.Notifiche.Add(newNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+
+                        var notificaInDb = await _unitOfWork.Notifiche.GetBySync(sync_guid);
 
                         var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
                         foreach (var destinatario in listaDestinatari)
@@ -385,16 +408,24 @@ namespace PortaleRegione.BAL
                             if (existDestinatario == null)
                                 destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                                 {
-                                    NOTIFICHE = newNotifica,
+                                    UIDNotifica = notificaInDb.UIDNotifica,
                                     UIDPersona = destinatario.UID_persona,
                                     IdGruppo = em.id_gruppo,
                                     UID = Guid.NewGuid()
                                 });
                         }
 
-                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+                        try
+                        {
+                            if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
-                        await _unitOfWork.CompleteAsync();
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+
                         var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                         bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
                         bodyMail +=

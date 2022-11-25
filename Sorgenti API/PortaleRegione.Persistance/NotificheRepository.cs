@@ -289,5 +289,10 @@ namespace PortaleRegione.Persistance
                                && item.Mittente == personaUId
                                && item.IDTipo == (int)TipoNotificaEnum.RITIRO);
         }
+
+        public async Task<NOTIFICHE> GetBySync(Guid syncGuid)
+        {
+            return await PRContext.NOTIFICHE.FirstOrDefaultAsync(i => i.SyncGUID == syncGuid);
+        }
     }
 }
