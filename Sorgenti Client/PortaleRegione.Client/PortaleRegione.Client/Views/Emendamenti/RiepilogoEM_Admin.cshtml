@@ -250,6 +250,8 @@
         var attoUId = $('#hdUIdAtto').val();
         var grigliaInDb = await GetGrigliaTestoEM(attoUId);
         var table = $("#tableTesti");
+        
+        table.empty();
 
         $.each(grigliaInDb,
             function(index, articoloModel) {

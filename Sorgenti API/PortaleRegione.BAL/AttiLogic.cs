@@ -641,7 +641,6 @@ namespace PortaleRegione.BAL
         public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm = false)
         {
             var result = new List<ArticoliModel>();
-
             var articoli = await _unitOfWork.Articoli.GetArticoli(id);
             foreach (var articolo in articoli)
             {
@@ -652,11 +651,11 @@ namespace PortaleRegione.BAL
 
                 if (viewEm)
                 {
-                    List<Guid> emArticolis =
-                        await _unitOfWork.Emendamenti.GetByArticolo(articolo.UIDArticolo, StatiEnum.Approvato);
-                    foreach (var emArticoloGuid in emArticolis)
+                    var em_per_articolo = await _unitOfWork.Emendamenti.GetByArticolo(articolo.UIDArticolo);
+
+                    foreach (var em_articolo in em_per_articolo.Where(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche))
                     {
-                        var emArticolo = await _logicEm.GetEM_DTO_Light(emArticoloGuid);
+                        var emArticolo = await _logicEm.GetEM_DTO_Light(em_articolo.UIDEM);
                         articoliModel.Emendamenti.Add(emArticolo);
                     }
                 }
@@ -674,11 +673,10 @@ namespace PortaleRegione.BAL
 
                         if (viewEm)
                         {
-                            List<Guid> emCommis =
-                                await _unitOfWork.Emendamenti.GetByComma(comma.UIDComma, StatiEnum.Approvato);
-                            foreach (var emCommaGuid in emCommis)
+                            var em_per_comma = await _unitOfWork.Emendamenti.GetByComma(comma.UIDComma);
+                            foreach (var em_comma in em_per_comma.Where(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche))
                             {
-                                var emComma = await _logicEm.GetEM_DTO_Light(emCommaGuid);
+                                var emComma = await _logicEm.GetEM_DTO_Light(em_comma.UIDEM);
                                 commiModel.Emendamenti.Add(emComma);
                             }
                         }
@@ -696,12 +694,10 @@ namespace PortaleRegione.BAL
 
                                 if (viewEm)
                                 {
-                                    List<Guid> emLetteras =
-                                        await _unitOfWork.Emendamenti.GetByLettera(lettera.UIDLettera,
-                                            StatiEnum.Approvato);
-                                    foreach (var emLetteraGuid in emLetteras)
+                                    var em_per_lettera = await _unitOfWork.Emendamenti.GetByLettera(lettera.UIDLettera);
+                                    foreach (var em_lettera in em_per_lettera.Where(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche))
                                     {
-                                        var emLettera = await _logicEm.GetEM_DTO_Light(emLetteraGuid);
+                                        var emLettera = await _logicEm.GetEM_DTO_Light(em_lettera.UIDEM);
                                         letteraModel.Emendamenti.Add(emLettera);
                                     }
                                 }
