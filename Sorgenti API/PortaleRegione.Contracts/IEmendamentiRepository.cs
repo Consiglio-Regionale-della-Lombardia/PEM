@@ -85,8 +85,8 @@ namespace PortaleRegione.Contracts
         void AddTag(string tag);
         Task<List<View_Conteggi_EM_Gruppi_Politici>> GetConteggiGruppi(Guid uidAtto);
         Task<List<View_Conteggi_EM_Area_Politica>> GetConteggiAreePolitiche(Guid uidAtto);
-        Task<List<Guid>> GetByLettera(Guid uGuid, StatiEnum stato);
-        Task<List<Guid>> GetByComma(Guid guid, StatiEnum stato);
-        Task<List<Guid>> GetByArticolo(Guid guid, StatiEnum stato);
+        Task<List<EM>> GetByLettera(Guid uGuid);
+        Task<List<EM>> GetByComma(Guid guid);
+        Task<List<EM>> GetByArticolo(Guid guid);
     }
 }

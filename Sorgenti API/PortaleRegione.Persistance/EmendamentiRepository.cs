@@ -856,30 +856,27 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
-        public async Task<List<Guid>> GetByLettera(Guid uGuid, StatiEnum stato)
+        public async Task<List<EM>> GetByLettera(Guid uGuid)
         {
             return await PRContext
                 .EM
-                .Where(em => em.UIDLettera == uGuid && em.IDStato == (int)stato && !em.Eliminato)
-                .Select(em => em.UIDEM)
+                .Where(em => em.UIDLettera == uGuid && !em.Eliminato)
                 .ToListAsync();
         }
 
-        public async Task<List<Guid>> GetByComma(Guid guid, StatiEnum stato)
+        public async Task<List<EM>> GetByComma(Guid guid)
         {
             return await PRContext
                 .EM
-                .Where(em => em.UIDComma == guid && em.IDStato == (int)stato && !em.Eliminato)
-                .Select(em => em.UIDEM)
+                .Where(em => em.UIDComma == guid && !em.UIDLettera.HasValue && !em.Eliminato)
                 .ToListAsync();
         }
 
-        public async Task<List<Guid>> GetByArticolo(Guid guid, StatiEnum stato)
+        public async Task<List<EM>> GetByArticolo(Guid guid)
         {
             return await PRContext
                 .EM
-                .Where(em => em.UIDArticolo == guid && em.IDStato == (int)stato && !em.Eliminato)
-                .Select(em => em.UIDEM)
+                .Where(em => em.UIDArticolo == guid && !em.UIDComma.HasValue && !em.Eliminato)
                 .ToListAsync();
         }
 
