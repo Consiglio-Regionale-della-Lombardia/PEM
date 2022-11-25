@@ -76,6 +76,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [AllowHtml] public string NOTE_EM { get; set; }
 
         [AllowHtml] public string NOTE_Griglia { get; set; }
+
+        public Guid UID_QRCode { get; set; }
     }
 
     public class EmendamentoExtraLightDto
@@ -84,5 +86,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [StringLength(50)] public string N_EM { get; set; }
         public PersonaExtraLightDto PersonaProponente { get; set; }
         [StringLength(255)] public string DataDeposito { get; set; }
+        public Guid UID_QRCode { get; set; }
     }
 }

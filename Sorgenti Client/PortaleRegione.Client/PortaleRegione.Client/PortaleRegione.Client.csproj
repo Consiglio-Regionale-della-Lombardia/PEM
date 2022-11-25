@@ -471,6 +471,7 @@
     <Content Include="Views\AdminPanel\_RiepilogoUtentiScript.cshtml" />
     <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPassword.cshtml" />
     <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPin.cshtml" />
+    <Content Include="Views\Emendamenti\_TestiAttoScript.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
