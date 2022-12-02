@@ -18,6 +18,7 @@
 
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
@@ -34,15 +35,33 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("autenticazione")]
     public class AutenticazioneController : BaseApiController
     {
-        private readonly AuthLogic _logic;
-
         /// <summary>
-        /// 
+        ///     Costruttore
         /// </summary>
-        /// <param name="logic"></param>
-        public AutenticazioneController(AuthLogic logic)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public AutenticazioneController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logic = logic;
         }
 
         /// <summary>
@@ -56,7 +75,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.Login(loginModel);
+                var result = await _authLogic.Login(loginModel);
 
                 return Ok(result);
             }
@@ -79,7 +98,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.CambioRuolo(ruolo, GetSession());
+                var result = await _authLogic.CambioRuolo(ruolo, Session);
 
                 return Ok(result);
             }
@@ -102,7 +121,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.CambioGruppo(gruppo, GetSession());
+                var result = await _authLogic.CambioGruppo(gruppo, Session);
 
                 return Ok(result);
             }

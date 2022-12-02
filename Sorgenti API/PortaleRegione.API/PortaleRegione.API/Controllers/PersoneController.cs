@@ -16,17 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -37,14 +38,33 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("persone")]
     public class PersoneController : BaseApiController
     {
-        private readonly PersoneLogic _logicPersone;
-
         /// <summary>
+        ///     Costruttore
         /// </summary>
-        /// <param name="logicPersone"></param>
-        public PersoneController(PersoneLogic logicPersone)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public PersoneController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logicPersone = logicPersone;
         }
 
         /// <summary>
@@ -59,7 +79,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicPersone.GetPersona(id, IsGiunta));
+                return Ok(await _personeLogic.GetPersona(id, IsGiunta));
             }
             catch (Exception e)
             {
@@ -79,7 +99,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var ruolo = await _logicPersone.GetRuolo((RuoliIntEnum) id);
+                var ruolo = await _personeLogic.GetRuolo((RuoliIntEnum)id);
                 return Ok(Mapper.Map<RUOLI, RuoliDto>(ruolo));
             }
             catch (Exception e)
@@ -100,7 +120,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var capoGruppo = await _logicPersone.GetCapoGruppo(id);
+                var capoGruppo = await _personeLogic.GetCapoGruppo(id);
                 return Ok(capoGruppo);
             }
             catch (Exception e)
@@ -125,7 +145,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var segreteriaPolitica =
-                    await _logicPersone.GetSegreteriaPolitica(id, notifica_firma, notifica_deposito);
+                    await _personeLogic.GetSegreteriaPolitica(id, notifica_firma, notifica_deposito);
                 return Ok(segreteriaPolitica);
             }
             catch (Exception e)
@@ -146,7 +166,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var segreteriaGiuntaRegionale =
-                    await _logicPersone.GetSegreteriaGiuntaRegionale(notifica_firma, notifica_deposito);
+                    await _personeLogic.GetSegreteriaGiuntaRegionale(notifica_firma, notifica_deposito);
                 return Ok(segreteriaGiuntaRegionale);
             }
             catch (Exception e)
@@ -166,7 +186,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var giuntaRegionale = await _logicPersone.GetGiuntaRegionale();
+                var giuntaRegionale = await _personeLogic.GetGiuntaRegionale();
                 return Ok(giuntaRegionale);
             }
             catch (Exception e)
@@ -186,7 +206,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var personaDtos = await _logicPersone.GetAssessoriRiferimento();
+                var personaDtos = await _personeLogic.GetAssessoriRiferimento();
 
                 return Ok(personaDtos);
             }
@@ -208,7 +228,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicPersone.GetRelatori(id));
+                return Ok(await _personeLogic.GetRelatori(id));
             }
             catch (Exception e)
             {
@@ -227,7 +247,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicPersone.GetGruppiAttivi());
+                return Ok(await _personeLogic.GetGruppiAttivi());
             }
             catch (Exception e)
             {
@@ -247,14 +267,14 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var currentPin = await _logicPersone.GetPin(persona);
+                var currentPin = await _personeLogic.GetPin(CurrentUser);
                 if (currentPin == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin) throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
+                if (currentPin.PIN_Decrypt != model.vecchio_pin)
+                    throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
-                if (model.Cambio == false && currentPin.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
+                if (model.Cambio == false && currentPin.RichiediModificaPIN)
+                    throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 return Ok("OK");
             }
@@ -279,22 +299,22 @@ namespace PortaleRegione.API.Controllers
                 if (model.conferma_pin != model.nuovo_pin)
                     throw new InvalidOperationException("Il nuovo PIN non combacia con quello di conferma!!!");
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var currentPin = await _logicPersone.GetPin(persona);
+                var currentPin = await _personeLogic.GetPin(CurrentUser);
                 if (currentPin == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (currentPin.PIN_Decrypt != model.vecchio_pin) throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
+                if (currentPin.PIN_Decrypt != model.vecchio_pin)
+                    throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
                 int valuePin;
                 var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
                 if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
-                if (model.nuovo_pin.Length != 4) throw new InvalidOperationException("Il PIN dev'essere un numero di massimo 4 cifre!");
+                if (model.nuovo_pin.Length != 4)
+                    throw new InvalidOperationException("Il PIN dev'essere un numero di massimo 4 cifre!");
 
-                model.PersonaUId = persona.UID_persona;
+                model.PersonaUId = Session._currentUId;
 
-                await _logicPersone.CambioPin(model);
+                await _personeLogic.CambioPin(model);
 
                 return Ok("OK");
             }
@@ -315,7 +335,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var persone = await _logicPersone.GetProponenti();
+                var persone = await _personeLogic.GetProponenti();
 
                 return Ok(persone);
             }
@@ -342,9 +362,10 @@ namespace PortaleRegione.API.Controllers
                 var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
                 if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
-                if (model.nuovo_pin.Length != 4) throw new InvalidOperationException("Il PIN dev'essere un numero di massimo 4 cifre!");
+                if (model.nuovo_pin.Length != 4)
+                    throw new InvalidOperationException("Il PIN dev'essere un numero di massimo 4 cifre!");
 
-                await _logicPersone.ResetPin(model);
+                await _personeLogic.ResetPin(model);
 
                 return Ok("OK");
             }

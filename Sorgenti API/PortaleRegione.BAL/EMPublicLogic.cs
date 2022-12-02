@@ -14,9 +14,6 @@ namespace PortaleRegione.BAL
 {
     public class EMPublicLogic : BaseLogic
     {
-        private readonly EmendamentiLogic _logicEm;
-        private readonly IUnitOfWork _unitOfWork;
-
         public EMPublicLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm)
         {
             _unitOfWork = unitOfWork;

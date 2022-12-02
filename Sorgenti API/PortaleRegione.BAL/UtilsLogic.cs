@@ -32,7 +32,6 @@ namespace PortaleRegione.BAL
     public class UtilsLogic : BaseLogic
     {
         //private const string maddy = "xjuy i                                                          mamma  pap fà";
-        private readonly IUnitOfWork _unitOfWork;
 
         public UtilsLogic(IUnitOfWork unitOfWork)
         {

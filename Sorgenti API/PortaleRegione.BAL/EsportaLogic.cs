@@ -49,21 +49,13 @@ namespace PortaleRegione.BAL
 {
     public class EsportaLogic : BaseLogic
     {
-        private readonly DASILogic _logicDasi;
-        private readonly EmendamentiLogic _logicEm;
-        private readonly FirmeLogic _logicFirme;
-        private readonly PersoneLogic _logicPersone;
-        private readonly IUnitOfWork _unitOfWork;
-
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme,
-            PersoneLogic logicPersone)
+            FirmeLogic logicFirme)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
             _logicDasi = logicDASI;
             _logicFirme = logicFirme;
-            _logicPersone = logicPersone;
         }
 
         public async Task<HttpResponseMessage> EsportaGrigliaExcel(EmendamentiViewModel model, PersonaDto persona)
@@ -107,10 +99,8 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, "Firmatari dopo deposito");
                 SetColumnValue(ref row, "LinkEM");
 
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var emList =
-                    await _logicEm.ScaricaEmendamenti(model, persona, personeInDbLight, false, true);
+                    await _logicEm.ScaricaEmendamenti(model, persona, false, true);
                 var totalProcessTime = 0f;
                 foreach (var em in emList)
                 {
@@ -200,7 +190,7 @@ namespace PortaleRegione.BAL
                                 f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
                                 firmatari_opendata_ante = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
-                                    persona.CurrentRole, personeInDbLight);
+                                    persona.CurrentRole);
                         }
                         catch (Exception e)
                         {
@@ -214,7 +204,7 @@ namespace PortaleRegione.BAL
                                 f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
                                 firmatari_opendata_post = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
-                                    persona.CurrentRole, personeInDbLight);
+                                    persona.CurrentRole);
                         }
                         catch (Exception e)
                         {
@@ -247,7 +237,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(RiepilogoDASIModel model, PersonaDto persona)
+        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(RiepilogoDASIModel model)
         {
             try
             {
@@ -263,8 +253,6 @@ namespace PortaleRegione.BAL
                 styleReport.Alignment = HorizontalAlignment.Center;
 
                 var attiList = model.Data.Results.ToList();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var dasiSheet =
                     await NewSheetDASI_Atti(
                         workbook.CreateSheet(
@@ -278,7 +266,7 @@ namespace PortaleRegione.BAL
                         firmatariList);
 
                 var controlliSheet =
-                    await NewSheetDASI_Controlli(
+                    NewSheetDASI_Controlli(
                         workbook.CreateSheet(
                             "Controlli"));
 
@@ -293,7 +281,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task<ISheet> NewSheetDASI_Controlli(ISheet sheet)
+        private ISheet NewSheetDASI_Controlli(ISheet sheet)
         {
             try
             {
@@ -369,37 +357,35 @@ namespace PortaleRegione.BAL
             {
                 var FilePathComplete = GetLocalPath("docx");
 
-                using (var generatedDocument = new MemoryStream())
+                using var generatedDocument = new MemoryStream();
+                using (var package =
+                       WordprocessingDocument.Create(generatedDocument, WordprocessingDocumentType.Document))
                 {
-                    using (var package =
-                        WordprocessingDocument.Create(generatedDocument, WordprocessingDocumentType.Document))
+                    var mainPart = package.MainDocumentPart;
+                    if (mainPart == null)
                     {
-                        var mainPart = package.MainDocumentPart;
-                        if (mainPart == null)
-                        {
-                            mainPart = package.AddMainDocumentPart();
-                            new Document(new Body()).Save(mainPart);
-                        }
-
-                        var converter = new HtmlConverter(mainPart);
-                        converter.ParseHtml(await ComposeWordTable(attoUId, ordine, mode, persona));
-
-                        mainPart.Document.Save();
+                        mainPart = package.AddMainDocumentPart();
+                        new Document(new Body()).Save(mainPart);
                     }
 
-                    File.WriteAllBytes(FilePathComplete, generatedDocument.ToArray());
-                    var result = new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new ByteArrayContent(generatedDocument.ToArray())
-                    };
-                    result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = Path.GetFileName(FilePathComplete)
-                    };
-                    result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/doc");
+                    var converter = new HtmlConverter(mainPart);
+                    converter.ParseHtml(await ComposeWordTable(attoUId, ordine, mode, persona));
 
-                    return result;
+                    mainPart.Document.Save();
                 }
+
+                File.WriteAllBytes(FilePathComplete, generatedDocument.ToArray());
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(generatedDocument.ToArray())
+                };
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = Path.GetFileName(FilePathComplete)
+                };
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/doc");
+
+                return result;
             }
             catch (Exception e)
             {
@@ -414,7 +400,7 @@ namespace PortaleRegione.BAL
             var personeInDb = await _unitOfWork.Persone.GetAll();
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
             var emList =
-                await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, personeInDbLight, false, true);
+                await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, false, true);
             var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
 
             var body = "<html>";
@@ -481,7 +467,7 @@ namespace PortaleRegione.BAL
                 styleReport.Alignment = HorizontalAlignment.Center;
                 var personeInDb = await _unitOfWork.Persone.GetAll();
                 var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var emList = await _logicEm.ScaricaEmendamenti(model, persona, personeInDbLight);
+                var emList = await _logicEm.ScaricaEmendamenti(model, persona);
 
                 var uolaSheet =
                     await NewSheet(
@@ -688,7 +674,7 @@ namespace PortaleRegione.BAL
             return sheet;
         }
 
-        private async Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList)
+        private Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList)
         {
             //HEADER
             try
@@ -768,7 +754,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
                 }
 
-                return sheet;
+                return Task.FromResult(sheet);
             }
             catch (Exception e)
             {
@@ -834,8 +820,10 @@ namespace PortaleRegione.BAL
             }
 
             stream.Position = 0;
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            result.Content = new StreamContent(stream);
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StreamContent(stream)
+            };
             result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
             result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
             {

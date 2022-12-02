@@ -16,25 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Contracts;
+using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using PortaleRegione.Contracts;
-using PortaleRegione.Domain;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.BAL
 {
     public class AttiFirmeLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-
         public AttiFirmeLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -59,13 +54,13 @@ namespace PortaleRegione.BAL
                     {
                         UIDAtto = firma.UIDAtto,
                         UID_persona = firma.UID_persona,
-                        FirmaCert = Decrypt(firma.FirmaCert),
+                        FirmaCert = BALHelper.Decrypt(firma.FirmaCert),
                         PrimoFirmatario = firma.PrimoFirmatario,
                         id_gruppo = firma.id_gruppo,
-                        Data_firma = Convert.ToDateTime(Decrypt(firma.Data_firma)).ToString("dd/MM/yyyy"),
+                        Data_firma = Convert.ToDateTime(BALHelper.Decrypt(firma.Data_firma)).ToString("dd/MM/yyyy"),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
-                            : Decrypt(firma.Data_ritirofirma)
+                            : BALHelper.Decrypt(firma.Data_ritirofirma)
                     };
 
                     result.Add(firmaDto);
@@ -79,7 +74,7 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
-        
+
         public async Task<IEnumerable<AttiFirmeDto>> GetFirme(Guid attoUId)
         {
             try
@@ -101,11 +96,11 @@ namespace PortaleRegione.BAL
                         UID_persona = firma.UID_persona,
                         PrimoFirmatario = firma.PrimoFirmatario,
                         id_gruppo = firma.id_gruppo,
-                        FirmaCert = Decrypt(firma.FirmaCert),
-                        Data_firma = Decrypt(firma.Data_firma),
+                        FirmaCert = BALHelper.Decrypt(firma.FirmaCert),
+                        Data_firma = BALHelper.Decrypt(firma.Data_firma),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
-                            : Decrypt(firma.Data_ritirofirma)
+                            : BALHelper.Decrypt(firma.Data_ritirofirma)
                     };
 
                     result.Add(firmaDto);

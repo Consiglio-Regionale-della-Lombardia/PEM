@@ -19,6 +19,7 @@
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -37,18 +38,33 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("sedute")]
     public class SeduteController : BaseApiController
     {
-        private readonly SeduteLogic _logic;
-        private readonly PersoneLogic _logicPersone;
-
         /// <summary>
-        /// 
+        ///     Costruttore
         /// </summary>
-        /// <param name="logic"></param>
-        /// <param name="logicPersone"></param>
-        public SeduteController(SeduteLogic logic, PersoneLogic logicPersone)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public SeduteController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logic = logic;
-            _logicPersone = logicPersone;
         }
 
         /// <summary>
@@ -62,7 +78,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logic.GetSedute(model, Request.RequestUri));
+                return Ok(await _seduteLogic.GetSedute(model, Request.RequestUri));
             }
             catch (Exception e)
             {
@@ -82,12 +98,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetSeduta(id);
+                var result = await _seduteLogic.GetSeduta(id);
 
-                if (result == null)
-                {
-                    return NotFound();
-                }
+                if (result == null) return NotFound();
 
                 return Ok(Mapper.Map<SEDUTE, SeduteDto>(result));
             }
@@ -109,10 +122,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                var result = await _logic.GetSeduteAttive(persona);
+                var result = await _seduteLogic.GetSeduteAttive(CurrentUser);
                 return Ok(result);
             }
             catch (Exception e)
@@ -133,7 +143,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetSeduteAttiveMOZU();
+                var result = await _seduteLogic.GetSeduteAttiveMOZU();
                 return Ok(result);
             }
             catch (Exception e)
@@ -154,7 +164,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetSeduteAttiveDashboard();
+                var result = await _seduteLogic.GetSeduteAttiveDashboard();
                 return Ok(result);
             }
             catch (Exception e)
@@ -176,22 +186,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (id == Guid.Empty)
-                {
-                    return BadRequest();
-                }
+                if (id == Guid.Empty) return BadRequest();
 
-                var sedutaInDb = await _logic.GetSeduta(id);
+                var sedutaInDb = await _seduteLogic.GetSeduta(id);
 
-                if (sedutaInDb == null)
-                {
-                    return NotFound();
-                }
+                if (sedutaInDb == null) return NotFound();
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                await _logic.DeleteSeduta(Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb), persona);
+                await _seduteLogic.DeleteSeduta(Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb), CurrentUser);
 
                 return Ok();
             }
@@ -214,17 +215,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (sedutaDto.Data_seduta <= DateTime.Now)
-                {
-                    throw new InvalidOperationException("Data seduta non valida");
-                }
-
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
+                if (sedutaDto.Data_seduta <= DateTime.Now) throw new InvalidOperationException("Data seduta non valida");
 
                 var seduta =
-                    Mapper.Map<SEDUTE, SeduteDto>(await _logic.NuovaSeduta(Mapper.Map<SeduteDto, SEDUTE>(sedutaDto),
-                        persona));
+                    Mapper.Map<SEDUTE, SeduteDto>(await _seduteLogic.NuovaSeduta(Mapper.Map<SeduteDto, SEDUTE>(sedutaDto),
+                        CurrentUser));
                 return Created(new Uri(Request.RequestUri + "/" + seduta.UIDSeduta), seduta);
             }
             catch (Exception e)
@@ -246,16 +241,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var sedutaInDb = await _logic.GetSeduta(sedutaDto.UIDSeduta);
+                var sedutaInDb = await _seduteLogic.GetSeduta(sedutaDto.UIDSeduta);
 
-                if (sedutaInDb == null)
-                {
-                    return NotFound();
-                }
+                if (sedutaInDb == null) return NotFound();
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                await _logic.ModificaSeduta(sedutaDto, persona);
+                await _seduteLogic.ModificaSeduta(sedutaDto, CurrentUser);
 
                 return Ok();
             }

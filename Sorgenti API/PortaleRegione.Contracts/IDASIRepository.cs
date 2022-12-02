@@ -36,7 +36,7 @@ namespace PortaleRegione.Contracts
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
             ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
         Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta);
-        Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);
+        bool CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfEliminabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfModificabile(AttoDASIDto dto, PersonaDto persona);

@@ -38,9 +38,6 @@ namespace PortaleRegione.BAL
 {
     public class StampeLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly DASILogic _logicDasi;
-
         public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi)
         {
             _unitOfWork = unitOfWork;
@@ -125,8 +122,7 @@ namespace PortaleRegione.BAL
 
                 queryFilter.ImportStatements(model.filtro);
 
-                object CLIENT_MODE;
-                model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
 
                 var queryEM =
                     await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);

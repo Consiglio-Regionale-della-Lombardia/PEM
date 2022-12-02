@@ -15,8 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.Logger;
 using System;
@@ -32,25 +34,8 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("public")]
     public class EMPublicController : BaseApiController
     {
-        private readonly EmendamentiLogic _logicEm;
-        private readonly EMPublicLogic _logicPublic;
-        private readonly FirmeLogic _logicFirme;
-
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logicEm"></param>
-        /// <param name="logicPublic"></param>
-        /// <param name="logicFirme"></param>
-        public EMPublicController(EmendamentiLogic logicEm, EMPublicLogic logicPublic, FirmeLogic logicFirme)
-        {
-            _logicEm = logicEm;
-            _logicPublic = logicPublic;
-            _logicFirme = logicFirme;
-        }
-
-        /// <summary>
-        /// Endpoint per visualizzare il corpo dell'emendamento
+        ///     Endpoint per visualizzare il corpo dell'emendamento
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -62,14 +47,14 @@ namespace PortaleRegione.API.Controllers
             {
                 try
                 {
-                    var em = await _logicEm.GetEM_ByQR(id);
+                    var em = await _emendamentiLogic.GetEM_ByQR(id);
                     if (em == null)
                     {
                         return NotFound();
                     }
 
-                    var body = await _logicPublic.GetBody(em
-                        , await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE));
+                    var body = await _publicLogic.GetBody(em
+                        , await _firmeLogic.GetFirme(em, FirmeTipoEnum.TUTTE));
 
                     return Ok(body);
                 }
@@ -84,6 +69,35 @@ namespace PortaleRegione.API.Controllers
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        /// <summary>
+        ///     Costruttore
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public EMPublicController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+        {
         }
     }
 }

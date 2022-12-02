@@ -38,10 +38,6 @@ namespace PortaleRegione.BAL
 {
     public class AdminLogic : BaseLogic
     {
-        private readonly PersoneLogic _logicPersona;
-        private readonly UtilsLogic _logicUtil;
-        private readonly IUnitOfWork _unitOfWork;
-
         public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
@@ -174,8 +170,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception)
             {
-                var result_vuoto = new List<string>();
-                result_vuoto.Add("");
+                var result_vuoto = new List<string> { "" };
                 return result_vuoto;
             }
         }
@@ -290,7 +285,7 @@ namespace PortaleRegione.BAL
         public async Task ResetPin(ResetRequest request)
         {
             await _unitOfWork.Persone.SavePin(request.persona_UId
-                , EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
+                , BALHelper.EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
                 , true);
             await _unitOfWork.CompleteAsync();
         }
@@ -475,7 +470,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<List<AdminGruppiModel>> GetGruppi(BaseRequest<GruppiDto> model, Uri url)
+        public async Task<List<AdminGruppiModel>> GetGruppi(BaseRequest<GruppiDto> model)
         {
             try
             {

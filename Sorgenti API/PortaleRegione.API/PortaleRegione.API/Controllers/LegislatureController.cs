@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Threading.Tasks;
-using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -30,17 +31,35 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("legislature")]
     public class LegislatureController : BaseApiController
     {
-        private readonly LegislatureLogic _logic;
-
         /// <summary>
-        /// 
+        ///     Costruttore
         /// </summary>
-        /// <param name="logic"></param>
-        public LegislatureController(LegislatureLogic logic)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public LegislatureController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logic = logic;
         }
-        
+
         /// <summary>
         ///     Endpoint per avere la lista delle legislature disponibili
         /// </summary>
@@ -48,9 +67,9 @@ namespace PortaleRegione.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> GetLegislature()
         {
-            return Ok(await _logic.GetLegislature());
+            return Ok(await _legislatureLogic.GetLegislature());
         }
-        
+
         /// <summary>
         ///     Endpoint per avere la singola legislatura
         /// </summary>
@@ -59,7 +78,7 @@ namespace PortaleRegione.API.Controllers
         [Route("{id:int}")]
         public async Task<IHttpActionResult> GetLegislatura(int id)
         {
-            return Ok(await _logic.GetLegislatura(id));
+            return Ok(await _legislatureLogic.GetLegislatura(id));
         }
     }
 }

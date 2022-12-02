@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
-    public class PersoneLogic : BaseLogic
+    public class PersoneLogic
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -49,14 +49,14 @@ namespace PortaleRegione.BAL
             }
 
             var pin = Mapper.Map<View_PINS, PinDto>(pinInDb);
-            pin.PIN_Decrypt = Decrypt(pin.PIN);
+            pin.PIN_Decrypt = BALHelper.Decrypt(pin.PIN);
             return pin;
         }
 
         public async Task CambioPin(CambioPinModel model)
         {
             await _unitOfWork.Persone.SavePin(model.PersonaUId,
-                EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
+                BALHelper.EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
                 false);
             await _unitOfWork.CompleteAsync();
         }
@@ -64,7 +64,7 @@ namespace PortaleRegione.BAL
         public async Task ResetPin(ResetPinModel model)
         {
             await _unitOfWork.Persone.SavePin(model.PersonaUId,
-                EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
+                BALHelper.EncryptString(model.nuovo_pin, AppSettingsConfiguration.masterKey),
                 true);
             await _unitOfWork.CompleteAsync();
         }

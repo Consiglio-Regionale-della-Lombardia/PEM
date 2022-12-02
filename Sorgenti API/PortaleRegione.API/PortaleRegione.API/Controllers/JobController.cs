@@ -18,6 +18,7 @@
 
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -37,20 +38,33 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("job")]
     public class JobController : BaseApiController
     {
-        private readonly StampeLogic _logic;
-        private readonly EmendamentiLogic _logicEm;
-        private readonly DASILogic _logicDasi;
-
         /// <summary>
-        /// 
+        ///     Costruttore
         /// </summary>
-        /// <param name="logic"></param>
-        /// <param name="logicEm"></param>
-        public JobController(StampeLogic logic, EmendamentiLogic logicEm, DASILogic logicDasi)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public JobController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logic = logic;
-            _logicEm = logicEm;
-            _logicDasi = logicDasi;
         }
 
         /// <summary>
@@ -65,7 +79,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetStampe(model, Request.RequestUri);
+                var result = await _stampeLogic.GetStampe(model, Request.RequestUri);
                 return Ok(result);
             }
             catch (Exception e)
@@ -86,7 +100,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.UnLockStampa(model.stampaUId);
+                await _stampeLogic.UnLockStampa(model.stampaUId);
                 return Ok();
             }
             catch (Exception e)
@@ -107,7 +121,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.ErroreStampa(model);
+                await _stampeLogic.ErroreStampa(model);
                 return Ok();
             }
             catch (Exception e)
@@ -128,7 +142,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.UpdateFileStampa(stampa);
+                await _stampeLogic.UpdateFileStampa(stampa);
                 return Ok();
             }
             catch (Exception e)
@@ -149,7 +163,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.SetInvioStampa(stampa);
+                await _stampeLogic.SetInvioStampa(stampa);
                 return Ok();
             }
             catch (Exception e)
@@ -170,15 +184,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var countEM = await _logicEm.CountEM(model.Query);
+                var countEM = await _emendamentiLogic.CountEM(model.Query);
                 return Ok(
                     new BaseResponse<EmendamentiDto>(
                         model.page,
                         100,
-                        await _logicEm.GetEmendamenti(model),
-                    null,
+                        await _emendamentiLogic.GetEmendamenti(model),
+                        null,
                         countEM)
-                    );
+                );
             }
             catch (Exception e)
             {
@@ -198,16 +212,16 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var results = await _logicDasi.GetByQuery(model);
-                var count = await _logicDasi.CountByQuery(model);
+                var results = await _dasiLogic.GetByQuery(model);
+                var count = await _dasiLogic.CountByQuery(model);
                 return Ok(
                     new BaseResponse<AttoDASIDto>(
                         model.page,
                         100,
                         results,
-                    null,
+                        null,
                         count)
-                    );
+                );
             }
             catch (Exception e)
             {

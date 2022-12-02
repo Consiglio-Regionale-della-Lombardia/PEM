@@ -34,8 +34,6 @@ namespace PortaleRegione.BAL
 {
     public class SeduteLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-
         public SeduteLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;

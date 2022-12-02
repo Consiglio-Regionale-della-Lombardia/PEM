@@ -32,25 +32,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
     public class AttiLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly EmendamentiLogic _logicEm;
-
         public AttiLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
+
+            GetUsersInDb();
         }
 
         public async Task<BaseResponse<AttiDto>> GetAtti(BaseRequest<AttiDto> model, int CLIENT_MODE,
             PersonaDto currentUser,
-            List<PersonaLightDto> personeInDbLight,
             Uri url = null)
         {
             try
@@ -78,14 +75,13 @@ namespace PortaleRegione.BAL
                         var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
                         var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);
 
-                        appoggio.Informazioni_Mancanti = listaArticoli.Any() || listaRelatori.Any() ? false : true;
+                        appoggio.Informazioni_Mancanti = !listaArticoli.Any() && !listaRelatori.Any();
                     }
 
                     appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
                     if (appoggio.UIDAssessoreRiferimento.HasValue)
                         appoggio.PersonaAssessore =
-                            personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
-
+                            Users.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
 
                     if (appoggio.NAtto == "$$")
                     {
@@ -573,17 +569,6 @@ namespace PortaleRegione.BAL
                 Log.Error("Pubblica Fascicolo", e);
                 throw;
             }
-        }
-
-        public async Task<HttpResponseMessage> Download(string path)
-        {
-            var complete_path = Path.Combine(
-                AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
-                Path.GetFileName(path));
-
-            Log.Debug($"Download file atto: {complete_path} [originale: {path}]");
-            var result = await ComposeFileResponse(complete_path);
-            return result;
         }
 
         public async Task<ATTI> GetAtto(Guid id)

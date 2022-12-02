@@ -296,7 +296,7 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona)
+        public bool CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona)
         {
             if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
 
