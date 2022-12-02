@@ -177,10 +177,6 @@
       <Project>{A7ADA419-A178-40DA-85CC-63F6875E5793}</Project>
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
-      <Project>{1F9EEC0B-08CC-481F-820E-C07B8327AC25}</Project>
-      <Name>PortaleRegione.Logger</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

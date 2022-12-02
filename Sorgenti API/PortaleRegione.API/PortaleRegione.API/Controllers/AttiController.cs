@@ -27,7 +27,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +88,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("DownloadStampa", e);
+                //Log.Error("DownloadStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -120,7 +119,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetAtti", e);
+                //Log.Error("GetAtti", e);
                 return ErrorHandler(e);
             }
         }
@@ -143,7 +142,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetAtto", e);
+                //Log.Error("GetAtto", e);
                 return ErrorHandler(e);
             }
         }
@@ -172,7 +171,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("DeleteAtto", e);
+                //Log.Error("DeleteAtto", e);
                 return ErrorHandler(e);
             }
         }
@@ -203,7 +202,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("NuovaAtto", e);
+                //Log.Error("NuovaAtto", e);
                 return ErrorHandler(e);
             }
         }
@@ -234,7 +233,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ModificaAtto", e);
+                //Log.Error("ModificaAtto", e);
                 return ErrorHandler(e);
             }
         }
@@ -260,7 +259,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Modifica Fascicoli Atto", e);
+                //Log.Error("Modifica Fascicoli Atto", e);
                 return ErrorHandler(e);
             }
         }
@@ -281,7 +280,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetArticoli", e);
+                //Log.Error("GetArticoli", e);
                 return ErrorHandler(e);
             }
         }
@@ -302,7 +301,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetGrigliaTesto", e);
+                //Log.Error("GetGrigliaTesto", e);
                 return ErrorHandler(e);
             }
         }
@@ -325,7 +324,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("CreaArticoli", e);
+                //Log.Error("CreaArticoli", e);
                 return ErrorHandler(e);
             }
         }
@@ -359,7 +358,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("EliminaArticolo", e);
+                //Log.Error("EliminaArticolo", e);
                 return ErrorHandler(e);
             }
         }
@@ -380,7 +379,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetCommi", e);
+                //Log.Error("GetCommi", e);
                 return ErrorHandler(e);
             }
         }
@@ -405,7 +404,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("CreaCommi", e);
+                //Log.Error("CreaCommi", e);
                 return ErrorHandler(e);
             }
         }
@@ -433,7 +432,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("EliminaComma", e);
+                //Log.Error("EliminaComma", e);
                 return ErrorHandler(e);
             }
         }
@@ -454,7 +453,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetLettere", e);
+                //Log.Error("GetLettere", e);
                 return ErrorHandler(e);
             }
         }
@@ -480,7 +479,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("CreaLettere", e);
+                //Log.Error("CreaLettere", e);
                 return ErrorHandler(e);
             }
         }
@@ -505,7 +504,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("EliminaLettera", e);
+                //Log.Error("EliminaLettera", e);
                 return ErrorHandler(e);
             }
         }
@@ -532,7 +531,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SalvaRelatoriAtto", e);
+                //Log.Error("SalvaRelatoriAtto", e);
                 return ErrorHandler(e);
             }
         }
@@ -557,7 +556,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SalvaTesto", e);
+                //Log.Error("SalvaTesto", e);
                 return ErrorHandler(e);
             }
         }
@@ -608,7 +607,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("PubblicaFascicolo", e);
+                //Log.Error("PubblicaFascicolo", e);
                 return ErrorHandler(e);
             }
         }
@@ -631,7 +630,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SPOSTA_UP", e);
+                //Log.Error("SPOSTA_UP", e);
                 return ErrorHandler(e);
             }
         }
@@ -654,7 +653,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SPOSTA_DOWN", e);
+                //Log.Error("SPOSTA_DOWN", e);
                 return ErrorHandler(e);
             }
         }
@@ -681,7 +680,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("BloccoODG", e);
+                //Log.Error("BloccoODG", e);
                 return ErrorHandler(e);
             }
         }
@@ -708,7 +707,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("JollyODG", e);
+                //Log.Error("JollyODG", e);
                 return ErrorHandler(e);
             }
         }
@@ -727,7 +726,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetTipi", e);
+                //Log.Error("GetTipi", e);
                 return ErrorHandler(e);
             }
         }

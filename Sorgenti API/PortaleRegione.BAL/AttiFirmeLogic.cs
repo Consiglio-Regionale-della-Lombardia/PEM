@@ -20,7 +20,6 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,7 +69,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetFirme - DASI", e);
+                //Log.Error("Logic - GetFirme - DASI", e);
                 throw e;
             }
         }
@@ -110,7 +109,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetFirme - DASI", e);
+                //Log.Error("Logic - GetFirme - DASI", e);
                 throw e;
             }
         }
@@ -125,7 +124,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - CountFirme - DASI", e);
+                //Log.Error("Logic - CountFirme - DASI", e);
                 throw e;
             }
         }

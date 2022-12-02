@@ -27,7 +27,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -101,7 +100,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Riepilogo Atti", e);
+                //Log.Error("Riepilogo Atti", e);
                 throw e;
             }
         }
@@ -115,7 +114,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Atto", e);
+                //Log.Error("Elimina Atto", e);
                 throw e;
             }
         }
@@ -151,7 +150,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Nuovo Atto", e);
+                //Log.Error("Nuovo Atto", e);
                 throw e;
             }
         }
@@ -182,7 +181,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Salva Atto", e);
+                //Log.Error("Salva Atto", e);
                 throw e;
             }
         }
@@ -207,7 +206,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Modifica Fascicoli Atto", e);
+                //Log.Error("Modifica Fascicoli Atto", e);
                 throw e;
             }
         }
@@ -268,7 +267,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Crea Articoli", e);
+                //Log.Error("Crea Articoli", e);
                 throw;
             }
         }
@@ -281,7 +280,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Articolo", e);
+                //Log.Error("Get Articolo", e);
                 throw;
             }
         }
@@ -295,7 +294,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Articolo", e);
+                //Log.Error("Elimina Articolo", e);
                 throw;
             }
         }
@@ -321,7 +320,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Commi", e);
+                //Log.Error("Get Commi", e);
                 throw;
             }
         }
@@ -335,7 +334,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Commi", e);
+                //Log.Error("Elimina Commi", e);
                 throw;
             }
         }
@@ -348,7 +347,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Lettere", e);
+                //Log.Error("Get Lettere", e);
                 throw;
             }
         }
@@ -362,7 +361,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Lettere", e);
+                //Log.Error("Elimina Lettere", e);
                 throw;
             }
         }
@@ -376,7 +375,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Lettera", e);
+                //Log.Error("Elimina Lettera", e);
                 throw;
             }
         }
@@ -434,7 +433,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Crea Commi", e);
+                //Log.Error("Crea Commi", e);
                 throw;
             }
 
@@ -449,7 +448,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Comma", e);
+                //Log.Error("Get Comma", e);
                 throw;
             }
         }
@@ -463,7 +462,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Comma", e);
+                //Log.Error("Elimina Comma", e);
                 throw;
             }
         }
@@ -532,7 +531,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Salva Relatori", e);
+                //Log.Error("Salva Relatori", e);
                 throw;
             }
         }
@@ -566,7 +565,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Pubblica Fascicolo", e);
+                //Log.Error("Pubblica Fascicolo", e);
                 throw;
             }
         }

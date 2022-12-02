@@ -24,7 +24,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -84,7 +83,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("JOB - GetStampe", e);
+                //Log.Error("JOB - GetStampe", e);
                 return ErrorHandler(e);
             }
         }
@@ -105,7 +104,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("JOB - UnLockStampa", e);
+                //Log.Error("JOB - UnLockStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -126,7 +125,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("JOB - UnLockStampa", e);
+                //Log.Error("JOB - UnLockStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -147,7 +146,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("UpdateFileStampa", e);
+                //Log.Error("UpdateFileStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -168,7 +167,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SetInvioStampa", e);
+                //Log.Error("SetInvioStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -196,7 +195,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("JOB - GetEmendamenti", e);
+                //Log.Error("JOB - GetEmendamenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -225,7 +224,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("JOB - Get DASI", e);
+                //Log.Error("JOB - Get DASI", e);
                 return ErrorHandler(e);
             }
         }

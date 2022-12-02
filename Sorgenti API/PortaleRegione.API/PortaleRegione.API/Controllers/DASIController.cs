@@ -25,7 +25,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -83,7 +82,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetNuovoModello", e);
+                //Log.Error("GetNuovoModello", e);
                 return ErrorHandler(e);
             }
         }
@@ -110,7 +109,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetModificaModello", e);
+                //Log.Error("GetModificaModello", e);
                 return ErrorHandler(e);
             }
         }
@@ -132,7 +131,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Salva Atto DASI", e);
+                //Log.Error("Salva Atto DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -154,7 +153,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Get Atto DASI", e);
+                //Log.Error("Get Atto DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -176,7 +175,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Riepilogo Atti DASI", e);
+                //Log.Error("Riepilogo Atti DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -215,7 +214,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Firma - DASI", e);
+                //Log.Error("Firma - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -254,7 +253,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("RitiroFirma - DASI", e);
+                //Log.Error("RitiroFirma - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -294,7 +293,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("EliminaFirma - DASI", e);
+                //Log.Error("EliminaFirma - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -337,7 +336,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Presentazione - DASI", e);
+                //Log.Error("Presentazione - DASI", e);
                 return ErrorHandler(e);
             }
             finally
@@ -365,7 +364,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatari", e);
+                //Log.Error("GetFirmatari", e);
                 return ErrorHandler(e);
             }
         }
@@ -394,7 +393,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetBody - DASI", e);
+                //Log.Error("GetBody - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -416,7 +415,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyCopertina", e);
+                //Log.Error("GetBodyCopertina", e);
                 return ErrorHandler(e);
             }
         }
@@ -440,7 +439,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Download Allegato Atto", e);
+                //Log.Error("Download Allegato Atto", e);
                 return ErrorHandler(e);
             }
         }
@@ -465,7 +464,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Atto - DASI", e);
+                //Log.Error("Elimina Atto - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -498,7 +497,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Ritira Atto - DASI", e);
+                //Log.Error("Ritira Atto - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -519,7 +518,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ModificaStatoEmendamento", e);
+                //Log.Error("ModificaStatoEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -543,7 +542,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("IscrizioneSeduta", e);
+                //Log.Error("IscrizioneSeduta", e);
                 return ErrorHandler(e);
             }
         }
@@ -564,7 +563,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("RichiediIscrizione", e);
+                //Log.Error("RichiediIscrizione", e);
                 return ErrorHandler(e);
             }
         }
@@ -586,7 +585,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("RimuoviSeduta", e);
+                //Log.Error("RimuoviSeduta", e);
                 return ErrorHandler(e);
             }
         }
@@ -607,7 +606,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("RimuoviRichiestaIscrizione", e);
+                //Log.Error("RimuoviRichiestaIscrizione", e);
                 return ErrorHandler(e);
             }
         }
@@ -628,7 +627,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ProponiMozioneUrgente", e);
+                //Log.Error("ProponiMozioneUrgente", e);
                 return ErrorHandler(e);
             }
         }
@@ -649,7 +648,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ProponiMozioneAbbinata", e);
+                //Log.Error("ProponiMozioneAbbinata", e);
                 return ErrorHandler(e);
             }
         }
@@ -671,7 +670,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("PresentazioneCartacea", e);
+                //Log.Error("PresentazioneCartacea", e);
                 return ErrorHandler(e);
             }
         }
@@ -694,7 +693,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetInvitati", e);
+                //Log.Error("GetInvitati", e);
                 return ErrorHandler(e);
             }
         }
@@ -713,7 +712,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetStati", e);
+                //Log.Error("GetStati", e);
                 return ErrorHandler(e);
             }
         }
@@ -732,7 +731,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetTipiMOZ", e);
+                //Log.Error("GetTipiMOZ", e);
                 return ErrorHandler(e);
             }
         }
@@ -751,7 +750,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetSoggettiInterrogabili", e);
+                //Log.Error("GetSoggettiInterrogabili", e);
                 return ErrorHandler(e);
             }
         }
@@ -770,7 +769,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetMOZAbbinabili", e);
+                //Log.Error("GetMOZAbbinabili", e);
                 return ErrorHandler(e);
             }
         }
@@ -790,7 +789,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetAttiSeduteAttive", e);
+                //Log.Error("GetAttiSeduteAttive", e);
                 return ErrorHandler(e);
             }
         }
@@ -817,7 +816,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ModificaMetaDati", e);
+                //Log.Error("ModificaMetaDati", e);
                 return ErrorHandler(e);
             }
         }
@@ -842,7 +841,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Download", e);
+                //Log.Error("Download", e);
                 return ErrorHandler(e);
             }
         }
@@ -865,7 +864,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Invio al protocollo", e);
+                //Log.Error("Invio al protocollo", e);
                 return ErrorHandler(e);
             }
         }

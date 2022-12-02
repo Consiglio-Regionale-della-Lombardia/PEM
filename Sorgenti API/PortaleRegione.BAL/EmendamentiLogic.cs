@@ -30,7 +30,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,7 +60,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ORDINA_EM_TRATTAZIONE", e);
+                //Log.Error("Logic - ORDINA_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -83,7 +82,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", e);
+                //Log.Error("Logic - ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", e);
                 throw e;
             }
         }
@@ -96,7 +95,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - UP_EM_TRATTAZIONE", e);
+                //Log.Error("Logic - UP_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -109,7 +108,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - DOWN_EM_TRATTAZIONE", e);
+                //Log.Error("Logic - DOWN_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -122,7 +121,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - SPOSTA_EM_TRATTAZIONE", e);
+                //Log.Error("Logic - SPOSTA_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -268,7 +267,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModelloNuovoEM", e);
+                //Log.Error("Logic - ModelloNuovoEM", e);
                 throw e;
             }
         }
@@ -317,7 +316,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModelloModificaEM", e);
+                //Log.Error("Logic - ModelloModificaEM", e);
                 throw e;
             }
         }
@@ -390,7 +389,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NuovoEmendamento", e);
+                //Log.Error("Logic - NuovoEmendamento", e);
                 throw e;
             }
         }
@@ -473,7 +472,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaEmendamento", e);
+                //Log.Error("Logic - ModificaEmendamento", e);
                 throw e;
             }
         }
@@ -525,7 +524,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaMetaDatiEmendamento", e);
+                //Log.Error("Logic - ModificaMetaDatiEmendamento", e);
                 throw e;
             }
         }
@@ -609,7 +608,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - DeleteEmendamento", e);
+                //Log.Error("Logic - DeleteEmendamento", e);
                 throw e;
             }
         }
@@ -637,7 +636,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetInvitati", e);
+                //Log.Error("Logic - GetInvitati", e);
                 throw e;
             }
         }
@@ -652,7 +651,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetBodyEM", e);
+                //Log.Error("Logic - GetBodyEM", e);
                 throw e;
             }
         }
@@ -694,13 +693,13 @@ namespace PortaleRegione.BAL
                 }
                 catch (Exception e)
                 {
-                    Log.Error("GetBodyEM", e);
+                    //Log.Error("GetBodyEM", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetBodyEM", e);
+                //Log.Error("Logic - GetBodyEM", e);
                 throw e;
             }
         }
@@ -735,7 +734,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetCopertina", e);
+                //Log.Error("Logic - GetCopertina", e);
                 throw e;
             }
         }
@@ -893,7 +892,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - FirmaEmendamento", e);
+                //Log.Error("Logic - FirmaEmendamento", e);
                 throw e;
             }
         }
@@ -1028,7 +1027,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RitiroFirmaEmendamento", e);
+                //Log.Error("Logic - RitiroFirmaEmendamento", e);
                 throw e;
             }
         }
@@ -1071,7 +1070,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EliminaFirmaEmendamento", e);
+                //Log.Error("Logic - EliminaFirmaEmendamento", e);
                 throw e;
             }
         }
@@ -1165,7 +1164,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - DepositaEmendamento", e);
+                //Log.Error("Logic - DepositaEmendamento", e);
                 throw e;
             }
         }
@@ -1203,7 +1202,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RitiraEmendamento", e);
+                //Log.Error("Logic - RitiraEmendamento", e);
                 throw e;
             }
         }
@@ -1280,7 +1279,7 @@ namespace PortaleRegione.BAL
                     }
                     catch (Exception e)
                     {
-                        Log.Error("OpenDataEM", e);
+                        //Log.Error("OpenDataEM", e);
                     }
                 }
 
@@ -1288,7 +1287,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaStatoEmendamento", e);
+                //Log.Error("Logic - ModificaStatoEmendamento", e);
                 throw e;
             }
         }
@@ -1566,7 +1565,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEM_DTO", e);
+                //Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1606,7 +1605,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEM_DTO", e);
+                //Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1660,7 +1659,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEM_DTO", e);
+                //Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1691,7 +1690,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEM_DTO", e);
+                //Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1846,7 +1845,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEmendamenti", e);
+                //Log.Error("Logic - GetEmendamenti", e);
                 throw e;
             }
         }
@@ -1914,7 +1913,7 @@ namespace PortaleRegione.BAL
                         Console.WriteLine(e);
                     }
 
-                Log.Debug($"GetEmendamenti_RawChunk: Eseguito in {totalProcessTime} s");
+                //Log.Debug($"GetEmendamenti_RawChunk: Eseguito in {totalProcessTime} s");
                 var total_em = await CountEM(model, persona, Convert.ToInt16(CLIENT_MODE));
 
                 return new EmendamentiViewModel
@@ -1932,7 +1931,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEmendamenti_RawChunk", e);
+                //Log.Error("Logic - GetEmendamenti_RawChunk", e);
                 throw e;
             }
         }
@@ -1967,7 +1966,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEmendamenti", e);
+                //Log.Error("Logic - GetEmendamenti", e);
                 throw e;
             }
         }
@@ -1991,7 +1990,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetEmendamenti", e);
+                //Log.Error("Logic - GetEmendamenti", e);
                 throw e;
             }
         }
@@ -2010,7 +2009,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - CountEM", e);
+                //Log.Error("Logic - CountEM", e);
                 throw e;
             }
         }
@@ -2023,7 +2022,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - CountEM", e);
+                //Log.Error("Logic - CountEM", e);
                 throw e;
             }
         }
@@ -2204,7 +2203,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetEM_OPENDATA", e);
+                //Log.Error("GetEM_OPENDATA", e);
                 throw e;
             }
         }
@@ -2251,7 +2250,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatariEM_OPENDATA", e);
+                //Log.Error("GetFirmatariEM_OPENDATA", e);
                 throw e;
             }
         }
@@ -2305,7 +2304,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("DownloadPDFIstantaneo", e);
+                //Log.Error("DownloadPDFIstantaneo", e);
                 throw e;
             }
         }

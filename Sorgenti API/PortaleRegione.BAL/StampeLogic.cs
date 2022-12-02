@@ -26,7 +26,6 @@ using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,7 +52,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetStampa", e);
+                //Log.Error("Logic - GetStampa", e);
                 throw e;
             }
         }
@@ -145,7 +144,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InserisciStampa", e);
+                //Log.Error("Logic - InserisciStampa", e);
                 throw;
             }
         }
@@ -195,7 +194,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InserisciStampa", e);
+                //Log.Error("Logic - InserisciStampa", e);
                 throw;
             }
         }
@@ -217,7 +216,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - LockStampa", e);
+                //Log.Error("Logic - LockStampa", e);
                 throw;
             }
         }
@@ -233,7 +232,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - UnLockStampa", e);
+                //Log.Error("Logic - UnLockStampa", e);
                 throw;
             }
         }
@@ -252,7 +251,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ResetStampa", e);
+                //Log.Error("Logic - ResetStampa", e);
                 throw e;
             }
         }
@@ -269,7 +268,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ErroreStampa", e);
+                //Log.Error("Logic - ErroreStampa", e);
                 throw;
             }
         }
@@ -287,7 +286,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - UpdateFileStampa", e);
+                //Log.Error("Logic - UpdateFileStampa", e);
                 throw;
             }
         }
@@ -304,7 +303,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - SetInvioStampa", e);
+                //Log.Error("Logic - SetInvioStampa", e);
                 throw;
             }
         }
@@ -324,7 +323,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - DownloadStampa", e);
+                //Log.Error("Logic - DownloadStampa", e);
                 throw e;
             }
         }
@@ -373,7 +372,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetStampe", e);
+                //Log.Error("Logic - GetStampe", e);
                 throw e;
             }
         }
@@ -382,7 +381,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetStampe - page[{model.page}], pageSize[{model.size}]");
+                //Log.Debug($"Logic - GetStampe - page[{model.page}], pageSize[{model.size}]");
 
                 var result = (await _unitOfWork.Stampe.GetAll(model.page, model.size))
                     .Select(Mapper.Map<STAMPE, StampaDto>);
@@ -399,7 +398,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetStampe", e);
+                //Log.Error("Logic - GetStampe", e);
                 throw e;
             }
         }

@@ -253,10 +253,6 @@
       <Project>{A7ADA419-A178-40DA-85CC-63F6875E5793}</Project>
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
-      <Project>{1f9eec0b-08cc-481f-820e-c07b8327ac25}</Project>
-      <Name>PortaleRegione.Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\PortaleRegione.Persistance\PortaleRegione.Persistance.csproj">
       <Project>{C13E361D-1C00-4ACE-989D-F2C00AB4F590}</Project>
       <Name>PortaleRegione.Persistance</Name>

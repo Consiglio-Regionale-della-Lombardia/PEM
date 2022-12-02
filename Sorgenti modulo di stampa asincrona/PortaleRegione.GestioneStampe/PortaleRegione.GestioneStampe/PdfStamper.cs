@@ -4,7 +4,6 @@ using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.GestioneStampe.Helpers;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -104,7 +103,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDF Error-->", ex);
+                ////Log.Error("CreaPDF Error-->", ex);
                 throw ex;
             }
         }
@@ -181,7 +180,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDFInMemory Error-->", ex);
+                //Log.Error("CreaPDFInMemory Error-->", ex);
                 throw ex;
             }
         }
@@ -235,7 +234,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDFCopertina Error-->", ex);
+                //Log.Error("CreaPDFCopertina Error-->", ex);
                 throw ex;
             }
         }
@@ -266,12 +265,12 @@ namespace PortaleRegione.GestioneStampe
 
                     pdfDoc.Close();
 
-                    Log.Debug("PDF merge complete.");
+                    //Log.Debug("PDF merge complete.");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error("CreateMergedPDF Error-->", ex);
+                //Log.Error("CreateMergedPDF Error-->", ex);
                 throw ex;
             }
         }
@@ -360,7 +359,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDF DASI Error-->", ex);
+                //Log.Error("CreaPDF DASI Error-->", ex);
                 throw ex;
             }
 
@@ -439,7 +438,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDFInMemory DASI Error-->", ex);
+                //Log.Error("CreaPDFInMemory DASI Error-->", ex);
                 throw ex;
             }
 

@@ -27,7 +27,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +54,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetNotificheInviate - page[{model.page}], pageSize[{model.size}]");
+                //Log.Debug($"Logic - GetNotificheInviate - page[{model.page}], pageSize[{model.size}]");
                 var queryFilter = new Filter<NOTIFICHE>();
                 queryFilter.ImportStatements(model.filtro);
 
@@ -104,7 +103,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetNotificheInviate", e);
+                //Log.Error("Logic - GetNotificheInviate", e);
                 throw e;
             }
         }
@@ -167,7 +166,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetNotificheRicevute", e);
+                //Log.Error("Logic - GetNotificheRicevute", e);
                 throw e;
             }
         }
@@ -201,7 +200,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetDestinatariNotifica", e);
+                //Log.Error("Logic - GetDestinatariNotifica", e);
                 throw e;
             }
         }
@@ -428,7 +427,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InvitaAFirmare", e);
+                //Log.Error("Logic - InvitaAFirmare", e);
                 throw e;
             }
         }
@@ -474,7 +473,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NotificaVista", e);
+                //Log.Error("Logic - NotificaVista", e);
                 throw e;
             }
         }
@@ -553,7 +552,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetListaDestinatari", e);
+                //Log.Error("Logic - GetListaDestinatari", e);
                 throw;
             }
         }
@@ -607,7 +606,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetListaDestinatari", e);
+                //Log.Error("Logic - GetListaDestinatari", e);
                 throw;
             }
         }
@@ -626,7 +625,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - AccettaPropostaFirma", e);
+                //Log.Error("Logic - AccettaPropostaFirma", e);
                 throw e;
             }
         }
@@ -662,7 +661,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - AccettaRitiroFirma", e);
+                //Log.Error("Logic - AccettaRitiroFirma", e);
                 throw e;
             }
         }

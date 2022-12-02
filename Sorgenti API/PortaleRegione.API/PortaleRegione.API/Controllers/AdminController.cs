@@ -23,7 +23,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -81,7 +80,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ResetPin", e);
+                //Log.Error("ResetPin", e);
                 return ErrorHandler(e);
             }
         }
@@ -102,7 +101,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ResetPassword", e);
+                //Log.Error("ResetPassword", e);
                 return ErrorHandler(e);
             }
         }
@@ -128,7 +127,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetUtenti", e);
+                //Log.Error("GetUtenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -150,7 +149,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetUtente", e);
+                //Log.Error("GetUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -171,7 +170,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetRuoli", e);
+                //Log.Error("GetRuoli", e);
                 return ErrorHandler(e);
             }
         }
@@ -194,7 +193,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetGruppiPoliticiAD", e);
+                //Log.Error("GetGruppiPoliticiAD", e);
                 return ErrorHandler(e);
             }
         }
@@ -213,7 +212,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetGruppiInDb", e);
+                //Log.Error("GetGruppiInDb", e);
                 return ErrorHandler(e);
             }
         }
@@ -239,7 +238,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("DeleteUtente", e);
+                //Log.Error("DeleteUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -261,7 +260,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SalvaUtente", e);
+                //Log.Error("SalvaUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -282,7 +281,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("EliminaUtente", e);
+                //Log.Error("EliminaUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -304,7 +303,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("SalvaGruppo", e);
+                //Log.Error("SalvaGruppo", e);
                 return ErrorHandler(e);
             }
         }
@@ -330,7 +329,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetGruppi", e);
+                //Log.Error("GetGruppi", e);
                 return ErrorHandler(e);
             }
         }

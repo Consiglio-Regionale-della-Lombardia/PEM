@@ -24,7 +24,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +42,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetSedute - page[{model.page}], pageSize[{model.size}]");
+                //Log.Debug($"Logic - GetSedute - page[{model.page}], pageSize[{model.size}]");
                 var queryFilter = new Filter<SEDUTE>();
                 queryFilter.ImportStatements(model.filtro);
 
@@ -62,7 +61,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSedute", e);
+                //Log.Error("Logic - GetSedute", e);
                 throw e;
             }
         }
@@ -76,7 +75,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduta", e);
+                //Log.Error("Logic - GetSeduta", e);
                 throw e;
             }
         }
@@ -90,7 +89,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduta", e);
+                //Log.Error("Logic - GetSeduta", e);
                 throw e;
             }
         }
@@ -107,7 +106,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - DeleteSeduta", e);
+                //Log.Error("Logic - DeleteSeduta", e);
                 throw e;
             }
         }
@@ -127,7 +126,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NuovaSeduta", e);
+                //Log.Error("Logic - NuovaSeduta", e);
                 throw e;
             }
         }
@@ -210,7 +209,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaSeduta", e);
+                //Log.Error("Logic - ModificaSeduta", e);
                 throw e;
             }
         }
@@ -231,7 +230,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduteAttive", e);
+                //Log.Error("Logic - GetSeduteAttive", e);
                 throw e;
             }
         }
@@ -252,7 +251,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduteAttiveMOZU", e);
+                //Log.Error("Logic - GetSeduteAttiveMOZU", e);
                 throw e;
             }
         }
@@ -273,7 +272,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduteAttiveDashboard", e);
+                //Log.Error("Logic - GetSeduteAttiveDashboard", e);
                 throw e;
             }
         }

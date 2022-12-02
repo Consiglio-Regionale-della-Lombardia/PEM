@@ -32,7 +32,6 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -223,14 +222,14 @@ namespace PortaleRegione.BAL
                     totalProcessTime += (float)spentTime;
                 }
 
-                Log.Debug($"EsportaGrigliaXLS: Compilazione XLS eseguita in {totalProcessTime} s");
+                //Log.Debug($"EsportaGrigliaXLS: Compilazione XLS eseguita in {totalProcessTime} s");
 
                 Console.WriteLine($"Excel row count: {excelSheet.LastRowNum}");
                 return await Response(FilePathComplete, workbook);
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EsportaGrigliaXLS", e);
+                //Log.Error("Logic - EsportaGrigliaXLS", e);
                 throw e;
             }
         }
@@ -274,7 +273,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EsportaGrigliaXLSDASI", e);
+                //Log.Error("Logic - EsportaGrigliaXLSDASI", e);
                 throw e;
             }
         }
@@ -491,7 +490,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EsportaGrigliaReportXLS", e);
+                //Log.Error("Logic - EsportaGrigliaReportXLS", e);
                 throw e;
             }
         }

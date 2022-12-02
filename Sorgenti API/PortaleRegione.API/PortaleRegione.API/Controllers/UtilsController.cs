@@ -21,7 +21,6 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using PortaleRegione.Logger;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -54,7 +53,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Send Mail", e);
+                //Log.Error("Send Mail", e);
                 return ErrorHandler(e);
             }
         }

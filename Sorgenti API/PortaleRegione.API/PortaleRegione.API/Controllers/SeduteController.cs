@@ -24,7 +24,6 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -82,7 +81,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetSedute", e);
+                //Log.Error("GetSedute", e);
                 return ErrorHandler(e);
             }
         }
@@ -106,7 +105,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetSeduta", e);
+                //Log.Error("GetSeduta", e);
                 return ErrorHandler(e);
             }
         }
@@ -127,7 +126,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetSeduteAttive", e);
+                //Log.Error("GetSeduteAttive", e);
                 return ErrorHandler(e);
             }
         }
@@ -148,7 +147,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetSeduteAttiveMOZU", e);
+                //Log.Error("GetSeduteAttiveMOZU", e);
                 return ErrorHandler(e);
             }
         }
@@ -169,7 +168,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetSeduteAttiveDashboard", e);
+                //Log.Error("GetSeduteAttiveDashboard", e);
                 return ErrorHandler(e);
             }
         }
@@ -198,7 +197,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("DeleteSeduta", e);
+                //Log.Error("DeleteSeduta", e);
                 return ErrorHandler(e);
             }
         }
@@ -224,7 +223,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("NuovaSeduta", e);
+                //Log.Error("NuovaSeduta", e);
                 return ErrorHandler(e);
             }
         }
@@ -251,7 +250,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("ModificaSeduta", e);
+                //Log.Error("ModificaSeduta", e);
                 return ErrorHandler(e);
             }
         }

@@ -30,7 +30,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -213,7 +212,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - SalvaAtto - DASI", e);
+                //Log.Error("Logic - SalvaAtto - DASI", e);
                 throw;
             }
         }
@@ -238,7 +237,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GestioneCommissioni - DASI", e);
+                //Log.Error("Logic - GestioneCommissioni - DASI", e);
                 throw;
             }
         }
@@ -252,7 +251,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetAtto - DASI", e);
+                //Log.Error("Logic - GetAtto - DASI", e);
                 throw;
             }
         }
@@ -366,7 +365,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Get Riepilogo Atti - DASI", e);
+                //Log.Error("Logic - Get Riepilogo Atti - DASI", e);
                 throw;
             }
         }
@@ -503,7 +502,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
+                //Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
                 throw;
             }
         }
@@ -532,7 +531,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
+                //Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
                 throw;
             }
         }
@@ -786,7 +785,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Firma - DASI", e);
+                //Log.Error("Logic - Firma - DASI", e);
                 throw e;
             }
         }
@@ -931,7 +930,7 @@ namespace PortaleRegione.API.Controllers
                         }
                         catch (Exception e)
                         {
-                            Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
+                            //Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
                         }
                 }
 
@@ -939,7 +938,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RitiroFirma - DASI", e);
+                //Log.Error("Logic - RitiroFirma - DASI", e);
                 throw e;
             }
         }
@@ -983,7 +982,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EliminaFirma - DASI", e);
+                //Log.Error("Logic - EliminaFirma - DASI", e);
                 throw e;
             }
         }
@@ -1208,7 +1207,7 @@ namespace PortaleRegione.API.Controllers
                             }
                             catch (Exception e)
                             {
-                                Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
+                                //Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
                             }
 
                     await _unitOfWork.CompleteAsync();
@@ -1234,7 +1233,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Presenta - DASI", e);
+                //Log.Error("Logic - Presenta - DASI", e);
                 throw e;
             }
         }
@@ -1408,13 +1407,13 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("GetBodyDASI", e);
+                    //Log.Error("GetBodyDASI", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetBodyDASI", e);
+                //Log.Error("Logic - GetBodyDASI", e);
                 throw e;
             }
         }
@@ -1435,7 +1434,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Elimina Atto - DASI", e);
+                //Log.Error("Logic - Elimina Atto - DASI", e);
                 throw;
             }
         }
@@ -1461,7 +1460,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Ritira Atto - DASI", e);
+                //Log.Error("Logic - Ritira Atto - DASI", e);
                 throw e;
             }
         }
@@ -1532,7 +1531,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NuovoModello - DASI", e);
+                //Log.Error("Logic - NuovoModello - DASI", e);
                 throw e;
             }
         }
@@ -1555,7 +1554,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaModello - DASI", e);
+                //Log.Error("Logic - ModificaModello - DASI", e);
                 throw e;
             }
         }
@@ -1571,7 +1570,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSoggettiInterrogabili - DASI", e);
+                //Log.Error("Logic - GetSoggettiInterrogabili - DASI", e);
                 throw;
             }
         }
@@ -1609,7 +1608,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetMOZAbbinabili - DASI", e);
+                //Log.Error("Logic - GetMOZAbbinabili - DASI", e);
                 throw;
             }
         }
@@ -1649,7 +1648,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetAttiSeduteAttive - DASI", e);
+                //Log.Error("Logic - GetAttiSeduteAttive - DASI", e);
                 throw;
             }
         }
@@ -1665,7 +1664,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetCommissioniAttive - DASI", e);
+                //Log.Error("Logic - GetCommissioniAttive - DASI", e);
                 throw;
             }
         }
@@ -1709,7 +1708,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaStato", e);
+                //Log.Error("Logic - ModificaStato", e);
                 throw e;
             }
         }
@@ -1767,12 +1766,12 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Logic - IscrizioneSeduta - Invio Mail", e);
+                    //Log.Error("Logic - IscrizioneSeduta - Invio Mail", e);
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - IscrizioneSeduta", e);
+                //Log.Error("Logic - IscrizioneSeduta", e);
                 throw e;
             }
         }
@@ -1836,12 +1835,12 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Logic - RichiediIscrizione - Invio Mail", e);
+                    //Log.Error("Logic - RichiediIscrizione - Invio Mail", e);
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RichiediIscrizione", e);
+                //Log.Error("Logic - RichiediIscrizione", e);
                 throw e;
             }
         }
@@ -1865,7 +1864,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RimuoviSeduta", e);
+                //Log.Error("Logic - RimuoviSeduta", e);
                 throw e;
             }
         }
@@ -1892,7 +1891,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RimuoviRichiesta", e);
+                //Log.Error("Logic - RimuoviRichiesta", e);
                 throw e;
             }
         }
@@ -1963,7 +1962,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ProponiMozioneUrgente", e);
+                //Log.Error("Logic - ProponiMozioneUrgente", e);
                 throw e;
             }
         }
@@ -1990,7 +1989,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ProponiMozioneAbbinata", e);
+                //Log.Error("Logic - ProponiMozioneAbbinata", e);
                 throw e;
             }
         }
@@ -2054,7 +2053,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetDASI_UID_RawChunk", e);
+                //Log.Error("Logic - GetDASI_UID_RawChunk", e);
                 throw e;
             }
         }
@@ -2076,7 +2075,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
+                //Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
                 throw e;
             }
         }
@@ -2104,7 +2103,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetInvitati", e);
+                //Log.Error("Logic - GetInvitati", e);
                 throw e;
             }
         }
@@ -2117,7 +2116,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Count DASI By Query", e);
+                //Log.Error("Logic - Count DASI By Query", e);
                 throw e;
             }
         }
@@ -2140,7 +2139,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetByQuery", e);
+                //Log.Error("Logic - GetByQuery", e);
                 throw e;
             }
         }
@@ -2187,7 +2186,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetCopertina", e);
+                //Log.Error("Logic - GetCopertina", e);
                 throw e;
             }
         }
@@ -2261,7 +2260,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaMetaDati", e);
+                //Log.Error("Logic - ModificaMetaDati", e);
                 throw e;
             }
         }
@@ -2325,7 +2324,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - PresentazioneCartacea", e);
+                //Log.Error("Logic - PresentazioneCartacea", e);
                 throw e;
             }
         }
@@ -2341,7 +2340,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("DownloadPDFIstantaneo", e);
+                //Log.Error("DownloadPDFIstantaneo", e);
                 throw e;
             }
         }
@@ -2358,7 +2357,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("PDFIstantaneo", e);
+                //Log.Error("PDFIstantaneo", e);
                 throw e;
             }
         }
@@ -2390,7 +2389,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InviaAlProtocollo", e);
+                //Log.Error("Logic - InviaAlProtocollo", e);
                 throw e;
             }
         }

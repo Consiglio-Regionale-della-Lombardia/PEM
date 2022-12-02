@@ -4,7 +4,6 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,13 +38,13 @@ namespace PortaleRegione.BAL
                 }
                 catch (Exception e)
                 {
-                    Log.Error("GetBodyEM", e);
+                    //Log.Error("GetBodyEM", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetBodyEM", e);
+                //Log.Error("Logic - GetBodyEM", e);
                 throw e;
             }
         }

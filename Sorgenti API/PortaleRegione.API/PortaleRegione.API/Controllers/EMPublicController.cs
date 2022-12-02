@@ -20,7 +20,6 @@ using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -60,7 +59,7 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("GetBody", e);
+                    //Log.Error("GetBody", e);
                     return ErrorHandler(e);
                 }
             }

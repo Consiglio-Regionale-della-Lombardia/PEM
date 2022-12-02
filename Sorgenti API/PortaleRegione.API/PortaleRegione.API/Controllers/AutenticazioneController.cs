@@ -21,7 +21,6 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -81,7 +80,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Login", e);
+                //Log.Error("Login", e);
                 return ErrorHandler(e);
             }
         }
@@ -104,7 +103,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetToken - Ruoli", e);
+                //Log.Error("GetToken - Ruoli", e);
                 return ErrorHandler(e);
             }
         }
@@ -127,7 +126,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetToken - CambioGruppo", e);
+                //Log.Error("GetToken - CambioGruppo", e);
                 return ErrorHandler(e);
             }
         }

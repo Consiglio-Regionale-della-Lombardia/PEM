@@ -24,7 +24,6 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
 using QRCoder;
 using System;
 using System.Collections.Generic;
@@ -176,7 +175,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetNomeEM", e);
+                //Log.Error("GetNomeEM", e);
                 throw e;
             }
         }
@@ -190,7 +189,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetNomeEM", e);
+                //Log.Error("GetNomeEM", e);
                 throw e;
             }
         }
@@ -215,7 +214,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetNome - DASI", e);
+                //Log.Error("GetNome - DASI", e);
                 throw e;
             }
         }
@@ -238,7 +237,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatariEM", e);
+                //Log.Error("GetFirmatariEM", e);
                 throw e;
             }
         }
@@ -309,7 +308,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetTemplate", e);
+                //Log.Error("GetTemplate", e);
                 throw e;
             }
         }
@@ -362,7 +361,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyTemporaneo", e);
+                //Log.Error("GetBodyTemporaneo", e);
                 throw e;
             }
         }
@@ -406,7 +405,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyTemporaneo - DASI", e);
+                //Log.Error("GetBodyTemporaneo - DASI", e);
                 throw e;
             }
         }
@@ -581,7 +580,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyPDF", e);
+                //Log.Error("GetBodyPDF", e);
                 throw e;
             }
         }
@@ -734,7 +733,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBody - DASI", e);
+                //Log.Error("GetBody - DASI", e);
                 throw e;
             }
         }
@@ -756,7 +755,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatari - DASI", e);
+                //Log.Error("GetFirmatari - DASI", e);
                 throw e;
             }
         }
@@ -830,7 +829,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyMail", e);
+                //Log.Error("GetBodyMail", e);
                 throw e;
             }
         }
