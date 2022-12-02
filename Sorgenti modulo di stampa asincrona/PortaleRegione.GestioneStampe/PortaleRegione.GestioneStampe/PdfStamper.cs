@@ -64,7 +64,7 @@ namespace PortaleRegione.GestioneStampe
                                     XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 try
                                 {
@@ -149,7 +149,7 @@ namespace PortaleRegione.GestioneStampe
                                     XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 try
                                 {
@@ -319,7 +319,7 @@ namespace PortaleRegione.GestioneStampe
                                     XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 try
                                 {
@@ -406,7 +406,7 @@ namespace PortaleRegione.GestioneStampe
                                     XMLWorkerHelper.GetInstance().ParseXHtml(writer, doc, srHtml);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 try
                                 {

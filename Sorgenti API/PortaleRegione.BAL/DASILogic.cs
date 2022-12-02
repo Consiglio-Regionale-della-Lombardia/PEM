@@ -996,8 +996,6 @@ namespace PortaleRegione.API.Controllers
                 if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
 
                 var results = new Dictionary<Guid, string>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var counterPresentazioni = 1;
                 var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
                 var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
@@ -1678,8 +1676,6 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 if (model.All && !model.Lista.Any())
                 {
                     model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);

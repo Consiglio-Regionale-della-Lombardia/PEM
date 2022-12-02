@@ -21,8 +21,8 @@ namespace GeneraStampeJob
         private readonly LoginResponse _auth;
         private readonly ThreadWorkerModel _model;
         private StampaDto _stampa;
-        private ApiGateway apiGateway;
-        private PdfStamper_IronPDF _stamper;
+        private readonly ApiGateway apiGateway;
+        private readonly PdfStamper_IronPDF _stamper;
 
         public Worker(LoginResponse auth, ref ThreadWorkerModel model)
         {
@@ -127,7 +127,7 @@ namespace GeneraStampeJob
             var listaAtti = await GetListaAtti();
 
             if (_stampa.Notifica)
-                await PresentazioneDifferita(listaAtti, path, persona);
+                await PresentazioneDifferita(listaAtti, path);
             else
                 await StampaDASI(listaAtti, path, persona);
         }
@@ -233,7 +233,7 @@ namespace GeneraStampeJob
             return listaPercorsi;
         }
 
-        private async Task PresentazioneDifferita(List<AttoDASIDto> listaAtti, string path, PersonaDto persona)
+        private async Task PresentazioneDifferita(List<AttoDASIDto> listaAtti, string path)
         {
             //STAMPA PDF PRESENTATO (BACKGROUND MODE)
             Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Atto presentato");

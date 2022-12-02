@@ -918,7 +918,7 @@ namespace PortaleRegione.Gateway
         {
             try
             {
-                var requestUrl = $"{apiUrl}/emendamenti/file?id={id}";
+                var requestUrl = $"{apiUrl}/emendamenti/file-immediato?id={id}";
 
                 var lst = await GetFile(requestUrl, _token);
 

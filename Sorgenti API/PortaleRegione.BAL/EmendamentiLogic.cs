@@ -147,12 +147,9 @@ namespace PortaleRegione.BAL
                     : await _unitOfWork.Emendamenti.GetProgressivo(atto.UIDAtto,
                         persona.Gruppo.id_gruppo, sub_em);
 
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-
                 if (sub_em)
                 {
-                    var ref_em = await GetEM_DTO(em_riferimentoUId.Value, atto, persona, personeInDbLight);
+                    var ref_em = await GetEM_DTO(em_riferimentoUId.Value, atto, persona);
                     emendamento.SubProgressivo = progressivo;
                     emendamento.Rif_UIDEM = em_riferimentoUId;
                     emendamento.IDStato = (int)StatiEnum.Bozza;
@@ -281,9 +278,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(emInDb.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var em = await GetEM_DTO(emInDb, atto, persona, personeInDbLight);
+                var em = await GetEM_DTO(emInDb, atto, persona);
                 var result = new EmendamentiFormModel { Emendamento = em, Atto = em.ATTI, CurrentUser = persona };
                 if (persona.CurrentRole != RuoliIntEnum.Consigliere_Regionale &&
                     persona.CurrentRole != RuoliIntEnum.Assessore_Sottosegretario_Giunta)
@@ -668,9 +663,7 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var emendamentoDto = await GetEM_DTO(em.UIDEM, atto, persona, personeInDbLight);
+                var emendamentoDto = await GetEM_DTO(em.UIDEM, atto, persona);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try
@@ -756,8 +749,6 @@ namespace PortaleRegione.BAL
                 var counterFirme = 1;
                 var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
                 var isRelatore = await _unitOfWork.Persone.IsRelatore(persona.UID_persona, firstEM.UIDAtto);
                 var isAssessore = await _unitOfWork.Persone.IsAssessore(persona.UID_persona, firstEM.UIDAtto);
@@ -775,7 +766,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var emDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
+                    var emDto = await GetEM_DTO(em, atto, persona);
                     var n_em = emDto.N_EM;
 
                     if (em.IDStato > (int)StatiEnum.Depositato)
@@ -954,8 +945,6 @@ namespace PortaleRegione.BAL
                 var firstEM = await _unitOfWork.Emendamenti.Get(firmaModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                 var seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta!.Value);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
                 var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                 var jumpMail = false;
@@ -969,7 +958,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var emDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
+                    var emDto = await GetEM_DTO(em, atto, persona);
                     var n_em = emDto.N_EM;
 
                     var countFirme = await _unitOfWork.Firme.CountFirme(idGuid);
@@ -1098,8 +1087,6 @@ namespace PortaleRegione.BAL
                 var counterDepositi = 1;
                 var firstEM = await _unitOfWork.Emendamenti.Get(depositoModel.Lista.First(), false);
                 var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
                 foreach (var idGuid in depositoModel.Lista)
                 {
@@ -1112,7 +1099,7 @@ namespace PortaleRegione.BAL
                         continue;
                     }
 
-                    var emDto = await GetEM_DTO(em, atto, persona, personeInDbLight);
+                    var emDto = await GetEM_DTO(em, atto, persona);
                     var n_em = emDto.N_EM;
                     if (emDto.IDStato >= (int)StatiEnum.Depositato) continue;
 
@@ -1421,11 +1408,9 @@ namespace PortaleRegione.BAL
             if (em_da_proiettare == null) return null;
 
             var atto = await _unitOfWork.Atti.Get(em_da_proiettare.UIDAtto);
-            var personeInDb = await _unitOfWork.Persone.GetAll();
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
             var proietta = new ProiettaResponse
-            { EM = await GetEM_DTO(em_da_proiettare, atto, persona, personeInDbLight) };
+            { EM = await GetEM_DTO(em_da_proiettare, atto, persona) };
             var em_next = await _unitOfWork.Emendamenti.GetEMInProiezione(id, ordine + 1);
             if (em_next != null) proietta.next = em_next.OrdineVotazione;
 
@@ -1596,7 +1581,7 @@ namespace PortaleRegione.BAL
                     em.Rif_UIDEM.HasValue
                         ? await GetEM_DTO(em.Rif_UIDEM.Value)
                         : null);
-                emendamentoDto.ConteggioFirme = await _logicAttiFirme.CountFirme(emendamentoDto.UIDEM);
+                emendamentoDto.ConteggioFirme = await _logicFirme.CountFirme(emendamentoDto.UIDEM);
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = BALHelper.Decrypt(emendamentoDto.DataDeposito);
 
@@ -1809,8 +1794,6 @@ namespace PortaleRegione.BAL
 
                 var atto_uid = model.filtro.First(f => f.PropertyId == nameof(EmendamentiDto.UIDAtto)).Value;
                 var atto = await _unitOfWork.Atti.Get(new Guid(atto_uid.ToString()));
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var relatori = await _unitOfWork.Atti.GetRelatori(new Guid(atto_uid.ToString()));
 
                 var result = new List<EmendamentiDto>();
@@ -1973,12 +1956,10 @@ namespace PortaleRegione.BAL
                 if (!emInDb.Any()) return result;
 
                 var atto = await _unitOfWork.Atti.Get(emInDb.First().UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
                 foreach (var em in emInDb)
                 {
-                    var dto = await GetEM_DTO(em, atto, null, personeInDbLight);
+                    var dto = await GetEM_DTO(em, atto, null);
                     result.Add(dto);
                 }
 
@@ -2000,11 +1981,9 @@ namespace PortaleRegione.BAL
                     .GetAll(model);
                 var result = new List<EmendamentiDto>();
                 var atto = await _unitOfWork.Atti.Get(emendamenti.First().UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var em in emendamenti)
                 {
-                    var dto = await GetEM_DTO(em, atto, null, personeInDbLight);
+                    var dto = await GetEM_DTO(em, atto, null);
                     result.Add(dto);
                 }
 
@@ -2283,10 +2262,8 @@ namespace PortaleRegione.BAL
             if (em_da_proiettare == null) return null;
 
             var atto = await _unitOfWork.Atti.Get(em_da_proiettare.UIDAtto);
-            var personeInDb = await _unitOfWork.Persone.GetAll();
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
             var proietta = new ProiettaResponse
-            { EM = await GetEM_DTO(em_da_proiettare, atto, persona, personeInDbLight) };
+            { EM = await GetEM_DTO(em_da_proiettare, atto, persona) };
             var em_next =
                 await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione + 1);
             if (em_next != null) proietta.next = em_next.OrdineVotazione;

@@ -25,12 +25,10 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
-                var persona = personeInDb.First(p => p.UID_persona == em.UIDPersonaProponente);
-                var personaDto = Mapper.Map<View_UTENTI, PersonaDto>(persona);
-                var emendamentoDto = await _logicEm.GetEM_DTO(em.UIDEM, atto, personaDto, personeInDbLight);
+                var persona = Users.First(p => p.UID_persona == em.UIDPersonaProponente);
+                var personaDto = Mapper.Map<PersonaLightDto, PersonaDto>(persona);
+                var emendamentoDto = await _logicEm.GetEM_DTO(em.UIDEM, atto, personaDto);
                 var attoDto = Mapper.Map<ATTI, AttiDto>(atto);
 
                 try

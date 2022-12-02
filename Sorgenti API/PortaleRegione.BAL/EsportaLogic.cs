@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -30,7 +29,6 @@ using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
@@ -397,8 +395,6 @@ namespace PortaleRegione.BAL
         private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)
         {
-            var personeInDb = await _unitOfWork.Persone.GetAll();
-            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
             var emList =
                 await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, false, true);
             var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
@@ -465,8 +461,6 @@ namespace PortaleRegione.BAL
                 styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
                 styleReport.FillPattern = FillPattern.SolidForeground;
                 styleReport.Alignment = HorizontalAlignment.Center;
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var emList = await _logicEm.ScaricaEmendamenti(model, persona);
 
                 var uolaSheet =

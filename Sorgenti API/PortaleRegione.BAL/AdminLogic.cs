@@ -427,9 +427,8 @@ namespace PortaleRegione.BAL
 
                 var results = new List<PersonaDto>();
                 var persone_In_Db = new List<PersonaDto>();
-                var counter = 0;
 
-                counter = await Count(model, persona);
+                var counter = await Count(model, persona);
                 persone_In_Db.AddRange(await GetPersoneIn_DB(model, persona));
 
                 foreach (var persona_in_db in persone_In_Db)

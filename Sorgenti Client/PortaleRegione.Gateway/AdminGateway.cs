@@ -20,7 +20,6 @@ using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
 using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
