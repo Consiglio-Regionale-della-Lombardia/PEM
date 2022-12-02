@@ -119,10 +119,17 @@ namespace PortaleRegione.API.Helpers
 
         private PersonaDto GetCurrentUser()
         {
-            var task_op = Task.Run(async () => await _personeLogic.GetPersona(Session));
-            var persona = task_op.Result;
-            persona.CurrentRole = Session._currentRole;
-            return persona;
+            try
+            {
+                var task_op = Task.Run(async () => await _personeLogic.GetPersona(Session));
+                var persona = task_op.Result;
+                persona.CurrentRole = Session._currentRole;
+                return persona;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /// <summary>
