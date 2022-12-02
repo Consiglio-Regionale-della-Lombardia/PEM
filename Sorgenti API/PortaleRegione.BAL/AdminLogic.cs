@@ -481,7 +481,7 @@ namespace PortaleRegione.BAL
                 {
                     var gruppoModel = new AdminGruppiModel
                     {
-                        Gruppo = gruppiDto,
+                        Gruppo = gruppiDto
                     };
 
                     var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""),
@@ -536,7 +536,7 @@ namespace PortaleRegione.BAL
                     //NUOVO
 
                     //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
-                    string autoPassword = _logicUtil.GenerateRandomCode();
+                    var autoPassword = _logicUtil.GenerateRandomCode();
                     intranetAdService.CreatePEMADUser(
                         request.userAD,
                         autoPassword,
@@ -607,7 +607,7 @@ namespace PortaleRegione.BAL
                         if (request.no_Cons == 1)
                         {
                             //Consigliere/Assessore
-                            UTENTI_NoCons persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
+                            var persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
                             persona.nome = request.nome;
                             persona.cognome = request.cognome;
                             persona.email = request.email;
