@@ -24,7 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,12 +60,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("SalvaDASI", ex);
+                //Log.Error("SalvaDASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("SalvaDASI", ex);
+                //Log.Error("SalvaDASI", ex);
                 throw ex;
             }
         }
@@ -87,12 +87,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetAttoDasi", ex);
+                //Log.Error("GetAttoDasi", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetAttoDasi", ex);
+                //Log.Error("GetAttoDasi", ex);
                 throw ex;
             }
         }
@@ -109,12 +109,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetMOZAbbinabili", ex);
+                //Log.Error("GetMOZAbbinabili", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetMOZAbbinabili", ex);
+                //Log.Error("GetMOZAbbinabili", ex);
                 throw ex;
             }
         }
@@ -131,12 +131,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetAttiSeduteAttive", ex);
+                //Log.Error("GetAttiSeduteAttive", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetAttiSeduteAttive", ex);
+                //Log.Error("GetAttiSeduteAttive", ex);
                 throw ex;
             }
         }
@@ -203,12 +203,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetRiepilogoAttoDasi", ex);
+                //Log.Error("GetRiepilogoAttoDasi", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetRiepilogoAttoDasi", ex);
+                //Log.Error("GetRiepilogoAttoDasi", ex);
                 throw ex;
             }
         }
@@ -226,12 +226,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Get", ex);
+                //Log.Error("Get", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Get", ex);
+                //Log.Error("Get", ex);
                 throw ex;
             }
         }
@@ -275,12 +275,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetRiepilogoAttoDasi - Per Seduta", ex);
+                //Log.Error("GetRiepilogoAttoDasi - Per Seduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetRiepilogoAttoDasi - Per Seduta", ex);
+                //Log.Error("GetRiepilogoAttoDasi - Per Seduta", ex);
                 throw ex;
             }
         }
@@ -341,12 +341,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetBySeduta_Trattazione - Per Seduta", ex);
+                //Log.Error("GetBySeduta_Trattazione - Per Seduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetBySeduta_Trattazione - Per Seduta", ex);
+                //Log.Error("GetBySeduta_Trattazione - Per Seduta", ex);
                 throw ex;
             }
         }
@@ -363,12 +363,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetFirmatari - DASI", ex);
+                //Log.Error("GetFirmatari - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetFirmatari - DASI", ex);
+                //Log.Error("GetFirmatari - DASI", ex);
                 throw ex;
             }
         }
@@ -392,14 +392,14 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetBodyAtto - DASI", ex);
+                //Log.Error("GetBodyAtto - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error($"GetBodyAtto - DASI - PARAMS: GUID ATTO [{id}], TEMPLATE [{template}]");
-                Log.Error($"GetBodyAtto - DASI - RESULT: [{result}]");
-                Log.Error("GetBodyAtto - DASI", ex);
+                //Log.Error($"GetBodyAtto - DASI - PARAMS: GUID ATTO [{id}], TEMPLATE [{template}]");
+                //Log.Error($"GetBodyAtto - DASI - RESULT: [{result}]");
+                //Log.Error("GetBodyAtto - DASI", ex);
                 throw ex;
             }
         }
@@ -414,12 +414,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Elimina Atto - DASI", ex);
+                //Log.Error("Elimina Atto - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Elimina Atto - DASI", ex);
+                //Log.Error("Elimina Atto - DASI", ex);
                 throw ex;
             }
         }
@@ -434,12 +434,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Ritira Atto - DASI", ex);
+                //Log.Error("Ritira Atto - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Ritira Atto - DASI", ex);
+                //Log.Error("Ritira Atto - DASI", ex);
                 throw ex;
             }
         }
@@ -456,12 +456,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetNuovoModello", ex);
+                //Log.Error("GetNuovoModello", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetNuovoModello", ex);
+                //Log.Error("GetNuovoModello", ex);
                 throw ex;
             }
         }
@@ -477,12 +477,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetModificaEmendamentoModel", ex);
+                //Log.Error("GetModificaEmendamentoModel", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetModificaEmendamentoModel", ex);
+                //Log.Error("GetModificaEmendamentoModel", ex);
                 throw ex;
             }
         }
@@ -501,12 +501,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Firma - DASI", ex);
+                //Log.Error("Firma - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Firma - DASI", ex);
+                //Log.Error("Firma - DASI", ex);
                 throw ex;
             }
         }
@@ -534,12 +534,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Presenta - DASI", ex);
+                //Log.Error("Presenta - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Presenta - DASI", ex);
+                //Log.Error("Presenta - DASI", ex);
                 throw ex;
             }
         }
@@ -567,12 +567,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EliminaFirma - DASI", ex);
+                //Log.Error("EliminaFirma - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EliminaFirma - DASI", ex);
+                //Log.Error("EliminaFirma - DASI", ex);
                 throw ex;
             }
         }
@@ -588,12 +588,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("CambioStato - DASI", ex);
+                //Log.Error("CambioStato - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("CambioStato - DASI", ex);
+                //Log.Error("CambioStato - DASI", ex);
                 throw ex;
             }
         }
@@ -609,12 +609,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("IscriviSeduta - DASI", ex);
+                //Log.Error("IscriviSeduta - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("IscriviSeduta - DASI", ex);
+                //Log.Error("IscriviSeduta - DASI", ex);
                 throw ex;
             }
         }
@@ -630,12 +630,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("RichiediIscrizione - DASI", ex);
+                //Log.Error("RichiediIscrizione - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("RichiediIscrizione - DASI", ex);
+                //Log.Error("RichiediIscrizione - DASI", ex);
                 throw ex;
             }
         }
@@ -651,12 +651,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("RimuoviSeduta - DASI", ex);
+                //Log.Error("RimuoviSeduta - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("RimuoviSeduta - DASI", ex);
+                //Log.Error("RimuoviSeduta - DASI", ex);
                 throw ex;
             }
         }
@@ -672,12 +672,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
+                //Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
+                //Log.Error("RimuoviRichiestaIscrizione - DASI", ex);
                 throw ex;
             }
         }
@@ -693,12 +693,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ProponiMozioneUrgente - DASI", ex);
+                //Log.Error("ProponiMozioneUrgente - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ProponiMozioneUrgente - DASI", ex);
+                //Log.Error("ProponiMozioneUrgente - DASI", ex);
                 throw ex;
             }
         }
@@ -714,12 +714,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ProponiMozioneAbbinata - DASI", ex);
+                //Log.Error("ProponiMozioneAbbinata - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ProponiMozioneAbbinata - DASI", ex);
+                //Log.Error("ProponiMozioneAbbinata - DASI", ex);
                 throw ex;
             }
         }
@@ -737,12 +737,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetInvitati", ex);
+                //Log.Error("GetInvitati", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetInvitati", ex);
+                //Log.Error("GetInvitati", ex);
                 throw ex;
             }
         }
@@ -763,14 +763,14 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetCopertina", ex);
+                //Log.Error("GetCopertina", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error($"DASI - GetCopertina PARAMS: [{body}]");
-                Log.Error($"DASI - GetCopertina RESULT: [{result}]");
-                Log.Error("DASI - GetCopertina", ex);
+                //Log.Error($"DASI - GetCopertina PARAMS: [{body}]");
+                //Log.Error($"DASI - GetCopertina RESULT: [{result}]");
+                //Log.Error("DASI - GetCopertina", ex);
                 throw ex;
             }
         }
@@ -786,12 +786,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetStati", ex);
+                //Log.Error("GetStati", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetStati", ex);
+                //Log.Error("GetStati", ex);
                 throw ex;
             }
         }
@@ -807,12 +807,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetTipiMOZ", ex);
+                //Log.Error("GetTipiMOZ", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetTipi", ex);
+                //Log.Error("GetTipi", ex);
                 throw ex;
             }
         }
@@ -829,12 +829,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetSoggettiInterrogabili", ex);
+                //Log.Error("GetSoggettiInterrogabili", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetSoggettiInterrogabili", ex);
+                //Log.Error("GetSoggettiInterrogabili", ex);
                 throw ex;
             }
         }
@@ -850,12 +850,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ModificaMetaDati", ex);
+                //Log.Error("ModificaMetaDati", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ModificaMetaDati", ex);
+                //Log.Error("ModificaMetaDati", ex);
                 throw ex;
             }
         }
@@ -881,12 +881,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("PresentazioneCartacea - DASI", ex);
+                //Log.Error("PresentazioneCartacea - DASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("PresentazioneCartacea - DASI", ex);
+                //Log.Error("PresentazioneCartacea - DASI", ex);
                 throw ex;
             }
         }
@@ -903,12 +903,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("DownloadDASI", ex);
+                //Log.Error("DownloadDASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("DownloadDASI", ex);
+                //Log.Error("DownloadDASI", ex);
                 throw ex;
             }
         }
@@ -923,12 +923,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("InviaAlProtocollo", ex);
+                //Log.Error("InviaAlProtocollo", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("InviaAlProtocollo", ex);
+                //Log.Error("InviaAlProtocollo", ex);
                 throw ex;
             }
 
@@ -947,12 +947,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("RitiraFirma", ex);
+                //Log.Error("RitiraFirma", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("RitiraFirma", ex);
+                //Log.Error("RitiraFirma", ex);
                 throw ex;
             }
         }

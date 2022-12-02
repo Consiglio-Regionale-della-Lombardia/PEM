@@ -20,7 +20,7 @@ using Newtonsoft.Json;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+
 using System;
 using System.Threading.Tasks;
 
@@ -49,12 +49,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EsportaXLS", ex);
+                //Log.Error("EsportaXLS", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EsportaXLS", ex);
+                //Log.Error("EsportaXLS", ex);
                 throw ex;
             }
         }
@@ -73,12 +73,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EsportaXLS_UOLA", ex);
+                //Log.Error("EsportaXLS_UOLA", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EsportaXLS_UOLA", ex);
+                //Log.Error("EsportaXLS_UOLA", ex);
                 throw ex;
             }
         }
@@ -97,12 +97,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EsportaXLSDASI", ex);
+                //Log.Error("EsportaXLSDASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EsportaXLSDASI", ex);
+                //Log.Error("EsportaXLSDASI", ex);
                 throw ex;
             }
         }
@@ -119,12 +119,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EsportaWORD", ex);
+                //Log.Error("EsportaWORD", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EsportaWORD", ex);
+                //Log.Error("EsportaWORD", ex);
                 throw ex;
             }
         }

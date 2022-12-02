@@ -19,7 +19,6 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -62,12 +61,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error($"Post [{requestUrl}][{body}]", e);
+                //Log.Error($"Post [{requestUrl}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error($"Post [{requestUrl}][{body}]", e);
+                //Log.Error($"Post [{requestUrl}][{body}]", e);
                 throw e;
             }
         }
@@ -94,12 +93,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error($"Put  [{requestUrl}][{body}]", e);
+                //Log.Error($"Put  [{requestUrl}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error($"Put [{requestUrl}][{body}]", e);
+                //Log.Error($"Put [{requestUrl}][{body}]", e);
                 throw e;
             }
         }
@@ -123,12 +122,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error($"Get [{requestUrl}]", e);
+                //Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error($"Get [{requestUrl}]", e);
+                //Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
         }
@@ -152,12 +151,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error($"Get [{requestUrl}]", e);
+                //Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error($"Get [{requestUrl}]", e);
+                //Log.Error($"Get [{requestUrl}]", e);
                 throw e;
             }
         }
@@ -181,12 +180,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error($"Get [{url}][{body}]", e);
+                //Log.Error($"Get [{url}][{body}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error($"Get [{url}][{body}]", e);
+                //Log.Error($"Get [{url}][{body}]", e);
                 throw e;
             }
         }
@@ -210,12 +209,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException e)
             {
-                Log.Error($"Delete [{requestUrl}]", e);
+                //Log.Error($"Delete [{requestUrl}]", e);
                 throw e;
             }
             catch (Exception e)
             {
-                Log.Error($"Delete [{requestUrl}]", e);
+                //Log.Error($"Delete [{requestUrl}]", e);
                 throw e;
             }
         }
@@ -283,12 +282,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("SendMail", ex);
+                //Log.Error("SendMail", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("SendMail", ex);
+                //Log.Error("SendMail", ex);
                 throw ex;
             }
         }

@@ -27,7 +27,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+
 
 namespace PortaleRegione.Gateway
 {
@@ -51,12 +51,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetListaDestinatariDASI", ex);
+                //Log.Error("GetListaDestinatariDASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetListaDestinatariDASI", ex);
+                //Log.Error("GetListaDestinatariDASI", ex);
                 throw ex;
             }
         }
@@ -84,12 +84,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetNotificheInviate", ex);
+                //Log.Error("GetNotificheInviate", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetNotificheInviate", ex);
+                //Log.Error("GetNotificheInviate", ex);
                 throw ex;
             }
         }
@@ -118,12 +118,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetNotificheRicevute", ex);
+                //Log.Error("GetNotificheRicevute", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetNotificheRicevute", ex);
+                //Log.Error("GetNotificheRicevute", ex);
                 throw ex;
             }
         }
@@ -141,12 +141,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetDestinatariNotifica", ex);
+                //Log.Error("GetDestinatariNotifica", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetDestinatariNotifica", ex);
+                //Log.Error("GetDestinatariNotifica", ex);
                 throw ex;
             }
         }
@@ -164,12 +164,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("NotificaEM", ex);
+                //Log.Error("NotificaEM", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("NotificaEM", ex);
+                //Log.Error("NotificaEM", ex);
                 throw ex;
             }
         }
@@ -184,12 +184,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("NotificaVista", ex);
+                //Log.Error("NotificaVista", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("NotificaVista", ex);
+                //Log.Error("NotificaVista", ex);
                 throw ex;
             }
         }
@@ -209,12 +209,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("NotificaDASI", ex);
+                //Log.Error("NotificaDASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("NotificaDASI", ex);
+                //Log.Error("NotificaDASI", ex);
                 throw ex;
             }
         }
@@ -228,12 +228,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("AccettaPropostaFirma", ex);
+                //Log.Error("AccettaPropostaFirma", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("AccettaPropostaFirma", ex);
+                //Log.Error("AccettaPropostaFirma", ex);
                 throw ex;
             }
         }
@@ -247,12 +247,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("AccettaRitiroFirma", ex);
+                //Log.Error("AccettaRitiroFirma", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("AccettaRitiroFirma", ex);
+                //Log.Error("AccettaRitiroFirma", ex);
                 throw ex;
             }
         }
@@ -269,12 +269,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetListaDestinatari", ex);
+                //Log.Error("GetListaDestinatari", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetListaDestinatari", ex);
+                //Log.Error("GetListaDestinatari", ex);
                 throw ex;
             }
         }

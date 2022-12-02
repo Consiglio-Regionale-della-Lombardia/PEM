@@ -30,7 +30,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                //Log.Error("CreaPDFInMemory DASI Error-->", ex);
+                ////Log.Error("CreaPDFInMemory DASI Error-->", ex);
                 throw ex;
             }
         }

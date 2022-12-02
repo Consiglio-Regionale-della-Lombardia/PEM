@@ -1,7 +1,5 @@
 ﻿using PortaleRegione.Gateway;
-using PortaleRegione.Logger;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace GeneraStampeJob
@@ -21,15 +19,15 @@ namespace GeneraStampeJob
         {
             try
             {
-                Log.Debug($"URL API [{_model.UrlAPI}]");
+                //Log.Debug($"URL API [{_model.UrlAPI}]");
                 BaseGateway.apiUrl = _model.UrlAPI;
                 var apiGateway = new ApiGateway();
-                Log.Debug($"User service [{_model.Username}][{_model.Password}]");
+                //Log.Debug($"User service [{_model.Username}][{_model.Password}]");
                 var auth = await apiGateway.Persone.Login(_model.Username, _model.Password);
-                Log.Debug($"User service [{auth.id}][{auth.jwt}]");
+                //Log.Debug($"User service [{auth.id}][{auth.jwt}]");
                 apiGateway = new ApiGateway(auth.jwt);
                 var stampe = await apiGateway.Stampe.JobGetStampe(1, 1);
-                Log.Debug($"Stampe da elaborare [{stampe.Results.Count()}]");
+                //Log.Debug($"Stampe da elaborare [{stampe.Results.Count()}]");
 
                 var work = new Worker(auth, ref _model);
                 foreach (var stampa in stampe.Results)
@@ -37,7 +35,7 @@ namespace GeneraStampeJob
                     await work.ExecuteAsync(stampa);
                 }
                 OnManagerFinish?.Invoke(this, true);
-                Log.Debug("### FINE ###");
+                //Log.Debug("### FINE ###");
             }
             catch (Exception e)
             {

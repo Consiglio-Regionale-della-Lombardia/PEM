@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,12 +55,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetSedute", ex);
+                //Log.Error("GetSedute", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetSedute", ex);
+                //Log.Error("GetSedute", ex);
                 throw ex;
             }
         }
@@ -76,12 +76,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetSeduta", ex);
+                //Log.Error("GetSeduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetSeduta", ex);
+                //Log.Error("GetSeduta", ex);
                 throw ex;
             }
         }
@@ -99,12 +99,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetSedute", ex);
+                //Log.Error("GetSedute", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetSedute", ex);
+                //Log.Error("GetSedute", ex);
                 throw ex;
             }
         }
@@ -120,12 +120,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("SalvaSeduta", ex);
+                //Log.Error("SalvaSeduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("SalvaSeduta", ex);
+                //Log.Error("SalvaSeduta", ex);
                 throw ex;
             }
         }
@@ -142,12 +142,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetAttive", ex);
+                //Log.Error("GetAttive", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetAttive", ex);
+                //Log.Error("GetAttive", ex);
                 throw ex;
             }
         }
@@ -164,12 +164,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetAttiveMOZU", ex);
+                //Log.Error("GetAttiveMOZU", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetAttiveMOZU", ex);
+                //Log.Error("GetAttiveMOZU", ex);
                 throw ex;
             }
 
@@ -187,12 +187,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetAttiveDashboard", ex);
+                //Log.Error("GetAttiveDashboard", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetAttiveDashboard", ex);
+                //Log.Error("GetAttiveDashboard", ex);
                 throw ex;
             }
         }
@@ -209,12 +209,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ModificaSeduta", ex);
+                //Log.Error("ModificaSeduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ModificaSeduta", ex);
+                //Log.Error("ModificaSeduta", ex);
                 throw ex;
             }
         }
@@ -229,12 +229,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EliminaSeduta", ex);
+                //Log.Error("EliminaSeduta", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EliminaSeduta", ex);
+                //Log.Error("EliminaSeduta", ex);
                 throw ex;
             }
         }

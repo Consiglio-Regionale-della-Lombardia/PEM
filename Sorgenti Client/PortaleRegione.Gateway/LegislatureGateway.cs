@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.Logger;
+
 
 namespace PortaleRegione.Gateway
 {
@@ -45,12 +45,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetLegislatura", ex);
+                //Log.Error("GetLegislatura", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetLegislatura", ex);
+                //Log.Error("GetLegislatura", ex);
                 throw ex;
             }
         }
@@ -66,12 +66,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetLegislature", ex);
+                //Log.Error("GetLegislature", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetLegislature", ex);
+                //Log.Error("GetLegislature", ex);
                 throw ex;
             }
         }
