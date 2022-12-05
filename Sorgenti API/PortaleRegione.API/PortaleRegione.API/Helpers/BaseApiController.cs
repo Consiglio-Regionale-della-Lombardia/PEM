@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.API.Controllers;
+using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using System;
@@ -26,11 +30,108 @@ using System.Web.Http;
 
 namespace PortaleRegione.API.Helpers
 {
+
     /// <summary>
     ///     Controller di base
     /// </summary>
     public class BaseApiController : ApiController
     {
+        internal readonly AttiFirmeLogic _attiFirmeLogic;
+        internal readonly AttiLogic _attiLogic;
+        internal readonly AuthLogic _authLogic;
+        internal readonly DASILogic _dasiLogic;
+        internal readonly EmendamentiLogic _emendamentiLogic;
+        internal readonly EMPublicLogic _publicLogic;
+        internal readonly EsportaLogic _esportaLogic;
+        internal readonly FirmeLogic _firmeLogic;
+        internal readonly LegislatureLogic _legislatureLogic;
+        internal readonly NotificheLogic _notificheLogic;
+        internal readonly PersoneLogic _personeLogic;
+        internal readonly SeduteLogic _seduteLogic;
+        internal readonly StampeLogic _stampeLogic;
+        internal readonly IUnitOfWork _unitOfWork;
+        internal readonly UtilsLogic _utilsLogic;
+        internal readonly AdminLogic _adminLogic;
+
+        /// <summary>
+        ///     Costruttore
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public BaseApiController(
+            IUnitOfWork unitOfWork,
+            AuthLogic authLogic,
+            PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic,
+            SeduteLogic seduteLogic,
+            AttiLogic attiLogic,
+            DASILogic dasiLogic,
+            FirmeLogic firmeLogic,
+            AttiFirmeLogic attiFirmeLogic,
+            EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic,
+            NotificheLogic notificheLogic,
+            EsportaLogic esportaLogic,
+            StampeLogic stampeLogic,
+            UtilsLogic utilsLogic,
+            AdminLogic adminLogic)
+        {
+            _unitOfWork = unitOfWork;
+            _authLogic = authLogic;
+            _personeLogic = personeLogic;
+            _legislatureLogic = legislatureLogic;
+            _seduteLogic = seduteLogic;
+            _attiLogic = attiLogic;
+            _dasiLogic = dasiLogic;
+            _firmeLogic = firmeLogic;
+            _attiFirmeLogic = attiFirmeLogic;
+            _emendamentiLogic = emendamentiLogic;
+            _publicLogic = publicLogic;
+            _notificheLogic = notificheLogic;
+            _esportaLogic = esportaLogic;
+            _stampeLogic = stampeLogic;
+            _utilsLogic = utilsLogic;
+            _adminLogic = adminLogic;
+        }
+
+        /// <summary>
+        ///     Utente richiesta corrente
+        /// </summary>
+        public PersonaDto CurrentUser => GetCurrentUser();
+        /// <summary>
+        ///     Sessione ricavata dal json di autenticazione
+        /// </summary>
+        public SessionManager Session => GetSession();
+
+        private PersonaDto GetCurrentUser()
+        {
+            try
+            {
+                var task_op = Task.Run(async () => await _personeLogic.GetPersona(Session));
+                var persona = task_op.Result;
+                persona.CurrentRole = Session._currentRole;
+                return persona;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         ///     Handler per catturare i messaggi di errore
         /// </summary>
@@ -55,12 +156,8 @@ namespace PortaleRegione.API.Helpers
             }
 
             if (e.InnerException != null)
-            {
                 if (e.InnerException.Source == "EntityFramework")
-                {
                     message = e.InnerException.InnerException.Message;
-                }
-            }
 
             Console.WriteLine(message);
             return BadRequest(message);
@@ -70,27 +167,25 @@ namespace PortaleRegione.API.Helpers
         ///     Metodo per avere l'utente loggato dal jwt
         /// </summary>
         /// <returns></returns>
-        protected SessionManager GetSession()
+        private SessionManager GetSession()
         {
             var identity = RequestContext.Principal.Identity as ClaimsIdentity;
             var session = new SessionManager();
             foreach (var identityClaim in identity.Claims)
-            {
                 switch (identityClaim.Type)
                 {
                     case ClaimTypes.Role:
-                        session._currentRole = (RuoliIntEnum) Convert.ToInt16(identityClaim.Value);
+                        session._currentRole = (RuoliIntEnum)Convert.ToInt16(identityClaim.Value);
                         break;
                     case "gruppo":
                         session._currentGroup = Convert.ToInt32(identityClaim.Value);
                         break;
                     case ClaimTypes.Name:
-                    {
-                        session._currentUId = new Guid(identityClaim.Value);
-                        break;
-                    }
+                        {
+                            session._currentUId = new Guid(identityClaim.Value);
+                            break;
+                        }
                 }
-            }
 
             return session;
         }

@@ -20,8 +20,6 @@ namespace PortaleRegione.BAL
 {
     public class AuthLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-
         public AuthLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -89,7 +87,7 @@ namespace PortaleRegione.BAL
                             .Persone
                             .Autentica(
                                 loginModel.Username,
-                                EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
+                                BALHelper.EncryptString(loginModel.Password, AppSettingsConfiguration.JWT_MASTER)
                             );
                         if (!authResult_NoAD)
                         {
@@ -194,11 +192,6 @@ namespace PortaleRegione.BAL
             try
             {
                 var gruppiDto = Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(await _unitOfWork.Gruppi.Get(gruppo));
-                if (gruppiDto == null)
-                {
-                    throw new Exception("ListaGruppo non trovato");
-                }
-
                 var persona = Mapper.Map<View_UTENTI, PersonaDto>(await _unitOfWork.Persone.Get(session._currentUId));
                 var intranetAdService = new proxyAD();
                 var Gruppi_Utente = new List<string>(intranetAdService.GetGroups(
@@ -209,7 +202,7 @@ namespace PortaleRegione.BAL
 
                 var ruoli_utente = await _unitOfWork.Ruoli.RuoliUtente(lRuoli);
 
-                persona.Gruppo = gruppiDto;
+                persona.Gruppo = gruppiDto ?? throw new Exception("ListaGruppo non trovato");
                 persona.CurrentRole = RuoliIntEnum.Responsabile_Segreteria_Politica;
                 persona.Carica = await _unitOfWork.Persone.GetCarica(persona.UID_persona);
                 persona.Ruoli = ruoli_utente.Select(Mapper.Map<RUOLI, RuoliDto>);

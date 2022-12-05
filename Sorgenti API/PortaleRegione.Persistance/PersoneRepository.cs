@@ -87,10 +87,20 @@ namespace PortaleRegione.Persistance
             query = query.OrderBy(u => u.cognome)
                 .ThenBy(u => u.nome);
 
-            return await query
+            var result = await query
                 .Skip((page - 1) * size)
                 .Take(size)
                 .ToListAsync();
+            if (filtro._statements.Any(i => i.PropertyId == nameof(PersonaDto.nome)))
+            {
+                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString().ToLower();
+                result = result.Where(i => i.nome.ToLower().Contains(q_nome)
+                                           || i.cognome.ToLower().Contains(q_nome)
+                                           || i.userAD.ToLower().Contains(q_nome))
+                    .ToList();
+            }
+
+            return result;
         }
 
         public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size,
@@ -133,8 +143,19 @@ namespace PortaleRegione.Persistance
 
             filtro?.BuildExpression(ref query);
 
-            return await query
-                .CountAsync();
+            var result = await query
+                .ToListAsync();
+
+            if (filtro._statements.Any(i => i.PropertyId == nameof(PersonaDto.nome)))
+            {
+                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString().ToLower();
+                result = result.Where(i => i.nome.ToLower().Contains(q_nome)
+                                           || i.cognome.ToLower().Contains(q_nome)
+                                           || i.userAD.ToLower().Contains(q_nome))
+                    .ToList();
+            }
+
+            return result.Count;
         }
 
         public async Task<int> CountAllByGiunta(Filter<View_UTENTI> filtro)

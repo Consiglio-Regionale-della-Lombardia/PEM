@@ -18,9 +18,9 @@
 
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using PortaleRegione.Logger;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -37,17 +37,6 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("util")]
     public class UtilsController : BaseApiController
     {
-        private readonly UtilsLogic _logic;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logic"></param>
-        public UtilsController(UtilsLogic logic)
-        {
-            _logic = logic;
-        }
-
         /// <summary>
         ///     Endpoint di invio mail
         /// </summary>
@@ -59,12 +48,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.InvioMail(model);
+                await _utilsLogic.InvioMail(model);
                 return Ok(true);
             }
             catch (Exception e)
             {
-                Log.Error("Send Mail", e);
+                //Log.Error("Send Mail", e);
                 return ErrorHandler(e);
             }
         }
@@ -91,8 +80,8 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var postedFile = httpRequest.Files[0];
-                var pathFile = _logic.ArchiviaDocumento(postedFile);
-                await _logic.SalvaDocumento(ownerId, (TipoAllegatoEnum) docType, pathFile);
+                var pathFile = _utilsLogic.ArchiviaDocumento(postedFile);
+                await _utilsLogic.SalvaDocumento(ownerId, (TipoAllegatoEnum)docType, pathFile);
 
                 result = Request.CreateResponse(HttpStatusCode.Created, pathFile);
             }
@@ -102,6 +91,35 @@ namespace PortaleRegione.API.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        ///     Costruttore
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public UtilsController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+        {
         }
     }
 }

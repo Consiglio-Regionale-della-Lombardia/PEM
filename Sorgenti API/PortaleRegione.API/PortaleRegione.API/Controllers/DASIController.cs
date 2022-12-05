@@ -22,43 +22,49 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
     /// <summary>
-    /// Controller per gestire il modulo DASI
+    ///     Controller per gestire il modulo DASI
     /// </summary>
     [Authorize]
     [RoutePrefix("dasi")]
     public class DASIController : BaseApiController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly DASILogic _logic;
-        private readonly PersoneLogic _logicPersone;
-        private readonly AttiFirmeLogic _logicFirma;
-        private readonly SeduteLogic _logicPem;
-
         /// <summary>
-        /// Controller per la gestione modulo DASI (Atti Sindacato Ispettivo)
+        ///     Costruttore
         /// </summary>
-        /// <param name="logic"></param>
-        /// <param name="logicPersone"></param>
-        public DASIController(IUnitOfWork unitOfWork, DASILogic logic, PersoneLogic logicPersone, AttiFirmeLogic logicFirma, SeduteLogic logicPEM)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public DASIController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _unitOfWork = unitOfWork;
-            _logic = logic;
-            _logicPersone = logicPersone;
-            _logicFirma = logicFirma;
-            _logicPem = logicPEM;
         }
 
         /// <summary>
@@ -71,20 +77,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.NuovoModello(tipo, persona);
+                var result = await _dasiLogic.NuovoModello(tipo, CurrentUser);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetNuovoModello", e);
+                //Log.Error("GetNuovoModello", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        ///      Endpoint per avere l'oggetto atto da modificare
+        ///     Endpoint per avere l'oggetto atto da modificare
         /// </summary>
         /// <param name="id">Identificativo atto</param>
         /// <returns></returns>
@@ -93,33 +97,25 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
 
-                var countFirme = await _logicFirma.CountFirme(id);
+                var countFirme = await _attiFirmeLogic.CountFirme(id);
                 if (countFirme > 1)
-                {
                     throw new InvalidOperationException(
                         $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
-                }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                return Ok(await _logic.ModificaModello(atto, persona));
+                return Ok(await _dasiLogic.ModificaModello(atto, CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetModificaModello", e);
+                //Log.Error("GetModificaModello", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// Endpoint per salvare un atto
+        ///     Endpoint per salvare un atto
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -129,21 +125,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var nuovoAtto = await _logic.Salva(request, persona);
+                var nuovoAtto = await _dasiLogic.Salva(request, CurrentUser);
 
                 return Created(new Uri(Request.RequestUri.ToString()), Mapper.Map<ATTI_DASI, AttoDASIDto>(nuovoAtto));
             }
             catch (Exception e)
             {
-                Log.Error("Salva Atto DASI", e);
+                //Log.Error("Salva Atto DASI", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// Endpoint per avere le inforazioni dell'atto archiviato
+        ///     Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -153,23 +147,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var atto = await _logic.GetAttoDto(id, persona, personeInDbLight);
+                var atto = await _dasiLogic.GetAttoDto(id, CurrentUser);
 
                 return Ok(atto);
             }
             catch (Exception e)
             {
-                Log.Error("Get Atto DASI", e);
+                //Log.Error("Get Atto DASI", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// Endpoint per avere il riepilogo filtrato di atti
+        ///     Endpoint per avere il riepilogo filtrato di atti
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -179,21 +169,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var response = await _logic.Get(request, persona, Request.RequestUri);
+                var response = await _dasiLogic.Get(request, CurrentUser, Request.RequestUri);
 
                 return Ok(response);
             }
             catch (Exception e)
             {
-                Log.Error("Riepilogo Atti DASI", e);
+                //Log.Error("Riepilogo Atti DASI", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// Endpoint per firmare un Atto di Sindacato Ispettivo
+        ///     Endpoint per firmare un Atto di Sindacato Ispettivo
         /// </summary>
         /// <param name="firmaModel"></param>
         /// <returns></returns>
@@ -203,41 +191,30 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.IsSegreteriaAssemblea;
+                var user = CurrentUser;
+                var firmaUfficio = user.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
-                    {
                         throw new InvalidOperationException("Pin inserito non valido");
-                    }
 
-                    return Ok(await _logic.Firma(firmaModel, persona, null, true));
+                    return Ok(await _dasiLogic.Firma(firmaModel, user, null, true));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
-                if (pinInDb == null)
-                {
-                    throw new InvalidOperationException("Pin non impostato");
-                }
+                var pinInDb = await _personeLogic.GetPin(user);
+                if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (pinInDb.RichiediModificaPIN)
-                {
-                    throw new InvalidOperationException("E' richiesto il reset del pin");
-                }
+                if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
-                {
                     throw new InvalidOperationException("Pin inserito non valido");
-                }
 
-                return Ok(await _logic.Firma(firmaModel, persona, pinInDb));
+                return Ok(await _dasiLogic.Firma(firmaModel, user, pinInDb));
             }
             catch (Exception e)
             {
-                Log.Error("Firma - DASI", e);
+                //Log.Error("Firma - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -253,41 +230,30 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.IsSegreteriaAssemblea;
+                var user = CurrentUser;
+                var firmaUfficio = user.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
-                    {
                         throw new InvalidOperationException("Pin inserito non valido");
-                    }
 
-                    return Ok(await _logic.RitiroFirma(firmaModel, persona));
+                    return Ok(await _dasiLogic.RitiroFirma(firmaModel, user));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
-                if (pinInDb == null)
-                {
-                    throw new InvalidOperationException("Pin non impostato");
-                }
+                var pinInDb = await _personeLogic.GetPin(user);
+                if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (pinInDb.RichiediModificaPIN)
-                {
-                    throw new InvalidOperationException("E' richiesto il reset del pin");
-                }
+                if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
-                {
                     throw new InvalidOperationException("Pin inserito non valido");
-                }
 
-                return Ok(await _logic.RitiroFirma(firmaModel, persona));
+                return Ok(await _dasiLogic.RitiroFirma(firmaModel, user));
             }
             catch (Exception e)
             {
-                Log.Error("RitiroFirma - DASI", e);
+                //Log.Error("RitiroFirma - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -303,42 +269,31 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
+                var user = CurrentUser;
 
-                var firmaUfficio = persona.IsSegreteriaAssemblea;
+                var firmaUfficio = user.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
-                    {
                         throw new InvalidOperationException("Pin inserito non valido");
-                    }
 
-                    return Ok(await _logic.EliminaFirma(firmaModel, persona));
+                    return Ok(await _dasiLogic.EliminaFirma(firmaModel, user));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
-                if (pinInDb == null)
-                {
-                    throw new InvalidOperationException("Pin non impostato");
-                }
+                var pinInDb = await _personeLogic.GetPin(user);
+                if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (pinInDb.RichiediModificaPIN)
-                {
-                    throw new InvalidOperationException("E' richiesto il reset del pin");
-                }
+                if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 if (firmaModel.Pin != pinInDb.PIN_Decrypt)
-                {
                     throw new InvalidOperationException("Pin inserito non valido");
-                }
 
-                return Ok(await _logic.EliminaFirma(firmaModel, persona));
+                return Ok(await _dasiLogic.EliminaFirma(firmaModel, user));
             }
             catch (Exception e)
             {
-                Log.Error("EliminaFirma - DASI", e);
+                //Log.Error("EliminaFirma - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -355,46 +310,33 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (ManagerLogic.BloccaPresentazione)
-                {
                     throw new InvalidOperationException(
-                        "E' in corso un'altra operazione di presentazione. Riprova tra qualche secondo.");
-                }
+                        "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var presentazioneUfficio = persona.IsSegreteriaAssemblea;
+                var user = CurrentUser;
+                var presentazioneUfficio = user.IsSegreteriaAssemblea;
 
                 if (presentazioneUfficio)
                 {
                     if (presentazioneModel.Pin != AppSettingsConfiguration.MasterPIN)
-                    {
                         throw new InvalidOperationException("Pin inserito non valido");
-                    }
 
-                    return Ok(await _logic.Presenta(presentazioneModel, persona));
+                    return Ok(await _dasiLogic.Presenta(presentazioneModel, user));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
-                if (pinInDb == null)
-                {
-                    throw new InvalidOperationException("Pin non impostato");
-                }
+                var pinInDb = await _personeLogic.GetPin(user);
+                if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (pinInDb.RichiediModificaPIN)
-                {
-                    throw new InvalidOperationException("E' richiesto il reset del pin");
-                }
+                if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
                 if (presentazioneModel.Pin != pinInDb.PIN_Decrypt)
-                {
                     throw new InvalidOperationException("Pin inserito non valido");
-                }
 
-                return Ok(await _logic.Presenta(presentazioneModel, persona));
+                return Ok(await _dasiLogic.Presenta(presentazioneModel, user));
             }
             catch (Exception e)
             {
-                Log.Error("Presentazione - DASI", e);
+                //Log.Error("Presentazione - DASI", e);
                 return ErrorHandler(e);
             }
             finally
@@ -414,18 +356,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
 
-                var result = await _logicFirma.GetFirme(atto, tipo);
+                var result = await _attiFirmeLogic.GetFirme(atto, tipo);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatari", e);
+                //Log.Error("GetFirmatari", e);
                 return ErrorHandler(e);
             }
         }
@@ -442,26 +381,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(model.Id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(model.Id);
+                if (atto == null) return NotFound();
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                var body = await _logic.GetBodyDASI(atto
-                    , await _logicFirma.GetFirme(atto, FirmeTipoEnum.TUTTE)
-                    , persona
-                    , model.Template
-                    , model.IsDeposito);
+                var body = await _dasiLogic.GetBodyDASI(atto
+                    , await _attiFirmeLogic.GetFirme(atto, FirmeTipoEnum.TUTTE)
+                    , CurrentUser
+                    , model.Template);
 
                 return Ok(body);
             }
             catch (Exception e)
             {
-                Log.Error("GetBody - DASI", e);
+                //Log.Error("GetBody - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -477,13 +409,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var body = await _logic.GetCopertina(model);
+                var body = await _dasiLogic.GetCopertina(model);
 
                 return Ok(body);
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyCopertina", e);
+                //Log.Error("GetBodyCopertina", e);
                 return ErrorHandler(e);
             }
         }
@@ -501,13 +433,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var response = ResponseMessage(await _logic.Download(path));
+                var response = ResponseMessage(await _dasiLogic.Download(path));
 
                 return response;
             }
             catch (Exception e)
             {
-                Log.Error("Download Allegato Atto", e);
+                //Log.Error("Download Allegato Atto", e);
                 return ErrorHandler(e);
             }
         }
@@ -523,20 +455,16 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
 
-                var session = GetSession();
-                await _logic.Elimina(atto, session._currentUId);
+                await _dasiLogic.Elimina(atto, Session._currentUId);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Atto - DASI", e);
+                //Log.Error("Elimina Atto - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -552,32 +480,24 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
 
                 if (atto.UIDSeduta.HasValue)
                 {
-                    var seduta = await _logicPem.GetSeduta(atto.UIDSeduta.Value);
+                    var seduta = await _seduteLogic.GetSeduta(atto.UIDSeduta.Value);
                     if (DateTime.Now > seduta.Data_seduta)
-                    {
                         throw new InvalidOperationException(
                             "Non è possibile ritirare l'atto durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
-                    }
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                await _logic.Ritira(atto, persona);
+                await _dasiLogic.Ritira(atto, CurrentUser);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("Ritira Atto - DASI", e);
+                //Log.Error("Ritira Atto - DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -594,14 +514,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-                return Ok(await _logic.ModificaStato(model, persona));
+                return Ok(await _dasiLogic.ModificaStato(model, CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("ModificaStatoEmendamento", e);
+                //Log.Error("ModificaStatoEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -618,23 +535,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (model.UidSeduta == Guid.Empty)
-                {
-                    throw new InvalidOperationException($"Guid [{model.UidSeduta}]");
-                }
+                if (model.UidSeduta == Guid.Empty) throw new InvalidOperationException($"Guid [{model.UidSeduta}]");
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-                await _logic.IscrizioneSeduta(model, persona);
+                await _dasiLogic.IscrizioneSeduta(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("IscrizioneSeduta", e);
+                //Log.Error("IscrizioneSeduta", e);
                 return ErrorHandler(e);
             }
         }
+
         /// <summary>
         ///     Endpoint per richiedere l'iscrizione ad una seduta futura
         /// </summary>
@@ -646,15 +558,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-                await _logic.RichiediIscrizione(model, persona);
+                await _dasiLogic.RichiediIscrizione(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("RichiediIscrizione", e);
+                //Log.Error("RichiediIscrizione", e);
                 return ErrorHandler(e);
             }
         }
@@ -671,12 +580,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.RimuoviSeduta(model);
+                await _dasiLogic.RimuoviSeduta(model);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("RimuoviSeduta", e);
+                //Log.Error("RimuoviSeduta", e);
                 return ErrorHandler(e);
             }
         }
@@ -692,12 +601,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.RimuoviRichiesta(model);
+                await _dasiLogic.RimuoviRichiesta(model);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("RimuoviRichiestaIscrizione", e);
+                //Log.Error("RimuoviRichiestaIscrizione", e);
                 return ErrorHandler(e);
             }
         }
@@ -713,15 +622,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-                await _logic.ProponiMozioneUrgente(model, persona);
+                await _dasiLogic.ProponiMozioneUrgente(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ProponiMozioneUrgente", e);
+                //Log.Error("ProponiMozioneUrgente", e);
                 return ErrorHandler(e);
             }
         }
@@ -737,12 +643,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.ProponiMozioneAbbinata(model);
+                await _dasiLogic.ProponiMozioneAbbinata(model);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ProponiMozioneAbbinata", e);
+                //Log.Error("ProponiMozioneAbbinata", e);
                 return ErrorHandler(e);
             }
         }
@@ -759,12 +665,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.PresentazioneCartacea(model);
+                await _dasiLogic.PresentazioneCartacea(model);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("PresentazioneCartacea", e);
+                //Log.Error("PresentazioneCartacea", e);
                 return ErrorHandler(e);
             }
         }
@@ -779,18 +685,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
 
-                var result = await _logic.GetInvitati(atto);
+                var result = await _dasiLogic.GetInvitati(atto);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetInvitati", e);
+                //Log.Error("GetInvitati", e);
                 return ErrorHandler(e);
             }
         }
@@ -801,19 +704,15 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("stati")]
-        public async Task<IHttpActionResult> GetStati()
+        public IHttpActionResult GetStati()
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-
-                return Ok(_logic.GetStati(persona));
+                return Ok(_dasiLogic.GetStati(CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetStati", e);
+                //Log.Error("GetStati", e);
                 return ErrorHandler(e);
             }
         }
@@ -824,15 +723,15 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("tipi-moz")]
-        public async Task<IHttpActionResult> GetTipiMOZ()
+        public IHttpActionResult GetTipiMOZ()
         {
             try
             {
-                return Ok(_logic.GetTipiMOZ());
+                return Ok(_dasiLogic.GetTipiMOZ());
             }
             catch (Exception e)
             {
-                Log.Error("GetTipiMOZ", e);
+                //Log.Error("GetTipiMOZ", e);
                 return ErrorHandler(e);
             }
         }
@@ -847,11 +746,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logic.GetSoggettiInterrogabili());
+                return Ok(await _dasiLogic.GetSoggettiInterrogabili());
             }
             catch (Exception e)
             {
-                Log.Error("GetSoggettiInterrogabili", e);
+                //Log.Error("GetSoggettiInterrogabili", e);
                 return ErrorHandler(e);
             }
         }
@@ -866,19 +765,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                return Ok(await _logic.GetMOZAbbinabili(persona));
+                return Ok(await _dasiLogic.GetMOZAbbinabili(CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetMOZAbbinabili", e);
+                //Log.Error("GetMOZAbbinabili", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        ///     Endpoint per avere gli atti delle sedute attive (pdl, pda, ris,...) che servono all'inserimento e all'iscrizione degli odg
+        ///     Endpoint per avere gli atti delle sedute attive (pdl, pda, ris,...) che servono all'inserimento e all'iscrizione
+        ///     degli odg
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -887,16 +785,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-
-                return Ok(await _logic.GetAttiSeduteAttive(persona, personeInDbLight));
+                return Ok(await _dasiLogic.GetAttiSeduteAttive(CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetAttiSeduteAttive", e);
+                //Log.Error("GetAttiSeduteAttive", e);
                 return ErrorHandler(e);
             }
         }
@@ -913,24 +806,17 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logic.Get(model.UIDAtto);
+                var atto = await _dasiLogic.Get(model.UIDAtto);
 
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                if (atto == null) return NotFound();
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-
-                await _logic.ModificaMetaDati(model, atto, persona);
+                await _dasiLogic.ModificaMetaDati(model, atto, CurrentUser);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ModificaMetaDati", e);
+                //Log.Error("ModificaMetaDati", e);
                 return ErrorHandler(e);
             }
         }
@@ -941,32 +827,27 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("file")]
+        [Route("file-immediato")]
         public async Task<IHttpActionResult> Download(Guid id)
         {
             try
             {
-                var atto = await _logic.Get(id);
-                if (atto == null)
-                {
-                    return NotFound();
-                }
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var response = ResponseMessage(await _logic.DownloadPDFIstantaneo(atto, persona));
+                var response = ResponseMessage(await _dasiLogic.DownloadPDFIstantaneo(atto, CurrentUser));
 
                 return response;
             }
             catch (Exception e)
             {
-                Log.Error("Download", e);
+                //Log.Error("Download", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// Endpoint per inviare l'atto al protocollo
+        ///     Endpoint per inviare l'atto al protocollo
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -977,16 +858,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.InviaAlProtocollo(id);
+                await _dasiLogic.InviaAlProtocollo(id);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("Invio al protocollo", e);
+                //Log.Error("Invio al protocollo", e);
                 return ErrorHandler(e);
             }
         }
-
     }
 }

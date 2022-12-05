@@ -70,7 +70,7 @@ namespace PortaleRegione.API
             config.Routes.MapHttpRoute(
                 "DefaultApi",
                 "{controller}/{id}",
-                new {id = RouteParameter.Optional}
+                new { id = RouteParameter.Optional }
             );
         }
     }

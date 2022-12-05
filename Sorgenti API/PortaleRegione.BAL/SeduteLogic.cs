@@ -21,10 +21,11 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,8 +33,6 @@ namespace PortaleRegione.BAL
 {
     public class SeduteLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-
         public SeduteLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -43,7 +42,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetSedute - page[{model.page}], pageSize[{model.size}]");
+                //Log.Debug($"Logic - GetSedute - page[{model.page}], pageSize[{model.size}]");
                 var queryFilter = new Filter<SEDUTE>();
                 queryFilter.ImportStatements(model.filtro);
 
@@ -62,7 +61,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSedute", e);
+                //Log.Error("Logic - GetSedute", e);
                 throw e;
             }
         }
@@ -76,7 +75,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduta", e);
+                //Log.Error("Logic - GetSeduta", e);
                 throw e;
             }
         }
@@ -90,7 +89,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduta", e);
+                //Log.Error("Logic - GetSeduta", e);
                 throw e;
             }
         }
@@ -107,7 +106,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - DeleteSeduta", e);
+                //Log.Error("Logic - DeleteSeduta", e);
                 throw e;
             }
         }
@@ -127,7 +126,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NuovaSeduta", e);
+                //Log.Error("Logic - NuovaSeduta", e);
                 throw e;
             }
         }
@@ -142,6 +141,7 @@ namespace PortaleRegione.BAL
                 {
                     sedutaInDb.Data_apertura = null;
                 }
+
                 if (sedutaDto.Data_effettiva_inizio == null)
                 {
                     sedutaInDb.Data_effettiva_inizio = null;
@@ -152,23 +152,73 @@ namespace PortaleRegione.BAL
                     sedutaInDb.Data_effettiva_fine = null;
                 }
 
+                if (sedutaDto.Scadenza_presentazione == null)
+                {
+                    sedutaInDb.Scadenza_presentazione = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneIQT == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneIQT = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneMOZ == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneMOZ = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneMOZA == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneMOZA = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneMOZU == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneMOZU = null;
+                }
+
+                if (sedutaDto.DataScadenzaPresentazioneODG == null)
+                {
+                    sedutaInDb.DataScadenzaPresentazioneODG = null;
+                }
+
+
                 sedutaInDb.UIDPersonaModifica = persona.UID_persona;
                 sedutaInDb.DataModifica = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();
+
+                if (sedutaDto.Data_effettiva_fine.HasValue)
+                {
+                    //Matteo Cattapan #486
+                    //Quando viene chiusa la seduta, vengono 'declassate' tutte le mozioni depositate e iscritte in seduta da UOLA
+
+                    var mozioni_abbinate = await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.ABBINATA);
+                    var mozioni_urgenti = await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                    var mozioni_da_declassare = new List<ATTI_DASI>();
+                    mozioni_da_declassare.AddRange(mozioni_abbinate);
+                    mozioni_da_declassare.AddRange(mozioni_urgenti);
+
+                    mozioni_da_declassare.ForEach(moz =>
+                    {
+                        moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                    });
+
+                    await _unitOfWork.CompleteAsync();
+                }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaSeduta", e);
+                //Log.Error("Logic - ModificaSeduta", e);
                 throw e;
             }
         }
 
-        public async Task<BaseResponse<SeduteDto>> GetSeduteAttive()
+        public async Task<BaseResponse<SeduteDto>> GetSeduteAttive(PersonaDto persona)
         {
             try
             {
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive(true, false);
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(!persona.IsSegreteriaAssemblea, false);
 
                 return new BaseResponse<SeduteDto>(
                     1,
@@ -180,7 +230,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduteAttive", e);
+                //Log.Error("Logic - GetSeduteAttive", e);
                 throw e;
             }
         }
@@ -201,7 +251,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduteAttiveMOZU", e);
+                //Log.Error("Logic - GetSeduteAttiveMOZU", e);
                 throw e;
             }
         }
@@ -222,10 +272,9 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSeduteAttiveDashboard", e);
+                //Log.Error("Logic - GetSeduteAttiveDashboard", e);
                 throw e;
             }
-
         }
     }
 }

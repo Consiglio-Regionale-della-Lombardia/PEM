@@ -18,12 +18,11 @@
 
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -37,18 +36,33 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("notifiche")]
     public class NotificheController : BaseApiController
     {
-        private readonly PersoneLogic _logicPersone;
-        private readonly NotificheLogic _logic;
-
         /// <summary>
-        /// 
+        ///     Costruttore
         /// </summary>
-        /// <param name="logicPersone"></param>
-        /// <param name="logic"></param>
-        public NotificheController(PersoneLogic logicPersone, NotificheLogic logic)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public NotificheController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logicPersone = logicPersone;
-            _logic = logic;
         }
 
         /// <summary>
@@ -64,10 +78,8 @@ namespace PortaleRegione.API.Controllers
             {
                 object Archivio;
                 model.param.TryGetValue("Archivio", out Archivio);
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.GetNotificheInviate(model, 
-                    persona, 
+                var result = await _notificheLogic.GetNotificheInviate(model,
+                    CurrentUser,
                     Convert.ToBoolean(Archivio),
                     Request.RequestUri);
 
@@ -75,7 +87,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetNotificheInviate", e);
+                //Log.Error("GetNotificheInviate", e);
                 return ErrorHandler(e);
             }
         }
@@ -90,14 +102,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                await _logic.NotificaVista(notificaId, session._currentUId);
+                await _notificheLogic.NotificaVista(notificaId, Session._currentUId);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("NotificaVista", e);
+                //Log.Error("NotificaVista", e);
                 return ErrorHandler(e);
             }
         }
@@ -117,19 +128,17 @@ namespace PortaleRegione.API.Controllers
                 model.param.TryGetValue("Archivio", out Archivio);
                 object Solo_Non_Viste;
                 model.param.TryGetValue("Solo_Non_Viste", out Solo_Non_Viste);
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.GetNotificheRicevute(model, 
-                    persona, 
+                var result = await _notificheLogic.GetNotificheRicevute(model,
+                    CurrentUser,
                     Convert.ToBoolean(Archivio),
-                    Convert.ToBoolean(Solo_Non_Viste), 
+                    Convert.ToBoolean(Solo_Non_Viste),
                     Request.RequestUri);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetNotificheRicevute", e);
+                //Log.Error("GetNotificheRicevute", e);
                 return ErrorHandler(e);
             }
         }
@@ -145,12 +154,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetDestinatariNotifica(id);
+                var result = await _notificheLogic.GetDestinatariNotifica(id);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetDestinatariNotifica", e);
+                //Log.Error("GetDestinatariNotifica", e);
                 return ErrorHandler(e);
             }
         }
@@ -166,41 +175,29 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
+                var user = CurrentUser;
+
                 var invitoDaSegreteria =
-                    persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
-                    persona.CurrentRole == RuoliIntEnum.Segreteria_Politica ||
-                    persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
-                    persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale ||
-                    persona.CurrentRole == RuoliIntEnum.Amministratore_PEM;
+                    user.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                    user.CurrentRole == RuoliIntEnum.Segreteria_Politica ||
+                    user.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                    user.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale ||
+                    user.CurrentRole == RuoliIntEnum.Amministratore_PEM;
 
-                if (invitoDaSegreteria)
-                {
-                    return Ok(await _logic.InvitaAFirmare(model, persona));
-                }
+                if (invitoDaSegreteria) return Ok(await _notificheLogic.InvitaAFirmare(model, user));
 
-                var pinInDb = await _logicPersone.GetPin(persona);
-                if (pinInDb == null)
-                {
-                    throw new InvalidOperationException("Pin non impostato");
-                }
+                var pinInDb = await _personeLogic.GetPin(user);
+                if (pinInDb == null) throw new InvalidOperationException("Pin non impostato");
 
-                if (pinInDb.RichiediModificaPIN)
-                {
-                    throw new InvalidOperationException("E' richiesto il reset del pin");
-                }
+                if (pinInDb.RichiediModificaPIN) throw new InvalidOperationException("E' richiesto il reset del pin");
 
-                if (model.Pin != pinInDb.PIN_Decrypt)
-                {
-                    throw new InvalidOperationException("Pin inserito non valido");
-                }
+                if (model.Pin != pinInDb.PIN_Decrypt) throw new InvalidOperationException("Pin inserito non valido");
 
-                return Ok(await _logic.InvitaAFirmare(model, persona));
+                return Ok(await _notificheLogic.InvitaAFirmare(model, user));
             }
             catch (Exception e)
             {
-                Log.Error("InvitaAFirmare", e);
+                //Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }
@@ -217,17 +214,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                return Ok(await _logic.GetListaDestinatari(atto, tipo, persona));
+                return Ok(await _notificheLogic.GetListaDestinatari(atto, tipo, CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetListaDestinatari", e);
+                //Log.Error("GetListaDestinatari", e);
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere i destinatari da invitare alla firma
         /// </summary>
@@ -239,19 +234,16 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                return Ok(await _logic.GetListaDestinatari(tipo, persona));
+                return Ok(await _notificheLogic.GetListaDestinatari(tipo, CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetListaDestinatari", e);
+                //Log.Error("GetListaDestinatari", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -261,18 +253,17 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.AccettaPropostaFirma(id);
+                await _notificheLogic.AccettaPropostaFirma(id);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("AccettaPropostaFirma", e);
+                //Log.Error("AccettaPropostaFirma", e);
                 return ErrorHandler(e);
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -282,12 +273,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.AccettaRitiroFirma(id);
+                await _notificheLogic.AccettaRitiroFirma(id);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("AccettaRitiroFirma", e);
+                //Log.Error("AccettaRitiroFirma", e);
                 return ErrorHandler(e);
             }
         }

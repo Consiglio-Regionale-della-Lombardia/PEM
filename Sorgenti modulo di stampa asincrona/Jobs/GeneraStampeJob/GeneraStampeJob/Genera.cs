@@ -1,6 +1,4 @@
-﻿using PortaleRegione.Logger;
-using Quartz;
-using System;
+﻿using Quartz;
 using System.Threading.Tasks;
 
 namespace GeneraStampeJob
@@ -41,86 +39,86 @@ namespace GeneraStampeJob
 
         private void ConvertParameters(JobDataMap data)
         {
-            foreach (var item in data) Log.Debug($"Key: [{item.Key}], Value: [{item.Value}]");
+            foreach (var item in data) ////Log.Debug($"Key: [{item.Key}], Value: [{item.Value}]");
 
-            var error = false;
+                //var error = false;
 
-            if (data.ContainsKey(nameof(ThreadWorkerModel.Username)))
-                Username = data.Get(nameof(ThreadWorkerModel.Username)).ToString();
+                if (data.ContainsKey(nameof(ThreadWorkerModel.Username)))
+                    Username = data.Get(nameof(ThreadWorkerModel.Username)).ToString();
             if (string.IsNullOrEmpty(Username))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.Username)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.Username)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.Password)))
                 Password = data.Get(nameof(ThreadWorkerModel.Password)).ToString();
             if (string.IsNullOrEmpty(Password))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.Password)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.Password)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.UrlAPI)))
                 UrlApi = data.Get(nameof(ThreadWorkerModel.UrlAPI)).ToString();
             if (string.IsNullOrEmpty(UrlApi))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.UrlAPI)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.UrlAPI)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.UrlCLIENT)))
                 UrlClient = data.Get(nameof(ThreadWorkerModel.UrlCLIENT)).ToString();
             if (string.IsNullOrEmpty(UrlClient))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.UrlCLIENT)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.UrlCLIENT)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.NumMaxTentativi)))
                 NumMaxTentativi = data.Get(nameof(ThreadWorkerModel.NumMaxTentativi)).ToString();
             if (string.IsNullOrEmpty(NumMaxTentativi))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.NumMaxTentativi)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.NumMaxTentativi)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.CartellaLavoroTemporanea)))
                 CartellaLavoroTemporanea = data.Get(nameof(ThreadWorkerModel.CartellaLavoroTemporanea)).ToString();
             if (string.IsNullOrEmpty(CartellaLavoroTemporanea))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.CartellaLavoroTemporanea)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.CartellaLavoroTemporanea)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.CartellaLavoroStampe)))
                 CartellaLavoroStampe = data.Get(nameof(ThreadWorkerModel.CartellaLavoroStampe)).ToString();
             if (string.IsNullOrEmpty(CartellaLavoroStampe))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.CartellaLavoroStampe)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.CartellaLavoroStampe)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.EmailFrom)))
                 EmailFrom = data.Get(nameof(ThreadWorkerModel.EmailFrom)).ToString();
             if (string.IsNullOrEmpty(EmailFrom))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.EmailFrom)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.EmailFrom)}] non configurato");
             }
 
             if (data.ContainsKey(nameof(ThreadWorkerModel.RootRepository)))
                 RootRepository = data.Get(nameof(ThreadWorkerModel.RootRepository)).ToString();
             if (string.IsNullOrEmpty(RootRepository))
             {
-                error = true;
-                Log.Debug($"Parametro [{nameof(ThreadWorkerModel.RootRepository)}] non configurato");
+                //error = true;
+                ////Log.Debug($"Parametro [{nameof(ThreadWorkerModel.RootRepository)}] non configurato");
             }
             if (data.ContainsKey(nameof(ThreadWorkerModel.PDF_LICENSE)))
                 PDF_LICENSE = data.Get(nameof(ThreadWorkerModel.PDF_LICENSE)).ToString();
 
-            if (error)
-                throw new Exception("Mancano dei parametri alla configurazione.");
+            //if (error)
+            //    throw new Exception("Mancano dei parametri alla configurazione.");
         }
     }
 }

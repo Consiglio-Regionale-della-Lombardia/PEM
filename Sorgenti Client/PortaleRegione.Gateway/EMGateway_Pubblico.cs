@@ -17,7 +17,7 @@
  */
 
 using Newtonsoft.Json;
-using PortaleRegione.Logger;
+
 using System;
 using System.Threading.Tasks;
 
@@ -42,7 +42,7 @@ namespace PortaleRegione.Gateway
             }
             catch (Exception ex)
             {
-                Log.Error("GetBody - Pubblico", ex);
+                //Log.Error("GetBody - Pubblico", ex);
                 throw ex;
             }
         }

@@ -24,12 +24,10 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,38 +43,6 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("emendamenti")]
     public class EmendamentiController : BaseApiController
     {
-        private readonly AttiLogic _logicAtti;
-        private readonly EmendamentiLogic _logicEm;
-        private readonly FirmeLogic _logicFirme;
-        private readonly AdminLogic _logicAdmin;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly PersoneLogic _logicPersone;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="unitOfWork"></param>
-        /// <param name="logicPersone"></param>
-        /// <param name="logicAtti"></param>
-        /// <param name="logicEm"></param>
-        /// <param name="logicFirme"></param>
-        /// <param name="logicAdmin"></param>
-        public EmendamentiController(
-            IUnitOfWork unitOfWork,
-            PersoneLogic logicPersone,
-            AttiLogic logicAtti,
-            EmendamentiLogic logicEm,
-            FirmeLogic logicFirme,
-            AdminLogic logicAdmin)
-        {
-            _unitOfWork = unitOfWork;
-            _logicPersone = logicPersone;
-            _logicAtti = logicAtti;
-            _logicEm = logicEm;
-            _logicFirme = logicFirme;
-            _logicAdmin = logicAdmin;
-        }
-
         /// <summary>
         ///     Endpoint per avere tutti gli emendamenti appartenenti ad un atto
         /// </summary>
@@ -88,46 +54,45 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logicAtti.GetAtto(model.id);
+                var atto = await _attiLogic.GetAtto(model.id);
 
                 if (atto == null)
                 {
                     return NotFound();
                 }
 
-                model.param.TryGetValue("CLIENT_MODE", out object CLIENT_MODE); // per trattazione aula
-                model.param.TryGetValue("VIEW_MODE", out object viewMode); // per vista preview/griglia
-                ViewModeEnum VIEW_MODE = ViewModeEnum.GRID;
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+                model.param.TryGetValue("VIEW_MODE", out var viewMode); // per vista preview/griglia
+                var VIEW_MODE = ViewModeEnum.GRID;
                 if (viewMode != null)
                     Enum.TryParse(viewMode.ToString(), out VIEW_MODE);
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var ricerca_presidente_regione = await _logicAdmin.GetUtenti(new BaseRequest<PersonaDto>
+                var user = CurrentUser;
+                var ricerca_presidente_regione = await _adminLogic.GetUtenti(new BaseRequest<PersonaDto>
                 {
                     page = 1,
                     size = 1,
                     filtro = new List<FilterStatement<PersonaDto>>
-                    {
-                        new FilterStatement<PersonaDto>
                         {
-                            PropertyId = nameof(PersonaDto.Ruoli),
-                            Operation = Operation.EqualTo,
-                            Value = (int)RuoliIntEnum.Presidente_Regione,
-                            Connector = FilterStatementConnector.And
+                            new FilterStatement<PersonaDto>
+                            {
+                                PropertyId = nameof(PersonaDto.Ruoli),
+                                Operation = Operation.EqualTo,
+                                Value = (int)RuoliIntEnum.Presidente_Regione,
+                                Connector = FilterStatementConnector.And
+                            }
                         }
-                    }
-                }, persona
+                }, user
                     , Request.RequestUri);
                 var presidente = ricerca_presidente_regione.Results.First();
                 var results =
-                    await _logicEm.GetEmendamenti(model, persona, Convert.ToInt16(CLIENT_MODE), (int)VIEW_MODE, presidente, Request.RequestUri);
+                    await _emendamentiLogic.GetEmendamenti(model, user, Convert.ToInt16(CLIENT_MODE), (int)VIEW_MODE,
+                        presidente, Request.RequestUri);
                 results.Atto = Mapper.Map<ATTI, AttiDto>(atto);
                 return Ok(results);
-
             }
             catch (Exception e)
             {
-                Log.Error("GetEmendamenti", e);
+                //Log.Error("GetEmendamenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -143,19 +108,17 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _logicAtti.GetAtto(model.id);
+                var atto = await _attiLogic.GetAtto(model.id);
 
                 if (atto == null)
                 {
                     return NotFound();
                 }
 
-                object CLIENT_MODE;
-                model.param.TryGetValue("CLIENT_MODE", out CLIENT_MODE); // per trattazione aula
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+                var user = CurrentUser;
                 var results =
-                    await _logicEm.GetEmendamenti_RichiestaPropriaFirma(model, persona, Convert.ToInt16(CLIENT_MODE));
+                    await _emendamentiLogic.GetEmendamenti_RichiestaPropriaFirma(model, user, Convert.ToInt16(CLIENT_MODE));
 
                 return Ok(new EmendamentiViewModel
                 {
@@ -168,13 +131,12 @@ namespace PortaleRegione.API.Controllers
                         Request.RequestUri),
                     Atto = Mapper.Map<ATTI, AttiDto>(atto),
                     Mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
-                    CurrentUser = persona
+                    CurrentUser = user
                 });
-
             }
             catch (Exception e)
             {
-                Log.Error("GetEmendamenti", e);
+                //Log.Error("GetEmendamenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -191,13 +153,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var response = ResponseMessage(await _logicEm.Download(path));
+                var response = ResponseMessage(await _emendamentiLogic.Download(path));
 
                 return response;
             }
             catch (Exception e)
             {
-                Log.Error("Download Allegato EM", e);
+                //Log.Error("Download Allegato EM", e);
                 return ErrorHandler(e);
             }
         }
@@ -214,25 +176,20 @@ namespace PortaleRegione.API.Controllers
             //TODO: implementare i controlli anche sull'atto
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
-                var result = await _logicEm.GetEM_DTO(em, atto, persona, personeInDbLight);
+                var result = await _emendamentiLogic.GetEM_DTO(em, atto, CurrentUser);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetEmendamento", e);
+                //Log.Error("GetEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -253,20 +210,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atti = await _logicAtti.GetAtto(id);
+                var atti = await _attiLogic.GetAtto(id);
                 if (atti == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var result = await _logicEm.ModelloNuovoEM(atti, em_riferimentoUId, persona);
+                var result = await _emendamentiLogic.ModelloNuovoEM(atti, em_riferimentoUId, CurrentUser);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetNuovoEmendamento", e);
+                //Log.Error("GetNuovoEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -286,21 +241,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var countFirme = await _logicFirme.CountFirme(id);
+                var countFirme = await _firmeLogic.CountFirme(id);
                 if (countFirme > 1)
                 {
                     return BadRequest(
                         $"Non è possibile modificare l'emendamento. Ci sono ancora {countFirme} firme attive.");
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                return Ok(await _logicEm.ModelloModificaEM(await _logicEm.GetEM(id), persona));
+                return Ok(await _emendamentiLogic.ModelloModificaEM(await _emendamentiLogic.GetEM(id), CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetModificaEmendamento", e);
+                //Log.Error("GetModificaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -375,18 +327,16 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var isGiunta = model.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID;
-                var proponente = await _logicPersone.GetPersona(model.UIDPersonaProponente, isGiunta);
+                var proponente = await _personeLogic.GetPersona(model.UIDPersonaProponente, isGiunta);
 
-                var em = await _logicEm.NuovoEmendamento(model, proponente, isGiunta);
+                var em = await _emendamentiLogic.NuovoEmendamento(model, proponente);
 
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                return Ok(await _logicEm.GetEM_DTO(em.UIDEM, atto, null, personeInDbLight));
+                return Ok(await _emendamentiLogic.GetEM_DTO(em.UIDEM, atto, null));
             }
             catch (Exception e)
             {
-                Log.Error("NuovoEmendamento", e);
+                //Log.Error("NuovoEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -407,18 +357,17 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(model.UIDEM);
+                var em = await _emendamentiLogic.GetEM(model.UIDEM);
 
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                if (!persona.IsSegreteriaAssemblea)
+                var user = CurrentUser;
+                if (!user.IsSegreteriaAssemblea)
                 {
-                    var countFirme = await _logicFirme.CountFirme(model.UIDEM);
+                    var countFirme = await _firmeLogic.CountFirme(model.UIDEM);
                     if (countFirme > 1)
                     {
                         return BadRequest(
@@ -426,13 +375,13 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                await _logicEm.ModificaEmendamento(model, em, persona);
+                await _emendamentiLogic.ModificaEmendamento(model, em, user);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ModificaEmendamento", e);
+                //Log.Error("ModificaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -448,28 +397,25 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var countFirme = await _logicFirme.CountFirme(id);
+                var countFirme = await _firmeLogic.CountFirme(id);
                 if (countFirme > 0)
                 {
                     throw new InvalidOperationException("L'emendamento ha delle firme attive e non può essere eliminato");
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                await _logicEm.DeleteEmendamento(em, persona);
+                await _emendamentiLogic.DeleteEmendamento(em, CurrentUser);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("DeleteEmendamento", e);
+                //Log.Error("DeleteEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -486,15 +432,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                var result = await _logicEm.GetEM_ByProietta(id, ordine, persona);
+                var result = await _emendamentiLogic.GetEM_ByProietta(id, ordine, CurrentUser);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("ProiettaEmendamento", e);
+                //Log.Error("ProiettaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -510,15 +454,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                var result = await _logicEm.GetEM_LiveProietta(id, persona);
+                var result = await _emendamentiLogic.GetEM_LiveProietta(id, CurrentUser);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("ProiettaEmendamento", e);
+                //Log.Error("ProiettaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -535,20 +477,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                await _logicEm.Proietta(em, session._currentUId);
+                await _emendamentiLogic.Proietta(em, Session._currentUId);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ProiettaEmendamento", e);
+                //Log.Error("ProiettaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -564,18 +505,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var result = await _logicFirme.GetFirme(em, tipo);
+                var result = await _firmeLogic.GetFirme(em, tipo);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatari", e);
+                //Log.Error("GetFirmatari", e);
                 return ErrorHandler(e);
             }
         }
@@ -590,18 +531,18 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var result = await _logicEm.GetInvitati(em);
+                var result = await _emendamentiLogic.GetInvitati(em);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetInvitati", e);
+                //Log.Error("GetInvitati", e);
                 return ErrorHandler(e);
             }
         }
@@ -617,26 +558,23 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(model.Id);
+                var em = await _emendamentiLogic.GetEM(model.Id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                var body = await _logicEm.GetBodyEM(em
+                var firme = await _firmeLogic.GetFirme(em, FirmeTipoEnum.TUTTE);
+                var body = await _emendamentiLogic.GetBodyEM(em
                     , firme
-                    , persona
-                    , model.Template
-                    , model.IsDeposito);
+                    , CurrentUser
+                    , model.Template);
 
                 return Ok(body);
             }
             catch (Exception e)
             {
-                Log.Error("GetBody", e);
+                //Log.Error("GetBody", e);
                 return ErrorHandler(e);
             }
         }
@@ -652,13 +590,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var body = await _logicEm.GetCopertina(model);
+                var body = await _emendamentiLogic.GetCopertina(model);
 
                 return Ok(body);
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyCopertina", e);
+                //Log.Error("GetBodyCopertina", e);
                 return ErrorHandler(e);
             }
         }
@@ -677,9 +615,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.IsSegreteriaAssemblea;
+                var user = CurrentUser;
+
+                var firmaUfficio = user.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -688,10 +626,10 @@ namespace PortaleRegione.API.Controllers
                         throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _logicEm.Firma(firmaModel, persona, null, true));
+                    return Ok(await _emendamentiLogic.Firma(firmaModel, user, null, true));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
+                var pinInDb = await _personeLogic.GetPin(user);
                 if (pinInDb == null)
                 {
                     throw new InvalidOperationException("Pin non impostato");
@@ -707,11 +645,11 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logicEm.Firma(firmaModel, persona, pinInDb));
+                return Ok(await _emendamentiLogic.Firma(firmaModel, user, pinInDb));
             }
             catch (Exception e)
             {
-                Log.Error("FirmaEmendamento", e);
+                //Log.Error("FirmaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -727,9 +665,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var firmaUfficio = persona.IsSegreteriaAssemblea;
+                var user = CurrentUser;
+
+                var firmaUfficio = user.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -738,10 +676,10 @@ namespace PortaleRegione.API.Controllers
                         throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _logicEm.RitiroFirmaEmendamento(firmaModel, persona));
+                    return Ok(await _emendamentiLogic.RitiroFirmaEmendamento(firmaModel, user));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
+                var pinInDb = await _personeLogic.GetPin(user);
                 if (pinInDb == null)
                 {
                     throw new InvalidOperationException("Pin non impostato");
@@ -757,11 +695,11 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logicEm.RitiroFirmaEmendamento(firmaModel, persona));
+                return Ok(await _emendamentiLogic.RitiroFirmaEmendamento(firmaModel, user));
             }
             catch (Exception e)
             {
-                Log.Error("RitiroFirmaEmendamento", e);
+                //Log.Error("RitiroFirmaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -777,10 +715,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
+                var user = CurrentUser;
 
-                var firmaUfficio = persona.IsSegreteriaAssemblea;
+                var firmaUfficio = user.IsSegreteriaAssemblea;
 
                 if (firmaUfficio)
                 {
@@ -789,10 +726,10 @@ namespace PortaleRegione.API.Controllers
                         throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
+                    return Ok(await _emendamentiLogic.EliminaFirmaEmendamento(firmaModel, user));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
+                var pinInDb = await _personeLogic.GetPin(user);
                 if (pinInDb == null)
                 {
                     throw new InvalidOperationException("Pin non impostato");
@@ -808,11 +745,11 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logicEm.EliminaFirmaEmendamento(firmaModel, persona));
+                return Ok(await _emendamentiLogic.EliminaFirmaEmendamento(firmaModel, user));
             }
             catch (Exception e)
             {
-                Log.Error("EliminaFirmaEmendamento", e);
+                //Log.Error("EliminaFirmaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -834,9 +771,9 @@ namespace PortaleRegione.API.Controllers
                         "E' in corso un'altra operazione di deposito. Riprova tra qualche secondo.");
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var depositoUfficio = persona.IsSegreteriaAssemblea;
+                var user = CurrentUser;
+
+                var depositoUfficio = user.IsSegreteriaAssemblea;
 
                 if (depositoUfficio)
                 {
@@ -845,10 +782,10 @@ namespace PortaleRegione.API.Controllers
                         throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _logicEm.DepositaEmendamento(depositoModel, persona));
+                    return Ok(await _emendamentiLogic.DepositaEmendamento(depositoModel, user));
                 }
 
-                var pinInDb = await _logicPersone.GetPin(persona);
+                var pinInDb = await _personeLogic.GetPin(user);
                 if (pinInDb == null)
                 {
                     throw new InvalidOperationException("Pin non impostato");
@@ -864,11 +801,11 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _logicEm.DepositaEmendamento(depositoModel, persona));
+                return Ok(await _emendamentiLogic.DepositaEmendamento(depositoModel, user));
             }
             catch (Exception e)
             {
-                Log.Error("DepositaEmendamento", e);
+                //Log.Error("DepositaEmendamento", e);
                 return ErrorHandler(e);
             }
             finally
@@ -888,29 +825,26 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var atto = await _logicAtti.GetAtto(em.UIDAtto);
+                var atto = await _attiLogic.GetAtto(em.UIDAtto);
                 if (DateTime.Now > atto.SEDUTE.Data_seduta)
                 {
                     return BadRequest(
                         "Non è possibile ritirare l'emendamento durante lo svolgimento della seduta: annuncia in Aula l'intenzione di ritiro");
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-
-                await _logicEm.RitiraEmendamento(em, persona);
+                await _emendamentiLogic.RitiraEmendamento(em, CurrentUser);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("RitiraEmendamento", e);
+                //Log.Error("RitiraEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -926,27 +860,26 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var firmatari = await _logicFirme.GetFirme(em, FirmeTipoEnum.ATTIVI);
+                var firmatari = await _firmeLogic.GetFirme(em, FirmeTipoEnum.ATTIVI);
                 var firmatari_attivi = firmatari.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
                 if (firmatari_attivi.Any())
                 {
                     throw new InvalidOperationException("L'emendamento ha delle firme attive e non può essere eliminato");
                 }
 
-                var session = GetSession();
-                await _logicEm.EliminaEmendamento(em, session._currentUId);
+                await _emendamentiLogic.EliminaEmendamento(em, Session._currentUId);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("EliminaEmendamento", e);
+                //Log.Error("EliminaEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -962,13 +895,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                return Ok(await _logicEm.ModelloModificaEM(await _logicEm.GetEM(id), persona));
+                return Ok(await _emendamentiLogic.ModelloModificaEM(await _emendamentiLogic.GetEM(id), CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("GetModificaMetaDatiEmendamento", e);
+                //Log.Error("GetModificaMetaDatiEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -985,24 +916,20 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _logicEm.GetEM(model.UIDEM);
+                var em = await _emendamentiLogic.GetEM(model.UIDEM);
 
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-
-                await _logicEm.ModificaMetaDatiEmendamento(model, em, persona);
+                await _emendamentiLogic.ModificaMetaDatiEmendamento(model, em, CurrentUser);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ModificaMetaDatiEmendamento", e);
+                //Log.Error("ModificaMetaDatiEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -1019,14 +946,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-                return Ok(await _logicEm.ModificaStatoEmendamento(model, persona));
+                return Ok(await _emendamentiLogic.ModificaStatoEmendamento(model, CurrentUser));
             }
             catch (Exception e)
             {
-                Log.Error("ModificaStatoEmendamento", e);
+                //Log.Error("ModificaStatoEmendamento", e);
                 return ErrorHandler(e);
             }
         }
@@ -1047,7 +971,7 @@ namespace PortaleRegione.API.Controllers
 
                 foreach (var idGuid in model.Lista)
                 {
-                    var em = await _logicEm.GetEM(idGuid);
+                    var em = await _emendamentiLogic.GetEM(idGuid);
                     if (em == null)
                     {
                         results.Add(idGuid, "ERROR: NON TROVATO");
@@ -1061,7 +985,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    await _logicEm.AssegnaNuovoProponente(em, model);
+                    await _emendamentiLogic.AssegnaNuovoProponente(em, model);
                     results.Add(idGuid, "OK");
                 }
 
@@ -1069,7 +993,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("AssegnaNuovoPorponente", e);
+                //Log.Error("AssegnaNuovoPorponente", e);
                 return ErrorHandler(e);
             }
         }
@@ -1090,14 +1014,14 @@ namespace PortaleRegione.API.Controllers
 
                 foreach (var idGuid in model.Lista)
                 {
-                    var em = await _logicEm.GetEM(idGuid);
+                    var em = await _emendamentiLogic.GetEM(idGuid);
                     if (em == null)
                     {
                         results.Add(idGuid, "ERROR: NON TROVATO");
                         continue;
                     }
 
-                    await _logicEm.RaggruppaEmendamento(em, model.Colore);
+                    await _emendamentiLogic.RaggruppaEmendamento(em, model.Colore);
                     results.Add(idGuid, "OK");
                 }
 
@@ -1105,7 +1029,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("RaggruppaEmendamenti", e);
+                //Log.Error("RaggruppaEmendamenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -1122,13 +1046,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logicEm.ORDINA_EM_TRATTAZIONE(id);
+                await _emendamentiLogic.ORDINA_EM_TRATTAZIONE(id);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ORDINA_EM_TRATTAZIONE", e);
+                //Log.Error("ORDINA_EM_TRATTAZIONE", e);
                 return ErrorHandler(e);
             }
         }
@@ -1145,17 +1069,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session._currentUId);
-                persona.CurrentRole = session._currentRole;
-
-                await _logicEm.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id, persona);
+                await _emendamentiLogic.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id, CurrentUser);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ORDINA_EM_TRATTAZIONE", e);
+                //Log.Error("ORDINA_EM_TRATTAZIONE", e);
                 return ErrorHandler(e);
             }
         }
@@ -1172,13 +1092,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logicEm.UP_EM_TRATTAZIONE(id);
+                await _emendamentiLogic.UP_EM_TRATTAZIONE(id);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("UP_EM_TRATTAZIONE", e);
+                //Log.Error("UP_EM_TRATTAZIONE", e);
                 return ErrorHandler(e);
             }
         }
@@ -1195,13 +1115,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logicEm.DOWN_EM_TRATTAZIONE(id);
+                await _emendamentiLogic.DOWN_EM_TRATTAZIONE(id);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("DOWN_EM_TRATTAZIONE", e);
+                //Log.Error("DOWN_EM_TRATTAZIONE", e);
                 return ErrorHandler(e);
             }
         }
@@ -1219,13 +1139,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logicEm.SPOSTA_EM_TRATTAZIONE(id, pos);
+                await _emendamentiLogic.SPOSTA_EM_TRATTAZIONE(id, pos);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("SPOSTA_EM_TRATTAZIONE", e);
+                //Log.Error("SPOSTA_EM_TRATTAZIONE", e);
                 return ErrorHandler(e);
             }
         }
@@ -1240,11 +1160,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.GetPartiEM());
+                return Ok(await _emendamentiLogic.GetPartiEM());
             }
             catch (Exception e)
             {
-                Log.Error("GetPartiEM", e);
+                //Log.Error("GetPartiEM", e);
                 return ErrorHandler(e);
             }
         }
@@ -1259,11 +1179,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.GetTipiEM());
+                return Ok(await _emendamentiLogic.GetTipiEM());
             }
             catch (Exception e)
             {
-                Log.Error("GetTipiEM", e);
+                //Log.Error("GetTipiEM", e);
                 return ErrorHandler(e);
             }
         }
@@ -1278,11 +1198,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.GetTags());
+                return Ok(await _emendamentiLogic.GetTags());
             }
             catch (Exception e)
             {
-                Log.Error("GetTags", e);
+                //Log.Error("GetTags", e);
                 return ErrorHandler(e);
             }
         }
@@ -1293,26 +1213,24 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("file")]
+        [Route("file-immediato")]
         public async Task<IHttpActionResult> Download(Guid id)
         {
             try
             {
-                var em = await _logicEm.GetEM(id);
+                var em = await _emendamentiLogic.GetEM(id);
                 if (em == null)
                 {
                     return NotFound();
                 }
 
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var response = ResponseMessage(await _logicEm.DownloadPDFIstantaneo(em, persona));
+                var response = ResponseMessage(await _emendamentiLogic.DownloadPDFIstantaneo(em, CurrentUser));
 
                 return response;
             }
             catch (Exception e)
             {
-                Log.Error("Download", e);
+                //Log.Error("Download", e);
                 return ErrorHandler(e);
             }
         }
@@ -1328,11 +1246,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.GetMissioni());
+                return Ok(await _emendamentiLogic.GetMissioni());
             }
             catch (Exception e)
             {
-                Log.Error("GetMissioni", e);
+                //Log.Error("GetMissioni", e);
                 return ErrorHandler(e);
             }
         }
@@ -1347,11 +1265,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.GetTitoliMissioni());
+                return Ok(await _emendamentiLogic.GetTitoliMissioni());
             }
             catch (Exception e)
             {
-                Log.Error("GetTitoliMissioni", e);
+                //Log.Error("GetTitoliMissioni", e);
                 return ErrorHandler(e);
             }
         }
@@ -1366,13 +1284,42 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicEm.GetStatiEM());
+                return Ok(await _emendamentiLogic.GetStatiEM());
             }
             catch (Exception e)
             {
-                Log.Error("GetStatiEM", e);
+                //Log.Error("GetStatiEM", e);
                 return ErrorHandler(e);
             }
+        }
+
+        /// <summary>
+        ///     Costruttore
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public EmendamentiController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+        {
         }
     }
 }

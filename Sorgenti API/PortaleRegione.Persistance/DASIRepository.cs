@@ -296,7 +296,7 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<bool> CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona)
+        public bool CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona)
         {
             if (!string.IsNullOrEmpty(dto.DataPresentazione)) return false;
 
@@ -663,10 +663,13 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<ATTI_DASI>> GetProposteAtti(int gruppoId, TipoAttoEnum tipo, TipoMOZEnum tipoMoz)
         {
+            //Matteo Cattapan #460
+            //Aggiunta clausola per rimuovere gli atti in stato "CHIUSO"
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
                                                      && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.RITIRATO
                                                      && atto.IDStato_Motivazione != (int)MotivazioneStatoAttoEnum.DECADUTO);
 
@@ -736,7 +739,8 @@ namespace PortaleRegione.Persistance
                             && (i.UIDSeduta == seduta.UIDSeduta
                              || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
-                            && i.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                            && i.TipoMOZ == (int)TipoMOZEnum.URGENTE
+                            && !i.MOZU_Capigruppo)
                 .ToListAsync();
 
             foreach (var attiDasi in atti_proposti_in_seduta)
@@ -754,14 +758,22 @@ namespace PortaleRegione.Persistance
 
         public async Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto)
         {
+            //Matteo Cattapan #501
+            //Vengono controllati tutti i capigruppo presenti nella vista View_CAPIGRUPPO
+            //Nel caso non sia presente la firma di uno dei capigruppo viene restituito FALSE
             var firme = await PRContext.ATTI_FIRME.Where(i => i.UIDAtto == uidAtto && string.IsNullOrEmpty(i.Data_ritirofirma)).ToListAsync();
-            if (!firme.All(i => i.Capogruppo))
-            {
-                return false;
-            }
-
             var capigruppo = await PRContext.View_CAPIGRUPPO.ToListAsync();
-            return capigruppo.Count == firme.Count;
+
+            foreach (var capogruppo in capigruppo)
+            {
+                var firma_capogruppo_presente = firme.FirstOrDefault(firma => firma.UID_persona == capogruppo.UID_persona);
+                if (firma_capogruppo_presente == null)
+                {
+                    return false;
+                }
+
+            }
+            return true;
         }
     }
 }

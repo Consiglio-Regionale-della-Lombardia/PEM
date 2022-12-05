@@ -215,6 +215,7 @@
     }
 
     function LoadMetaDati_AreaPolitica(em) {
+        console.log("Area Politica", em.AreaPolitica)
         $("#ddlAreaPolitica").children('[value="' + em.AreaPolitica + '"]').prop('selected', true);
         $('#ddlAreaPolitica').formSelect();
 

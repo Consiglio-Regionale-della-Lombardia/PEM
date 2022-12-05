@@ -19,10 +19,10 @@
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -36,20 +36,6 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("stampe")]
     public class StampeController : BaseApiController
     {
-        private readonly StampeLogic _logic;
-        private readonly PersoneLogic _logicPersone;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logic"></param>
-        /// <param name="logicPersone"></param>
-        public StampeController(StampeLogic logic, PersoneLogic logicPersone)
-        {
-            _logic = logic;
-            _logicPersone = logicPersone;
-        }
-
         /// <summary>
         ///     Endpoint per il riepilogo delle stampe
         /// </summary>
@@ -61,14 +47,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                var result = await _logic.GetStampe(model, persona, Request.RequestUri);
+                var result = await _stampeLogic.GetStampe(model, CurrentUser, Request.RequestUri);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetStampe", e);
+                //Log.Error("GetStampe", e);
                 return ErrorHandler(e);
             }
         }
@@ -84,12 +68,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetStampa(id);
+                var result = await _stampeLogic.GetStampa(id);
                 return Ok(Mapper.Map<STAMPE, StampaDto>(result));
             }
             catch (Exception e)
             {
-                Log.Error("GetStampa", e);
+                //Log.Error("GetStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -105,18 +89,16 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                await _logic.InserisciStampa(model, persona);
+                await _stampeLogic.InserisciStampa(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("InserisciStampaDifferita", e);
+                //Log.Error("InserisciStampaDifferita", e);
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per accodare una stampa DASI
         /// </summary>
@@ -128,14 +110,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var persona = await _logicPersone.GetPersona(session);
-                await _logic.InserisciStampa(model, persona);
+                await _stampeLogic.InserisciStampa(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("InserisciStampaDifferita DASI", e);
+                //Log.Error("InserisciStampaDifferita DASI", e);
                 return ErrorHandler(e);
             }
         }
@@ -152,19 +132,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var stampa = await _logic.GetStampa(id);
+                var stampa = await _stampeLogic.GetStampa(id);
                 if (stampa == null)
                 {
                     return NotFound();
                 }
 
-                var response = ResponseMessage(await _logic.DownloadStampa(stampa));
+                var response = ResponseMessage(await _stampeLogic.DownloadStampa(stampa));
 
                 return response;
             }
             catch (Exception e)
             {
-                Log.Error("DownloadStampa", e);
+                //Log.Error("DownloadStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -180,23 +160,23 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var stampa = await _logic.GetStampa(id);
+                var stampa = await _stampeLogic.GetStampa(id);
                 if (stampa == null)
                 {
                     return NotFound();
                 }
 
-                await _logic.EliminaStampa(stampa);
+                await _stampeLogic.EliminaStampa(stampa);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("EliminaStampa", e);
+                //Log.Error("EliminaStampa", e);
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per resettare la stampa in caso sia andata in errore
         /// </summary>
@@ -208,19 +188,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var stampa = await _logic.GetStampa(id);
+                var stampa = await _stampeLogic.GetStampa(id);
                 if (stampa == null)
                 {
                     return NotFound();
                 }
 
-                await _logic.ResetStampa(stampa);
+                await _stampeLogic.ResetStampa(stampa);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ResetStampa", e);
+                //Log.Error("ResetStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -237,19 +217,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var stampa = await _logic.GetStampa(id);
+                var stampa = await _stampeLogic.GetStampa(id);
                 if (stampa == null)
                 {
                     return NotFound();
                 }
 
-                await _logic.AddInfo(stampa, message);
+                await _stampeLogic.AddInfo(stampa, message);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("Add info Stampa", e);
+                //Log.Error("Add info Stampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -265,19 +245,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var stampa = await _logic.GetStampa(id);
+                var stampa = await _stampeLogic.GetStampa(id);
                 if (stampa == null)
                 {
                     return NotFound();
                 }
 
-                var result = await _logic.GetInfo(stampa);
+                var result = await _stampeLogic.GetInfo(stampa);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("Get info Stampa", e);
+                //Log.Error("Get info Stampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -292,15 +272,44 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetInfo();
+                var result = await _stampeLogic.GetInfo();
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("Get info Stampa", e);
+                //Log.Error("Get info Stampa", e);
                 return ErrorHandler(e);
             }
+        }
+
+        /// <summary>
+        ///     Costruttore
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public StampeController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
+        {
         }
     }
 }

@@ -3,6 +3,12 @@
 @model System.Collections.Generic.List<ExpressionBuilder.Generics.FilterStatement<PortaleRegione.DTO.Domain.PersonaDto>>
 
 <script>
+    
+    $(document).ready(async function () {
+        await loadLegislature();
+        await loadGruppi();
+        loadRuoli();
+    });
 
     async function loadLegislature() {
         var currentFilter = @Html.Raw(JsonConvert.SerializeObject(Model.Where(f=> f.PropertyId == nameof(PersonaDto.legislature))));
@@ -150,11 +156,28 @@
         $('#txtDisplayNamePersonaPassword').text(displayName);
         $('#modalResetPassword').modal('open');
     }
+    
+    function openSearch() {
+        var elems = document.querySelector("#slide-out-DX");
+        var instances = M.Sidenav.init(elems,
+            {
+                edge: "right",
+                draggable: true,
+                onOpenStart: function () {
+                    // Menu laterale SX sotto a layer opaco
+                    $("#slide-out").css("z-index", 997);
+                },
+                onCloseEnd: function () {
+                    // Ripristino menu laterale SX
+                    $("#slide-out").css("z-index", 999);
+                }
+            });
 
-    $(document).ready(async function() {
-        await loadLegislature();
-        await loadGruppi();
-        loadRuoli();
+        instances.open();
+    }
+
+    $('#btnSearch').on("click", async function () {
+        openSearch();
     });
 
     function filtra() {

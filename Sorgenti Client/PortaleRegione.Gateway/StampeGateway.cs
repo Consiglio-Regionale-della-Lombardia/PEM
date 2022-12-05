@@ -21,7 +21,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -48,12 +48,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("InserisciStampa", ex);
+                //Log.Error("InserisciStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("InserisciStampa", ex);
+                //Log.Error("InserisciStampa", ex);
                 throw ex;
             }
         }
@@ -69,12 +69,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("InserisciStampa", ex);
+                //Log.Error("InserisciStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("InserisciStampa", ex);
+                //Log.Error("InserisciStampa", ex);
                 throw ex;
             }
         }
@@ -88,12 +88,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("EliminaStampa", ex);
+                //Log.Error("EliminaStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("EliminaStampa", ex);
+                //Log.Error("EliminaStampa", ex);
                 throw ex;
             }
         }
@@ -106,12 +106,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("ResetStampa", ex);
+                //Log.Error("ResetStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("ResetStampa", ex);
+                //Log.Error("ResetStampa", ex);
                 throw ex;
             }
         }
@@ -135,12 +135,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetStampe", ex);
+                //Log.Error("GetStampe", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetStampe", ex);
+                //Log.Error("GetStampe", ex);
                 throw ex;
             }
         }
@@ -156,12 +156,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetStampa", ex);
+                //Log.Error("GetStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetStampa", ex);
+                //Log.Error("GetStampa", ex);
                 throw ex;
             }
         }
@@ -175,12 +175,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("Add info Stampa", ex);
+                //Log.Error("Add info Stampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("Add info Stampa", ex);
+                //Log.Error("Add info Stampa", ex);
                 throw ex;
             }
         }
@@ -196,12 +196,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetInfoStampa", ex);
+                //Log.Error("GetInfoStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetInfoStampa", ex);
+                //Log.Error("GetInfoStampa", ex);
                 throw ex;
             }
         }
@@ -217,12 +217,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetInfoStampe", ex);
+                //Log.Error("GetInfoStampe", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetInfoStampe", ex);
+                //Log.Error("GetInfoStampe", ex);
                 throw ex;
             }
         }
@@ -244,12 +244,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobGetDASI", ex);
+                //Log.Error("JobGetDASI", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobGetDASI", ex);
+                //Log.Error("JobGetDASI", ex);
                 throw ex;
             }
         }
@@ -273,12 +273,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobGetStampe", ex);
+                //Log.Error("JobGetStampe", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobGetStampe", ex);
+                //Log.Error("JobGetStampe", ex);
                 throw ex;
             }
         }
@@ -296,12 +296,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobUnLockStampa", ex);
+                //Log.Error("JobUnLockStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobUnLockStampa", ex);
+                //Log.Error("JobUnLockStampa", ex);
                 throw ex;
             }
         }
@@ -320,12 +320,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobErrorStampa", ex);
+                //Log.Error("JobErrorStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobErrorStampa", ex);
+                //Log.Error("JobErrorStampa", ex);
                 throw ex;
             }
         }
@@ -340,12 +340,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobUpdateFileStampa", ex);
+                //Log.Error("JobUpdateFileStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobUpdateFileStampa", ex);
+                //Log.Error("JobUpdateFileStampa", ex);
                 throw ex;
             }
         }
@@ -360,12 +360,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobSetInvioStampa", ex);
+                //Log.Error("JobSetInvioStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobSetInvioStampa", ex);
+                //Log.Error("JobSetInvioStampa", ex);
                 throw ex;
             }
         }
@@ -388,12 +388,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("JobGetEmendamenti", ex);
+                //Log.Error("JobGetEmendamenti", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("JobGetEmendamenti", ex);
+                //Log.Error("JobGetEmendamenti", ex);
                 throw ex;
             }
         }
@@ -410,12 +410,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("DownloadStampa", ex);
+                //Log.Error("DownloadStampa", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("DownloadStampa", ex);
+                //Log.Error("DownloadStampa", ex);
                 throw ex;
             }
         }

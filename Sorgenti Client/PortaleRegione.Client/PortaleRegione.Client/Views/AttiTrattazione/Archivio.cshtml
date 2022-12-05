@@ -62,7 +62,7 @@
                             }
                         </div>
                         <div class="col s2">
-                            <a class="btn-floating green" onclick="go('@Url.Action("Index", "AttiTrattazione", new {id = seduta.UIDSeduta})')" title="Riepilogo atti">
+                            <a class="btn-floating green" onclick="go('@Url.Action("Index", "AttiTrattazione", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
@@ -75,6 +75,39 @@
 
 @{
     Html.RenderPartial("_SeduteFiltri", Model.Paging);
-    Html.RenderPartial("_SeduteScript", Model.Filters);
 }
-}
+
+<script>
+$(document).ready(function() {
+        var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
+        if (filters == 0)
+            set_Filtri_Sedute({});
+
+        Filtri_Sedute_CaricaLegislature("filter_sedute_legislature");
+        Filtri_Sedute_CaricaAnni("filter_sedute_anno");
+        Filtri_Sedute_CaricaDa("filter_sedute_da");
+        Filtri_Sedute_CaricaA("filter_sedute_a");
+
+        $('#btnSearch').on("click",
+            function() {
+                openSearch();
+            });
+    });
+    
+    function filtra() {
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        },
+            200);
+        $('#formFiltraSedute').submit();
+    }
+
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        },
+            200);
+        $('#formFiltraSedute').submit();
+    }
+</script>

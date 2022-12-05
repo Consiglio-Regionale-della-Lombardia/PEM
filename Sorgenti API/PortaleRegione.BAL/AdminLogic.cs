@@ -27,7 +27,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,10 +37,6 @@ namespace PortaleRegione.BAL
 {
     public class AdminLogic : BaseLogic
     {
-        private readonly PersoneLogic _logicPersona;
-        private readonly UtilsLogic _logicUtil;
-        private readonly IUnitOfWork _unitOfWork;
-
         public AdminLogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
@@ -93,7 +88,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetPersoneIn_DB", e);
+                //Log.Error("Logic - GetPersoneIn_DB", e);
                 throw e;
             }
         }
@@ -136,7 +131,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetPersoneIn_DB_ByGiunta", e);
+                //Log.Error("Logic - GetPersoneIn_DB_ByGiunta", e);
                 throw e;
             }
         }
@@ -174,8 +169,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception)
             {
-                var result_vuoto = new List<string>();
-                result_vuoto.Add("");
+                var result_vuoto = new List<string> { "" };
                 return result_vuoto;
             }
         }
@@ -213,7 +207,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - CountAll", e);
+                //Log.Error("Logic - CountAll", e);
                 throw e;
             }
         }
@@ -251,7 +245,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - CountAllByGiunta", e);
+                //Log.Error("Logic - CountAllByGiunta", e);
                 throw e;
             }
         }
@@ -290,7 +284,7 @@ namespace PortaleRegione.BAL
         public async Task ResetPin(ResetRequest request)
         {
             await _unitOfWork.Persone.SavePin(request.persona_UId
-                , EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
+                , BALHelper.EncryptString(request.new_value, AppSettingsConfiguration.masterKey)
                 , true);
             await _unitOfWork.CompleteAsync();
         }
@@ -432,9 +426,8 @@ namespace PortaleRegione.BAL
 
                 var results = new List<PersonaDto>();
                 var persone_In_Db = new List<PersonaDto>();
-                var counter = 0;
 
-                counter = await Count(model, persona);
+                var counter = await Count(model, persona);
                 persone_In_Db.AddRange(await GetPersoneIn_DB(model, persona));
 
                 foreach (var persona_in_db in persone_In_Db)
@@ -475,7 +468,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<List<AdminGruppiModel>> GetGruppi(BaseRequest<GruppiDto> model, Uri url)
+        public async Task<List<AdminGruppiModel>> GetGruppi(BaseRequest<GruppiDto> model)
         {
             try
             {
@@ -487,7 +480,7 @@ namespace PortaleRegione.BAL
                 {
                     var gruppoModel = new AdminGruppiModel
                     {
-                        Gruppo = gruppiDto,
+                        Gruppo = gruppiDto
                     };
 
                     var users_ad = intranetAdService.GetUser_in_Group(gruppiDto.GruppoAD.Replace(@"CONSIGLIO\", ""),
@@ -542,7 +535,7 @@ namespace PortaleRegione.BAL
                     //NUOVO
 
                     //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
-                    string autoPassword = _logicUtil.GenerateRandomCode();
+                    var autoPassword = _logicUtil.GenerateRandomCode();
                     intranetAdService.CreatePEMADUser(
                         request.userAD,
                         autoPassword,
@@ -586,7 +579,7 @@ namespace PortaleRegione.BAL
                             }
                             catch (Exception e)
                             {
-                                Log.Error($"Add - {item.GruppoAD}", e);
+                                //Log.Error($"Add - {item.GruppoAD}", e);
                             }
                         }
                         else
@@ -602,7 +595,7 @@ namespace PortaleRegione.BAL
                             }
                             catch (Exception e)
                             {
-                                Log.Error($"Remove - {item.GruppoAD}", e);
+                                //Log.Error($"Remove - {item.GruppoAD}", e);
                             }
                         }
                     }
@@ -613,7 +606,7 @@ namespace PortaleRegione.BAL
                         if (request.no_Cons == 1)
                         {
                             //Consigliere/Assessore
-                            UTENTI_NoCons persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
+                            var persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
                             persona.nome = request.nome;
                             persona.cognome = request.cognome;
                             persona.email = request.email;
@@ -632,7 +625,7 @@ namespace PortaleRegione.BAL
                     }
                     catch (Exception e)
                     {
-                        Log.Error($"Salvataggio", e);
+                        //Log.Error($"Salvataggio", e);
                         throw;
                     }
                 }
@@ -641,7 +634,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error($"SalvaUtente", e);
+                //Log.Error($"SalvaUtente", e);
                 throw e;
             }
         }

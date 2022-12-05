@@ -17,23 +17,23 @@
  */
 
 using AutoMapper;
+using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
+using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
 using QRCoder;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -41,6 +41,43 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
+        internal IUnitOfWork _unitOfWork;
+        internal EmendamentiLogic _logicEm;
+        internal AttiLogic _logicAtti;
+        internal AttiFirmeLogic _logicAttiFirme;
+        internal FirmeLogic _logicFirme;
+        internal PersoneLogic _logicPersona;
+        internal SeduteLogic _logicSedute;
+        internal UtilsLogic _logicUtil;
+        internal DASILogic _logicDasi;
+
+        private readonly MemoryCache memoryCache = MemoryCache.Default;
+
+        internal List<PersonaLightDto> Users
+        {
+            get
+            {
+                if (memoryCache.Contains(BALConstants.USERS_IN_DATABASE))
+                    return memoryCache.Get(BALConstants.USERS_IN_DATABASE) as List<PersonaLightDto>;
+
+                return new List<PersonaLightDto>();
+            }
+            set { memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1)); }
+        }
+
+
+        internal void GetUsersInDb()
+        {
+            if (Users.Any())
+                return;
+            var task_op = Task.Run(async () => await _unitOfWork.Persone.GetAll());
+            var personeInDb = task_op.Result;
+            var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
+
+            Users = personeInDbLight;
+        }
+
+
         internal string ByteArrayToFile(byte[] byteArray)
         {
             try
@@ -84,7 +121,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal async Task<HttpResponseMessage> ComposeFileResponse(byte[] content, string filename)
+        internal HttpResponseMessage ComposeFileResponse(byte[] content, string filename)
         {
             var result = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -117,7 +154,7 @@ namespace PortaleRegione.BAL
                 {
                     //EMENDAMENTO
                     if (!string.IsNullOrEmpty(emendamento.N_EM))
-                        result = "EM " + DecryptString(emendamento.N_EM, AppSettingsConfiguration.masterKey);
+                        result = "EM " + BALHelper.DecryptString(emendamento.N_EM, AppSettingsConfiguration.masterKey);
                     else
                         result = "TEMP " + emendamento.Progressivo;
                 }
@@ -126,7 +163,8 @@ namespace PortaleRegione.BAL
                     //SUB EMENDAMENTO
 
                     if (!string.IsNullOrEmpty(emendamento.N_SUBEM))
-                        result = "SUBEM " + DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
+                        result = "SUBEM " +
+                                 BALHelper.DecryptString(emendamento.N_SUBEM, AppSettingsConfiguration.masterKey);
                     else
                         result = "SUBEM TEMP " + emendamento.SubProgressivo;
 
@@ -137,7 +175,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetNomeEM", e);
+                //Log.Error("GetNomeEM", e);
                 throw e;
             }
         }
@@ -151,7 +189,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetNomeEM", e);
+                //Log.Error("GetNomeEM", e);
                 throw e;
             }
         }
@@ -164,7 +202,7 @@ namespace PortaleRegione.BAL
 
                 if (!string.IsNullOrEmpty(nAtto))
                 {
-                    result = DecryptString(nAtto, AppSettingsConfiguration.masterKey);
+                    result = BALHelper.DecryptString(nAtto, AppSettingsConfiguration.masterKey);
                     if (result.Contains("_")) result = result.Split('_')[1];
                 }
                 else
@@ -176,7 +214,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetNome - DASI", e);
+                //Log.Error("GetNome - DASI", e);
                 throw e;
             }
         }
@@ -199,46 +237,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatariEM", e);
-                throw e;
-            }
-        }
-
-        internal static string EncryptString(string InString, string Key)
-        {
-            try
-            {
-                byte[] Results;
-                var UTF8 = new UTF8Encoding();
-
-                var HashProvider = new MD5CryptoServiceProvider();
-                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key));
-
-                var TDESAlgorithm = new TripleDESCryptoServiceProvider
-                {
-                    Key = TDESKey,
-                    Mode = CipherMode.ECB,
-                    Padding = PaddingMode.PKCS7
-                };
-
-                var DataToEncrypt = UTF8.GetBytes(InString);
-
-                try
-                {
-                    var Encryptor = TDESAlgorithm.CreateEncryptor();
-                    Results = Encryptor.TransformFinalBlock(DataToEncrypt, 0, DataToEncrypt.Length);
-                }
-                finally
-                {
-                    TDESAlgorithm.Clear();
-                    HashProvider.Clear();
-                }
-
-                return Convert.ToBase64String(Results);
-            }
-            catch (Exception e)
-            {
-                Log.Error("EncryptString", e);
+                //Log.Error("GetFirmatariEM", e);
                 throw e;
             }
         }
@@ -309,7 +308,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetTemplate", e);
+                //Log.Error("GetTemplate", e);
                 throw e;
             }
         }
@@ -362,7 +361,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyTemporaneo", e);
+                //Log.Error("GetBodyTemporaneo", e);
                 throw e;
             }
         }
@@ -406,7 +405,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyTemporaneo - DASI", e);
+                //Log.Error("GetBodyTemporaneo - DASI", e);
                 throw e;
             }
         }
@@ -581,7 +580,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyPDF", e);
+                //Log.Error("GetBodyPDF", e);
                 throw e;
             }
         }
@@ -719,21 +718,22 @@ namespace PortaleRegione.BAL
                     var qrCode = new QRCode(qrData);
                     using (var qrCodeImage = qrCode.GetGraphic(20))
                     {
-                        MemoryStream ms = new MemoryStream();
+                        var ms = new MemoryStream();
                         qrCodeImage.Save(ms, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
+                        var byteImage = ms.ToArray();
                         qr_contentString =
                             qr_contentString.Replace("{{DATA}}", Convert.ToBase64String(byteImage));
                     }
 
-                    textQr = $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
+                    textQr =
+                        $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
                 }
 
                 body = body.Replace("{QRCode}", textQr);
             }
             catch (Exception e)
             {
-                Log.Error("GetBody - DASI", e);
+                //Log.Error("GetBody - DASI", e);
                 throw e;
             }
         }
@@ -755,16 +755,9 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetFirmatari - DASI", e);
+                //Log.Error("GetFirmatari - DASI", e);
                 throw e;
             }
-        }
-
-        private static byte[] BitmapToBytes(Bitmap img)
-        {
-            using var stream = new MemoryStream();
-            img.Save(stream, ImageFormat.Png);
-            return stream.ToArray();
         }
 
         internal static void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
@@ -836,65 +829,8 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("GetBodyMail", e);
+                //Log.Error("GetBodyMail", e);
                 throw e;
-            }
-        }
-
-        internal static string Decrypt(string strData, string key = "")
-        {
-            try
-            {
-                key = !string.IsNullOrEmpty(key)
-                    ? DecryptString(key, AppSettingsConfiguration.masterKey)
-                    : AppSettingsConfiguration.masterKey;
-
-                return DecryptString(strData, key);
-            }
-            catch (Exception e)
-            {
-                Log.Error("DecryptString", e);
-                throw e;
-            }
-        }
-
-        private static string DecryptString(string EncryptedString, string Key)
-        {
-            try
-            {
-                byte[] Results;
-                var UTF8 = new UTF8Encoding();
-
-                var HashProvider = new MD5CryptoServiceProvider();
-                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key));
-
-                var TDESAlgorithm = new TripleDESCryptoServiceProvider
-                {
-                    Key = TDESKey,
-                    Mode = CipherMode.ECB,
-                    Padding = PaddingMode.PKCS7
-                };
-
-                var DataToDecrypt = Convert.FromBase64String(EncryptedString);
-
-                try
-                {
-                    var Decryptor = TDESAlgorithm.CreateDecryptor();
-                    Results = Decryptor.TransformFinalBlock(DataToDecrypt, 0, DataToDecrypt.Length);
-                }
-                finally
-                {
-                    TDESAlgorithm.Clear();
-                    HashProvider.Clear();
-                }
-
-                return UTF8.GetString(Results);
-            }
-            catch (Exception e)
-            {
-                Log.Error($"DecryptString {EncryptedString}", e);
-                Console.WriteLine("EM CORROTTO");
-                return "<font style='color:red'>Valore Corrotto</font>";
             }
         }
     }

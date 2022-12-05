@@ -21,7 +21,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -57,7 +57,7 @@ namespace PortaleRegione.Gateway
             }
             catch (Exception ex)
             {
-                Log.Error("Login", ex);
+                //Log.Error("Login", ex);
                 throw ex;
             }
         }
@@ -73,12 +73,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("CambioRuolo", ex);
+                //Log.Error("CambioRuolo", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("CambioRuolo", ex);
+                //Log.Error("CambioRuolo", ex);
                 throw ex;
             }
         }
@@ -94,12 +94,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("CambioGruppo", ex);
+                //Log.Error("CambioGruppo", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("CambioGruppo", ex);
+                //Log.Error("CambioGruppo", ex);
                 throw ex;
             }
         }
@@ -116,12 +116,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetAssessoriRiferimento", ex);
+                //Log.Error("GetAssessoriRiferimento", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetAssessoriRiferimento", ex);
+                //Log.Error("GetAssessoriRiferimento", ex);
                 throw ex;
             }
         }
@@ -140,12 +140,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetRelatori", ex);
+                //Log.Error("GetRelatori", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetRelatori", ex);
+                //Log.Error("GetRelatori", ex);
                 throw ex;
             }
         }
@@ -162,12 +162,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetGruppi", ex);
+                //Log.Error("GetGruppi", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetGruppi", ex);
+                //Log.Error("GetGruppi", ex);
                 throw ex;
             }
         }
@@ -186,12 +186,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetPersona", ex);
+                //Log.Error("GetPersona", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetPersona", ex);
+                //Log.Error("GetPersona", ex);
                 throw ex;
             }
         }
@@ -207,12 +207,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetPersone", ex);
+                //Log.Error("GetPersone", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetPersone", ex);
+                //Log.Error("GetPersone", ex);
                 throw ex;
             }
         }
@@ -229,12 +229,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetRuolo", ex);
+                //Log.Error("GetRuolo", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetPersona", ex);
+                //Log.Error("GetPersona", ex);
                 throw ex;
             }
         }
@@ -250,12 +250,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("CheckPin", ex);
+                //Log.Error("CheckPin", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("CheckPin", ex);
+                //Log.Error("CheckPin", ex);
                 throw ex;
             }
         }
@@ -270,12 +270,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("SalvaPin", ex);
+                //Log.Error("SalvaPin", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("SalvaPin", ex);
+                //Log.Error("SalvaPin", ex);
                 throw ex;
             }
         }
@@ -292,12 +292,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetGiuntaRegionale", ex);
+                //Log.Error("GetGiuntaRegionale", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetGiuntaRegionale", ex);
+                //Log.Error("GetGiuntaRegionale", ex);
                 throw ex;
             }
         }
@@ -316,12 +316,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetSegreteriaPolitica", ex);
+                //Log.Error("GetSegreteriaPolitica", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetSegreteriaPolitica", ex);
+                //Log.Error("GetSegreteriaPolitica", ex);
                 throw ex;
             }
         }
@@ -338,12 +338,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetCapoGruppo", ex);
+                //Log.Error("GetCapoGruppo", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetCapoGruppo", ex);
+                //Log.Error("GetCapoGruppo", ex);
                 throw ex;
             }
         }
@@ -361,12 +361,12 @@ namespace PortaleRegione.Gateway
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.Error("GetSegreteriaGiuntaRegionale", ex);
+                //Log.Error("GetSegreteriaGiuntaRegionale", ex);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error("GetSegreteriaGiuntaRegionale", ex);
+                //Log.Error("GetSegreteriaGiuntaRegionale", ex);
                 throw ex;
             }
         }

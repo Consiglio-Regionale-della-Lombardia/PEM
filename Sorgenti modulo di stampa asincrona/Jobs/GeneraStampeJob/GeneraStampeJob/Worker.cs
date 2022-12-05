@@ -5,7 +5,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using PortaleRegione.GestioneStampe;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,8 +20,8 @@ namespace GeneraStampeJob
         private readonly LoginResponse _auth;
         private readonly ThreadWorkerModel _model;
         private StampaDto _stampa;
-        private ApiGateway apiGateway;
-        private PdfStamper_IronPDF _stamper;
+        private readonly ApiGateway apiGateway;
+        private readonly PdfStamper_IronPDF _stamper;
 
         public Worker(LoginResponse auth, ref ThreadWorkerModel model)
         {
@@ -77,7 +76,7 @@ namespace GeneraStampeJob
                     }
                     catch (Exception e)
                     {
-                        Log.Debug($"[{_stampa.UIDStampa}] Invio mail EXCEPTION", e);
+                        //Log.Debug($"[{_stampa.UIDStampa}] Invio mail EXCEPTION", e);
                         await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
                             $"Invio mail EXCEPTION ERRORE. Motivo: {e.Message}");
                     }
@@ -90,7 +89,7 @@ namespace GeneraStampeJob
             {
                 OnWorkerFinish?.Invoke(this, false);
 
-                Log.Error($"[{_stampa.UIDStampa}] ERROR", ex);
+                //Log.Error($"[{_stampa.UIDStampa}] ERROR", ex);
                 try
                 {
                     await apiGateway.Stampe.JobErrorStampa(_stampa.UIDStampa, ex.Message);
@@ -98,7 +97,7 @@ namespace GeneraStampeJob
                 }
                 catch (Exception ex2)
                 {
-                    Log.Error($"[{_stampa.UIDStampa}] ERROR", ex2);
+                    //Log.Error($"[{_stampa.UIDStampa}] ERROR", ex2);
                     try
                     {
                         await BaseGateway.SendMail(new MailModel
@@ -112,7 +111,7 @@ namespace GeneraStampeJob
                     }
                     catch (Exception exMail)
                     {
-                        Log.Error($"[{_stampa.UIDStampa}] ERROR", exMail);
+                        //Log.Error($"[{_stampa.UIDStampa}] ERROR", exMail);
                         await apiGateway.Stampe.JobErrorStampa(_stampa.UIDStampa, exMail.Message);
                     }
                 }
@@ -127,7 +126,7 @@ namespace GeneraStampeJob
             var listaAtti = await GetListaAtti();
 
             if (_stampa.Notifica)
-                await PresentazioneDifferita(listaAtti, path, persona);
+                await PresentazioneDifferita(listaAtti, path);
             else
                 await StampaDASI(listaAtti, path, persona);
         }
@@ -164,7 +163,7 @@ namespace GeneraStampeJob
                 _stamper.MergedPDF(FilePathTarget, docs);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
-                Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
+                //Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
                 SpostaFascicolo(FilePathTarget, _pathStampe);
 
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
@@ -187,7 +186,7 @@ namespace GeneraStampeJob
                 }
                 catch (Exception e)
                 {
-                    Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
+                    //Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
                 }
             }
@@ -227,21 +226,21 @@ namespace GeneraStampeJob
             }
             catch (Exception ex)
             {
-                Log.Error("GeneraPDFAtti Error-->", ex);
+                //Log.Error("GeneraPDFAtti Error-->", ex);
             }
 
             return listaPercorsi;
         }
 
-        private async Task PresentazioneDifferita(List<AttoDASIDto> listaAtti, string path, PersonaDto persona)
+        private async Task PresentazioneDifferita(List<AttoDASIDto> listaAtti, string path)
         {
             //STAMPA PDF PRESENTATO (BACKGROUND MODE)
-            Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Atto presentato");
+            //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Atto presentato");
 
             var pdfAtti =
                 await GeneraPDFAtti(listaAtti, path);
 
-            Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva Atti nel repository");
+            //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva Atti nel repository");
 
             var dasiDto = listaAtti.First();
             var legislatura = await apiGateway.Legislature.GetLegislatura(dasiDto.Legislatura);
@@ -311,7 +310,7 @@ namespace GeneraStampeJob
             }
             catch (Exception e)
             {
-                Log.Error("StampaEmendamenti ERROR", e);
+                //Log.Error("StampaEmendamenti ERROR", e);
                 throw e;
             }
         }
@@ -353,7 +352,7 @@ namespace GeneraStampeJob
                     listaPdfEmendamentiGenerati.ToDictionary(item => item.Key, item => item.Value.Path));
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
-                Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
+                //Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
                 SpostaFascicolo(FilePathTarget, _pathStampe);
 
                 var URLDownload = Path.Combine(_model.UrlCLIENT, $"stampe/{_stampa.UIDStampa}");
@@ -378,7 +377,7 @@ namespace GeneraStampeJob
                     }
                     catch (Exception e)
                     {
-                        Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
+                        //Log.Debug($"[{_stampa.UIDStampa}] Invio mail", e);
                         await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail ERRORE. Motivo: {e.Message}");
                     }
                 }
@@ -405,12 +404,12 @@ namespace GeneraStampeJob
             PersonaDto utenteRichiedente)
         {
             //STAMPA PDF DEPOSITATO (BACKGROUND MODE)
-            Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Depositato");
+            //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Genera PDF Depositato");
 
             var listaPdfEmendamentiGenerati =
                 await GeneraPDFEmendamenti(listaEMendamenti, path);
 
-            Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva EM nel repository");
+            //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Salva EM nel repository");
 
             var em = listaEMendamenti.First();
             var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
@@ -436,12 +435,12 @@ namespace GeneraStampeJob
             {
                 var ruoloSegreteriaAssempblea =
                     await apiGateway.Persone.GetRuolo(RuoliIntEnum.Segreteria_Assemblea);
-                Log.Debug(
-                    $"[{_stampa.UIDStampa}] BACKGROUND MODE - EM depositato il {listaEMendamenti.First().DataDeposito}");
+                //Log.Debug(
+                //$"[{_stampa.UIDStampa}] BACKGROUND MODE - EM depositato il {listaEMendamenti.First().DataDeposito}");
                 if (Convert.ToDateTime(listaEMendamenti.First().DataDeposito) >
                     atto.SEDUTE.Data_effettiva_inizio.Value)
                 {
-                    Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta già iniziata");
+                    //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta già iniziata");
 
                     try
                     {
@@ -457,14 +456,14 @@ namespace GeneraStampeJob
                     }
                     catch (Exception e)
                     {
-                        Log.Debug($"[{_stampa.UIDStampa}] Invio mail segreteria", e);
+                        //Log.Debug($"[{_stampa.UIDStampa}] Invio mail segreteria", e);
                         await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail a segreteria ERRORE. Motivo: {e.Message}");
                     }
                 }
             }
             else
             {
-                Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta non è ancora iniziata");
+                //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Seduta non è ancora iniziata");
             }
 
             var email_destinatari = $"{utenteRichiedente.email};pem@consiglio.regione.lombardia.it";
@@ -473,8 +472,8 @@ namespace GeneraStampeJob
 
             if (em.id_gruppo < 10000)
             {
-                Log.Debug(
-                    $"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Capo Gruppo e Segreteria Politica");
+                //Log.Debug(
+                //$"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Capo Gruppo e Segreteria Politica");
                 var capoGruppo = await apiGateway.Persone.GetCapoGruppo(em.id_gruppo);
                 var segreteriaPolitica = await apiGateway.Persone
                     .GetSegreteriaPolitica(em.id_gruppo, false, true);
@@ -487,7 +486,7 @@ namespace GeneraStampeJob
             }
             else
             {
-                Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Giunta Regionale");
+                //Log.Debug($"[{_stampa.UIDStampa}] BACKGROUND MODE - Invio mail a Giunta Regionale");
                 var giuntaRegionale = await apiGateway.Persone.GetGiuntaRegionale();
                 var segreteriaGiuntaRegionale = await apiGateway.Persone
                     .GetSegreteriaGiuntaRegionale(false, true);
@@ -524,7 +523,7 @@ namespace GeneraStampeJob
             }
             catch (Exception e)
             {
-                Log.Debug($"[{_stampa.UIDStampa}] Invio mail deposito", e);
+                //Log.Debug($"[{_stampa.UIDStampa}] Invio mail deposito", e);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Invio mail deposito ERRORE. Motivo: {e.Message}");
             }
         }
@@ -617,7 +616,7 @@ namespace GeneraStampeJob
             }
             catch (Exception ex)
             {
-                Log.Error("GeneraPDFEmendamenti Error-->", ex);
+                //Log.Error("GeneraPDFEmendamenti Error-->", ex);
             }
 
             return listaPercorsiEM;
@@ -648,7 +647,7 @@ namespace GeneraStampeJob
             }
             catch (Exception e)
             {
-                Log.Error($"ERRORE PULIZIA CARTELLA TEMPORANEA [{_pathTemp}]", e);
+                //Log.Error($"ERRORE PULIZIA CARTELLA TEMPORANEA [{_pathTemp}]", e);
             }
         }
     }

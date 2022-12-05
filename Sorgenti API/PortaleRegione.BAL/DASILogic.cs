@@ -30,7 +30,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,22 +42,17 @@ namespace PortaleRegione.API.Controllers
 {
     public class DASILogic : BaseLogic
     {
-        private readonly AttiLogic _logicAtti;
-        private readonly AttiFirmeLogic _logicFirme;
-        private readonly PersoneLogic _logicPersona;
-        private readonly SeduteLogic _logicSedute;
-        private readonly UtilsLogic _logicUtil;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicFirme,
+        public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicAttiFirme,
             SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil)
         {
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
-            _logicFirme = logicFirme;
+            _logicAttiFirme = logicAttiFirme;
             _logicSedute = logicSedute;
             _logicAtti = logicAtti;
             _logicUtil = logicUtil;
+
+            GetUsersInDb();
         }
 
         public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto persona)
@@ -93,7 +87,7 @@ namespace PortaleRegione.API.Controllers
                         var attoPEM = await _unitOfWork.Atti.Get(result.UID_Atto_ODG.Value);
                         var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
                         result.UIDSeduta = seduta.UIDSeduta;
-                        result.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                        result.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                             AppSettingsConfiguration.masterKey);
                         result.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
@@ -153,8 +147,6 @@ namespace PortaleRegione.API.Controllers
                     _unitOfWork.DASI.Add(result);
 
                     await _unitOfWork.CompleteAsync();
-
-                    await GestioneSoggettiInterrogati(attoDto);
                     await GestioneCommissioni(attoDto);
                     return result;
                 }
@@ -181,7 +173,7 @@ namespace PortaleRegione.API.Controllers
                     var attoPEM = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
                     var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
                     attoInDb.UIDSeduta = seduta.UIDSeduta;
-                    attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                    attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                         AppSettingsConfiguration.masterKey);
                     attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     attoInDb.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
@@ -202,8 +194,6 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 await _unitOfWork.CompleteAsync();
-
-                await GestioneSoggettiInterrogati(attoDto, true);
                 await GestioneCommissioni(attoDto, true);
 
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
@@ -212,7 +202,7 @@ namespace PortaleRegione.API.Controllers
                     //in questo caso re-crypt del testo certificato
                     var body = await GetBodyDASI(attoInDb, null, persona,
                         TemplateTypeEnum.FIRMA);
-                    var body_encrypt = EncryptString(body, Decrypt(attoInDb.Hash));
+                    var body_encrypt = BALHelper.EncryptString(body, BALHelper.Decrypt(attoInDb.Hash));
 
                     attoInDb.Atto_Certificato = body_encrypt;
                     await _unitOfWork.CompleteAsync();
@@ -222,7 +212,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - SalvaAtto - DASI", e);
+                //Log.Error("Logic - SalvaAtto - DASI", e);
                 throw;
             }
         }
@@ -247,19 +237,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GestioneCommissioni - DASI", e);
-                throw;
-            }
-        }
-
-        private async Task GestioneSoggettiInterrogati(AttoDASIDto attoDto, bool isUpdate = false)
-        {
-            try
-            {
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - GestioneSoggettiInterrogati - DASI", e);
+                //Log.Error("Logic - GestioneCommissioni - DASI", e);
                 throw;
             }
         }
@@ -273,7 +251,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetAtto - DASI", e);
+                //Log.Error("Logic - GetAtto - DASI", e);
                 throw;
             }
         }
@@ -325,7 +303,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     queryFilter.ImportStatements(model.filtro);
                     var defaultCounterBar =
-                        await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE,
+                        await GetResponseCountBar(persona, requestTipo, sedutaId, CLIENT_MODE,
                             queryFilter, soggetti);
                     if (soggetti_request.Any())
                         model.filtro.AddRange(soggetti_request);
@@ -346,12 +324,10 @@ namespace PortaleRegione.API.Controllers
                     };
                 }
 
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var result = new List<AttoDASIDto>();
                 foreach (var attoUId in atti_in_db)
                 {
-                    var dto = await GetAttoDto(attoUId, persona, personeInDbLight);
+                    var dto = await GetAttoDto(attoUId, persona);
                     result.Add(dto);
                 }
 
@@ -374,7 +350,7 @@ namespace PortaleRegione.API.Controllers
                         , uri),
                     Stato = requestStato,
                     Tipo = requestTipo,
-                    CountBarData = await GetResponseCountBar(persona, requestStato, requestTipo, sedutaId, CLIENT_MODE,
+                    CountBarData = await GetResponseCountBar(persona, requestTipo, sedutaId, CLIENT_MODE,
                         queryFilter, soggetti)
                 };
 
@@ -389,13 +365,12 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Get Riepilogo Atti - DASI", e);
+                //Log.Error("Logic - Get Riepilogo Atti - DASI", e);
                 throw;
             }
         }
 
-        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona,
-            List<PersonaLightDto> personeInDbLight)
+        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
         {
             try
             {
@@ -406,18 +381,18 @@ namespace PortaleRegione.API.Controllers
                 dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo.Value);
 
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                    dto.DataPresentazione = Decrypt(attoInDb.DataPresentazione);
+                    dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
-                    dto.DataPresentazione_MOZ = Decrypt(attoInDb.DataPresentazione_MOZ);
+                    dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
-                    dto.DataPresentazione_MOZ_URGENTE = Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
+                    dto.DataPresentazione_MOZ_URGENTE = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
-                    dto.DataPresentazione_MOZ_ABBINATA = Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
+                    dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
                 if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
-                    dto.DataRichiestaIscrizioneSeduta = Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
+                    dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
 
                 if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
-                    dto.Atto_Certificato = Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
+                    dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
                 if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
                                         persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
@@ -427,18 +402,18 @@ namespace PortaleRegione.API.Controllers
                 dto.Firmato_Dal_Proponente =
                     await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente.Value);
 
-                dto.PersonaCreazione = personeInDbLight.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
+                dto.PersonaCreazione = Users.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
                 dto.PersonaProponente =
-                    personeInDbLight.First(p => p.UID_persona == attoInDb.UIDPersonaProponente);
+                    Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente);
                 if (dto.UIDPersonaModifica.HasValue)
                     dto.PersonaModifica =
-                        personeInDbLight.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
+                        Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
 
-                dto.ConteggioFirme = await _logicFirme.CountFirme(attoUid);
+                dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
                 if (dto.ConteggioFirme > 1)
                 {
-                    var firme = await _logicFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                    var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
                     dto.Firme = firme
                         .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
                         .Select(f => f.FirmaCert)
@@ -451,7 +426,7 @@ namespace PortaleRegione.API.Controllers
                 if (persona != null)
                 {
                     if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                        dto.Presentabile = await _unitOfWork
+                        dto.Presentabile = _unitOfWork
                             .DASI
                             .CheckIfPresentabile(dto,
                                 persona);
@@ -527,7 +502,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
+                //Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
                 throw;
             }
         }
@@ -546,7 +521,7 @@ namespace PortaleRegione.API.Controllers
                 dto.Firmato_Dal_Proponente =
                     await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente.Value);
 
-                dto.ConteggioFirme = await _logicFirme.CountFirme(attoUid);
+                dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
                 dto.gruppi_politici =
                     Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
@@ -556,12 +531,12 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
+                //Log.Error($"Logic - Get DTO Atto - DASI - [{attoUid}]", e);
                 throw;
             }
         }
 
-        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, StatiAttoEnum stato, TipoAttoEnum tipo,
+        private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, TipoAttoEnum tipo,
             Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti)
         {
             var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
@@ -678,8 +653,6 @@ namespace PortaleRegione.API.Controllers
                 if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato alla firma di atti");
 
                 var results = new Dictionary<Guid, string>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var counterFirme = 1;
 
                 foreach (var idGuid in firmaModel.Lista)
@@ -687,7 +660,7 @@ namespace PortaleRegione.API.Controllers
                     if (counterFirme == Convert.ToInt32(AppSettingsConfiguration.LimiteFirmaMassivo) + 1) break;
 
                     var attoInDb = await _unitOfWork.DASI.Get(idGuid);
-                    var atto = await GetAttoDto(idGuid, persona, personeInDbLight);
+                    var atto = await GetAttoDto(idGuid, persona);
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
 
                     if (!atto.Firmabile)
@@ -709,7 +682,7 @@ namespace PortaleRegione.API.Controllers
                             continue;
                         }
 
-                        firmaCert = EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
+                        firmaCert = BALHelper.EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
                             , AppSettingsConfiguration.masterKey);
                     }
                     else
@@ -728,11 +701,11 @@ namespace PortaleRegione.API.Controllers
 
                         var bodyFirmaCert =
                             $"{persona.DisplayName} ({info_codice_carica_gruppo})";
-                        firmaCert = EncryptString(bodyFirmaCert
+                        firmaCert = BALHelper.EncryptString(bodyFirmaCert
                             , AppSettingsConfiguration.masterKey);
                     }
 
-                    var dataFirma = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    var dataFirma = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
 
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
@@ -740,7 +713,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         //Se è la prima firma dell'atto, questo viene cryptato e così certificato e non modificabile
                         attoInDb.Hash = firmaUfficio
-                            ? EncryptString(AppSettingsConfiguration.MasterPIN, AppSettingsConfiguration.masterKey)
+                            ? BALHelper.EncryptString(AppSettingsConfiguration.MasterPIN, AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         attoInDb.UIDPersonaPrimaFirma = persona.UID_persona;
                         attoInDb.DataPrimaFirma = DateTime.Now;
@@ -756,7 +729,7 @@ namespace PortaleRegione.API.Controllers
                                 }
                             }, persona,
                             TemplateTypeEnum.FIRMA);
-                        var body_encrypt = EncryptString(body,
+                        var body_encrypt = BALHelper.EncryptString(body,
                             firmaUfficio ? AppSettingsConfiguration.MasterPIN : pin.PIN_Decrypt);
 
                         attoInDb.Atto_Certificato = body_encrypt;
@@ -812,7 +785,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Firma - DASI", e);
+                //Log.Error("Logic - Firma - DASI", e);
                 throw e;
             }
         }
@@ -823,7 +796,6 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
-                var jumpMail = false;
 
                 foreach (var idGuid in firmaModel.Lista)
                 {
@@ -835,10 +807,8 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
-                    {
                         throw new InvalidOperationException(
                             "Non è possibile ritirare la firma di un atto chiuso.");
-                    }
 
                     if (atto.DataIscrizioneSeduta.HasValue)
                     {
@@ -936,17 +906,15 @@ namespace PortaleRegione.API.Controllers
                         : firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
 
                     firma_utente.Data_ritirofirma =
-                        EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
 
                     await _unitOfWork.CompleteAsync();
                     results.Add(idGuid, $"{nome_atto} - OK");
-                    jumpMail = false;
 
                     if (atto.Tipo == (int)TipoAttoEnum.ITL
                         && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
                         && atto.DataIscrizioneSeduta.HasValue)
-                    {
                         try
                         {
                             var mailModel = new MailModel
@@ -956,22 +924,21 @@ namespace PortaleRegione.API.Controllers
                                     AppSettingsConfiguration.EmailInvioDASI,
                                 OGGETTO = $"Ritiro firma effettuato da parte di {persona.DisplayName_GruppoCode}",
                                 MESSAGGIO =
-                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>."
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
                         catch (Exception e)
                         {
-                            Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
+                            //Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
                         }
-                    }
                 }
 
                 return results;
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RitiroFirma - DASI", e);
+                //Log.Error("Logic - RitiroFirma - DASI", e);
                 throw e;
             }
         }
@@ -1001,7 +968,7 @@ namespace PortaleRegione.API.Controllers
                     }
 
                     //RITIRA FIRMA
-                    var firmeAttive = await _logicFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
+                    var firmeAttive = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
                     var firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
                     var firma_da_ritirare =
                         await _unitOfWork.Atti_Firme.Get(firma_utente.UIDAtto, firma_utente.UID_persona);
@@ -1015,7 +982,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - EliminaFirma - DASI", e);
+                //Log.Error("Logic - EliminaFirma - DASI", e);
                 throw e;
             }
         }
@@ -1028,8 +995,6 @@ namespace PortaleRegione.API.Controllers
                 if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
 
                 var results = new Dictionary<Guid, string>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 var counterPresentazioni = 1;
                 var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
                 var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
@@ -1049,7 +1014,7 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
-                    var attoDto = await GetAttoDto(idGuid, persona, personeInDbLight);
+                    var attoDto = await GetAttoDto(idGuid, persona);
                     var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
                     if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
                     if (atto.Tipo == (int)TipoAttoEnum.IQT
@@ -1060,15 +1025,27 @@ namespace PortaleRegione.API.Controllers
                         continue;
                     }
 
+                    ATTI attoPEM = null;
+                    SEDUTE seduta = null;
                     if (atto.Tipo == (int)TipoAttoEnum.ODG)
                     {
-                        var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value, TipoAttoEnum.ODG,
-                            0);
-                        var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona)
-                            .ToList();
-                        var attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                        /*
+                         *  Ogni consigliere può depositare, come primo firmatario, fino a {MassimoODG} ODG per atto/argomento e fino alla "data scadenza ODG"
+                         *  (poi risultano fuori orario se < {MassimoODG} e comunque sono bloccati se > {MassimoODG}).
+                         *
+                         *  I capigruppo il giorno della seduta possono presentare fino a {MassimoODG_DuranteSeduta} ODG per atto/argomento, a prescindere da quanti ne hanno presentati prima
+                         *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il falg BloccoODG                         
+                         */
 
+                        //proposta di iscrizione in seduta
+
+
+                        //Atto PEM associato all'ODG
+                        attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
+                        //Seduta associata all'atto PEM
+                        seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+
+                        //Blocco inserimento ODG
                         if (attoPEM.BloccoODG)
                         {
                             results.Add(idGuid,
@@ -1076,8 +1053,31 @@ namespace PortaleRegione.API.Controllers
                             continue;
                         }
 
+                        var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey);
+                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                        //Ricava tutti gli ODG iscritti in seduta
+                        var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                            TipoAttoEnum.ODG, 0);
+                        //Ricava tutti gli ODG proposti in seduta
+                        var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                            TipoAttoEnum.ODG, 0);
+
+                        var atti = new List<ATTI_DASI>();
+                        atti.AddRange(odg_in_seduta);
+                        atti.AddRange(odg_proposte);
+
+                        //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
+                        var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona
+                                                      && a.IDStato < (int)StatiAttoEnum.CHIUSO
+                                                      && a.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                            .ToList();
+
+                        //Jolly attivo limite impostato {MassimoODG_Jolly}
                         if (attoPEM.Jolly)
-                            if (my_atti.Count(i => i.IDStato != (int)StatiAttoEnum.CHIUSO) + 1 >=
+                            if (my_atti.Count + 1 >=
                                 AppSettingsConfiguration.MassimoODG_Jolly)
                             {
                                 results.Add(idGuid,
@@ -1096,14 +1096,10 @@ namespace PortaleRegione.API.Controllers
                                                    && a.Timestamp.Month == dataOdierna.Month
                                                    && a.Timestamp.Year == dataOdierna.Year)
                                     .ToList();
-                            if (atti_dopo_scadenza.Count + 1 >= AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
-                                if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per la {attoPEM.Oggetto}.");
-                                else
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                results.Add(idGuid,
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
                                 continue;
                             }
@@ -1112,14 +1108,20 @@ namespace PortaleRegione.API.Controllers
                         }
                         else
                         {
-                            if (my_atti.Count + 1 >= AppSettingsConfiguration.MassimoODG)
+                            //Matteo Cattapan #484
+                            //Massimo ODG presentabili per provvedimento
+                            var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
+                                .OrderBy(group => group.Key)
+                                .Select(group => Tuple.Create(group.Key, group.Count()));
+                            var current_group =
+                                group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
+                            var count_odg_per_atto = 0;
+                            if (current_group != null) count_odg_per_atto = current_group.Item2;
+
+                            if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
                             {
-                                if (attoPEM.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per la {attoPEM.Oggetto}.");
-                                else
-                                    results.Add(idGuid,
-                                        $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                                results.Add(idGuid,
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
                                 continue;
                             }
@@ -1153,7 +1155,7 @@ namespace PortaleRegione.API.Controllers
                     var etichetta_progressiva =
                         $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
                     var etichetta_encrypt =
-                        EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+                        BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
                     var checkProgressivo_unique =
                         await _unitOfWork.DASI.CheckProgressivo(etichetta_encrypt);
 
@@ -1168,7 +1170,7 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaPresentazione = persona.UID_persona;
                     atto.OrdineVisualizzazione = contatore_progressivo;
                     atto.Timestamp = DateTime.Now;
-                    atto.DataPresentazione = EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                    atto.DataPresentazione = BALHelper.EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
                     atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
 
@@ -1187,16 +1189,7 @@ namespace PortaleRegione.API.Controllers
 
                     _unitOfWork.DASI.IncrementaContatore(contatore);
 
-                    if (atto.Tipo == (int)TipoAttoEnum.ODG && atto.UID_Atto_ODG.HasValue)
-                    {
-                        //proposta di iscrizione in seduta
-                        var attoPem = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        var seduta = await _unitOfWork.Sedute.Get(attoPem.UIDSeduta.Value);
-                        var dataRichiesta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
-                            AppSettingsConfiguration.masterKey);
-                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
-                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
-
+                    if (atto.Tipo == (int)TipoAttoEnum.ODG)
                         if (atto.Non_Passaggio_In_Esame)
                             try
                             {
@@ -1208,15 +1201,14 @@ namespace PortaleRegione.API.Controllers
                                     OGGETTO =
                                         "[ODG DI NON PASSAGGIO ALL'ESAME]",
                                     MESSAGGIO =
-                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto} - {attoPem.Oggetto}."
+                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto} - {attoPEM.Oggetto}."
                                 };
                                 await _logicUtil.InvioMail(mailModel);
                             }
                             catch (Exception e)
                             {
-                                Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
+                                //Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
                             }
-                    }
 
                     await _unitOfWork.CompleteAsync();
                     counterPresentazioni++;
@@ -1241,7 +1233,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Presenta - DASI", e);
+                //Log.Error("Logic - Presenta - DASI", e);
                 throw e;
             }
         }
@@ -1301,7 +1293,7 @@ namespace PortaleRegione.API.Controllers
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
-                            $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
+                            $"{BALHelper.Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var moz in moz_da_esaminare)
                         {
@@ -1327,7 +1319,7 @@ namespace PortaleRegione.API.Controllers
                     var iqt_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.IQT, 0);
                     var iqt_proposte = await _unitOfWork.DASI.GetProposteAtti(
-                        EncryptString(atto.DataRichiestaIscrizioneSeduta, AppSettingsConfiguration.masterKey),
+                        BALHelper.EncryptString(atto.DataRichiestaIscrizioneSeduta, AppSettingsConfiguration.masterKey),
                         TipoAttoEnum.IQT, 0);
                     var iqt_da_esaminare = new List<ATTI_DASI>();
                     iqt_da_esaminare.AddRange(iqt_in_seduta);
@@ -1338,7 +1330,7 @@ namespace PortaleRegione.API.Controllers
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
-                            $"{Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
+                            $"{BALHelper.Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var odg in iqt_da_esaminare)
                         {
@@ -1374,13 +1366,11 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
-            TemplateTypeEnum template, bool isDeposito = false)
+            TemplateTypeEnum template)
         {
             try
             {
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var dto = await GetAttoDto(atto.UIDAtto, persona, personeInDbLight);
+                var dto = await GetAttoDto(atto.UIDAtto, persona);
 
                 try
                 {
@@ -1417,13 +1407,13 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("GetBodyDASI", e);
+                    //Log.Error("GetBodyDASI", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetBodyDASI", e);
+                //Log.Error("Logic - GetBodyDASI", e);
                 throw e;
             }
         }
@@ -1444,7 +1434,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Elimina Atto - DASI", e);
+                //Log.Error("Logic - Elimina Atto - DASI", e);
                 throw;
             }
         }
@@ -1454,10 +1444,8 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
-                {
                     throw new InvalidOperationException(
                         "Non è possibile ritirare un atto chiuso.");
-                }
 
                 if (atto.DataIscrizioneSeduta.HasValue)
                     throw new InvalidOperationException(
@@ -1472,7 +1460,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Ritira Atto - DASI", e);
+                //Log.Error("Logic - Ritira Atto - DASI", e);
                 throw e;
             }
         }
@@ -1543,7 +1531,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NuovoModello - DASI", e);
+                //Log.Error("Logic - NuovoModello - DASI", e);
                 throw e;
             }
         }
@@ -1552,9 +1540,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
-                var dto = await GetAttoDto(atto.UIDAtto, persona, personeInDbLight);
+                var dto = await GetAttoDto(atto.UIDAtto, persona);
                 var result = new DASIFormModel
                 {
                     Atto = dto,
@@ -1568,7 +1554,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaModello - DASI", e);
+                //Log.Error("Logic - ModificaModello - DASI", e);
                 throw e;
             }
         }
@@ -1584,7 +1570,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetSoggettiInterrogabili - DASI", e);
+                //Log.Error("Logic - GetSoggettiInterrogabili - DASI", e);
                 throw;
             }
         }
@@ -1593,9 +1579,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                //Ricava tutte le mozioni abbinate proposte dal gruppo
                 var proposte_di_abbinata = await _unitOfWork.DASI.GetProposteAtti(persona.Gruppo.id_gruppo,
                     TipoAttoEnum.MOZ,
                     TipoMOZEnum.ABBINATA);
+
+                //Se è già presente una mozione abbinata allora escludo la seduta per evitare che vengano proposte altre mozioni abbinate dalla stessa persona
                 var sedute_da_escludere = new List<Guid>();
                 foreach (var proposta_abbinata in proposte_di_abbinata)
                 {
@@ -1603,8 +1592,11 @@ namespace PortaleRegione.API.Controllers
                     sedute_da_escludere.Add(moz_abbinata.UIDSeduta.Value);
                 }
 
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive(true, true);
+                //Matteo Cattapan #460
+                //Vengono prese tutte le sedute attive NON CHIUSE (con data chiusura vuota o con data chiusura futura) E CONVOCATE (data_apertura <= “a ora”)
+                var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, true);
 
+                //Ricavo dalle sedute le mozioni a cui è possibile creare l'abbinamento
                 var result = new List<AttoDASIDto>();
                 foreach (var seduta in sedute_attive.Where(i => !sedute_da_escludere.Contains(i.UIDSeduta)))
                 {
@@ -1616,12 +1608,12 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetMOZAbbinabili - DASI", e);
+                //Log.Error("Logic - GetMOZAbbinabili - DASI", e);
                 throw;
             }
         }
 
-        public async Task<List<AttiDto>> GetAttiSeduteAttive(PersonaDto persona, List<PersonaLightDto> personeInDbLight)
+        public async Task<List<AttiDto>> GetAttiSeduteAttive(PersonaDto persona)
         {
             try
             {
@@ -1634,11 +1626,15 @@ namespace PortaleRegione.API.Controllers
                         .GetAtti(
                             new BaseRequest<AttiDto> { id = seduta.UIDSeduta, page = 1, size = 99 },
                             (int)ClientModeEnum.TRATTAZIONE,
-                            persona,
-                            personeInDbLight);
+                            persona);
 
                     foreach (var atto in atti.Results)
                     {
+                        //Matteo Cattapan #439
+                        //Aggiunta funzione per controllare che l'atto in seduta sia effettivamente aperto
+                        if (!atto.IsAperto())
+                            continue;
+
                         var tipo = Utility.GetText_Tipo(atto.IDTipoAtto);
                         var titolo_atto = $"{tipo} {atto.NAtto}";
                         if (atto.IDTipoAtto == (int)TipoAttoEnum.ALTRO) titolo_atto = atto.Oggetto;
@@ -1652,7 +1648,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetAttiSeduteAttive - DASI", e);
+                //Log.Error("Logic - GetAttiSeduteAttive - DASI", e);
                 throw;
             }
         }
@@ -1668,7 +1664,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetCommissioniAttive - DASI", e);
+                //Log.Error("Logic - GetCommissioniAttive - DASI", e);
                 throw;
             }
         }
@@ -1679,8 +1675,6 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var results = new Dictionary<Guid, string>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 if (model.All && !model.Lista.Any())
                 {
                     model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
@@ -1714,7 +1708,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaStato", e);
+                //Log.Error("Logic - ModificaStato", e);
                 throw e;
             }
         }
@@ -1725,7 +1719,6 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var listaRichieste = new Dictionary<Guid, string>();
-                var dataSeduta = "";
 
                 foreach (var guid in model.Lista)
                 {
@@ -1748,10 +1741,7 @@ namespace PortaleRegione.API.Controllers
                     if (!listaRichieste.Any(item => (item.Value == nomeAtto
                                                      && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
                                                     || item.Key == atto.UIDPersonaPresentazione.Value))
-                        listaRichieste.Add(
-                            atto.UIDPersonaRichiestaIscrizione.HasValue
-                                ? atto.UIDPersonaRichiestaIscrizione.Value
-                                : atto.UIDPersonaPresentazione.Value, nomeAtto);
+                        listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value, nomeAtto);
                 }
 
                 try
@@ -1776,12 +1766,12 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Logic - IscrizioneSeduta - Invio Mail", e);
+                    //Log.Error("Logic - IscrizioneSeduta - Invio Mail", e);
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - IscrizioneSeduta", e);
+                //Log.Error("Logic - IscrizioneSeduta", e);
                 throw e;
             }
         }
@@ -1790,7 +1780,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var dataRichiesta = EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
+                var dataRichiesta = BALHelper.EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 var listaRichieste = new List<string>();
                 foreach (var guid in model.Lista)
@@ -1815,7 +1805,7 @@ namespace PortaleRegione.API.Controllers
 
                     atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                     if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                        atto.DataPresentazione_MOZ = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                        atto.DataPresentazione_MOZ = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                             AppSettingsConfiguration.masterKey);
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                     await _unitOfWork.CompleteAsync();
@@ -1845,12 +1835,12 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Logic - RichiediIscrizione - Invio Mail", e);
+                    //Log.Error("Logic - RichiediIscrizione - Invio Mail", e);
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RichiediIscrizione", e);
+                //Log.Error("Logic - RichiediIscrizione", e);
                 throw e;
             }
         }
@@ -1874,7 +1864,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RimuoviSeduta", e);
+                //Log.Error("Logic - RimuoviSeduta", e);
                 throw e;
             }
         }
@@ -1901,7 +1891,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - RimuoviRichiesta", e);
+                //Log.Error("Logic - RimuoviRichiesta", e);
                 throw e;
             }
         }
@@ -1925,39 +1915,54 @@ namespace PortaleRegione.API.Controllers
                 var data_seduta_odierna = dateNow.Day == seduta.Data_seduta.Day
                                           && dateNow.Month == seduta.Data_seduta.Month
                                           && dateNow.Year == seduta.Data_seduta.Year;
+                //E' possibile richiedere l'urgenza dalle 00 del giorno della seduta fino all'effettivo inizio
                 if (!data_seduta_odierna)
+                {
+                    if (seduta.Data_effettiva_inizio < DateTime.Now)
+                        //durante la seduta
+                        throw new InvalidOperationException(
+                            "Non è possibile richiedere l'urgenza durante la seduta. Rivolgiti alla Segreteria dell'Assemblea per chiedere informazioni.");
+
                     throw new InvalidOperationException(
                         "Attendi l’inizio della seduta per chiedere la trattazione d’urgenza.");
+                }
 
                 attoInDb.TipoMOZ = (int)TipoMOZEnum.URGENTE;
                 atto.TipoMOZ = (int)TipoMOZEnum.URGENTE;
-                attoInDb.DataPresentazione_MOZ_URGENTE = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                attoInDb.DataPresentazione_MOZ_URGENTE = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
-                attoInDb.DataRichiestaIscrizioneSeduta = EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
                     AppSettingsConfiguration.masterKey);
                 attoInDb.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                //Matteo Cattapan #501
+                //Controllo se la mozione è firmata dai capigruppo, in questo caso la mozione può passare avanti senza ulteriori controlli
 
                 var checkIfFirmatoDaiCapigruppo = await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(attoInDb.UIDAtto);
                 if (!checkIfFirmatoDaiCapigruppo)
                 {
+                    //Se non sono presenti tutti i capigruppo è necessario che si possa proporre l'urgenza solo di 1 mozione per seduta
                     var checkMozUrgente = await _unitOfWork.DASI.CheckMOZUrgente(seduta,
                         attoInDb.DataRichiestaIscrizioneSeduta, attoInDb.UIDPersonaProponente.Value);
                     if (!checkMozUrgente)
-                        throw new Exception(
+                        throw new InvalidOperationException(
                             $"ERROR: Hai già presentato o sottoscritto 1 MOZ Urgente per la seduta del {seduta.Data_seduta:dd/MM/yyyy}.");
+
+                    //Controllo validità firme
+                    var count_firme = atto.ConteggioFirme;
+                    var controllo_firme =
+                        await ControlloFirmePresentazione(atto, count_firme, seduta,
+                            "Non è possibile proporre l'urgenza");
+                    if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
                 }
 
-                var count_firme = atto.ConteggioFirme;
-                var controllo_firme =
-                    await ControlloFirmePresentazione(atto, count_firme, seduta,
-                        "Non è possibile proporre l'urgenza");
-                if (!string.IsNullOrEmpty(controllo_firme)) throw new InvalidOperationException(controllo_firme);
+                attoInDb.MOZU_Capigruppo = checkIfFirmatoDaiCapigruppo;
 
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ProponiMozioneUrgente", e);
+                //Log.Error("Logic - ProponiMozioneUrgente", e);
                 throw e;
             }
         }
@@ -1977,14 +1982,14 @@ namespace PortaleRegione.API.Controllers
 
                 atto.TipoMOZ = (int)TipoMOZEnum.ABBINATA;
                 atto.UID_MOZ_Abbinata = model.AttoUId;
-                atto.DataPresentazione_MOZ_ABBINATA = EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                atto.DataPresentazione_MOZ_ABBINATA = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
 
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ProponiMozioneAbbinata", e);
+                //Log.Error("Logic - ProponiMozioneAbbinata", e);
                 throw e;
             }
         }
@@ -2048,7 +2053,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetDASI_UID_RawChunk", e);
+                //Log.Error("Logic - GetDASI_UID_RawChunk", e);
                 throw e;
             }
         }
@@ -2060,7 +2065,7 @@ namespace PortaleRegione.API.Controllers
                 var result = new List<AttiFirmeDto>();
                 foreach (var atto in attiList)
                 {
-                    var firmatari = await _logicFirme
+                    var firmatari = await _logicAttiFirme
                         .GetFirme(atto.UIDAtto);
 
                     result.AddRange(firmatari);
@@ -2070,7 +2075,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
+                //Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
                 throw e;
             }
         }
@@ -2098,7 +2103,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetInvitati", e);
+                //Log.Error("Logic - GetInvitati", e);
                 throw e;
             }
         }
@@ -2111,7 +2116,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - Count DASI By Query", e);
+                //Log.Error("Logic - Count DASI By Query", e);
                 throw e;
             }
         }
@@ -2124,11 +2129,9 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .GetByQuery(model);
                 var result = new List<AttoDASIDto>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var idAtto in atti)
                 {
-                    var dto = await GetAttoDto(idAtto, null, personeInDbLight);
+                    var dto = await GetAttoDto(idAtto, null);
                     result.Add(dto);
                 }
 
@@ -2136,7 +2139,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetByQuery", e);
+                //Log.Error("Logic - GetByQuery", e);
                 throw e;
             }
         }
@@ -2183,7 +2186,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetCopertina", e);
+                //Log.Error("Logic - GetCopertina", e);
                 throw e;
             }
         }
@@ -2257,7 +2260,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - ModificaMetaDati", e);
+                //Log.Error("Logic - ModificaMetaDati", e);
                 throw e;
             }
         }
@@ -2301,10 +2304,8 @@ namespace PortaleRegione.API.Controllers
                     }
                 case TipoAttoEnum.ODG:
                     {
-                        if (atto.CapogruppoNeiTermini)
-                        {
-                            break;
-                        }
+                        if (atto.CapogruppoNeiTermini) break;
+
                         if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
                     }
@@ -2323,7 +2324,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - PresentazioneCartacea", e);
+                //Log.Error("Logic - PresentazioneCartacea", e);
                 throw e;
             }
         }
@@ -2333,13 +2334,13 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var content = await PDFIstantaneo(atto, persona);
-                var res = await ComposeFileResponse(content,
+                var res = ComposeFileResponse(content,
                     $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}.pdf");
                 return res;
             }
             catch (Exception e)
             {
-                Log.Error("DownloadPDFIstantaneo", e);
+                //Log.Error("DownloadPDFIstantaneo", e);
                 throw e;
             }
         }
@@ -2349,14 +2350,14 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var attoDto = await GetAttoDto(atto.UIDAtto);
-                var firme = await _logicFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+                var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
                 return await stamper.CreaPDFInMemory(body, attoDto);
             }
             catch (Exception e)
             {
-                Log.Error("PDFIstantaneo", e);
+                //Log.Error("PDFIstantaneo", e);
                 throw e;
             }
         }
@@ -2388,7 +2389,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InviaAlProtocollo", e);
+                //Log.Error("Logic - InviaAlProtocollo", e);
                 throw e;
             }
         }

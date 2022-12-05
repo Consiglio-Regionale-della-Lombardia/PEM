@@ -287,9 +287,14 @@ namespace PortaleRegione.Persistance
         public async Task<int> GetTipoArea(int idGruppo)
         {
             var gruppo = await PRContext
-                .gruppi_politici
+                .JOIN_GRUPPO_AD
                 .FirstAsync(g => g.id_gruppo == idGruppo);
-            return gruppo.TipoArea;
+            if (gruppo.id_AreaPolitica.HasValue)
+            {
+                return gruppo.id_AreaPolitica.Value;
+            }
+
+            return (int)AreaPoliticaIntEnum.Misto;
         }
 
         public async Task<View_gruppi_politici_con_giunta> GetGruppoAttuale(List<string> lGruppi,

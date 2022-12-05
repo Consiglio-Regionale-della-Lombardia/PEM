@@ -349,12 +349,7 @@ async function AbilitaTrattazione(mode) {
             var seduta = data.Results[0];
             go("/attitrattazione/view?id=" + seduta.UIDSeduta);
         } else {
-            swal({
-                title: "Attenzione",
-                text: "Nessuna seduta aperta disponibile",
-                icon: "warning"
-            });
-            return;
+            go("/attitrattazione/archivio");
         }
     } else {
         setClientMode(1);

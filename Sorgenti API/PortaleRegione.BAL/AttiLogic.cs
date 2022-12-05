@@ -27,30 +27,26 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
     public class AttiLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly EmendamentiLogic _logicEm;
-
         public AttiLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
+
+            GetUsersInDb();
         }
 
         public async Task<BaseResponse<AttiDto>> GetAtti(BaseRequest<AttiDto> model, int CLIENT_MODE,
             PersonaDto currentUser,
-            List<PersonaLightDto> personeInDbLight,
             Uri url = null)
         {
             try
@@ -78,14 +74,13 @@ namespace PortaleRegione.BAL
                         var listaArticoli = await _unitOfWork.Articoli.GetArticoli(appoggio.UIDAtto);
                         var listaRelatori = await _unitOfWork.Persone.GetRelatori(appoggio.UIDAtto);
 
-                        appoggio.Informazioni_Mancanti = listaArticoli.Any() || listaRelatori.Any() ? false : true;
+                        appoggio.Informazioni_Mancanti = !listaArticoli.Any() && !listaRelatori.Any();
                     }
 
                     appoggio.Relatori = await GetRelatori(appoggio.UIDAtto);
                     if (appoggio.UIDAssessoreRiferimento.HasValue)
                         appoggio.PersonaAssessore =
-                            personeInDbLight.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
-
+                            Users.First(p => p.UID_persona == appoggio.UIDAssessoreRiferimento);
 
                     if (appoggio.NAtto == "$$")
                     {
@@ -105,7 +100,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Riepilogo Atti", e);
+                //Log.Error("Riepilogo Atti", e);
                 throw e;
             }
         }
@@ -119,7 +114,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Atto", e);
+                //Log.Error("Elimina Atto", e);
                 throw e;
             }
         }
@@ -155,7 +150,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Nuovo Atto", e);
+                //Log.Error("Nuovo Atto", e);
                 throw e;
             }
         }
@@ -186,7 +181,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Salva Atto", e);
+                //Log.Error("Salva Atto", e);
                 throw e;
             }
         }
@@ -211,7 +206,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Modifica Fascicoli Atto", e);
+                //Log.Error("Modifica Fascicoli Atto", e);
                 throw e;
             }
         }
@@ -272,7 +267,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Crea Articoli", e);
+                //Log.Error("Crea Articoli", e);
                 throw;
             }
         }
@@ -285,7 +280,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Articolo", e);
+                //Log.Error("Get Articolo", e);
                 throw;
             }
         }
@@ -299,7 +294,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Articolo", e);
+                //Log.Error("Elimina Articolo", e);
                 throw;
             }
         }
@@ -325,7 +320,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Commi", e);
+                //Log.Error("Get Commi", e);
                 throw;
             }
         }
@@ -339,7 +334,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Commi", e);
+                //Log.Error("Elimina Commi", e);
                 throw;
             }
         }
@@ -352,7 +347,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Lettere", e);
+                //Log.Error("Get Lettere", e);
                 throw;
             }
         }
@@ -366,7 +361,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Lettere", e);
+                //Log.Error("Elimina Lettere", e);
                 throw;
             }
         }
@@ -380,7 +375,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Lettera", e);
+                //Log.Error("Elimina Lettera", e);
                 throw;
             }
         }
@@ -438,7 +433,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Crea Commi", e);
+                //Log.Error("Crea Commi", e);
                 throw;
             }
 
@@ -453,7 +448,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Get Comma", e);
+                //Log.Error("Get Comma", e);
                 throw;
             }
         }
@@ -467,7 +462,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Elimina Comma", e);
+                //Log.Error("Elimina Comma", e);
                 throw;
             }
         }
@@ -536,7 +531,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Salva Relatori", e);
+                //Log.Error("Salva Relatori", e);
                 throw;
             }
         }
@@ -570,20 +565,9 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Pubblica Fascicolo", e);
+                //Log.Error("Pubblica Fascicolo", e);
                 throw;
             }
-        }
-
-        public async Task<HttpResponseMessage> Download(string path)
-        {
-            var complete_path = Path.Combine(
-                AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
-                Path.GetFileName(path));
-
-            Log.Debug($"Download file atto: {complete_path} [originale: {path}]");
-            var result = await ComposeFileResponse(complete_path);
-            return result;
         }
 
         public async Task<ATTI> GetAtto(Guid id)
@@ -641,7 +625,6 @@ namespace PortaleRegione.BAL
         public async Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm = false)
         {
             var result = new List<ArticoliModel>();
-
             var articoli = await _unitOfWork.Articoli.GetArticoli(id);
             foreach (var articolo in articoli)
             {
@@ -652,11 +635,11 @@ namespace PortaleRegione.BAL
 
                 if (viewEm)
                 {
-                    List<Guid> emArticolis =
-                        await _unitOfWork.Emendamenti.GetByArticolo(articolo.UIDArticolo, StatiEnum.Approvato);
-                    foreach (var emArticoloGuid in emArticolis)
+                    var em_per_articolo = await _unitOfWork.Emendamenti.GetByArticolo(articolo.UIDArticolo);
+
+                    foreach (var em_articolo in em_per_articolo.Where(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche))
                     {
-                        var emArticolo = await _logicEm.GetEM_DTO_Light(emArticoloGuid);
+                        var emArticolo = await _logicEm.GetEM_DTO_Light(em_articolo.UIDEM);
                         articoliModel.Emendamenti.Add(emArticolo);
                     }
                 }
@@ -674,11 +657,10 @@ namespace PortaleRegione.BAL
 
                         if (viewEm)
                         {
-                            List<Guid> emCommis =
-                                await _unitOfWork.Emendamenti.GetByComma(comma.UIDComma, StatiEnum.Approvato);
-                            foreach (var emCommaGuid in emCommis)
+                            var em_per_comma = await _unitOfWork.Emendamenti.GetByComma(comma.UIDComma);
+                            foreach (var em_comma in em_per_comma.Where(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche))
                             {
-                                var emComma = await _logicEm.GetEM_DTO_Light(emCommaGuid);
+                                var emComma = await _logicEm.GetEM_DTO_Light(em_comma.UIDEM);
                                 commiModel.Emendamenti.Add(emComma);
                             }
                         }
@@ -696,12 +678,10 @@ namespace PortaleRegione.BAL
 
                                 if (viewEm)
                                 {
-                                    List<Guid> emLetteras =
-                                        await _unitOfWork.Emendamenti.GetByLettera(lettera.UIDLettera,
-                                            StatiEnum.Approvato);
-                                    foreach (var emLetteraGuid in emLetteras)
+                                    var em_per_lettera = await _unitOfWork.Emendamenti.GetByLettera(lettera.UIDLettera);
+                                    foreach (var em_lettera in em_per_lettera.Where(em => em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche))
                                     {
-                                        var emLettera = await _logicEm.GetEM_DTO_Light(emLetteraGuid);
+                                        var emLettera = await _logicEm.GetEM_DTO_Light(em_lettera.UIDEM);
                                         letteraModel.Emendamenti.Add(emLettera);
                                     }
                                 }

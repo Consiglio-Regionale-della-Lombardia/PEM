@@ -16,24 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
-    public class LegislatureLogic:BaseLogic
+    public class LegislatureLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-
         public LegislatureLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-        }     
+        }
 
         public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
         {

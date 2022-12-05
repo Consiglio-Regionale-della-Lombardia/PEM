@@ -55,23 +55,23 @@
         switch (persona.Stato_Pin)
         {
             case StatoPinEnum.VALIDO:
-                {
-                    messaggio = "Pin valido";
-                    colorPin = "green";
-                    break;
-                }
+            {
+                messaggio = "Pin valido";
+                colorPin = "green";
+                break;
+            }
             case StatoPinEnum.RESET:
-                {
-                    messaggio = "Pin da resettare";
-                    colorPin = "orange";
-                    break;
-                }
+            {
+                messaggio = "Pin da resettare";
+                colorPin = "orange";
+                break;
+            }
             case StatoPinEnum.NESSUNO:
-                {
-                    messaggio = "Nessun pin impostato";
-                    colorPin = "red";
-                    break;
-                }
+            {
+                messaggio = "Nessun pin impostato";
+                colorPin = "red";
+                break;
+            }
         }
         <div class="col l6 m6 s12">
             <div class="card hoverable" title="@persona.DisplayName">
@@ -81,15 +81,18 @@
                             <div class="chip white-text @colorPin" style="min-width: unset">@messaggio</div>
                         </div>
                         <div class="col s6 right-align">
-                            <a class="hoverable center black-text" onclick="openResetPin('@persona.UID_persona', '@persona.DisplayName')" title="RESET pin">
-                                <i class="material-icons">lock</i>
-                            </a>
-                            <a class="hoverable center black-text" onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')" title="RESET password">
-                                <i class="material-icons">vpn_key</i>
-                            </a>
-                            <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new { id = persona.UID_persona })')" title="Modifica @persona.UID_persona">
-                                <i class="material-icons">chevron_right</i>
-                            </a>
+                            @if (Model.Persona.IsAmministratorePEM || Model.Persona.IsAmministratoreGiunta)
+                            {
+                                <a class="hoverable center black-text" onclick="openResetPin('@persona.UID_persona', '@persona.DisplayName')" title="RESET pin">
+                                    <i class="material-icons">lock</i>
+                                </a>
+                                <a class="hoverable center black-text" onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')" title="RESET password">
+                                    <i class="material-icons">vpn_key</i>
+                                </a>
+                                <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new { id = persona.UID_persona })')" title="Modifica @persona.UID_persona">
+                                    <i class="material-icons">chevron_right</i>
+                                </a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -134,7 +137,7 @@
     }
 </div>
 
-<input type="hidden" id="hdPersonaUID" />
+<input type="hidden" id="hdPersonaUID"/>
 @{
     Html.RenderPartial("_RiepilogoUtentiFiltri", Model.Data);
     Html.RenderPartial("_RiepilogoUtenti_ModalResetPin");

@@ -16,22 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.BAL
 {
     public class FirmeLogic : BaseLogic
     {
-        private readonly IUnitOfWork _unitOfWork;
-
         public FirmeLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -58,11 +55,11 @@ namespace PortaleRegione.BAL
                     {
                         UIDEM = firma.UIDEM,
                         UID_persona = firma.UID_persona,
-                        FirmaCert = Decrypt(firma.FirmaCert),
-                        Data_firma = Decrypt(firma.Data_firma),
+                        FirmaCert = BALHelper.Decrypt(firma.FirmaCert),
+                        Data_firma = BALHelper.Decrypt(firma.Data_firma),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
-                            : Decrypt(firma.Data_ritirofirma)
+                            : BALHelper.Decrypt(firma.Data_ritirofirma)
                     };
 
                     result.Add(firmaDto);
@@ -72,7 +69,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetFirme", e);
+                //Log.Error("Logic - GetFirme", e);
                 throw e;
             }
         }
@@ -87,7 +84,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - CountFirme", e);
+                //Log.Error("Logic - CountFirme", e);
                 throw e;
             }
         }
@@ -104,18 +101,18 @@ namespace PortaleRegione.BAL
                 {
                     UIDEM = firmaInDb.UIDEM,
                     UID_persona = firmaInDb.UID_persona,
-                    FirmaCert = Decrypt(firmaInDb.FirmaCert),
-                    Data_firma = Decrypt(firmaInDb.Data_firma),
+                    FirmaCert = BALHelper.Decrypt(firmaInDb.FirmaCert),
+                    Data_firma = BALHelper.Decrypt(firmaInDb.Data_firma),
                     Data_ritirofirma = string.IsNullOrEmpty(firmaInDb.Data_ritirofirma)
                         ? null
-                        : Decrypt(firmaInDb.Data_ritirofirma)
+                        : BALHelper.Decrypt(firmaInDb.Data_ritirofirma)
                 };
 
                 return firmaDto;
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetFirmaUfficio", e);
+                //Log.Error("Logic - GetFirmaUfficio", e);
                 throw e;
             }
         }

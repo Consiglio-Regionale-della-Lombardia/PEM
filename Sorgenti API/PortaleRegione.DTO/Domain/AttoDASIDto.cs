@@ -124,6 +124,7 @@ namespace PortaleRegione.DTO.Domain
         public bool Inviato_Al_Protocollo { get; set; } = false;
         public DateTime? DataInvioAlProtocollo { get; set; }
         public bool CapogruppoNeiTermini { get; set; } = false;
+        public bool MOZU_Capigruppo { get; set; } = false;
 
         public bool IsMOZ()
         {

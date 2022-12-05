@@ -32,12 +32,17 @@
                         <option value="@((int)RuoliIntEnum.Utente)">Utente</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Gruppi</label>
-                    <select id="filter_gruppi" name="gruppi" class="form-control" multiple="multiple">
-                        <option value="">--</option>
-                    </select>
-                </div>
+                
+                if (User.IsInRole(RuoliIntEnum.Amministratore_PEM.ToString()))
+                {
+                    <div class="form-group">
+                        <label>Gruppi</label>
+                        <select id="filter_gruppi" name="gruppi" class="form-control" multiple="multiple">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                }
+                
                 <div class="form-group">
                     <p>
                         <label>
@@ -55,7 +60,7 @@
     </div>
     <div class="row">
         <div class="col s12 center">
-            <a class="btn chip blue white-text" style="min-width: unset" onclick="filtra();">Cerca</a>
+            <a class="btn chip blue white-text" style="min-width: unset" onclick="filtra(1);">Cerca</a>
             <a href="@Url.Action("RiepilogoUtenti")" class="btn chip grey white-text" style="min-width: unset">Reset</a>
         </div>
     </div>

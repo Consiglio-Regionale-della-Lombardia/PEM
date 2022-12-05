@@ -23,12 +23,10 @@ using PortaleRegione.Common;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,29 +36,17 @@ namespace PortaleRegione.BAL
 {
     public class NotificheLogic : BaseLogic
     {
-        private readonly DASILogic _logicDasi;
-        private readonly EmendamentiLogic _logicEm;
-        private readonly FirmeLogic _logicFirme;
-        private readonly AttiFirmeLogic _logicFirmeDasi;
-        private readonly PersoneLogic _logicPersone;
-        private readonly UtilsLogic _logicUtil;
-        private readonly IUnitOfWork _unitOfWork;
-
-        #region ctor
-
         public NotificheLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEM, PersoneLogic logicPersone,
             UtilsLogic logicUtil, FirmeLogic logicFirme, DASILogic logicDASI, AttiFirmeLogic logicFirmeDASI)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEM;
-            _logicPersone = logicPersone;
+            _logicPersona = logicPersone;
             _logicUtil = logicUtil;
             _logicFirme = logicFirme;
             _logicDasi = logicDASI;
-            _logicFirmeDasi = logicFirmeDASI;
+            _logicAttiFirme = logicFirmeDASI;
         }
-
-        #endregion
 
         public async Task<RiepilogoNotificheModel> GetNotificheInviate(BaseRequest<NotificaDto> model,
             PersonaDto currentUser,
@@ -68,7 +54,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                Log.Debug($"Logic - GetNotificheInviate - page[{model.page}], pageSize[{model.size}]");
+                //Log.Debug($"Logic - GetNotificheInviate - page[{model.page}], pageSize[{model.size}]");
                 var queryFilter = new Filter<NOTIFICHE>();
                 queryFilter.ImportStatements(model.filtro);
 
@@ -83,25 +69,22 @@ namespace PortaleRegione.BAL
                     .ToList();
 
                 var result = new List<NotificaDto>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var notifica in notifiche)
                 {
-                    var idgruppo = 0;
                     if (notifica.UIDEM == Guid.Empty)
                     {
-                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser, personeInDbLight);
+                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
                         notifica.ATTO_DASI = atto_dasi;
                         idGruppo = notifica.ATTO_DASI.id_gruppo;
                     }
                     else
                     {
                         var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
-                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
+                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
                         idGruppo = notifica.EM.id_gruppo;
                     }
 
-                    notifica.UTENTI_NoCons = await _logicPersone.GetPersona(notifica.Mittente,
+                    notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
                         idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                     result.Add(notifica);
                 }
@@ -120,7 +103,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetNotificheInviate", e);
+                //Log.Error("Logic - GetNotificheInviate", e);
                 throw e;
             }
         }
@@ -148,25 +131,22 @@ namespace PortaleRegione.BAL
 
                 var result = new List<NotificaDto>();
 
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
                 foreach (var notifica in notifiche)
                 {
-                    var idgruppo = 0;
                     if (notifica.UIDEM == Guid.Empty)
                     {
-                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser, personeInDbLight);
+                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
                         notifica.ATTO_DASI = atto_dasi;
                         idGruppo = notifica.ATTO_DASI.id_gruppo;
                     }
                     else
                     {
                         var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
-                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser, personeInDbLight);
+                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
                         idGruppo = notifica.EM.id_gruppo;
                     }
 
-                    notifica.UTENTI_NoCons = await _logicPersone.GetPersona(notifica.Mittente,
+                    notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
                         idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
                     result.Add(notifica);
                 }
@@ -186,7 +166,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetNotificheRicevute", e);
+                //Log.Error("Logic - GetNotificheRicevute", e);
                 throw e;
             }
         }
@@ -220,7 +200,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetDestinatariNotifica", e);
+                //Log.Error("Logic - GetDestinatariNotifica", e);
                 throw e;
             }
         }
@@ -236,14 +216,14 @@ namespace PortaleRegione.BAL
                 if (sonoPersone)
                 {
                     foreach (var destinatario in model.ListaDestinatari)
-                        listaDestinatari.Add(await _logicPersone.GetPersona(new Guid(destinatario), false));
+                        listaDestinatari.Add(await _logicPersona.GetPersona(new Guid(destinatario), false));
                 }
                 else
                 {
                     var sonoGruppi = int.TryParse(model.ListaDestinatari.First(), out var _);
                     if (sonoGruppi)
                         foreach (var gruppoId in model.ListaDestinatari.Select(g => Convert.ToInt32(g)))
-                            listaDestinatari.AddRange(await _logicPersone.GetConsiglieriGruppo(gruppoId));
+                            listaDestinatari.AddRange(await _logicPersona.GetConsiglieriGruppo(gruppoId));
                 }
 
                 if (!listaDestinatari.Any())
@@ -254,8 +234,6 @@ namespace PortaleRegione.BAL
 
                 var bodyMail = string.Empty;
                 var attachMail = new List<AllegatoMail>();
-                var personeInDb = await _unitOfWork.Persone.GetAll();
-                var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
                 if (model.IsDASI)
                 {
@@ -263,7 +241,7 @@ namespace PortaleRegione.BAL
 
                     foreach (var idGuid in model.Lista)
                     {
-                        var atto = await _logicDasi.GetAttoDto(idGuid, currentUser, personeInDbLight);
+                        var atto = await _logicDasi.GetAttoDto(idGuid, currentUser);
                         if (atto == null)
                         {
                             results.Add(idGuid, "ERROR: NON TROVATO");
@@ -279,6 +257,8 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
+                        var sync_guid = Guid.NewGuid();
+
                         var newNotifica = new NOTIFICHE
                         {
                             UIDAtto = atto.UIDAtto,
@@ -288,8 +268,14 @@ namespace PortaleRegione.BAL
                             Messaggio = string.Empty,
                             DataCreazione = DateTime.Now,
                             IdGruppo = atto.id_gruppo,
-                            SyncGUID = Guid.NewGuid()
+                            SyncGUID = sync_guid
                         };
+
+                        _unitOfWork.Notifiche.Add(newNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+
+                        var notificaInDb = await _unitOfWork.Notifiche.GetBySync(sync_guid);
 
                         var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
                         foreach (var destinatario in listaDestinatari)
@@ -301,16 +287,23 @@ namespace PortaleRegione.BAL
                             if (existDestinatario == null)
                                 destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                                 {
-                                    NOTIFICHE = newNotifica,
+                                    UIDNotifica = notificaInDb.UIDNotifica,
                                     UIDPersona = destinatario.UID_persona,
                                     IdGruppo = atto.id_gruppo,
                                     UID = Guid.NewGuid()
                                 });
                         }
 
-                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+                        try
+                        {
+                            if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
-                        await _unitOfWork.CompleteAsync();
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
 
                         var attoInDb = await _logicDasi.Get(atto.UIDAtto);
                         var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
@@ -338,7 +331,7 @@ namespace PortaleRegione.BAL
                     var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
                     foreach (var idGuid in model.Lista)
                     {
-                        var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser, personeInDbLight);
+                        var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser);
                         if (em == null)
                         {
                             results.Add(idGuid, "ERROR: NON TROVATO");
@@ -361,6 +354,8 @@ namespace PortaleRegione.BAL
                             continue;
                         }
 
+                        var sync_guid = Guid.NewGuid();
+
                         var newNotifica = new NOTIFICHE
                         {
                             UIDEM = em.UIDEM,
@@ -372,8 +367,14 @@ namespace PortaleRegione.BAL
                             DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
                             DataCreazione = DateTime.Now,
                             IdGruppo = em.id_gruppo,
-                            SyncGUID = Guid.NewGuid()
+                            SyncGUID = sync_guid
                         };
+
+                        _unitOfWork.Notifiche.Add(newNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+
+                        var notificaInDb = await _unitOfWork.Notifiche.GetBySync(sync_guid);
 
                         var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
                         foreach (var destinatario in listaDestinatari)
@@ -385,16 +386,24 @@ namespace PortaleRegione.BAL
                             if (existDestinatario == null)
                                 destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
                                 {
-                                    NOTIFICHE = newNotifica,
+                                    UIDNotifica = notificaInDb.UIDNotifica,
                                     UIDPersona = destinatario.UID_persona,
                                     IdGruppo = em.id_gruppo,
                                     UID = Guid.NewGuid()
                                 });
                         }
 
-                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+                        try
+                        {
+                            if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
 
-                        await _unitOfWork.CompleteAsync();
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+
                         var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                         bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
                         bodyMail +=
@@ -418,7 +427,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - InvitaAFirmare", e);
+                //Log.Error("Logic - InvitaAFirmare", e);
                 throw e;
             }
         }
@@ -464,7 +473,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - NotificaVista", e);
+                //Log.Error("Logic - NotificaVista", e);
                 throw e;
             }
         }
@@ -481,25 +490,25 @@ namespace PortaleRegione.BAL
                 switch (tipo)
                 {
                     case TipoDestinatarioNotificaEnum.TUTTI:
-                        result = (await _logicPersone.GetProponenti())
+                        result = (await _logicPersona.GetProponenti())
                             .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         break;
                     case TipoDestinatarioNotificaEnum.CONSIGLIERI:
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                         {
-                            result = (await _logicPersone.GetAssessoriRiferimento())
+                            result = (await _logicPersona.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
                         {
-                            result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                            result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         }
                         else
                         {
-                            var consiglieri_In_Db = (await _logicPersone.GetConsiglieri())
+                            var consiglieri_In_Db = (await _logicPersona.GetConsiglieri())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
                             foreach (var consigliere in consiglieri_In_Db)
                                 result.Add(consigliere.Key, consigliere.Value);
@@ -510,29 +519,29 @@ namespace PortaleRegione.BAL
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                         {
-                            result = (await _logicPersone.GetAssessoriRiferimento())
+                            result = (await _logicPersona.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
                         {
-                            result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                            result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         }
                         else
                         {
-                            var assessori_In_Db = (await _logicPersone.GetAssessoriRiferimento())
+                            var assessori_In_Db = (await _logicPersona.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                             foreach (var assessori in assessori_In_Db) result.Add(assessori.Key, assessori.Value);
                         }
 
                         break;
                     case TipoDestinatarioNotificaEnum.GRUPPI:
-                        result = (await _logicPersone.GetGruppiAttivi())
+                        result = (await _logicPersona.GetGruppiAttivi())
                             .ToDictionary(k => k.id.ToString(), z => z.descr);
                         break;
                     case TipoDestinatarioNotificaEnum.RELATORI:
-                        result = (await _logicPersone.GetRelatori(atto))
+                        result = (await _logicPersona.GetRelatori(atto))
                             .ToDictionary(k => k.UID_persona.ToString(), z => z.DisplayName);
                         break;
                     default:
@@ -543,7 +552,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetListaDestinatari", e);
+                //Log.Error("Logic - GetListaDestinatari", e);
                 throw;
             }
         }
@@ -560,25 +569,25 @@ namespace PortaleRegione.BAL
                 switch (tipo)
                 {
                     case TipoDestinatarioNotificaEnum.TUTTI:
-                        result = (await _logicPersone.GetProponenti())
+                        result = (await _logicPersona.GetProponenti())
                             .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         break;
                     case TipoDestinatarioNotificaEnum.CONSIGLIERI:
                         if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                             persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                         {
-                            result = (await _logicPersone.GetAssessoriRiferimento())
+                            result = (await _logicPersona.GetAssessoriRiferimento())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         }
                         else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
                                  persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
                         {
-                            result = (await _logicPersone.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                            result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
                         }
                         else
                         {
-                            var consiglieri_In_Db = (await _logicPersone.GetConsiglieri())
+                            var consiglieri_In_Db = (await _logicPersona.GetConsiglieri())
                                 .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
                             foreach (var consigliere in consiglieri_In_Db)
                                 result.Add(consigliere.Key, consigliere.Value);
@@ -586,7 +595,7 @@ namespace PortaleRegione.BAL
 
                         break;
                     case TipoDestinatarioNotificaEnum.GRUPPI:
-                        result = (await _logicPersone.GetGruppiAttivi())
+                        result = (await _logicPersona.GetGruppiAttivi())
                             .ToDictionary(k => k.id.ToString(), z => z.descr);
                         break;
                     default:
@@ -597,7 +606,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - GetListaDestinatari", e);
+                //Log.Error("Logic - GetListaDestinatari", e);
                 throw;
             }
         }
@@ -616,7 +625,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - AccettaPropostaFirma", e);
+                //Log.Error("Logic - AccettaPropostaFirma", e);
                 throw e;
             }
         }
@@ -629,7 +638,7 @@ namespace PortaleRegione.BAL
                 notifica.Chiuso = true;
                 var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
                 firma.Data_ritirofirma =
-                    EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                    BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                         AppSettingsConfiguration.masterKey);
                 await _unitOfWork.CompleteAsync();
                 var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
@@ -652,7 +661,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                Log.Error("Logic - AccettaRitiroFirma", e);
+                //Log.Error("Logic - AccettaRitiroFirma", e);
                 throw e;
             }
         }

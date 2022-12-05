@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
+using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.Logger;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -35,17 +35,33 @@ namespace PortaleRegione.API.Controllers
     [RoutePrefix("admin")]
     public class AdminController : BaseApiController
     {
-        private readonly AdminLogic _logic;
-        private readonly PersoneLogic _logicPersone;
-
         /// <summary>
+        ///     Costruttore
         /// </summary>
-        /// <param name="logic"></param>
-        /// <param name="logicPersone"></param>
-        public AdminController(AdminLogic logic, PersoneLogic logicPersone)
+        /// <param name="unitOfWork"></param>
+        /// <param name="authLogic"></param>
+        /// <param name="personeLogic"></param>
+        /// <param name="legislatureLogic"></param>
+        /// <param name="seduteLogic"></param>
+        /// <param name="attiLogic"></param>
+        /// <param name="dasiLogic"></param>
+        /// <param name="firmeLogic"></param>
+        /// <param name="attiFirmeLogic"></param>
+        /// <param name="emendamentiLogic"></param>
+        /// <param name="publicLogic"></param>
+        /// <param name="notificheLogic"></param>
+        /// <param name="esportaLogic"></param>
+        /// <param name="stampeLogic"></param>
+        /// <param name="utilsLogic"></param>
+        /// <param name="adminLogic"></param>
+        public AdminController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
+            LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
+            FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
-            _logic = logic;
-            _logicPersone = logicPersone;
         }
 
         /// <summary>
@@ -59,12 +75,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.ResetPin(request);
+                await _adminLogic.ResetPin(request);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ResetPin", e);
+                //Log.Error("ResetPin", e);
                 return ErrorHandler(e);
             }
         }
@@ -80,12 +96,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.ResetPassword(request);
+                await _adminLogic.ResetPassword(request);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("ResetPassword", e);
+                //Log.Error("ResetPassword", e);
                 return ErrorHandler(e);
             }
         }
@@ -101,9 +117,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var currentUser = await _logic.GetPersona(session);
-                var results = await _logic.GetUtenti(model, currentUser, Request.RequestUri);
+                var currentUser = CurrentUser;
+                var results = await _adminLogic.GetUtenti(model, currentUser, Request.RequestUri);
                 return Ok(new RiepilogoUtentiModel
                 {
                     Data = results,
@@ -112,7 +127,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("GetUtenti", e);
+                //Log.Error("GetUtenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -128,13 +143,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var result = await _logic.GetUtente(id);
+                var result = await _adminLogic.GetUtente(id);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                Log.Error("GetUtente", e);
+                //Log.Error("GetUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -149,15 +164,13 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var currentUser = await _logic.GetPersona(session);
-                var ruoli = await _logic.GetRuoliAD(currentUser.CurrentRole == RuoliIntEnum.Amministratore_Giunta);
+                var ruoli = await _adminLogic.GetRuoliAD(Session._currentRole == RuoliIntEnum.Amministratore_Giunta);
 
                 return Ok(ruoli);
             }
             catch (Exception e)
             {
-                Log.Error("GetRuoli", e);
+                //Log.Error("GetRuoli", e);
                 return ErrorHandler(e);
             }
         }
@@ -172,16 +185,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
                 var gruppiPoliticiAD =
-                    await _logic.GetGruppiPoliticiAD(
-                        session._currentRole == RuoliIntEnum.Amministratore_Giunta);
+                    await _adminLogic.GetGruppiPoliticiAD(
+                        Session._currentRole == RuoliIntEnum.Amministratore_Giunta);
 
                 return Ok(gruppiPoliticiAD);
             }
             catch (Exception e)
             {
-                Log.Error("GetGruppiPoliticiAD", e);
+                //Log.Error("GetGruppiPoliticiAD", e);
                 return ErrorHandler(e);
             }
         }
@@ -196,11 +208,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _logicPersone.GetGruppiInDb());
+                return Ok(await _personeLogic.GetGruppiInDb());
             }
             catch (Exception e)
             {
-                Log.Error("GetGruppiInDb", e);
+                //Log.Error("GetGruppiInDb", e);
                 return ErrorHandler(e);
             }
         }
@@ -217,16 +229,16 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var persona = await _logic.GetPersona(id);
+                var persona = await _adminLogic.GetPersona(id);
                 if (persona == null) return NotFound();
 
-                await _logicPersone.DeletePersona(persona.id_persona);
+                await _personeLogic.DeletePersona(persona.id_persona);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("DeleteUtente", e);
+                //Log.Error("DeleteUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -243,13 +255,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var uid_persona = await _logic.SalvaUtente(request, session._currentRole);
+                var uid_persona = await _adminLogic.SalvaUtente(request, Session._currentRole);
                 return Ok(uid_persona);
             }
             catch (Exception e)
             {
-                Log.Error("SalvaUtente", e);
+                //Log.Error("SalvaUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -265,12 +276,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.EliminaUtente(id);
+                await _adminLogic.EliminaUtente(id);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("EliminaUtente", e);
+                //Log.Error("EliminaUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -287,12 +298,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _logic.SalvaGruppo(request);
+                await _adminLogic.SalvaGruppo(request);
                 return Ok();
             }
             catch (Exception e)
             {
-                Log.Error("SalvaGruppo", e);
+                //Log.Error("SalvaGruppo", e);
                 return ErrorHandler(e);
             }
         }
@@ -308,18 +319,17 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var session = GetSession();
-                var currentUser = await _logic.GetPersona(session);
-                var results = await _logic.GetGruppi(model, Request.RequestUri);
+                var user = CurrentUser;
+                var results = await _adminLogic.GetGruppi(model);
                 return Ok(new RiepilogoGruppiModel
                 {
                     Results = results,
-                    Persona = currentUser
+                    Persona = user
                 });
             }
             catch (Exception e)
             {
-                Log.Error("GetGruppi", e);
+                //Log.Error("GetGruppi", e);
                 return ErrorHandler(e);
             }
         }

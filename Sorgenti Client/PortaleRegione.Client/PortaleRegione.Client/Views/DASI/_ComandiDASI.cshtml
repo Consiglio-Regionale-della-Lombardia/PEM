@@ -78,7 +78,7 @@
             });
             return;
         }
-
+        
         if (action == @((int) ActionEnum.FIRMA)) {
             text = "Inserisci il PIN per firmare ";
             button = "Firma";
@@ -106,6 +106,7 @@
             .then((value) => {
                 if (value == null || value == "")
                     return;
+                waiting(true);
 
                 var obj = {};
                 obj.Pin = value;
@@ -125,6 +126,7 @@
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    waiting(false);
                     swal({
                         title: "Esito procedura",
                         text: data.message,
@@ -135,6 +137,7 @@
                         location.reload();
                     });
                 }).fail(function(err) {
+                    waiting(false);
                     console.log("error", err);
                     Error(err);
                 });

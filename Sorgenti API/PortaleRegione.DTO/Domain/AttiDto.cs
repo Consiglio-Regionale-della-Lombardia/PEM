@@ -94,5 +94,21 @@ namespace PortaleRegione.DTO.Domain
         public bool Emendabile { get; set; } = false;
         public int CounterODG { get; set; } = 0;
         public bool Fascicoli_Da_Aggiornare { get; set; } = false;
+
+        public bool IsAperto()
+        {
+            //Atto chiuso
+            if (Data_chiusura.HasValue)
+                return false;
+            //Atto non aperto
+            if (!Data_apertura.HasValue)
+                return false;
+            //Atto non ancora aperto
+            if (Data_apertura > DateTime.Now)
+                return false;
+
+            //Atto aperto
+            return true;
+        }
     }
 }

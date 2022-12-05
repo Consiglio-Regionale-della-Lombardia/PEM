@@ -13,6 +13,9 @@
                 <li class="collection-item">
                     <div>@conteggio.nome_gruppo<a href="#!" class="secondary-content">@conteggio.num_em</a></div></li>
             }
+            
+            <li class="collection-item">
+                <div><b>Totale</b><a href="#!" class="secondary-content"><b>@Model.ConteggiGruppi.Sum(i => i.num_em)</b></a></div></li>
 
         </ul>
 
