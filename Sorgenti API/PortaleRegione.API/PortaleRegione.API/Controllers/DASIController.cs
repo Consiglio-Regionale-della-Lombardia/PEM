@@ -458,7 +458,7 @@ namespace PortaleRegione.API.Controllers
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
 
-                await _dasiLogic.Elimina(atto, Session._currentUId);
+                await _dasiLogic.Elimina(atto, CurrentUser);
 
                 return Ok();
             }
