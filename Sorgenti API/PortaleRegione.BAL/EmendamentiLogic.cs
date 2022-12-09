@@ -29,7 +29,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-using PortaleRegione.GestioneStampe;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -2294,13 +2293,14 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                throw new NotImplementedException();
                 var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
                 var emDto = await GetEM_DTO(em);
-                var content = PdfStamper.CreaPDFInMemory(body, emDto, "");
+                //var content = PdfStamper.CreaPDFInMemory(body, emDto, "");
 
-                var res = ComposeFileResponse(content, $"{emDto.N_EM}.pdf");
-                return res;
+                //var res = ComposeFileResponse(content, $"{emDto.N_EM}.pdf");
+                //return res;
             }
             catch (Exception e)
             {
