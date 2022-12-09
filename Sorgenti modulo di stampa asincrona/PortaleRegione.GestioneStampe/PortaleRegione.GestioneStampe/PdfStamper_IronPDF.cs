@@ -69,5 +69,10 @@ namespace PortaleRegione.GestioneStampe
             Renderer.PrintOptions.Footer.DrawDividerLine = true;
             PdfDocument.Merge(listPdf).SaveAs(path);
         }
+
+        public Task<byte[]> CreaPDFInMemory(string body, EmendamentiDto em)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

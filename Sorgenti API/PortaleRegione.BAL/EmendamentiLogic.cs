@@ -29,6 +29,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.GestioneStampe;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -2293,18 +2294,31 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                throw new NotImplementedException();
-                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
-                var emDto = await GetEM_DTO(em);
-                //var content = PdfStamper.CreaPDFInMemory(body, emDto, "");
-
-                //var res = ComposeFileResponse(content, $"{emDto.N_EM}.pdf");
-                //return res;
+                var content = await PDFIstantaneo(em, persona);
+                var res = ComposeFileResponse(content,
+                    $"{GetNomeEM(em, null)}.pdf");
+                return res;
             }
             catch (Exception e)
             {
                 //Log.Error("DownloadPDFIstantaneo", e);
+                throw e;
+            }
+        }
+
+        internal async Task<byte[]> PDFIstantaneo(EM em, PersonaDto persona)
+        {
+            try
+            {
+                var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
+                var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+                var dto = await GetEM_DTO(em);
+                return await stamper.CreaPDFInMemory(body, dto);
+            }
+            catch (Exception e)
+            {
+                //Log.Error("PDFIstantaneo", e);
                 throw e;
             }
         }
