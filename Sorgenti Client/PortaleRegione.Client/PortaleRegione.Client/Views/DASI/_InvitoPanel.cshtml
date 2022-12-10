@@ -52,6 +52,7 @@
     async function LoadDestinatari(tipo) {
         $('#chkCaricaConsiglieri').prop('checked', false);
         data_preload = [];
+        persone = [];
         var personeInDB = await GetPersonePerInvitiDASI(tipo);
 
         for (let [key, value] of Object.entries(personeInDB)) {
