@@ -198,8 +198,46 @@ namespace PortaleRegione.API.Controllers
 
             if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
             {
-                //Il proponente ha firmato l'atto, ed è l'unico firmatario,
-                //in questo caso re-crypt del testo certificato
+                // Matteo Cattapan #527 - Avviso modifica bozza 
+                // Quando un atto in bozza è già stato firmato da altri consiglieri e viene modificato dal proponente,
+                // il sistema deve invalidare le firme ed inviare una notifica ad ogni firmatario
+                var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.TUTTE);
+                if (firme.Count(i => i.UID_persona != persona.UID_persona) > 0)
+                {
+                    var firmatari = new List<string>();
+                    foreach (var firma in firme.Where(i => i.UID_persona != persona.UID_persona))
+                    {
+                        var firmatario = await _logicPersona.GetPersona(firma.UID_persona);
+                        firmatari.Add(firmatario.email);
+                    }
+
+                    if (firmatari.Count > 0)
+                    {
+                        try
+                        {
+                            var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
+                            var mailModel = new MailModel
+                            {
+                                DA = persona.email,
+                                A = firmatari.Aggregate((i, j) => i + ";" + j),
+                                OGGETTO =
+                                    $"Atto {nome_atto} modificato dal consigliere proponente",
+                                MESSAGGIO =
+                                    $"{persona.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto."
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+
+                        await _logicAttiFirme.RimuoviFirme(attoInDb);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
+
+                //re-crypt del testo certificato
                 var body = await GetBodyDASI(attoInDb, null, persona,
                     TemplateTypeEnum.FIRMA);
                 var body_encrypt = BALHelper.EncryptString(body, BALHelper.Decrypt(attoInDb.Hash));
@@ -1410,7 +1448,7 @@ namespace PortaleRegione.API.Controllers
                 try
                 {
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
-                    var content = await PDFIstantaneo(atto, null);
+                    var content = await PDFIstantaneo(atto, persona);
                     var attachList = new List<AllegatoMail>
                     {
                         new AllegatoMail(content, $"{nome_atto}.pdf")
