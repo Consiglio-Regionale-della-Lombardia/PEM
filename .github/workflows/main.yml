@@ -19,8 +19,14 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.1.1
       
-    - name: Restore NuGet packages
+    - name: Restore NuGet packages API
       run: nuget restore 'Sorgenti API/PortaleRegione.API/PortaleRegione.API.sln'
     
-    - name: Build Project
+    - name: Build Project API
       run: msbuild 'Sorgenti API/PortaleRegione.API/PortaleRegione.API.sln'
+      
+    - name: Restore NuGet packages CLIENT
+      run: nuget restore 'Sorgenti Client/PortaleRegione.Client/PortaleRegione.Client.sln'
+    
+    - name: Build Project CLIENT
+      run: msbuild 'Sorgenti Client/PortaleRegione.Client/PortaleRegione.Client.sln'
