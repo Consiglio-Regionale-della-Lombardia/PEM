@@ -1440,20 +1440,11 @@ namespace PortaleRegione.API.Controllers
                     firmatari.Add(firmatario.email);
                 }
 
-                if (firmatari.Count <= 0)
-                {
-                    return;
-                }
+                if (firmatari.Count <= 0) return;
 
                 try
                 {
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
-                    var content = await PDFIstantaneo(atto, persona);
-                    var attachList = new List<AllegatoMail>
-                    {
-                        new AllegatoMail(content, $"{nome_atto}.pdf")
-                    };
-
                     var mailModel = new MailModel
                     {
                         DA = persona.email,
@@ -1461,8 +1452,7 @@ namespace PortaleRegione.API.Controllers
                         OGGETTO =
                             "Avviso di eliminazione bozza atto",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza {nome_atto} <br> {atto.Oggetto}.",
-                        ATTACHMENTS = attachList
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza {nome_atto} <br> {atto.Oggetto}."
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
@@ -1491,6 +1481,42 @@ namespace PortaleRegione.API.Controllers
                 atto.DataRitiro = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();
+
+                // Matteo Cattapan #530 - Avviso ritiro atto
+                // Quando viene ritirato un Atto sottoscritto da più firmatari, il sistema deve inviare ai firmatari rimasti (che non hanno già ritirato la propria firma)
+                // un messaggio email che notifica il ritiro dell’atto
+
+                var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+                var firmatari = new List<string>();
+                foreach (var attiFirmeDto in firme.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)))
+                {
+                    if (attiFirmeDto.UID_persona == persona.UID_persona)
+                        continue;
+
+                    var firmatario = await _logicPersona.GetPersona(attiFirmeDto.UID_persona);
+                    firmatari.Add(firmatario.email);
+                }
+
+                if (firmatari.Count <= 0) return;
+
+                try
+                {
+                    var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                    var mailModel = new MailModel
+                    {
+                        DA = persona.email,
+                        A = firmatari.Aggregate((i, j) => i + ";" + j),
+                        OGGETTO =
+                            "Avviso di ritiro atto",
+                        MESSAGGIO =
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
             catch (Exception e)
             {
