@@ -19,7 +19,6 @@
 using Newtonsoft.Json;
 using PortaleRegione.Client.Controllers;
 using PortaleRegione.DTO.Domain;
-using PortaleRegione.Logger;
 using System;
 using System.Security.Claims;
 using System.Web;
@@ -41,8 +40,6 @@ namespace PortaleRegione.Client
         /// </summary>
         protected void Application_Start()
         {
-            // Inizializza Log
-            Log.Initialize();
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
@@ -94,7 +91,6 @@ namespace PortaleRegione.Client
         protected void Application_Error(object sender, EventArgs e)
         {
             var exc = Server.GetLastError();
-            Log.Error("### ERROR ###", exc);
             Response.Clear();
             if (exc.GetType() == typeof(UnauthorizedAccessException))
             {

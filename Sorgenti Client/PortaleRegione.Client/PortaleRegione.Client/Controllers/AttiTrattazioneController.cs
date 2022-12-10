@@ -40,12 +40,12 @@ namespace PortaleRegione.Client.Controllers
         {
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
             var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var seduta = await apiGateway.Sedute.Get(id);
             var model = new DashboardModel
             {
                 Seduta = seduta,
-                CurrentUser = _CurrentUser
+                CurrentUser = CurrentUser
             };
             var attiPEM = await apiGateway.Atti.Get(id, mode, 1, 99);
             if (attiPEM.Results.Any())
@@ -63,7 +63,7 @@ namespace PortaleRegione.Client.Controllers
         {
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
 
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.Sedute.Get(page, size);
             return View("Archivio", model);
         }

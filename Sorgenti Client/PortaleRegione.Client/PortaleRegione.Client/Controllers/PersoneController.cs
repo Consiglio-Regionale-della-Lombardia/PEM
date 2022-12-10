@@ -35,7 +35,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("{id:guid}")]
         public async Task<ActionResult> GetPersona(Guid id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             return Json(await apiGateway.Persone.Get(id), JsonRequestBehavior.AllowGet);
         }
 
@@ -43,7 +43,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("all")]
         public async Task<ActionResult> GetPersone()
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             return Json(await apiGateway.Persone.Get(), JsonRequestBehavior.AllowGet);
         }
 
@@ -59,7 +59,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 await apiGateway.Persone.CheckPin(model);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
@@ -77,7 +77,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 await apiGateway.Persone.SalvaPin(model);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
@@ -92,7 +92,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("gruppi-politici")]
         public async Task<ActionResult> GetGruppi()
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             return Json(await apiGateway.Persone.GetGruppiAttivi(), JsonRequestBehavior.AllowGet);
         }
     }

@@ -39,11 +39,6 @@ namespace PortaleRegione.Client.Controllers
         {
             for (int i = 0; i < ruoli.Count; i++)
             {
-                //if (_CurrentUser.Ruoli.Select(item=>item.IDruolo).Contains((int)ruoli[i]))
-                //{
-
-                //}
-
                 var check = User.IsInRole(((int)ruoli[i]).ToString());
                 if (check)
                     return true;
@@ -52,7 +47,7 @@ namespace PortaleRegione.Client.Controllers
             return false;
         }
 
-        public PersonaDto _CurrentUser
+        public PersonaDto CurrentUser
         {
             get
             {
@@ -73,7 +68,7 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        public string _Token
+        public string Token
         {
             get
             {
