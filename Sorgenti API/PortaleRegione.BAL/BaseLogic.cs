@@ -420,6 +420,14 @@ namespace PortaleRegione.BAL
                 var firmeDtos = firme.ToList();
 
                 body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
+                body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
+                var testo_deposito = $"Creato il: {emendamento.DataCreazione.Value:dd/MM/yyyy HH:mm}";
+                if (emendamento.IDStato >= (int)StatiEnum.Depositato)
+                {
+                    testo_deposito = $"Depositato il: {emendamento.DataDeposito}";
+                }
+
+                body = body.Replace("{DepositatoEMView}", testo_deposito);
 
                 if (string.IsNullOrEmpty(emendamento.EM_Certificato))
                 {

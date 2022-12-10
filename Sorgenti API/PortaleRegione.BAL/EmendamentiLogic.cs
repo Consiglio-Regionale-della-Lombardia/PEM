@@ -641,22 +641,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<string> GetBodyEM(EmendamentiDto emDto, IEnumerable<FirmeDto> firme, PersonaDto persona,
-            TemplateTypeEnum template)
-        {
-            try
-            {
-                var em = await _unitOfWork.Emendamenti.Get(emDto.UIDEM);
-                return await GetBodyEM(em, firme, persona, template);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetBodyEM", e);
-                throw e;
-            }
-        }
-
-        public async Task<string> GetBodyEM(EM em, IEnumerable<FirmeDto> firme, PersonaDto persona,
+        public async Task<string> GetBodyEM(EmendamentiDto em, IEnumerable<FirmeDto> firme, PersonaDto persona,
             TemplateTypeEnum template)
         {
             try
@@ -672,13 +657,11 @@ namespace PortaleRegione.BAL
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
+                        case TemplateTypeEnum.HTML:
                             GetBody(emendamentoDto, attoDto, firme, persona, false, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
                             GetBody(emendamentoDto, attoDto, firme, persona, true, ref body);
-                            break;
-                        case TemplateTypeEnum.HTML:
-                            GetBody(emendamentoDto, attoDto, firme, persona, false, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
                             GetBodyTemporaneo(emendamentoDto, attoDto, ref body);
@@ -843,7 +826,7 @@ namespace PortaleRegione.BAL
                             : pin.PIN;
                         em.UIDPersonaPrimaFirma = persona.UID_persona;
                         em.DataPrimaFirma = DateTime.Now;
-                        var body = await GetBodyEM(em, new List<FirmeDto>
+                        var body = await GetBodyEM(emDto, new List<FirmeDto>
                             {
                                 new FirmeDto
                                 {
@@ -2294,9 +2277,10 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var content = await PDFIstantaneo(em, persona);
+                var dto = await GetEM_DTO(em);
+                var content = await PDFIstantaneo(dto, persona);
                 var res = ComposeFileResponse(content,
-                    $"{GetNomeEM(em, null)}.pdf");
+                    $"{dto.N_EM.Replace("all' ", "_").Replace(" ", "_")}.pdf");
                 return res;
             }
             catch (Exception e)
@@ -2306,15 +2290,15 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal async Task<byte[]> PDFIstantaneo(EM em, PersonaDto persona)
+        internal async Task<byte[]> PDFIstantaneo(EmendamentiDto em, PersonaDto persona)
         {
             try
             {
                 var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-                var dto = await GetEM_DTO(em);
-                return await stamper.CreaPDFInMemory(body, dto);
+
+                return await stamper.CreaPDFInMemory(body, em.N_EM);
             }
             catch (Exception e)
             {

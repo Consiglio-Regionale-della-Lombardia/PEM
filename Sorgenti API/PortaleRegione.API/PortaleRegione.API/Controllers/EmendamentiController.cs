@@ -558,14 +558,9 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var em = await _emendamentiLogic.GetEM(model.Id);
-                if (em == null)
-                {
-                    return NotFound();
-                }
-
-                var firme = await _firmeLogic.GetFirme(em, FirmeTipoEnum.TUTTE);
-                var body = await _emendamentiLogic.GetBodyEM(em
+                var emDto = await _emendamentiLogic.GetEM_DTO(model.Id);
+                var firme = await _firmeLogic.GetFirme(emDto, FirmeTipoEnum.TUTTE);
+                var body = await _emendamentiLogic.GetBodyEM(emDto
                     , firme
                     , CurrentUser
                     , model.Template);

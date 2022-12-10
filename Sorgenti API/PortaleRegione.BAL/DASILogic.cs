@@ -2322,7 +2322,7 @@ namespace PortaleRegione.API.Controllers
                 var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-                return await stamper.CreaPDFInMemory(body, attoDto);
+                return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
             }
             catch (Exception e)
             {
