@@ -481,134 +481,118 @@ namespace PortaleRegione.BAL
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo,
             PersonaDto persona)
         {
-            try
+            var result = new Dictionary<string, string>();
+
+            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM) tipo = TipoDestinatarioNotificaEnum.TUTTI;
+
+            switch (tipo)
             {
-                var result = new Dictionary<string, string>();
-
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM) tipo = TipoDestinatarioNotificaEnum.TUTTI;
-
-                switch (tipo)
-                {
-                    case TipoDestinatarioNotificaEnum.TUTTI:
-                        result = (await _logicPersona.GetProponenti())
+                case TipoDestinatarioNotificaEnum.TUTTI:
+                    result = (await _logicPersona.GetProponenti())
+                        .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                    break;
+                case TipoDestinatarioNotificaEnum.CONSIGLIERI:
+                    if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                        persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                    {
+                        result = (await _logicPersona.GetAssessoriRiferimento())
                             .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        break;
-                    case TipoDestinatarioNotificaEnum.CONSIGLIERI:
-                        if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
-                            persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
-                        {
-                            result = (await _logicPersona.GetAssessoriRiferimento())
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        }
-                        else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
-                                 persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
-                        {
-                            result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        }
-                        else
-                        {
-                            var consiglieri_In_Db = (await _logicPersona.GetConsiglieri())
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
-                            foreach (var consigliere in consiglieri_In_Db)
-                                result.Add(consigliere.Key, consigliere.Value);
-                        }
+                    }
+                    else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                             persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                    {
+                        result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                    }
+                    else
+                    {
+                        var consiglieri_In_Db = (await _logicPersona.GetConsiglieri())
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
+                        foreach (var consigliere in consiglieri_In_Db)
+                            result.Add(consigliere.Key, consigliere.Value);
+                    }
 
-                        break;
-                    case TipoDestinatarioNotificaEnum.ASSESSORI:
-                        if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
-                            persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
-                        {
-                            result = (await _logicPersona.GetAssessoriRiferimento())
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        }
-                        else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
-                                 persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
-                        {
-                            result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        }
-                        else
-                        {
-                            var assessori_In_Db = (await _logicPersona.GetAssessoriRiferimento())
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                            foreach (var assessori in assessori_In_Db) result.Add(assessori.Key, assessori.Value);
-                        }
+                    break;
+                case TipoDestinatarioNotificaEnum.ASSESSORI:
+                    if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                        persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                    {
+                        result = (await _logicPersona.GetAssessoriRiferimento())
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                    }
+                    else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                             persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                    {
+                        result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                    }
+                    else
+                    {
+                        var assessori_In_Db = (await _logicPersona.GetAssessoriRiferimento())
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                        foreach (var assessori in assessori_In_Db) result.Add(assessori.Key, assessori.Value);
+                    }
 
-                        break;
-                    case TipoDestinatarioNotificaEnum.GRUPPI:
-                        result = (await _logicPersona.GetGruppiAttivi())
-                            .ToDictionary(k => k.id.ToString(), z => z.descr);
-                        break;
-                    case TipoDestinatarioNotificaEnum.RELATORI:
-                        result = (await _logicPersona.GetRelatori(atto))
-                            .ToDictionary(k => k.UID_persona.ToString(), z => z.DisplayName);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
-                }
-
-                return result;
+                    break;
+                case TipoDestinatarioNotificaEnum.GRUPPI:
+                    result = (await _logicPersona.GetGruppiAttivi())
+                        .ToDictionary(k => k.id.ToString(), z => z.descr);
+                    break;
+                case TipoDestinatarioNotificaEnum.RELATORI:
+                    result = (await _logicPersona.GetRelatori(atto))
+                        .ToDictionary(k => k.UID_persona.ToString(), z => z.DisplayName);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetListaDestinatari", e);
-                throw;
-            }
+
+            return result;
         }
 
         public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo,
             PersonaDto persona)
         {
-            try
+            var result = new Dictionary<string, string>();
+
+            if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM) tipo = TipoDestinatarioNotificaEnum.TUTTI;
+
+            switch (tipo)
             {
-                var result = new Dictionary<string, string>();
-
-                if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM) tipo = TipoDestinatarioNotificaEnum.TUTTI;
-
-                switch (tipo)
-                {
-                    case TipoDestinatarioNotificaEnum.TUTTI:
-                        result = (await _logicPersona.GetProponenti())
+                case TipoDestinatarioNotificaEnum.TUTTI:
+                    result = (await _logicPersona.GetProponenti())
+                        .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                    break;
+                case TipoDestinatarioNotificaEnum.CONSIGLIERI:
+                    if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
+                        persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                    {
+                        result = (await _logicPersona.GetAssessoriRiferimento())
                             .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        break;
-                    case TipoDestinatarioNotificaEnum.CONSIGLIERI:
-                        if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
-                            persona.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
-                        {
-                            result = (await _logicPersona.GetAssessoriRiferimento())
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        }
-                        else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
-                                 persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
-                        {
-                            result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
-                        }
-                        else
-                        {
-                            var consiglieri_In_Db = (await _logicPersona.GetConsiglieri())
-                                .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
-                            foreach (var consigliere in consiglieri_In_Db)
-                                result.Add(consigliere.Key, consigliere.Value);
-                        }
+                    }
+                    else if (persona.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica ||
+                             persona.CurrentRole == RuoliIntEnum.Segreteria_Politica)
+                    {
+                        result = (await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo))
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName);
+                    }
+                    else
+                    {
+                        var consiglieri_In_Db = (await _logicPersona.GetConsiglieri())
+                            .ToDictionary(p => p.UID_persona.ToString(), s => s.DisplayName_GruppoCode);
+                        foreach (var consigliere in consiglieri_In_Db)
+                            result.Add(consigliere.Key, consigliere.Value);
+                    }
 
-                        break;
-                    case TipoDestinatarioNotificaEnum.GRUPPI:
-                        result = (await _logicPersona.GetGruppiAttivi())
-                            .ToDictionary(k => k.id.ToString(), z => z.descr);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
-                }
+                    break;
+                case TipoDestinatarioNotificaEnum.GRUPPI:
+                    result = (await _logicPersona.GetGruppiAttivi())
+                        .ToDictionary(k => k.id.ToString(), z => z.descr);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
+            }
 
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetListaDestinatari", e);
-                throw;
-            }
+            return result;
         }
 
         public async Task AccettaPropostaFirma(long id)

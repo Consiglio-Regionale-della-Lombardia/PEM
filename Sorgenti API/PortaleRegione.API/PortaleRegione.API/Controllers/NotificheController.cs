@@ -76,8 +76,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                object Archivio;
-                model.param.TryGetValue("Archivio", out Archivio);
+                model.param.TryGetValue("Archivio", out var Archivio);
                 var result = await _notificheLogic.GetNotificheInviate(model,
                     CurrentUser,
                     Convert.ToBoolean(Archivio),
@@ -124,10 +123,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                object Archivio;
-                model.param.TryGetValue("Archivio", out Archivio);
-                object Solo_Non_Viste;
-                model.param.TryGetValue("Solo_Non_Viste", out Solo_Non_Viste);
+                model.param.TryGetValue("Archivio", out var Archivio);
+                model.param.TryGetValue("Solo_Non_Viste", out var Solo_Non_Viste);
                 var result = await _notificheLogic.GetNotificheRicevute(model,
                     CurrentUser,
                     Convert.ToBoolean(Archivio),

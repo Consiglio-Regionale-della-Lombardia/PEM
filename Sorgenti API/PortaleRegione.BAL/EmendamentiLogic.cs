@@ -1193,86 +1193,78 @@ namespace PortaleRegione.BAL
         public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model,
             PersonaDto personaDto)
         {
-            try
-            {
-                var results = new Dictionary<Guid, string>();
+            var results = new Dictionary<Guid, string>();
 
-                model.Lista ??= new List<Guid>();
-                switch (model.All)
-                {
-                    case true when !model.Lista.Any():
-                        model.Lista =
+            model.Lista ??= new List<Guid>();
+            switch (model.All)
+            {
+                case true when !model.Lista.Any():
+                    model.Lista =
+                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
+                        .Select(em => em.UIDEM).ToList();
+                    break;
+                case true when model.Lista.Any():
+                    {
+                        var emendamentiInDb =
                             (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
                             .Select(em => em.UIDEM).ToList();
+                        emendamentiInDb.RemoveAll(em => model.Lista.Contains(em));
+                        model.Lista = emendamentiInDb;
                         break;
-                    case true when model.Lista.Any():
-                        {
-                            var emendamentiInDb =
-                                (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
-                                .Select(em => em.UIDEM).ToList();
-                            emendamentiInDb.RemoveAll(em => model.Lista.Contains(em));
-                            model.Lista = emendamentiInDb;
-                            break;
-                        }
-                }
-
-                var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First());
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
-                foreach (var idGuid in model.Lista)
-                {
-                    var em = await GetEM(idGuid);
-                    if (em == null)
-                    {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
-                        continue;
                     }
-
-                    if (string.IsNullOrEmpty(em.DataDeposito))
-                        continue;
-
-                    em.IDStato = (int)model.Stato;
-                    await _unitOfWork.CompleteAsync();
-                    results.Add(idGuid, "OK");
-
-                    if (!atto.Fascicoli_Da_Aggiornare &&
-                        (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
-                         !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
-                    {
-                        if (!string.IsNullOrEmpty(em.DataDeposito))
-                        {
-                            atto.Fascicoli_Da_Aggiornare = true;
-                            await _unitOfWork.CompleteAsync();
-                        }
-                    }
-
-                    try
-                    {
-                        //OPENDATA
-                        if (AppSettingsConfiguration.AbilitaOpenData == "1")
-                        {
-                            var wsOD = new UpsertOpenData();
-                            var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                            var firmeDto = firme.ToList();
-                            var emDto = await GetEM_DTO(em, atto, null, null, null, false);
-                            var resultOpenData = await GetEM_OPENDATA(emDto, atto,
-                                firmeDto,
-                                Users.First(p => p.UID_persona == em.UIDPersonaProponente));
-                            wsOD.UpsertEM(resultOpenData, AppSettingsConfiguration.OpenData_PrivateToken);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        //Log.Error("OpenDataEM", e);
-                    }
-                }
-
-                return results;
             }
-            catch (Exception e)
+
+            var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First());
+            var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+            foreach (var idGuid in model.Lista)
             {
-                //Log.Error("Logic - ModificaStatoEmendamento", e);
-                throw e;
+                var em = await GetEM(idGuid);
+                if (em == null)
+                {
+                    results.Add(idGuid, "ERROR: NON TROVATO");
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(em.DataDeposito))
+                    continue;
+
+                em.IDStato = (int)model.Stato;
+                await _unitOfWork.CompleteAsync();
+                results.Add(idGuid, "OK");
+
+                if (!atto.Fascicoli_Da_Aggiornare &&
+                    (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
+                     !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
+                {
+                    if (!string.IsNullOrEmpty(em.DataDeposito))
+                    {
+                        atto.Fascicoli_Da_Aggiornare = true;
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
+
+                try
+                {
+                    //OPENDATA
+                    if (AppSettingsConfiguration.AbilitaOpenData == "1")
+                    {
+                        var wsOD = new UpsertOpenData();
+                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                        var firmeDto = firme.ToList();
+                        var emDto = await GetEM_DTO(em, atto, null, null, null, false);
+                        var resultOpenData = await GetEM_OPENDATA(emDto, atto,
+                            firmeDto,
+                            Users.First(p => p.UID_persona == em.UIDPersonaProponente));
+                        wsOD.UpsertEM(resultOpenData, AppSettingsConfiguration.OpenData_PrivateToken);
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
+
+            return results;
         }
 
         /// <summary>

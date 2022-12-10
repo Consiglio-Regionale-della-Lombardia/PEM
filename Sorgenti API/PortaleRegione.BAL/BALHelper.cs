@@ -73,9 +73,8 @@ namespace PortaleRegione.BAL
 
                 return UTF8.GetString(Results);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //Log.Error($"DecryptString {EncryptedString}", e);
                 Console.WriteLine("EM CORROTTO");
                 return "<font style='color:red'>Valore Corrotto</font>";
             }
