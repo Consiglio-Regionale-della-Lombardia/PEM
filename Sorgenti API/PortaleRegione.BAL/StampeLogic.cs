@@ -59,348 +59,257 @@ namespace PortaleRegione.BAL
 
         public async Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model, PersonaDto persona)
         {
-            try
+            var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+
+            var queryFilter = new Filter<EM>();
+            var firmatari = new List<Guid>();
+            var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
+
+            var gruppi = new List<int>();
+            var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
+
+            var stati = new List<int>();
+            var stati_request = new List<FilterStatement<EmendamentiDto>>();
+
+            var proponenti = new List<Guid>();
+            var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
+            if (model.filtro != null)
             {
-                var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
-
-                var queryFilter = new Filter<EM>();
-                var firmatari = new List<Guid>();
-                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
-
-                var gruppi = new List<int>();
-                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
-
-                var stati = new List<int>();
-                var stati_request = new List<FilterStatement<EmendamentiDto>>();
-
-                var proponenti = new List<Guid>();
-                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
-                if (model.filtro != null)
+                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
                 {
-                    if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
-                    {
-                        firmatari_request =
-                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                                statement.PropertyId == "Firmatario"));
-                        firmatari.AddRange(
-                            firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
-                        foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
-                    }
-
-                    if (model.filtro.Any(statement =>
-                        statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
-                    {
-                        proponenti_request =
-                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                                statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
-                        proponenti.AddRange(proponenti_request.Select(proponente =>
-                            new Guid(proponente.Value.ToString())));
-                        foreach (var proponenteStatement in proponenti_request)
-                            model.filtro.Remove(proponenteStatement);
-                    }
-
-                    if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
-                    {
-                        gruppi_request =
-                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                                statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
-                        gruppi.AddRange(gruppi_request.Select(gruppo => Convert.ToInt32(gruppo.Value.ToString())));
-                        foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
-                    }
-
-
-                    if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
-                    {
-                        stati_request =
-                            new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
-                                statement.PropertyId == nameof(EmendamentiDto.IDStato)));
-                        stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
-                        foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-                    }
+                    firmatari_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "Firmatario"));
+                    firmatari.AddRange(
+                        firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
+                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
                 }
 
-                queryFilter.ImportStatements(model.filtro);
+                if (model.filtro.Any(statement =>
+                        statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
+                {
+                    proponenti_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
+                    proponenti.AddRange(proponenti_request.Select(proponente =>
+                        new Guid(proponente.Value.ToString())));
+                    foreach (var proponenteStatement in proponenti_request)
+                        model.filtro.Remove(proponenteStatement);
+                }
 
-                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
+                {
+                    gruppi_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
+                    gruppi.AddRange(gruppi_request.Select(gruppo => Convert.ToInt32(gruppo.Value.ToString())));
+                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
+                }
 
-                var queryEM =
-                    await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
-                stampa.Query = queryEM;
 
-                stampa.DataRichiesta = DateTime.Now;
-                stampa.CurrentRole = (int)persona.CurrentRole;
-                stampa.UIDStampa = Guid.NewGuid();
-                stampa.UIDUtenteRichiesta = persona.UID_persona;
-                stampa.Lock = false;
-                stampa.Tentativi = 0;
-                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDEM.HasValue)
-                    stampa.Scadenza = null;
-                else
-                    stampa.Scadenza =
-                        DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
-
-                _unitOfWork.Stampe.Add(stampa);
-                await _unitOfWork.CompleteAsync();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
+                {
+                    stati_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
+                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                }
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - InserisciStampa", e);
-                throw;
-            }
+
+            queryFilter.ImportStatements(model.filtro);
+
+            model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+
+            var queryEM =
+                await _unitOfWork.Emendamenti.GetAll_Query(persona, Convert.ToInt16(CLIENT_MODE), queryFilter, model.ordine, firmatari, proponenti, gruppi, stati);
+            stampa.Query = queryEM;
+
+            stampa.DataRichiesta = DateTime.Now;
+            stampa.CurrentRole = (int)persona.CurrentRole;
+            stampa.UIDStampa = Guid.NewGuid();
+            stampa.UIDUtenteRichiesta = persona.UID_persona;
+            stampa.Lock = false;
+            stampa.Tentativi = 0;
+            if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDEM.HasValue)
+                stampa.Scadenza = null;
+            else
+                stampa.Scadenza =
+                    DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+
+            _unitOfWork.Stampe.Add(stampa);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
         {
-            try
+            model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+            var mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE);
+            var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+            var soggetti = new List<int>();
+            var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
             {
-                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
-                var mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE);
-                var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
-                var soggetti = new List<int>();
-                var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
-                if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
-                {
-                    soggetti_request =
-                        new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
-                            statement.PropertyId == "SoggettiDestinatari"));
-                    soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
-                    foreach (var s in soggetti_request) model.filtro.Remove(s);
-                }
-
-                var queryFilter = new Filter<ATTI_DASI>();
-                queryFilter.ImportStatements(model.filtro);
-                var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti);
-                stampa.Query = query;
-
-                stampa.DataRichiesta = DateTime.Now;
-                stampa.CurrentRole = (int)persona.CurrentRole;
-                stampa.UIDStampa = Guid.NewGuid();
-                stampa.UIDUtenteRichiesta = persona.UID_persona;
-                stampa.Lock = false;
-                stampa.Tentativi = 0;
-                if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
-                {
-                    stampa.Scadenza = null;
-                }
-                else
-                {
-                    stampa.Scadenza =
-                        DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
-                }
-
-                stampa.DASI = true;
-                _unitOfWork.Stampe.Add(stampa);
-                await _unitOfWork.CompleteAsync();
+                soggetti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == "SoggettiDestinatari"));
+                soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                foreach (var s in soggetti_request) model.filtro.Remove(s);
             }
-            catch (Exception e)
+
+            var queryFilter = new Filter<ATTI_DASI>();
+            queryFilter.ImportStatements(model.filtro);
+            var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti);
+            stampa.Query = query;
+
+            stampa.DataRichiesta = DateTime.Now;
+            stampa.CurrentRole = (int)persona.CurrentRole;
+            stampa.UIDStampa = Guid.NewGuid();
+            stampa.UIDUtenteRichiesta = persona.UID_persona;
+            stampa.Lock = false;
+            stampa.Tentativi = 0;
+            if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
             {
-                //Log.Error("Logic - InserisciStampa", e);
-                throw;
+                stampa.Scadenza = null;
             }
+            else
+            {
+                stampa.Scadenza =
+                    DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+            }
+
+            stampa.DASI = true;
+            _unitOfWork.Stampe.Add(stampa);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task LockStampa(IEnumerable<StampaDto> listaStampe)
         {
-            try
+            foreach (var stampa in listaStampe)
             {
-                foreach (var stampa in listaStampe)
-                {
-                    var stampaInDb = await GetStampa(stampa.UIDStampa);
-                    stampaInDb.Lock = true;
-                    stampaInDb.DataLock = DateTime.Now;
-                    stampaInDb.DataInizioEsecuzione = DateTime.Now;
-                    stampaInDb.Tentativi += 1;
+                var stampaInDb = await GetStampa(stampa.UIDStampa);
+                stampaInDb.Lock = true;
+                stampaInDb.DataLock = DateTime.Now;
+                stampaInDb.DataInizioEsecuzione = DateTime.Now;
+                stampaInDb.Tentativi += 1;
 
-                    await _unitOfWork.CompleteAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - LockStampa", e);
-                throw;
+                await _unitOfWork.CompleteAsync();
             }
         }
 
         public async Task UnLockStampa(Guid stampaUId)
         {
-            try
-            {
-                var stampa = await _unitOfWork.Stampe.Get(stampaUId);
-                stampa.Lock = false;
+            var stampa = await _unitOfWork.Stampe.Get(stampaUId);
+            stampa.Lock = false;
 
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - UnLockStampa", e);
-                throw;
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task ResetStampa(STAMPE stampa)
         {
-            try
-            {
-                stampa.Lock = false;
-                stampa.Tentativi = 0;
-                stampa.DataLock = null;
-                stampa.DataInizioEsecuzione = null;
-                stampa.MessaggioErrore = string.Empty;
+            stampa.Lock = false;
+            stampa.Tentativi = 0;
+            stampa.DataLock = null;
+            stampa.DataInizioEsecuzione = null;
+            stampa.MessaggioErrore = string.Empty;
 
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - ResetStampa", e);
-                throw e;
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task ErroreStampa(StampaRequest model)
         {
-            try
-            {
-                var stampa = await _unitOfWork.Stampe.Get(model.stampaUId);
-                stampa.DataFineEsecuzione = DateTime.Now;
-                stampa.MessaggioErrore = model.messaggio;
+            var stampa = await _unitOfWork.Stampe.Get(model.stampaUId);
+            stampa.DataFineEsecuzione = DateTime.Now;
+            stampa.MessaggioErrore = model.messaggio;
 
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - ErroreStampa", e);
-                throw;
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task UpdateFileStampa(StampaDto stampa)
         {
-            try
-            {
-                var stampaInDb = await _unitOfWork.Stampe.Get(stampa.UIDStampa);
-                stampaInDb.DataFineEsecuzione = DateTime.Now;
-                stampaInDb.PathFile = stampa.PathFile;
-                stampaInDb.MessaggioErrore = string.Empty;
+            var stampaInDb = await _unitOfWork.Stampe.Get(stampa.UIDStampa);
+            stampaInDb.DataFineEsecuzione = DateTime.Now;
+            stampaInDb.PathFile = stampa.PathFile;
+            stampaInDb.MessaggioErrore = string.Empty;
 
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - UpdateFileStampa", e);
-                throw;
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task SetInvioStampa(StampaDto stampa)
         {
-            try
-            {
-                var stampaInDb = await _unitOfWork.Stampe.Get(stampa.UIDStampa);
-                stampaInDb.Invio = true;
-                stampaInDb.DataInvio = DateTime.Now;
+            var stampaInDb = await _unitOfWork.Stampe.Get(stampa.UIDStampa);
+            stampaInDb.Invio = true;
+            stampaInDb.DataInvio = DateTime.Now;
 
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - SetInvioStampa", e);
-                throw;
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<HttpResponseMessage> DownloadStampa(STAMPE stampa)
         {
-            try
-            {
-                var _pathTemp = string.Empty;
-                _pathTemp = stampa.Notifica
-                    ? AppSettingsConfiguration.RootRepository
-                    : AppSettingsConfiguration.CartellaLavoroStampe;
+            var _pathTemp = stampa.Notifica
+                ? AppSettingsConfiguration.RootRepository
+                : AppSettingsConfiguration.CartellaLavoroStampe;
 
-                var result = await ComposeFileResponse(Path.Combine(_pathTemp, stampa.PathFile));
+            var result = await ComposeFileResponse(Path.Combine(_pathTemp, stampa.PathFile));
 
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - DownloadStampa", e);
-                throw e;
-            }
+            return result;
         }
 
         public async Task<BaseResponse<StampaDto>> GetStampe(BaseRequest<StampaDto> model, PersonaDto persona, Uri url)
         {
-            try
-            {
-                var queryFilter = new Filter<STAMPE>();
-                queryFilter.ImportStatements(model.filtro);
+            var queryFilter = new Filter<STAMPE>();
+            queryFilter.ImportStatements(model.filtro);
 
-                var stampe = await _unitOfWork.Stampe.GetAll(persona, model.page, model.size, queryFilter);
-                var result = new List<StampaDto>();
-                if (persona.IsSegreteriaAssemblea
-                    || persona.IsAmministratoreGiunta)
-                {
-                    foreach (var stampa in stampe)
-                    {
-                        var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
-                        var infos = await GetLastInfo(stampa);
-                        stampaDto.Info = infos?.Message;
-                        stampaDto.Richiedente =
-                            Mapper.Map<View_UTENTI, PersonaLightDto>(
-                                await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
-                        result.Add(stampaDto);
-                    }
-                }
-                else
-                {
-                    foreach (var stampa in stampe)
-                    {
-                        var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
-                        var infos = await GetLastInfo(stampa);
-                        stampaDto.Info = infos?.Message;
-                        result.Add(stampaDto);
-                    }
-                }
-
-                return new BaseResponse<StampaDto>(
-                    model.page,
-                    model.size,
-                    result,
-                    model.filtro,
-                    await _unitOfWork.Stampe.Count(persona, queryFilter),
-                    url);
-            }
-            catch (Exception e)
+            var stampe = await _unitOfWork.Stampe.GetAll(persona, model.page, model.size, queryFilter);
+            var result = new List<StampaDto>();
+            if (persona.IsSegreteriaAssemblea
+                || persona.IsAmministratoreGiunta)
             {
-                //Log.Error("Logic - GetStampe", e);
-                throw e;
+                foreach (var stampa in stampe)
+                {
+                    var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
+                    var infos = await GetLastInfo(stampa);
+                    stampaDto.Info = infos?.Message;
+                    stampaDto.Richiedente =
+                        Mapper.Map<View_UTENTI, PersonaLightDto>(
+                            await _unitOfWork.Persone.Get(stampa.UIDUtenteRichiesta));
+                    result.Add(stampaDto);
+                }
             }
+            else
+            {
+                foreach (var stampa in stampe)
+                {
+                    var stampaDto = Mapper.Map<STAMPE, StampaDto>(stampa);
+                    var infos = await GetLastInfo(stampa);
+                    stampaDto.Info = infos?.Message;
+                    result.Add(stampaDto);
+                }
+            }
+
+            return new BaseResponse<StampaDto>(
+                model.page,
+                model.size,
+                result,
+                model.filtro,
+                await _unitOfWork.Stampe.Count(persona, queryFilter),
+                url);
         }
 
         public async Task<BaseResponse<StampaDto>> GetStampe(BaseRequest<StampaDto> model, Uri url)
         {
-            try
-            {
-                //Log.Debug($"Logic - GetStampe - page[{model.page}], pageSize[{model.size}]");
+            var result = (await _unitOfWork.Stampe.GetAll(model.page, model.size))
+                .Select(Mapper.Map<STAMPE, StampaDto>);
 
-                var result = (await _unitOfWork.Stampe.GetAll(model.page, model.size))
-                    .Select(Mapper.Map<STAMPE, StampaDto>);
+            await LockStampa(result);
 
-                await LockStampa(result);
-
-                return new BaseResponse<StampaDto>(
-                    model.page,
-                    model.size,
-                    result,
-                    model.filtro,
-                    await _unitOfWork.Stampe.Count(),
-                    url);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetStampe", e);
-                throw e;
-            }
+            return new BaseResponse<StampaDto>(
+                model.page,
+                model.size,
+                result,
+                model.filtro,
+                await _unitOfWork.Stampe.Count(),
+                url);
         }
 
         public async Task AddInfo(STAMPE stampa, string messaggio)

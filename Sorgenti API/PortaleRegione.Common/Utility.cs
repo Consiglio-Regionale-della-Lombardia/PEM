@@ -261,7 +261,7 @@ namespace PortaleRegione.Common
                         return " ";
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return " ";
             }
@@ -302,7 +302,7 @@ namespace PortaleRegione.Common
                             tipoRichiestaDestinatario, null);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return " ";
             }

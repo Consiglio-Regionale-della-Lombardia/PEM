@@ -304,8 +304,7 @@ namespace PortaleRegione.API.Controllers
                 if (currentPin.PIN_Decrypt != model.vecchio_pin)
                     throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
-                int valuePin;
-                var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
+                var checkTry = int.TryParse(model.nuovo_pin, out var _);
                 if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
                 if (model.nuovo_pin.Length != 4)
@@ -357,8 +356,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                int valuePin;
-                var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
+                var checkTry = int.TryParse(model.nuovo_pin, out var _);
                 if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
                 if (model.nuovo_pin.Length != 4)

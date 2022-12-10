@@ -786,154 +786,186 @@ namespace PortaleRegione.API.Controllers
         public async Task<Dictionary<Guid, string>> RitiroFirma(ComandiAzioneModel firmaModel,
             PersonaDto persona)
         {
-            try
+            var results = new Dictionary<Guid, string>();
+
+            foreach (var idGuid in firmaModel.Lista)
             {
-                var results = new Dictionary<Guid, string>();
-
-                foreach (var idGuid in firmaModel.Lista)
+                var atto = await _unitOfWork.DASI.Get(idGuid);
+                if (atto == null)
                 {
-                    var atto = await _unitOfWork.DASI.Get(idGuid);
-                    if (atto == null)
+                    results.Add(idGuid, "ERROR: NON TROVATO");
+                    continue;
+                }
+
+                if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                    throw new InvalidOperationException(
+                        "Non è possibile ritirare la firma di un atto chiuso.");
+
+                if (atto.DataIscrizioneSeduta.HasValue)
+                {
+                    if (atto.Tipo == (int)TipoAttoEnum.ITL
+                        && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE)
                     {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
-                        continue;
+                        //https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/467
                     }
-
-                    if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
-                        throw new InvalidOperationException(
-                            "Non è possibile ritirare la firma di un atto chiuso.");
-
-                    if (atto.DataIscrizioneSeduta.HasValue)
+                    else
                     {
-                        if (atto.Tipo == (int)TipoAttoEnum.ITL
-                            && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE)
-                        {
-                            //https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/467
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException(
-                                "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
-                        }
-                    }
-
-                    var richiestaPresente =
-                        await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
-                    if (richiestaPresente)
                         throw new InvalidOperationException(
-                            "Richiesta di ritiro già inviata al proponente.");
+                            "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
+                    }
+                }
 
-                    var dto = await GetAttoDto(idGuid);
-                    var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
+                var richiestaPresente =
+                    await _unitOfWork.Notifiche.EsisteRitiroDasi(atto.UIDAtto, persona.UID_persona);
+                if (richiestaPresente)
+                    throw new InvalidOperationException(
+                        "Richiesta di ritiro già inviata al proponente.");
 
-                    SEDUTE seduta = null;
-                    if (atto.DataIscrizioneSeduta.HasValue)
-                        seduta = await _unitOfWork.Sedute.Get(atto.DataIscrizioneSeduta.Value);
+                var dto = await GetAttoDto(idGuid);
+                var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
 
-                    var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
-                    var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
-                    if (!string.IsNullOrEmpty(result_check))
-                        switch ((TipoAttoEnum)atto.Tipo)
-                        {
-                            case TipoAttoEnum.IQT:
-                            case TipoAttoEnum.MOZ:
+                SEDUTE seduta = null;
+                if (atto.DataIscrizioneSeduta.HasValue)
+                    seduta = await _unitOfWork.Sedute.Get(atto.DataIscrizioneSeduta.Value);
+
+                var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
+                if (!string.IsNullOrEmpty(result_check))
+                    switch ((TipoAttoEnum)atto.Tipo)
+                    {
+                        case TipoAttoEnum.IQT:
+                        case TipoAttoEnum.MOZ:
+                            {
+                                if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                                 {
-                                    if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                                    var checkIfFirmatoDaiCapigruppo =
+                                        await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(atto.UIDAtto);
+                                    if (!checkIfFirmatoDaiCapigruppo)
                                     {
                                         atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
-                                        break;
+                                        // Matteo Cattapan #535 - Avviso perdita urgenza di una mozione
+                                        // Quando, a seguito del ritiro di una firma necessaria, una mozione perde l’urgenza, deve essere inviato un alert via email
+                                        // agli altri firmatari e alla segreteria dell’assemblea
+
+                                        var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
+                                        var firmatari = new List<string>();
+                                        foreach (var attiFirmeDto in firme)
+                                        {
+                                            if (attiFirmeDto.UID_persona == persona.UID_persona)
+                                                continue;
+
+                                            var firmatario = await _logicPersona.GetPersona(attiFirmeDto.UID_persona);
+                                            firmatari.Add(firmatario.email);
+                                        }
+
+                                        firmatari.Add(AppSettingsConfiguration.EmailInvioDASI);
+
+                                        try
+                                        {
+                                            var mailModel = new MailModel
+                                            {
+                                                DA = AppSettingsConfiguration.EmailInvioDASI,
+                                                A = firmatari.Aggregate((i, j) => i + ";" + j),
+                                                OGGETTO =
+                                                    $"Non può essere trattata la mozione {nome_atto} come urgente",
+                                                MESSAGGIO =
+                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dalla {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza."
+                                            };
+                                            await _logicUtil.InvioMail(mailModel);
+                                        }
+                                        catch (Exception)
+                                        {
+                                            // ignored
+                                        }
                                     }
 
-                                    var newNotifica = new NOTIFICHE
-                                    {
-                                        UIDAtto = atto.UIDAtto,
-                                        Mittente = persona.UID_persona,
-                                        RuoloMittente = (int)persona.CurrentRole,
-                                        IDTipo = (int)TipoNotificaEnum.RITIRO,
-                                        Messaggio =
-                                            $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
-                                        DataCreazione = DateTime.Now,
-                                        IdGruppo = atto.id_gruppo,
-                                        SyncGUID = Guid.NewGuid()
-                                    };
-
-                                    var newDestinatario = new NOTIFICHE_DESTINATARI
-                                    {
-                                        NOTIFICHE = newNotifica,
-                                        UIDPersona = atto.UIDPersonaProponente.Value,
-                                        IdGruppo = atto.id_gruppo,
-                                        UID = Guid.NewGuid()
-                                    };
-
-                                    _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
-
-                                    await _unitOfWork.CompleteAsync();
-
-                                    throw new InvalidOperationException(
-                                        "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
+                                    break;
                                 }
-                        }
 
-                    if (countFirme == 1)
-                    {
-                        if (atto.Tipo == (int)TipoAttoEnum.ITL
-                            && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
-                            && atto.DataIscrizioneSeduta.HasValue)
-                            throw new InvalidOperationException(
-                                "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
+                                var newNotifica = new NOTIFICHE
+                                {
+                                    UIDAtto = atto.UIDAtto,
+                                    Mittente = persona.UID_persona,
+                                    RuoloMittente = (int)persona.CurrentRole,
+                                    IDTipo = (int)TipoNotificaEnum.RITIRO,
+                                    Messaggio =
+                                        $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
+                                    DataCreazione = DateTime.Now,
+                                    IdGruppo = atto.id_gruppo,
+                                    SyncGUID = Guid.NewGuid()
+                                };
 
-                        //RITIRA ATTO
-                        atto.IDStato = (int)StatiAttoEnum.CHIUSO;
-                        atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
-                        atto.UIDPersonaRitiro = persona.UID_persona;
-                        atto.DataRitiro = DateTime.Now;
+                                var newDestinatario = new NOTIFICHE_DESTINATARI
+                                {
+                                    NOTIFICHE = newNotifica,
+                                    UIDPersona = atto.UIDPersonaProponente.Value,
+                                    IdGruppo = atto.id_gruppo,
+                                    UID = Guid.NewGuid()
+                                };
+
+                                _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
+
+                                await _unitOfWork.CompleteAsync();
+
+                                throw new InvalidOperationException(
+                                    "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
+                            }
                     }
 
-                    //RITIRA FIRMA
-                    var firmeAttive = await _unitOfWork
-                        .Atti_Firme
-                        .GetFirmatari(atto, FirmeTipoEnum.ATTIVI);
-                    ATTI_FIRME firma_utente;
-                    firma_utente = persona.IsSegreteriaAssemblea
-                        ? firmeAttive.Single(f => f.ufficio)
-                        : firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
-
-                    firma_utente.Data_ritirofirma =
-                        BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                            AppSettingsConfiguration.masterKey);
-
-                    await _unitOfWork.CompleteAsync();
-                    results.Add(idGuid, $"{nome_atto} - OK");
-
+                if (countFirme == 1)
+                {
                     if (atto.Tipo == (int)TipoAttoEnum.ITL
                         && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
                         && atto.DataIscrizioneSeduta.HasValue)
-                        try
-                        {
-                            var mailModel = new MailModel
-                            {
-                                DA = persona.email,
-                                A =
-                                    AppSettingsConfiguration.EmailInvioDASI,
-                                OGGETTO = $"Ritiro firma effettuato da parte di {persona.DisplayName_GruppoCode}",
-                                MESSAGGIO =
-                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>."
-                            };
-                            await _logicUtil.InvioMail(mailModel);
-                        }
-                        catch (Exception e)
-                        {
-                            //Log.Error("Logic - Invio Mail ritiro firma - DASI", e);
-                        }
+                        throw new InvalidOperationException(
+                            "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
+
+                    //RITIRA ATTO
+                    atto.IDStato = (int)StatiAttoEnum.CHIUSO;
+                    atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
+                    atto.UIDPersonaRitiro = persona.UID_persona;
+                    atto.DataRitiro = DateTime.Now;
                 }
 
-                return results;
+                //RITIRA FIRMA
+                var firmeAttive = await _unitOfWork
+                    .Atti_Firme
+                    .GetFirmatari(atto, FirmeTipoEnum.ATTIVI);
+                ATTI_FIRME firma_utente;
+                firma_utente = persona.IsSegreteriaAssemblea
+                    ? firmeAttive.Single(f => f.ufficio)
+                    : firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
+
+                firma_utente.Data_ritirofirma =
+                    BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        AppSettingsConfiguration.masterKey);
+
+                await _unitOfWork.CompleteAsync();
+                results.Add(idGuid, $"{nome_atto} - OK");
+
+                if (atto.Tipo == (int)TipoAttoEnum.ITL
+                    && atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE
+                    && atto.DataIscrizioneSeduta.HasValue)
+                    try
+                    {
+                        var mailModel = new MailModel
+                        {
+                            DA = persona.email,
+                            A =
+                                AppSettingsConfiguration.EmailInvioDASI,
+                            OGGETTO = $"Ritiro firma effettuato da parte di {persona.DisplayName_GruppoCode}",
+                            MESSAGGIO =
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>."
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - RitiroFirma - DASI", e);
-                throw e;
-            }
+
+            return results;
         }
 
         public async Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel firmaModel,
@@ -1198,9 +1230,9 @@ namespace PortaleRegione.API.Controllers
                                 };
                                 await _logicUtil.InvioMail(mailModel);
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
-                                //Log.Error("Logic - ODG DI NON PASSAGGIO ALL'ESAME - Invio Mail", e);
+                                // ignored
                             }
 
                     await _unitOfWork.CompleteAsync();
@@ -1447,7 +1479,7 @@ namespace PortaleRegione.API.Controllers
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
                     var mailModel = new MailModel
                     {
-                        DA = persona.email,
+                        DA = AppSettingsConfiguration.EmailInvioDASI,
                         A = firmatari.Aggregate((i, j) => i + ";" + j),
                         OGGETTO =
                             "Avviso di eliminazione bozza atto",
@@ -1504,7 +1536,7 @@ namespace PortaleRegione.API.Controllers
                     var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
                     var mailModel = new MailModel
                     {
-                        DA = persona.email,
+                        DA = AppSettingsConfiguration.EmailInvioDASI,
                         A = firmatari.Aggregate((i, j) => i + ";" + j),
                         OGGETTO =
                             "Avviso di ritiro atto",
@@ -1744,134 +1776,118 @@ namespace PortaleRegione.API.Controllers
         public async Task IscrizioneSeduta(IscriviSedutaDASIModel model,
             PersonaDto persona)
         {
+            var listaRichieste = new Dictionary<Guid, string>();
+
+            foreach (var guid in model.Lista)
+            {
+                var atto = await Get(guid);
+                if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                if (atto.Tipo == (int)TipoAttoEnum.ITL
+                    && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
+                        || atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
+                    throw new Exception(
+                        "ERROR: Non è possibile iscrivere in seduta per le ITL SCRITTE o IN COMMISSIONE.");
+                if (atto.Tipo == (int)TipoAttoEnum.ITR)
+                    throw new Exception(
+                        "ERROR: Non è possibile iscrivere in seduta le ITR.");
+                atto.UIDSeduta = model.UidSeduta;
+                atto.DataIscrizioneSeduta = DateTime.Now;
+                atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
+                await _unitOfWork.CompleteAsync();
+                var nomeAtto =
+                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                if (!listaRichieste.Any(item => (item.Value == nomeAtto
+                                                 && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
+                                                || item.Key == atto.UIDPersonaPresentazione.Value))
+                    listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value,
+                        nomeAtto);
+            }
+
             try
             {
-                var listaRichieste = new Dictionary<Guid, string>();
-
-                foreach (var guid in model.Lista)
+                var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
+                var gruppiMail = listaRichieste.GroupBy(item => item.Key);
+                foreach (var gruppo in gruppiMail)
                 {
-                    var atto = await Get(guid);
-                    if (atto == null) throw new Exception("ERROR: NON TROVATO");
-                    if (atto.Tipo == (int)TipoAttoEnum.ITL
-                        && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
-                            || atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
-                        throw new Exception(
-                            "ERROR: Non è possibile iscrivere in seduta per le ITL SCRITTE o IN COMMISSIONE.");
-                    if (atto.Tipo == (int)TipoAttoEnum.ITR)
-                        throw new Exception(
-                            "ERROR: Non è possibile iscrivere in seduta le ITR.");
-                    atto.UIDSeduta = model.UidSeduta;
-                    atto.DataIscrizioneSeduta = DateTime.Now;
-                    atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
-                    await _unitOfWork.CompleteAsync();
-                    var nomeAtto =
-                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                    if (!listaRichieste.Any(item => (item.Value == nomeAtto
-                                                     && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
-                                                    || item.Key == atto.UIDPersonaPresentazione.Value))
-                        listaRichieste.Add(atto.UIDPersonaRichiestaIscrizione ?? atto.UIDPersonaPresentazione.Value,
-                            nomeAtto);
-                }
-
-                try
-                {
-                    var seduta = await _unitOfWork.Sedute.Get(model.UidSeduta);
-                    var gruppiMail = listaRichieste.GroupBy(item => item.Key);
-                    foreach (var gruppo in gruppiMail)
+                    var personaMail = await _unitOfWork.Persone.Get(gruppo.Key);
+                    var mailModel = new MailModel
                     {
-                        var personaMail = await _unitOfWork.Persone.Get(gruppo.Key);
-                        var mailModel = new MailModel
-                        {
-                            DA =
-                                AppSettingsConfiguration.EmailInvioDASI,
-                            A = personaMail.email,
-                            OGGETTO =
-                                "[ISCRIZIONE ATTI]",
-                            MESSAGGIO =
-                                $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}."
-                        };
-                        await _logicUtil.InvioMail(mailModel);
-                    }
-                }
-                catch (Exception e)
-                {
-                    //Log.Error("Logic - IscrizioneSeduta - Invio Mail", e);
+                        DA =
+                            AppSettingsConfiguration.EmailInvioDASI,
+                        A = personaMail.email,
+                        OGGETTO =
+                            "[ISCRIZIONE ATTI]",
+                        MESSAGGIO =
+                            $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}."
+                    };
+                    await _logicUtil.InvioMail(mailModel);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //Log.Error("Logic - IscrizioneSeduta", e);
-                throw e;
+                // ignored
             }
         }
 
         public async Task RichiediIscrizione(RichiestaIscrizioneDASIModel model, PersonaDto persona)
         {
+            var dataRichiesta = BALHelper.EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
+                AppSettingsConfiguration.masterKey);
+            var listaRichieste = new List<string>();
+            foreach (var guid in model.Lista)
+            {
+                var atto = await Get(guid);
+                if (atto == null) throw new Exception("ERROR: NON TROVATO");
+                if (atto.Tipo == (int)TipoAttoEnum.ITL)
+                    throw new Exception(
+                        "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITL.");
+                if (atto.Tipo == (int)TipoAttoEnum.ITR)
+                    throw new Exception(
+                        "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITR.");
+                if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                {
+                    var checkIscrizioneSeduta =
+                        await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta,
+                            atto.UIDPersonaProponente.Value);
+                    if (!checkIscrizioneSeduta)
+                        throw new Exception(
+                            "ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
+                }
+
+                atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    atto.DataPresentazione_MOZ = BALHelper.EncryptString(
+                        DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                        AppSettingsConfiguration.masterKey);
+                atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+                await _unitOfWork.CompleteAsync();
+
+                var nomeAtto =
+                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                if (atto.Tipo == (int)TipoAttoEnum.IQT)
+                    continue;
+                listaRichieste.Add(nomeAtto);
+            }
+
             try
             {
-                var dataRichiesta = BALHelper.EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
-                    AppSettingsConfiguration.masterKey);
-                var listaRichieste = new List<string>();
-                foreach (var guid in model.Lista)
+                if (!listaRichieste.Any()) return;
+
+                var mailModel = new MailModel
                 {
-                    var atto = await Get(guid);
-                    if (atto == null) throw new Exception("ERROR: NON TROVATO");
-                    if (atto.Tipo == (int)TipoAttoEnum.ITL)
-                        throw new Exception(
-                            "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITL.");
-                    if (atto.Tipo == (int)TipoAttoEnum.ITR)
-                        throw new Exception(
-                            "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITR.");
-                    if (atto.Tipo == (int)TipoAttoEnum.IQT)
-                    {
-                        var checkIscrizioneSeduta =
-                            await _unitOfWork.DASI.CheckIscrizioneSedutaIQT(dataRichiesta,
-                                atto.UIDPersonaProponente.Value);
-                        if (!checkIscrizioneSeduta)
-                            throw new Exception(
-                                "ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
-                    }
-
-                    atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
-                        atto.DataPresentazione_MOZ = BALHelper.EncryptString(
-                            DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                            AppSettingsConfiguration.masterKey);
-                    atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
-                    await _unitOfWork.CompleteAsync();
-
-                    var nomeAtto =
-                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                    if (atto.Tipo == (int)TipoAttoEnum.IQT)
-                        continue;
-                    listaRichieste.Add(nomeAtto);
-                }
-
-                try
-                {
-                    if (!listaRichieste.Any()) return;
-
-                    var mailModel = new MailModel
-                    {
-                        DA = persona.email,
-                        A =
-                            AppSettingsConfiguration.EmailInvioDASI,
-                        OGGETTO =
-                            "[RICHIESTA ISCRIZIONE]",
-                        MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
-                    };
-                    await _logicUtil.InvioMail(mailModel);
-                }
-                catch (Exception e)
-                {
-                    //Log.Error("Logic - RichiediIscrizione - Invio Mail", e);
-                }
+                    DA = persona.email,
+                    A =
+                        AppSettingsConfiguration.EmailInvioDASI,
+                    OGGETTO =
+                        "[RICHIESTA ISCRIZIONE]",
+                    MESSAGGIO =
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
+                };
+                await _logicUtil.InvioMail(mailModel);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //Log.Error("Logic - RichiediIscrizione", e);
-                throw e;
+                // ignored
             }
         }
 

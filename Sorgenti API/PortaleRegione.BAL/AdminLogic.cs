@@ -526,117 +526,101 @@ namespace PortaleRegione.BAL
 
         public async Task<Guid> SalvaUtente(PersonaUpdateRequest request, RuoliIntEnum ruolo)
         {
-            try
+            var intranetAdService = new proxyAD();
+
+            if (request.UID_persona == Guid.Empty)
             {
-                var intranetAdService = new proxyAD();
+                //NUOVO
 
-                if (request.UID_persona == Guid.Empty)
+                //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
+                var autoPassword = _logicUtil.GenerateRandomCode();
+                intranetAdService.CreatePEMADUser(
+                    request.userAD,
+                    autoPassword,
+                    ruolo == RuoliIntEnum.Amministratore_Giunta,
+                    AppSettingsConfiguration.TOKEN_W
+                );
+                autoPassword = ruolo == RuoliIntEnum.Amministratore_Giunta
+                    ? $"{autoPassword}"
+                    : "[Stessa usata per accedere al tuo pc]";
+
+                request.UID_persona = Guid.NewGuid();
+                request.no_Cons = 1;
+                UTENTI_NoCons newUser = request;
+                _unitOfWork.Persone.Add(newUser);
+                await _unitOfWork.CompleteAsync();
+
+
+                await _logicUtil.InvioMail(new MailModel
                 {
-                    //NUOVO
-
-                    //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
-                    var autoPassword = _logicUtil.GenerateRandomCode();
-                    intranetAdService.CreatePEMADUser(
-                        request.userAD,
-                        autoPassword,
-                        ruolo == RuoliIntEnum.Amministratore_Giunta,
-                        AppSettingsConfiguration.TOKEN_W
-                    );
-                    autoPassword = ruolo == RuoliIntEnum.Amministratore_Giunta
-                        ? $"{autoPassword}"
-                        : "[Stessa usata per accedere al tuo pc]";
-
-                    request.UID_persona = Guid.NewGuid();
-                    request.no_Cons = 1;
-                    UTENTI_NoCons newUser = request;
-                    _unitOfWork.Persone.Add(newUser);
-                    await _unitOfWork.CompleteAsync();
-
-
-                    await _logicUtil.InvioMail(new MailModel
+                    DA = "pem@consiglio.regione.lombardia.it",
+                    A = request.email,
+                    CC = "max.pagliaro@consiglio.regione.lombardia.it",
+                    OGGETTO = "PEM - Utenza aperta",
+                    MESSAGGIO =
+                        $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                });
+            }
+            else
+            {
+                foreach (var item in request.gruppiAd)
+                {
+                    if (item.Membro)
                     {
-                        DA = "pem@consiglio.regione.lombardia.it",
-                        A = request.email,
-                        CC = "max.pagliaro@consiglio.regione.lombardia.it",
-                        OGGETTO = "PEM - Utenza aperta",
-                        MESSAGGIO =
-                            $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
-                    });
+                        try
+                        {
+                            var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
+                                AppSettingsConfiguration.TOKEN_W);
+                            if (resultAdd != 0)
+                                throw new InvalidOperationException(
+                                    $"Errore inserimento gruppo AD [{item.GruppoAD}]");
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
+                                request.userAD,
+                                AppSettingsConfiguration.TOKEN_W);
+                            if (resultRemove == false)
+                                throw new InvalidOperationException(
+                                    $"Errore rimozione gruppo AD [{item.GruppoAD}]");
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+                    }
+                }
+
+
+                if (request.no_Cons == 1)
+                {
+                    //Consigliere/Assessore
+                    var persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
+                    persona.nome = request.nome;
+                    persona.cognome = request.cognome;
+                    persona.email = request.email;
+                    persona.foto = request.foto;
+                    persona.id_gruppo_politico_rif = request.id_gruppo_politico_rif;
+                    persona.UserAD = request.userAD;
+                    persona.notifica_firma = request.notifica_firma;
+                    persona.notifica_deposito = request.notifica_deposito;
+                    await _unitOfWork.CompleteAsync();
                 }
                 else
                 {
-                    foreach (var item in request.gruppiAd)
-                    {
-                        if (item.Membro)
-                        {
-                            try
-                            {
-                                var resultAdd = intranetAdService.AddUserToADGroup(item.GruppoAD, request.userAD,
-                                    AppSettingsConfiguration.TOKEN_W);
-                                if (resultAdd != 0)
-                                    throw new InvalidOperationException(
-                                        $"Errore inserimento gruppo AD [{item.GruppoAD}]");
-                            }
-                            catch (Exception e)
-                            {
-                                //Log.Error($"Add - {item.GruppoAD}", e);
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                var resultRemove = intranetAdService.RemoveUserFromADGroup(item.GruppoAD,
-                                    request.userAD,
-                                    AppSettingsConfiguration.TOKEN_W);
-                                if (resultRemove == false)
-                                    throw new InvalidOperationException(
-                                        $"Errore rimozione gruppo AD [{item.GruppoAD}]");
-                            }
-                            catch (Exception e)
-                            {
-                                //Log.Error($"Remove - {item.GruppoAD}", e);
-                            }
-                        }
-                    }
-
-
-                    try
-                    {
-                        if (request.no_Cons == 1)
-                        {
-                            //Consigliere/Assessore
-                            var persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
-                            persona.nome = request.nome;
-                            persona.cognome = request.cognome;
-                            persona.email = request.email;
-                            persona.foto = request.foto;
-                            persona.id_gruppo_politico_rif = request.id_gruppo_politico_rif;
-                            persona.UserAD = request.userAD;
-                            persona.notifica_firma = request.notifica_firma;
-                            persona.notifica_deposito = request.notifica_deposito;
-                            await _unitOfWork.CompleteAsync();
-                        }
-                        else
-                        {
-                            await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                                request.userAD.Replace(@"CONSIGLIO\", ""));
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        //Log.Error($"Salvataggio", e);
-                        throw;
-                    }
+                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
+                        request.userAD.Replace(@"CONSIGLIO\", ""));
                 }
+            }
 
-                return request.UID_persona;
-            }
-            catch (Exception e)
-            {
-                //Log.Error($"SalvaUtente", e);
-                throw e;
-            }
+            return request.UID_persona;
         }
 
         public async Task EliminaUtente(Guid uid_persona)
