@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[SEDUTE]    Script Date: 04/10/2022 12:02:16 ******/
+/****** Object:  Table [dbo].[SEDUTE]    Script Date: 11/12/2022 14:24:18 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -29,6 +29,7 @@ CREATE TABLE [dbo].[SEDUTE](
 	[DataModifica] [datetime] NULL,
 	[Eliminato] [bit] NULL,
 	[Riservato_DASI] [bit] NOT NULL,
+	[Note] [varchar](100) NULL,
  CONSTRAINT [PK_SEDUTE] PRIMARY KEY CLUSTERED 
 (
 	[UIDSeduta] ASC

@@ -40,241 +40,149 @@ namespace PortaleRegione.BAL
 
         public async Task<BaseResponse<SeduteDto>> GetSedute(BaseRequest<SeduteDto> model, Uri url)
         {
-            try
-            {
-                //Log.Debug($"Logic - GetSedute - page[{model.page}], pageSize[{model.size}]");
-                var queryFilter = new Filter<SEDUTE>();
-                queryFilter.ImportStatements(model.filtro);
+            var queryFilter = new Filter<SEDUTE>();
+            queryFilter.ImportStatements(model.filtro);
 
-                var legislatura_attiva = await _unitOfWork.Legislature.Legislatura_Attiva();
-                var listaSedute = await _unitOfWork.Sedute
-                    .GetAll(legislatura_attiva, model.page, model.size, queryFilter);
-                var countSedute = await _unitOfWork.Sedute.Count(legislatura_attiva, queryFilter);
+            var legislatura_attiva = await _unitOfWork.Legislature.Legislatura_Attiva();
+            var listaSedute = await _unitOfWork.Sedute
+                .GetAll(legislatura_attiva, model.page, model.size, queryFilter);
+            var countSedute = await _unitOfWork.Sedute.Count(legislatura_attiva, queryFilter);
 
-                return new BaseResponse<SeduteDto>(
-                    model.page,
-                    model.size,
-                    listaSedute.Select(Mapper.Map<SEDUTE, SeduteDto>),
-                    model.filtro,
-                    countSedute,
-                    url);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetSedute", e);
-                throw e;
-            }
+            return new BaseResponse<SeduteDto>(
+                model.page,
+                model.size,
+                listaSedute.Select(Mapper.Map<SEDUTE, SeduteDto>),
+                model.filtro,
+                countSedute,
+                url);
         }
 
         public async Task<SEDUTE> GetSeduta(Guid id)
         {
-            try
-            {
-                var result = await _unitOfWork.Sedute.Get(id);
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetSeduta", e);
-                throw e;
-            }
+            var result = await _unitOfWork.Sedute.Get(id);
+            return result;
         }
 
         public async Task<SEDUTE> GetSeduta(DateTime dataSeduta)
         {
-            try
-            {
-                var result = await _unitOfWork.Sedute.Get(dataSeduta);
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetSeduta", e);
-                throw e;
-            }
+            var result = await _unitOfWork.Sedute.Get(dataSeduta);
+            return result;
         }
 
         public async Task DeleteSeduta(SeduteDto sedutaDto, PersonaDto persona)
         {
-            try
-            {
-                var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
-                sedutaInDb.Eliminato = true;
-                sedutaInDb.UIDPersonaModifica = persona.UID_persona;
-                sedutaInDb.DataModifica = DateTime.Now;
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - DeleteSeduta", e);
-                throw e;
-            }
+            var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
+            sedutaInDb.Eliminato = true;
+            sedutaInDb.UIDPersonaModifica = persona.UID_persona;
+            sedutaInDb.DataModifica = DateTime.Now;
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<SEDUTE> NuovaSeduta(SEDUTE seduta, PersonaDto persona)
         {
-            try
-            {
-                seduta.UIDSeduta = Guid.NewGuid();
-                seduta.Eliminato = false;
-                seduta.UIDPersonaCreazione = persona.UID_persona;
-                seduta.DataCreazione = DateTime.Now;
-                seduta.id_legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
-                _unitOfWork.Sedute.Add(seduta);
-                await _unitOfWork.CompleteAsync();
-                return await GetSeduta(seduta.UIDSeduta);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - NuovaSeduta", e);
-                throw e;
-            }
+            seduta.UIDSeduta = Guid.NewGuid();
+            seduta.Eliminato = false;
+            seduta.UIDPersonaCreazione = persona.UID_persona;
+            seduta.DataCreazione = DateTime.Now;
+            seduta.id_legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
+            _unitOfWork.Sedute.Add(seduta);
+            await _unitOfWork.CompleteAsync();
+            return await GetSeduta(seduta.UIDSeduta);
         }
 
         public async Task ModificaSeduta(SeduteFormUpdateDto sedutaDto, PersonaDto persona)
         {
-            try
+            var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
+            Mapper.Map(sedutaDto, sedutaInDb);
+            CleanSeduta(sedutaDto, sedutaInDb);
+
+            sedutaInDb.UIDPersonaModifica = persona.UID_persona;
+            sedutaInDb.DataModifica = DateTime.Now;
+
+            await _unitOfWork.CompleteAsync();
+
+            if (sedutaDto.Data_effettiva_fine.HasValue)
             {
-                var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
-                Mapper.Map(sedutaDto, sedutaInDb);
-                if (sedutaDto.Data_apertura == null)
-                {
-                    sedutaInDb.Data_apertura = null;
-                }
+                //Matteo Cattapan #486
+                //Quando viene chiusa la seduta, vengono 'declassate' tutte le mozioni depositate e iscritte in seduta da UOLA
 
-                if (sedutaDto.Data_effettiva_inizio == null)
-                {
-                    sedutaInDb.Data_effettiva_inizio = null;
-                }
+                var mozioni_abbinate =
+                    await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.ABBINATA);
+                var mozioni_urgenti =
+                    await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
+                var mozioni_da_declassare = new List<ATTI_DASI>();
+                mozioni_da_declassare.AddRange(mozioni_abbinate);
+                mozioni_da_declassare.AddRange(mozioni_urgenti);
 
-                if (sedutaDto.Data_effettiva_fine == null)
-                {
-                    sedutaInDb.Data_effettiva_fine = null;
-                }
-
-                if (sedutaDto.Scadenza_presentazione == null)
-                {
-                    sedutaInDb.Scadenza_presentazione = null;
-                }
-
-                if (sedutaDto.DataScadenzaPresentazioneIQT == null)
-                {
-                    sedutaInDb.DataScadenzaPresentazioneIQT = null;
-                }
-
-                if (sedutaDto.DataScadenzaPresentazioneMOZ == null)
-                {
-                    sedutaInDb.DataScadenzaPresentazioneMOZ = null;
-                }
-
-                if (sedutaDto.DataScadenzaPresentazioneMOZA == null)
-                {
-                    sedutaInDb.DataScadenzaPresentazioneMOZA = null;
-                }
-
-                if (sedutaDto.DataScadenzaPresentazioneMOZU == null)
-                {
-                    sedutaInDb.DataScadenzaPresentazioneMOZU = null;
-                }
-
-                if (sedutaDto.DataScadenzaPresentazioneODG == null)
-                {
-                    sedutaInDb.DataScadenzaPresentazioneODG = null;
-                }
-
-
-                sedutaInDb.UIDPersonaModifica = persona.UID_persona;
-                sedutaInDb.DataModifica = DateTime.Now;
+                mozioni_da_declassare.ForEach(moz => { moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA; });
 
                 await _unitOfWork.CompleteAsync();
-
-                if (sedutaDto.Data_effettiva_fine.HasValue)
-                {
-                    //Matteo Cattapan #486
-                    //Quando viene chiusa la seduta, vengono 'declassate' tutte le mozioni depositate e iscritte in seduta da UOLA
-
-                    var mozioni_abbinate = await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.ABBINATA);
-                    var mozioni_urgenti = await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
-                    var mozioni_da_declassare = new List<ATTI_DASI>();
-                    mozioni_da_declassare.AddRange(mozioni_abbinate);
-                    mozioni_da_declassare.AddRange(mozioni_urgenti);
-
-                    mozioni_da_declassare.ForEach(moz =>
-                    {
-                        moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
-                    });
-
-                    await _unitOfWork.CompleteAsync();
-                }
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - ModificaSeduta", e);
-                throw e;
-            }
+        }
+
+        private void CleanSeduta(SeduteFormUpdateDto sedutaDto, SEDUTE sedutaInDb)
+        {
+            if (sedutaDto.Data_apertura == null) sedutaInDb.Data_apertura = null;
+
+            if (sedutaDto.Data_effettiva_inizio == null) sedutaInDb.Data_effettiva_inizio = null;
+
+            if (sedutaDto.Data_effettiva_fine == null) sedutaInDb.Data_effettiva_fine = null;
+
+            if (sedutaDto.Scadenza_presentazione == null) sedutaInDb.Scadenza_presentazione = null;
+
+            if (sedutaDto.DataScadenzaPresentazioneIQT == null) sedutaInDb.DataScadenzaPresentazioneIQT = null;
+
+            if (sedutaDto.DataScadenzaPresentazioneMOZ == null) sedutaInDb.DataScadenzaPresentazioneMOZ = null;
+
+            if (sedutaDto.DataScadenzaPresentazioneMOZA == null) sedutaInDb.DataScadenzaPresentazioneMOZA = null;
+
+            if (sedutaDto.DataScadenzaPresentazioneMOZU == null) sedutaInDb.DataScadenzaPresentazioneMOZU = null;
+
+            if (sedutaDto.DataScadenzaPresentazioneODG == null) sedutaInDb.DataScadenzaPresentazioneODG = null;
+
+            if (string.IsNullOrEmpty(sedutaDto.Note)) sedutaInDb.Note = "";
         }
 
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttive(PersonaDto persona)
         {
-            try
-            {
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive(!persona.IsSegreteriaAssemblea, false);
+            var sedute_attive = await _unitOfWork.Sedute.GetAttive(!persona.IsSegreteriaAssemblea, false);
 
-                return new BaseResponse<SeduteDto>(
-                    1,
-                    10,
-                    sedute_attive
-                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
-                    null,
-                    sedute_attive.Count());
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetSeduteAttive", e);
-                throw e;
-            }
+            var seduteAttive = sedute_attive.ToList();
+            return new BaseResponse<SeduteDto>(
+                1,
+                10,
+                seduteAttive
+                    .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                null,
+                seduteAttive.Count());
         }
 
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveMOZU()
         {
-            try
-            {
-                var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, false);
+            var sedute_attive = await _unitOfWork.Sedute.GetAttive(false, false);
 
-                return new BaseResponse<SeduteDto>(
-                    1,
-                    10,
-                    sedute_attive
-                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
-                    null,
-                    sedute_attive.Count());
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetSeduteAttiveMOZU", e);
-                throw e;
-            }
+            var seduteAttive = sedute_attive.ToList();
+            return new BaseResponse<SeduteDto>(
+                1,
+                10,
+                seduteAttive
+                    .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                null,
+                seduteAttive.Count());
         }
 
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveDashboard()
         {
-            try
-            {
-                var sedute_attive = await _unitOfWork.Sedute.GetAttiveDashboard();
+            var sedute_attive = await _unitOfWork.Sedute.GetAttiveDashboard();
 
-                return new BaseResponse<SeduteDto>(
-                    1,
-                    10,
-                    sedute_attive
-                        .Select(Mapper.Map<SEDUTE, SeduteDto>),
-                    null,
-                    sedute_attive.Count());
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetSeduteAttiveDashboard", e);
-                throw e;
-            }
+            var seduteAttive = sedute_attive.ToList();
+            return new BaseResponse<SeduteDto>(
+                1,
+                10,
+                seduteAttive
+                    .Select(Mapper.Map<SEDUTE, SeduteDto>),
+                null,
+                seduteAttive.Count());
         }
     }
 }
