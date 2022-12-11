@@ -24,7 +24,7 @@ namespace PortaleRegione.DTO.Domain
 {
     public class NotificaDto
     {
-        [Key] public long UIDNotifica { get; set; }
+        [Key] public string UIDNotifica { get; set; }
 
         public DateTime DataCreazione { get; set; }
 

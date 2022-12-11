@@ -4,18 +4,26 @@
 }
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#btnSearch').hide();
     });
 </script>
 
-<div class="row">
+<div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
-        <h5>
-            <b>@ViewBag.Title</b>
-        </h5>
+        <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
+            <i class="material-icons">arrow_back</i>
+        </a>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                <h5>
+                    <b>@ViewBag.Title</b>
+                </h5>
+            </div>
+        </div>
     </div>
 </div>
+<hr/>
 
 @{
     var inviateReq = HttpUtility.ParseQueryString(Request.Url.Query).Get("is_inviate");
@@ -24,7 +32,6 @@
     {
         is_inviate = Convert.ToBoolean(inviateReq);
     }
-
 }
 
 <ul id="RiepilogoNotificheTabs" class="tabs tabs-fixed-width">
@@ -54,12 +61,42 @@ else if (is_inviate)
     @Html.Partial("RiepilogoNotificheInviate", Model)
 }
 
-@{
-    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
-}
-
 <script>
-    $(document).ready(function () {
-        //Reset_ClientMode();
-    });
+
+    function ArchiviaNotifica(ctrl, id_notifica){
+        swal("Sei sicuro di voler archiviare la notifica?",
+            {
+                buttons: {
+                    cancel: "Annulla",
+                    confirm: {
+                        className: "red white-text",
+                        title: "Archivia",
+                        value: true
+                    }
+                }
+            }).then((value) => {
+            if (value == true) {
+                $(ctrl).parent().parent().attr("style", "opacity: .3");
+                $(ctrl).hide();
+                var url = '@Url.Action("ArchiviaNotifica", "Notifiche")';
+                var notifiche = [];
+                notifiche.push(id_notifica);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: JSON.stringify(notifiche),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(result) {
+
+                    M.toast({ html: 'Notifica archiviata <i class="icon material-icons yellow-text" onclick="location.reload()" style="margin-left:20px">sync</i>', classes: 'rounded', displayLength: 5000 });
+
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
+    }
+
 </script>

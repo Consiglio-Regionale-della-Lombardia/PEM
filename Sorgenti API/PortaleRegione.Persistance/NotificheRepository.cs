@@ -41,7 +41,7 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetDestinatariNotifica(long notificaId)
+        public async Task<IEnumerable<NOTIFICHE_DESTINATARI>> GetDestinatariNotifica(string notificaId)
         {
             var query = PRContext
                 .NOTIFICHE_DESTINATARI

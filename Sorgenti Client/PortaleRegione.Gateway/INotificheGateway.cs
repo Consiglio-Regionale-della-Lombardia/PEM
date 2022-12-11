@@ -19,9 +19,7 @@
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using PortaleRegione.DTO.Response;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -29,7 +27,7 @@ namespace PortaleRegione.Gateway
 {
     public interface INotificheGateway
     {
-        Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(long id);
+        Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string id);
         Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo);
         Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo);
         Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size, bool Archivio = false);
@@ -37,7 +35,7 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> NotificaEM(ComandiAzioneModel model);
         Task NotificaVista(long notificaId);
         Task<Dictionary<Guid, string>> NotificaDASI(ComandiAzioneModel model);
-        Task AccettaPropostaFirma(long id);
-        Task AccettaRitiroFirma(long id);
+        Task AccettaPropostaFirma(string id);
+        Task AccettaRitiroFirma(string id);
     }
 }

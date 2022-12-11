@@ -152,6 +152,9 @@
                         <a class="btn-flat blue-text" onclick="go('@Url.Action("ViewEmendamento", "Emendamenti", new {id = notifica.UIDEM, notificaId = notifica.UIDNotifica})')">
                             Vedi EM
                         </a>
+                        <a class="btn-flat red-text" onclick="">
+                            Archivia notifica
+                        </a>
                     </div>
                 }
                 else if (notifica.IsDasi)
@@ -183,7 +186,9 @@
                         <a class="btn-flat blue-text" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = notifica.ATTO_DASI.UIDAtto})')">
                             Vedi Atto
                         </a>
-
+                        <a class="btn-flat red-text" onclick="ArchiviaNotifica(this, @notifica.UIDNotifica)">
+                            Archivia notifica
+                        </a>
                     </div>
                     
                     if (!notifica.Chiuso

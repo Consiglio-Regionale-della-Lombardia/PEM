@@ -96,8 +96,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("vista/{notificaId:long}")]
-        public async Task<IHttpActionResult> NotificaVista(long notificaId)
+        [Route("vista/{notificaId}")]
+        public async Task<IHttpActionResult> NotificaVista(string notificaId)
         {
             try
             {
@@ -146,8 +146,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Id notifica</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id:int}/destinatari")]
-        public async Task<IHttpActionResult> GetDestinatariNotifica(int id)
+        [Route("{id}/destinatari")]
+        public async Task<IHttpActionResult> GetDestinatariNotifica(string id)
         {
             try
             {

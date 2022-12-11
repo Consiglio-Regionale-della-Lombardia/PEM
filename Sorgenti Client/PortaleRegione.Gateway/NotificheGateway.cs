@@ -16,17 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ExpressionBuilder.Common;
-using ExpressionBuilder.Generics;
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace PortaleRegione.Gateway
@@ -42,241 +39,110 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/destinatari-dasi?tipo={(int) tipo}";
-                var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
+            var requestUrl = $"{apiUrl}/notifiche/destinatari-dasi?tipo={(int)tipo}";
+            var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetListaDestinatariDASI", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetListaDestinatariDASI", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size,
-            bool Archivio = false)
+            bool archivio = false)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/view-inviate";
+            var requestUrl = $"{apiUrl}/notifiche/view-inviate";
 
-                var model = new BaseRequest<NotificaDto>
-                {
-                    param = new Dictionary<string, object>(),
-                    page = page,
-                    size = size
-                };
-                model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
-                    _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
+            var model = new BaseRequest<NotificaDto>
             {
-                //Log.Error("GetNotificheInviate", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetNotificheInviate", ex);
-                throw ex;
-            }
+                param = new Dictionary<string, object>(),
+                page = page,
+                size = size
+            };
+            model.param.Add(new KeyValuePair<string, object>("Archivio", archivio));
+            var body = JsonConvert.SerializeObject(model);
+
+            var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
+                _token));
+
+            return lst;
         }
 
-        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool Archivio,
-            bool Solo_Non_Viste = false)
+        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool archivio, bool soloNonViste = false)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/view-ricevute";
+            var requestUrl = $"{apiUrl}/notifiche/view-ricevute";
 
-                var model = new BaseRequest<NotificaDto>
-                {
-                    param = new Dictionary<string, object>(),
-                    page = page,
-                    size = size
-                };
-                model.param.Add(new KeyValuePair<string, object>("Archivio", Archivio));
-                model.param.Add(new KeyValuePair<string, object>("Solo_Non_Viste", Solo_Non_Viste));
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
-                    _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
+            var model = new BaseRequest<NotificaDto>
             {
-                //Log.Error("GetNotificheRicevute", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetNotificheRicevute", ex);
-                throw ex;
-            }
+                param = new Dictionary<string, object>(),
+                page = page,
+                size = size
+            };
+            model.param.Add(new KeyValuePair<string, object>("Archivio", archivio));
+            model.param.Add(new KeyValuePair<string, object>("Solo_Non_Viste", soloNonViste));
+            var body = JsonConvert.SerializeObject(model);
+
+            var lst = JsonConvert.DeserializeObject<RiepilogoNotificheModel>(await Post(requestUrl, body,
+                _token));
+
+            return lst;
         }
 
-        public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(long id)
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/{id}/destinatari";
+            var requestUrl = $"{apiUrl}/notifiche/{id}/destinatari";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
-                    _token));
+            var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
+                _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetDestinatariNotifica", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetDestinatariNotifica", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<Dictionary<Guid, string>> NotificaEM(ComandiAzioneModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/invita";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            var requestUrl = $"{apiUrl}/notifiche/invita";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("NotificaEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("NotificaEM", ex);
-                throw ex;
-            }
+            return result;
         }
 
         public async Task NotificaVista(long notificaId)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/vista/{notificaId}";
+            var requestUrl = $"{apiUrl}/notifiche/vista/{notificaId}";
 
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("NotificaVista", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("NotificaVista", ex);
-                throw ex;
-            }
+            await Get(requestUrl, _token);
         }
 
         public async Task<Dictionary<Guid, string>> NotificaDASI(ComandiAzioneModel model)
         {
-            try
-            {
-                model.IsDASI = true;
+            model.IsDASI = true;
 
-                var requestUrl = $"{apiUrl}/notifiche/invita";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            var requestUrl = $"{apiUrl}/notifiche/invita";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
 
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("NotificaDASI", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("NotificaDASI", ex);
-                throw ex;
-            }
+            return result;
         }
 
-        public async Task AccettaPropostaFirma(long id)
+        public async Task AccettaPropostaFirma(string id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/accetta-proposta?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("AccettaPropostaFirma", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("AccettaPropostaFirma", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/notifiche/accetta-proposta?id={id}";
+            await Get(requestUrl, _token);
         }
 
-        public async Task AccettaRitiroFirma(long id)
+        public async Task AccettaRitiroFirma(string id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/accetta-ritiro?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("AccettaRitiroFirma", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("AccettaRitiroFirma", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/notifiche/accetta-ritiro?id={id}";
+            await Get(requestUrl, _token);
         }
 
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto,
             TipoDestinatarioNotificaEnum tipo)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/notifiche/destinatari?atto={atto}&tipo={(int) tipo}";
-                var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
+            var requestUrl = $"{apiUrl}/notifiche/destinatari?atto={atto}&tipo={(int)tipo}";
+            var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetListaDestinatari", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetListaDestinatari", ex);
-                throw ex;
-            }
+            return lst;
         }
     }
 }

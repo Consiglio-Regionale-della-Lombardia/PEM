@@ -171,7 +171,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(long notificaId)
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string notificaId)
         {
             try
             {
@@ -208,228 +208,216 @@ namespace PortaleRegione.BAL
         public async Task<Dictionary<Guid, string>> InvitaAFirmare(ComandiAzioneModel model,
             PersonaDto currentUser)
         {
-            try
+            var results = new Dictionary<Guid, string>();
+            var listaDestinatari = new List<PersonaDto>();
+            var sonoPersone = Guid.TryParse(model.ListaDestinatari.First(), out var _);
+            if (sonoPersone)
             {
-                var results = new Dictionary<Guid, string>();
-                var listaDestinatari = new List<PersonaDto>();
-                var sonoPersone = Guid.TryParse(model.ListaDestinatari.First(), out var _);
-                if (sonoPersone)
-                {
-                    foreach (var destinatario in model.ListaDestinatari)
-                        listaDestinatari.Add(await _logicPersona.GetPersona(new Guid(destinatario), false));
-                }
-                else
-                {
-                    var sonoGruppi = int.TryParse(model.ListaDestinatari.First(), out var _);
-                    if (sonoGruppi)
-                        foreach (var gruppoId in model.ListaDestinatari.Select(g => Convert.ToInt32(g)))
-                            listaDestinatari.AddRange(await _logicPersona.GetConsiglieriGruppo(gruppoId));
-                }
+                foreach (var destinatario in model.ListaDestinatari)
+                    listaDestinatari.Add(await _logicPersona.GetPersona(new Guid(destinatario), false));
+            }
+            else
+            {
+                var sonoGruppi = int.TryParse(model.ListaDestinatari.First(), out var _);
+                if (sonoGruppi)
+                    foreach (var gruppoId in model.ListaDestinatari.Select(g => Convert.ToInt32(g)))
+                        listaDestinatari.AddRange(await _logicPersona.GetConsiglieriGruppo(gruppoId));
+            }
 
-                if (!listaDestinatari.Any())
-                {
-                    results.Add(Guid.Empty, "Nessun invitato a firmare");
-                    return results;
-                }
-
-                var bodyMail = string.Empty;
-                var attachMail = new List<AllegatoMail>();
-
-                if (model.IsDASI)
-                {
-                    #region DASI
-
-                    foreach (var idGuid in model.Lista)
-                    {
-                        var atto = await _logicDasi.GetAttoDto(idGuid, currentUser);
-                        if (atto == null)
-                        {
-                            results.Add(idGuid, "ERROR: NON TROVATO");
-                            continue;
-                        }
-
-                        var n_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
-
-                        var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
-                        if (check == false)
-                        {
-                            results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per l'atto {n_atto}");
-                            continue;
-                        }
-
-                        var sync_guid = Guid.NewGuid();
-
-                        var newNotifica = new NOTIFICHE
-                        {
-                            UIDAtto = atto.UIDAtto,
-                            Mittente = currentUser.UID_persona,
-                            RuoloMittente = (int)currentUser.CurrentRole,
-                            IDTipo = 1,
-                            Messaggio = string.Empty,
-                            DataCreazione = DateTime.Now,
-                            IdGruppo = atto.id_gruppo,
-                            SyncGUID = sync_guid
-                        };
-
-                        _unitOfWork.Notifiche.Add(newNotifica);
-
-                        await _unitOfWork.CompleteAsync();
-
-                        var notificaInDb = await _unitOfWork.Notifiche.GetBySync(sync_guid);
-
-                        var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
-                        foreach (var destinatario in listaDestinatari)
-                        {
-                            var existDestinatario =
-                                await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(atto.UIDAtto,
-                                    destinatario.UID_persona, true);
-
-                            if (existDestinatario == null)
-                                destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
-                                {
-                                    UIDNotifica = notificaInDb.UIDNotifica,
-                                    UIDPersona = destinatario.UID_persona,
-                                    IdGruppo = atto.id_gruppo,
-                                    UID = Guid.NewGuid()
-                                });
-                        }
-
-                        try
-                        {
-                            if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
-
-                            await _unitOfWork.CompleteAsync();
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-
-                        var attoInDb = await _logicDasi.Get(atto.UIDAtto);
-                        var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
-                        attachMail.Add(new AllegatoMail(content, $"{n_atto}.pdf"));
-                        results.Add(idGuid, $"{n_atto} - OK");
-                    }
-
-                    if (attachMail.Any())
-                        await _logicUtil.InvioMail(new MailModel
-                        {
-                            OGGETTO = "Invito a firmare i seguenti atti",
-                            DA = currentUser.email,
-                            A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
-                            MESSAGGIO = "E' richiesta la firma per gli atti in allegato",
-                            ATTACHMENTS = attachMail
-                        });
-
-                    #endregion
-                }
-                else
-                {
-                    #region EMENDAMENTI
-
-                    var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First(), false);
-                    var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
-                    foreach (var idGuid in model.Lista)
-                    {
-                        var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser);
-                        if (em == null)
-                        {
-                            results.Add(idGuid, "ERROR: NON TROVATO");
-                            continue;
-                        }
-
-                        var n_em = em.N_EM;
-
-                        if (em.IDStato >= (int)StatiEnum.Depositato)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
-                            continue;
-                        }
-
-                        var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
-                        if (check == false)
-                        {
-                            results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
-                            continue;
-                        }
-
-                        var sync_guid = Guid.NewGuid();
-
-                        var newNotifica = new NOTIFICHE
-                        {
-                            UIDEM = em.UIDEM,
-                            UIDAtto = em.UIDAtto,
-                            Mittente = currentUser.UID_persona,
-                            RuoloMittente = (int)currentUser.CurrentRole,
-                            IDTipo = 1,
-                            Messaggio = string.Empty,
-                            DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
-                            DataCreazione = DateTime.Now,
-                            IdGruppo = em.id_gruppo,
-                            SyncGUID = sync_guid
-                        };
-
-                        _unitOfWork.Notifiche.Add(newNotifica);
-
-                        await _unitOfWork.CompleteAsync();
-
-                        var notificaInDb = await _unitOfWork.Notifiche.GetBySync(sync_guid);
-
-                        var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
-                        foreach (var destinatario in listaDestinatari)
-                        {
-                            var existDestinatario =
-                                await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(em.UIDEM,
-                                    destinatario.UID_persona);
-
-                            if (existDestinatario == null)
-                                destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
-                                {
-                                    UIDNotifica = notificaInDb.UIDNotifica,
-                                    UIDPersona = destinatario.UID_persona,
-                                    IdGruppo = em.id_gruppo,
-                                    UID = Guid.NewGuid()
-                                });
-                        }
-
-                        try
-                        {
-                            if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
-
-                            await _unitOfWork.CompleteAsync();
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-
-                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                        bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
-                        bodyMail +=
-                            $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
-                        results.Add(idGuid, $"{n_em} - OK");
-                    }
-
-                    if (!string.IsNullOrEmpty(bodyMail))
-                        await _logicUtil.InvioMail(new MailModel
-                        {
-                            OGGETTO = "Invito a firmare i seguenti emendamenti",
-                            DA = currentUser.email,
-                            A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
-                            MESSAGGIO = bodyMail
-                        });
-
-                    #endregion
-                }
-
+            if (!listaDestinatari.Any())
+            {
+                results.Add(Guid.Empty, "Nessun invitato a firmare");
                 return results;
             }
-            catch (Exception e)
+
+            var bodyMail = string.Empty;
+            var attachMail = new List<AllegatoMail>();
+
+            if (model.IsDASI)
             {
-                //Log.Error("Logic - InvitaAFirmare", e);
-                throw e;
+                #region DASI
+
+                foreach (var idGuid in model.Lista)
+                {
+                    var atto = await _logicDasi.GetAttoDto(idGuid, currentUser);
+                    if (atto == null)
+                    {
+                        results.Add(idGuid, "ERROR: NON TROVATO");
+                        continue;
+                    }
+
+                    var n_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+
+                    var check = _unitOfWork.Notifiche.CheckIfNotificabile(atto, currentUser);
+                    if (check == false)
+                    {
+                        results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per l'atto {n_atto}");
+                        continue;
+                    }
+
+                    var _guid = Guid.NewGuid();
+                    var sync_guid = Guid.NewGuid();
+
+                    var newNotifica = new NOTIFICHE
+                    {
+                        UIDNotifica = _guid.ToString(),
+                        UIDAtto = atto.UIDAtto,
+                        Mittente = currentUser.UID_persona,
+                        RuoloMittente = (int)currentUser.CurrentRole,
+                        IDTipo = 1,
+                        Messaggio = string.Empty,
+                        DataCreazione = DateTime.Now,
+                        IdGruppo = atto.id_gruppo,
+                        SyncGUID = sync_guid
+                    };
+
+                    _unitOfWork.Notifiche.Add(newNotifica);
+
+                    var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
+                    foreach (var destinatario in listaDestinatari)
+                    {
+                        var existDestinatario =
+                            await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(atto.UIDAtto,
+                                destinatario.UID_persona, true);
+
+                        if (existDestinatario == null)
+                            destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
+                            {
+                                UIDNotifica = _guid.ToString(),
+                                UIDPersona = destinatario.UID_persona,
+                                IdGruppo = atto.id_gruppo,
+                                UID = Guid.NewGuid()
+                            });
+                    }
+
+                    try
+                    {
+                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
+                    var attoInDb = await _logicDasi.Get(atto.UIDAtto);
+                    var content = await _logicDasi.PDFIstantaneo(attoInDb, null);
+                    attachMail.Add(new AllegatoMail(content, $"{n_atto}.pdf"));
+                    results.Add(idGuid, $"{n_atto} - OK");
+                }
+
+                if (attachMail.Any())
+                    await _logicUtil.InvioMail(new MailModel
+                    {
+                        OGGETTO = "Invito a firmare i seguenti atti",
+                        DA = currentUser.email,
+                        A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
+                        MESSAGGIO = "E' richiesta la firma per gli atti in allegato",
+                        ATTACHMENTS = attachMail
+                    });
+
+                #endregion
             }
+            else
+            {
+                #region EMENDAMENTI
+
+                var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First(), false);
+                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
+                foreach (var idGuid in model.Lista)
+                {
+                    var em = await _logicEm.GetEM_DTO(idGuid, atto, currentUser);
+                    if (em == null)
+                    {
+                        results.Add(idGuid, "ERROR: NON TROVATO");
+                        continue;
+                    }
+
+                    var n_em = em.N_EM;
+
+                    if (em.IDStato >= (int)StatiEnum.Depositato)
+                    {
+                        results.Add(idGuid,
+                            $"ERROR: Non è possibile creare notifiche per {n_em} essendo già stato depositato");
+                        continue;
+                    }
+
+                    var check = _unitOfWork.Notifiche.CheckIfNotificabile(em, currentUser);
+                    if (check == false)
+                    {
+                        results.Add(idGuid, $"ERROR: Non è possibile creare notifiche per {n_em}");
+                        continue;
+                    }
+
+                    var _guid = Guid.NewGuid();
+                    var sync_guid = Guid.NewGuid();
+
+                    var newNotifica = new NOTIFICHE
+                    {
+                        UIDNotifica = _guid.ToString(),
+                        UIDEM = em.UIDEM,
+                        UIDAtto = em.UIDAtto,
+                        Mittente = currentUser.UID_persona,
+                        RuoloMittente = (int)currentUser.CurrentRole,
+                        IDTipo = 1,
+                        Messaggio = string.Empty,
+                        DataScadenza = em.ATTI.SEDUTE.Scadenza_presentazione,
+                        DataCreazione = DateTime.Now,
+                        IdGruppo = em.id_gruppo,
+                        SyncGUID = sync_guid
+                    };
+
+                    _unitOfWork.Notifiche.Add(newNotifica);
+
+                    var destinatariNotifica = new List<NOTIFICHE_DESTINATARI>();
+                    foreach (var destinatario in listaDestinatari)
+                    {
+                        var existDestinatario =
+                            await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(em.UIDEM,
+                                destinatario.UID_persona);
+
+                        if (existDestinatario == null)
+                            destinatariNotifica.Add(new NOTIFICHE_DESTINATARI
+                            {
+                                UIDNotifica = _guid.ToString(),
+                                UIDPersona = destinatario.UID_persona,
+                                IdGruppo = em.id_gruppo,
+                                UID = Guid.NewGuid()
+                            });
+                    }
+
+                    try
+                    {
+                        if (destinatariNotifica.Any()) _unitOfWork.Notifiche_Destinatari.AddRange(destinatariNotifica);
+
+                        await _unitOfWork.CompleteAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
+                    var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                    bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
+                    bodyMail +=
+                        $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
+                    results.Add(idGuid, $"{n_em} - OK");
+                }
+
+                if (!string.IsNullOrEmpty(bodyMail))
+                    await _logicUtil.InvioMail(new MailModel
+                    {
+                        OGGETTO = "Invito a firmare i seguenti emendamenti",
+                        DA = currentUser.email,
+                        A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
+                        MESSAGGIO = bodyMail
+                    });
+
+                #endregion
+            }
+
+            return results;
         }
 
         public async Task<int> CountRicevute(BaseRequest<NotificaDto> model, PersonaDto currentUser, bool Archivio,
@@ -459,7 +447,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task NotificaVista(long notificaId, Guid personaUId)
+        public async Task NotificaVista(string notificaId, Guid personaUId)
         {
             try
             {
