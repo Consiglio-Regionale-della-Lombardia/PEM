@@ -76,7 +76,6 @@ else if (is_inviate)
                 }
             }).then((value) => {
             if (value == true) {
-                $(ctrl).hide();
                 var url = '@Url.Action("ArchiviaNotifica", "Notifiche")';
                 var notifiche = [];
                 notifiche.push(id_notifica);
@@ -88,7 +87,7 @@ else if (is_inviate)
                     dataType: "json"
                 }).done(function(result) {
 
-                    M.toast({ html: 'Notifica archiviata <i class="icon material-icons yellow-text" onclick="location.reload()" style="margin-left:20px">sync</i>', classes: 'rounded', displayLength: 5000 });
+                    location.reload();
 
                 }).fail(function(err) {
                     console.log("error", err);
