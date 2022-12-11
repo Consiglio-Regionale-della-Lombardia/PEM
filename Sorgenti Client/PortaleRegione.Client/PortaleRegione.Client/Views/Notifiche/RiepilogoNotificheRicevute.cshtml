@@ -10,7 +10,7 @@
         <a class="@(!archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})')">Attive</a>
     </div>
     <div class="col s6">
-        <a class="@(archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = true})')">Chiuse</a>
+        <a class="@(archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = true})')">Archiviate</a>
     </div>
 </div>
 

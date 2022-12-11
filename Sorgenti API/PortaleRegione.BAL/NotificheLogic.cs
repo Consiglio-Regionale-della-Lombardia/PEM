@@ -113,96 +113,80 @@ namespace PortaleRegione.BAL
             bool Archivio,
             bool Solo_Non_Viste, Uri uri)
         {
-            try
+            var queryFilter = new Filter<NOTIFICHE>();
+            queryFilter.ImportStatements(model.filtro);
+
+            var idGruppo = 0;
+            if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
+                || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
+                idGruppo = currentUser.Gruppo.id_gruppo;
+
+            var notifiche = (await _unitOfWork.Notifiche
+                    .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size,
+                        queryFilter))
+                .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
+                .ToList();
+
+            var result = new List<NotificaDto>();
+
+            foreach (var notifica in notifiche)
             {
-                var queryFilter = new Filter<NOTIFICHE>();
-                queryFilter.ImportStatements(model.filtro);
-
-                var idGruppo = 0;
-                if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
-                    || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
-                    idGruppo = currentUser.Gruppo.id_gruppo;
-
-                var notifiche = (await _unitOfWork.Notifiche
-                        .GetNotificheRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste, model.page, model.size,
-                            queryFilter))
-                    .Select(Mapper.Map<NOTIFICHE, NotificaDto>)
-                    .ToList();
-
-                var result = new List<NotificaDto>();
-
-                foreach (var notifica in notifiche)
+                if (notifica.UIDEM == Guid.Empty)
                 {
-                    if (notifica.UIDEM == Guid.Empty)
-                    {
-                        var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
-                        notifica.ATTO_DASI = atto_dasi;
-                        idGruppo = notifica.ATTO_DASI.id_gruppo;
-                    }
-                    else
-                    {
-                        var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
-                        notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
-                        idGruppo = notifica.EM.id_gruppo;
-                    }
-
-                    notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
-                        idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
-                    result.Add(notifica);
+                    var atto_dasi = await _logicDasi.GetAttoDto(notifica.UIDAtto, currentUser);
+                    notifica.ATTO_DASI = atto_dasi;
+                    idGruppo = notifica.ATTO_DASI.id_gruppo;
+                }
+                else
+                {
+                    var atto = await _unitOfWork.Atti.Get(notifica.UIDAtto);
+                    notifica.EM = await _logicEm.GetEM_DTO(notifica.UIDEM, atto, currentUser);
+                    idGruppo = notifica.EM.id_gruppo;
                 }
 
-                return new RiepilogoNotificheModel
-                {
-                    Data = new BaseResponse<NotificaDto>(
-                        model.page,
-                        model.size,
-                        result,
-                        model.filtro,
-                        await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio),
-                            Convert.ToBoolean(Solo_Non_Viste)),
-                        uri),
-                    CurrentUser = currentUser
-                };
+                notifica.UTENTI_NoCons = await _logicPersona.GetPersona(notifica.Mittente,
+                    idGruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID);
+                result.Add(notifica);
             }
-            catch (Exception e)
+
+            return new RiepilogoNotificheModel
             {
-                //Log.Error("Logic - GetNotificheRicevute", e);
-                throw e;
-            }
+                Data = new BaseResponse<NotificaDto>(
+                    model.page,
+                    model.size,
+                    result,
+                    model.filtro,
+                    await CountRicevute(model, currentUser, Convert.ToBoolean(Archivio),
+                        Convert.ToBoolean(Solo_Non_Viste)),
+                    uri),
+                CurrentUser = currentUser
+            };
         }
 
         public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string notificaId)
         {
-            try
+            var destinatari = await _unitOfWork
+                .Notifiche
+                .GetDestinatariNotifica(notificaId);
+
+            var result = new List<DestinatariNotificaDto>();
+            foreach (var destinatario in destinatari)
             {
-                var destinatari = await _unitOfWork
-                    .Notifiche
-                    .GetDestinatariNotifica(notificaId);
-
-                var result = new List<DestinatariNotificaDto>();
-                foreach (var destinatario in destinatari)
-                {
-                    var dto = Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
-                    if (destinatario.NOTIFICHE.UIDEM != null)
-                        dto.Firmato = await _unitOfWork
-                            .Firme
-                            .CheckFirmato(destinatario.NOTIFICHE.UIDEM.Value, destinatario.UIDPersona);
-                    else
-                        dto.Firmato = await _unitOfWork
-                            .Atti_Firme
-                            .CheckFirmato(destinatario.NOTIFICHE.UIDAtto, destinatario.UIDPersona);
+                var dto = Mapper.Map<NOTIFICHE_DESTINATARI, DestinatariNotificaDto>(destinatario);
+                if (destinatario.NOTIFICHE.UIDEM != null)
+                    dto.Firmato = await _unitOfWork
+                        .Firme
+                        .CheckFirmato(destinatario.NOTIFICHE.UIDEM.Value, destinatario.UIDPersona);
+                else
+                    dto.Firmato = await _unitOfWork
+                        .Atti_Firme
+                        .CheckFirmato(destinatario.NOTIFICHE.UIDAtto, destinatario.UIDPersona);
 
 
-                    result.Add(dto);
-                }
-
-                return result;
+                result.Add(dto);
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetDestinatariNotifica", e);
-                throw e;
-            }
+
+            return result;
         }
 
         public async Task<Dictionary<Guid, string>> InvitaAFirmare(ComandiAzioneModel model,
@@ -626,11 +610,21 @@ namespace PortaleRegione.BAL
         {
             foreach (var id in notifiche)
             {
-                var notifica = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
-                notifica.Chiuso = true;
+                var notifica = await _unitOfWork.Notifiche.Get(id);
+                if (notifica.Mittente == user.UID_persona)
+                {
+                    notifica.Chiuso = true;
+                }
+                else
+                {
+                    var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
+                    if (notificheDestinatari != null)
+                    {
+                        notificheDestinatari.Chiuso = true;
+                    }
+                }
+                await _unitOfWork.CompleteAsync();
             }
-
-            await _unitOfWork.CompleteAsync();
         }
     }
 }

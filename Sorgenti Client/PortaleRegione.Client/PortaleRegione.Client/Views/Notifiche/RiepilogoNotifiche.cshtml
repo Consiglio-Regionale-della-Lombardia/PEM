@@ -76,7 +76,6 @@ else if (is_inviate)
                 }
             }).then((value) => {
             if (value == true) {
-                $(ctrl).parent().parent().attr("style", "opacity: .3");
                 $(ctrl).hide();
                 var url = '@Url.Action("ArchiviaNotifica", "Notifiche")';
                 var notifiche = [];

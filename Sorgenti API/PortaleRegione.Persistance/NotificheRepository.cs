@@ -143,7 +143,7 @@ namespace PortaleRegione.Persistance
         {
             var queryDestinatari = PRContext
                 .NOTIFICHE_DESTINATARI
-                .Where(n => true);
+                .Where(n => n.Chiuso == Archivio);
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
@@ -230,7 +230,7 @@ namespace PortaleRegione.Persistance
         {
             var queryDestinatari = PRContext
                 .NOTIFICHE_DESTINATARI
-                .Where(n => true);
+                .Where(n => n.Chiuso == Archivio);
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
@@ -251,8 +251,6 @@ namespace PortaleRegione.Persistance
                 var query = PRContext
                     .NOTIFICHE
                     .Where(n => resultDestinatari.Contains(n.UIDNotifica));
-
-                query = query.Where(n => n.Chiuso == Archivio);
 
                 filtro?.BuildExpression(ref query);
 
