@@ -76,6 +76,9 @@ namespace PortaleRegione.Client.Controllers
                 try
                 {
                     var jwtCookie1 = Request.Cookies["SCookies1"];
+                    if (jwtCookie1 is null)
+                        throw new Exception("Sessione scaduta");
+
                     var jwtCookie2 = Request.Cookies["SCookies2"];
                     var jwtCookie3 = Request.Cookies["SCookies3"];
                     var jwtTicket1 = FormsAuthentication.Decrypt(jwtCookie1.Value);
