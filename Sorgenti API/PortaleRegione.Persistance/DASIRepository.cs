@@ -640,6 +640,7 @@ namespace PortaleRegione.Persistance
                 .Where(a => !a.Eliminato
                             && a.IDStato >= (int)StatiAttoEnum.PRESENTATO
                             && a.Tipo == (int)TipoAttoEnum.MOZ
+                            && a.TipoMOZ != (int)TipoMOZEnum.URGENTE
                             && a.DataIscrizioneSeduta.HasValue
                             && a.UIDSeduta == sedutaUId);
             return await query.ToListAsync();
