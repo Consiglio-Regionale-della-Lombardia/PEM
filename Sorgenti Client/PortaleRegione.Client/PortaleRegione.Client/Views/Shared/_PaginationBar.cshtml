@@ -15,11 +15,11 @@
     }
 
     var url = string.Format("{0}://{1}{2}{3}", Request.Url.Scheme, Request.Url.Host, port, Request.Url.AbsolutePath);
-    
+
     var prev_url = Model.Has_Prev ? string.Format("{0}{1}", url, Model.Prev_Url.Query) : "#!";
     var next_url = Model.Has_Next ? string.Format("{0}{1}", url, Model.Next_Url.Query) : "#!";
-    var first_url =  string.Format("{0}{1}", url, Model.First_Url.Query);
-    var last_url =  string.Format("{0}{1}", url, Model.Last_Url.Query);
+    var first_url = string.Format("{0}{1}", url, Model.First_Url.Query);
+    var last_url = string.Format("{0}{1}", url, Model.Last_Url.Query);
     var size_url = url + "?";
 
     if (!string.IsNullOrEmpty(archivio))
@@ -59,7 +59,11 @@
                         {
                             <li class="waves-effect" style="margin-top: -4px;">
                                 <a onclick="filtra(1)">
-                                    <i class="material-icons tooltipped" data-tooltip="Prima pagina">first_page</i>
+                                    <i class="material-icons tooltipped"
+                                       data-position="top"
+                                       data-tooltip="Prima pagina">
+                                        first_page
+                                    </i>
                                 </a>
                             </li>
                         }
@@ -78,7 +82,11 @@
                         //Torna indietro
                         <li class="waves-effect" style="margin-top: -4px;">
                             <a onclick="filtra(@(Model.Page - 1))">
-                                <i class="material-icons tooltipped" data-tooltip="Pagina precedente">chevron_left</i>
+                                <i class="material-icons tooltipped"
+                                   data-position="top"
+                                   data-tooltip="Pagina precedente">
+                                    chevron_left
+                                </i>
                             </a>
                         </li>
                     }
@@ -86,7 +94,12 @@
                 @if (Model.Last_Page > 1)
                 {
                     <li class="waves-effect">
-                        <span class="badge">Pagina @Model.Page di @Model.Last_Page</span>
+                        <span class="badge tooltipped"
+                              data-tooltip="Seleziona pagina"
+                              data-position="top"
+                              onclick="ShowHidePaginationTabs()">
+                            Pagina @Model.Page di @Model.Last_Page
+                        </span>
                     </li>
                 }
 
@@ -104,7 +117,11 @@
                     {
                         <li class="waves-effect" style="margin-top: -4px;">
                             <a onclick="filtra(@(Model.Page + 1))">
-                                <i class="material-icons tooltipped" data-tooltip="Prossima pagina">chevron_right</i>
+                                <i class="material-icons tooltipped"
+                                   data-position="top"
+                                   data-tooltip="Prossima pagina">
+                                    chevron_right
+                                </i>
                             </a>
                         </li>
                     }
@@ -123,7 +140,11 @@
                         {
                             <li class="waves-effect" style="margin-top: -4px;">
                                 <a onclick="filtra(@(Model.Last_Page))">
-                                    <i class="material-icons tooltipped" data-tooltip="Ultima pagina">last_page</i>
+                                    <i class="material-icons tooltipped"
+                                       data-position="top"
+                                       data-tooltip="Ultima pagina">
+                                        last_page
+                                    </i>
                                 </a>
                             </li>
                         }
@@ -132,7 +153,7 @@
 
                 <li>
                     <div class="chip deep-purple lighten-5" style="margin-top: -5px;">@Model.Total elementi trovati</div>
-                    <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total" />
+                    <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total"/>
                 </li>
             </ul>
         </div>
@@ -143,20 +164,77 @@
                 <ul id='ddlPaginazione' class='dropdown-content' style="width: 100px !important">
                     @for (var i = 0; i < sizeArray.Length; i++)
                     {
-                    <li>
-                        @if (area_notifiche)
-                        {
-                            var sized_url = string.Format("{0}&size={1}", size_url, sizeArray[i]);
-                            <a href=@sized_url>@sizeArray[i]</a>
-                        }
-                        else
-                        {
-                            <a onclick="filtra_Paginazione(@sizeArray[i])">@sizeArray[i]</a>
-                        }
-                    </li>
+                        <li>
+                            @if (area_notifiche)
+                            {
+                                var sized_url = string.Format("{0}&size={1}", size_url, sizeArray[i]);
+                                <a href=@sized_url>@sizeArray[i]</a>
+                            }
+                            else
+                            {
+                                <a onclick="filtra_Paginazione(@sizeArray[i])">@sizeArray[i]</a>
+                            }
+                        </li>
                     }
                 </ul>
             </div>
         </div>
     </div>
+    <div id="pnlPaginationTabs" class="row">
+        <div class="col s12">
+            <ul class="tabs tabs-transparent">
+                
+                @{
+                    var pages = new List<int>();
+                    for (int i = 1; i <= Model.Last_Page; i++)
+                    {
+                        pages.Add(i);
+                    }
+
+                }
+
+                @foreach (var tab in pages)
+                {
+                    if (Model.Page == tab)
+                    {
+                        <li class="tab">
+                            <a class="active" onclick="filtra(@(tab))">@tab</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="tab">
+                            <a onclick="filtra(@(tab))">@tab</a>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
 }
+
+<script>
+    
+    $(window).on('load',
+        async function () {
+            var visibility = getPaginationTabsVisibility();
+            if (visibility == true)
+            {
+                $('#pnlPaginationTabs').show();
+            }
+            else
+            {
+                $('#pnlPaginationTabs').hide();
+            }
+        });
+
+    function ShowHidePaginationTabs(){
+        if ($('#pnlPaginationTabs').is(":visible")){
+            setPaginationTabsVisibility(false);
+            $('#pnlPaginationTabs').hide();
+        }else{
+            setPaginationTabsVisibility(true);
+            $('#pnlPaginationTabs').show();
+        }
+    }
+</script>
