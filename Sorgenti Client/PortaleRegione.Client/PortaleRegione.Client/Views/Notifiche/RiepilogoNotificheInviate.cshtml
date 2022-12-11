@@ -10,7 +10,7 @@
         <a class="@(!archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">Attive</a>
     </div>
     <div class="col s6">
-        <a class="@(archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = true})')">Chiuse</a>
+        <a class="@(archivio ? "green white-text" : "") chip" style="width: 100%" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = true})')">Archiviate</a>
     </div>
 </div>
 
@@ -27,17 +27,20 @@
             </div>
         </div>
     }
-    <ul class="collapsible">
-        @foreach (var notifica in Model.Data.Results)
-        {
-            <li>
-                @Html.Partial("_CardInvito", new CardInvitoModel
-                {
-                    Data = notifica,
-                    User = Model.CurrentUser,
-                    Ricevute = false
-                })
-            </li>
-        }
-    </ul>
+    else
+    {
+        <ul class="collapsible">
+            @foreach (var notifica in Model.Data.Results)
+            {
+                <li>
+                    @Html.Partial("_CardInvito", new CardInvitoModel
+                    {
+                        Data = notifica,
+                        User = Model.CurrentUser,
+                        Ricevute = false
+                    })
+                </li>
+            }
+        </ul>
+    }
 </div>

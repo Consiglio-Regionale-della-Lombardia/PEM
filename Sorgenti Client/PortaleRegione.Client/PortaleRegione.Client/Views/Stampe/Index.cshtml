@@ -275,7 +275,6 @@
                 $(ctrl).parent().parent().attr("style", "opacity: .3");
                 $(ctrl).hide();
                 var url = '@Url.Action("EliminaStampa", "Stampe")?id=' + stampaUId;
-                console.log(url);
                 $.ajax({
                     url: url,
                     type: "GET"

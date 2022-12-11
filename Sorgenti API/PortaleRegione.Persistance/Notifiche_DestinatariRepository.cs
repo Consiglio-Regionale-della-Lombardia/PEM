@@ -37,7 +37,7 @@ namespace PortaleRegione.Persistance
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
-        public async Task<NOTIFICHE_DESTINATARI> Get(long notificaId, Guid personaUId)
+        public async Task<NOTIFICHE_DESTINATARI> Get(string notificaId, Guid personaUId)
         {
             return await PRContext.NOTIFICHE_DESTINATARI.SingleOrDefaultAsync(nd =>
                 nd.UIDNotifica == notificaId && nd.UIDPersona == personaUId);

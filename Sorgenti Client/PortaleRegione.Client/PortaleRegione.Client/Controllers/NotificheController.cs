@@ -22,6 +22,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -76,7 +77,7 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("{id:int}/destinatari")]
-        public async Task<ActionResult> GetDestinatariNotifica(int id)
+        public async Task<ActionResult> GetDestinatariNotifica(string id)
         {
             var apiGateway = new ApiGateway(Token);
             var destinatari = await apiGateway.Notifiche.GetDestinatariNotifica(id);
@@ -104,7 +105,7 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("accetta-proposta")]
-        public async Task<ActionResult> AccettaPropostaFirma(long id)
+        public async Task<ActionResult> AccettaPropostaFirma(string id)
         {
             var apiGateway = new ApiGateway(Token);
             await apiGateway.Notifiche.AccettaPropostaFirma(id);
@@ -113,10 +114,19 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("accetta-ritiro")]
-        public async Task<ActionResult> AccettaRitiroFirma(long id)
+        public async Task<ActionResult> AccettaRitiroFirma(string id)
         {
             var apiGateway = new ApiGateway(Token);
             await apiGateway.Notifiche.AccettaRitiroFirma(id);
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [Route("archivia")]
+        public async Task<ActionResult> ArchiviaNotifica(List<string> notifiche)
+        {
+            var apiGateway = new ApiGateway(Token);
+            await apiGateway.Notifiche.ArchiviaNotifiche(notifiche);
             return Json("", JsonRequestBehavior.AllowGet);
         }
     }

@@ -180,32 +180,34 @@
             </div>
         </div>
     </div>
-    <div id="pnlPaginationTabs" class="row">
+    <div id="pnlPaginationTabs" class="row" style="display: none;">
         <div class="col s12">
             <ul class="tabs tabs-transparent">
                 
                 @{
-                    var pages = new List<int>();
-                    for (int i = 1; i <= Model.Last_Page; i++)
+                    if (Model.Entities > 0)
                     {
-                        pages.Add(i);
-                    }
+                        var pages = new List<int>();
+                        for (int i = 1; i <= Model.Last_Page; i++)
+                        {
+                            pages.Add(i);
+                        }
 
-                }
-
-                @foreach (var tab in pages)
-                {
-                    if (Model.Page == tab)
-                    {
-                        <li class="tab">
-                            <a class="active" onclick="filtra(@(tab))">@tab</a>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="tab">
-                            <a onclick="filtra(@(tab))">@tab</a>
-                        </li>
+                        foreach (var tab in pages)
+                        {
+                            if (Model.Page == tab)
+                            {
+                                <li class="tab">
+                                    <a class="active" onclick="filtra(@(tab))">@tab</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="tab">
+                                    <a onclick="filtra(@(tab))">@tab</a>
+                                </li>
+                            }
+                        }
                     }
                 }
             </ul>
