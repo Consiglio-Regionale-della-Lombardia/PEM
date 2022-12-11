@@ -583,59 +583,54 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task AccettaPropostaFirma(long id)
+        public async Task AccettaPropostaFirma(string id)
         {
-            try
+            var notifica = await _unitOfWork.Notifiche.Get(id);
+            notifica.Valida = true;
+            notifica.Chiuso = true;
+            var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
+            firma.Valida = true;
+
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task AccettaRitiroFirma(string id)
+        {
+            var notifica = await _unitOfWork.Notifiche.Get(id);
+            notifica.Chiuso = true;
+            var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
+            firma.Data_ritirofirma =
+                BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                    AppSettingsConfiguration.masterKey);
+            await _unitOfWork.CompleteAsync();
+            var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
+            SEDUTE seduta = null;
+            if (atto.UIDSeduta.HasValue)
             {
-                var notifica = await _unitOfWork.Notifiche.Get(id);
-                notifica.Valida = true;
-                notifica.Chiuso = true;
-                var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
-                firma.Valida = true;
+                seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+            }
+
+            var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
+            if (!string.IsNullOrEmpty(check_presentazione))
+            {
+                var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);
+                attoInDb.IDStato = (int)StatiAttoEnum.CHIUSO;
+                attoInDb.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.DECADUTO;
+                attoInDb.DataRitiro = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - AccettaPropostaFirma", e);
-                throw e;
             }
         }
 
-        public async Task AccettaRitiroFirma(long id)
+        public async Task ArchiviaNotifiche(List<string> notifiche, PersonaDto user)
         {
-            try
+            foreach (var id in notifiche)
             {
-                var notifica = await _unitOfWork.Notifiche.Get(id);
+                var notifica = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
                 notifica.Chiuso = true;
-                var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
-                firma.Data_ritirofirma =
-                    BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                        AppSettingsConfiguration.masterKey);
-                await _unitOfWork.CompleteAsync();
-                var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
-                SEDUTE seduta = null;
-                if (atto.UIDSeduta.HasValue)
-                {
-                    seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
-                }
-
-                var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
-                if (!string.IsNullOrEmpty(check_presentazione))
-                {
-                    var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);
-                    attoInDb.IDStato = (int)StatiAttoEnum.CHIUSO;
-                    attoInDb.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.DECADUTO;
-                    attoInDb.DataRitiro = DateTime.Now;
-
-                    await _unitOfWork.CompleteAsync();
-                }
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - AccettaRitiroFirma", e);
-                throw e;
-            }
+
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

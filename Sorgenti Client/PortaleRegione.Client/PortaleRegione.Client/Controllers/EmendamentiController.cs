@@ -197,10 +197,10 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("view/{id:guid}")]
-        public async Task<ActionResult> ViewEmendamento(Guid id, long notificaId = 0)
+        public async Task<ActionResult> ViewEmendamento(Guid id, string notificaId = "")
         {
             var apiGateway = new ApiGateway(Token);
-            if (notificaId > 0) await apiGateway.Notifiche.NotificaVista(notificaId);
+            if (!string.IsNullOrEmpty(notificaId)) await apiGateway.Notifiche.NotificaVista(notificaId);
             var em = await apiGateway.Emendamento.Get(id);
 
             if (string.IsNullOrEmpty(em.EM_Certificato))

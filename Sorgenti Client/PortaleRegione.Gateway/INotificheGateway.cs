@@ -33,9 +33,10 @@ namespace PortaleRegione.Gateway
         Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size, bool Archivio = false);
         Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool Archivio, bool Solo_Non_Viste = false);
         Task<Dictionary<Guid, string>> NotificaEM(ComandiAzioneModel model);
-        Task NotificaVista(long notificaId);
+        Task NotificaVista(string notificaId);
         Task<Dictionary<Guid, string>> NotificaDASI(ComandiAzioneModel model);
         Task AccettaPropostaFirma(string id);
         Task AccettaRitiroFirma(string id);
+        Task ArchiviaNotifiche(List<string> notifiche);
     }
 }

@@ -4849,26 +4849,28 @@ var $jscomp$this = this;
                 }, {
                     key: "_setupActiveTabLink",
                     value: function _setupActiveTabLink() {
-                        // If the location.hash matches one of the links, use that as the active tab.
-                        this.$activeTabLink = $(this.$tabLinks.filter('[href="' + location.hash + '"]'));
+                        try {
+                            // If the location.hash matches one of the links, use that as the active tab.
+                            this.$activeTabLink = $(this.$tabLinks.filter('[href="' + location.hash + '"]'));
 
-                        // If no match is found, use the first link or any with class 'active' as the initial active tab.
-                        if (this.$activeTabLink.length === 0) {
-                            this.$activeTabLink = this.$el.children("li.tab").children("a.active").first();
-                        }
-                        if (this.$activeTabLink.length === 0) {
-                            this.$activeTabLink = this.$el.children("li.tab").children("a").first();
-                        }
+                            // If no match is found, use the first link or any with class 'active' as the initial active tab.
+                            if (this.$activeTabLink.length === 0) {
+                                this.$activeTabLink = this.$el.children("li.tab").children("a.active").first();
+                            }
+                            if (this.$activeTabLink.length === 0) {
+                                this.$activeTabLink = this.$el.children("li.tab").children("a").first();
+                            }
 
-                        this.$tabLinks.removeClass("active");
-                        this.$activeTabLink[0].classList.add("active");
+                            this.$tabLinks.removeClass("active");
+                            this.$activeTabLink[0].classList.add("active");
 
-                        this.index = Math.max(this.$tabLinks.index(this.$activeTabLink), 0);
+                            this.index = Math.max(this.$tabLinks.index(this.$activeTabLink), 0);
 
-                        if (this.$activeTabLink.length) {
-                            this.$content = $(M.escapeHash(this.$activeTabLink[0].hash));
-                            this.$content.addClass("active");
-                        }
+                            if (this.$activeTabLink.length) {
+                                this.$content = $(M.escapeHash(this.$activeTabLink[0].hash));
+                                this.$content.addClass("active");
+                            }
+                        } catch (e) {}
                     }
 
                     /**

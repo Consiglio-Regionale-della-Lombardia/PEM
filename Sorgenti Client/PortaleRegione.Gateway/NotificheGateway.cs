@@ -105,7 +105,7 @@ namespace PortaleRegione.Gateway
             return result;
         }
 
-        public async Task NotificaVista(long notificaId)
+        public async Task NotificaVista(string notificaId)
         {
             var requestUrl = $"{apiUrl}/notifiche/vista/{notificaId}";
 
@@ -134,6 +134,13 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/notifiche/accetta-ritiro?id={id}";
             await Get(requestUrl, _token);
+        }
+
+        public async Task ArchiviaNotifiche(List<string> notifiche)
+        {
+            var requestUrl = $"{apiUrl}/notifiche/archivia";
+            var body = JsonConvert.SerializeObject(notifiche);
+            await Post(requestUrl, body, _token);
         }
 
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto,

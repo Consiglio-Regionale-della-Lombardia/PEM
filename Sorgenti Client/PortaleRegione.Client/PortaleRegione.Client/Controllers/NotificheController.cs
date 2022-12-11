@@ -125,6 +125,8 @@ namespace PortaleRegione.Client.Controllers
         [Route("archivia")]
         public async Task<ActionResult> ArchiviaNotifica(List<string> notifiche)
         {
+            var apiGateway = new ApiGateway(Token);
+            await apiGateway.Notifiche.ArchiviaNotifiche(notifiche);
             return Json("", JsonRequestBehavior.AllowGet);
         }
     }

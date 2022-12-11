@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -246,7 +247,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("accetta-proposta")]
-        public async Task<IHttpActionResult> AccettaPropostaFirma(long id)
+        public async Task<IHttpActionResult> AccettaPropostaFirma(string id)
         {
             try
             {
@@ -266,7 +267,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("accetta-ritiro")]
-        public async Task<IHttpActionResult> AccettaRitiroFirma(long id)
+        public async Task<IHttpActionResult> AccettaRitiroFirma(string id)
         {
             try
             {
@@ -276,6 +277,23 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 //Log.Error("AccettaRitiroFirma", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        [HttpPost]
+        [Route("archivia")]
+        public async Task<IHttpActionResult> ArchiviaNotifiche(List<string> notifiche)
+        {
+            try
+            {
+                var user = CurrentUser;
+                await _notificheLogic.ArchiviaNotifiche(notifiche, user);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                //Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }

@@ -27,17 +27,20 @@
             </div>
         </div>
     }
-    <ul class="collapsible">
-        @foreach (var notifica in Model.Data.Results)
-        {
-            <li>
-                @Html.Partial("_CardInvito", new CardInvitoModel
-                {
-                    Data = notifica,
-                    User = Model.CurrentUser,
-                    Ricevute = false
-                })
-            </li>
-        }
-    </ul>
+    else
+    {
+        <ul class="collapsible">
+            @foreach (var notifica in Model.Data.Results)
+            {
+                <li>
+                    @Html.Partial("_CardInvito", new CardInvitoModel
+                    {
+                        Data = notifica,
+                        User = Model.CurrentUser,
+                        Ricevute = false
+                    })
+                </li>
+            }
+        </ul>
+    }
 </div>

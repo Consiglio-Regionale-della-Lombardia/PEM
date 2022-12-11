@@ -41,6 +41,13 @@
     <table>
         <tr style="border: unset">
             <td style="border: unset" width="5">
+                <p>
+                    <label>
+                        <input type="checkbox" />
+                    </label>
+                </p>
+            </td>
+            <td style="border: unset" width="5">
                 @if (notifica.IsPem)
                 {
                     <div class="chip blue-text white" style="border: 1px solid #7EADF3; min-width: unset;">PEM</div>
@@ -186,7 +193,7 @@
                         <a class="btn-flat blue-text" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = notifica.ATTO_DASI.UIDAtto})')">
                             Vedi Atto
                         </a>
-                        <a class="btn-flat red-text" onclick="ArchiviaNotifica(this, @notifica.UIDNotifica)">
+                        <a class="btn-flat red-text" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
                             Archivia notifica
                         </a>
                     </div>

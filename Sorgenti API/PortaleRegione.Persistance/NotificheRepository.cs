@@ -276,7 +276,7 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<NOTIFICHE> Get(long id)
+        public async Task<NOTIFICHE> Get(string id)
         {
             return await PRContext.NOTIFICHE.FindAsync(id);
         }
