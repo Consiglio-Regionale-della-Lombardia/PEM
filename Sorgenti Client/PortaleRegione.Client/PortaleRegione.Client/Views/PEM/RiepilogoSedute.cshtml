@@ -78,6 +78,10 @@
                         {
                             <div class="chip white red-text tooltipped" data-tooltip="Seduta dedicata agli atti d’indirizzo e sindacato ispettivo" style="min-width: unset; border: 1px solid red">DASI</div>
                         }
+                        @if (!string.IsNullOrEmpty(seduta.Note))
+                        {
+                            <div class="chip white black-text" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
+                        }
                     </div>
 
                     @*COMANDI*@
