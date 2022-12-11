@@ -1,10 +1,8 @@
-﻿using System;
+﻿using PortaleRegione.Client.Helpers;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Xml;
-using PortaleRegione.Client.Helpers;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -22,35 +20,21 @@ namespace PortaleRegione.Client.Controllers
             var result = "";
             var url =
                 $"{apiUrl}/api/login?u={AppSettingsConfiguration.GEASI_USERNAME}&pw={AppSettingsConfiguration.GEASI_PASSWORD}";
-            try
-            {
-                var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(url);
-                var string_response = await response.Content.ReadAsStringAsync();
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(string_response);
-                foreach (XmlNode node in xmlDoc.ChildNodes)
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
+            var string_response = await response.Content.ReadAsStringAsync();
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(string_response);
+            foreach (XmlNode node in xmlDoc.ChildNodes)
+                if (node.Name == "ticket")
                 {
-                    if (node.Name == "ticket")
-                    {
-                        result = node.InnerText;
-                        break;
-                    }
+                    result = node.InnerText;
+                    break;
                 }
-                return Json(result, JsonRequestBehavior.AllowGet);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Log.Error($"Login [{url}]", e);
-                throw e;
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Login [{url}]", e);
-                throw e;
-            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
-        
+
         [AllowAnonymous]
         [HttpGet]
         [Route("search")]
@@ -58,24 +42,11 @@ namespace PortaleRegione.Client.Controllers
         {
             var url =
                 $"{apiUrl}/search?limit=1&alf_ticket={ticket}&tipoAtto={tipoatto}&numeroAtto={natto}&idLegislatura={idlegislatura}";
-            try
-            {
-                var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(url);
-                var string_response = await response.Content.ReadAsStringAsync();
-                
-                return Json(string_response, JsonRequestBehavior.AllowGet);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Log.Error($"Search [{url}]", e);
-                throw e;
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Search [{url}]", e);
-                throw e;
-            }
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
+            var string_response = await response.Content.ReadAsStringAsync();
+
+            return Json(string_response, JsonRequestBehavior.AllowGet);
         }
     }
 }

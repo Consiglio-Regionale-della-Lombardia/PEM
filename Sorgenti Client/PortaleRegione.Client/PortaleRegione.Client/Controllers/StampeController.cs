@@ -40,7 +40,7 @@ namespace PortaleRegione.Client.Controllers
         // GET
         public async Task<ActionResult> Index(int page = 1, int size = 50)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.Stampe.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
@@ -53,16 +53,11 @@ namespace PortaleRegione.Client.Controllers
         [Route("nuova")]
         public async Task<ActionResult> NuovaStampa(BaseRequest<EmendamentiDto, StampaDto> model)
         {
-            object UIDAtto;
-            model.param.TryGetValue("UIDAtto", out UIDAtto);
-            object DA;
-            model.param.TryGetValue("Da", out DA);
-            object A;
-            model.param.TryGetValue("A", out A);
-            object client_mode;
-            model.param.TryGetValue("CLIENT_MODE", out client_mode);
-            object ordine;
-            model.param.TryGetValue("Ordine", out ordine);
+            model.param.TryGetValue("UIDAtto", out var UIDAtto);
+            model.param.TryGetValue("Da", out var DA);
+            model.param.TryGetValue("A", out var A);
+            model.param.TryGetValue("CLIENT_MODE", out var client_mode);
+            model.param.TryGetValue("Ordine", out var ordine);
             model.entity = new StampaDto
             {
                 UIDAtto = new Guid(UIDAtto.ToString()),
@@ -94,7 +89,7 @@ namespace PortaleRegione.Client.Controllers
                 }
 
 
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             await apiGateway.Stampe.InserisciStampa(model);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
@@ -103,15 +98,13 @@ namespace PortaleRegione.Client.Controllers
         [Route("nuova-dasi")]
         public async Task<ActionResult> NuovaStampaDasi(BaseRequest<AttoDASIDto, StampaDto> model)
         {
-            object DA;
-            model.param.TryGetValue("Da", out DA);
-            object A;
-            model.param.TryGetValue("A", out A);
+            model.param.TryGetValue("Da", out var da);
+            model.param.TryGetValue("A", out var a);
 
             model.entity = new StampaDto
             {
-                Da = Convert.ToInt16(DA),
-                A = Convert.ToInt16(A)
+                Da = Convert.ToInt16(da),
+                A = Convert.ToInt16(a)
             };
 
             if (model.filtro == null)
@@ -127,10 +120,11 @@ namespace PortaleRegione.Client.Controllers
                     }
                     catch (Exception)
                     {
+                        // ignored
                     }
             }
 
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             await apiGateway.Stampe.InserisciStampa(model);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
@@ -146,7 +140,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.Stampe.DownloadStampa(id);
                 return File(file.Content, "application/pdf",
                     file.FileName);
@@ -162,7 +156,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("reset")]
         public async Task<ActionResult> ResetStampa(Guid id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             await apiGateway.Stampe.ResetStampa(id);
             return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
         }
@@ -173,7 +167,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 await apiGateway.Stampe.EliminaStampa(id);
                 return Json("", JsonRequestBehavior.AllowGet);
             }
