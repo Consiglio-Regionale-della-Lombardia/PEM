@@ -1,4 +1,15 @@
-﻿function getListaEmendamenti() {
+﻿function getPaginationTabsVisibility() {
+    var session_raw = sessionStorage.getItem("PaginationTabsVisibility");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function setPaginationTabsVisibility(visibility) {
+    sessionStorage.setItem("PaginationTabsVisibility", JSON.stringify(visibility));
+}
+
+function getListaEmendamenti() {
     var session_raw = sessionStorage.getItem("listaEmendamenti");
     if (session_raw == null)
         return {}
