@@ -89,8 +89,6 @@ namespace PortaleRegione.Client.Controllers
 
             await SalvaDatiInCookies(response.persona, response.jwt, response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
-            //if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
-
             return RedirectToAction("Index", "Home");
         }
 
