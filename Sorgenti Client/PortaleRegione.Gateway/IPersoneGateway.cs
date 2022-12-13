@@ -39,7 +39,7 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<PersonaDto>> GetRelatori(Guid? attoUId);
         Task<RuoliDto> GetRuolo(RuoliIntEnum ruolo);
         Task<IEnumerable<PersonaDto>> GetSegreteriaGiuntaRegionale(bool notifica_firma, bool notifica_deposito);
-        Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool notifica_firma, bool notifica_deposito);
+        Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma, bool deposito);
         Task<LoginResponse> Login(string username, string password);
         Task SalvaPin(CambioPinModel model);
     }

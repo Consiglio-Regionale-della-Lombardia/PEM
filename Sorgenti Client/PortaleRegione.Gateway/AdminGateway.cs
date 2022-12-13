@@ -38,7 +38,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<PersonaDto> GetPersona(Guid id)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.GetPersona.Replace("{id}", id.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetPersona.Replace("{id}", id.ToString())}";
             var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
 
             return lst;
@@ -46,7 +46,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RiepilogoUtentiModel> GetPersone(BaseRequest<PersonaDto> request)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.GetUtenti}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetUtenti}";
             var body = JsonConvert.SerializeObject(request);
 
             var lst = JsonConvert.DeserializeObject<RiepilogoUtentiModel>(await Post(requestUrl, body, _token));
@@ -56,7 +56,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<IEnumerable<KeyValueDto>> GetGruppiInDb()
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.GetGruppiInDb}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetGruppiInDb}";
 
             var lst = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(await Get(requestUrl, _token));
 
@@ -66,7 +66,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<Guid> SalvaPersona(PersonaUpdateRequest request)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.SalvaUtente}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.SalvaUtente}";
             var body = JsonConvert.SerializeObject(request);
 
             var result = JsonConvert.DeserializeObject<Guid>(await Post(requestUrl, body, _token));
@@ -75,14 +75,14 @@ namespace PortaleRegione.Gateway
 
         public async Task EliminaPersona(Guid uid_persona)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.EliminaUtente.Replace("{id}", uid_persona.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.EliminaUtente.Replace("{id}", uid_persona.ToString())}";
 
             await Delete(requestUrl, _token);
         }
 
         public async Task ResetPin(ResetRequest request)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.ResetPin}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.ResetPin}";
             var body = JsonConvert.SerializeObject(request);
 
             await Put(requestUrl, body, _token);
@@ -90,7 +90,7 @@ namespace PortaleRegione.Gateway
 
         public async Task ResetPassword(ResetRequest request)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.ResetPassword}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.ResetPassword}";
             var body = JsonConvert.SerializeObject(request);
 
             await Put(requestUrl, body, _token);
@@ -98,7 +98,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<IEnumerable<RuoliDto>> GetRuoliAD()
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.GetRuoliAD}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetRuoliAD}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<RuoliDto>>(await Get(requestUrl, _token));
 
             return lst;
@@ -106,7 +106,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<IEnumerable<GruppoAD_Dto>> GetGruppiPoliticiAD()
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.GetGruppiPoliticiAD}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetGruppiPoliticiAD}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<GruppoAD_Dto>>(await Get(requestUrl, _token));
 
             return lst;
@@ -114,7 +114,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RiepilogoGruppiModel> GetGruppiAdmin(BaseRequest<GruppiDto> request)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.GetGruppi}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetGruppi}";
             var body = JsonConvert.SerializeObject(request);
             var lst = JsonConvert.DeserializeObject<RiepilogoGruppiModel>(await Post(requestUrl, body, _token));
 
@@ -123,7 +123,7 @@ namespace PortaleRegione.Gateway
 
         public async Task SalvaGruppo(SalvaGruppoRequest request)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Admin.SalvaGruppo}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.SalvaGruppo}";
             var body = JsonConvert.SerializeObject(request);
 
             await Post(requestUrl, body, _token);

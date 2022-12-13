@@ -17,10 +17,10 @@
  */
 
 using Newtonsoft.Json;
+using PortaleRegione.DTO;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
-
 using System;
 using System.Threading.Tasks;
 
@@ -37,96 +37,44 @@ namespace PortaleRegione.Gateway
 
         public async Task<FileResponse> EsportaXLS(EmendamentiViewModel model)
         {
-            try
-            {
-                var requestUrl =
-                    $"{apiUrl}/emendamenti/esporta-griglia-xls";
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.PEM.EsportaGrigliaExcel}";
 
-                var body = JsonConvert.SerializeObject(model);
-                var lst = await GetFile(requestUrl, body, _token);
+            var body = JsonConvert.SerializeObject(model);
+            var lst = await GetFile(requestUrl, body, _token);
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EsportaXLS", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EsportaXLS", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model)
         {
-            try
-            {
-                var requestUrl =
-                    $"{apiUrl}/emendamenti/esporta-griglia-xls-segreteria";
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.PEM.EsportaGrigliaExcelUOLA}";
 
-                var body = JsonConvert.SerializeObject(model);
-                var lst = await GetFile(requestUrl, body, _token);
+            var body = JsonConvert.SerializeObject(model);
+            var lst = await GetFile(requestUrl, body, _token);
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EsportaXLS_UOLA", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EsportaXLS_UOLA", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<FileResponse> EsportaXLSDASI(RiepilogoDASIModel model)
         {
-            try
-            {
-                var requestUrl =
-                    $"{apiUrl}/dasi/esporta-griglia-xls";
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.DASI.EsportaGrigliaExcel}";
 
-                var body = JsonConvert.SerializeObject(model);
-                var lst = await GetFile(requestUrl, body, _token);
+            var body = JsonConvert.SerializeObject(model);
+            var lst = await GetFile(requestUrl, body, _token);
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EsportaXLSDASI", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EsportaXLSDASI", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/esporta-griglia-doc?id={attoUId}&ordine={ordine}&mode={mode}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.EsportaGrigliaWord.Replace("{id}", attoUId.ToString()).Replace("{ordine}", ordine.ToString()).Replace("{mode}", mode.ToString())}";
 
-                var lst = await GetFile(requestUrl, _token);
+            var lst = await GetFile(requestUrl, _token);
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EsportaWORD", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EsportaWORD", ex);
-                throw ex;
-            }
+            return lst;
         }
     }
 }

@@ -17,6 +17,7 @@
  */
 
 using Newtonsoft.Json;
+using PortaleRegione.DTO;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -39,7 +40,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
         {
-            var requestUrl = $"{apiUrl}/notifiche/destinatari-dasi?tipo={(int)tipo}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAllDestinatari.Replace("{tipo}", tipo.ToString())}";
             var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
             return lst;
@@ -48,7 +49,7 @@ namespace PortaleRegione.Gateway
         public async Task<RiepilogoNotificheModel> GetNotificheInviate(int page, int size,
             bool archivio = false)
         {
-            var requestUrl = $"{apiUrl}/notifiche/view-inviate";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.GetInviate}";
 
             var model = new BaseRequest<NotificaDto>
             {
@@ -67,7 +68,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool archivio, bool soloNonViste = false)
         {
-            var requestUrl = $"{apiUrl}/notifiche/view-ricevute";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.GetRicevute}";
 
             var model = new BaseRequest<NotificaDto>
             {
@@ -87,7 +88,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<IEnumerable<DestinatariNotificaDto>> GetDestinatariNotifica(string id)
         {
-            var requestUrl = $"{apiUrl}/notifiche/{id}/destinatari";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.GetDestinatari.Replace("{id}", id)}";
 
             var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
                 _token));
@@ -97,7 +98,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> NotificaEM(ComandiAzioneModel model)
         {
-            var requestUrl = $"{apiUrl}/notifiche/invita";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.InvitoAFirmare}";
             var body = JsonConvert.SerializeObject(model);
             var result =
                 JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
@@ -107,7 +108,7 @@ namespace PortaleRegione.Gateway
 
         public async Task NotificaVista(string notificaId)
         {
-            var requestUrl = $"{apiUrl}/notifiche/vista/{notificaId}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.NotificaVista.Replace("{id}", notificaId)}";
 
             await Get(requestUrl, _token);
         }
@@ -116,7 +117,7 @@ namespace PortaleRegione.Gateway
         {
             model.IsDASI = true;
 
-            var requestUrl = $"{apiUrl}/notifiche/invita";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.InvitoAFirmare}";
             var body = JsonConvert.SerializeObject(model);
             var result =
                 JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
@@ -126,19 +127,19 @@ namespace PortaleRegione.Gateway
 
         public async Task AccettaPropostaFirma(string id)
         {
-            var requestUrl = $"{apiUrl}/notifiche/accetta-proposta?id={id}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.AccettaPropostaFirma.Replace("{id}", id)}";
             await Get(requestUrl, _token);
         }
 
         public async Task AccettaRitiroFirma(string id)
         {
-            var requestUrl = $"{apiUrl}/notifiche/accetta-ritiro?id={id}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.AccettaRitiroFirma.Replace("{id}", id)}";
             await Get(requestUrl, _token);
         }
 
         public async Task ArchiviaNotifiche(List<string> notifiche)
         {
-            var requestUrl = $"{apiUrl}/notifiche/archivia";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.Archivia}";
             var body = JsonConvert.SerializeObject(notifiche);
             await Post(requestUrl, body, _token);
         }
@@ -146,7 +147,7 @@ namespace PortaleRegione.Gateway
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto,
             TipoDestinatarioNotificaEnum tipo)
         {
-            var requestUrl = $"{apiUrl}/notifiche/destinatari?atto={atto}&tipo={(int)tipo}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.GetAllDestinatari.Replace("{atto}", atto.ToString()).Replace("{tipo}", tipo.ToString())}";
             var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
             return lst;

@@ -19,6 +19,7 @@
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
+using PortaleRegione.DTO;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
@@ -67,9 +68,9 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("dasi/esporta-griglia-xls")]
         [HttpPost]
-        public async Task<IHttpActionResult> EsportaGrigliaExcelDASI(RiepilogoDASIModel model)
+        [Route(ApiRoutes.DASI.EsportaGrigliaExcel)]
+        public async Task<IHttpActionResult> EsportaGrigliaExcelDasi(RiepilogoDASIModel model)
         {
             try
             {
@@ -92,7 +93,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("emendamenti/esporta-griglia-xls")]
+        [Route(ApiRoutes.PEM.EsportaGrigliaExcel)]
         [HttpPost]
         public async Task<IHttpActionResult> EsportaGrigliaExcel(EmendamentiViewModel model)
         {
@@ -113,7 +114,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("emendamenti/esporta-griglia-xls-segreteria")]
+        [Route(ApiRoutes.PEM.EsportaGrigliaExcelUOLA)]
         [HttpPost]
         public async Task<IHttpActionResult> EsportaGrigliaExcel_UOLA(EmendamentiViewModel model)
         {
@@ -140,7 +141,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="ordine">ordinamento emendamenti atto</param>
         /// <param name="mode"></param>
         /// <returns></returns>
-        [Route("emendamenti/esporta-griglia-doc")]
+        [Route(ApiRoutes.PEM.EsportaGrigliaWord)]
         [HttpGet]
         public async Task<IHttpActionResult> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode)
         {

@@ -44,7 +44,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<LoginResponse> Login(string username, string password)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Autenticazione.Login}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.Login}";
             var body = JsonConvert.SerializeObject(new LoginRequest
             {
                 Username = username,
@@ -56,7 +56,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<LoginResponse> CambioRuolo(RuoliIntEnum ruolo)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Autenticazione.CambioRuolo.Replace("{ruolo}", ruolo.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.CambioRuolo.Replace("{ruolo}", ruolo.ToString())}";
 
             var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
             return lst;
@@ -64,7 +64,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<LoginResponse> CambioGruppo(int gruppo)
         {
-            var requestUrl = $"{apiUrl}{ApiRoutes.Autenticazione.CambioGruppo.Replace("{gruppo}", gruppo.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.CambioGruppo.Replace("{gruppo}", gruppo.ToString())}";
 
             var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
             return lst;
@@ -72,269 +72,107 @@ namespace PortaleRegione.Gateway
 
         public async Task<IEnumerable<PersonaDto>> GetAssessoriRiferimento()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/assessori";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetAssessori}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetAssessoriRiferimento", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetAssessoriRiferimento", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetRelatori(Guid? attoUId)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/relatori";
-                if (attoUId != Guid.Empty)
-                    requestUrl += $"?id={attoUId}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetRelatori.Replace("{id}", attoUId.ToString())}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetRelatori", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetRelatori", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<IEnumerable<KeyValueDto>> GetGruppiAttivi()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/gruppi";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetAll}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetGruppi", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetGruppi", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<PersonaDto> Get(Guid id, bool isGiunta = false)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/{id}";
-                if (isGiunta)
-                    requestUrl += $"?IsGiunta={isGiunta}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetPersona.Replace("{id}", id.ToString()).Replace("{is_giunta}", isGiunta.ToString())}";
+            var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
 
-                var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetPersona", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetPersona", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<IEnumerable<PersonaDto>> Get()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/all";
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetAll}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetPersone", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetPersone", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<RuoliDto> GetRuolo(RuoliIntEnum ruolo)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/{(int)ruolo}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Ruoli.GetRuolo.Replace("{id}", ruolo.ToString())}";
 
-                var lst = JsonConvert.DeserializeObject<RuoliDto>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<RuoliDto>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetRuolo", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetPersona", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task CheckPin(CambioPinModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/check-pin";
-                var body = JsonConvert.SerializeObject(model);
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.CheckPin}";
+            var body = JsonConvert.SerializeObject(model);
 
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("CheckPin", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("CheckPin", ex);
-                throw ex;
-            }
+            await Post(requestUrl, body, _token);
         }
         public async Task SalvaPin(CambioPinModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/cambio-pin";
-                var body = JsonConvert.SerializeObject(model);
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.CambioPin}";
+            var body = JsonConvert.SerializeObject(model);
 
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("SalvaPin", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("SalvaPin", ex);
-                throw ex;
-            }
+            await Post(requestUrl, body, _token);
         }
 
         public async Task<IEnumerable<PersonaDto>> GetGiuntaRegionale()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/giunta-regionale";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetGiunta}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetGiuntaRegionale", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetGiuntaRegionale", ex);
-                throw ex;
-            }
+            return lst;
         }
 
-        public async Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool notifica_firma,
-            bool notifica_deposito)
+        public async Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma,
+            bool deposito)
         {
-            try
-            {
-                var requestUrl =
-                    $"{apiUrl}/persone/gruppo/{id}/segreteria-politica?notifica_firma={notifica_firma}&notifica_deposito={notifica_deposito}";
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.Gruppi.GetSegreteriaPoliticaGruppo.Replace("{id}", id.ToString()).Replace("{firma}", firma.ToString()).Replace("{deposito}", deposito.ToString())}";
 
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetSegreteriaPolitica", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetSegreteriaPolitica", ex);
-                throw ex;
-            }
+            return lst;
         }
 
         public async Task<PersonaDto> GetCapoGruppo(int id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/persone/gruppo/{id}/capo-gruppo";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetCapoGruppo.Replace("{id}", id.ToString())}";
 
-                var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetCapoGruppo", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetCapoGruppo", ex);
-                throw ex;
-            }
+            return lst;
         }
 
-        public async Task<IEnumerable<PersonaDto>> GetSegreteriaGiuntaRegionale(bool notifica_firma,
-            bool notifica_deposito)
+        public async Task<IEnumerable<PersonaDto>> GetSegreteriaGiuntaRegionale(bool firma, bool deposito)
         {
-            try
-            {
-                var requestUrl =
-                    $"{apiUrl}/persone/segreteria-giunta-regionale?notifica_firma={notifica_firma}&notifica_deposito={notifica_deposito}";
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.Gruppi.GetSegreteriaGiunta.Replace("{firma}", firma.ToString()).Replace("{deposito}", deposito.ToString())}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
 
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetSegreteriaGiuntaRegionale", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetSegreteriaGiuntaRegionale", ex);
-                throw ex;
-            }
+            return lst;
         }
     }
 }

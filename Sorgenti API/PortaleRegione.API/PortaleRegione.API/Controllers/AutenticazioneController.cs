@@ -64,7 +64,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint di login
+        ///     Endpoint login
         /// </summary>
         /// <param name="loginModel"></param>
         /// <returns></returns>
