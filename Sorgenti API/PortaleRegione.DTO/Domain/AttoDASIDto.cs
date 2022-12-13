@@ -126,6 +126,8 @@ namespace PortaleRegione.DTO.Domain
         public bool CapogruppoNeiTermini { get; set; } = false;
         public bool MOZU_Capigruppo { get; set; } = false;
 
+        public string DettaglioMozioniAbbinate { get; set; }
+
         public bool IsMOZ()
         {
             return Tipo == (int)TipoAttoEnum.MOZ;

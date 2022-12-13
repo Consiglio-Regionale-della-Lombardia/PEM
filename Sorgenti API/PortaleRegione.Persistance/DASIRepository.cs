@@ -633,6 +633,17 @@ namespace PortaleRegione.Persistance
                 .ToTraceQuery();
         }
 
+        public async Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto)
+        {
+            return await PRContext
+                .DASI
+                .Where(atto => atto.UID_MOZ_Abbinata == uidAtto
+                               && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                               && !atto.Eliminato)
+                .Select(atto => atto.UIDAtto)
+                .ToListAsync();
+        }
+
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)
         {
             var query = PRContext

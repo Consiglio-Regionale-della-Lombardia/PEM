@@ -63,5 +63,6 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);
         Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto);
         Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti);
+        Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto);
     }
 }

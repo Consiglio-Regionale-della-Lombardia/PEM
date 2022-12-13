@@ -504,7 +504,27 @@ namespace PortaleRegione.API.Controllers
                     : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
             }
 
+            dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
+
             return dto;
+        }
+
+        private async Task<string> GetDettagioMozioniAbbinate(Guid uidAtto)
+        {
+            var sb = new List<string>();
+            var atti = await _unitOfWork.DASI.GetAbbinamentiMozione(uidAtto);
+            if (!atti.Any())
+            {
+                return string.Empty;
+            }
+
+            foreach (var guid in atti)
+            {
+                var moz_abbinata = await GetAttoDto(guid);
+                sb.Add($"{Utility.GetText_Tipo(moz_abbinata.Tipo)} {moz_abbinata.NAtto}");
+            }
+
+            return sb.Aggregate((i, j) => i + "<br>" + j);
         }
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
@@ -2432,7 +2452,13 @@ namespace PortaleRegione.API.Controllers
             foreach (var moz_id in data)
             {
                 var moz = await Get(new Guid(moz_id));
+                if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                {
+                    moz.UID_MOZ_Abbinata = null;
+                }
+
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+
                 await _unitOfWork.CompleteAsync();
             }
         }
