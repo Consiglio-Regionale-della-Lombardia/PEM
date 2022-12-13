@@ -627,8 +627,8 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "");
                 }
 
-                SetColumnValue(ref rowEm, em.NOTE_EM);
                 SetColumnValue(ref rowEm, em.NOTE_Griglia);
+                SetColumnValue(ref rowEm, em.NOTE_EM);
             }
 
             var countEM = emendamentiDtos.Count();
