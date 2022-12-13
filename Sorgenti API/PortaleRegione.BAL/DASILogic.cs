@@ -2396,50 +2396,44 @@ namespace PortaleRegione.API.Controllers
 
         internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
         {
-            try
-            {
-                var attoDto = await GetAttoDto(atto.UIDAtto);
-                var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-                var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
-                var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-                return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
-            }
-            catch (Exception e)
-            {
-                //Log.Error("PDFIstantaneo", e);
-                throw e;
-            }
+            var attoDto = await GetAttoDto(atto.UIDAtto);
+            var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+            var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
+            var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
         }
 
         public async Task InviaAlProtocollo(Guid id)
         {
-            try
+            var atto = await _unitOfWork.DASI.Get(id);
+            var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo.Value)}";
+            var content = await PDFIstantaneo(atto, null);
+            var mailModel = new MailModel
             {
-                var atto = await _unitOfWork.DASI.Get(id);
-                var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo.Value)}";
-                var content = await PDFIstantaneo(atto, null);
-                var mailModel = new MailModel
-                {
-                    DA = AppSettingsConfiguration.EmailInvioDASI,
-                    A = AppSettingsConfiguration.EmailProtocolloDASI,
-                    OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
-                    MESSAGGIO =
-                        $"Si invia in allegato l'atto {nome_atto} con oggetto \"{atto.Oggetto}\". " +
-                        $"Si chiede l'apertura del fascicolo dedicato e la protocollazione dell'atto con preghiera di comunicare i relativi protocolli inviando una email a: {AppSettingsConfiguration.EmailInvioDASI} " +
-                        "<br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
-                    ATTACHMENTS = new List<AllegatoMail> { new AllegatoMail(content, $"{nome_atto}.pdf") }
-                };
-                await _logicUtil.InvioMail(mailModel);
+                DA = AppSettingsConfiguration.EmailInvioDASI,
+                A = AppSettingsConfiguration.EmailProtocolloDASI,
+                OGGETTO = $"Richiesta di protocollazione dell’atto {nome_atto}",
+                MESSAGGIO =
+                    $"Si invia in allegato l'atto {nome_atto} con oggetto \"{atto.Oggetto}\". " +
+                    $"Si chiede l'apertura del fascicolo dedicato e la protocollazione dell'atto con preghiera di comunicare i relativi protocolli inviando una email a: {AppSettingsConfiguration.EmailInvioDASI} " +
+                    "<br> Cordiali saluti, <br><br>Segreteria dell’Assemblea Consiliare",
+                ATTACHMENTS = new List<AllegatoMail> { new AllegatoMail(content, $"{nome_atto}.pdf") }
+            };
+            await _logicUtil.InvioMail(mailModel);
 
-                atto.Inviato_Al_Protocollo = true;
-                atto.DataInvioAlProtocollo = DateTime.Now;
+            atto.Inviato_Al_Protocollo = true;
+            atto.DataInvioAlProtocollo = DateTime.Now;
 
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task RimuoviUrgenzaMozione(List<string> data)
+        {
+            foreach (var moz_id in data)
+            {
+                var moz = await Get(new Guid(moz_id));
+                moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
                 await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - InviaAlProtocollo", e);
-                throw e;
             }
         }
     }

@@ -1050,5 +1050,14 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        [Route("rimuovi-urgenza-mozione")]
+        public async Task<ActionResult> RimuoviUrgenzaMozione(List<string> data)
+        {
+            var apiGateway = new ApiGateway(Token);
+            await apiGateway.DASI.RimuoviUrgenzaMozione(data);
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
     }
 }

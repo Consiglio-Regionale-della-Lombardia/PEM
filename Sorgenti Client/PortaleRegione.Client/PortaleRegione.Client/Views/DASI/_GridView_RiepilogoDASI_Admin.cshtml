@@ -132,14 +132,36 @@ else
                 </span>
             </td>
         }
+        else if (item.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+        {
+            <td style="width: 8%;">
+                <span>
+                    <a class="btn-flat red-text tooltipped" 
+                       data-tooltip="Rimuovi urgenza" 
+                       onclick="RimuoviUrgenza('@item.UIDAtto')">
+                        <i class="material-icons">close</i>
+                    </a>
+                </span>
+            </td>
+        }
+        else if (item.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+        {
+            <td style="width: 8%;">
+                <span>
+                    <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
+                    <a class="btn-flat red-text tooltipped" 
+                       data-tooltip="Rimuovi abbinamento" 
+                       onclick="RimuoviAbbinamento('@item.UIDAtto')">
+                        <i class="material-icons">close</i>
+                    </a>
+                </span>
+            </td>
+        }
         else
         {
             <td style="width: 8%;">
                 <span>
-                    @if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
-                    {
-                        <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
-                    }
+                    @*VUOTO*@
                 </span>
             </td>
         }
