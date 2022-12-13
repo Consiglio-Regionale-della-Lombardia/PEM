@@ -23,6 +23,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -33,7 +34,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire le stampe
     /// </summary>
     [Authorize]
-    [RoutePrefix("stampe")]
     public class StampeController : BaseApiController
     {
         /// <summary>
@@ -42,7 +42,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello di richiesta generico con paginazione</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view")]
+        [Route(ApiRoutes.Stampe.GetAll)]
         public async Task<IHttpActionResult> GetStampe(BaseRequest<StampaDto> model)
         {
             try
@@ -63,7 +63,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("id/{id:guid}")]
+        [Route(ApiRoutes.Stampe.Get)]
         public async Task<IHttpActionResult> GetStampa(Guid id)
         {
             try
@@ -84,7 +84,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello specifico per richiesta stampa</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
+        [Route(ApiRoutes.PEM.InserisciStampaDifferita)]
         public async Task<IHttpActionResult> InserisciStampaDifferita(BaseRequest<EmendamentiDto, StampaDto> model)
         {
             try
@@ -105,7 +105,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello specifico per richiesta stampa</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("dasi")]
+        [Route(ApiRoutes.DASI.InserisciStampaDifferita)]
         public async Task<IHttpActionResult> InserisciStampaDifferitaDASI(BaseRequest<AttoDASIDto, StampaDto> model)
         {
             try
@@ -127,7 +127,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
-        [Route("")]
+        [Route(ApiRoutes.Stampe.Download)]
         public async Task<IHttpActionResult> DownloadStampa(Guid id)
         {
             try
@@ -155,7 +155,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid stampa</param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("")]
+        [Route(ApiRoutes.Stampe.Delete)]
         public async Task<IHttpActionResult> EliminaStampa(Guid id)
         {
             try
@@ -183,7 +183,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid stampa</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("reset")]
+        [Route(ApiRoutes.Stampe.Reset)]
         public async Task<IHttpActionResult> ResetStampa(Guid id)
         {
             try
@@ -212,7 +212,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="message"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("id/{id:guid}/add-info")]
+        [Route(ApiRoutes.Stampe.AddInfo)]
         public async Task<IHttpActionResult> AddInfoStampa(Guid id, string message)
         {
             try
@@ -240,7 +240,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("id/{id:guid}/info")]
+        [Route(ApiRoutes.Stampe.GetInfo)]
         public async Task<IHttpActionResult> GetInfoStampa(Guid id)
         {
             try
@@ -267,7 +267,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("id/info")]
+        [Route(ApiRoutes.Stampe.GetAllInfo)]
         public async Task<IHttpActionResult> GetInfoStampe()
         {
             try

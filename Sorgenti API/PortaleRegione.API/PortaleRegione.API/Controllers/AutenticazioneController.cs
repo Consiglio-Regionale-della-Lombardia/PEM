@@ -19,12 +19,12 @@
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
-using PortaleRegione.DTO;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Enum;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {

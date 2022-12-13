@@ -16,27 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Routes;
-using System;
-using System.Threading.Tasks;
-
-namespace PortaleRegione.Gateway
+namespace PortaleRegione.DTO.Routes
 {
-    public class EMGateway_Pubblico : BaseGateway, IEMGateway_Pubblico
+    public static partial class ApiRoutes
     {
-        protected internal EMGateway_Pubblico()
+        public static class Gruppi
         {
+            // api/gruppi
+            private const string Base = Root + "/gruppi";
 
-        }
-
-        public async Task<string> GetBody(Guid id)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Public.ViewEM.Replace("{id}", id.ToString())}";
-            var result = await Get(requestUrl, string.Empty);
-            var lst = JsonConvert.DeserializeObject<string>(result);
-
-            return lst;
+            public const string GetAll = Base + "/all";
+            public const string GetCapoGruppo = Base + "/{id}/capo-gruppo";
+            public const string GetSegreteriaPoliticaGruppo = Base + "/{id}/segreteria-politica/{firma}/{deposito}";
+            public const string GetSegreteriaGiunta = Base + "/segreteria-giunta-regionale/{firma}/{deposito}";
+            public const string GetGiunta = Base + "/giunta";
+            public const string GetAssessori = Base + "/assessori";
+            public const string GetRelatori = Base + "/relatori/{id}";
         }
     }
 }

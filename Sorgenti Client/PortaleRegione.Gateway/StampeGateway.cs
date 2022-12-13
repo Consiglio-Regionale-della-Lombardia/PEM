@@ -21,7 +21,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -39,192 +39,67 @@ namespace PortaleRegione.Gateway
 
         public async Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe";
-                var body = JsonConvert.SerializeObject(model);
-
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("InserisciStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("InserisciStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.InserisciStampaDifferita}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
         }
 
         public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe/dasi";
-                var body = JsonConvert.SerializeObject(model);
-
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("InserisciStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("InserisciStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InserisciStampaDifferita}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
         }
 
         public async Task EliminaStampa(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe?id={id}";
-                await Delete(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EliminaStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EliminaStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Delete.Replace("{id}", id.ToString())}";
+            await Delete(requestUrl, _token);
         }
         public async Task ResetStampa(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe/reset?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("ResetStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("ResetStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Reset.Replace("{id}", id.ToString())}";
+            await Get(requestUrl, _token);
         }
 
         public async Task<BaseResponse<StampaDto>> Get(int page, int size)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.GetAll}";
+            var model = new BaseRequest<StampaDto>
             {
-                var requestUrl = $"{apiUrl}/stampe/view";
-
-                var model = new BaseRequest<StampaDto>
-                {
-                    page = page,
-                    size = size
-                };
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<StampaDto>>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetStampe", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetStampe", ex);
-                throw ex;
-            }
+                page = page,
+                size = size
+            };
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<BaseResponse<StampaDto>>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<StampaDto> Get(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe/id/{id}";
-                var lst = JsonConvert.DeserializeObject<StampaDto>(await Get(requestUrl, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Get.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<StampaDto>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task AddInfo(Guid id, string message)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe/id/{id}/add-info?message={message}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Add info Stampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Add info Stampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.AddInfo.Replace("{id}", id.ToString()).Replace("{message}", message)}";
+            await Get(requestUrl, _token);
         }
 
         public async Task<IEnumerable<Stampa_InfoDto>> GetInfo(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe/id/{id}/info";
-                var lst = JsonConvert.DeserializeObject<IEnumerable<Stampa_InfoDto>>(await Get(requestUrl, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetInfoStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetInfoStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.GetInfo.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<Stampa_InfoDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<IEnumerable<Stampa_InfoDto>> GetInfo()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe/id/info";
-                var lst = JsonConvert.DeserializeObject<IEnumerable<Stampa_InfoDto>>(await Get(requestUrl, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetInfoStampe", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetInfoStampe", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.GetAllInfo}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<Stampa_InfoDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<BaseResponse<AttoDASIDto>> JobGetDASI(string query, int page, int size = 20)

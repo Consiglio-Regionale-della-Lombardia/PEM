@@ -27,6 +27,7 @@ using PortaleRegione.DTO.Request;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -34,7 +35,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire le sedute
     /// </summary>
     [Authorize]
-    [RoutePrefix("sedute")]
     public class SeduteController : BaseApiController
     {
         /// <summary>
@@ -72,7 +72,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello richiesta generico con paginazione</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view")]
+        [Route(ApiRoutes.PEM.Sedute.GetAll)]
         public async Task<IHttpActionResult> GetSedute(BaseRequest<SeduteDto> model)
         {
             try
@@ -92,7 +92,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid seduta</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Sedute.Get)]
         public async Task<IHttpActionResult> GetSeduta(Guid id)
         {
             try
@@ -116,7 +116,7 @@ namespace PortaleRegione.API.Controllers
         /// <param></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("attive")]
+        [Route(ApiRoutes.PEM.Sedute.GetAttive)]
         public async Task<IHttpActionResult> GetSeduteAttive()
         {
             try
@@ -137,7 +137,7 @@ namespace PortaleRegione.API.Controllers
         /// <param></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("attive-mozu")]
+        [Route(ApiRoutes.PEM.Sedute.GetAttiveMOZU)]
         public async Task<IHttpActionResult> GetSeduteAttiveMOZU()
         {
             try
@@ -158,7 +158,7 @@ namespace PortaleRegione.API.Controllers
         /// <param></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("attive-dashboard")]
+        [Route(ApiRoutes.PEM.Sedute.GetAttiveDashboard)]
         public async Task<IHttpActionResult> GetSeduteAttiveDashboard()
         {
             try
@@ -180,7 +180,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpDelete]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Sedute.Delete)]
         public async Task<IHttpActionResult> DeleteSeduta(Guid id)
         {
             try
@@ -209,7 +209,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Sedute.Create)]
         public async Task<IHttpActionResult> NuovaSeduta(SeduteDto sedutaDto)
         {
             try
@@ -235,7 +235,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Sedute.Edit)]
         public async Task<IHttpActionResult> ModificaSeduta(SeduteFormUpdateDto sedutaDto)
         {
             try

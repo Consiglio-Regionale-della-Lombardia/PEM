@@ -17,10 +17,10 @@
  */
 
 using Newtonsoft.Json;
-using PortaleRegione.DTO;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Threading.Tasks;
 

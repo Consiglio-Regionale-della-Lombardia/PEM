@@ -16,27 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Routes;
-using System;
-using System.Threading.Tasks;
-
-namespace PortaleRegione.Gateway
+namespace PortaleRegione.DTO.Routes
 {
-    public class EMGateway_Pubblico : BaseGateway, IEMGateway_Pubblico
+    public static partial class ApiRoutes
     {
-        protected internal EMGateway_Pubblico()
+        public static partial class PEM
         {
+            public static partial class Atti
+            {
+                public static class Commi
+                {
+                    // api/pem/atti/commi
+                    private const string Base = ApiRoutes.PEM.Atti.Base + "/commi";
 
-        }
+                    public const string GetAll = Base + "/all/{id}/{expanded}";
+                    public const string Create = Base + "/create/{id}/{commi}";
+                    public const string Delete = Base + "/{id}";
 
-        public async Task<string> GetBody(Guid id)
-        {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Public.ViewEM.Replace("{id}", id.ToString())}";
-            var result = await Get(requestUrl, string.Empty);
-            var lst = JsonConvert.DeserializeObject<string>(result);
-
-            return lst;
+                }
+            }
         }
     }
 }
