@@ -19,6 +19,7 @@
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
+using PortaleRegione.DTO;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Enum;
 using System;
@@ -31,7 +32,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per l'autenticazione
     /// </summary>
     [AllowAnonymous]
-    [RoutePrefix("autenticazione")]
     public class AutenticazioneController : BaseApiController
     {
         /// <summary>
@@ -69,7 +69,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="loginModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
+        [Route(ApiRoutes.Autenticazione.Login)]
         public async Task<IHttpActionResult> Login(LoginRequest loginModel)
         {
             try
@@ -92,8 +92,8 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet]
-        [Route("cambio-ruolo")]
-        public async Task<IHttpActionResult> GetToken(RuoliIntEnum ruolo)
+        [Route(ApiRoutes.Autenticazione.CambioRuolo)]
+        public async Task<IHttpActionResult> CambioRuolo(RuoliIntEnum ruolo)
         {
             try
             {
@@ -115,8 +115,8 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet]
-        [Route("cambio-gruppo")]
-        public async Task<IHttpActionResult> GetToken(int gruppo)
+        [Route(ApiRoutes.Autenticazione.CambioGruppo)]
+        public async Task<IHttpActionResult> CambioGruppo(int gruppo)
         {
             try
             {

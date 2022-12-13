@@ -36,5 +36,13 @@ namespace PortaleRegione.DTO
             public const string SalvaGruppo = Base + "/groups/salva-gruppo";
             public const string GetGruppi = Base + "/groups";
         }
+
+        public static class Autenticazione
+        {
+            private const string Base = Root + "/auth";
+            public const string Login = Base + "/login";
+            public const string CambioRuolo = Base + "/cambio-ruolo/{ruolo}";
+            public const string CambioGruppo = Base + "/cambio-gruppo/{gruppo}";
+        }
     }
 }

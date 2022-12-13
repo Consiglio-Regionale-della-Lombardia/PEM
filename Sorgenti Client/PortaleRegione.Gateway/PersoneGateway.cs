@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using Newtonsoft.Json;
+using PortaleRegione.DTO;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -44,64 +44,30 @@ namespace PortaleRegione.Gateway
 
         public async Task<LoginResponse> Login(string username, string password)
         {
-            try
+            var requestUrl = $"{apiUrl}{ApiRoutes.Autenticazione.Login}";
+            var body = JsonConvert.SerializeObject(new LoginRequest
             {
-                var requestUrl = $"{apiUrl}/autenticazione";
-                var body = JsonConvert.SerializeObject(new LoginRequest
-                {
-                    Username = username,
-                    Password = password
-                });
+                Username = username,
+                Password = password
+            });
 
-                return JsonConvert.DeserializeObject<LoginResponse>(await Post(requestUrl, body, _token));
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Login", ex);
-                throw ex;
-            }
+            return JsonConvert.DeserializeObject<LoginResponse>(await Post(requestUrl, body, _token));
         }
 
         public async Task<LoginResponse> CambioRuolo(RuoliIntEnum ruolo)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/autenticazione/cambio-ruolo?ruolo={ruolo}";
+            var requestUrl = $"{apiUrl}{ApiRoutes.Autenticazione.CambioRuolo.Replace("{ruolo}", ruolo.ToString())}";
 
-                var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("CambioRuolo", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("CambioRuolo", ex);
-                throw ex;
-            }
+            var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<LoginResponse> CambioGruppo(int gruppo)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/autenticazione/cambio-gruppo?gruppo={gruppo}";
+            var requestUrl = $"{apiUrl}{ApiRoutes.Autenticazione.CambioGruppo.Replace("{gruppo}", gruppo.ToString())}";
 
-                var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("CambioGruppo", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("CambioGruppo", ex);
-                throw ex;
-            }
+            var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetAssessoriRiferimento()
