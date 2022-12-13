@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO
         private const string Root = "api";
         public static class Admin
         {
+            // api/admin
             private const string Base = Root + "/admin";
 
             public const string GetPersona = Base + "/persone/{id}";
@@ -40,6 +41,7 @@ namespace PortaleRegione.DTO
 
         public static class Autenticazione
         {
+            // api/auth
             private const string Base = Root + "/auth";
 
             public const string Login = Base + "/login";
@@ -49,6 +51,7 @@ namespace PortaleRegione.DTO
 
         public static class Public
         {
+            // api/public
             private const string Base = Root + "/public";
 
             public const string ViewEM = Base + "/{id}";
@@ -56,6 +59,7 @@ namespace PortaleRegione.DTO
 
         public static class DASI
         {
+            // api/dasi
             private const string Base = Root + "/dasi";
 
             public const string EsportaGrigliaExcel = Base + "/esporta-griglia-xls";
@@ -64,6 +68,7 @@ namespace PortaleRegione.DTO
 
         public static class PEM
         {
+            // api/pem
             private const string Base = Root + "/pem";
 
             public const string EsportaGrigliaExcel = Base + "/esporta-griglia-xls";
@@ -71,10 +76,66 @@ namespace PortaleRegione.DTO
             public const string EsportaGrigliaWord = Base + "/esporta-griglia-doc/{id}/{ordine}/{mode}";
 
             public const string GetAllDestinatari = Base + "/destinatari/{atto}/{tipo}";
+
+            public static class Atti
+            {
+                // api/pem/atti
+                private const string Base = PEM.Base + "/atti";
+
+                public const string GetAll = Base + "/all";
+                public const string Get = Base + "/{id}";
+                public const string Delete = Base + "/{id}";
+                public const string Create = Base + "/create";
+                public const string Edit = Base + "/edit";
+                public const string ModificaFascicoli = Base + "/modifica-fascicoli";
+                public const string DownloadDoc = Base + "/scarica-documento/{path}";
+                public const string GrigliaTesti = Base + "/{id}/griglia-testi/{view}";
+                public const string AggiornaRelatori = Base + "/aggiorna-relatori";
+                public const string AggiornaTesto = Base + "/aggiorna-testo";
+                public const string AbilitaFascicolo = Base + "/abilita-fascicolo";
+                public const string BloccoODG = Base + "/odg/blocca";
+                public const string JollyODG = Base + "/odg/jolly";
+                public const string SpostaUp = Base + "/{id}/sposta/up";
+                public const string SpostaDown = Base + "/{id}/sposta/down";
+                public const string GetTipi = Base + "/tipi/{dasi}";
+
+                public static class Articoli
+                {
+                    // api/pem/atti/articoli
+                    private const string Base = Atti.Base + "/articoli";
+
+                    public const string GetAll = Base + "/all/{id}";
+                    public const string Create = Base + "/create/{id}/{articoli}";
+                    public const string Delete = Base + "/{id}";
+
+                }
+
+                public static class Commi
+                {
+                    // api/pem/atti/commi
+                    private const string Base = Atti.Base + "/commi";
+
+                    public const string GetAll = Base + "/all/{id}/{expanded}";
+                    public const string Create = Base + "/create/{id}/{commi}";
+                    public const string Delete = Base + "/{id}";
+
+                }
+
+                public static class Lettere
+                {
+                    // api/pem/atti/lettere
+                    private const string Base = Atti.Base + "/lettere";
+
+                    public const string GetAll = Base + "/all/{id}";
+                    public const string Create = Base + "/create/{id}/{lettere}";
+                    public const string Delete = Base + "/{id}";
+                }
+            }
         }
 
         public static class Legislature
         {
+            // api/legislature
             private const string Base = Root + "/legislatura";
 
             public const string GetAll = Base + "/all";
@@ -83,6 +144,7 @@ namespace PortaleRegione.DTO
 
         public static class Notifiche
         {
+            // api/notifiche
             private const string Base = Root + "/notifiche";
 
             public const string GetInviate = Base + "/inviate";
@@ -98,6 +160,7 @@ namespace PortaleRegione.DTO
 
         public static class Persone
         {
+            // api/persone
             private const string Base = Root + "/persone";
 
             public const string GetAll = Base + "/all";
@@ -105,11 +168,11 @@ namespace PortaleRegione.DTO
             public const string CheckPin = Base + "/check-pin";
             public const string CambioPin = Base + "/cambio-pin";
             public const string ResetPin = Base + "/reset-pin";
-
         }
 
         public static class Gruppi
         {
+            // api/gruppi
             private const string Base = Root + "/gruppi";
 
             public const string GetAll = Base + "/all";
@@ -123,10 +186,10 @@ namespace PortaleRegione.DTO
 
         public static class Ruoli
         {
+            // api/ruoli
             private const string Base = Root + "/ruoli";
 
             public const string GetRuolo = Base + "/{id}";
-
         }
     }
 }

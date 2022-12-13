@@ -23,6 +23,7 @@ using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -39,7 +40,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire gli atti
     /// </summary>
     [Authorize]
-    [RoutePrefix("atti")]
     public class AttiController : BaseApiController
     {
         /// <summary>
@@ -77,7 +77,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="path">Percorso file</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("file")]
+        [Route(ApiRoutes.PEM.Atti.DownloadDoc)]
         public async Task<IHttpActionResult> Download(string path)
         {
             try
@@ -99,7 +99,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello richiesta generica con paginazione</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view")]
+        [Route(ApiRoutes.PEM.Atti.GetAll)]
         public async Task<IHttpActionResult> GetAtti(BaseRequest<AttiDto> model)
         {
             try
@@ -130,7 +130,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Atti.Get)]
         public async Task<IHttpActionResult> GetAtto(Guid id)
         {
             try
@@ -154,7 +154,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpDelete]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Atti.Delete)]
         public async Task<IHttpActionResult> DeleteAtto(Guid id)
         {
             try
@@ -183,7 +183,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Atti.Create)]
         public async Task<IHttpActionResult> NuovaAtto(AttiFormUpdateModel attoModel)
         {
             try
@@ -213,8 +213,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="attoModel">Modello atto da modificare</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("modifica")]
         [HttpPut]
+        [Route(ApiRoutes.PEM.Atti.Edit)]
         public async Task<IHttpActionResult> ModificaAtto(AttiFormUpdateModel attoModel)
         {
             try
@@ -244,7 +244,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="atto">Modello atto da modificare</param>
         /// <returns></returns>
         [HttpPut]
-        [Route("fascicoli")]
+        [Route(ApiRoutes.PEM.Atti.ModificaFascicoli)]
         public async Task<IHttpActionResult> ModificaFilesAtto(AttiDto atto)
         {
             try
@@ -269,7 +269,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
-        [Route("articoli")]
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.Articoli.GetAll)]
         public async Task<IHttpActionResult> GetArticoli(Guid id)
         {
             try
@@ -288,15 +289,16 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per avere tutti gli articoli/commi/lettere
         /// </summary>
-        /// <param name="id">Guid articolo</param>
-        /// <param name="viewEm"></param>
+        /// <param name="id">Guid atto</param>
+        /// <param name="view"></param>
         /// <returns></returns>
-        [Route("griglia-testi")]
-        public async Task<IHttpActionResult> GetGrigliaTesto(Guid id, bool viewEm = false)
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.GrigliaTesti)]
+        public async Task<IHttpActionResult> GetGrigliaTesto(Guid id, bool view = false)
         {
             try
             {
-                var result = await _attiLogic.GetGrigliaTesto(id, viewEm);
+                var result = await _attiLogic.GetGrigliaTesto(id, view);
                 return Ok(result);
             }
             catch (Exception e)
@@ -312,8 +314,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid atto</param>
         /// <param name="articoli">range articoli</param>
         /// <returns></returns>
-        [Route("crea-articoli")]
         [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.Articoli.Create)]
         public async Task<IHttpActionResult> CreaArticoli(Guid id, string articoli)
         {
             try
@@ -334,8 +336,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid articolo</param>
         /// <returns></returns>
-        [Route("elimina-articolo")]
         [HttpDelete]
+        [Route(ApiRoutes.PEM.Atti.Articoli.Delete)]
         public async Task<IHttpActionResult> EliminaArticolo(Guid id)
         {
             try
@@ -369,7 +371,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid articolo</param>
         /// <param name="expanded"></param>
         /// <returns></returns>
-        [Route("commi")]
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.Commi.GetAll)]
         public async Task<IHttpActionResult> GetCommi(Guid id, bool expanded = false)
         {
             try
@@ -390,8 +393,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid articolo</param>
         /// <param name="commi">range commi</param>
         /// <returns></returns>
-        [Route("crea-commi")]
         [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.Commi.Create)]
         public async Task<IHttpActionResult> CreaCommi(Guid id, string commi)
         {
             try
@@ -414,8 +417,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid comma</param>
         /// <returns></returns>
-        [Route("elimina-comma")]
         [HttpDelete]
+        [Route(ApiRoutes.PEM.Atti.Commi.Delete)]
         public async Task<IHttpActionResult> EliminaComma(Guid id)
         {
             try
@@ -442,7 +445,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid comma</param>
         /// <returns></returns>
-        [Route("lettere")]
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.Lettere.GetAll)]
         public async Task<IHttpActionResult> GetLettere(Guid id)
         {
             try
@@ -464,8 +468,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid comma</param>
         /// <param name="lettere">range lettere</param>
         /// <returns></returns>
-        [Route("crea-lettere")]
         [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.Lettere.Create)]
         public async Task<IHttpActionResult> CreaLettere(Guid id, string lettere)
         {
             try
@@ -489,8 +493,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid lettera</param>
         /// <returns></returns>
-        [Route("elimina-lettera")]
         [HttpDelete]
+        [Route(ApiRoutes.PEM.Atti.Lettere.Delete)]
         public async Task<IHttpActionResult> EliminaLettera(Guid id)
         {
             try
@@ -515,8 +519,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello richiesta salvataggio relatori</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("relatori")]
         [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.AggiornaRelatori)]
         public async Task<IHttpActionResult> SalvaRelatoriAtto(AttoRelatoriModel model)
         {
             try
@@ -543,8 +547,8 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("salva-testo")]
         [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.AggiornaTesto)]
         public async Task<IHttpActionResult> SalvaTesto(TestoAttoModel model)
         {
             try
@@ -567,8 +571,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("abilita-fascicolazione")]
         [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.AbilitaFascicolo)]
         public async Task<IHttpActionResult> PubblicaFascicolo(PubblicaFascicoloModel model)
         {
             try
@@ -619,7 +623,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("sposta-up")]
+        [Route(ApiRoutes.PEM.Atti.SpostaUp)]
         public async Task<IHttpActionResult> SPOSTA_UP(Guid id)
         {
             try
@@ -642,7 +646,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("sposta-down")]
+        [Route(ApiRoutes.PEM.Atti.SpostaDown)]
         public async Task<IHttpActionResult> SPOSTA_DOWN(Guid id)
         {
             try
@@ -664,8 +668,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("bloccoODG")]
         [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.BloccoODG)]
         public async Task<IHttpActionResult> BloccoODG(BloccoODGModel model)
         {
             try
@@ -691,8 +695,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("jollyODG")]
         [HttpPost]
+        [Route(ApiRoutes.PEM.Atti.JollyODG)]
         public async Task<IHttpActionResult> JollyODG(JollyODGModel model)
         {
             try
@@ -717,7 +721,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("tipi")]
+        [Route(ApiRoutes.PEM.Atti.GetTipi)]
         public IHttpActionResult GetTipi(bool dasi = true)
         {
             try

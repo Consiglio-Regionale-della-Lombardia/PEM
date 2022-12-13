@@ -65,7 +65,6 @@ namespace PortaleRegione.Gateway
         public async Task<LoginResponse> CambioGruppo(int gruppo)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.CambioGruppo.Replace("{gruppo}", gruppo.ToString())}";
-
             var lst = JsonConvert.DeserializeObject<LoginResponse>(await Get(requestUrl, _token));
             return lst;
         }
@@ -73,27 +72,23 @@ namespace PortaleRegione.Gateway
         public async Task<IEnumerable<PersonaDto>> GetAssessoriRiferimento()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetAssessori}";
-
             var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetRelatori(Guid? attoUId)
         {
-
+            if (attoUId == null)
+                attoUId = Guid.Empty;
             var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetRelatori.Replace("{id}", attoUId.ToString())}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
         public async Task<IEnumerable<KeyValueDto>> GetGruppiAttivi()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetAll}";
-
             var lst = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
@@ -101,7 +96,6 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetPersona.Replace("{id}", id.ToString()).Replace("{is_giunta}", isGiunta.ToString())}";
             var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
-
             return lst;
         }
 
@@ -109,16 +103,13 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetAll}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
         public async Task<RuoliDto> GetRuolo(RuoliIntEnum ruolo)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Ruoli.GetRuolo.Replace("{id}", ruolo.ToString())}";
-
             var lst = JsonConvert.DeserializeObject<RuoliDto>(await Get(requestUrl, _token));
-
             return lst;
         }
 
@@ -126,43 +117,35 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.CheckPin}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
         public async Task SalvaPin(CambioPinModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.CambioPin}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
         public async Task<IEnumerable<PersonaDto>> GetGiuntaRegionale()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetGiunta}";
-
             var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
-        public async Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma,
-            bool deposito)
+        public async Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma, bool deposito)
         {
             var requestUrl =
                 $"{apiUrl}/{ApiRoutes.Gruppi.GetSegreteriaPoliticaGruppo.Replace("{id}", id.ToString()).Replace("{firma}", firma.ToString()).Replace("{deposito}", deposito.ToString())}";
 
             var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
         public async Task<PersonaDto> GetCapoGruppo(int id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Gruppi.GetCapoGruppo.Replace("{id}", id.ToString())}";
-
             var lst = JsonConvert.DeserializeObject<PersonaDto>(await Get(requestUrl, _token));
-
             return lst;
         }
 
@@ -171,7 +154,6 @@ namespace PortaleRegione.Gateway
             var requestUrl =
                 $"{apiUrl}/{ApiRoutes.Gruppi.GetSegreteriaGiunta.Replace("{firma}", firma.ToString()).Replace("{deposito}", deposito.ToString())}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<PersonaDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
     }
