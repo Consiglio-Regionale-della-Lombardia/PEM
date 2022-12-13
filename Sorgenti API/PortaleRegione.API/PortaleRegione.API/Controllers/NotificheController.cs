@@ -242,6 +242,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Firma viene accettata dal proponente
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -262,6 +263,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Ritiro firma accettato dal proponente
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -281,6 +283,11 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Archivia la notifica
+        /// </summary>
+        /// <param name="notifiche"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("archivia")]
         public async Task<IHttpActionResult> ArchiviaNotifiche(List<string> notifiche)

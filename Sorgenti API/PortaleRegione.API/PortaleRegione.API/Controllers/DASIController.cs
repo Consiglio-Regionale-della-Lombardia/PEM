@@ -26,6 +26,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -865,6 +866,27 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 //Log.Error("Invio al protocollo", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per rimuovere l'urgenza ad una lista di mozioni
+        /// </summary>
+        /// <param name="data">Lista di mozioni urgenti da declassare</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route("rimuovi-urgenza-mozione")]
+        public async Task<IHttpActionResult> ArchiviaNotifiche(List<string> data)
+        {
+            try
+            {
+                await _dasiLogic.RimuoviUrgenzaMozione(data);
+                return Ok();
+            }
+            catch (Exception e)
+            {
                 return ErrorHandler(e);
             }
         }
