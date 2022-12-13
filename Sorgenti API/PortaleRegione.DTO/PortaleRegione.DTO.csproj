@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiRoutes.cs" />
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
