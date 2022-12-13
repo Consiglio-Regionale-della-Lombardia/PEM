@@ -2432,7 +2432,13 @@ namespace PortaleRegione.API.Controllers
             foreach (var moz_id in data)
             {
                 var moz = await Get(new Guid(moz_id));
+                if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                {
+                    moz.UID_MOZ_Abbinata = null;
+                }
+
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+
                 await _unitOfWork.CompleteAsync();
             }
         }
