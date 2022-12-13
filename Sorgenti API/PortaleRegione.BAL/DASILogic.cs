@@ -2427,7 +2427,7 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task RimuoviUrgenzaMozione(List<string> data)
+        public async Task DeclassaMozione(List<string> data)
         {
             foreach (var moz_id in data)
             {

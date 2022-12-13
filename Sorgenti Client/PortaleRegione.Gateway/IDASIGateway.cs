@@ -70,6 +70,6 @@ namespace PortaleRegione.Gateway
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
         Task<FileResponse> Download(Guid id);
         Task InviaAlProtocollo(Guid id);
-        Task RimuoviUrgenzaMozione(List<string> data);
+        Task DeclassaMozione(List<string> data);
     }
 }

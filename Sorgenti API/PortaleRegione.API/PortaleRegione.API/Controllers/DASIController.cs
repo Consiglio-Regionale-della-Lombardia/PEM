@@ -871,18 +871,18 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per rimuovere l'urgenza ad una lista di mozioni
+        ///     Endpoint per declassare una lista di mozioni e farle tornare ORDINARIE
         /// </summary>
         /// <param name="data">Lista di mozioni urgenti da declassare</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
-        [Route("rimuovi-urgenza-mozione")]
-        public async Task<IHttpActionResult> ArchiviaNotifiche(List<string> data)
+        [Route("declassa-mozione")]
+        public async Task<IHttpActionResult> DeclassaMozione(List<string> data)
         {
             try
             {
-                await _dasiLogic.RimuoviUrgenzaMozione(data);
+                await _dasiLogic.DeclassaMozione(data);
                 return Ok();
             }
             catch (Exception e)

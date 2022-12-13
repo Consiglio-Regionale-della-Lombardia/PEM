@@ -496,9 +496,9 @@ namespace PortaleRegione.Gateway
             await Get(requestUrl, _token);
         }
 
-        public async Task RimuoviUrgenzaMozione(List<string> data)
+        public async Task DeclassaMozione(List<string> data)
         {
-            var requestUrl = $"{apiUrl}/dasi/rimuovi-urgenza-mozione";
+            var requestUrl = $"{apiUrl}/dasi/declassa-mozione";
             var body = JsonConvert.SerializeObject(data);
             await Post(requestUrl, body, _token);
         }
