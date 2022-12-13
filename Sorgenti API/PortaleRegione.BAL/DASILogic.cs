@@ -504,7 +504,27 @@ namespace PortaleRegione.API.Controllers
                     : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
             }
 
+            dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
+
             return dto;
+        }
+
+        private async Task<string> GetDettagioMozioniAbbinate(Guid uidAtto)
+        {
+            var sb = new List<string>();
+            var atti = await _unitOfWork.DASI.GetAbbinamentiMozione(uidAtto);
+            if (!atti.Any())
+            {
+                return string.Empty;
+            }
+
+            foreach (var guid in atti)
+            {
+                var moz_abbinata = await GetAttoDto(guid);
+                sb.Add($"{Utility.GetText_Tipo(moz_abbinata.Tipo)} {moz_abbinata.NAtto}");
+            }
+
+            return sb.Aggregate((i, j) => i + "<br>" + j);
         }
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
