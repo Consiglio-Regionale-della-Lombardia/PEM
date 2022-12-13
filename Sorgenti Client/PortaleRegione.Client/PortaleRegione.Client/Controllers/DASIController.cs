@@ -1052,11 +1052,11 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpPost]
-        [Route("rimuovi-urgenza-mozione")]
-        public async Task<ActionResult> RimuoviUrgenzaMozione(List<string> data)
+        [Route("declassa-mozione")]
+        public async Task<ActionResult> DeclassaMozione(List<string> data)
         {
             var apiGateway = new ApiGateway(Token);
-            await apiGateway.DASI.RimuoviUrgenzaMozione(data);
+            await apiGateway.DASI.DeclassaMozione(data);
             return Json("", JsonRequestBehavior.AllowGet);
         }
     }

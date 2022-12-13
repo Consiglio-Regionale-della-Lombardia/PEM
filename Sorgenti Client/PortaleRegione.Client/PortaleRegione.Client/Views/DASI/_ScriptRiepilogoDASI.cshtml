@@ -57,27 +57,27 @@
         checkSelectedDASI();
     });
 
-    function RimuoviUrgenza(uidAtto) {
+    function DeclassaMozione(uidAtto) {
         var nome_atto = $('#atto_' + uidAtto).data("nome-atto");
-        swal("Sei sicuro di voler rimuovere l'urgenza dell'atto " + nome_atto + "?",
+        swal("Verranno rimosse dall'atto " + nome_atto + " urgenza/abbinamento. Sei sicuro?",
             {
                 buttons: {
                     cancel: "Annulla",
                     confirm: {
                         className: "red white-text",
-                        title: "Rimuovi urgenza",
+                        title: "Rimuovi urgenza/abbinamento",
                         value: true
                     }
                 }
             }).then((value) => {
             if (value == true) {
-                var url = '@Url.Action("RimuoviUrgenzaMozione", "DASI")';
-                var moz_urgenti = [];
-                moz_urgenti.push(uidAtto);
+                var url = '@Url.Action("DeclassaMozione", "DASI")';
+                var mozs = [];
+                mozs.push(uidAtto);
                 $.ajax({
                     url: url,
                     type: "POST",
-                    data: JSON.stringify(moz_urgenti),
+                    data: JSON.stringify(mozs),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function(result) {
