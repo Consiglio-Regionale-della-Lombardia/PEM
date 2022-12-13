@@ -179,6 +179,7 @@
     <Compile Include="Response\ProiettaResponse.cs" />
     <Compile Include="Request\ReportRequest.cs" />
     <Compile Include="Enum\ViewModeEnum.cs" />
+    <Compile Include="Routes\ApiRoutes.Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

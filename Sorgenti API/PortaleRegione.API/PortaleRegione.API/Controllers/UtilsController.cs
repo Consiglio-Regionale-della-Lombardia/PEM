@@ -21,6 +21,7 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -34,7 +35,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire operazioni di comodo
     /// </summary>
     [Authorize]
-    [RoutePrefix("util")]
     public class UtilsController : BaseApiController
     {
         /// <summary>
@@ -43,7 +43,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello di invio mail</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("mail")]
+        [Route(ApiRoutes.Util.InvioMail)]
         public async Task<IHttpActionResult> SendMail(MailModel model)
         {
             try
@@ -64,7 +64,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
-        [Route("upload")]
+        [Route(ApiRoutes.Util.UploadDocument)]
         public async Task<HttpResponseMessage> UploadDoc()
         {
             HttpResponseMessage result;
