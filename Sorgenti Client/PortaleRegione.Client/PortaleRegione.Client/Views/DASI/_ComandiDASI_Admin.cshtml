@@ -50,7 +50,7 @@
                 </select>
                 <label for="NuovoCartaceo_Tipo">Tipo</label>
             </div>
-            <div class="input-field col s4">
+            <div class="input-field col s4" id="panelTipoRispostaCartaceo" style="display: none;">
                 <select id="NuovoCartaceo_TipoRisposta">
                 </select>
                 <label for="NuovoCartaceo_TipoRisposta">Tipo Risposta</label>
@@ -67,7 +67,6 @@
     </div>
 </div>
 
-
 <script>
 
     function ModificaMetaDASI(tipo) {
@@ -78,7 +77,6 @@
         if (uidAtto) {
             var chk = $("#chk_Atto_" + uidAtto);
             var selezionaTutti = getSelezionaTutti_DASI();
-            console.log("SEL.TUTTI", selezionaTutti);
             if (chk[0].checked) {
                 if (selezionaTutti) {
                     removeAtto(uidAtto); //listaEsclusiva
@@ -105,18 +103,53 @@
         }
     }
 
+    var itl_tipi_risposta = [
+        { id: @((int)TipoRispostaEnum.ORALE), value: '@(TipoRispostaEnum.ORALE)'},
+        { id: @((int)TipoRispostaEnum.SCRITTO), value: '@(TipoRispostaEnum.SCRITTO)'},
+        { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
+    ];
+    var itr_tipi_risposta = [
+        { id: @((int)TipoRispostaEnum.SCRITTO), value: '@(TipoRispostaEnum.SCRITTO)'},
+        { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
+    ];
+    var iqt_tipi_risposta = [
+        { id: @((int)TipoRispostaEnum.IMMEDIATA), value: '@(TipoRispostaEnum.IMMEDIATA)'}
+    ];
+
     function ShowHideTipoRisposta() {
+        $('#panelTipoRispostaCartaceo').hide();
         var tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
-
         if (tipo == @((int)TipoAttoEnum.ITL)
-            || tipo == @((int)TipoAttoEnum.ITR)) {
+            || tipo == @((int)TipoAttoEnum.ITR)
+            || tipo == @((int)TipoAttoEnum.IQT)) {
+            $('#panelTipoRispostaCartaceo').show();
+            var select = $('#NuovoCartaceo_TipoRisposta');
+            select.empty();
 
+            var tipi_risposta = [];
+            if (tipo == @((int)TipoAttoEnum.ITL)) {
+                tipi_risposta = itl_tipi_risposta;
+            }else if (tipo == @((int)TipoAttoEnum.ITR)) {
+                tipi_risposta = itr_tipi_risposta;
+            }else if (tipo == @((int)TipoAttoEnum.IQT)) {
+                tipi_risposta = iqt_tipi_risposta;
+            }
+
+            $.each(tipi_risposta,
+                function(index, item) {
+                    var template = "<option></option>";
+                    select.append($(template).val(item.id).html(item.value));
+                });
+
+            var elems = document.querySelectorAll("#NuovoCartaceo_TipoRisposta");
+            M.FormSelect.init(elems, null);
         }
-
     }
 
     $('#btnNuovoCartaceoDASI').on("click",
         async function() {
+            $('#panelTipoRispostaCartaceo').hide();
+
             var tipi = await GetTipiDASI();
             if (tipi.length > 0) {
                 var select = $("#NuovoCartaceo_Tipo");
@@ -131,13 +164,13 @@
 
                 var elems = document.querySelectorAll("#NuovoCartaceo_Tipo");
                 M.FormSelect.init(elems, null);
+                ShowHideTipoRisposta();
             }
             $('#modalNuovoCartaceo').modal("open");
         });
 
     $('#NuovoCartaceo_Presenta').on("click",
         function() {
-
             var obj = {};
             obj.Tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
             obj.TipoRisposta = $('select[id="NuovoCartaceo_TipoRisposta"]').children("option:selected").val();
@@ -157,15 +190,22 @@
                         button: "OK"
                     });
                 } else {
-                    SuccessAlert("Operazione completata");
+                    swal({
+                        title: "Operazione completata",
+                        icon: "success",
+                        buttons: { cancel: "Annulla", confirm: "Ricarica pagina" }
+                    }).then((value) => {
+                        if (value == null || value == "")
+                            return;
+                
+                        location.reload();
+                    });
                 }
             }).fail(function(err) {
                 console.log("error", err);
                 Error(err);
             });
         });
-
-
 
     $("#checkAll").click(function() {
         setSelezionaTutti_DASI(this.checked);

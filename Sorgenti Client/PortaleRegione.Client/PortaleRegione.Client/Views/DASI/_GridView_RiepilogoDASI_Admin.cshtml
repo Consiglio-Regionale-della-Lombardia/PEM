@@ -182,7 +182,11 @@ else
         </td>
         <td style="width: 10%;">
             @{
-                var codice_gruppo = item.gruppi_politici.codice_gruppo;
+                var codice_gruppo = "N.D.";
+                if (item.gruppi_politici != null)
+                {
+                    codice_gruppo = item.gruppi_politici.codice_gruppo;
+                }
 
                 var proponente = $"{item.PersonaProponente.DisplayName} ({codice_gruppo})";
             }

@@ -666,7 +666,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.PresentazioneCartacea(model);
+                await _dasiLogic.PresentazioneCartacea(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)

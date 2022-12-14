@@ -292,6 +292,17 @@ namespace PortaleRegione.API.Controllers
                 soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
                 foreach (var s in soggetti_request) model.filtro.Remove(s);
             }
+            var stati = new List<int>();
+            var stati_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato) && Convert.ToInt16(statement.Value) == (int)StatiAttoEnum.PRESENTATO) && persona.IsSegreteriaAssemblea)
+            {
+                stati_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.IDStato)));
+                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                stati.Add((int)StatiAttoEnum.BOZZA_CARTACEA);
+            }
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
@@ -302,16 +313,8 @@ namespace PortaleRegione.API.Controllers
                     model.size,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti);
-
-            var stati_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
-            {
-                stati_request =
-                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
-                        statement.PropertyId == nameof(AttoDASIDto.IDStato)));
-                foreach (var s in stati_request) model.filtro.Remove(s);
-            }
+                    soggetti,
+                    stati);
 
             if (!atti_in_db.Any())
             {
@@ -384,7 +387,7 @@ namespace PortaleRegione.API.Controllers
 
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
-            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo.Value);
+            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
 
             if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                 dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
@@ -406,11 +409,11 @@ namespace PortaleRegione.API.Controllers
 
             dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
             dto.Firmato_Dal_Proponente =
-                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente.Value);
+                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
 
             dto.PersonaCreazione = Users.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
-            dto.PersonaProponente =
-                Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente);
+            dto.PersonaProponente = attoInDb.UIDPersonaProponente != null ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente) : dto.PersonaCreazione;
+
             if (dto.UIDPersonaModifica.HasValue)
                 dto.PersonaModifica =
                     Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
@@ -469,7 +472,8 @@ namespace PortaleRegione.API.Controllers
             dto.Commissioni = commissioni
                 .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
 
-            if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+            if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
                 SEDUTE sedutaInDb = null;
 
@@ -488,14 +492,14 @@ namespace PortaleRegione.API.Controllers
                 }
             }
 
-            if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+            if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA && attoInDb.UID_MOZ_Abbinata.HasValue)
             {
                 var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
                 dto.MOZ_Abbinata =
-                    $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo.Value)}";
+                    $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo)}";
             }
 
-            if (attoInDb.Tipo == (int)TipoAttoEnum.ODG)
+            if (attoInDb.Tipo == (int)TipoAttoEnum.ODG && attoInDb.UID_Atto_ODG.HasValue)
             {
                 var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
                 dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && persona != null &&
@@ -530,11 +534,11 @@ namespace PortaleRegione.API.Controllers
 
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
-            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo.Value);
+            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
 
             dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
             dto.Firmato_Dal_Proponente =
-                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente.Value);
+                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
 
             dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
@@ -1032,46 +1036,44 @@ namespace PortaleRegione.API.Controllers
         public async Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model,
             PersonaDto persona)
         {
-            try
+            if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
+
+            var results = new Dictionary<Guid, string>();
+            var counterPresentazioni = 1;
+            var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
+            var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
+
+            ManagerLogic.BloccaPresentazione = true;
+
+            var attachList = new List<AllegatoMail>();
+            foreach (var idGuid in model.Lista)
             {
-                if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
+                if (counterPresentazioni ==
+                    Convert.ToInt32(AppSettingsConfiguration.LimitePresentazioneMassivo) + 1) break;
 
-                var results = new Dictionary<Guid, string>();
-                var counterPresentazioni = 1;
-                var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
-                var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
-
-                ManagerLogic.BloccaPresentazione = true;
-
-                var attachList = new List<AllegatoMail>();
-                foreach (var idGuid in model.Lista)
+                var atto = await _unitOfWork.DASI.Get(idGuid);
+                if (atto == null)
                 {
-                    if (counterPresentazioni ==
-                        Convert.ToInt32(AppSettingsConfiguration.LimitePresentazioneMassivo) + 1) break;
+                    results.Add(idGuid, "ERROR: NON TROVATO");
+                    continue;
+                }
 
-                    var atto = await _unitOfWork.DASI.Get(idGuid);
-                    if (atto == null)
-                    {
-                        results.Add(idGuid, "ERROR: NON TROVATO");
-                        continue;
-                    }
+                var attoDto = await GetAttoDto(idGuid, persona);
+                var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
+                if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
+                if (atto.Tipo == (int)TipoAttoEnum.IQT
+                    && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
+                {
+                    results.Add(idGuid,
+                        $"ERROR: {nome_atto} non depositabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
+                    continue;
+                }
 
-                    var attoDto = await GetAttoDto(idGuid, persona);
-                    var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
-                    if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
-                    if (atto.Tipo == (int)TipoAttoEnum.IQT
-                        && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
-                    {
-                        results.Add(idGuid,
-                            $"ERROR: {nome_atto} non depositabile. Data seduta non indicata: scegli prima la data della seduta a cui iscrivere l’IQT.");
-                        continue;
-                    }
-
-                    ATTI attoPEM = null;
-                    SEDUTE seduta = null;
-                    if (atto.Tipo == (int)TipoAttoEnum.ODG)
-                    {
-                        /*
+                ATTI attoPEM = null;
+                SEDUTE seduta = null;
+                if (atto.Tipo == (int)TipoAttoEnum.ODG)
+                {
+                    /*
                          *  Ogni consigliere può depositare, come primo firmatario, fino a {MassimoODG} ODG per atto/argomento e fino alla "data scadenza ODG"
                          *  (poi risultano fuori orario se < {MassimoODG} e comunque sono bloccati se > {MassimoODG}).
                          *
@@ -1079,205 +1081,199 @@ namespace PortaleRegione.API.Controllers
                          *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il falg BloccoODG                         
                          */
 
-                        //proposta di iscrizione in seduta
+                    //proposta di iscrizione in seduta
 
 
-                        //Atto PEM associato all'ODG
-                        attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
-                        //Seduta associata all'atto PEM
-                        seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                    //Atto PEM associato all'ODG
+                    attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
+                    //Seduta associata all'atto PEM
+                    seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
 
-                        //Blocco inserimento ODG
-                        if (attoPEM.BloccoODG)
+                    //Blocco inserimento ODG
+                    if (attoPEM.BloccoODG)
+                    {
+                        results.Add(idGuid,
+                            $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno.");
+                        continue;
+                    }
+
+                    var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                        AppSettingsConfiguration.masterKey);
+                    atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
+                    atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
+
+                    //Ricava tutti gli ODG iscritti in seduta
+                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                        TipoAttoEnum.ODG, 0);
+                    //Ricava tutti gli ODG proposti in seduta
+                    var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                        TipoAttoEnum.ODG, 0);
+
+                    var atti = new List<ATTI_DASI>();
+                    atti.AddRange(odg_in_seduta);
+                    atti.AddRange(odg_proposte);
+
+                    //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
+                    var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona
+                                                  && a.IDStato < (int)StatiAttoEnum.CHIUSO
+                                                  && a.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        .ToList();
+
+                    //Jolly attivo limite impostato {MassimoODG_Jolly}
+                    if (attoPEM.Jolly)
+                        if (my_atti.Count + 1 >=
+                            AppSettingsConfiguration.MassimoODG_Jolly)
                         {
                             results.Add(idGuid,
-                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno.");
+                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                             continue;
                         }
 
-                        var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
-                            AppSettingsConfiguration.masterKey);
-                        atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
-                        atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
-
-                        //Ricava tutti gli ODG iscritti in seduta
-                        var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
-                            TipoAttoEnum.ODG, 0);
-                        //Ricava tutti gli ODG proposti in seduta
-                        var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
-                            TipoAttoEnum.ODG, 0);
-
-                        var atti = new List<ATTI_DASI>();
-                        atti.AddRange(odg_in_seduta);
-                        atti.AddRange(odg_proposte);
-
-                        //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
-                        var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona
-                                                      && a.IDStato < (int)StatiAttoEnum.CHIUSO
-                                                      && a.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-                            .ToList();
-
-                        //Jolly attivo limite impostato {MassimoODG_Jolly}
-                        if (attoPEM.Jolly)
-                            if (my_atti.Count + 1 >=
-                                AppSettingsConfiguration.MassimoODG_Jolly)
-                            {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-                                continue;
-                            }
-
-                        var dataOdierna = DateTime.Now;
-                        if (persona.IsCapoGruppo
-                            && seduta.Data_seduta.Day == dataOdierna.Day
-                            && seduta.Data_seduta.Month == dataOdierna.Month
-                            && seduta.Data_seduta.Year == dataOdierna.Year)
+                    var dataOdierna = DateTime.Now;
+                    if (persona.IsCapoGruppo
+                        && seduta.Data_seduta.Day == dataOdierna.Day
+                        && seduta.Data_seduta.Month == dataOdierna.Month
+                        && seduta.Data_seduta.Year == dataOdierna.Year)
+                    {
+                        var atti_dopo_scadenza =
+                            my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
+                                               && a.Timestamp.Month == dataOdierna.Month
+                                               && a.Timestamp.Year == dataOdierna.Year)
+                                .ToList();
+                        if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                         {
-                            var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
-                                                   && a.Timestamp.Month == dataOdierna.Month
-                                                   && a.Timestamp.Year == dataOdierna.Year)
-                                    .ToList();
-                            if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
-                            {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                            results.Add(idGuid,
+                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
-                                continue;
-                            }
-
-                            atto.CapogruppoNeiTermini = true;
+                            continue;
                         }
-                        else
+
+                        atto.CapogruppoNeiTermini = true;
+                    }
+                    else
+                    {
+                        //Matteo Cattapan #484
+                        //Massimo ODG presentabili per provvedimento
+                        var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
+                            .OrderBy(group => group.Key)
+                            .Select(group => Tuple.Create(group.Key, group.Count()));
+                        var current_group =
+                            group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
+                        var count_odg_per_atto = 0;
+                        if (current_group != null) count_odg_per_atto = current_group.Item2;
+
+                        if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
                         {
-                            //Matteo Cattapan #484
-                            //Massimo ODG presentabili per provvedimento
-                            var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
-                                .OrderBy(group => group.Key)
-                                .Select(group => Tuple.Create(group.Key, group.Count()));
-                            var current_group =
-                                group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
-                            var count_odg_per_atto = 0;
-                            if (current_group != null) count_odg_per_atto = current_group.Item2;
+                            results.Add(idGuid,
+                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
-                            if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
-                            {
-                                results.Add(idGuid,
-                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                                continue;
-                            }
+                            continue;
                         }
                     }
-
-                    if (!attoDto.Presentabile)
-                    {
-                        results.Add(idGuid, $"ERROR: {nome_atto} non depositabile");
-                        continue;
-                    }
-
-                    //controllo max firme
-                    SEDUTE sedutaRichiesta = null;
-                    var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
-                    var controllo_firme = string.Empty;
-                    if (!string.IsNullOrEmpty(attoDto.DataRichiestaIscrizioneSeduta))
-                        sedutaRichiesta =
-                            await _unitOfWork.Sedute.Get(Convert.ToDateTime(attoDto.DataRichiestaIscrizioneSeduta));
-
-                    controllo_firme = await ControlloFirmePresentazione(attoDto, count_firme, sedutaRichiesta);
-
-                    if (!string.IsNullOrEmpty(controllo_firme))
-                    {
-                        results.Add(idGuid, controllo_firme);
-                        continue;
-                    }
-
-                    var contatore = await _unitOfWork.DASI.GetContatore(atto.Tipo, atto.IDTipo_Risposta);
-                    var contatore_progressivo = contatore.Inizio + contatore.Contatore;
-                    var etichetta_progressiva =
-                        $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
-                    var etichetta_encrypt =
-                        BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
-                    var checkProgressivo_unique =
-                        await _unitOfWork.DASI.CheckProgressivo(etichetta_encrypt);
-
-                    if (!checkProgressivo_unique)
-                    {
-                        results.Add(idGuid, $"ERROR: Progressivo {etichetta_progressiva} occupato");
-                        continue;
-                    }
-
-                    atto.NAtto_search = contatore_progressivo;
-                    atto.Etichetta = etichetta_progressiva;
-                    atto.UIDPersonaPresentazione = persona.UID_persona;
-                    atto.OrdineVisualizzazione = contatore_progressivo;
-                    atto.Timestamp = DateTime.Now;
-                    atto.DataPresentazione = BALHelper.EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
-                        AppSettingsConfiguration.masterKey);
-                    atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
-
-                    atto.NAtto = etichetta_encrypt;
-
-                    atto.chkf = count_firme.ToString();
-
-                    await _unitOfWork.CompleteAsync();
-
-                    var new_nome_atto =
-                        $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
-
-                    var content = await PDFIstantaneo(atto, null);
-                    attachList.Add(new AllegatoMail(content, $"{new_nome_atto}.pdf"));
-                    results.Add(idGuid, $"{new_nome_atto} - OK");
-
-                    _unitOfWork.DASI.IncrementaContatore(contatore);
-
-                    if (atto.Tipo == (int)TipoAttoEnum.ODG)
-                        if (atto.Non_Passaggio_In_Esame)
-                            try
-                            {
-                                var mailModel = new MailModel
-                                {
-                                    DA = persona.email,
-                                    A =
-                                        AppSettingsConfiguration.EmailInvioDASI,
-                                    OGGETTO =
-                                        "[ODG DI NON PASSAGGIO ALL'ESAME]",
-                                    MESSAGGIO =
-                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto} - {attoPEM.Oggetto}."
-                                };
-                                await _logicUtil.InvioMail(mailModel);
-                            }
-                            catch (Exception)
-                            {
-                                // ignored
-                            }
-
-                    await _unitOfWork.CompleteAsync();
-                    counterPresentazioni++;
                 }
 
-                if (attachList.Any())
+                if (!attoDto.Presentabile)
                 {
-                    var mailModel = new MailModel
-                    {
-                        DA = persona.email,
-                        A =
-                            AppSettingsConfiguration.EmailInvioDASI,
-                        OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
-                        MESSAGGIO =
-                            $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato<br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
-                        ATTACHMENTS = attachList
-                    };
-                    await _logicUtil.InvioMail(mailModel);
+                    results.Add(idGuid, $"ERROR: {nome_atto} non depositabile");
+                    continue;
                 }
 
-                return results;
+                //controllo max firme
+                SEDUTE sedutaRichiesta = null;
+                var count_firme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                var controllo_firme = string.Empty;
+                if (!string.IsNullOrEmpty(attoDto.DataRichiestaIscrizioneSeduta))
+                    sedutaRichiesta =
+                        await _unitOfWork.Sedute.Get(Convert.ToDateTime(attoDto.DataRichiestaIscrizioneSeduta));
+
+                controllo_firme = await ControlloFirmePresentazione(attoDto, count_firme, sedutaRichiesta);
+
+                if (!string.IsNullOrEmpty(controllo_firme))
+                {
+                    results.Add(idGuid, controllo_firme);
+                    continue;
+                }
+
+                var contatore = await _unitOfWork.DASI.GetContatore(atto.Tipo, atto.IDTipo_Risposta);
+                var contatore_progressivo = contatore.Inizio + contatore.Contatore;
+                var etichetta_progressiva =
+                    $"{Utility.GetText_Tipo(atto.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
+                var etichetta_encrypt =
+                    BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+                var checkProgressivo_unique =
+                    await _unitOfWork.DASI.CheckProgressivo(etichetta_encrypt);
+
+                if (!checkProgressivo_unique)
+                {
+                    results.Add(idGuid, $"ERROR: Progressivo {etichetta_progressiva} occupato");
+                    continue;
+                }
+
+                atto.NAtto_search = contatore_progressivo;
+                atto.Etichetta = etichetta_progressiva;
+                atto.UIDPersonaPresentazione = persona.UID_persona;
+                atto.OrdineVisualizzazione = contatore_progressivo;
+                atto.Timestamp = DateTime.Now;
+                atto.DataPresentazione = BALHelper.EncryptString(atto.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+                    AppSettingsConfiguration.masterKey);
+                atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
+
+                atto.NAtto = etichetta_encrypt;
+
+                atto.chkf = count_firme.ToString();
+
+                await _unitOfWork.CompleteAsync();
+
+                var new_nome_atto =
+                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
+
+                var content = await PDFIstantaneo(atto, null);
+                attachList.Add(new AllegatoMail(content, $"{new_nome_atto}.pdf"));
+                results.Add(idGuid, $"{new_nome_atto} - OK");
+
+                _unitOfWork.DASI.IncrementaContatore(contatore);
+
+                if (atto.Tipo == (int)TipoAttoEnum.ODG)
+                    if (atto.Non_Passaggio_In_Esame)
+                        try
+                        {
+                            var mailModel = new MailModel
+                            {
+                                DA = persona.email,
+                                A =
+                                    AppSettingsConfiguration.EmailInvioDASI,
+                                OGGETTO =
+                                    "[ODG DI NON PASSAGGIO ALL'ESAME]",
+                                MESSAGGIO =
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto} - {attoPEM.Oggetto}."
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+
+                await _unitOfWork.CompleteAsync();
+                counterPresentazioni++;
             }
-            catch (Exception e)
+
+            if (attachList.Any())
             {
-                //Log.Error("Logic - Presenta - DASI", e);
-                throw e;
+                var mailModel = new MailModel
+                {
+                    DA = persona.email,
+                    A =
+                        AppSettingsConfiguration.EmailInvioDASI,
+                    OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
+                    MESSAGGIO =
+                        $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato<br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.urlPEM}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
+                    ATTACHMENTS = attachList
+                };
+                await _logicUtil.InvioMail(mailModel);
             }
+
+            return results;
         }
 
         internal async Task<string> ControlloFirmePresentazione(AttoDASIDto atto, int count_firme,
@@ -1788,7 +1784,7 @@ namespace PortaleRegione.API.Controllers
                 atto.UIDPersonaIscrizioneSeduta = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
                 var nomeAtto =
-                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
                 if (!listaRichieste.Any(item => (item.Value == nomeAtto
                                                  && item.Key == atto.UIDPersonaRichiestaIscrizione.Value)
                                                 || item.Key == atto.UIDPersonaPresentazione.Value))
@@ -1856,7 +1852,7 @@ namespace PortaleRegione.API.Controllers
                 await _unitOfWork.CompleteAsync();
 
                 var nomeAtto =
-                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}";
+                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
                 if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     continue;
                 listaRichieste.Add(nomeAtto);
@@ -2188,49 +2184,40 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<string> GetCopertina(ByQueryModel model)
         {
-            try
+            var count = await CountByQuery(model);
+            var atti = new List<AttoDASIDto>();
+            atti.AddRange(await GetByQuery(model));
+            while (atti.Count < count)
             {
-                var count = await CountByQuery(model);
-                var atti = new List<AttoDASIDto>();
+                model.page += 1;
                 atti.AddRange(await GetByQuery(model));
-                while (atti.Count < count)
-                {
-                    model.page += 1;
-                    atti.AddRange(await GetByQuery(model));
-                }
-
-                var legislatura = await _unitOfWork.Legislature.Get(atti.First().Legislatura);
-                var body = GetTemplate(TemplateTypeEnum.PDF_COPERTINA, true);
-                body =
-                    "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
-                    "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                    "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
-                    body;
-                body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
-                body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
-                body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
-
-                var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
-
-                var bodyIndice = new StringBuilder();
-                foreach (var dasiDto in atti)
-                    bodyIndice.Append(templateItemIndice
-                        .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
-                        .Replace("{NAtto}", dasiDto.NAtto)
-                        .Replace("{Oggetto}", dasiDto.Oggetto)
-                        .Replace("{Firmatari}",
-                            $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                        .Replace("{Stato}", Utility.GetText_StatoDASI(dasiDto.IDStato)));
-
-                body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
-
-                return body;
             }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - GetCopertina", e);
-                throw e;
-            }
+
+            var legislatura = await _unitOfWork.Legislature.Get(atti.First().Legislatura);
+            var body = GetTemplate(TemplateTypeEnum.PDF_COPERTINA, true);
+            body =
+                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                body;
+            body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
+            body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
+            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+
+            var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
+            var bodyIndice = new StringBuilder();
+            foreach (var dasiDto in atti)
+                bodyIndice.Append(templateItemIndice
+                    .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
+                    .Replace("{NAtto}", dasiDto.NAtto)
+                    .Replace("{Oggetto}", dasiDto.Oggetto)
+                    .Replace("{Firmatari}",
+                        $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                    .Replace("{Stato}", Utility.GetText_StatoDASI(dasiDto.IDStato)));
+
+            body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
+
+            return body;
         }
 
         public IEnumerable<StatiDto> GetStati(PersonaDto persona)
@@ -2240,8 +2227,15 @@ namespace PortaleRegione.API.Controllers
             foreach (var stato in stati)
             {
                 if (persona.IsSegreteriaAssemblea)
+                {
                     if (Utility.statiNonVisibili_Segreteria.Contains(Convert.ToInt16(stato)))
                         continue;
+                }
+                else
+                {
+                    if (Utility.statiNonVisibili_Standard.Contains(Convert.ToInt16(stato)))
+                        continue;
+                }
 
                 result.Add(new StatiDto
                 {
@@ -2269,42 +2263,34 @@ namespace PortaleRegione.API.Controllers
 
         public async Task ModificaMetaDati(AttoDASIDto model, ATTI_DASI atto, PersonaDto persona)
         {
-            try
-            {
-                atto.UIDPersonaModifica = persona.UID_persona;
-                atto.DataModifica = DateTime.Now;
-                if (!string.IsNullOrEmpty(model.Oggetto_Modificato))
-                    atto.Oggetto_Modificato = model.Oggetto_Modificato;
-                else if (string.IsNullOrEmpty(model.Oggetto_Modificato) &&
-                         !string.IsNullOrEmpty(atto.Oggetto_Modificato))
-                    //caso in cui l'utente voglia tornare allo stato precedente
-                    atto.Oggetto_Modificato = string.Empty;
-                if (!string.IsNullOrEmpty(model.Premesse_Modificato))
-                    atto.Premesse_Modificato = model.Premesse_Modificato;
-                else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&
-                         !string.IsNullOrEmpty(atto.Premesse_Modificato))
-                    //caso in cui l'utente voglia tornare allo stato precedente
-                    atto.Premesse_Modificato = string.Empty;
+            atto.UIDPersonaModifica = persona.UID_persona;
+            atto.DataModifica = DateTime.Now;
+            if (!string.IsNullOrEmpty(model.Oggetto_Modificato))
+                atto.Oggetto_Modificato = model.Oggetto_Modificato;
+            else if (string.IsNullOrEmpty(model.Oggetto_Modificato) &&
+                     !string.IsNullOrEmpty(atto.Oggetto_Modificato))
+                //caso in cui l'utente voglia tornare allo stato precedente
+                atto.Oggetto_Modificato = string.Empty;
+            if (!string.IsNullOrEmpty(model.Premesse_Modificato))
+                atto.Premesse_Modificato = model.Premesse_Modificato;
+            else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&
+                     !string.IsNullOrEmpty(atto.Premesse_Modificato))
+                //caso in cui l'utente voglia tornare allo stato precedente
+                atto.Premesse_Modificato = string.Empty;
 
-                if (!string.IsNullOrEmpty(model.Richiesta_Modificata))
-                    atto.Richiesta_Modificata = model.Richiesta_Modificata;
-                else if (string.IsNullOrEmpty(model.Richiesta_Modificata) &&
-                         !string.IsNullOrEmpty(atto.Richiesta_Modificata))
-                    //caso in cui l'utente voglia tornare allo stato precedente
-                    atto.Richiesta_Modificata = string.Empty;
+            if (!string.IsNullOrEmpty(model.Richiesta_Modificata))
+                atto.Richiesta_Modificata = model.Richiesta_Modificata;
+            else if (string.IsNullOrEmpty(model.Richiesta_Modificata) &&
+                     !string.IsNullOrEmpty(atto.Richiesta_Modificata))
+                //caso in cui l'utente voglia tornare allo stato precedente
+                atto.Richiesta_Modificata = string.Empty;
 
-                await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
-                if (model.Commissioni != null)
-                    foreach (var commissioneDto in model.Commissioni)
-                        _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
+            await _unitOfWork.DASI.RimuoviCommissioni(atto.UIDAtto);
+            if (model.Commissioni != null)
+                foreach (var commissioneDto in model.Commissioni)
+                    _unitOfWork.DASI.AggiungiCommissione(atto.UIDAtto, commissioneDto.id_organo);
 
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - ModificaMetaDati", e);
-                throw e;
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
         private bool IsOutdate(AttoDASIDto atto)
@@ -2356,7 +2342,7 @@ namespace PortaleRegione.API.Controllers
             return result;
         }
 
-        public async Task PresentazioneCartacea(PresentazioneCartaceaModel model)
+        public async Task PresentazioneCartacea(PresentazioneCartaceaModel model, PersonaDto currentUser)
         {
             var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
             _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
@@ -2389,7 +2375,10 @@ namespace PortaleRegione.API.Controllers
                     NAtto_search = contatore_progressivo,
                     OrdineVisualizzazione = contatore_progressivo,
                     Etichetta = etichetta_progressiva,
-                    NAtto = etichetta_encrypt
+                    NAtto = etichetta_encrypt,
+                    DataCreazione = data_presentazione,
+                    UIDPersonaCreazione = currentUser.UID_persona,
+                    Legislatura = legislatura.id_legislatura
                 });
             }
 
@@ -2404,7 +2393,7 @@ namespace PortaleRegione.API.Controllers
         {
             var content = await PDFIstantaneo(atto, persona);
             var res = ComposeFileResponse(content,
-                $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}.pdf");
+                $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}.pdf");
             return res;
         }
 
@@ -2420,7 +2409,7 @@ namespace PortaleRegione.API.Controllers
         public async Task InviaAlProtocollo(Guid id)
         {
             var atto = await _unitOfWork.DASI.Get(id);
-            var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo.Value)}";
+            var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)}-{GetNome(atto.NAtto, atto.Progressivo)}";
             var content = await PDFIstantaneo(atto, null);
             var mailModel = new MailModel
             {

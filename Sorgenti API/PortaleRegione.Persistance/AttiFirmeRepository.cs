@@ -159,8 +159,9 @@ namespace PortaleRegione.Persistance
         /// <param name="atto"></param>
         /// <param name="personaUId"></param>
         /// <returns></returns>
-        public async Task<bool> CheckFirmato(Guid attoUId, Guid personaUId)
+        public async Task<bool> CheckFirmato(Guid attoUId, Guid? personaUId)
         {
+            if (personaUId is null) return false;
             var firme = PRContext
                 .ATTI_FIRME
                 .Where(f => f.UIDAtto == attoUId && f.UID_persona == personaUId);

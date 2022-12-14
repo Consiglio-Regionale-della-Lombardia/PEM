@@ -158,6 +158,8 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
                 case StatiAttoEnum.CHIUSO:
                     return StatiAttoCSSConst.CHIUSO;
+                case StatiAttoEnum.BOZZA_CARTACEA:
+                    return StatiAttoCSSConst.CARTACEO;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }
