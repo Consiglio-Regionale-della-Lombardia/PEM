@@ -24,7 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,57 +43,44 @@ namespace PortaleRegione.Gateway
 
         public async Task<AttoDASIDto> Salva(AttoDASIDto request)
         {
-            var requestUrl = $"{apiUrl}/dasi";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Save}";
             if (request.DocAllegatoGenerico != null)
             {
                 using var memoryStream = new MemoryStream();
                 await request.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
                 request.DocAllegatoGenerico_Stream = memoryStream.ToArray();
             }
-
             var body = JsonConvert.SerializeObject(request);
-
             var result = JsonConvert.DeserializeObject<AttoDASIDto>(await Post(requestUrl, body, _token));
             return result;
         }
 
-        public Task Modifica(AttoDASIDto request)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<AttoDASIDto> Get(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/{id}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Get.Replace("{id}", id.ToString())}";
             var result = JsonConvert.DeserializeObject<AttoDASIDto>(await Get(requestUrl, _token));
-
             return result;
         }
 
         public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
         {
-            var requestUrl = $"{apiUrl}/dasi/moz-abbinabili";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetMOZAbbinabili}";
             var str = await Get(requestUrl, _token);
             var result = JsonConvert.DeserializeObject<List<AttoDASIDto>>(str);
-
             return result;
         }
 
         public async Task<List<AttiDto>> GetAttiSeduteAttive()
         {
-            var requestUrl = $"{apiUrl}/dasi/odg/atti-sedute-attive";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAttiSeduteAttive}";
             var result = JsonConvert.DeserializeObject<List<AttiDto>>(await Get(requestUrl, _token));
-
             return result;
         }
 
         public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo,
             RuoliIntEnum ruolo)
         {
-            var requestUrl = $"{apiUrl}/dasi/riepilogo";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var model = new BaseRequest<AttoDASIDto>
             {
                 page = page,
@@ -142,19 +129,15 @@ namespace PortaleRegione.Gateway
             }
 
             var body = JsonConvert.SerializeObject(model);
-
             var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
-
             return result;
         }
 
         public async Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model)
         {
-            var requestUrl = $"{apiUrl}/dasi/riepilogo";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var body = JsonConvert.SerializeObject(model);
-
             var lst = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
-
             return lst;
         }
 
@@ -170,7 +153,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RiepilogoDASIModel> GetBySeduta(Guid sedutaUId)
         {
-            var requestUrl = $"{apiUrl}/dasi/riepilogo";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
 
             var model = new BaseRequest<AttoDASIDto>
             {
@@ -186,11 +169,8 @@ namespace PortaleRegione.Gateway
                 Connector = FilterStatementConnector.And
             };
             model.filtro.Add(filtroSeduta);
-
             var body = JsonConvert.SerializeObject(model);
-
             var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
-
             return result;
         }
 
@@ -198,7 +178,7 @@ namespace PortaleRegione.Gateway
             int page = 1,
             int size = 50)
         {
-            var requestUrl = $"{apiUrl}/dasi/riepilogo";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var request = new BaseRequest<AttoDASIDto>
             {
                 page = page,
@@ -241,24 +221,20 @@ namespace PortaleRegione.Gateway
             }
 
             var body = JsonConvert.SerializeObject(request);
-
             var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
-
             return result;
         }
 
         public async Task<IEnumerable<AttiFirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum tipo)
         {
-            var requestUrl = $"{apiUrl}/dasi/firmatari?id={id}&tipo={tipo}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetFirmatari.Replace("{id}", id.ToString()).Replace("{tipo}", tipo.ToString())}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<AttiFirmeDto>>(await Get(requestUrl, _token));
-
             return lst;
         }
 
         public async Task<string> GetBody(Guid id, TemplateTypeEnum template)
         {
-            var requestUrl = $"{apiUrl}/dasi/template-body";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetBody}";
             var model = new GetBodyModel
             {
                 Id = id,
@@ -267,28 +243,24 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(model);
             var result = await Post(requestUrl, body, _token);
             var lst = JsonConvert.DeserializeObject<string>(result);
-
             return lst;
         }
 
         public async Task Elimina(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/elimina?id={id}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Elimina}";
             JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
         }
 
         public async Task Ritira(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/ritira?id={id}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Ritira.Replace("{id}", id.ToString())}";
             JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
         }
 
         public async Task<DASIFormModel> GetNuovoModello(TipoAttoEnum tipo)
         {
-            var requestUrl = $"{apiUrl}/dasi/new?tipo={tipo}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetNuovoModello.Replace("{tipo}", tipo.ToString())}";
             var result = await Get(requestUrl, _token);
             var lst = JsonConvert.DeserializeObject<DASIFormModel>(result);
             return lst;
@@ -296,8 +268,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<DASIFormModel> GetModificaModello(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/edit?id={id}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetModificaModello.Replace("{id}", id.ToString())}";
             var lst = JsonConvert.DeserializeObject<DASIFormModel>(await Get(requestUrl, _token));
             return lst;
         }
@@ -305,11 +276,9 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/firma";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Firma}";
             var body = JsonConvert.SerializeObject(model);
-            var result =
-                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
+            var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
             return result;
         }
 
@@ -325,11 +294,9 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/presenta";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Presenta}";
             var body = JsonConvert.SerializeObject(model);
-            var result =
-                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
+            var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
             return result;
         }
 
@@ -345,85 +312,72 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/elimina-firma";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaFirma}";
             var body = JsonConvert.SerializeObject(model);
-            var result =
-                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
+            var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
             return result;
         }
 
         public async Task CambioStato(ModificaStatoAttoModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/modifica-stato";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.ModificaStato}";
             var body = JsonConvert.SerializeObject(model);
-
             await Put(requestUrl, body, _token);
         }
 
         public async Task IscriviSeduta(IscriviSedutaDASIModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/iscrizione-seduta";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.IscriviSeduta}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
         public async Task RichiediIscrizione(RichiestaIscrizioneDASIModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/richiedi-iscrizione";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RichiediIscrizione}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
         public async Task RimuoviSeduta(IscriviSedutaDASIModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/rimuovi-seduta";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RimuoviSeduta}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
         public async Task RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/rimuovi-richiesta";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RimuoviRichiestaIscrizione}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
         public async Task ProponiMozioneUrgente(PromuoviMozioneModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/proponi-urgenza";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.ProponiUrgenzaMozione}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
         public async Task ProponiMozioneAbbinata(PromuoviMozioneModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/proponi-abbinata";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.ProponiMozioneAbbinata}";
             var body = JsonConvert.SerializeObject(model);
-
             await Post(requestUrl, body, _token);
         }
 
-        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid guid)
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/invitati?id={guid}";
-
-            var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
-                _token));
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetInvitati.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl, _token));
             return lst;
         }
 
         public async Task<string> GetCopertina(ByQueryModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/template/copertina";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetBodyCopertina}";
             var body = JsonConvert.SerializeObject(model);
-
             var result = await Post(requestUrl, body, _token);
             var lst = JsonConvert.DeserializeObject<string>(result);
             return lst;
@@ -431,34 +385,29 @@ namespace PortaleRegione.Gateway
 
         public async Task<IEnumerable<StatiDto>> GetStati()
         {
-            var requestUrl = $"{apiUrl}/dasi/stati";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetStati}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<StatiDto>>(await Get(requestUrl, _token));
             return lst;
         }
 
         public async Task<IEnumerable<Tipi_AttoDto>> GetTipiMOZ()
         {
-            var requestUrl = $"{apiUrl}/dasi/tipi-moz";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetTipiMOZ}";
             var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_AttoDto>>(await Get(requestUrl, _token));
             return lst;
         }
 
         public async Task<IEnumerable<AssessoreInCaricaDto>> GetSoggettiInterrogabili()
         {
-            var requestUrl = $"{apiUrl}/dasi/soggetti-interrogabili";
-
-            var lst =
-                JsonConvert.DeserializeObject<IEnumerable<AssessoreInCaricaDto>>(await Get(requestUrl, _token));
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetSoggettiInterrogabili}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<AssessoreInCaricaDto>>(await Get(requestUrl, _token));
             return lst;
         }
 
         public async Task ModificaMetaDati(AttoDASIDto model)
         {
-            var requestUrl = $"{apiUrl}/dasi/meta-dati";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.AggiornaMetaDati}";
             var body = JsonConvert.SerializeObject(model);
-
             await Put(requestUrl, body, _token);
         }
 
@@ -474,7 +423,7 @@ namespace PortaleRegione.Gateway
 
         public async Task PresentazioneCartacea(PresentazioneCartaceaModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/presentazione-cartacea";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.PresentazioneCartacea}";
             var body = JsonConvert.SerializeObject(model);
 
             await Post(requestUrl, body, _token);
@@ -482,34 +431,29 @@ namespace PortaleRegione.Gateway
 
         public async Task<FileResponse> Download(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/file-immediato?id={id}";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.StampaImmediata.Replace("{id}", id.ToString())}";
             var lst = await GetFile(requestUrl, _token);
-
             return lst;
         }
 
         public async Task InviaAlProtocollo(Guid id)
         {
-            var requestUrl = $"{apiUrl}/dasi/{id}/invia-al-protocollo";
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InviaAlProtocollo.Replace("{id}", id.ToString())}";
             await Get(requestUrl, _token);
         }
 
         public async Task DeclassaMozione(List<string> data)
         {
-            var requestUrl = $"{apiUrl}/dasi/declassa-mozione";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.DeclassaMozione}";
             var body = JsonConvert.SerializeObject(data);
             await Post(requestUrl, body, _token);
         }
 
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
-            var requestUrl = $"{apiUrl}/dasi/ritiro-firma";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";
             var body = JsonConvert.SerializeObject(model);
-            var result =
-                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
+            var result = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
             return result;
         }
     }

@@ -176,7 +176,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string GetMissioni = Base + "/missioni";
                 public const string GetTitoliMissioni = Base + "/titoli-missioni";
                 public const string GetStati = Base + "/stati";
-                public const string StampaImmediata = Base + "/stampa-immediata";
+                public const string StampaImmediata = Base + "/{id}/stampa-immediata";
             }
         }
 
@@ -189,6 +189,49 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAllDestinatari = Base + "/destinatari/{tipo}";
 
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
+
+            public const string GetNuovoModello = Base + "/create/model/{tipo}";
+            public const string GetModificaModello = Base + "/edit/model/{id}";
+            public const string AggiornaMetaDati = Base + "/edit/model/meta";
+            public const string Save = Base + "/save";
+            public const string Get = Base + "/{id}";
+            public const string GetAll = Base + "/all";
+
+            public const string Firma = Base + "/commands/firma";
+            public const string RitiroFirma = Base + "/commands/firma/ritiro";
+            public const string EliminaFirma = Base + "/commands/firma/elimina";
+            public const string Presenta = Base + "/commands/presenta";
+            public const string Ritira = Base + "/{id}/commands/ritiro";
+            public const string ModificaStato = Base + "/commands/stato";
+            public const string IscriviSeduta = Base + "/commands/iscrizione/iscrivi";
+            public const string RichiediIscrizione = Base + "/commands/iscrizione/richiedi";
+            public const string RimuoviRichiestaIscrizione = Base + "/commands/iscrizione/rimuovi";
+            public const string RimuoviSeduta = Base + "/commands/seduta/rimuovi";
+            public const string ProponiUrgenzaMozione = Base + "/commands/proponi-urgenza";
+            public const string ProponiMozioneAbbinata = Base + "/commands/proponi-abbinata";
+            public const string PresentazioneCartacea = Base + "/commands/presentazione-cartacea";
+
+
+            public const string Delete = Base + "/{id}";
+            public const string Elimina = Base + "/{id}/elimina";
+
+            public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
+            public const string GetBody = Base + "/get-corpo";
+            public const string GetBodyCopertina = Base + "/get-copertina";
+            public const string DownloadDoc = Base + "/scarica-documento/{path}";
+
+            public const string GetInvitati = Base + "/{id}/invitati";
+            public const string GetStati = Base + "/stati";
+            public const string GetTipiMOZ = Base + "/tipi/mozioni";
+            public const string GetSoggettiInterrogabili = Base + "/soggetti-interrogabili";
+
+            public const string GetMOZAbbinabili = Base + "/mozioni/abbinabili";
+            public const string DeclassaMozione = Base + "/mozioni/declassa";
+
+            public const string GetAttiSeduteAttive = Base + "/ordini-del-giorno/sedute/attive";
+
+            public const string StampaImmediata = Base + "/{id}/stampa-immediata";
+            public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
         }
 
         public static class Notifiche

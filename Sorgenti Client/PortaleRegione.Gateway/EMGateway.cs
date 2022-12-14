@@ -387,7 +387,6 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.OrdinaDown.Replace("{id}", id.ToString())}";
