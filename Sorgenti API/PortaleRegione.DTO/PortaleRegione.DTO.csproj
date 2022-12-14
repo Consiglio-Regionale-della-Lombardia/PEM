@@ -44,23 +44,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Routes\ApiRoutes.Admin.cs" />
-    <Compile Include="Routes\ApiRoutes.Autenticazione.cs" />
-    <Compile Include="Routes\ApiRoutes.cs" />
-    <Compile Include="Routes\ApiRoutes.DASI.cs" />
-    <Compile Include="Routes\ApiRoutes.Gruppi.cs" />
-    <Compile Include="Routes\ApiRoutes.Legislature.cs" />
-    <Compile Include="Routes\ApiRoutes.Notifiche.cs" />
-    <Compile Include="Routes\ApiRoutes.PEM.Atti.Articoli.cs" />
-    <Compile Include="Routes\ApiRoutes.PEM.Atti.Commi.cs" />
-    <Compile Include="Routes\ApiRoutes.PEM.Atti.cs" />
-    <Compile Include="Routes\ApiRoutes.PEM.Atti.Lettere.cs" />
-    <Compile Include="Routes\ApiRoutes.PEM.cs" />
-    <Compile Include="Routes\ApiRoutes.PEM.Sedute.cs" />
-    <Compile Include="Routes\ApiRoutes.Persone.cs" />
-    <Compile Include="Routes\ApiRoutes.Public.cs" />
-    <Compile Include="Routes\ApiRoutes.Ruoli.cs" />
-    <Compile Include="Routes\ApiRoutes.Stampe.cs" />
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
@@ -176,10 +159,9 @@
     <Compile Include="Response\FileResponse.cs" />
     <Compile Include="Response\LoginResponse.cs" />
     <Compile Include="Response\Paging.cs" />
-    <Compile Include="Response\ProiettaResponse.cs" />
     <Compile Include="Request\ReportRequest.cs" />
     <Compile Include="Enum\ViewModeEnum.cs" />
-    <Compile Include="Routes\ApiRoutes.Util.cs" />
+    <Compile Include="Routes\ApiRoutes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

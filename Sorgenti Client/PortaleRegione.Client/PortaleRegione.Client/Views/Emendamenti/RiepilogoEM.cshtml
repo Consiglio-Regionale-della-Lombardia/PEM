@@ -70,17 +70,6 @@
                             SCARICA DOCUMENTO
                         </a>
                     }
-                    @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
-                    {
-                        if (classActiveTabVotazione == "active")
-                        {
-                            <a class="btn-flat purple-text tooltipped"
-                               href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" data-tooltip="Proietta">
-                                <i class="material-icons right purple-text">subscriptions</i>
-                                PROIETTA
-                            </a>
-                        }
-                    }
                 </div>
             </div>
         </div>

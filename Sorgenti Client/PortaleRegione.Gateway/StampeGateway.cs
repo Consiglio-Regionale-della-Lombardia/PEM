@@ -104,195 +104,81 @@ namespace PortaleRegione.Gateway
 
         public async Task<BaseResponse<AttoDASIDto>> JobGetDASI(string query, int page, int size = 20)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.GetAtti}";
+            var body = JsonConvert.SerializeObject(new ByQueryModel
             {
-                var requestUrl = $"{apiUrl}/job/stampe/dasi";
-                var body = JsonConvert.SerializeObject(new ByQueryModel
-                {
-                    Query = query,
-                    page = page
-                });
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<AttoDASIDto>>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobGetDASI", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobGetDASI", ex);
-                throw ex;
-            }
+                Query = query,
+                page = page
+            });
+            var lst = JsonConvert.DeserializeObject<BaseResponse<AttoDASIDto>>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<BaseResponse<StampaDto>> JobGetStampe(int page, int size)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.GetAll}";
+            var model = new BaseRequest<StampaDto>
             {
-                var requestUrl = $"{apiUrl}/job/stampe/view";
-
-                var model = new BaseRequest<StampaDto>
-                {
-                    page = page,
-                    size = size
-                };
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<StampaDto>>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobGetStampe", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobGetStampe", ex);
-                throw ex;
-            }
+                page = page,
+                size = size
+            };
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<BaseResponse<StampaDto>>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task JobUnLockStampa(Guid stampaUId)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.Unlock}";
+            var body = JsonConvert.SerializeObject(new StampaRequest
             {
-                var requestUrl = $"{apiUrl}/job/stampe/unlock";
-                var body = JsonConvert.SerializeObject(new StampaRequest
-                {
-                    stampaUId = stampaUId
-                });
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobUnLockStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobUnLockStampa", ex);
-                throw ex;
-            }
+                stampaUId = stampaUId
+            });
+            await Post(requestUrl, body, _token);
         }
 
         public async Task JobErrorStampa(Guid stampaUId, string errorMessage)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.ReportError}";
+            var body = JsonConvert.SerializeObject(new StampaRequest
             {
-                var requestUrl = $"{apiUrl}/job/stampe/error";
-                var body = JsonConvert.SerializeObject(new StampaRequest
-                {
-                    stampaUId = stampaUId,
-                    messaggio = errorMessage
-                });
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobErrorStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobErrorStampa", ex);
-                throw ex;
-            }
+                stampaUId = stampaUId,
+                messaggio = errorMessage
+            });
+            await Post(requestUrl, body, _token);
         }
 
         public async Task JobUpdateFileStampa(StampaDto stampa)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/job/stampe";
-                var body = JsonConvert.SerializeObject(stampa);
-                await Put(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobUpdateFileStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobUpdateFileStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.UpdateFileStampa}";
+            var body = JsonConvert.SerializeObject(stampa);
+            await Put(requestUrl, body, _token);
         }
 
         public async Task JobSetInvioStampa(StampaDto stampa)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/job/stampe/inviato";
-                var body = JsonConvert.SerializeObject(stampa);
-                await Put(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobSetInvioStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobSetInvioStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.SetInvioStampa}";
+            var body = JsonConvert.SerializeObject(stampa);
+            await Put(requestUrl, body, _token);
         }
 
-        public async Task<BaseResponse<EmendamentiDto>> JobGetEmendamenti(string queryEM, int page,
-            int size = 20)
+        public async Task<BaseResponse<EmendamentiDto>> JobGetEmendamenti(string queryEm, int page, int size = 20)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Job.Stampe.GetEmendamenti}";
+            var body = JsonConvert.SerializeObject(new ByQueryModel
             {
-                var requestUrl = $"{apiUrl}/job/stampe/emendamenti";
-                var body = JsonConvert.SerializeObject(new ByQueryModel
-                {
-                    Query = queryEM,
-                    page = page
-                });
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<EmendamentiDto>>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("JobGetEmendamenti", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("JobGetEmendamenti", ex);
-                throw ex;
-            }
+                Query = queryEm,
+                page = page
+            });
+            var lst = JsonConvert.DeserializeObject<BaseResponse<EmendamentiDto>>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<FileResponse> DownloadStampa(Guid stampaUId)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/stampe?id={stampaUId}";
-
-                var lst = await GetFile(requestUrl, _token);
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("DownloadStampa", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("DownloadStampa", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Download.Replace("{id}", stampaUId.ToString())}";
+            var lst = await GetFile(requestUrl, _token);
+            return lst;
         }
     }
 }

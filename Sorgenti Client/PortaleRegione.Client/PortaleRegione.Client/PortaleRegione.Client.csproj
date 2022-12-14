@@ -413,7 +413,6 @@
     <Content Include="Views\Emendamenti\_EMFormScript.cshtml" />
     <Content Include="Views\Emendamenti\_DocsPanel.cshtml" />
     <Content Include="Views\Emendamenti\_CommandSUBEM.cshtml" />
-    <Content Include="Views\Emendamenti\ViewerProietta.cshtml" />
     <Content Include="Views\Emendamenti\_PannelloStrumentiRicerche.cshtml" />
     <Content Include="Views\Emendamenti\_InvitoPanel.cshtml" />
     <Content Include="Views\Emendamenti\_StampaModal.cshtml" />

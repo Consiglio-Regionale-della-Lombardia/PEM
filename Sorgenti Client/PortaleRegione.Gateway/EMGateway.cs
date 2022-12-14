@@ -711,65 +711,6 @@ namespace PortaleRegione.Gateway
             }
         }
 
-        public async Task Proietta(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/proietta?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-        }
-
-        public async Task<ProiettaResponse> Proietta_View(Guid id, int ordineVotazione)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/proietta-view?id={id}&ordine={ordineVotazione}";
-                var result = JsonConvert.DeserializeObject<ProiettaResponse>(await Get(requestUrl, _token));
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-        }
-
-        public async Task<ProiettaResponse> Proietta_ViewLive(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/proietta-view-live?id={id}";
-                var result = JsonConvert.DeserializeObject<ProiettaResponse>(await Get(requestUrl, _token));
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Proietta - Live", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-        }
-
         public async Task<IEnumerable<StatiDto>> GetStati()
         {
             try

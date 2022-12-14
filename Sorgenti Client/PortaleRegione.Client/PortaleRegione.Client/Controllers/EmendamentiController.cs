@@ -846,59 +846,6 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        ///     Controller per proiettare l'emendamento in aula
-        /// </summary>
-        /// <param name="id">Guid atto</param>
-        /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
-        [Route("proietta")]
-        public async Task<ActionResult> ProiettaEmendamento(Guid id)
-        {
-            try
-            {
-                var apiGateway = new ApiGateway(Token);
-                await apiGateway.Emendamento.Proietta(id);
-                return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        /// <summary>
-        ///     Controller per visualizzare la pagina viewer che proietta gli emendamenti in ordine di votazione
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="ordine"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("viewer")]
-        public async Task<ActionResult> ViewerProietta(Guid id, int ordine = 0)
-        {
-            ProiettaResponse proietta;
-            var apiGateway = new ApiGateway(Token);
-            if (ordine <= 0)
-                proietta = await apiGateway.Emendamento.Proietta_ViewLive(id);
-            else
-                proietta = await apiGateway.Emendamento.Proietta_View(id, ordine);
-            var em = proietta.EM;
-            em.BodyEM = em.EM_Certificato;
-
-            em.Firme = await Utility.GetFirmatari(
-                await apiGateway.Emendamento.GetFirmatari(em.UIDEM, FirmeTipoEnum.PRIMA_DEPOSITO),
-                CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
-            em.Firme_dopo_deposito = await Utility.GetFirmatari(
-                await apiGateway.Emendamento.GetFirmatari(em.UIDEM, FirmeTipoEnum.DOPO_DEPOSITO),
-                CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
-
-            proietta.EM = em;
-            return View(proietta);
-        }
-
-        /// <summary>
         ///     Controller per ordinare gli emendamenti di un atto in votazione
         /// </summary>
         /// <param name="id">Guid atto</param>

@@ -60,9 +60,6 @@ namespace PortaleRegione.Gateway
         Task ModificaMetaDati(EmendamentiDto model);
         Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id);
         Task ORDINA_EM_TRATTAZIONE(Guid id);
-        Task Proietta(Guid id);
-        Task<ProiettaResponse> Proietta_View(Guid id, int ordineVotazione);
-        Task<ProiettaResponse> Proietta_ViewLive(Guid id);
         Task<Dictionary<Guid, string>> Raggruppa(RaggruppaEmendamentiModel model);
         Task Ritira(Guid id);
         Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model);

@@ -1376,24 +1376,6 @@ namespace PortaleRegione.BAL
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task<ProiettaResponse> GetEM_ByProietta(Guid id, int ordine, PersonaDto persona)
-        {
-            var em_da_proiettare = await _unitOfWork.Emendamenti.GetEMInProiezione(id, ordine);
-            if (em_da_proiettare == null) return null;
-
-            var atto = await _unitOfWork.Atti.Get(em_da_proiettare.UIDAtto);
-
-            var proietta = new ProiettaResponse
-            { EM = await GetEM_DTO(em_da_proiettare, atto, persona) };
-            var em_next = await _unitOfWork.Emendamenti.GetEMInProiezione(id, ordine + 1);
-            if (em_next != null) proietta.next = em_next.OrdineVotazione;
-
-            var em_prev = await _unitOfWork.Emendamenti.GetEMInProiezione(id, ordine - 1);
-            if (em_prev != null) proietta.prev = em_prev.OrdineVotazione;
-
-            return proietta;
-        }
-
         public async Task<EM> GetEM(Guid id)
         {
             return await _unitOfWork.Emendamenti.Get(id);
@@ -2074,179 +2056,144 @@ namespace PortaleRegione.BAL
         {
             var separatore = AppSettingsConfiguration.OpenData_Separatore;
             var result = string.Empty;
-            try
+            var legislatura = await _unitOfWork.Legislature.Get(atto.SEDUTE.id_legislatura);
+            var nome_em = em.N_EM;
+            //Colonna IDEM
+            result +=
+                $"{Utility.GetText_Tipo(atto.IDTipoAtto)}-{atto.NAtto}-{legislatura.num_legislatura}-{nome_em}{separatore}";
+            //Colonna Atto
+            result +=
+                $"{Utility.GetText_Tipo(atto.IDTipoAtto)}-{atto.NAtto}-{legislatura.num_legislatura}{separatore}";
+            //Colonna Numero EM
+            result += nome_em + separatore;
+            //Colonna Data Deposito
+            if (em.IDStato >= (int)StatiEnum.Depositato)
             {
-                var legislatura = await _unitOfWork.Legislature.Get(atto.SEDUTE.id_legislatura);
-                var nome_em = em.N_EM;
-                //Colonna IDEM
-                result +=
-                    $"{Utility.GetText_Tipo(atto.IDTipoAtto)}-{atto.NAtto}-{legislatura.num_legislatura}-{nome_em}{separatore}";
-                //Colonna Atto
-                result +=
-                    $"{Utility.GetText_Tipo(atto.IDTipoAtto)}-{atto.NAtto}-{legislatura.num_legislatura}{separatore}";
-                //Colonna Numero EM
-                result += nome_em + separatore;
-                //Colonna Data Deposito
-                if (em.IDStato >= (int)StatiEnum.Depositato)
-                {
-                    var dataDeposito =
-                        Convert.ToDateTime(em.DataDeposito);
-                    result += dataDeposito.ToString("yyyy-MM-dd HH:mm") + separatore;
-                }
-                else
-                {
-                    result += "--" + separatore;
-                }
-
-                //Colonna Stato
-                var statiEmendamento = await _unitOfWork.Emendamenti.GetStatiEmendamento();
-                result += $"{em.IDStato}-{statiEmendamento.First(s => s.IDStato == em.IDStato).Stato}{separatore}";
-                //Colonna Tipo EM
-                var tipiEmendamento = await _unitOfWork.Emendamenti.GetTipiEmendamento();
-                result +=
-                    $"{em.IDTipo_EM}-{tipiEmendamento.First(t => t.IDTipo_EM == em.IDTipo_EM).Tipo_EM}{separatore}";
-                //Colonna Parte
-                var partiEmendabili = await _unitOfWork.Emendamenti.GetPartiEmendabili();
-                result += $"{em.IDParte}-{partiEmendabili.First(p => p.IDParte == em.IDParte).Parte}{separatore}";
-                //Colonna Articolo
-                var articolo = string.Empty;
-                if (em.UIDArticolo.HasValue)
-                {
-                    var art = await _unitOfWork.Articoli.GetArticolo(em.UIDArticolo.Value);
-                    articolo = art.Articolo;
-                }
-
-                result += $"{articolo}{separatore}";
-
-                //Colonna Comma
-                var comma = string.Empty;
-                if (em.UIDComma.HasValue)
-                {
-                    var com = await _unitOfWork.Commi.GetComma(em.UIDComma.Value);
-                    comma = com.Comma;
-                }
-
-                result += $"{comma}{separatore}";
-                //Colonna NTitolo
-                result += $"{em.NTitolo}{separatore}";
-                //Colonna NCapo
-                result += $"{em.NCapo}{separatore}";
-                //Colonna NMissione
-                result += $"{em.NMissione}{separatore}";
-                //Colonna NProgramma
-                result += $"{em.NProgramma}{separatore}";
-                //Colonna NTitoloB
-                result += $"{em.NTitoloB}{separatore}";
-                //Colonna Proponente
-                result += $"{proponente.id_persona}-{proponente.DisplayName}{separatore}";
-                //Colonna AreaPolitica
-                if (em.AreaPolitica.HasValue)
-                    result += (AreaPoliticaIntEnum)em.AreaPolitica.Value switch
-                    {
-                        AreaPoliticaIntEnum.Maggioranza => $"{AreaPoliticaEnum.Maggioranza}{separatore}",
-                        AreaPoliticaIntEnum.Minoranza => $"{AreaPoliticaEnum.Minoranza}{separatore}",
-                        AreaPoliticaIntEnum.Misto_Maggioranza => $"{AreaPoliticaEnum.Misto_Maggioranza}{separatore}",
-                        AreaPoliticaIntEnum.Misto_Minoranza => $"{AreaPoliticaEnum.Misto_Minoranza}{separatore}",
-                        _ => $"{separatore}"
-                    };
-                else
-                    result += $"{separatore}";
-
-                //Colonna Firmatari
-                if (em.IDStato >= (int)StatiEnum.Depositato)
-                {
-                    var firmeAnte = firme.Where(f =>
-                        f.Timestamp < Convert.ToDateTime(em.DataDeposito));
-                    var firmePost = firme.Where(f =>
-                        f.Timestamp > Convert.ToDateTime(em.DataDeposito));
-
-                    result +=
-                        $"{GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
-                    result +=
-                        $"{GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
-                }
-                else
-                {
-                    result += "--" + separatore;
-                    result += "--" + separatore;
-                }
-
-                //Colonna Link
-                result += $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}";
-
-                return result;
+                var dataDeposito =
+                    Convert.ToDateTime(em.DataDeposito);
+                result += dataDeposito.ToString("yyyy-MM-dd HH:mm") + separatore;
             }
-            catch (Exception e)
+            else
             {
-                //Log.Error("GetEM_OPENDATA", e);
-                throw e;
+                result += "--" + separatore;
             }
+
+            //Colonna Stato
+            var statiEmendamento = await _unitOfWork.Emendamenti.GetStatiEmendamento();
+            result += $"{em.IDStato}-{statiEmendamento.First(s => s.IDStato == em.IDStato).Stato}{separatore}";
+            //Colonna Tipo EM
+            var tipiEmendamento = await _unitOfWork.Emendamenti.GetTipiEmendamento();
+            result +=
+                $"{em.IDTipo_EM}-{tipiEmendamento.First(t => t.IDTipo_EM == em.IDTipo_EM).Tipo_EM}{separatore}";
+            //Colonna Parte
+            var partiEmendabili = await _unitOfWork.Emendamenti.GetPartiEmendabili();
+            result += $"{em.IDParte}-{partiEmendabili.First(p => p.IDParte == em.IDParte).Parte}{separatore}";
+            //Colonna Articolo
+            var articolo = string.Empty;
+            if (em.UIDArticolo.HasValue)
+            {
+                var art = await _unitOfWork.Articoli.GetArticolo(em.UIDArticolo.Value);
+                articolo = art.Articolo;
+            }
+
+            result += $"{articolo}{separatore}";
+
+            //Colonna Comma
+            var comma = string.Empty;
+            if (em.UIDComma.HasValue)
+            {
+                var com = await _unitOfWork.Commi.GetComma(em.UIDComma.Value);
+                comma = com.Comma;
+            }
+
+            result += $"{comma}{separatore}";
+            //Colonna NTitolo
+            result += $"{em.NTitolo}{separatore}";
+            //Colonna NCapo
+            result += $"{em.NCapo}{separatore}";
+            //Colonna NMissione
+            result += $"{em.NMissione}{separatore}";
+            //Colonna NProgramma
+            result += $"{em.NProgramma}{separatore}";
+            //Colonna NTitoloB
+            result += $"{em.NTitoloB}{separatore}";
+            //Colonna Proponente
+            result += $"{proponente.id_persona}-{proponente.DisplayName}{separatore}";
+            //Colonna AreaPolitica
+            if (em.AreaPolitica.HasValue)
+                result += (AreaPoliticaIntEnum)em.AreaPolitica.Value switch
+                {
+                    AreaPoliticaIntEnum.Maggioranza => $"{AreaPoliticaEnum.Maggioranza}{separatore}",
+                    AreaPoliticaIntEnum.Minoranza => $"{AreaPoliticaEnum.Minoranza}{separatore}",
+                    AreaPoliticaIntEnum.Misto_Maggioranza => $"{AreaPoliticaEnum.Misto_Maggioranza}{separatore}",
+                    AreaPoliticaIntEnum.Misto_Minoranza => $"{AreaPoliticaEnum.Misto_Minoranza}{separatore}",
+                    _ => $"{separatore}"
+                };
+            else
+                result += $"{separatore}";
+
+            //Colonna Firmatari
+            if (em.IDStato >= (int)StatiEnum.Depositato)
+            {
+                var firmeAnte = firme.Where(f =>
+                    f.Timestamp < Convert.ToDateTime(em.DataDeposito));
+                var firmePost = firme.Where(f =>
+                    f.Timestamp > Convert.ToDateTime(em.DataDeposito));
+
+                result +=
+                    $"{GetFirmatariEM_OPENDATA(firmeAnte.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+                result +=
+                    $"{GetFirmatariEM_OPENDATA(firmePost.ToList(), RuoliIntEnum.Amministratore_PEM)}{separatore}";
+            }
+            else
+            {
+                result += "--" + separatore;
+                result += "--" + separatore;
+            }
+
+            //Colonna Link
+            result += $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}";
+
+            return result;
         }
 
         public string GetFirmatariEM_OPENDATA(IEnumerable<FirmeDto> firmeDtos, RuoliIntEnum ruolo)
         {
-            try
-            {
-                if (firmeDtos == null) return "--";
+            if (firmeDtos == null) return "--";
 
-                if (!firmeDtos.Any()) return "--";
+            if (!firmeDtos.Any()) return "--";
 
-                var result = "";
-                foreach (var firmeDto in firmeDtos)
-                    if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+            var result = "";
+            foreach (var firmeDto in firmeDtos)
+                if (string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
+                {
+                    if (ruolo == RuoliIntEnum.Amministratore_PEM)
                     {
-                        if (ruolo == RuoliIntEnum.Amministratore_PEM)
-                        {
-                            var firmatario = Users.First(p => p.UID_persona == firmeDto.UID_persona);
-                            result +=
-                                $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
-                        }
-                        else
-                        {
-                            result += $"{firmeDto.FirmaCert}; ";
-                        }
+                        var firmatario = Users.First(p => p.UID_persona == firmeDto.UID_persona);
+                        result +=
+                            $"{firmatario.id_persona}-{firmeDto.FirmaCert}; ";
                     }
                     else
                     {
-                        if (ruolo == RuoliIntEnum.Amministratore_PEM)
-                        {
-                            var firmatario = Users.First(p => p.UID_persona == firmeDto.UID_persona);
-                            result +=
-                                $"{firmatario.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
-                        }
-                        else
-                        {
-                            result +=
-                                $"{firmeDto.FirmaCert} (ritirata); ";
-                        }
+                        result += $"{firmeDto.FirmaCert}; ";
                     }
+                }
+                else
+                {
+                    if (ruolo == RuoliIntEnum.Amministratore_PEM)
+                    {
+                        var firmatario = Users.First(p => p.UID_persona == firmeDto.UID_persona);
+                        result +=
+                            $"{firmatario.id_persona}-{firmeDto.FirmaCert} (ritirata); ";
+                    }
+                    else
+                    {
+                        result +=
+                            $"{firmeDto.FirmaCert} (ritirata); ";
+                    }
+                }
 
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("GetFirmatariEM_OPENDATA", e);
-                throw e;
-            }
-        }
-
-        public async Task<ProiettaResponse> GetEM_LiveProietta(Guid attoUId, PersonaDto persona)
-        {
-            var em_da_proiettare = await _unitOfWork.Emendamenti.GetCurrentEMInProiezione(attoUId);
-            if (em_da_proiettare == null) return null;
-
-            var atto = await _unitOfWork.Atti.Get(em_da_proiettare.UIDAtto);
-            var proietta = new ProiettaResponse
-            { EM = await GetEM_DTO(em_da_proiettare, atto, persona) };
-            var em_next =
-                await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione + 1);
-            if (em_next != null) proietta.next = em_next.OrdineVotazione;
-
-            var em_prev =
-                await _unitOfWork.Emendamenti.GetEMInProiezione(attoUId, em_da_proiettare.OrdineVotazione - 1);
-            if (em_prev != null) proietta.prev = em_prev.OrdineVotazione;
-
-            return proietta;
+            return result;
         }
 
         public async Task<EM> GetEM_ByQR(Guid id)
