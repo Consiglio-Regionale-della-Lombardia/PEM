@@ -44,15 +44,14 @@ namespace PortaleRegione.Gateway
         Task<EmendamentiViewModel> Get(Guid attoUId, ClientModeEnum mode, OrdinamentoEnum ordine, int page, int size);
         Task<string> GetBody(Guid id, TemplateTypeEnum template, bool IsDeposito = false);
         Task<string> GetCopertina(CopertinaModel model);
-        Task<IEnumerable<FirmeDto>> GetFirmatari(Guid emendamentoUId, FirmeTipoEnum tipo);
-        Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId);
+        Task<IEnumerable<FirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum tipo);
+        Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid id);
         Task<IEnumerable<MissioniDto>> GetMissioni();
         Task<IEnumerable<TitoloMissioniDto>> GetTitoliMissioni();
         Task<EmendamentiFormModel> GetModificaMetaDatiModel(Guid id);
         Task<EmendamentiFormModel> GetModificaModel(Guid id);
         Task<EmendamentiFormModel> GetNuovoModel(Guid id, Guid? em_riferimentoUId);
         Task<IEnumerable<PartiTestoDto>> GetParti();
-        Task<int> GetProgressivoTemporaneo(Guid id);
         Task<IEnumerable<StatiDto>> GetStati();
         Task<IEnumerable<Tipi_EmendamentiDto>> GetTipi();
         Task<EmendamentiViewModel> Get_RichiestaPropriaFirma(Guid attoUId, ClientModeEnum mode, OrdinamentoEnum ordine, int page, int size);
