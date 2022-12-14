@@ -409,7 +409,7 @@ namespace PortaleRegione.Persistance
                 if (result > contatore.Fine)
                 {
                     throw new Exception(
-                        $"Limite raggiunto o superato. Attuali [{contatore.Contatore}], Limite [{contatore.Fine}], Richiesti [{salto}] - Disponibili [{contatore.Fine - contatore.Contatore}]");
+                        $"Limite superato. Attuali [{contatore.Contatore}], Limite [{contatore.Fine}], Richiesti [{salto}] - Disponibili [{contatore.Fine - contatore.Contatore}]");
                 }
             }
 

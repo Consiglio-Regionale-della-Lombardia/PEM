@@ -46,16 +46,12 @@
         <p>seleziona il tipo di atto e il tipo di risposta se necessario</p>
         <div class="row">
             <div class="input-field col s4">
-                <select id="NuovoCartaceo_Tipo">
+                <select id="NuovoCartaceo_Tipo" onchange="ShowHideTipoRisposta()">
                 </select>
                 <label for="NuovoCartaceo_Tipo">Tipo</label>
             </div>
             <div class="input-field col s4">
                 <select id="NuovoCartaceo_TipoRisposta">
-                    <option value="" selected="selected">--</option>
-                    <option value="@((int) TipoRispostaEnum.ORALE)">Orale</option>
-                    <option value="@((int) TipoRispostaEnum.SCRITTO)">Scritto</option>
-                    <option value="@((int) TipoRispostaEnum.COMMISSIONE)">In Commissione</option>
                 </select>
                 <label for="NuovoCartaceo_TipoRisposta">Tipo Risposta</label>
             </div>
@@ -109,6 +105,16 @@
         }
     }
 
+    function ShowHideTipoRisposta() {
+        var tipo = $('select[id="NuovoCartaceo_Tipo"]').children("option:selected").val();
+
+        if (tipo == @((int)TipoAttoEnum.ITL)
+            || tipo == @((int)TipoAttoEnum.ITR)) {
+
+        }
+
+    }
+
     $('#btnNuovoCartaceoDASI').on("click",
         async function() {
             var tipi = await GetTipiDASI();
@@ -117,7 +123,7 @@
                 select.empty();
                 $.each(tipi,
                     function(index, item) {
-                        if (item.IDTipoAtto != @Html.Raw((int) TipoAttoEnum.TUTTI)) {
+                        if (item.IDTipoAtto != @Html.Raw((int)TipoAttoEnum.TUTTI)) {
                             var template = "<option></option>";
                             select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
                         }
@@ -143,7 +149,6 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
-                console.log(data.message);
                 if (data.message) {
                     swal({
                         title: "Esito salvataggio",

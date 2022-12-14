@@ -513,10 +513,7 @@ namespace PortaleRegione.API.Controllers
         {
             var sb = new List<string>();
             var atti = await _unitOfWork.DASI.GetAbbinamentiMozione(uidAtto);
-            if (!atti.Any())
-            {
-                return string.Empty;
-            }
+            if (!atti.Any()) return string.Empty;
 
             foreach (var guid in atti)
             {
@@ -1517,158 +1514,134 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Ritira(ATTI_DASI atto, PersonaDto persona)
         {
+            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                throw new InvalidOperationException(
+                    "Non è possibile ritirare un atto chiuso.");
+
+            if (atto.DataIscrizioneSeduta.HasValue)
+                throw new InvalidOperationException(
+                    "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
+
+            atto.IDStato = (int)StatiAttoEnum.CHIUSO;
+            atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
+            atto.UIDPersonaRitiro = persona.UID_persona;
+            atto.DataRitiro = DateTime.Now;
+
+            await _unitOfWork.CompleteAsync();
+
+            // Matteo Cattapan #530 - Avviso ritiro atto
+            // Quando viene ritirato un Atto sottoscritto da più firmatari, il sistema deve inviare ai firmatari rimasti (che non hanno già ritirato la propria firma)
+            // un messaggio email che notifica il ritiro dell’atto
+
+            var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
+            var firmatari = new List<string>();
+            foreach (var attiFirmeDto in firme.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)))
+            {
+                if (attiFirmeDto.UID_persona == persona.UID_persona)
+                    continue;
+
+                var firmatario = await _logicPersona.GetPersona(attiFirmeDto.UID_persona);
+                firmatari.Add(firmatario.email);
+            }
+
+            if (firmatari.Count <= 0) return;
+
             try
             {
-                if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
-                    throw new InvalidOperationException(
-                        "Non è possibile ritirare un atto chiuso.");
-
-                if (atto.DataIscrizioneSeduta.HasValue)
-                    throw new InvalidOperationException(
-                        "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
-
-                atto.IDStato = (int)StatiAttoEnum.CHIUSO;
-                atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
-                atto.UIDPersonaRitiro = persona.UID_persona;
-                atto.DataRitiro = DateTime.Now;
-
-                await _unitOfWork.CompleteAsync();
-
-                // Matteo Cattapan #530 - Avviso ritiro atto
-                // Quando viene ritirato un Atto sottoscritto da più firmatari, il sistema deve inviare ai firmatari rimasti (che non hanno già ritirato la propria firma)
-                // un messaggio email che notifica il ritiro dell’atto
-
-                var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-                var firmatari = new List<string>();
-                foreach (var attiFirmeDto in firme.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)))
+                var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                var mailModel = new MailModel
                 {
-                    if (attiFirmeDto.UID_persona == persona.UID_persona)
-                        continue;
-
-                    var firmatario = await _logicPersona.GetPersona(attiFirmeDto.UID_persona);
-                    firmatari.Add(firmatario.email);
-                }
-
-                if (firmatari.Count <= 0) return;
-
-                try
-                {
-                    var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
-                    var mailModel = new MailModel
-                    {
-                        DA = AppSettingsConfiguration.EmailInvioDASI,
-                        A = firmatari.Aggregate((i, j) => i + ";" + j),
-                        OGGETTO =
-                            "Avviso di ritiro atto",
-                        MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
-                    };
-                    await _logicUtil.InvioMail(mailModel);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
+                    DA = AppSettingsConfiguration.EmailInvioDASI,
+                    A = firmatari.Aggregate((i, j) => i + ";" + j),
+                    OGGETTO =
+                        "Avviso di ritiro atto",
+                    MESSAGGIO =
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
+                };
+                await _logicUtil.InvioMail(mailModel);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //Log.Error("Logic - Ritira Atto - DASI", e);
-                throw e;
+                // ignored
             }
         }
 
         public async Task<DASIFormModel> NuovoModello(TipoAttoEnum tipo, PersonaDto persona)
         {
-            try
+            var result = new DASIFormModel
             {
-                var result = new DASIFormModel
+                Atto = new AttoDASIDto
                 {
-                    Atto = new AttoDASIDto
-                    {
-                        Tipo = (int)tipo
-                    },
-                    CommissioniAttive = await GetCommissioniAttive()
+                    Tipo = (int)tipo
+                },
+                CommissioniAttive = await GetCommissioniAttive()
+            };
+
+            var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
+            var progressivo =
+                await _unitOfWork.DASI.GetProgressivo(tipo, persona.Gruppo.id_gruppo, legislatura);
+            result.Atto.Progressivo = progressivo;
+
+            if (persona.IsSegreteriaAssemblea
+                || persona.IsPresidente)
+                result.Atto.IDStato = (int)StatiAttoEnum.BOZZA;
+            else
+                result.Atto.IDStato = persona.Gruppo.abilita_em_privati
+                    ? (int)StatiAttoEnum.BOZZA_RISERVATA
+                    : (int)StatiAttoEnum.BOZZA;
+
+            result.Atto.NAtto = GetNome(result.Atto.NAtto, progressivo);
+
+            if (persona.IsConsigliereRegionale ||
+                persona.IsAssessore)
+            {
+                result.Atto.UIDPersonaProponente = persona.UID_persona;
+                result.Atto.PersonaProponente = new PersonaLightDto
+                {
+                    UID_persona = persona.UID_persona,
+                    cognome = persona.cognome,
+                    nome = persona.nome
                 };
-
-                var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
-                var progressivo =
-                    await _unitOfWork.DASI.GetProgressivo(tipo, persona.Gruppo.id_gruppo, legislatura);
-                result.Atto.Progressivo = progressivo;
-
-                if (persona.IsSegreteriaAssemblea
-                    || persona.IsPresidente)
-                    result.Atto.IDStato = (int)StatiAttoEnum.BOZZA;
-                else
-                    result.Atto.IDStato = persona.Gruppo.abilita_em_privati
-                        ? (int)StatiAttoEnum.BOZZA_RISERVATA
-                        : (int)StatiAttoEnum.BOZZA;
-
-                result.Atto.NAtto = GetNome(result.Atto.NAtto, progressivo);
-
-                if (persona.IsConsigliereRegionale ||
-                    persona.IsAssessore)
-                {
-                    result.Atto.UIDPersonaProponente = persona.UID_persona;
-                    result.Atto.PersonaProponente = new PersonaLightDto
-                    {
-                        UID_persona = persona.UID_persona,
-                        cognome = persona.cognome,
-                        nome = persona.nome
-                    };
-                }
-
-                if (persona.IsSegreteriaPolitica)
-                    result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
-
-                result.Atto.UIDPersonaCreazione = persona.UID_persona;
-                result.Atto.DataCreazione = DateTime.Now;
-                result.Atto.idRuoloCreazione = (int)persona.CurrentRole;
-                if (!persona.IsSegreteriaAssemblea
-                    && !persona.IsPresidente)
-                    result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
-                result.Atto.Commissioni = new List<CommissioneDto>();
-
-                var testo_richiesta = "<strong>{{RICHIESTA}}</strong>";
-                switch (tipo)
-                {
-                    case TipoAttoEnum.ITR:
-                        result.Atto.Richiesta = testo_richiesta.Replace("{{RICHIESTA}}", "INTERROGA");
-                        break;
-                    case TipoAttoEnum.ITL:
-                        result.Atto.Richiesta = testo_richiesta.Replace("{{RICHIESTA}}", "INTERPELLA");
-                        break;
-                }
-
-                return result;
             }
-            catch (Exception e)
+
+            if (persona.IsSegreteriaPolitica)
+                result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
+
+            result.Atto.UIDPersonaCreazione = persona.UID_persona;
+            result.Atto.DataCreazione = DateTime.Now;
+            result.Atto.idRuoloCreazione = (int)persona.CurrentRole;
+            if (!persona.IsSegreteriaAssemblea
+                && !persona.IsPresidente)
+                result.Atto.id_gruppo = persona.Gruppo.id_gruppo;
+            result.Atto.Commissioni = new List<CommissioneDto>();
+
+            var testo_richiesta = "<strong>{{RICHIESTA}}</strong>";
+            switch (tipo)
             {
-                //Log.Error("Logic - NuovoModello - DASI", e);
-                throw e;
+                case TipoAttoEnum.ITR:
+                    result.Atto.Richiesta = testo_richiesta.Replace("{{RICHIESTA}}", "INTERROGA");
+                    break;
+                case TipoAttoEnum.ITL:
+                    result.Atto.Richiesta = testo_richiesta.Replace("{{RICHIESTA}}", "INTERPELLA");
+                    break;
             }
+
+            return result;
         }
 
         public async Task<DASIFormModel> ModificaModello(ATTI_DASI atto, PersonaDto persona)
         {
-            try
+            var dto = await GetAttoDto(atto.UIDAtto, persona);
+            var result = new DASIFormModel
             {
-                var dto = await GetAttoDto(atto.UIDAtto, persona);
-                var result = new DASIFormModel
-                {
-                    Atto = dto,
-                    CommissioniAttive = await GetCommissioniAttive()
-                };
+                Atto = dto,
+                CommissioniAttive = await GetCommissioniAttive()
+            };
 
-                if (persona.IsSegreteriaPolitica)
-                    result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
+            if (persona.IsSegreteriaPolitica)
+                result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
 
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Logic - ModificaModello - DASI", e);
-                throw e;
-            }
+            return result;
         }
 
         public async Task<List<AssessoreInCaricaDto>> GetSoggettiInterrogabili()
@@ -2385,33 +2358,54 @@ namespace PortaleRegione.API.Controllers
 
         public async Task PresentazioneCartacea(PresentazioneCartaceaModel model)
         {
-            try
+            var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
+            _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
+            await _unitOfWork.CompleteAsync();
+
+            // Matteo Cattapan #520 - Inserimento di atti presentati in forma cartacea
+            var data_presentazione = DateTime.Now;
+            var atti_cartacei = new List<ATTI_DASI>();
+            var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
+            var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
+
+            for (var i = 0; i < model.Salto; i++)
             {
-                var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
-                _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
-                await _unitOfWork.CompleteAsync();
+                var contatore_progressivo = contatore.Inizio + (contatore.Contatore - (model.Salto - i));
+                var etichetta_progressiva =
+                    $"{Utility.GetText_Tipo(model.Tipo)}_{contatore_progressivo}_{legislatura.num_legislatura}";
+                var etichetta_encrypt =
+                    BALHelper.EncryptString(etichetta_progressiva, AppSettingsConfiguration.masterKey);
+
+                atti_cartacei.Add(new ATTI_DASI
+                {
+                    IDStato = (int)StatiAttoEnum.BOZZA_CARTACEA,
+                    Tipo = model.Tipo,
+                    IDTipo_Risposta = model.TipoRisposta,
+                    UIDAtto = Guid.NewGuid(),
+                    UID_QRCode = Guid.NewGuid(),
+                    Timestamp = data_presentazione,
+                    DataPresentazione = BALHelper.EncryptString(data_presentazione.ToString("dd/MM/yyyy HH:mm:ss"),
+                        AppSettingsConfiguration.masterKey),
+                    NAtto_search = contatore_progressivo,
+                    OrdineVisualizzazione = contatore_progressivo,
+                    Etichetta = etichetta_progressiva,
+                    NAtto = etichetta_encrypt
+                });
             }
-            catch (Exception e)
+
+            if (atti_cartacei.Any())
             {
-                //Log.Error("Logic - PresentazioneCartacea", e);
-                throw e;
+                _unitOfWork.DASI.AddRange(atti_cartacei);
+                await _unitOfWork.CompleteAsync();
             }
         }
 
         public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
         {
-            try
-            {
-                var content = await PDFIstantaneo(atto, persona);
-                var res = ComposeFileResponse(content,
-                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}.pdf");
-                return res;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("DownloadPDFIstantaneo", e);
-                throw e;
-            }
+            var content = await PDFIstantaneo(atto, persona);
+            var res = ComposeFileResponse(content,
+                $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo.Value)}.pdf");
+            return res;
         }
 
         internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
@@ -2452,10 +2446,7 @@ namespace PortaleRegione.API.Controllers
             foreach (var moz_id in data)
             {
                 var moz = await Get(new Guid(moz_id));
-                if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
-                {
-                    moz.UID_MOZ_Abbinata = null;
-                }
+                if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
 
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
 
