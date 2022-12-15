@@ -226,7 +226,7 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
                 case StatiAttoEnum.BOZZA_CARTACEA:
-                    return "";
+                    return "Cartaceo";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }

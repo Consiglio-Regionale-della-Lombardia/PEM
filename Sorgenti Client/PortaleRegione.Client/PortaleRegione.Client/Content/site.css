@@ -544,6 +544,15 @@ div.input-field > label { line-height: initial; }
     min-width: unset !important;
 }
 
+.badgeCARTACEO {
+    background-color: white;
+    border: 1px solid gray;
+    border-left: 1em solid gray;
+    color: black;
+    font-weight: bold;
+    min-width: unset !important;
+}
+
 .badgeIQT_ico {
     background-color: white;
     border-left: 5px solid #e91e63;

@@ -128,6 +128,8 @@ namespace PortaleRegione.DTO.Domain
 
         public string DettaglioMozioniAbbinate { get; set; }
 
+        public string Display { get; set; }
+
         public bool IsMOZ()
         {
             return Tipo == (int)TipoAttoEnum.MOZ;

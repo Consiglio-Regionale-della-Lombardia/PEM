@@ -635,6 +635,17 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<List<Guid>> GetAllCartacei(int legislatura)
+        {
+            return await PRContext
+                .DASI
+                .Where(atto => atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
+                               && atto.Legislatura == legislatura
+                               && !atto.Eliminato)
+                .Select(atto => atto.UIDAtto)
+                .ToListAsync();
+        }
+
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)
         {
             var query = PRContext

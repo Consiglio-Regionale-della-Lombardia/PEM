@@ -182,6 +182,25 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere il riepilogo degli atti cartacei
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetAllCartacei)]
+        public async Task<IHttpActionResult> RiepilogoCartacei()
+        {
+            try
+            {
+                var response = await _dasiLogic.GetCartacei();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per firmare un Atto di Sindacato Ispettivo
         /// </summary>
         /// <param name="firmaModel"></param>

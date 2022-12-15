@@ -34,6 +34,6 @@ namespace PortaleRegione.DTO.Enum
         public const string DECADUTO_FINE_LEGISLATURA = "decadutoT";
         public const string ALTRO = "altroT";
         public const string CHIUSO = "chiusoT";
-        public const string CARTACEO = "";
+        public const string CARTACEO = "ritiratoT";
     }
 }

@@ -449,6 +449,13 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task<List<AttoDASIDto>> GetCartacei()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAllCartacei}";
+            var lst = JsonConvert.DeserializeObject<List<AttoDASIDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

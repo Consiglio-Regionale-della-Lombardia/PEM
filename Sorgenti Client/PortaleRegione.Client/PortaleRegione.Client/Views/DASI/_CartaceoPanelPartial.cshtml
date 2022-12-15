@@ -1,0 +1,81 @@
+﻿@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
+<a class="btn-floating btn-large halfway-fab waves-effect waves-light pink"
+   onclick="openPanelCartacei()"
+   style="position: fixed; top: 100px; right: 24px;">
+    <i class="material-icons">insert_drive_file</i>
+</a>
+
+<ul id="slide-atti-cartacei" class="sidenav sidenav-search" style="overflow: auto !important">
+    <li>
+        <ul id="table-atti-cartacei" class="collection">
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+            <li class="collection-item"><div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">send</i></a></div></li>
+        </ul>
+    </li>
+</ul>
+
+<script>
+    var atti_cartacei = [];
+    $(window).on('load', async function() {
+        atti_cartacei = await GetAttiCartacei();
+        var table = $('#table-atti-cartacei');
+        table.empty();
+
+        table.append('<li class="collection-item"><div class="input-field col s6"><input placeholder="Cerca" type="text" onkeyup="SearchCartacei(this);"></div></li>');
+
+        $.each(atti_cartacei, function(index, item) {
+            var text = item.Display;
+            var url = item.UIDAtto + "/edit";
+            table.append('<li id="row_' + item.UIDAtto +'" class="collection-item"><div>' + text + '<a class="secondary-content" onclick="go(\''+url+'\')"><i class="material-icons blue-text">edit</i></a></div></li>');
+        });
+    });
+
+    function SearchCartacei(ctrl) {
+        var q = $(ctrl).val().toLowerCase();
+        if (q.length >= 2) {
+            $.each(atti_cartacei,
+                function(index, item) {
+                    var text = item.Display;
+                    var row = $('#row_' + item.UIDAtto);
+                    if (text.toLowerCase().search(q) === -1) {
+                        $(row).hide(); // Not match
+                    } else {
+                        // Match
+                        if (!$(row).is(":visible")) {
+                            $(row).show();
+                        }
+                    }
+                });
+        }
+        if (q === "") {
+            $.each(atti_cartacei, function (index, item) {
+                var row = $('#row_' + item.UIDAtto);
+                if (!$(row).is(":visible")) {
+                    $(row).show();
+                }
+            });
+        }
+    }
+
+    function openPanelCartacei() {
+        var elems = document.querySelector("#slide-atti-cartacei");
+        var instances = M.Sidenav.init(elems,
+            {
+                edge: "right",
+                draggable: true,
+                onOpenStart: function () {
+                    // Menu laterale SX sotto a layer opaco
+                    $("#slide-out").css("z-index", 997);
+                },
+                onCloseEnd: function () {
+                    // Ripristino menu laterale SX
+                    $("#slide-out").css("z-index", 999);
+                }
+            });
+
+        instances.open();
+    }
+</script>

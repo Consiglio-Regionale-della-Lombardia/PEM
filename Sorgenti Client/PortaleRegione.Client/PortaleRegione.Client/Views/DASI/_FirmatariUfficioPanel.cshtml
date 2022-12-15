@@ -1,0 +1,41 @@
+﻿@model PortaleRegione.DTO.Model.DASIFormModel
+
+@if (!Model.CurrentUser.IsSegreteriaAssemblea)
+{
+    //Pannello inserimento firmatari visualizzabile solamente per UOLA
+}
+else
+{
+    <div class="row">
+        <div class="col s4">
+            <label>Nuovo firmatario: </label>
+            @Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona", new { @class = "form-control", @onchange = "AggiungiFirmatario(this);" })
+        </div>
+        <div class="col s8">
+            <span>Firmatari</span>
+            <ul id="tableFirmatari" class="collection">
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        $(window).on('load',
+            async function() {
+
+            });
+
+        var tableFirmatari = $('#tableFirmatari');
+
+        function AggiungiFirmatario(ctrl) {
+            var text = $(ctrl).children("option:selected").text();
+            if (text == "Seleziona" || text == "")
+                return;
+            var val = $(ctrl).children("option:selected").val();
+            tableFirmatari.append('<li class="collection-item"><div>' + text + '<a class="secondary-content" onclick="RimuoviFirmaUfficio(this);"><i class="material-icons red-text">close</i></a></div></li>');
+        }
+
+        function RimuoviFirmaUfficio(ctrl) {
+            $(ctrl).parent().parent().remove();
+        }
+    </script>
+}

@@ -292,16 +292,16 @@ namespace PortaleRegione.API.Controllers
                 soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
                 foreach (var s in soggetti_request) model.filtro.Remove(s);
             }
+
             var stati = new List<int>();
             var stati_request = new List<FilterStatement<AttoDASIDto>>();
-            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato) && Convert.ToInt16(statement.Value) == (int)StatiAttoEnum.PRESENTATO) && persona.IsSegreteriaAssemblea)
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
             {
                 stati_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.IDStato)));
                 stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
                 foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
-                stati.Add((int)StatiAttoEnum.BOZZA_CARTACEA);
             }
 
             var queryFilter = new Filter<ATTI_DASI>();
@@ -388,6 +388,7 @@ namespace PortaleRegione.API.Controllers
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+            dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
 
             if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                 dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
@@ -412,7 +413,9 @@ namespace PortaleRegione.API.Controllers
                 await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
 
             dto.PersonaCreazione = Users.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
-            dto.PersonaProponente = attoInDb.UIDPersonaProponente != null ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente) : dto.PersonaCreazione;
+            dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
+                ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente)
+                : dto.PersonaCreazione;
 
             if (dto.UIDPersonaModifica.HasValue)
                 dto.PersonaModifica =
@@ -492,7 +495,8 @@ namespace PortaleRegione.API.Controllers
                 }
             }
 
-            if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA && attoInDb.UID_MOZ_Abbinata.HasValue)
+            if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA &&
+                attoInDb.UID_MOZ_Abbinata.HasValue)
             {
                 var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
                 dto.MOZ_Abbinata =
@@ -535,6 +539,7 @@ namespace PortaleRegione.API.Controllers
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+            dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
 
             dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
             dto.Firmato_Dal_Proponente =
@@ -1636,6 +1641,8 @@ namespace PortaleRegione.API.Controllers
 
             if (persona.IsSegreteriaPolitica)
                 result.ListaGruppo = await _logicPersona.GetConsiglieriGruppo(persona.Gruppo.id_gruppo);
+            if (persona.IsSegreteriaAssemblea)
+                result.ListaGruppo = await _logicPersona.GetConsiglieri();
 
             return result;
         }
@@ -2436,11 +2443,23 @@ namespace PortaleRegione.API.Controllers
             {
                 var moz = await Get(new Guid(moz_id));
                 if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
-
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
-
                 await _unitOfWork.CompleteAsync();
             }
+        }
+
+        public async Task<List<AttoDASIDto>> GetCartacei()
+        {
+            var legislatura = await _unitOfWork.Legislature.Legislatura_Attiva();
+            var atti_cartacei = await _unitOfWork.DASI.GetAllCartacei(legislatura);
+            var result = new List<AttoDASIDto>();
+            foreach (var id in atti_cartacei)
+            {
+                var dto = await GetAttoDto(id);
+                result.Add(dto);
+            }
+
+            return result;
         }
     }
 }

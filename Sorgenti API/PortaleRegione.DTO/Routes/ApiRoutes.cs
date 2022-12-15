@@ -196,6 +196,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Save = Base + "/save";
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
+            public const string GetAllCartacei = Base + "/all/cartacei";
 
             public const string Firma = Base + "/commands/firma";
             public const string RitiroFirma = Base + "/commands/firma/ritiro";

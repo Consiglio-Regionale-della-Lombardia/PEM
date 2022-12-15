@@ -471,6 +471,8 @@
     <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPassword.cshtml" />
     <Content Include="Views\AdminPanel\_RiepilogoUtenti_ModalResetPin.cshtml" />
     <Content Include="Views\Emendamenti\_TestiAttoScript.cshtml" />
+    <Content Include="Views\DASI\_FirmatariUfficioPanel.cshtml" />
+    <Content Include="Views\DASI\_CartaceoPanelPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
