@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 15/11/2022 09:52:22 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 16/12/2022 14:22:38 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -73,6 +73,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[DataInvioAlProtocollo] [datetime] NULL,
 	[CapogruppoNeiTermini] [bit] NOT NULL,
 	[MOZU_Capigruppo] [bit] NOT NULL,
+	[FirmeCartacee] [varchar](max) NULL,
  CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
 (
 	[UIDAtto] ASC

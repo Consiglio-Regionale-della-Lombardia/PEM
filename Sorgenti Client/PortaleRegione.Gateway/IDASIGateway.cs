@@ -70,5 +70,6 @@ namespace PortaleRegione.Gateway
         Task InviaAlProtocollo(Guid id);
         Task DeclassaMozione(List<string> data);
         Task<List<AttoDASIDto>> GetCartacei();
+        Task SalvaCartaceo(AttoDASIDto atto);
     }
 }

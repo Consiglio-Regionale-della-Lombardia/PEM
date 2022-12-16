@@ -96,5 +96,8 @@ namespace PortaleRegione.Domain
         public DateTime? DataInvioAlProtocollo { get; set; }
         public bool CapogruppoNeiTermini { get; set; } = false;
         public bool MOZU_Capigruppo { get; set; }
+
+        // Matteo Cattapan #520
+        public string FirmeCartacee { get; set; }
     }
 }

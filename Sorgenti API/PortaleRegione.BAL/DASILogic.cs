@@ -19,6 +19,7 @@
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -436,6 +437,10 @@ namespace PortaleRegione.API.Controllers
             dto.gruppi_politici =
                 Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                     await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+            if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
+                dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
+
             if (persona != null)
             {
                 if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
@@ -551,6 +556,9 @@ namespace PortaleRegione.API.Controllers
             dto.gruppi_politici =
                 Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                     await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+            if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
+                dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
 
             return dto;
         }
@@ -2461,6 +2469,63 @@ namespace PortaleRegione.API.Controllers
             }
 
             return result;
+        }
+
+        public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)
+        {
+            if (!attoDto.UIDPersonaProponente.HasValue)
+                throw new InvalidOperationException("Indicare un proponente");
+            if (attoDto.UIDPersonaProponente.Value == Guid.Empty)
+                throw new InvalidOperationException("Indicare un proponente");
+
+            //Modifica
+            var attoInDb = await _unitOfWork.DASI.Get(attoDto.UIDAtto);
+            if (attoInDb == null)
+                throw new InvalidOperationException("Atto non trovato");
+
+            attoInDb.UIDPersonaProponente = attoDto.UIDPersonaProponente;
+
+            if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
+            {
+                attoInDb.TipoMOZ = attoDto.TipoMOZ;
+                attoInDb.UID_MOZ_Abbinata =
+                    attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA ? attoDto.UID_MOZ_Abbinata : null;
+            }
+
+            if (attoDto.Tipo == (int)TipoAttoEnum.ODG)
+            {
+                if (!attoDto.UID_Atto_ODG.HasValue || attoDto.UID_Atto_ODG == Guid.Empty)
+                    throw new InvalidOperationException(
+                        "Seleziona un atto a cui iscrivere l'ordine del giorno");
+
+                attoInDb.UID_Atto_ODG = attoDto.UID_Atto_ODG;
+                var attoPEM = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                var seduta = await _unitOfWork.Sedute.Get(attoPEM.UIDSeduta.Value);
+                attoInDb.UIDSeduta = seduta.UIDSeduta;
+                attoInDb.DataRichiestaIscrizioneSeduta = BALHelper.EncryptString(
+                    seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                    AppSettingsConfiguration.masterKey);
+                attoInDb.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
+                attoInDb.Non_Passaggio_In_Esame = attoDto.Non_Passaggio_In_Esame;
+            }
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
+            attoInDb.Oggetto = attoDto.Oggetto;
+            attoInDb.Premesse = attoDto.Premesse;
+            attoInDb.Richiesta = attoDto.Richiesta;
+            attoInDb.IDTipo_Risposta = attoDto.IDTipo_Risposta;
+            attoInDb.FirmeCartacee = attoDto.FirmeCartacee_string;
+
+            if (attoDto.DocAllegatoGenerico_Stream != null)
+            {
+                var path = ByteArrayToFile(attoDto.DocAllegatoGenerico_Stream);
+                attoInDb.PATH_AllegatoGenerico =
+                    Path.Combine(AppSettingsConfiguration.PrefissoCompatibilitaDocumenti, path);
+            }
+
+            await _unitOfWork.CompleteAsync();
+            await GestioneCommissioni(attoDto, true);
         }
     }
 }

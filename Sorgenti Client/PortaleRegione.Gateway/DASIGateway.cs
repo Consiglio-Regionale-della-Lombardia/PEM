@@ -456,6 +456,19 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task SalvaCartaceo(AttoDASIDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SaveCartaceo}";
+            if (request.DocAllegatoGenerico != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await request.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                request.DocAllegatoGenerico_Stream = memoryStream.ToArray();
+            }
+            var body = JsonConvert.SerializeObject(request);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

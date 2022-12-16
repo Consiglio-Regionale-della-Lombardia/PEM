@@ -138,6 +138,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per salvare la bozza di un atto cartaceo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SaveCartaceo)]
+        public async Task<IHttpActionResult> SalvaCartaceo(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.SalvaCartaceo(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
         /// <param name="id"></param>

@@ -157,11 +157,30 @@
                     @Html.Partial("_FirmatariUfficioPanel", Model)
                 }
 
-                <div class="fixed-action-btn">
-                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
-                        <i class="large material-icons">save</i>
-                    </button>
-                </div>
+                @if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
+                {
+                    <div class="fixed-action-btn">
+                        <button id="btnSaveCartaceo"
+                                class="btn-floating btn-large blue tooltipped"
+                                type="button" 
+                                data-tooltip="Salva atto cartaceo"
+                                data-position="left">
+                            <i class="large material-icons">save</i>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="fixed-action-btn">
+                        <button id="btnSave"
+                                class="btn-floating btn-large blue tooltipped"
+                                type="button" 
+                                data-tooltip="Salva atto"
+                                data-position="left">
+                            <i class="large material-icons">save</i>
+                        </button>
+                    </div>
+                }
             </div>
         </div>
     </div>

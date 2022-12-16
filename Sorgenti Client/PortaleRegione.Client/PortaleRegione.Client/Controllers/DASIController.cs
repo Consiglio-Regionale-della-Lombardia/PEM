@@ -1079,5 +1079,22 @@ namespace PortaleRegione.Client.Controllers
             await apiGateway.DASI.DeclassaMozione(data);
             return Json("", JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        [Route("salva-atto-cartaceo")]
+        public async Task<ActionResult> SalvaAttoCartaceo(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.SalvaCartaceo(request);
+                Session["RiepilogoDASI"] = null;
+                return Json(Url.Action("RiepilogoDASI"), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
