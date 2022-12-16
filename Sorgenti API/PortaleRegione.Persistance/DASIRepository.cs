@@ -127,7 +127,7 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro,
-            List<int> soggetti)
+            List<int> soggetti, List<int> stati)
         {
             var query = PRContext
                 .DASI
@@ -154,9 +154,7 @@ namespace PortaleRegione.Persistance
                                                 && (atto.UIDPersonaCreazione == persona.UID_persona
                                                     || atto.UIDPersonaProponente == persona.UID_persona)));
 
-                if (persona.IsSegreteriaAssemblea)
-                    query = query.Where(item => item.IDStato >= (int)StatiAttoEnum.PRESENTATO);
-                else if (!persona.IsSegreteriaAssemblea
+                if (!persona.IsSegreteriaAssemblea
                          && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
             }
@@ -164,6 +162,9 @@ namespace PortaleRegione.Persistance
             {
                 query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
             }
+
+            if (stati.Any())
+                query = query.Where(i => stati.Contains(i.IDStato));
 
             if (soggetti != null)
                 if (soggetti.Count > 0)
@@ -642,6 +643,8 @@ namespace PortaleRegione.Persistance
                 .Where(atto => atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
                                && atto.Legislatura == legislatura
                                && !atto.Eliminato)
+                .OrderBy(item => item.Tipo)
+                .ThenByDescending(item => item.NAtto_search)
                 .Select(atto => atto.UIDAtto)
                 .ToListAsync();
         }

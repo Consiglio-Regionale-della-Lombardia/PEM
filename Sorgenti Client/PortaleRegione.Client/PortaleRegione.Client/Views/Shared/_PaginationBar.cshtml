@@ -180,9 +180,9 @@
             </div>
         </div>
     </div>
-    <div id="pnlPaginationTabs" class="row" style="display: none;">
+    <div id="pnlPaginationTabs" class="row" style="display: none; margin-top: -30px !important;">
         <div class="col s12">
-            <ul class="tabs tabs-transparent">
+            <ul class="pagination">
                 
                 @{
                     if (Model.Entities > 0)
@@ -197,13 +197,13 @@
                         {
                             if (Model.Page == tab)
                             {
-                                <li class="tab">
-                                    <a class="active" onclick="filtra(@(tab))">@tab</a>
+                                <li class="active">
+                                    <a onclick="filtra(@(tab))">@tab</a>
                                 </li>
                             }
                             else
                             {
-                                <li class="tab">
+                                <li class="waves-effect">
                                     <a onclick="filtra(@(tab))">@tab</a>
                                 </li>
                             }

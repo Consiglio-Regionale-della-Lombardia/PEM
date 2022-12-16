@@ -353,7 +353,8 @@ namespace PortaleRegione.API.Controllers
                 .Count(persona,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
-                    soggetti);
+                    soggetti,
+                    stati);
 
             queryFilter.ImportStatements(model.filtro);
             var responseModel = new RiepilogoDASIModel

@@ -5,8 +5,11 @@
 @{
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
+    var urlView = Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA ? 
+        Url.Action("RiepilogoDASI") : 
+        Url.Action("ViewAtto", new { id = Model.Atto.UIDAtto });
 
-    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : Url.Action("ViewAtto", new {id = Model.Atto.UIDAtto});
+    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : urlView;
 }
 <script>
     $(document).ready(function() {
