@@ -1,16 +1,13 @@
 ﻿@using PortaleRegione.DTO.Enum
 <script>
     var instanceModalDasi;
-    $(window).on("load", async function() {
-        //if ($('input[name="Atto.UIDPersonaProponente"]').val()) {
-        //    $('select[id="Atto_UIDPersonaProponente"]').val($('input[name="Atto.UIDPersonaProponente"]').val());
-        //    $('select[id="Atto_UIDPersonaProponente"]').formSelect();
-        //}
-    });
+    $(window).on("load",
+        async function() {
+        });
     $("#btnSave").on("click",
         function() {
 
-            if ($("#Atto_Tipo").val() == @Html.Raw((int) TipoAttoEnum.ODG) && $('#Atto_Non_Passaggio_In_Esame').is(":checked")) {
+            if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG) && $('#Atto_Non_Passaggio_In_Esame').is(":checked")) {
                 swal({
                     title: "ATTENZIONE",
                     text: "Stai presentando un odg per richiedere il non passaggio all'esame del provvedimento. Procedere comunque? In caso di dubbio contatta il personale della Segreteria dell'Assemblea",
@@ -32,25 +29,25 @@
                 $('#formDASI').submit();
             }
         });
-    $("#btnSaveCartaceo").on("click", function() {
-        swal({
-            title: "Salvataggio",
-            text: "Seleziona un'opzione",
-            icon: "info",
-            buttons: {
-                cancel: "Annulla",
-                catch: {
-                    text: "Salva bozza",
-                    value: "salva_bozza_cartacea"
-                },
-                defeat: {
-                    text: "Presenta",
-                    value: "presenta"
+    $("#btnSaveCartaceo").on("click",
+        function() {
+            swal({
+                title: "Salvataggio",
+                text: "Seleziona un'opzione",
+                icon: "info",
+                buttons: {
+                    cancel: "Annulla",
+                    catch: {
+                        text: "Salva bozza",
+                        value: "salva_bozza_cartacea"
+                    },
+                    defeat: {
+                        text: "Presenta",
+                        value: "presenta"
+                    }
                 }
-            }
-        }).then((value) => {
-            switch (value) {
-
+            }).then((value) => {
+                switch (value) {
                 case "presenta":
                 {
                     swal({
@@ -62,7 +59,7 @@
                         }
                     }).then((value) => {
                         if (value) {
-
+                            SalvaAttoCartaceo(true);
                         }
                     });
                     break;
@@ -70,77 +67,86 @@
 
                 case "salva_bozza_cartacea":
                 {
-                    var proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
-
-                    var container_premesse = $("#Atto_Premesse").parent();
-                    var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
-                    var container_richiesta = $("#Atto_Richiesta").parent();
-                    var editor_richiesta = $(container_richiesta).find(".trumbowyg-editor");
-
-                    var form_data = new FormData();
-                    form_data.append("IDTipo_Risposta", $('select[id="Atto_TipoRisposta"]').children("option:selected").val());
-                    form_data.append("Oggetto", $("#Atto_Oggetto").val());
-                    form_data.append("Premesse", editor_premesse.html());
-                    form_data.append("Richiesta", editor_richiesta.html());
-                    form_data.append("Tipo", $("#Atto_Tipo").val());
-                    if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
-                        form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
-                        form_data.append("Non_Passaggio_In_Esame", $('#Atto_Non_Passaggio_In_Esame').is(":checked"));
-                    }
-                    if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.MOZ)) {
-                        form_data.append("TipoMOZ", $('select[id="Atto_TipoMOZ"]').children("option:selected").val());
-                    }
-                    form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
-                    form_data.append("UIDPersonaProponente", proponente);
-
-                    var commissioni = [];
-                    commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
-                    form_data.append("Commissioni_client", commissioni);
-
-                    var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
-                    if (inputsAllegatoGenerico.length != 0) {
-                        var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
-                        if (!inputFileAllegatoGenerico.files) {
-                            alert("This browser doesn't seem to support the `files` property of file inputs.");
-                        }
-                        if (inputFileAllegatoGenerico.files.length > 0)
-                            form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
-                    }
-
-                    var firme_cartacee = GetFirmeCartacee();
-                    form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));
-
-                    $.ajax({
-                        url: '@Url.Action("SalvaAttoCartaceo")',
-                        type: "POST",
-                        data: form_data,
-                        processData: false,
-                        contentType: false
-                    }).done(function(data) {
-                        if (data.message) {
-                            swal({
-                                title: "Errore",
-                                text: data.message,
-                                icon: "error"
-                            });
-                        } else {
-                            swal({
-                                title: "Procedura completata",
-                                text: "Atto salvato correttamente a sistema.",
-                                icon: "success"
-                            }).then((value) => {
-                                go(data);
-                            });
-                        }
-                    }).fail(function(err) {
-                        console.log("error", err);
-                        Error(err);
-                    });
+                    SalvaAttoCartaceo(false);
                     break;
                 }
-            }
+                }
+            });
         });
-    });
+
+    function SalvaAttoCartaceo(presenta) {
+        var proponente = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
+
+        var container_premesse = $("#Atto_Premesse").parent();
+        var editor_premesse = $(container_premesse).find(".trumbowyg-editor");
+        var container_richiesta = $("#Atto_Richiesta").parent();
+        var editor_richiesta = $(container_richiesta).find(".trumbowyg-editor");
+
+        var form_data = new FormData();
+        form_data.append("IDTipo_Risposta", $('select[id="Atto_TipoRisposta"]').children("option:selected").val());
+        form_data.append("Oggetto", $("#Atto_Oggetto").val());
+        form_data.append("Premesse", editor_premesse.html());
+        form_data.append("Richiesta", editor_richiesta.html());
+        form_data.append("Tipo", $("#Atto_Tipo").val());
+        if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
+            form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
+            form_data.append("Non_Passaggio_In_Esame", $('#Atto_Non_Passaggio_In_Esame').is(":checked"));
+        }
+        if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.MOZ)) {
+            form_data.append("TipoMOZ", $('select[id="Atto_TipoMOZ"]').children("option:selected").val());
+        }
+        form_data.append("UIDAtto", $("#Atto_UIDAtto").val());
+        form_data.append("UIDPersonaProponente", proponente);
+
+        var commissioni = [];
+        commissioni.push($('select[id="Atto_Commissioni"]').children("option:selected").val());
+        form_data.append("Commissioni_client", commissioni);
+
+        var inputsAllegatoGenerico = $('input[name=DocAllegatoGenerico]');
+        if (inputsAllegatoGenerico.length != 0) {
+            var inputFileAllegatoGenerico = inputsAllegatoGenerico[0];
+            if (!inputFileAllegatoGenerico.files) {
+                alert("This browser doesn't seem to support the `files` property of file inputs.");
+            }
+            if (inputFileAllegatoGenerico.files.length > 0)
+                form_data.append("DocAllegatoGenerico", inputFileAllegatoGenerico.files[0]);
+        }
+
+        var firme_cartacee = GetFirmeCartacee();
+        form_data.append("FirmeCartacee_string", JSON.stringify(firme_cartacee));
+
+        if (presenta) {
+            form_data.append("IDStato", @((int)StatiAttoEnum.PRESENTATO));
+        }
+
+        $.ajax({
+            url: '@Url.Action("SalvaAttoCartaceo")',
+            type: "POST",
+            data: form_data,
+            processData: false,
+            contentType: false
+        }).done(function(data) {
+            if (data.message) {
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                swal({
+                    title: "Procedura completata",
+                    text: "Atto salvato correttamente a sistema.",
+                    icon: "success"
+                }).then((value) => {
+                    go(data);
+                });
+            }
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    }
+
     $("#formDASI").submit(function(e) {
         e.preventDefault();
     }).validate({
@@ -254,15 +260,15 @@
 
     function GetTitle(tipo_dasi, edit) {
         var prefix = edit ? "Modifica" : "Nuovo";
-        if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ITL)) {
+        if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITL)) {
             return prefix + " ITL";
-        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ITR)) {
+        } else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ITR)) {
             return prefix + " ITR";
-        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.IQT)) {
+        } else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.IQT)) {
             return prefix + " IQT";
-        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.MOZ)) {
+        } else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.MOZ)) {
             return prefix + " MOZ";
-        } else if (tipo_dasi == @Html.Raw((int) TipoAttoEnum.ODG)) {
+        } else if (tipo_dasi == @Html.Raw((int)TipoAttoEnum.ODG)) {
             return prefix + " ODG";
         }
     }

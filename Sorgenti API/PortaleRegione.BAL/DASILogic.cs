@@ -677,7 +677,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato alla firma di atti");
+                if (!persona.IsConsigliereRegionale && !firmaUfficio) throw new Exception("Ruolo non abilitato alla firma di atti");
 
                 var results = new Dictionary<Guid, string>();
                 var counterFirme = 1;
@@ -688,7 +688,7 @@ namespace PortaleRegione.API.Controllers
 
                     var attoInDb = await _unitOfWork.DASI.Get(idGuid);
                     var atto = await GetAttoDto(idGuid, persona);
-                    var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                    var nome_atto = atto.Display;
 
                     if (!atto.Firmabile)
                     {
@@ -700,17 +700,15 @@ namespace PortaleRegione.API.Controllers
                     var firmaCert = string.Empty;
                     var primoFirmatario = false;
 
+                    var dataFirma = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                        AppSettingsConfiguration.masterKey);
+
                     if (firmaUfficio)
                     {
-                        //Controllo se l'utente ha già firmato
-                        if (atto.Firma_da_ufficio)
-                        {
-                            results.Add(idGuid, $"ERROR: Atto {nome_atto} già firmato dall'ufficio");
-                            continue;
-                        }
-
-                        firmaCert = BALHelper.EncryptString($"{AppSettingsConfiguration.FirmaUfficio}"
+                        firmaCert = BALHelper.EncryptString($"Firmato d’ufficio per conto di {persona.DisplayName_GruppoCode}"
                             , AppSettingsConfiguration.masterKey);
+                        dataFirma = BALHelper.EncryptString(atto.DataPresentazione,
+                            AppSettingsConfiguration.masterKey);
                     }
                     else
                     {
@@ -732,9 +730,6 @@ namespace PortaleRegione.API.Controllers
                             , AppSettingsConfiguration.masterKey);
                     }
 
-                    var dataFirma = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                        AppSettingsConfiguration.masterKey);
-
                     var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
                     if (countFirme == 0)
                     {
@@ -744,7 +739,7 @@ namespace PortaleRegione.API.Controllers
                                 AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         attoInDb.UIDPersonaPrimaFirma = persona.UID_persona;
-                        attoInDb.DataPrimaFirma = DateTime.Now;
+                        attoInDb.DataPrimaFirma = !firmaUfficio ? DateTime.Now : atto.Timestamp;
                         var body = await GetBodyDASI(attoInDb, new List<AttiFirmeDto>
                             {
                                 new AttiFirmeDto
@@ -753,7 +748,7 @@ namespace PortaleRegione.API.Controllers
                                     UID_persona = persona.UID_persona,
                                     FirmaCert = firmaCert,
                                     Data_firma = dataFirma,
-                                    ufficio = firmaUfficio
+                                    ufficio = false
                                 }
                             }, persona,
                             TemplateTypeEnum.FIRMA);
@@ -769,7 +764,7 @@ namespace PortaleRegione.API.Controllers
                             true);
 
                     var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
-                    var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null);
+                    var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null && !firmaUfficio);
                     await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
                         firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo);
 
@@ -782,6 +777,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         var newNotifica = new NOTIFICHE
                         {
+                            UIDNotifica = Guid.NewGuid().ToString(),
                             UIDAtto = atto.UIDAtto,
                             Mittente = persona.UID_persona,
                             RuoloMittente = (int)persona.CurrentRole,
@@ -1094,9 +1090,6 @@ namespace PortaleRegione.API.Controllers
                          *  I capigruppo il giorno della seduta possono presentare fino a {MassimoODG_DuranteSeduta} ODG per atto/argomento, a prescindere da quanti ne hanno presentati prima
                          *  (quindi il quarto è sempre bloccato) e fino a quando non viene attivato il falg BloccoODG                         
                          */
-
-                    //proposta di iscrizione in seduta
-
 
                     //Atto PEM associato all'ODG
                     attoPEM = await _unitOfWork.Atti.Get(atto.UID_Atto_ODG.Value);
@@ -2358,7 +2351,7 @@ namespace PortaleRegione.API.Controllers
             return result;
         }
 
-        public async Task PresentazioneCartacea(PresentazioneCartaceaModel model, PersonaDto currentUser)
+        public async Task RichiestaPresentazioneCartacea(PresentazioneCartaceaModel model, PersonaDto currentUser)
         {
             var contatore = await _unitOfWork.DASI.GetContatore(model.Tipo, model.TipoRisposta);
             _unitOfWork.DASI.IncrementaContatore(contatore, model.Salto);
@@ -2484,6 +2477,11 @@ namespace PortaleRegione.API.Controllers
                 throw new InvalidOperationException("Atto non trovato");
 
             attoInDb.UIDPersonaProponente = attoDto.UIDPersonaProponente;
+            if (attoInDb.id_gruppo <= 0 && attoInDb.UIDPersonaProponente.HasValue)
+            {
+                var gruppo = await _logicPersona.GetGruppoAttualePersona(attoInDb.UIDPersonaProponente.Value, false);
+                attoInDb.id_gruppo = gruppo.id_gruppo;
+            }
 
             if (attoDto.Tipo == (int)TipoAttoEnum.MOZ)
             {
@@ -2526,6 +2524,50 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
             await GestioneCommissioni(attoDto, true);
+
+            if (attoDto.IDStato == (int)StatiAttoEnum.PRESENTATO)
+            {
+                //Presenta atto
+                var dto = await GetAttoDto(attoInDb.UIDAtto);
+                await PresentaCartaceo(attoInDb, dto);
+            }
+        }
+
+        private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto)
+        {
+            await FirmaAttoUfficio(dto);
+
+            var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
+            var controllo_firme = await ControlloFirmePresentazione(dto, count_firme, null);
+
+            if (!string.IsNullOrEmpty(controllo_firme))
+            {
+                throw new Exception(controllo_firme);
+            }
+
+            atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
+            atto.chkf = count_firme.ToString();
+
+            await _unitOfWork.CompleteAsync();
+        }
+
+        private async Task FirmaAttoUfficio(AttoDASIDto dto)
+        {
+            foreach (var firma_cartacea in dto.FirmeCartacee)
+            {
+                var persona = await _logicPersona.GetPersona(new Guid(firma_cartacea.uid));
+                persona.Gruppo = await _logicPersona.GetGruppoAttualePersona(persona.UID_persona, false);
+                await Firma(
+                    new ComandiAzioneModel
+                    {
+                        Azione = ActionEnum.FIRMA,
+                        IsDASI = true,
+                        Lista = new List<Guid> { dto.UIDAtto }
+                    },
+                    persona,
+                    null,
+                    true);
+            }
         }
     }
 }

@@ -120,7 +120,6 @@ namespace PortaleRegione.Persistance
         public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona)
         {
             //TODO: controllo firmabile proponente
-            if (!persona.IsConsigliereRegionale) return false;
             if (atto.IDStato == (int)StatiAttoEnum.CHIUSO) return false;
             if (atto.DataIscrizioneSeduta.HasValue) return false;
             if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
@@ -135,7 +134,7 @@ namespace PortaleRegione.Persistance
             }
 
             var firma_personale = await Get(atto.UIDAtto, persona.UID_persona);
-            var firma_proponente = await CheckFirmato(atto.UIDAtto, atto.UIDPersonaProponente.Value);
+            var firma_proponente = await CheckFirmato(atto.UIDAtto, atto.UIDPersonaProponente);
 
             if (firma_personale == null && (firma_proponente || atto.UIDPersonaProponente == persona.UID_persona))
                 return true;
