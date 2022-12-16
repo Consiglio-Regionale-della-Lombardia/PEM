@@ -69,5 +69,7 @@ namespace PortaleRegione.Gateway
         Task<FileResponse> Download(Guid id);
         Task InviaAlProtocollo(Guid id);
         Task DeclassaMozione(List<string> data);
+        Task<List<AttoDASIDto>> GetCartacei();
+        Task SalvaCartaceo(AttoDASIDto atto);
     }
 }

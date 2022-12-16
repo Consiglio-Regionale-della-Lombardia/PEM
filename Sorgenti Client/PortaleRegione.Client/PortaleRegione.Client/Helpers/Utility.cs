@@ -100,6 +100,17 @@ namespace PortaleRegione.Client.Helpers
 
         #endregion
 
+        public static string GetCSS_TipoDASI(AttoDASIDto atto)
+        {
+            var result = GetCSS_TipoDASI(atto.Tipo);
+            if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
+            {
+                result = TipoAttoCSSConst.CARTACEO;
+            }
+
+            return result;
+        }
+
         public static string GetCSS_TipoDASI(int tipoAtto)
         {
             switch ((TipoAttoEnum)tipoAtto)
@@ -158,6 +169,8 @@ namespace PortaleRegione.Client.Helpers
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
                 case StatiAttoEnum.CHIUSO:
                     return StatiAttoCSSConst.CHIUSO;
+                case StatiAttoEnum.BOZZA_CARTACEA:
+                    return StatiAttoCSSConst.CARTACEO;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }

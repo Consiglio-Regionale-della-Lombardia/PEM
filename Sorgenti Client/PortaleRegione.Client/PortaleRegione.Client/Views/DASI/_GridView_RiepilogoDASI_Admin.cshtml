@@ -34,21 +34,21 @@ else
 {
     <table class="responsive-table highlight">
     <thead>
-        <tr>
-            <th class="center">
-            </th>
-            <th>Atto</th>
-            <th>Tipo</th>
-            <th>Oggetto</th>
-            @*<th>Soggetto</th>*@
-            <th>Firmatari</th>
-            <th>Stato</th>
-            @if (Model.ClientMode == ClientModeEnum.GRUPPI && Model.Tipo != TipoAttoEnum.ITR)
-            {
-                <th>Seduta</th>
-            }
-            <th></th>
-        </tr>
+    <tr>
+        <th class="center">
+        </th>
+        <th>Atto</th>
+        <th>Tipo</th>
+        <th>Oggetto</th>
+        @*<th>Soggetto</th>*@
+        <th>Firmatari</th>
+        <th>Stato</th>
+        @if (Model.ClientMode == ClientModeEnum.GRUPPI && Model.Tipo != TipoAttoEnum.ITR)
+        {
+            <th>Seduta</th>
+        }
+        <th></th>
+    </tr>
     </thead>
 
     <tbody>
@@ -68,9 +68,18 @@ else
             @{
                 var title = $"{Utility.GetText_Tipo(item)} ";
                 title += item.NAtto;
+                var urlViewAtto = Url.Action("ViewAtto", "DASI", new
+                {
+                    id = item.UIDAtto
+                });
+                var onclick_event = "";
+                if (item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
+                {
+                    onclick_event = $"onclick=\"go('{urlViewAtto}')\"";
+                }
             }
 
-            <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))" data-nome-atto="@title" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
+            <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item))" data-nome-atto="@title" @Html.Raw(onclick_event)>
                 @Html.Raw(title)
                 @if (item.PresentatoOltreITermini)
                 {
@@ -97,11 +106,11 @@ else
                     <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Ordine del giorno di NON passaggio in esame">new_releases</i>
                 }
             </div>
-            @if (item.Inviato_Al_Protocollo)
+            @if (item.Inviato_Al_Protocollo && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
                 <i class="material-icons green-text tooltipped" data-tooltip="Inviato il @item.DataInvioAlProtocollo.Value.ToString("dd/MM/yyyy HH:mm")" style="cursor: pointer; margin-top: 3px; position: absolute;">sync</i>
             }
-            else if (Model.ClientMode == ClientModeEnum.GRUPPI)
+            else if (Model.ClientMode == ClientModeEnum.GRUPPI && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
                 <i class="material-icons orange-text tooltipped" data-tooltip="Invia al protocollo" style="cursor: pointer; margin-top: 3px; position: absolute;" onclick="InviaAlProtocollo('@item.UIDAtto')">sync_problem</i>
             }
@@ -137,8 +146,8 @@ else
         {
             <td style="width: 8%;">
                 <span>
-                    <a class="btn-flat red-text tooltipped" 
-                       data-tooltip="Rimuovi urgenza" 
+                    <a class="btn-flat red-text tooltipped"
+                       data-tooltip="Rimuovi urgenza"
                        onclick="DeclassaMozione('@item.UIDAtto')">
                         <i class="material-icons">close</i>
                     </a>
@@ -150,8 +159,8 @@ else
             <td style="width: 8%;">
                 <span>
                     <a class="blue-text" style="text-decoration: underline;" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UID_MOZ_Abbinata })')">@item.MOZ_Abbinata</a>
-                    <a class="btn-flat red-text tooltipped" 
-                       data-tooltip="Rimuovi abbinamento" 
+                    <a class="btn-flat red-text tooltipped"
+                       data-tooltip="Rimuovi abbinamento"
                        onclick="DeclassaMozione('@item.UIDAtto')">
                         <i class="material-icons">close</i>
                     </a>
@@ -164,8 +173,10 @@ else
                 <span>
                     @if (!string.IsNullOrEmpty(item.DettaglioMozioniAbbinate))
                     {
-                    <i class="material-icons blue-text tooltipped"
-                       data-tooltip="@item.DettaglioMozioniAbbinate">info_outline</i>
+                        <i class="material-icons blue-text tooltipped"
+                           data-tooltip="@item.DettaglioMozioniAbbinate">
+                            info_outline
+                        </i>
                     }
                 </span>
             </td>
@@ -182,7 +193,11 @@ else
         </td>
         <td style="width: 10%;">
             @{
-                var codice_gruppo = item.gruppi_politici.codice_gruppo;
+                var codice_gruppo = "N.D.";
+                if (item.gruppi_politici != null)
+                {
+                    codice_gruppo = item.gruppi_politici.codice_gruppo;
+                }
 
                 var proponente = $"{item.PersonaProponente.DisplayName} ({codice_gruppo})";
             }
@@ -226,7 +241,7 @@ else
             <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
                 @labelStato
             </span>
-            @if (item.IDStato != (int)StatiAttoEnum.CHIUSO)
+            @if (item.IDStato != (int)StatiAttoEnum.CHIUSO && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
                 <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
                     <i class="icon material-icons">refresh</i>
@@ -302,16 +317,24 @@ else
             }
         }
         <td class="center" style="width: 5%;">
-
-            <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
-                <i class="icon material-icons">remove_red_eye</i>
-            </a>
-            <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" href="@Url.Action("Download", "DASI", new { id = item.UIDAtto })" target="_blank">
-                <i class="material-icons">print</i>
-            </a>
-            <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">
-                <i class="icon material-icons">edit</i>
-            </a>
+            @if (item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
+            {
+                <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+                    <i class="icon material-icons">remove_red_eye</i>
+                </a>
+                <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" href="@Url.Action("Download", "DASI", new { id = item.UIDAtto })" target="_blank">
+                    <i class="material-icons">print</i>
+                </a>
+                <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="openMetaDatiDASI('@item.UIDAtto')">
+                    <i class="icon material-icons">edit</i>
+                </a>
+            }
+            else
+            {
+                <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("Modifica", new {id = item.UIDAtto})')">
+                    <i class="icon material-icons">edit</i>
+                </a>
+            }
         </td>
         </tr>
     }

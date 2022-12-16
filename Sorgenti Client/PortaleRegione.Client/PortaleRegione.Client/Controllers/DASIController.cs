@@ -73,6 +73,25 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo cartacei
+        /// </summary>
+        /// <returns></returns>
+        [Route("cartacei")]
+        public async Task<ActionResult> RiepilogoCartacei()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                return Json(await apiGateway.DASI.GetCartacei(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base alla seduta
         /// </summary>
         /// <returns></returns>
@@ -425,13 +444,14 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="id">Guid</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id:guid}/edit")]
+        [Route("{id}/edit")]
         public async Task<ActionResult> Modifica(Guid id)
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.GetModificaModello(id);
             model.CurrentUser = CurrentUser;
-            if (CurrentUser.IsSegreteriaPolitica)
+            if (model.CurrentUser.IsSegreteriaPolitica
+                || model.CurrentUser.IsSegreteriaAssemblea)
                 return View("DASIForm_Segreteria", model);
 
             return View("DASIForm", model);
@@ -1058,6 +1078,23 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(Token);
             await apiGateway.DASI.DeclassaMozione(data);
             return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [Route("salva-atto-cartaceo")]
+        public async Task<ActionResult> SalvaAttoCartaceo(AttoDASIDto request)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.SalvaCartaceo(request);
+                Session["RiepilogoDASI"] = null;
+                return Json(Url.Action("RiepilogoDASI"), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

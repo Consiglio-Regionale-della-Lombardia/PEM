@@ -5,8 +5,11 @@
 @{
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
+    var urlView = Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA ? 
+        Url.Action("RiepilogoDASI") : 
+        Url.Action("ViewAtto", new { id = Model.Atto.UIDAtto });
 
-    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : Url.Action("ViewAtto", new {id = Model.Atto.UIDAtto});
+    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : urlView;
 }
 <script>
     $(document).ready(function() {
@@ -150,13 +153,34 @@
                             </p>
                         </div>
                     }
+
+                    @Html.Partial("_FirmatariUfficioPanel", Model)
                 }
 
-                <div class="fixed-action-btn">
-                    <button class="btn-floating btn-large blue" id="btnSave" type="button" alt="Salva atto">
-                        <i class="large material-icons">save</i>
-                    </button>
-                </div>
+                @if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
+                {
+                    <div class="fixed-action-btn">
+                        <button id="btnSaveCartaceo"
+                                class="btn-floating btn-large blue tooltipped"
+                                type="button" 
+                                data-tooltip="Salva atto cartaceo"
+                                data-position="left">
+                            <i class="large material-icons">save</i>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="fixed-action-btn">
+                        <button id="btnSave"
+                                class="btn-floating btn-large blue tooltipped"
+                                type="button" 
+                                data-tooltip="Salva atto"
+                                data-position="left">
+                            <i class="large material-icons">save</i>
+                        </button>
+                    </div>
+                }
             </div>
         </div>
     </div>

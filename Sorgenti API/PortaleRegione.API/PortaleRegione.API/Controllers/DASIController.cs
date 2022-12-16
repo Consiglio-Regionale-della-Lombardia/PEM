@@ -138,6 +138,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per salvare la bozza di un atto cartaceo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SaveCartaceo)]
+        public async Task<IHttpActionResult> SalvaCartaceo(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.SalvaCartaceo(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
         /// <param name="id"></param>
@@ -177,6 +197,25 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 //Log.Error("Riepilogo Atti DASI", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere il riepilogo degli atti cartacei
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetAllCartacei)]
+        public async Task<IHttpActionResult> RiepilogoCartacei()
+        {
+            try
+            {
+                var response = await _dasiLogic.GetCartacei();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
                 return ErrorHandler(e);
             }
         }
@@ -666,7 +705,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.PresentazioneCartacea(model);
+                await _dasiLogic.RichiestaPresentazioneCartacea(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
