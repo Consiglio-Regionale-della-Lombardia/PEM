@@ -289,6 +289,12 @@ namespace PortaleRegione.Persistance
 
         public async Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta)
         {
+            if (tipo == (int)TipoAttoEnum.MOZ
+                || tipo == (int)TipoAttoEnum.ODG)
+            {
+                tipo_risposta = 0;
+            }
+
             var query = PRContext
                 .DASI_CONTATORI
                 .Where(atto => atto.Tipo == tipo

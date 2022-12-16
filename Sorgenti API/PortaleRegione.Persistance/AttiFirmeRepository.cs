@@ -51,7 +51,7 @@ namespace PortaleRegione.Persistance
         /// <param name="gruppoIdGruppo"></param>
         /// <param name="em"></param>
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
-            string dataFirmaCert,
+            string dataFirmaCert, DateTime timestamp,
             bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false)
         {
             PRContext
@@ -62,7 +62,7 @@ namespace PortaleRegione.Persistance
                     UID_persona = personaUId,
                     FirmaCert = firmaCert,
                     Data_firma = dataFirmaCert,
-                    Timestamp = DateTime.Now,
+                    Timestamp = timestamp,
                     ufficio = ufficio,
                     PrimoFirmatario = primoFirmatario,
                     id_gruppo = id_gruppo,

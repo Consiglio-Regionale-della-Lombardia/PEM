@@ -27,7 +27,7 @@ namespace PortaleRegione.Contracts
 {
     public interface IAttiFirmeRepository : IRepository<ATTI_FIRME>
     {
-        Task Firma(Guid attoUId, Guid personaUId, int gruppoIdGruppo, string firmaCert, string dataFirmaCert,
+        Task Firma(Guid attoUId, Guid personaUId, int gruppoIdGruppo, string firmaCert, string dataFirmaCert, DateTime timestamp,
             bool ufficio = false,
             bool primoFirmatario = false,
             bool valida = true,

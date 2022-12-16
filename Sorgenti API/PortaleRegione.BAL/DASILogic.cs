@@ -677,7 +677,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                if (!persona.IsConsigliereRegionale && !firmaUfficio) throw new Exception("Ruolo non abilitato alla firma di atti");
+                if (!persona.IsConsigliereRegionale && !firmaUfficio)
+                    throw new Exception("Ruolo non abilitato alla firma di atti");
 
                 var results = new Dictionary<Guid, string>();
                 var counterFirme = 1;
@@ -700,14 +701,17 @@ namespace PortaleRegione.API.Controllers
                     var firmaCert = string.Empty;
                     var primoFirmatario = false;
 
-                    var dataFirma = BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    var timestampFirma = DateTime.Now;
+                    var dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
 
                     if (firmaUfficio)
                     {
-                        firmaCert = BALHelper.EncryptString($"Firmato d’ufficio per conto di {persona.DisplayName_GruppoCode}"
+                        firmaCert = BALHelper.EncryptString(
+                            $"Firmato d’ufficio per conto di {persona.DisplayName_GruppoCode}"
                             , AppSettingsConfiguration.masterKey);
-                        dataFirma = BALHelper.EncryptString(atto.DataPresentazione,
+                        timestampFirma = atto.Timestamp.AddMinutes(-2);
+                        dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
                     }
                     else
@@ -739,7 +743,7 @@ namespace PortaleRegione.API.Controllers
                                 AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         attoInDb.UIDPersonaPrimaFirma = persona.UID_persona;
-                        attoInDb.DataPrimaFirma = !firmaUfficio ? DateTime.Now : atto.Timestamp;
+                        attoInDb.DataPrimaFirma = timestampFirma;
                         var body = await GetBodyDASI(attoInDb, new List<AttiFirmeDto>
                             {
                                 new AttiFirmeDto
@@ -748,6 +752,7 @@ namespace PortaleRegione.API.Controllers
                                     UID_persona = persona.UID_persona,
                                     FirmaCert = firmaCert,
                                     Data_firma = dataFirma,
+                                    Timestamp = timestampFirma,
                                     ufficio = false
                                 }
                             }, persona,
@@ -765,7 +770,7 @@ namespace PortaleRegione.API.Controllers
 
                     var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
                     var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null && !firmaUfficio);
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
+                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma, timestampFirma,
                         firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo);
 
                     if (destinatario_notifica != null)
@@ -2557,7 +2562,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var persona = await _logicPersona.GetPersona(new Guid(firma_cartacea.uid));
                 persona.Gruppo = await _logicPersona.GetGruppoAttualePersona(persona.UID_persona, false);
-                await Firma(
+                var result_firma = await Firma(
                     new ComandiAzioneModel
                     {
                         Azione = ActionEnum.FIRMA,
@@ -2567,6 +2572,12 @@ namespace PortaleRegione.API.Controllers
                     persona,
                     null,
                     true);
+
+                var listaErroriFirma = new List<string>();
+                foreach (var itemFirma in result_firma.Where(i => i.Value.Contains("ERROR")))
+                    listaErroriFirma.Add($"{itemFirma.Value}");
+                if (listaErroriFirma.Count > 0)
+                    throw new Exception($"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}");
             }
         }
     }
