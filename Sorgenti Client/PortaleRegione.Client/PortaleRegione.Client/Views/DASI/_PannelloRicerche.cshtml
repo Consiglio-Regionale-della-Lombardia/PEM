@@ -121,11 +121,13 @@
         /*$('#btnSearch>i').html('more_vert');*/
 
         $('#btnExportXLS').on("click", function () {
+            waiting(true);
             var url = $('#btnExportXLS').data("href");
             var request = new XMLHttpRequest();
             request.responseType = "blob";
             request.open("GET", url);
             request.onload = function() {
+                waiting(false);
                 var url2 = window.URL.createObjectURL(this.response);
                 var a = document.createElement("a");
                 document.body.appendChild(a);
