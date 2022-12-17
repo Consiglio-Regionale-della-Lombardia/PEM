@@ -999,6 +999,20 @@ namespace PortaleRegione.API.Controllers
                     {
                         // ignored
                     }
+
+                //Matteo Cattapan #525 - Cambio di proponente a seguito di ritiro firma primo firmatario
+                if (atto.UIDPersonaProponente == persona.UID_persona)
+                {
+                    var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
+                    atto.UIDPersonaProponente = firme.First().UID_persona;
+                    var gruppo = await _logicPersona.GetGruppoAttualePersona(atto.UIDPersonaProponente.Value, false);
+                    if (gruppo.id_gruppo != atto.id_gruppo)
+                    {
+                        atto.id_gruppo = gruppo.id_gruppo;
+                    }
+
+                    await _unitOfWork.CompleteAsync();
+                }
             }
 
             return results;
