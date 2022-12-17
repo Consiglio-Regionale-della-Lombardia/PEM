@@ -55,10 +55,6 @@ namespace PortaleRegione.DTO.Routes
             // api/pem
             private const string Base = Root + "/pem";
 
-            public const string EsportaGrigliaExcel = Base + "/esporta-griglia-xls";
-            public const string EsportaGrigliaExcelUOLA = Base + "/esporta-griglia-xls-uola";
-            public const string EsportaGrigliaWord = Base + "/esporta-griglia-doc/{id}/{ordine}/{mode}";
-
             public const string GetAllDestinatari = Base + "/destinatari/{atto}/{tipo}";
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
 
@@ -185,7 +181,6 @@ namespace PortaleRegione.DTO.Routes
             // api/dasi
             private const string Base = Root + "/dasi";
 
-            public const string EsportaGrigliaExcel = Base + "/esporta-griglia-xls";
             public const string GetAllDestinatari = Base + "/destinatari/{tipo}";
 
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
@@ -273,6 +268,17 @@ namespace PortaleRegione.DTO.Routes
 
             public const string GetAll = Base + "/all";
             public const string Get = Base + "/{id}";
+        }
+
+        public static class Esporta
+        {
+            // api/legislature
+            private const string Base = Root + "/esporta";
+
+            public const string EsportaGrigliaZip = Base + "/dasi/griglia-zip";
+            public const string EsportaGrigliaExcel = Base + "/pem/griglia-xls";
+            public const string EsportaGrigliaExcelUOLA = Base + "/pem/griglia-xls-uola";
+            public const string EsportaGrigliaWord = Base + "/pem/griglia-doc/{id}/{ordine}/{mode}";
         }
 
         public static class Persone
