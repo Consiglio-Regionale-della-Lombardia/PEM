@@ -18,10 +18,10 @@
 
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.DTO.Routes;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Gateway
@@ -38,7 +38,7 @@ namespace PortaleRegione.Gateway
         public async Task<FileResponse> EsportaXLS(EmendamentiViewModel model)
         {
             var requestUrl =
-                $"{apiUrl}/{ApiRoutes.PEM.EsportaGrigliaExcel}";
+                $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaExcel}";
 
             var body = JsonConvert.SerializeObject(model);
             var lst = await GetFile(requestUrl, body, _token);
@@ -49,7 +49,7 @@ namespace PortaleRegione.Gateway
         public async Task<FileResponse> EsportaXLS_UOLA(EmendamentiViewModel model)
         {
             var requestUrl =
-                $"{apiUrl}/{ApiRoutes.PEM.EsportaGrigliaExcelUOLA}";
+                $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaExcelUOLA}";
 
             var body = JsonConvert.SerializeObject(model);
             var lst = await GetFile(requestUrl, body, _token);
@@ -57,12 +57,12 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<FileResponse> EsportaXLSDASI(RiepilogoDASIModel model)
+        public async Task<FileResponse> EsportaXLSDASI(List<Guid> lista)
         {
             var requestUrl =
-                $"{apiUrl}/{ApiRoutes.DASI.EsportaGrigliaExcel}";
+                $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaZip}";
 
-            var body = JsonConvert.SerializeObject(model);
+            var body = JsonConvert.SerializeObject(lista);
             var lst = await GetFile(requestUrl, body, _token);
 
             return lst;
@@ -70,7 +70,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<FileResponse> EsportaWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.EsportaGrigliaWord.Replace("{id}", attoUId.ToString()).Replace("{ordine}", ordine.ToString()).Replace("{mode}", mode.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaWord.Replace("{id}", attoUId.ToString()).Replace("{ordine}", ordine.ToString()).Replace("{mode}", mode.ToString())}";
 
             var lst = await GetFile(requestUrl, _token);
 

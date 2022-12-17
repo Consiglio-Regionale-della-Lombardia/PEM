@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HtmlToOpenXml;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
 using NPOI.HSSF.Util;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -30,7 +33,6 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
@@ -62,7 +64,9 @@ namespace PortaleRegione.BAL
                 var FilePathComplete = GetLocalPath("xlsx");
 
                 IWorkbook workbook = new XSSFWorkbook();
-                var excelSheet = workbook.CreateSheet($"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}");
+                var excelSheet =
+                    workbook.CreateSheet(
+                        $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}");
 
                 var row = excelSheet.CreateRow(0);
                 SetColumnValue(ref row, "Ordine");
@@ -137,7 +141,9 @@ namespace PortaleRegione.BAL
                         SetColumnValue(ref rowEm, articolo.Articolo);
                     }
                     else
+                    {
                         SetColumnValue(ref rowEm, "");
+                    }
 
                     if (em.UIDComma.HasValue && em.UIDComma != Guid.Empty && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
@@ -145,9 +151,12 @@ namespace PortaleRegione.BAL
                         SetColumnValue(ref rowEm, comma.Comma);
                     }
                     else
+                    {
                         SetColumnValue(ref rowEm, "");
+                    }
 
-                    if (em.UIDLettera.HasValue && em.UIDLettera != Guid.Empty && em.IDParte == (int)PartiEMEnum.Articolo)
+                    if (em.UIDLettera.HasValue && em.UIDLettera != Guid.Empty &&
+                        em.IDParte == (int)PartiEMEnum.Articolo)
                     {
                         var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
                         SetColumnValue(ref rowEm, lettera.Lettera);
@@ -184,7 +193,7 @@ namespace PortaleRegione.BAL
                         try
                         {
                             if (firmeDto.Any(f =>
-                                f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                                    f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
                                 firmatari_opendata_ante = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole);
@@ -198,7 +207,7 @@ namespace PortaleRegione.BAL
                         try
                         {
                             if (firmeDto.Any(f =>
-                                f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
+                                    f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
                                 firmatari_opendata_post = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                         f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
                                     persona.CurrentRole);
@@ -234,48 +243,64 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(RiepilogoDASIModel model)
+        public async Task<HttpResponseMessage> EsportaGrigliaZipDASI(List<Guid> data)
         {
-            try
+            IWorkbook workbook = new XSSFWorkbook();
+            var style = workbook.CreateCellStyle();
+            style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
+            style.FillPattern = FillPattern.SolidForeground;
+            var styleReport = workbook.CreateCellStyle();
+            styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
+            styleReport.FillPattern = FillPattern.SolidForeground;
+            styleReport.Alignment = HorizontalAlignment.Center;
+
+            var attiList = new List<AttoDASIDto>();
+            foreach (var uid in data)
             {
-                var FilePathComplete = GetLocalPath("xlsx");
-
-                IWorkbook workbook = new XSSFWorkbook();
-                var style = workbook.CreateCellStyle();
-                style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
-                style.FillPattern = FillPattern.SolidForeground;
-                var styleReport = workbook.CreateCellStyle();
-                styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
-                styleReport.FillPattern = FillPattern.SolidForeground;
-                styleReport.Alignment = HorizontalAlignment.Center;
-
-                var attiList = model.Data.Results.ToList();
-                var dasiSheet =
-                    await NewSheetDASI_Atti(
-                        workbook.CreateSheet(
-                            "Atti"),
-                        attiList);
-                var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
-                var firmatariSheet =
-                    await NewSheetDASI_Firmatari(
-                        workbook.CreateSheet(
-                            "Firmatari"),
-                        firmatariList);
-
-                var controlliSheet =
-                    NewSheetDASI_Controlli(
-                        workbook.CreateSheet(
-                            "Controlli"));
-
-                var lookupSheet = workbook.CreateSheet("LOOKUP");
-
-                return await Response(FilePathComplete, workbook);
+                var dto = await _logicDasi.GetAttoDto(uid);
+                if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
+                attiList.Add(dto);
             }
-            catch (Exception e)
+
+            var dasiSheet =
+                await NewSheetDASI_Atti(
+                    workbook.CreateSheet(
+                        "Atti"),
+                    attiList);
+            var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
+            var firmatariSheet =
+                await NewSheetDASI_Firmatari(
+                    workbook.CreateSheet(
+                        "Firmatari"),
+                    firmatariList);
+
+            var controlliSheet =
+                NewSheetDASI_Controlli(
+                    workbook.CreateSheet(
+                        "Controlli"));
+
+            var lookupSheet = workbook.CreateSheet("LOOKUP");
+
+            var pdfs = await GetPDF(attiList);
+            var xls = ResponseXLSByte(workbook);
+
+            return ResponseZip(xls, pdfs);
+        }
+
+        private async Task<List<FileModel>> GetPDF(List<AttoDASIDto> attiList)
+        {
+            var pdfs = new List<FileModel>();
+            foreach (var dto in attiList)
             {
-                //Log.Error("Logic - EsportaGrigliaXLSDASI", e);
-                throw e;
+                var pdf = await _logicDasi.PDFIstantaneo(Mapper.Map<AttoDASIDto, ATTI_DASI>(dto), null);
+                pdfs.Add(new FileModel
+                {
+                    Name = dto.Display + ".pdf",
+                    Content = pdf
+                });
             }
+
+            return pdfs;
         }
 
         private ISheet NewSheetDASI_Controlli(ISheet sheet)
@@ -313,30 +338,31 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, "DATA RITIRO FIRMA");
                 SetColumnValue(ref row, "PRIMO FIRMATARIO");
 
-                View_gruppi_politici_con_giunta gruppo = new View_gruppi_politici_con_giunta();
                 foreach (var firma in firmatariList)
-                {
-                    var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
-                    if (gruppo.id_gruppo != firma.id_gruppo)
-                        gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
-                    var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-                    SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
-                    SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
-                    var firmacert = firma.FirmaCert;
-                    var indiceParentesiApertura = firmacert.IndexOf('(');
-                    firmacert = firmacert.Remove(indiceParentesiApertura - 1);
-                    SetColumnValue(ref rowBody, firmacert); // firmatario
-                    SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
-                    SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 10)); // data firma
-                    var data_ritiro_firma = firma.Data_ritirofirma;
-                    if (!string.IsNullOrEmpty(data_ritiro_firma))
+                    try
                     {
-                        data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
-                    }
+                        var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
+                        var gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
+                        var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
+                        SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
+                        SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
+                        var firmacert = firma.FirmaCert;
+                        var indiceParentesiApertura = firmacert.IndexOf('(');
+                        firmacert = firmacert.Remove(indiceParentesiApertura - 1);
+                        SetColumnValue(ref rowBody, firmacert); // firmatario
+                        SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
+                        SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 10)); // data firma
+                        var data_ritiro_firma = firma.Data_ritirofirma;
+                        if (!string.IsNullOrEmpty(data_ritiro_firma))
+                            data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
 
-                    SetColumnValue(ref rowBody, data_ritiro_firma); // data ritiro firma
-                    SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
-                }
+                        SetColumnValue(ref rowBody, data_ritiro_firma); // data ritiro firma
+                        SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
 
                 return sheet;
             }
@@ -474,7 +500,8 @@ namespace PortaleRegione.BAL
                             .ThenBy(em => em.IDStato),
                         style,
                         styleReport);
-                var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), model.Atto.UIDAtto, ReportType.PCR, emList
+                var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), model.Atto.UIDAtto,
+                    ReportType.PCR, emList
                         .OrderBy(em => em.OrdineVotazione)
                         .ThenBy(em => em.Rif_UIDEM)
                         .ThenBy(em => em.IDStato),
@@ -744,6 +771,7 @@ namespace PortaleRegione.BAL
                                 break;
                             }
                     }
+
                     SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
                 }
 
@@ -825,6 +853,59 @@ namespace PortaleRegione.BAL
             return result;
         }
 
+        private HttpResponseMessage ResponseZip(FileModel report_xls, List<FileModel> pdfs)
+        {
+            var outputMemoryStream = new MemoryStream();
+            var zipStream = new ZipOutputStream(outputMemoryStream);
+            zipStream.SetLevel(9);
+            foreach (var internalZipFile in pdfs) AddToZip(zipStream, internalZipFile);
+            AddToZip(zipStream, report_xls);
+            zipStream.IsStreamOwner = false; // to stop the close and underlying stream
+            zipStream.Close();
+
+            outputMemoryStream.Position = 0;
+            var zipByteArray = outputMemoryStream.ToArray();
+            var pathZip = Path.Combine(AppSettingsConfiguration.CartellaLavoroStampe, $"EsportazioneDASI{DateTime.Now.Ticks}.zip");
+            using (FileStream fileStream = new FileStream(pathZip, FileMode.Create))
+            {
+                fileStream.Write(zipByteArray, 0, zipByteArray.Length);
+            }
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(zipByteArray)
+            };
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = Path.GetFileName(pathZip)
+            };
+            return result;
+        }
+
+        private void AddToZip(ZipOutputStream zipStream, FileModel internalZipFile)
+        {
+            var inputMemoryStream = new MemoryStream(internalZipFile.Content);
+
+            var newZipEntry = new ZipEntry(internalZipFile.Name);
+            newZipEntry.DateTime = DateTime.Now;
+            newZipEntry.Size = internalZipFile.Content.Length;
+
+            zipStream.PutNextEntry(newZipEntry);
+
+            StreamUtils.Copy(inputMemoryStream, zipStream, new byte[1024]);
+            zipStream.CloseEntry();
+        }
+
+        private FileModel ResponseXLSByte(IWorkbook book)
+        {
+            using var fileStream = new MemoryStream();
+            book.Write(fileStream);
+            return new FileModel
+            {
+                Name = "Report.xls",
+                Content = fileStream.GetBuffer()
+            };
+        }
+
         private enum ReportType
         {
             UOLA = 1,
@@ -833,5 +914,11 @@ namespace PortaleRegione.BAL
             DASI = 4,
             DASI_FIRMATARI = 5
         }
+    }
+
+    internal class FileModel
+    {
+        public byte[] Content { get; set; }
+        public string Name { get; set; }
     }
 }

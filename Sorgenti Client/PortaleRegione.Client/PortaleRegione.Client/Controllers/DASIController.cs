@@ -789,10 +789,15 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                 var apiGateway = new ApiGateway(Token);
-                var file = await apiGateway.Esporta.EsportaXLSDASI(model);
-                return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
+                var lista = new List<Guid>();
+                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                lista.AddRange(model
+                    .Data
+                    .Results
+                    .Select(i => i.UIDAtto));
+                var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
+                return File(file.Content, "application/zip", file.FileName);
             }
             catch (Exception e)
             {
