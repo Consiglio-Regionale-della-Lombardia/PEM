@@ -74,6 +74,30 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public async Task RimuoviFirme(ATTI_DASI atto)
+        {
+            try
+            {
+                var firmeInDb = await _unitOfWork
+                    .Atti_Firme
+                    .GetFirmatari(atto, FirmeTipoEnum.TUTTE);
+
+                var firme = firmeInDb.ToList();
+
+                if (!firme.Any()) return;
+
+                foreach (var firma in firme.Where(firma => !firma.PrimoFirmatario))
+                {
+                    _unitOfWork.Atti_Firme.Remove(firma);
+                }
+            }
+            catch (Exception e)
+            {
+                //Log.Error("Logic - GetFirme - DASI", e);
+                throw e;
+            }
+        }
+
         public async Task<IEnumerable<AttiFirmeDto>> GetFirme(Guid attoUId)
         {
             try

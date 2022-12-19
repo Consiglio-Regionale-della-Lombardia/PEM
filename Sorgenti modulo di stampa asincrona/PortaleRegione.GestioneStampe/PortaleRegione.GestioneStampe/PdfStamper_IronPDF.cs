@@ -1,6 +1,4 @@
 ﻿using IronPdf;
-using PortaleRegione.Common;
-using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,17 +13,17 @@ namespace PortaleRegione.GestioneStampe
             License.LicenseKey = license;
         }
 
-        public async Task<byte[]> CreaPDFInMemory(string txtHTML, AttoDASIDto atto)
+        public async Task<byte[]> CreaPDFInMemory(string body, string nome_documento)
         {
             try
             {
                 var Renderer = SetupRender();
-                Renderer.PrintOptions.Footer.RightText = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}" +
+                Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" +
                                                          " Pagina {page} di {total-pages}";
-                Renderer.PrintOptions.Footer.LeftText = "{date} {time}";
+                Renderer.PrintOptions.Footer.LeftText = "Stampato in data {date} {time}";
                 Renderer.PrintOptions.Footer.DrawDividerLine = true;
 
-                var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
+                var pdf = await Renderer.RenderHtmlAsPdfAsync(body);
                 return pdf.Stream.ToArray();
             }
             catch (Exception ex)

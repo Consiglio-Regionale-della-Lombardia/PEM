@@ -23,6 +23,7 @@ using PortaleRegione.DTO.Enum;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -30,7 +31,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire gli emendamenti pubblici
     /// </summary>
     [AllowAnonymous]
-    [RoutePrefix("public")]
     public class EMPublicController : BaseApiController
     {
         /// <summary>
@@ -39,8 +39,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("em")]
-        public async Task<IHttpActionResult> Index(Guid id)
+        [Route(ApiRoutes.Public.ViewEM)]
+        public async Task<IHttpActionResult> ViewEM(Guid id)
         {
             try
             {

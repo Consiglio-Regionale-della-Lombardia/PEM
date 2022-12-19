@@ -17,6 +17,7 @@
  */
 
 using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -28,7 +29,6 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using PortaleRegione.Client.Helpers;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -53,7 +53,7 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 response = await apiGateway.Persone.Login(model.Username, model.Password);
             }
             catch (Exception e)
@@ -78,7 +78,7 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 response = await apiGateway.Persone.CambioRuolo(ruolo);
             }
             catch (Exception e)
@@ -88,8 +88,6 @@ namespace PortaleRegione.Client.Controllers
             }
 
             await SalvaDatiInCookies(response.persona, response.jwt, response.persona.userAD.Replace(@"CONSIGLIO\", ""));
-
-            //if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
 
             return RedirectToAction("Index", "Home");
         }
@@ -102,7 +100,7 @@ namespace PortaleRegione.Client.Controllers
             LoginResponse response;
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 response = await apiGateway.Persone.CambioGruppo(gruppo);
             }
             catch (Exception e)
@@ -258,12 +256,12 @@ namespace PortaleRegione.Client.Controllers
         [Route("cambio-utente")]
         public async Task<ActionResult> CambiaUtente(Guid id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var persona = await apiGateway.Persone.Get(id);
 
             LogoutFlow();
 
-            return RedirectToAction("FormAutenticazioneDEBUG", new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx"});
+            return RedirectToAction("FormAutenticazioneDEBUG", new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx" });
         }
 
         [AllowAnonymous]

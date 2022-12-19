@@ -93,6 +93,11 @@ else
                 {
                     <i class="close material-icons red-text tooltipped icon_info_grid" data-position="bottom" data-tooltip="Ordine del giorno di NON passaggio in esame">new_releases</i>
                 }
+                @if (!string.IsNullOrEmpty(item.DettaglioMozioniAbbinate))
+                {
+                    <i class="material-icons blue-text tooltipped"
+                       data-tooltip="@item.DettaglioMozioniAbbinate">info_outline</i>
+                }
             </div>
 
             <div class="col s2 valign-wrapper">

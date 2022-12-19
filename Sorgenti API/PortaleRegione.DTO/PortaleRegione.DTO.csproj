@@ -159,9 +159,9 @@
     <Compile Include="Response\FileResponse.cs" />
     <Compile Include="Response\LoginResponse.cs" />
     <Compile Include="Response\Paging.cs" />
-    <Compile Include="Response\ProiettaResponse.cs" />
     <Compile Include="Request\ReportRequest.cs" />
     <Compile Include="Enum\ViewModeEnum.cs" />
+    <Compile Include="Routes\ApiRoutes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

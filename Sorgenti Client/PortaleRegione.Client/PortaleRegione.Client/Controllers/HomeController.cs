@@ -36,11 +36,11 @@ namespace PortaleRegione.Client.Controllers
             {
                 CheckCacheClientMode(ClientModeEnum.GRUPPI);
 
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 var model = new DashboardModel
                 {
                     Sedute = await apiGateway.Sedute.GetAttiveDashboard(),
-                    CurrentUser = _CurrentUser
+                    CurrentUser = CurrentUser
                 };
                 foreach (var seduta in model.Sedute.Results)
                 {
@@ -57,14 +57,9 @@ namespace PortaleRegione.Client.Controllers
 
                 return View("Index", model);
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 RedirectToAction("FormAutenticazione", "Autenticazione");
-                throw;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
                 throw;
             }
         }

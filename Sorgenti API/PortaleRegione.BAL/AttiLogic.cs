@@ -218,45 +218,26 @@ namespace PortaleRegione.BAL
 
         public async Task CreaArticoli(Guid id, string articoli)
         {
-            try
+            var appo = articoli.Split(',');
+            foreach (var s in appo)
             {
-                var appo = articoli.Split(',');
-                foreach (var s in appo)
+                if (s.Contains("-"))
                 {
-                    if (s.Contains("-"))
-                    {
-                        //INSERIMENTO RANGE
-                        var appo_range = s.Split('-');
-                        var start = int.Parse(appo_range[0]);
-                        var end = int.Parse(appo_range[1]);
+                    //INSERIMENTO RANGE
+                    var appo_range = s.Split('-');
+                    var start = int.Parse(appo_range[0]);
+                    var end = int.Parse(appo_range[1]);
 
-                        for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
-                        {
-                            if (await _unitOfWork.Articoli.CheckIfArticoloExists(id, i.ToString()))
-                            {
-                                continue;
-                            }
-
-                            _unitOfWork.Articoli.Add(new ARTICOLI
-                            {
-                                Articolo = i.ToString(),
-                                UIDAtto = id,
-                                UIDArticolo = Guid.NewGuid(),
-                                Ordine = await _unitOfWork.Articoli.OrdineArticolo(id)
-                            });
-                            await _unitOfWork.CompleteAsync();
-                        }
-                    }
-                    else
+                    for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
                     {
-                        if (await _unitOfWork.Articoli.CheckIfArticoloExists(id, s))
+                        if (await _unitOfWork.Articoli.CheckIfArticoloExists(id, i.ToString()))
                         {
                             continue;
                         }
 
                         _unitOfWork.Articoli.Add(new ARTICOLI
                         {
-                            Articolo = s,
+                            Articolo = i.ToString(),
                             UIDAtto = id,
                             UIDArticolo = Guid.NewGuid(),
                             Ordine = await _unitOfWork.Articoli.OrdineArticolo(id)
@@ -264,164 +245,99 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.CompleteAsync();
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Crea Articoli", e);
-                throw;
+                else
+                {
+                    if (await _unitOfWork.Articoli.CheckIfArticoloExists(id, s))
+                    {
+                        continue;
+                    }
+
+                    _unitOfWork.Articoli.Add(new ARTICOLI
+                    {
+                        Articolo = s,
+                        UIDAtto = id,
+                        UIDArticolo = Guid.NewGuid(),
+                        Ordine = await _unitOfWork.Articoli.OrdineArticolo(id)
+                    });
+                    await _unitOfWork.CompleteAsync();
+                }
             }
         }
 
         public async Task<ARTICOLI> GetArticolo(Guid id)
         {
-            try
-            {
-                return await _unitOfWork.Articoli.GetArticolo(id);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Get Articolo", e);
-                throw;
-            }
+            return await _unitOfWork.Articoli.GetArticolo(id);
         }
 
         public async Task DeleteArticolo(ARTICOLI articolo)
         {
-            try
-            {
-                _unitOfWork.Articoli.Remove(articolo);
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Elimina Articolo", e);
-                throw;
-            }
+            _unitOfWork.Articoli.Remove(articolo);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<IEnumerable<COMMI>> GetCommi(Guid id, bool expanded = false)
         {
-            try
+            var result = new List<COMMI>();
+            var commInDb = await _unitOfWork.Commi.GetCommi(id);
+            if (!expanded) return commInDb;
+            foreach (var comma in commInDb)
             {
-                var result = new List<COMMI>();
-                var commInDb = await _unitOfWork.Commi.GetCommi(id);
-                if (!expanded) return commInDb;
-                foreach (var comma in commInDb)
+                var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
+                if (lettere.Count() > 0)
                 {
-                    var lettere = await _unitOfWork.Lettere.GetLettere(comma.UIDComma);
-                    if (lettere.Count() > 0)
-                    {
-                        comma.Comma = $"{comma.Comma} ({lettere.Select(i => i.Lettera).Aggregate((k, j) => k + "-" + j)})";
-                    }
-                    result.Add(comma);
+                    comma.Comma = $"{comma.Comma} ({lettere.Select(i => i.Lettera).Aggregate((k, j) => k + "-" + j)})";
                 }
+                result.Add(comma);
+            }
 
-                return result;
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Get Commi", e);
-                throw;
-            }
+            return result;
         }
 
         public async Task DeleteCommi(IEnumerable<COMMI> listCommi)
         {
-            try
-            {
-                _unitOfWork.Commi.RemoveRange(listCommi);
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Elimina Commi", e);
-                throw;
-            }
+            _unitOfWork.Commi.RemoveRange(listCommi);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<IEnumerable<LETTERE>> GetLettere(Guid commaUId)
         {
-            try
-            {
-                return await _unitOfWork.Lettere.GetLettere(commaUId);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Get Lettere", e);
-                throw;
-            }
+            return await _unitOfWork.Lettere.GetLettere(commaUId);
         }
 
         public async Task DeleteLettere(IEnumerable<LETTERE> listLettere)
         {
-            try
-            {
-                _unitOfWork.Lettere.RemoveRange(listLettere);
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Elimina Lettere", e);
-                throw;
-            }
+            _unitOfWork.Lettere.RemoveRange(listLettere);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task DeleteLettere(LETTERE lettera)
         {
-            try
-            {
-                _unitOfWork.Lettere.Remove(lettera);
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Elimina Lettera", e);
-                throw;
-            }
+            _unitOfWork.Lettere.Remove(lettera);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task CreaCommi(ARTICOLI articolo, string commi)
         {
-            try
+            var appo = commi.Split(',');
+            foreach (var s in appo)
             {
-                var appo = commi.Split(',');
-                foreach (var s in appo)
+                if (s.Contains("-"))
                 {
-                    if (s.Contains("-"))
-                    {
-                        //INSERIMENTO RANGE
-                        var appo_range = s.Split('-');
-                        var start = int.Parse(appo_range[0]);
-                        var end = int.Parse(appo_range[1]);
+                    //INSERIMENTO RANGE
+                    var appo_range = s.Split('-');
+                    var start = int.Parse(appo_range[0]);
+                    var end = int.Parse(appo_range[1]);
 
-                        for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
-                        {
-                            if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, i.ToString()))
-                            {
-                                continue;
-                            }
-
-                            _unitOfWork.Commi.Add(new COMMI
-                            {
-                                Comma = i.ToString(),
-                                UIDComma = Guid.NewGuid(),
-                                UIDAtto = articolo.UIDAtto,
-                                UIDArticolo = articolo.UIDArticolo,
-                                Ordine = await _unitOfWork.Commi.OrdineComma(articolo.UIDArticolo)
-                            });
-                            await _unitOfWork.CompleteAsync();
-                        }
-                    }
-                    else
+                    for (var i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++)
                     {
-                        if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, s))
+                        if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, i.ToString()))
                         {
                             continue;
                         }
 
                         _unitOfWork.Commi.Add(new COMMI
                         {
-                            Comma = s,
+                            Comma = i.ToString(),
                             UIDComma = Guid.NewGuid(),
                             UIDAtto = articolo.UIDAtto,
                             UIDArticolo = articolo.UIDArticolo,
@@ -430,11 +346,23 @@ namespace PortaleRegione.BAL
                         await _unitOfWork.CompleteAsync();
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Crea Commi", e);
-                throw;
+                else
+                {
+                    if (await _unitOfWork.Commi.CheckIfCommiExists(articolo.UIDArticolo, s))
+                    {
+                        continue;
+                    }
+
+                    _unitOfWork.Commi.Add(new COMMI
+                    {
+                        Comma = s,
+                        UIDComma = Guid.NewGuid(),
+                        UIDAtto = articolo.UIDAtto,
+                        UIDArticolo = articolo.UIDArticolo,
+                        Ordine = await _unitOfWork.Commi.OrdineComma(articolo.UIDArticolo)
+                    });
+                    await _unitOfWork.CompleteAsync();
+                }
             }
 
             await _unitOfWork.CompleteAsync();
@@ -442,29 +370,13 @@ namespace PortaleRegione.BAL
 
         public async Task<COMMI> GetComma(Guid id)
         {
-            try
-            {
-                return await _unitOfWork.Commi.GetComma(id);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Get Comma", e);
-                throw;
-            }
+            return await _unitOfWork.Commi.GetComma(id);
         }
 
         public async Task DeleteComma(COMMI comma)
         {
-            try
-            {
-                _unitOfWork.Commi.Remove(comma);
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Elimina Comma", e);
-                throw;
-            }
+            _unitOfWork.Commi.Remove(comma);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task CreaLettere(COMMI comma, string lettere)
@@ -524,50 +436,34 @@ namespace PortaleRegione.BAL
 
         public async Task SalvaRelatori(Guid attoUId, IEnumerable<Guid> relatori)
         {
-            try
-            {
-                await _unitOfWork.Atti.SalvaRelatori(attoUId, relatori);
-                await _unitOfWork.CompleteAsync();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("Salva Relatori", e);
-                throw;
-            }
+            await _unitOfWork.Atti.SalvaRelatori(attoUId, relatori);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task PubblicaFascicolo(ATTI attoInDb, PubblicaFascicoloModel model, PersonaDto currentUser)
         {
-            try
+            attoInDb.Fascicoli_Da_Aggiornare = false;
+            switch (model.Ordinamento)
             {
-                attoInDb.Fascicoli_Da_Aggiornare = false;
-                switch (model.Ordinamento)
-                {
-                    case OrdinamentoEnum.Default:
-                    case OrdinamentoEnum.Presentazione:
-                        attoInDb.OrdinePresentazione = model.Abilita;
-                        attoInDb.LinkFascicoloPresentazione = string.Empty;
-                        break;
-                    case OrdinamentoEnum.Votazione:
-                        attoInDb.OrdineVotazione = model.Abilita;
-                        attoInDb.LinkFascicoloVotazione = string.Empty;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(model.Ordinamento), model.Ordinamento, null);
-                }
-
-                attoInDb.UIDPersonaModifica = currentUser.UID_persona;
-                attoInDb.DataModifica = DateTime.Now;
-
-                await _unitOfWork.Atti.RimuoviFascicoliObsoleti(attoInDb.UIDAtto, model.Ordinamento);
-
-                await _unitOfWork.CompleteAsync();
+                case OrdinamentoEnum.Default:
+                case OrdinamentoEnum.Presentazione:
+                    attoInDb.OrdinePresentazione = model.Abilita;
+                    attoInDb.LinkFascicoloPresentazione = string.Empty;
+                    break;
+                case OrdinamentoEnum.Votazione:
+                    attoInDb.OrdineVotazione = model.Abilita;
+                    attoInDb.LinkFascicoloVotazione = string.Empty;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(model.Ordinamento), model.Ordinamento, null);
             }
-            catch (Exception e)
-            {
-                //Log.Error("Pubblica Fascicolo", e);
-                throw;
-            }
+
+            attoInDb.UIDPersonaModifica = currentUser.UID_persona;
+            attoInDb.DataModifica = DateTime.Now;
+
+            await _unitOfWork.Atti.RimuoviFascicoliObsoleti(attoInDb.UIDAtto, model.Ordinamento);
+
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<ATTI> GetAtto(Guid id)

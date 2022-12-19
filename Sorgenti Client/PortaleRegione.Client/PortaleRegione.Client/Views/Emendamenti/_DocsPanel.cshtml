@@ -2,6 +2,8 @@
 @model PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
+    var isNew = Model.Emendamento.UIDEM == Guid.Empty;
+
     var placeholder_allegato_generico_text = string.Empty;
     placeholder_allegato_generico_text = !string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoGenerico) ? "Sostituisci documento" : "Inserisci documento";
 }
@@ -61,7 +63,7 @@
         <p>
             <label>
                 <input id="Riservato" name="Emendamento.Riservato" type="checkbox" value="true"
-                       @Html.Raw(Model.Emendamento.IDStato == (int)StatiEnum.Bozza_Riservata ? "checked=\"checked\"" : "")>
+                       @Html.Raw(Model.Emendamento.IDStato == (int)StatiEnum.Bozza_Riservata && !isNew ? "checked=\"checked\"" : "")>
                 <span>Riservato</span>
             </label>
         </p>

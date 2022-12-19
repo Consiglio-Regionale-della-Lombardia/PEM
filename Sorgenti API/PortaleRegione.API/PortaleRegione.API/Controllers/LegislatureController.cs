@@ -21,6 +21,7 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -28,7 +29,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire gli emendamenti
     /// </summary>
     [Authorize]
-    [RoutePrefix("legislature")]
     public class LegislatureController : BaseApiController
     {
         /// <summary>
@@ -65,6 +65,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Route(ApiRoutes.Legislature.GetAll)]
         public async Task<IHttpActionResult> GetLegislature()
         {
             return Ok(await _legislatureLogic.GetLegislature());
@@ -75,7 +76,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id:int}")]
+        [Route(ApiRoutes.Legislature.Get)]
         public async Task<IHttpActionResult> GetLegislatura(int id)
         {
             return Ok(await _legislatureLogic.GetLegislatura(id));

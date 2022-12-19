@@ -66,6 +66,9 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
 
         public bool Riservato_DASI { get; set; }
+
+        // Matteo Cattapan #529 - Annotazioni sedute
+        public string Note { get; set; }
     }
 
     public class SeduteFormUpdateDto
@@ -101,5 +104,8 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Dedicata agli atti d’indirizzo e sindacato ispettivo")]
 
         public bool Riservato_DASI { get; set; }
+
+        // Matteo Cattapan #529 - Annotazioni sedute
+        public string Note { get; set; }
     }
 }

@@ -52,7 +52,7 @@
             </a>
             <div class="row valign-wrapper" style="margin-bottom: 0px !important">
                 <div class="col s6">
-                    <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta</p>
+                    <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta.ToString("dd/MM/yyyy HH:mm")</p>
                     <h3>
                         <b>@ViewBag.Title</b>
                     </h3>
@@ -69,17 +69,6 @@
                             <i class="material-icons right pink-text">cloud_download</i>
                             SCARICA DOCUMENTO
                         </a>
-                    }
-                    @if (Model.Mode == ClientModeEnum.TRATTAZIONE)
-                    {
-                        if (classActiveTabVotazione == "active")
-                        {
-                            <a class="btn-flat purple-text tooltipped"
-                               href="@Url.Action("ViewerProietta", "Emendamenti", new { id = Model.Atto.UIDAtto })" data-tooltip="Proietta">
-                                <i class="material-icons right purple-text">subscriptions</i>
-                                PROIETTA
-                            </a>
-                        }
                     }
                 </div>
             </div>
@@ -307,7 +296,7 @@
                 text = "Inserisci il PIN per firmare ";
                 button = "Firma";
             } else if (action == @((int)ActionEnum.DEPOSITA)) {
-                text = "Inserisci il PIN per depositare ";
+                text = "Inserisci il PIN per presentare ";
                 button = "Presenta";
             } else if (action == @((int)ActionEnum.INVITA)) {
                 await NotificaAEM('@Model.Atto.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));

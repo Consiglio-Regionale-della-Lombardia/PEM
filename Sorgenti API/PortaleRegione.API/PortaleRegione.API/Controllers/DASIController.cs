@@ -25,7 +25,9 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Routes;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -35,7 +37,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire il modulo DASI
     /// </summary>
     [Authorize]
-    [RoutePrefix("dasi")]
     public class DASIController : BaseApiController
     {
         /// <summary>
@@ -72,7 +73,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="tipo">Tipo di atto</param>
         /// <returns></returns>
-        [Route("new")]
+        [Route(ApiRoutes.DASI.GetNuovoModello)]
         public async Task<IHttpActionResult> GetNuovoModello(TipoAttoEnum tipo)
         {
             try
@@ -92,7 +93,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Identificativo atto</param>
         /// <returns></returns>
-        [Route("edit")]
+        [Route(ApiRoutes.DASI.GetModificaModello)]
         public async Task<IHttpActionResult> GetModificaModello(Guid id)
         {
             try
@@ -120,7 +121,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
+        [Route(ApiRoutes.DASI.Save)]
         public async Task<IHttpActionResult> Salva(AttoDASIDto request)
         {
             try
@@ -137,12 +138,32 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per salvare la bozza di un atto cartaceo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SaveCartaceo)]
+        public async Task<IHttpActionResult> SalvaCartaceo(AttoDASIDto request)
+        {
+            try
+            {
+                await _dasiLogic.SalvaCartaceo(request, CurrentUser);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id:guid}")]
+        [Route(ApiRoutes.DASI.Get)]
         public async Task<IHttpActionResult> Get(Guid id)
         {
             try
@@ -164,7 +185,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("riepilogo")]
+        [Route(ApiRoutes.DASI.GetAll)]
         public async Task<IHttpActionResult> Riepilogo(BaseRequest<AttoDASIDto> request)
         {
             try
@@ -181,12 +202,31 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere il riepilogo degli atti cartacei
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetAllCartacei)]
+        public async Task<IHttpActionResult> RiepilogoCartacei()
+        {
+            try
+            {
+                var response = await _dasiLogic.GetCartacei();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per firmare un Atto di Sindacato Ispettivo
         /// </summary>
         /// <param name="firmaModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("firma")]
+        [Route(ApiRoutes.DASI.Firma)]
         public async Task<IHttpActionResult> Firma(ComandiAzioneModel firmaModel)
         {
             try
@@ -225,7 +265,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="firmaModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("ritiro-firma")]
+        [Route(ApiRoutes.DASI.RitiroFirma)]
         public async Task<IHttpActionResult> RitiroFirma(ComandiAzioneModel firmaModel)
         {
             try
@@ -264,7 +304,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="firmaModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("elimina-firma")]
+        [Route(ApiRoutes.DASI.EliminaFirma)]
         public async Task<IHttpActionResult> EliminaFirma(ComandiAzioneModel firmaModel)
         {
             try
@@ -304,7 +344,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="presentazioneModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("presenta")]
+        [Route(ApiRoutes.DASI.Presenta)]
         public async Task<IHttpActionResult> Presenta(ComandiAzioneModel presentazioneModel)
         {
             try
@@ -351,7 +391,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <param name="tipo"></param>
         /// <returns></returns>
-        [Route("firmatari")]
+        [Route(ApiRoutes.DASI.GetFirmatari)]
         public async Task<IHttpActionResult> GetFirmatari(Guid id, FirmeTipoEnum tipo)
         {
             try
@@ -376,7 +416,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
-        [Route("template-body")]
+        [Route(ApiRoutes.DASI.GetBody)]
         public async Task<IHttpActionResult> GetBody(GetBodyModel model)
         {
             try
@@ -404,7 +444,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("template/copertina")]
+        [Route(ApiRoutes.DASI.GetBodyCopertina)]
         public async Task<IHttpActionResult> GetBodyCopertina(ByQueryModel model)
         {
             try
@@ -426,9 +466,9 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="path">Percorso file</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("file")]
         [AllowAnonymous]
+        [HttpGet]
+        [Route(ApiRoutes.DASI.DownloadDoc)]
         public async Task<IHttpActionResult> Download(string path)
         {
             try
@@ -450,7 +490,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("elimina")]
+        [Route(ApiRoutes.DASI.Elimina)]
         public async Task<IHttpActionResult> Elimina(Guid id)
         {
             try
@@ -458,7 +498,7 @@ namespace PortaleRegione.API.Controllers
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
 
-                await _dasiLogic.Elimina(atto, Session._currentUId);
+                await _dasiLogic.Elimina(atto, CurrentUser);
 
                 return Ok();
             }
@@ -475,7 +515,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("ritira")]
+        [Route(ApiRoutes.DASI.Ritira)]
         public async Task<IHttpActionResult> Ritira(Guid id)
         {
             try
@@ -509,7 +549,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
-        [Route("modifica-stato")]
+        [Route(ApiRoutes.DASI.ModificaStato)]
         public async Task<IHttpActionResult> ModificaStato(ModificaStatoAttoModel model)
         {
             try
@@ -530,7 +570,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
-        [Route("iscrizione-seduta")]
+        [Route(ApiRoutes.DASI.IscriviSeduta)]
         public async Task<IHttpActionResult> IscrizioneSeduta(IscriviSedutaDASIModel model)
         {
             try
@@ -553,7 +593,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("richiedi-iscrizione")]
+        [Route(ApiRoutes.DASI.RichiediIscrizione)]
         public async Task<IHttpActionResult> RichiediIscrizione(RichiestaIscrizioneDASIModel model)
         {
             try
@@ -575,7 +615,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
-        [Route("rimuovi-seduta")]
+        [Route(ApiRoutes.DASI.RimuoviSeduta)]
         public async Task<IHttpActionResult> RimuoviSeduta(IscriviSedutaDASIModel model)
         {
             try
@@ -596,7 +636,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("rimuovi-richiesta")]
+        [Route(ApiRoutes.DASI.RimuoviRichiestaIscrizione)]
         public async Task<IHttpActionResult> RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model)
         {
             try
@@ -617,7 +657,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("proponi-urgenza")]
+        [Route(ApiRoutes.DASI.ProponiUrgenzaMozione)]
         public async Task<IHttpActionResult> ProponiUrgenzaMozione(PromuoviMozioneModel model)
         {
             try
@@ -638,7 +678,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("proponi-abbinata")]
+        [Route(ApiRoutes.DASI.ProponiMozioneAbbinata)]
         public async Task<IHttpActionResult> ProponiMozioneAbbinata(PromuoviMozioneModel model)
         {
             try
@@ -660,12 +700,12 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
-        [Route("presentazione-cartacea")]
+        [Route(ApiRoutes.DASI.PresentazioneCartacea)]
         public async Task<IHttpActionResult> PresentazioneCartacea(PresentazioneCartaceaModel model)
         {
             try
             {
-                await _dasiLogic.PresentazioneCartacea(model);
+                await _dasiLogic.RichiestaPresentazioneCartacea(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
@@ -680,7 +720,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid</param>
         /// <returns></returns>
-        [Route("invitati")]
+        [Route(ApiRoutes.DASI.GetInvitati)]
         public async Task<IHttpActionResult> GetInvitati(Guid id)
         {
             try
@@ -703,7 +743,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("stati")]
+        [Route(ApiRoutes.DASI.GetStati)]
         public IHttpActionResult GetStati()
         {
             try
@@ -722,7 +762,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("tipi-moz")]
+        [Route(ApiRoutes.DASI.GetTipiMOZ)]
         public IHttpActionResult GetTipiMOZ()
         {
             try
@@ -741,7 +781,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("soggetti-interrogabili")]
+        [Route(ApiRoutes.DASI.GetSoggettiInterrogabili)]
         public async Task<IHttpActionResult> GetSoggettiInterrogabili()
         {
             try
@@ -760,7 +800,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("moz-abbinabili")]
+        [Route(ApiRoutes.DASI.GetMOZAbbinabili)]
         public async Task<IHttpActionResult> GetMOZAbbinabili()
         {
             try
@@ -780,7 +820,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("odg/atti-sedute-attive")]
+        [Route(ApiRoutes.DASI.GetAttiSeduteAttive)]
         public async Task<IHttpActionResult> GetAttiSeduteAttive()
         {
             try
@@ -800,8 +840,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("meta-dati")]
         [HttpPut]
+        [Route(ApiRoutes.DASI.AggiornaMetaDati)]
         public async Task<IHttpActionResult> ModificaMetaDati(AttoDASIDto model)
         {
             try
@@ -827,7 +867,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("file-immediato")]
+        [Route(ApiRoutes.DASI.StampaImmediata)]
         public async Task<IHttpActionResult> Download(Guid id)
         {
             try
@@ -853,7 +893,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("{id:guid}/invia-al-protocollo")]
+        [Route(ApiRoutes.DASI.InviaAlProtocollo)]
         public async Task<IHttpActionResult> InviaAlProtocollo(Guid id)
         {
             try
@@ -865,6 +905,27 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 //Log.Error("Invio al protocollo", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per declassare una lista di mozioni e farle tornare ORDINARIE
+        /// </summary>
+        /// <param name="data">Lista di mozioni urgenti da declassare</param>
+        /// <returns></returns>
+        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
+        [HttpPost]
+        [Route(ApiRoutes.DASI.DeclassaMozione)]
+        public async Task<IHttpActionResult> DeclassaMozione(List<string> data)
+        {
+            try
+            {
+                await _dasiLogic.DeclassaMozione(data);
+                return Ok();
+            }
+            catch (Exception e)
+            {
                 return ErrorHandler(e);
             }
         }

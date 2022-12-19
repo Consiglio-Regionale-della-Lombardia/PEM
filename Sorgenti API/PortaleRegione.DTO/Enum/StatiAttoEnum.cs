@@ -26,5 +26,6 @@ namespace PortaleRegione.DTO.Enum
         PRESENTATO = 3,
         IN_TRATTAZIONE = 4,
         CHIUSO = 14,
+        BOZZA_CARTACEA = 20
     }
 }

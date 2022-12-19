@@ -1,4 +1,5 @@
 # Portale digitalizzazione atti (PEM-DASI)
+[![CI](https://github.com/Consiglio-Regionale-della-Lombardia/PEM/actions/workflows/main.yml/badge.svg)](https://github.com/Consiglio-Regionale-della-Lombardia/PEM/actions/workflows/main.yml)
 
 Il portale PEM-DASI è stato realizzato per digitalizzare e gestire a distanza la fase di presentazioni degli Atti di iniziativa dei consiglieri regionali ed automatizzare alcune fasi del loro iter. Il suo sviluppo è stato inizialmente studiato per digitalizzare la presentazione degli emendamenti/subemendamenti ai progetti di legge (modulo PEM) e, a seguito del riscontro positivo da parte degli utilizzatori, è stato esteso alla presentazione degli atti di indirizzo e sindacato ispettivo, realizzando il modulo DASI.
 

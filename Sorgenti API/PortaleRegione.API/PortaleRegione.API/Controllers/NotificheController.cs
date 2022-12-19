@@ -24,8 +24,10 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -33,7 +35,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire le notifiche
     /// </summary>
     [Authorize]
-    [RoutePrefix("notifiche")]
     public class NotificheController : BaseApiController
     {
         /// <summary>
@@ -71,13 +72,12 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view-inviate")]
+        [Route(ApiRoutes.Notifiche.GetInviate)]
         public async Task<IHttpActionResult> GetNotificheInviate(BaseRequest<NotificaDto> model)
         {
             try
             {
-                object Archivio;
-                model.param.TryGetValue("Archivio", out Archivio);
+                model.param.TryGetValue("Archivio", out var Archivio);
                 var result = await _notificheLogic.GetNotificheInviate(model,
                     CurrentUser,
                     Convert.ToBoolean(Archivio),
@@ -97,12 +97,12 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("vista/{notificaId:long}")]
-        public async Task<IHttpActionResult> NotificaVista(long notificaId)
+        [Route(ApiRoutes.Notifiche.NotificaVista)]
+        public async Task<IHttpActionResult> NotificaVista(string id)
         {
             try
             {
-                await _notificheLogic.NotificaVista(notificaId, Session._currentUId);
+                await _notificheLogic.NotificaVista(id, Session._currentUId);
 
                 return Ok();
             }
@@ -119,15 +119,13 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello di richiesta generico con paginazione</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view-ricevute")]
+        [Route(ApiRoutes.Notifiche.GetRicevute)]
         public async Task<IHttpActionResult> GetNotificheRicevute(BaseRequest<NotificaDto> model)
         {
             try
             {
-                object Archivio;
-                model.param.TryGetValue("Archivio", out Archivio);
-                object Solo_Non_Viste;
-                model.param.TryGetValue("Solo_Non_Viste", out Solo_Non_Viste);
+                model.param.TryGetValue("Archivio", out var Archivio);
+                model.param.TryGetValue("Solo_Non_Viste", out var Solo_Non_Viste);
                 var result = await _notificheLogic.GetNotificheRicevute(model,
                     CurrentUser,
                     Convert.ToBoolean(Archivio),
@@ -149,8 +147,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Id notifica</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id:int}/destinatari")]
-        public async Task<IHttpActionResult> GetDestinatariNotifica(int id)
+        [Route(ApiRoutes.Notifiche.GetDestinatari)]
+        public async Task<IHttpActionResult> GetDestinatariNotifica(string id)
         {
             try
             {
@@ -170,7 +168,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("invita")]
+        [Route(ApiRoutes.Notifiche.InvitoAFirmare)]
         public async Task<IHttpActionResult> InvitaAFirmare(ComandiAzioneModel model)
         {
             try
@@ -205,16 +203,16 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per avere i destinatari da invitare alla firma
         /// </summary>
-        /// <param name="atto"></param>
+        /// <param name="id"></param>
         /// <param name="tipo"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("destinatari")]
-        public async Task<IHttpActionResult> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo)
+        [Route(ApiRoutes.PEM.GetAllDestinatari)]
+        public async Task<IHttpActionResult> GetListaDestinatari(Guid id, TipoDestinatarioNotificaEnum tipo)
         {
             try
             {
-                return Ok(await _notificheLogic.GetListaDestinatari(atto, tipo, CurrentUser));
+                return Ok(await _notificheLogic.GetListaDestinatari(id, tipo, CurrentUser));
             }
             catch (Exception e)
             {
@@ -229,7 +227,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="tipo"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("destinatari-dasi")]
+        [Route(ApiRoutes.DASI.GetAllDestinatari)]
         public async Task<IHttpActionResult> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
         {
             try
@@ -244,12 +242,13 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Firma viene accettata dal proponente
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("accetta-proposta")]
-        public async Task<IHttpActionResult> AccettaPropostaFirma(long id)
+        [Route(ApiRoutes.Notifiche.AccettaPropostaFirma)]
+        public async Task<IHttpActionResult> AccettaPropostaFirma(string id)
         {
             try
             {
@@ -264,12 +263,13 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Ritiro firma accettato dal proponente
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("accetta-ritiro")]
-        public async Task<IHttpActionResult> AccettaRitiroFirma(long id)
+        [Route(ApiRoutes.Notifiche.AccettaRitiroFirma)]
+        public async Task<IHttpActionResult> AccettaRitiroFirma(string id)
         {
             try
             {
@@ -279,6 +279,28 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 //Log.Error("AccettaRitiroFirma", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Archivia la notifica
+        /// </summary>
+        /// <param name="notifiche"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.Notifiche.Archivia)]
+        public async Task<IHttpActionResult> ArchiviaNotifiche(List<string> notifiche)
+        {
+            try
+            {
+                var user = CurrentUser;
+                await _notificheLogic.ArchiviaNotifiche(notifiche, user);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                //Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }

@@ -40,7 +40,13 @@ namespace PortaleRegione.Common
         public static List<int> statiNonVisibili_Segreteria = new List<int>
         {
             (int) StatiAttoEnum.BOZZA,
-            (int) StatiAttoEnum.BOZZA_RISERVATA
+            (int) StatiAttoEnum.BOZZA_RISERVATA,
+            (int) StatiAttoEnum.BOZZA_CARTACEA
+        };
+
+        public static List<int> statiNonVisibili_Standard = new List<int>
+        {
+            (int) StatiAttoEnum.BOZZA_CARTACEA
         };
 
         public static List<TipoAttoEnum> tipiNonVisibili = new List<TipoAttoEnum>
@@ -219,6 +225,8 @@ namespace PortaleRegione.Common
                     return "Chiuso";
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
+                case StatiAttoEnum.BOZZA_CARTACEA:
+                    return "Cartaceo";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
             }
@@ -261,7 +269,7 @@ namespace PortaleRegione.Common
                         return " ";
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return " ";
             }
@@ -302,7 +310,7 @@ namespace PortaleRegione.Common
                             tipoRichiestaDestinatario, null);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return " ";
             }

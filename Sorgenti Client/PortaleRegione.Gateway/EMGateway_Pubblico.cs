@@ -17,7 +17,7 @@
  */
 
 using Newtonsoft.Json;
-
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Threading.Tasks;
 
@@ -32,19 +32,11 @@ namespace PortaleRegione.Gateway
 
         public async Task<string> GetBody(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/public/em?id={id}";
-                var result = await Get(requestUrl, string.Empty);
-                var lst = JsonConvert.DeserializeObject<string>(result);
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Public.ViewEM.Replace("{id}", id.ToString())}";
+            var result = await Get(requestUrl, string.Empty);
+            var lst = JsonConvert.DeserializeObject<string>(result);
 
-                return lst;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetBody - Pubblico", ex);
-                throw ex;
-            }
+            return lst;
         }
     }
 }

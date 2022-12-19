@@ -24,16 +24,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PortaleRegione.Domain
 {
     [Table("SEDUTE")]
-    public partial class SEDUTE
+    public class SEDUTE
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public SEDUTE()
         {
             ATTI = new HashSet<ATTI>();
         }
 
-        [Key]
-        public Guid UIDSeduta { get; set; }
+        [Key] public Guid UIDSeduta { get; set; }
 
         public DateTime Data_seduta { get; set; }
 
@@ -67,16 +65,15 @@ namespace PortaleRegione.Domain
         public bool? Eliminato { get; set; }
         public bool Riservato_DASI { get; set; } = false;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ATTI> ATTI { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual legislature legislature { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual organi organi { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual UTENTI_NoCons UTENTI_NoCons { get; set; }
+
+        // Matteo Cattapan #529 - Annotazioni sedute
+        public string Note { get; set; }
     }
 }

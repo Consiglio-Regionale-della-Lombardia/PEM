@@ -20,11 +20,12 @@ using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -67,17 +68,13 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("dasi/esporta-griglia-xls")]
         [HttpPost]
-        public async Task<IHttpActionResult> EsportaGrigliaExcelDASI(RiepilogoDASIModel model)
+        [Route(ApiRoutes.Esporta.EsportaGrigliaZip)]
+        public async Task<IHttpActionResult> EsportaGrigliaZipDasi(List<Guid> data)
         {
             try
             {
-                if (Session._currentRole != RuoliIntEnum.Amministratore_PEM
-                    && Session._currentRole != RuoliIntEnum.Segreteria_Assemblea)
-                    throw new InvalidOperationException("Operazione non eseguibile per il ruolo assegnato");
-
-                var file = await _esportaLogic.EsportaGrigliaExcelDASI(model);
+                var file = await _esportaLogic.EsportaGrigliaZipDASI(data);
                 return ResponseMessage(file);
             }
             catch (Exception e)
@@ -92,8 +89,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("emendamenti/esporta-griglia-xls")]
         [HttpPost]
+        [Route(ApiRoutes.Esporta.EsportaGrigliaExcel)]
         public async Task<IHttpActionResult> EsportaGrigliaExcel(EmendamentiViewModel model)
         {
             try
@@ -113,8 +110,8 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("emendamenti/esporta-griglia-xls-segreteria")]
         [HttpPost]
+        [Route(ApiRoutes.Esporta.EsportaGrigliaExcelUOLA)]
         public async Task<IHttpActionResult> EsportaGrigliaExcel_UOLA(EmendamentiViewModel model)
         {
             try
@@ -140,8 +137,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="ordine">ordinamento emendamenti atto</param>
         /// <param name="mode"></param>
         /// <returns></returns>
-        [Route("emendamenti/esporta-griglia-doc")]
         [HttpGet]
+        [Route(ApiRoutes.Esporta.EsportaGrigliaWord)]
         public async Task<IHttpActionResult> EsportaGrigliaWord(Guid id, OrdinamentoEnum ordine, ClientModeEnum mode)
         {
             try

@@ -30,9 +30,10 @@ namespace PortaleRegione.Contracts
     public interface IDASIRepository : IRepository<ATTI_DASI>
     {
         Task<ATTI_DASI> Get(Guid attoUId);
-        Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
+        Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
+            Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<int> stati = null);
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
-        Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti);
+        Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti, List<int> stati = null);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
             ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
         Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta);
@@ -63,5 +64,7 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);
         Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto);
         Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti);
+        Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto);
+        Task<List<Guid>> GetAllCartacei(int legislatura);
     }
 }

@@ -24,7 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,228 +41,99 @@ namespace PortaleRegione.Gateway
             _token = token;
         }
 
-        public async Task<EmendamentiViewModel> Get(Guid attoUId, ClientModeEnum mode,
-            OrdinamentoEnum ordine,
-            int page, int size)
+        public async Task<EmendamentiViewModel> Get(Guid attoUId, ClientModeEnum mode, OrdinamentoEnum ordine, int page, int size)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAll}";
+            var param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode } };
+            var model = new BaseRequest<EmendamentiDto>
             {
-                var requestUrl = $"{apiUrl}/emendamenti/view";
-
-                var param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode } };
-
-                var model = new BaseRequest<EmendamentiDto>
-                {
-                    id = attoUId,
-                    page = page,
-                    size = size,
-                    ordine = ordine,
-                    param = param,
-                    filtro = new List<FilterStatement<EmendamentiDto>>()
-                };
-                var filtro1 = new FilterStatement<EmendamentiDto>
-                {
-                    PropertyId = nameof(EmendamentiDto.UIDAtto),
-                    Operation = Operation.EqualTo,
-                    Value = attoUId
-                };
-                model.filtro.Add(filtro1);
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
+                id = attoUId,
+                page = page,
+                size = size,
+                ordine = ordine,
+                param = param,
+                filtro = new List<FilterStatement<EmendamentiDto>>()
+            };
+            var filtro1 = new FilterStatement<EmendamentiDto>
             {
-                //Log.Error("GetEmendamenti", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetEmendamenti", ex);
-                throw ex;
-            }
+                PropertyId = nameof(EmendamentiDto.UIDAtto),
+                Operation = Operation.EqualTo,
+                Value = attoUId
+            };
+            model.filtro.Add(filtro1);
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<EmendamentiViewModel> Get_RichiestaPropriaFirma(Guid attoUId, ClientModeEnum mode,
             OrdinamentoEnum ordine,
             int page, int size)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAllRichiestaPropriaFirma}";
+            var param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode } };
+            var model = new BaseRequest<AttiDto>
             {
-                var requestUrl = $"{apiUrl}/emendamenti/view-richiesta-propria-firma";
-
-                var param = new Dictionary<string, object> { { "CLIENT_MODE", (int)mode } };
-
-                var model = new BaseRequest<AttiDto>
-                {
-                    id = attoUId,
-                    page = page,
-                    size = size,
-                    ordine = ordine,
-                    param = param
-                };
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetEmendamenti_RichiestaPropriaFirma", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetEmendamenti_RichiestaPropriaFirma", ex);
-                throw ex;
-            }
+                id = attoUId,
+                page = page,
+                size = size,
+                ordine = ordine,
+                param = param
+            };
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<EmendamentiViewModel> Get(BaseRequest<EmendamentiDto> model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/view";
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetEmendamenti", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetEmendamenti", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAll}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<EmendamentiViewModel>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<EmendamentiDto> Get(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti?id={id}";
-
-                var lst = JsonConvert.DeserializeObject<EmendamentiDto>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetEmendamento", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetEmendamento", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Get.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<EmendamentiDto>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<string> GetBody(Guid id, TemplateTypeEnum template, bool IsDeposito = false)
         {
-            var result = string.Empty;
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetBody}";
+            var model = new GetBodyModel
             {
-                var requestUrl = $"{apiUrl}/emendamenti/template-body";
-                var model = new GetBodyModel
-                {
-                    Id = id,
-                    Template = template,
-                    IsDeposito = IsDeposito
-                };
-                var body = JsonConvert.SerializeObject(model);
-                result = await Post(requestUrl, body, _token);
-                var lst = JsonConvert.DeserializeObject<string>(result);
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetBodyEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error($"GetBodyEM PARAMS: GUID EM [{id}], TEMPLATE [{template}]");
-                //Log.Error($"GetBodyEM RESULT: [{result}]");
-                //Log.Error("GetBodyEM", ex);
-                throw ex;
-            }
+                Id = id,
+                Template = template,
+                IsDeposito = IsDeposito
+            };
+            var body = JsonConvert.SerializeObject(model);
+            var result = await Post(requestUrl, body, _token);
+            var lst = JsonConvert.DeserializeObject<string>(result);
+            return lst;
         }
 
         public async Task<string> GetCopertina(CopertinaModel model)
         {
-            var result = string.Empty;
-            var body = string.Empty;
-
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/template/copertina";
-                body = JsonConvert.SerializeObject(model);
-
-                result = await Post(requestUrl, body, _token);
-                var lst = JsonConvert.DeserializeObject<string>(result);
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetCopertina", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error($"GetCopertina PARAMS: [{body}]");
-                //Log.Error($"GetCopertina RESULT: [{result}]");
-                //Log.Error("GetCopertina", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetBodyCopertina}";
+            var body = JsonConvert.SerializeObject(model);
+            var result = await Post(requestUrl, body, _token);
+            var lst = JsonConvert.DeserializeObject<string>(result);
+            return lst;
         }
 
         public async Task Elimina(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/elimina?id={id}";
-
-                JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EliminaEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EliminaEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Elimina.Replace("{id}", id.ToString())}";
+            JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
         }
 
         public async Task Ritira(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/ritira?id={id}";
-
-                JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("RitiraEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("RitiraEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Ritira.Replace("{id}", id.ToString())}";
+            JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
         }
 
         public async Task<Dictionary<Guid, string>> Firma(Guid emendamentoUId, string pin)
@@ -277,25 +148,11 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> Firma(ComandiAzioneModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/firma";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("FirmaEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("FirmaEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Firma}";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            return result;
         }
 
         public async Task<Dictionary<Guid, string>> Deposita(Guid emendamentoUId, string pin)
@@ -310,25 +167,11 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> Deposita(ComandiAzioneModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/deposita";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("DepositaEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("DepositaEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Deposita}";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            return result;
         }
 
         public async Task<Dictionary<Guid, string>> RitiraFirma(Guid emendamentoUId, string pin)
@@ -343,25 +186,11 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/ritiro-firma";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("RitiraFirma", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("RitiraFirma", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.RitiroFirma}";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            return result;
         }
 
         public async Task<Dictionary<Guid, string>> EliminaFirma(Guid emendamentoUId, string pin)
@@ -376,622 +205,204 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<Guid, string>> EliminaFirma(ComandiAzioneModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/elimina-firma";
-                var body = JsonConvert.SerializeObject(model);
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EliminaFirma", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EliminaFirma", ex);
-                throw ex;
-            }
-        }
-
-        public async Task<int> GetProgressivoTemporaneo(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/progressivo?id={id}";
-
-                var lst = JsonConvert.DeserializeObject<int>(await Get(requestUrl, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetProgressivoTemporaneo", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetProgressivoTemporaneo", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.EliminaFirma}";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Post(requestUrl, body, _token));
+            return result;
         }
 
         public async Task<EmendamentiFormModel> GetNuovoModel(Guid id, Guid? em_riferimentoUId)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/new?id={id}";
-                if (em_riferimentoUId.HasValue)
-                    requestUrl += $"&em_riferimentoUId={em_riferimentoUId}";
-                var result = await Get(requestUrl, _token);
-                var lst = JsonConvert.DeserializeObject<EmendamentiFormModel>(result);
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetNuovoEmendamentoModel", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetNuovoEmendamentoModel", ex);
-                throw ex;
-            }
+            em_riferimentoUId ??= Guid.Empty;
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetNuovoModello.Replace("{id}", id.ToString()).Replace("{sub_id}", em_riferimentoUId.ToString())}";
+            var result = await Get(requestUrl, _token);
+            var lst = JsonConvert.DeserializeObject<EmendamentiFormModel>(result);
+            return lst;
         }
 
         public async Task<EmendamentiFormModel> GetModificaModel(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/edit?id={id}";
-
-                var lst = JsonConvert.DeserializeObject<EmendamentiFormModel>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetModificaEmendamentoModel", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetModificaEmendamentoModel", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetModificaModello.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<EmendamentiFormModel>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<IEnumerable<TitoloMissioniDto>> GetTitoliMissioni()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/titoli-missioni-em";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<TitoloMissioniDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetTitoliMissioni", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetTitoliMissioni", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetTitoliMissioni}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<TitoloMissioniDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<EmendamentiFormModel> GetModificaMetaDatiModel(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/edit-meta-dati?id={id}";
-
-                var lst = JsonConvert.DeserializeObject<EmendamentiFormModel>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetModificaMetaDatiEmendamentoModel", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetModificaMetaDatiEmendamentoModel", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetModificaModelloMetaDati.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<EmendamentiFormModel>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<EmendamentiDto> Salva(EmendamentiDto model)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Create}";
+            if (model.DocAllegatoGenerico != null)
             {
-                var requestUrl = $"{apiUrl}/emendamenti";
-                if (model.DocAllegatoGenerico != null)
-                {
-                    using var memoryStream = new MemoryStream();
-                    await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
-                    model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
-                }
-
-                if (model.DocEffettiFinanziari != null)
-                {
-                    using var memoryStream = new MemoryStream();
-                    await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
-                    model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
-                }
-
-                var body = JsonConvert.SerializeObject(model);
-
-                var result = JsonConvert.DeserializeObject<EmendamentiDto>(await Post(requestUrl, body, _token));
-                return result;
+                using var memoryStream = new MemoryStream();
+                await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
             }
-            catch (UnauthorizedAccessException ex)
+
+            if (model.DocEffettiFinanziari != null)
             {
-                //Log.Error("SalvaEmendamento", ex);
-                throw ex;
+                using var memoryStream = new MemoryStream();
+                await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
+                model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
             }
-            catch (Exception ex)
-            {
-                //Log.Error("SalvaEmendamento", ex);
-                throw ex;
-            }
+
+            var body = JsonConvert.SerializeObject(model);
+            var result = JsonConvert.DeserializeObject<EmendamentiDto>(await Post(requestUrl, body, _token));
+            return result;
         }
 
         public async Task Modifica(EmendamentiDto model)
         {
-            try
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Edit}";
+            if (model.DocAllegatoGenerico != null)
             {
-                var requestUrl = $"{apiUrl}/emendamenti";
-                if (model.DocAllegatoGenerico != null)
-                {
-                    using var memoryStream = new MemoryStream();
-                    await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
-                    model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
-                }
-
-                if (model.DocEffettiFinanziari != null)
-                {
-                    using var memoryStream = new MemoryStream();
-                    await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
-                    model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
-                }
-
-                var body = JsonConvert.SerializeObject(model);
-
-                await Put(requestUrl, body, _token);
+                using var memoryStream = new MemoryStream();
+                await model.DocAllegatoGenerico.InputStream.CopyToAsync(memoryStream);
+                model.DocAllegatoGenerico_Stream = memoryStream.ToArray();
             }
-            catch (UnauthorizedAccessException ex)
+
+            if (model.DocEffettiFinanziari != null)
             {
-                //Log.Error("ModificaEmendamento", ex);
-                throw ex;
+                using var memoryStream = new MemoryStream();
+                await model.DocEffettiFinanziari.InputStream.CopyToAsync(memoryStream);
+                model.DocEffettiFinanziari_Stream = memoryStream.ToArray();
             }
-            catch (Exception ex)
-            {
-                //Log.Error("ModificaEmendamento", ex);
-                throw ex;
-            }
+
+            var body = JsonConvert.SerializeObject(model);
+            await Put(requestUrl, body, _token);
         }
 
         public async Task ModificaMetaDati(EmendamentiDto model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/meta-dati";
-                var body = JsonConvert.SerializeObject(model);
-
-                await Put(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("ModificaMetaDatiEmendamento", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("ModificaMetaDatiEmendamento", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.AggiornaMetaDati}";
+            var body = JsonConvert.SerializeObject(model);
+            await Put(requestUrl, body, _token);
         }
 
         public async Task CambioStato(ModificaStatoModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/modifica-stato";
-                var body = JsonConvert.SerializeObject(model);
-
-                await Put(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("CambioStato", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("CambioStato", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.ModificaStato}";
+            var body = JsonConvert.SerializeObject(model);
+            await Put(requestUrl, body, _token);
         }
 
         public async Task<Dictionary<Guid, string>> Raggruppa(RaggruppaEmendamentiModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/raggruppa";
-                var body = JsonConvert.SerializeObject(model);
-
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("RaggruppaEmendamenti", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("RaggruppaEmendamenti", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Raggruppa}";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
+            return result;
         }
 
         public async Task<Dictionary<Guid, string>> AssegnaNuovoPorponente(AssegnaProponenteModel model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/assegna-nuovo-proponente";
-                var body = JsonConvert.SerializeObject(model);
-
-                var result =
-                    JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
-
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("AssegnaNuovoPorponente", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("AssegnaNuovoPorponente", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.AssegnaNuovoProponente}";
+            var body = JsonConvert.SerializeObject(model);
+            var result =
+                JsonConvert.DeserializeObject<Dictionary<Guid, string>>(await Put(requestUrl, body, _token));
+            return result;
         }
 
-        public async Task<IEnumerable<FirmeDto>> GetFirmatari(Guid emendamentoUId, FirmeTipoEnum tipo)
+        public async Task<IEnumerable<FirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum tipo)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/firmatari?id={emendamentoUId}&tipo={tipo}";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<FirmeDto>>(await Get(requestUrl, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetFirmatari", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetFirmatari", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetFirmatari.Replace("{id}", id.ToString()).Replace("{tipo}", tipo.ToString())}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<FirmeDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
-        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId)
+        public async Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/invitati?id={emendamentoUId}";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
-                    _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetInvitati", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetInvitati", ex);
-                throw ex;
-            }
-        }
-
-        public async Task Proietta(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/proietta?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-        }
-
-        public async Task<ProiettaResponse> Proietta_View(Guid id, int ordineVotazione)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/proietta-view?id={id}&ordine={ordineVotazione}";
-                var result = JsonConvert.DeserializeObject<ProiettaResponse>(await Get(requestUrl, _token));
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
-        }
-
-        public async Task<ProiettaResponse> Proietta_ViewLive(Guid id)
-        {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/proietta-view-live?id={id}";
-                var result = JsonConvert.DeserializeObject<ProiettaResponse>(await Get(requestUrl, _token));
-                return result;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("Proietta - Live", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("Proietta", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetInvitati.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<DestinatariNotificaDto>>(await Get(requestUrl,
+                _token));
+            return lst;
         }
 
         public async Task<IEnumerable<StatiDto>> GetStati()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/stati-em";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<StatiDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetStatiEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetStatiEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetStati}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<StatiDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<IEnumerable<PartiTestoDto>> GetParti()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/parti-em";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<PartiTestoDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetPartiEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetPartiEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetParti}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<PartiTestoDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<IEnumerable<Tipi_EmendamentiDto>> GetTipi()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/tipi-em";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_EmendamentiDto>>(await Get(requestUrl,
-                    _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetTipiEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetTipiEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetTipi}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<Tipi_EmendamentiDto>>(await Get(requestUrl,
+                _token));
+            return lst;
         }
 
         public async Task<IEnumerable<MissioniDto>> GetMissioni()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/missioni-em";
-
-                var lst = JsonConvert.DeserializeObject<IEnumerable<MissioniDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetMissioniEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetMissioniEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetMissioni}";
+            var lst = JsonConvert.DeserializeObject<IEnumerable<MissioniDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task ORDINA_EM_TRATTAZIONE(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/ordina?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("ORDINA_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("ORDINA_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Ordina.Replace("{id}", id.ToString())}";
+            await Get(requestUrl, _token);
         }
 
         public async Task UP_EM_TRATTAZIONE(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/ordina-up?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("UP_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("UP_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.OrdinaUp.Replace("{id}", id.ToString())}";
+            await Get(requestUrl, _token);
         }
 
         public async Task<List<TagDto>> GetTags()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/tags";
-
-                var lst = JsonConvert.DeserializeObject<List<TagDto>>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetTags", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetTags", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetTags}";
+            var lst = JsonConvert.DeserializeObject<List<TagDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<FileResponse> Download(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/file-immediato?id={id}";
-
-                var lst = await GetFile(requestUrl, _token);
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("DownloadEM", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("DownloadEM", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.StampaImmediata.Replace("{id}", id.ToString())}";
+            var lst = await GetFile(requestUrl, _token);
+            return lst;
         }
-
 
         public async Task DOWN_EM_TRATTAZIONE(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/ordina-down?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("DOWN_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("DOWN_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.OrdinaDown.Replace("{id}", id.ToString())}";
+            await Get(requestUrl, _token);
         }
 
         public async Task SPOSTA_EM_TRATTAZIONE(Guid id, int pos)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/sposta?id={id}&pos={pos}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("SPOSTA_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("SPOSTA_EM_TRATTAZIONE", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Sposta.Replace("{id}", id.ToString()).Replace("{pos}", pos.ToString())}";
+            await Get(requestUrl, _token);
         }
 
         public async Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/emendamenti/ordinamento-concluso?id={id}";
-                await Get(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.OrdinamentoConcluso.Replace("{id}", id.ToString())}";
+            await Get(requestUrl, _token);
         }
     }
 }

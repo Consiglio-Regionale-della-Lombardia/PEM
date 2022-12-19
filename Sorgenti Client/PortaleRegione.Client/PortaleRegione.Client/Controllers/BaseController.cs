@@ -39,11 +39,6 @@ namespace PortaleRegione.Client.Controllers
         {
             for (int i = 0; i < ruoli.Count; i++)
             {
-                //if (_CurrentUser.Ruoli.Select(item=>item.IDruolo).Contains((int)ruoli[i]))
-                //{
-
-                //}
-
                 var check = User.IsInRole(((int)ruoli[i]).ToString());
                 if (check)
                     return true;
@@ -52,7 +47,7 @@ namespace PortaleRegione.Client.Controllers
             return false;
         }
 
-        public PersonaDto _CurrentUser
+        public PersonaDto CurrentUser
         {
             get
             {
@@ -73,7 +68,7 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        public string _Token
+        public string Token
         {
             get
             {
@@ -81,6 +76,9 @@ namespace PortaleRegione.Client.Controllers
                 try
                 {
                     var jwtCookie1 = Request.Cookies["SCookies1"];
+                    if (jwtCookie1 is null)
+                        throw new Exception("Sessione scaduta");
+
                     var jwtCookie2 = Request.Cookies["SCookies2"];
                     var jwtCookie3 = Request.Cookies["SCookies3"];
                     var jwtTicket1 = FormsAuthentication.Decrypt(jwtCookie1.Value);

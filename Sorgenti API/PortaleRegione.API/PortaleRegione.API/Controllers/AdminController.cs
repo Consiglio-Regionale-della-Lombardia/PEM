@@ -26,13 +26,13 @@ using PortaleRegione.DTO.Request;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
     /// <summary>
     ///     Controller per endpoint di amministrazione
     /// </summary>
-    [RoutePrefix("admin")]
     public class AdminController : BaseApiController
     {
         /// <summary>
@@ -70,7 +70,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("reset-pin")]
+        [Route(ApiRoutes.Admin.ResetPin)]
         public async Task<IHttpActionResult> ResetPin(ResetRequest request)
         {
             try
@@ -91,7 +91,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("reset-password")]
+        [Route(ApiRoutes.Admin.ResetPassword)]
         public async Task<IHttpActionResult> ResetPassword(ResetRequest request)
         {
             try
@@ -112,7 +112,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("users/view")]
+        [Route(ApiRoutes.Admin.GetUtenti)]
         public async Task<IHttpActionResult> GetUtenti(BaseRequest<PersonaDto> model)
         {
             try
@@ -127,7 +127,6 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetUtenti", e);
                 return ErrorHandler(e);
             }
         }
@@ -138,7 +137,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("view/{id:guid}")]
+        [Route(ApiRoutes.Admin.GetPersona)]
         public async Task<IHttpActionResult> GetUtente(Guid id)
         {
             try
@@ -149,7 +148,6 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetUtente", e);
                 return ErrorHandler(e);
             }
         }
@@ -159,7 +157,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("ad/ruoli")]
+        [Route(ApiRoutes.Admin.GetRuoliAD)]
         public async Task<IHttpActionResult> GetRuoliAD()
         {
             try
@@ -180,7 +178,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("ad/gruppi-politici")]
+        [Route(ApiRoutes.Admin.GetGruppiPoliticiAD)]
         public async Task<IHttpActionResult> GetGruppiPoliticiAD()
         {
             try
@@ -203,7 +201,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("gruppi-in-db")]
+        [Route(ApiRoutes.Admin.GetGruppiInDb)]
         public async Task<IHttpActionResult> GetGruppiInDb()
         {
             try
@@ -218,39 +216,13 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per eliminare un utente nel db (deleted = 1)
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
-        [HttpDelete]
-        [Route("user/{id:guid}")]
-        public async Task<IHttpActionResult> DeleteUtente(Guid id)
-        {
-            try
-            {
-                var persona = await _adminLogic.GetPersona(id);
-                if (persona == null) return NotFound();
-
-                await _personeLogic.DeletePersona(persona.id_persona);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("DeleteUtente", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
         ///     Endpoint per aggiornare i dati dell'utente
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
-        [Route("salva")]
+        [Route(ApiRoutes.Admin.SalvaUtente)]
         public async Task<IHttpActionResult> SalvaUtente(PersonaUpdateRequest request)
         {
             try
@@ -271,7 +243,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpDelete]
-        [Route("elimina")]
+        [Route(ApiRoutes.Admin.EliminaUtente)]
         public async Task<IHttpActionResult> EliminaUtente(Guid id)
         {
             try
@@ -293,7 +265,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Amministratore_Giunta)]
         [HttpPost]
-        [Route("salva-gruppo")]
+        [Route(ApiRoutes.Admin.SalvaGruppo)]
         public async Task<IHttpActionResult> SalvaGruppo(SalvaGruppoRequest request)
         {
             try
@@ -314,7 +286,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("groups/view")]
+        [Route(ApiRoutes.Admin.GetGruppi)]
         public async Task<IHttpActionResult> GetGruppi(BaseRequest<GruppiDto> model)
         {
             try

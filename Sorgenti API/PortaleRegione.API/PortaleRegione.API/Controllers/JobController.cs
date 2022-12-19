@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -34,7 +35,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per la gestione dei servizi esterni
     /// </summary>
     [Authorize(Roles = RuoliExt.SERVIZIO_JOB)]
-    [RoutePrefix("job")]
     public class JobController : BaseApiController
     {
         /// <summary>
@@ -73,7 +73,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
-        [Route("stampe/view")]
+        [Route(ApiRoutes.Job.Stampe.GetAll)]
         public async Task<IHttpActionResult> GetStampe(BaseRequest<StampaDto> model)
         {
             try
@@ -94,7 +94,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model">Modello richiesta stampa</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("stampe/unlock")]
+        [Route(ApiRoutes.Job.Stampe.Unlock)]
         public async Task<IHttpActionResult> UnLockStampa(StampaRequest model)
         {
             try
@@ -115,7 +115,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("stampe/error")]
+        [Route(ApiRoutes.Job.Stampe.ReportError)]
         public async Task<IHttpActionResult> ErroreStampa(StampaRequest model)
         {
             try
@@ -136,7 +136,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="stampa"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("stampe")]
+        [Route(ApiRoutes.Job.Stampe.UpdateFileStampa)]
         public async Task<IHttpActionResult> UpdateFileStampa(StampaDto stampa)
         {
             try
@@ -157,7 +157,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="stampa"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("stampe/inviato")]
+        [Route(ApiRoutes.Job.Stampe.SetInvioStampa)]
         public async Task<IHttpActionResult> SetInvioStampa(StampaDto stampa)
         {
             try
@@ -178,7 +178,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("stampe/emendamenti")]
+        [Route(ApiRoutes.Job.Stampe.GetEmendamenti)]
         public async Task<IHttpActionResult> GetEmendamenti(ByQueryModel model)
         {
             try
@@ -206,7 +206,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("stampe/dasi")]
+        [Route(ApiRoutes.Job.Stampe.GetAtti)]
         public async Task<IHttpActionResult> GetDASI(ByQueryModel model)
         {
             try

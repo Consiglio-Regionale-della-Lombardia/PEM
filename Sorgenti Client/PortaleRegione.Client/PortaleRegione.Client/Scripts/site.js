@@ -296,6 +296,20 @@ async function GetEM(emUId) {
     });
 }
 
+async function GetAttiCartacei() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/cartacei",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 async function GetAtto(attoUId) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
@@ -710,11 +724,11 @@ function EliminaFirmaDASI(id) {
 }
 
 function RevealFirmatari(uidem) {
-    var panel = $("#reveal_" + uidem + " #dataItems");
+    var panel = $("#panelRevealFirmatari_" + uidem);
     panel.show();
-    var panelArea = $("#reveal_" + uidem + " #PinArea");
-    panelArea.hide();
-    $("#titleReveal").text("Firmatari");
+    var panelTag = $("#panelRevealTags_" + uidem);
+    panelTag.hide();
+    $("#titleReveal_" + uidem).text("Firmatari");
     return new Promise(function(resolve, reject) {
         $.ajax({
             url: baseUrl + "/emendamenti/firmatari",
@@ -736,6 +750,14 @@ function RevealFirmatari(uidem) {
     });
 }
 
+function RevealTags(uidem) {
+    var panel = $("#panelRevealFirmatari_" + uidem);
+    panel.hide();
+    var panelTag = $("#panelRevealTags_" + uidem);
+    panelTag.show();
+    $("#titleReveal_" + uidem).text("Tags");
+}
+
 function RevealFirmaDeposito(id, action) {
     var text = "";
     var button = "";
@@ -743,8 +765,8 @@ function RevealFirmaDeposito(id, action) {
         text = "Inserisci il PIN per firmare";
         button = "Firma";
     } else if (action == 4) {
-        text = "Inserisci il PIN per depositare";
-        button = "Deposita";
+        text = "Inserisci il PIN per presentare";
+        button = "Presenta";
     }
 
     swal(text,
@@ -858,8 +880,8 @@ function RevealFirmaDepositoDASI(id, action) {
         text = "Inserisci il PIN per firmare";
         button = "Firma";
     } else if (action == 4) {
-        text = "Inserisci il PIN per depositare";
-        button = "Deposita";
+        text = "Inserisci il PIN per presentare";
+        button = "Presenta";
     }
 
     swal(text,

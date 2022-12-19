@@ -17,14 +17,14 @@
  */
 
 using PortaleRegione.Client.Helpers;
-using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -41,7 +41,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 RiepilogoNotificheModel model;
                 if (!is_inviate)
                     model = await apiGateway.Notifiche.GetNotificheRicevute(page, size, archivio);
@@ -63,7 +63,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 var model = await apiGateway.Notifiche.GetNotificheRicevute(1, 1, false, true);
 
                 return Json(model.Data.Paging.Total, JsonRequestBehavior.AllowGet);
@@ -77,11 +77,11 @@ namespace PortaleRegione.Client.Controllers
 
         [HttpGet]
         [Route("{id:int}/destinatari")]
-        public async Task<ActionResult> GetDestinatariNotifica(int id)
+        public async Task<ActionResult> GetDestinatariNotifica(string id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var destinatari = await apiGateway.Notifiche.GetDestinatariNotifica(id);
-            var result = await Utility.GetDestinatariNotifica(destinatari, _Token);
+            var result = await Utility.GetDestinatariNotifica(destinatari, Token);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -89,35 +89,44 @@ namespace PortaleRegione.Client.Controllers
         [Route("destinatari")]
         public async Task<ActionResult> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var destinatari = await apiGateway.Notifiche.GetListaDestinatari(atto, tipo);
             return Json(destinatari, JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpGet]
         [Route("destinatari-dasi")]
         public async Task<ActionResult> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var destinatari = await apiGateway.Notifiche.GetListaDestinatari(tipo);
             return Json(destinatari, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         [Route("accetta-proposta")]
-        public async Task<ActionResult> AccettaPropostaFirma(long id)
+        public async Task<ActionResult> AccettaPropostaFirma(string id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             await apiGateway.Notifiche.AccettaPropostaFirma(id);
             return Json("", JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpGet]
         [Route("accetta-ritiro")]
-        public async Task<ActionResult> AccettaRitiroFirma(long id)
+        public async Task<ActionResult> AccettaRitiroFirma(string id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             await apiGateway.Notifiche.AccettaRitiroFirma(id);
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [Route("archivia")]
+        public async Task<ActionResult> ArchiviaNotifica(List<string> notifiche)
+        {
+            var apiGateway = new ApiGateway(Token);
+            await apiGateway.Notifiche.ArchiviaNotifiche(notifiche);
             return Json("", JsonRequestBehavior.AllowGet);
         }
     }

@@ -1,9 +1,6 @@
-﻿@using System.Web.Services.Description
-@using Newtonsoft.Json
-@using PortaleRegione.Common
+﻿@using Newtonsoft.Json
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
-@using Utility = PortaleRegione.Client.Helpers.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @if (!Model.Data.Results.Any())
@@ -41,10 +38,10 @@ else
         }
 
         <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s6" : "s12")">
-            <div class="card hoverable" style="min-height: 300px">
+            <div class="card sticky-action hoverable" style="min-height: 300px">
                 <div class="card-content">
                     <div class="card-title">
-                        <div class="row">
+                        <div class="row" style="margin: unset !important;">
                             <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s12" : "s6")">
                                 <div class="col l1" style="margin-top: 10px">
                                     <label>
@@ -102,55 +99,38 @@ else
 
                                         @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
                                         {
-                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 35px; min-width: unset;">
-                                        @if (itemEM.Firma_da_ufficio)
-                                        {
-                                            <b>@itemEM.Firma_ufficio.FirmaCert</b>
-                                        }
-                                        else
-                                        {
-                                            <span>Firmato dal proponente:</span>
-                                            if (itemEM.Firmato_Dal_Proponente)
-                                            {
-                                                @itemEM.PersonaProponente.DisplayName
-                                            }
-                                            else
-                                            {
-                                                <span style="color: grey; text-decoration: line-through;">
-                                                    @itemEM.PersonaProponente.DisplayName
-                                                </span>
-                                            }
+                                            <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 10px; min-width: unset;">
+                                                @if (itemEM.Firma_da_ufficio)
+                                                {
+                                                    <b>@itemEM.Firma_ufficio.FirmaCert</b>
+                                                }
+                                                else
+                                                {
+                                                    <span>Firmato dal proponente:</span>
+                                                    if (itemEM.Firmato_Dal_Proponente)
+                                                    {
+                                                        @itemEM.PersonaProponente.DisplayName
+                                                    }
+                                                    else
+                                                    {
+                                                        <span style="color: grey; text-decoration: line-through;">
+                                                            @itemEM.PersonaProponente.DisplayName
+                                                        </span>
+                                                    }
 
-                                            if (itemEM.Proponente_Relatore)
-                                            {
-                                                <b>(RELATORE)</b>
-                                            }
-                                        }
+                                                    if (itemEM.Proponente_Relatore)
+                                                    {
+                                                        <b>(RELATORE)</b>
+                                                    }
+                                                }
 
-                                        @if (itemEM.ConteggioFirme > 1)
-                                        {
-                                            <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
-                                                + @(itemEM.ConteggioFirme - 1)
-                                            </span>
-                                        }
-                                    </div>
-                                        }
-                                        
-                                        
-                                        @*TAGS*@
-                                        
-                                        @{
-                                            var tags = new List<TagDto>();
-
-                                            if (!string.IsNullOrEmpty(itemEM.Tags))
-                                            {
-                                                tags = JsonConvert.DeserializeObject<List<TagDto>>(itemEM.Tags);
-                                            }
-                                        }
-                                        
-                                        @foreach (var t in tags)
-                                        {
-                                            <label>#@t.tag</label>
+                                                @if (itemEM.ConteggioFirme > 1)
+                                                {
+                                                    <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
+                                                        + @(itemEM.ConteggioFirme - 1)
+                                                    </span>
+                                                }
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -195,13 +175,16 @@ else
                 </div>
                 <div class="card-action grey lighten-4">
                     <div class="row" style="margin: 0 !important">
-                        <div class="col s7 left">
+                        <div class="col s8 left">
                             <label style="font-size: small !important">Proponente: </label>
                             <h6 id="lblProponente_@itemEM.UIDEM">
                                 <b>@itemEM.PersonaProponente.DisplayName @Html.Raw(Model.Mode == ClientModeEnum.TRATTAZIONE ? string.Format("({0})", itemEM.gruppi_politici.codice_gruppo) : "")</b>
                             </h6>
                         </div>
-                        <div class="col s5 right-align" style="margin-top: 9px">
+                        <div class="col s4 right-align" style="margin-top: 9px">
+                            <a class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags" style="margin-right: 15px;" onclick="RevealTags('@itemEM.UIDEM')">
+                                <i class="material-icons">filter_frames</i>
+                            </a>
                             <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
                                 <i class="material-icons">print</i>
                             </a>
@@ -211,14 +194,38 @@ else
                         </div>
                     </div>
                 </div>
-                <div class="card-reveal" id="reveal_@itemEM.UIDEM" style="overflow: hidden; padding-bottom: 65px">
+                <div class="card-reveal" id="reveal_@itemEM.UIDEM" style="padding-bottom: 65px">
                     <span class="card-title grey-text text-darken-4 center">
-                        <span id="titleReveal">Firmatari</span> <i class="material-icons right">close</i>
+                        <span id="titleReveal_@itemEM.UIDEM">Firmatari</span> <i class="material-icons right">close</i>
                     </span>
-                    <div id="dataItems" class="collection" style="height: 100%; overflow: auto;">
-                        <div class="progress">
-                            <div class="indeterminate"></div>
+                    <div id="panelRevealFirmatari_@itemEM.UIDEM" style="display: none;">
+
+                        <div id="dataItems" class="collection" style="height: 100%; overflow: auto;">
+                            <div class="progress">
+                                <div class="indeterminate"></div>
+                            </div>
                         </div>
+                    </div>
+                    <div id="panelRevealTags_@itemEM.UIDEM" style="display: none;">
+                        @*TAGS*@
+
+                        @{
+                            var tags = new List<TagDto>();
+
+                            if (!string.IsNullOrEmpty(itemEM.Tags))
+                            {
+                                tags = JsonConvert.DeserializeObject<List<TagDto>>(itemEM.Tags);
+                            }
+                        }
+                        @if (tags.Any())
+                        {
+                            <ul>
+                                @foreach (var t in tags)
+                                {
+                                    <li>#@t.tag</li>
+                                }
+                            </ul>
+                        }
                     </div>
                 </div>
             </div>

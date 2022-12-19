@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
-
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,205 +38,75 @@ namespace PortaleRegione.Gateway
 
         public async Task<BaseResponse<SeduteDto>> Get(int page, int size)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute/view";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.GetAll}";
 
-                var model = new BaseRequest<SeduteDto>
-                {
-                    page = page,
-                    size = size
-                };
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
+            var model = new BaseRequest<SeduteDto>
             {
-                //Log.Error("GetSedute", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetSedute", ex);
-                throw ex;
-            }
+                page = page,
+                size = size
+            };
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task<SeduteFormUpdateDto> Get(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute?id={id}";
-
-                var lst = JsonConvert.DeserializeObject<SeduteFormUpdateDto>(await Get(requestUrl, _token));
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetSeduta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetSeduta", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.Get.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<SeduteFormUpdateDto>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<BaseResponse<SeduteDto>> Get(BaseRequest<SeduteDto> model)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute/view";
-                var body = JsonConvert.SerializeObject(model);
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Post(requestUrl, body, _token));
-
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetSedute", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetSedute", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.GetAll}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Post(requestUrl, body, _token));
+            return lst;
         }
 
         public async Task Salva(SeduteFormUpdateDto seduta)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute";
-                var body = JsonConvert.SerializeObject(seduta);
-
-                await Post(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("SalvaSeduta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("SalvaSeduta", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.Create}";
+            var body = JsonConvert.SerializeObject(seduta);
+            await Post(requestUrl, body, _token);
         }
 
         public async Task<BaseResponse<SeduteDto>> GetAttive()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute/attive";
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
-                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetAttive", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetAttive", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.GetAttive}";
+            var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+            lst!.Results = lst.Results.OrderBy(item => item.Data_seduta);
+            return lst;
         }
 
         public async Task<BaseResponse<SeduteDto>> GetAttiveMOZU()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute/attive-mozu";
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
-                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetAttiveMOZU", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetAttiveMOZU", ex);
-                throw ex;
-            }
-
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.GetAttiveMOZU}";
+            var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+            lst!.Results = lst.Results.OrderBy(item => item.Data_seduta);
+            return lst;
         }
 
         public async Task<BaseResponse<SeduteDto>> GetAttiveDashboard()
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute/attive-dashboard";
-
-                var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
-                lst.Results = lst.Results.OrderBy(item => item.Data_seduta);
-                return lst;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("GetAttiveDashboard", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("GetAttiveDashboard", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.GetAttiveDashboard}";
+            var lst = JsonConvert.DeserializeObject<BaseResponse<SeduteDto>>(await Get(requestUrl, _token));
+            lst!.Results = lst.Results.OrderBy(item => item.Data_seduta);
+            return lst;
         }
-
 
         public async Task Modifica(SeduteFormUpdateDto seduta)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute";
-                var body = JsonConvert.SerializeObject(seduta);
-
-                await Put(requestUrl, body, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("ModificaSeduta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("ModificaSeduta", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.Edit}";
+            var body = JsonConvert.SerializeObject(seduta);
+            await Put(requestUrl, body, _token);
         }
 
         public async Task Elimina(Guid id)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/sedute?id={id}";
-
-                await Delete(requestUrl, _token);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("EliminaSeduta", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("EliminaSeduta", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Sedute.Delete.Replace("{id}", id.ToString())}";
+            await Delete(requestUrl, _token);
         }
     }
 }

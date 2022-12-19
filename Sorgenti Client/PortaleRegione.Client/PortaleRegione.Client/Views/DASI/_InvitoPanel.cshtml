@@ -24,6 +24,12 @@
             </div>
             <div class="form-group">
                 <label>Destinatari:</label>
+                <p>
+                    <label>
+                        <input id="chkCaricaConsiglieri" type="checkbox" onchange="CaricaConsiglieriProprioGruppo()"/>
+                        <span>Invita proprio gruppo</span>
+                    </label>
+                </p>
                 <div id="autocompleteInvitati" class="chips chips-autocomplete"></div>
             </div>
         }
@@ -36,27 +42,59 @@
 
 
 <script>
+    var elems = document.querySelector("#autocompleteInvitati");
+
     var chipInstanceNotificaADASI = null;
+    var autocompleteDataOptions;
+    var persone = [];
+    var data_preload = [];
 
     async function LoadDestinatari(tipo) {
+        $('#chkCaricaConsiglieri').prop('checked', false);
+        data_preload = [];
+        persone = [];
         var personeInDB = await GetPersonePerInvitiDASI(tipo);
 
-        var persone = [];
         for (let [key, value] of Object.entries(personeInDB)) {
             persone.push({
                 tag: value,
                 id: key
             });
-        }
+        }        
 
-        var data_preload = [];
-        var elems = document.querySelector("#autocompleteInvitati");
-
-        var autocompleteDataOptions = {
+        autocompleteDataOptions = {
             data: persone,
             limit: 3,
             minLength: 1
         };
+        if (chipInstanceNotificaADASI != null) {
+            chipInstanceNotificaADASI.destroy();
+        }
+        chipInstanceNotificaADASI = M.Chips.init(elems,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                data: data_preload
+            });
+    }
+    
+    function CaricaConsiglieriProprioGruppo(){
+        
+        if ($('#chkCaricaConsiglieri').is(':checked')){
+            var nome_utente = $('#txtDisplayNameUser').data("target-val");
+            var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
+
+            $.each(persone, function (index, item) {
+                if (item.tag.includes(nome_utente)) {
+                    //salto me stesso
+                }
+                else if (item.tag.includes("(" + codice_gruppo + ")")) {
+                    data_preload.push({ tag: item.tag, id: item.id });
+                }
+            });
+        }else{
+            data_preload = [];
+        }             
+        
         if (chipInstanceNotificaADASI != null) {
             chipInstanceNotificaADASI.destroy();
         }
@@ -153,4 +191,7 @@
             return false; //This doesn't prevent the form from submitting.
         }
     });
+
+
+
 </script>

@@ -99,7 +99,7 @@
                     </div>
                     <div class="col s8" style="padding-left: 0">
                         <h6 class="black-text">
-                            <b>@persona.DisplayName</b>
+                            <b id="txtDisplayNameUser" data-target-val="@persona.DisplayName">@persona.DisplayName</b>
                         </h6>
                     </div>
                 </div>
@@ -176,7 +176,7 @@
 
                             if (currentRole != RuoliIntEnum.Segreteria_Assemblea)
                             {
-                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo'>
+                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo' data-target-val="@testoGruppo">
                                     @testoGruppo @Html.Raw(iconClassSwapGruppi)
                                 </a>
                             }

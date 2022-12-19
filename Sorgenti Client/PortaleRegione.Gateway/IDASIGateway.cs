@@ -30,8 +30,6 @@ namespace PortaleRegione.Gateway
     public interface IDASIGateway
     {
         Task<AttoDASIDto> Salva(AttoDASIDto request);
-
-        Task Modifica(AttoDASIDto request);
         Task<AttoDASIDto> Get(Guid id);
         Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo);
         Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model);
@@ -59,7 +57,7 @@ namespace PortaleRegione.Gateway
         Task RimuoviRichiestaIscrizione(RichiestaIscrizioneDASIModel model);
         Task ProponiMozioneUrgente(PromuoviMozioneModel model);
         Task ProponiMozioneAbbinata(PromuoviMozioneModel model);
-        Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid emendamentoUId);
+        Task<IEnumerable<DestinatariNotificaDto>> GetInvitati(Guid id);
         Task<string> GetCopertina(ByQueryModel model);
         Task<IEnumerable<StatiDto>> GetStati();
         Task<IEnumerable<Tipi_AttoDto>> GetTipiMOZ();
@@ -70,5 +68,8 @@ namespace PortaleRegione.Gateway
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
         Task<FileResponse> Download(Guid id);
         Task InviaAlProtocollo(Guid id);
+        Task DeclassaMozione(List<string> data);
+        Task<List<AttoDASIDto>> GetCartacei();
+        Task SalvaCartaceo(AttoDASIDto atto);
     }
 }

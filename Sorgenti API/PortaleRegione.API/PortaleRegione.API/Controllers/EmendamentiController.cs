@@ -28,6 +28,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire gli emendamenti
     /// </summary>
     [Authorize]
-    [RoutePrefix("emendamenti")]
     public class EmendamentiController : BaseApiController
     {
         /// <summary>
@@ -49,7 +49,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetAll)]
         public async Task<IHttpActionResult> GetEmendamenti(BaseRequest<EmendamentiDto> model)
         {
             try
@@ -103,13 +103,12 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("view-richiesta-propria-firma")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetAllRichiestaPropriaFirma)]
         public async Task<IHttpActionResult> GetEmendamenti_RichiestaPropriaFirma(BaseRequest<EmendamentiDto> model)
         {
             try
             {
                 var atto = await _attiLogic.GetAtto(model.id);
-
                 if (atto == null)
                 {
                     return NotFound();
@@ -146,9 +145,9 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="path">Percorso file</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("file")]
         [AllowAnonymous]
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Emendamenti.DownloadDoc)]
         public async Task<IHttpActionResult> Download(string path)
         {
             try
@@ -170,7 +169,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Emendamenti.Get)]
         public async Task<IHttpActionResult> GetEmendamento(Guid id)
         {
             //TODO: implementare i controlli anche sull'atto
@@ -198,15 +197,15 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint che restituisce il modello di emendamento da creare
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="em_riferimentoUId"></param>
+        /// <param name="sub_id"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
                            RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
                            RuoliExt.Responsabile_Segreteria_Politica + "," + RuoliExt.Segreteria_Politica + "," +
                            RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
                            "," + RuoliExt.Presidente_Regione)]
-        [Route("new")]
-        public async Task<IHttpActionResult> GetNuovoEmendamento(Guid id, Guid? em_riferimentoUId)
+        [Route(ApiRoutes.PEM.Emendamenti.GetNuovoModello)]
+        public async Task<IHttpActionResult> GetNuovoEmendamento(Guid id, Guid? sub_id)
         {
             try
             {
@@ -216,7 +215,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
                 }
 
-                var result = await _emendamentiLogic.ModelloNuovoEM(atti, em_riferimentoUId, CurrentUser);
+                var result = await _emendamentiLogic.ModelloNuovoEM(atti, sub_id, CurrentUser);
                 return Ok(result);
             }
             catch (Exception e)
@@ -236,7 +235,7 @@ namespace PortaleRegione.API.Controllers
                            RuoliExt.Responsabile_Segreteria_Politica + "," + RuoliExt.Segreteria_Politica + "," +
                            RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
                            "," + RuoliExt.Presidente_Regione)]
-        [Route("edit")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetModificaModello)]
         public async Task<IHttpActionResult> GetModificaEmendamento(Guid id)
         {
             try
@@ -268,7 +267,7 @@ namespace PortaleRegione.API.Controllers
                            RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
                            "," + RuoliExt.Presidente_Regione)]
         [HttpPost]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Emendamenti.Create)]
         public async Task<IHttpActionResult> NuovoEmendamento(EmendamentiDto model)
         {
             try
@@ -352,13 +351,12 @@ namespace PortaleRegione.API.Controllers
                            RuoliExt.Responsabile_Segreteria_Giunta + "," + RuoliExt.Segreteria_Giunta_Regionale +
                            "," + RuoliExt.Presidente_Regione)]
         [HttpPut]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Emendamenti.Edit)]
         public async Task<IHttpActionResult> ModificaEmendamento(EmendamentiDto model)
         {
             try
             {
                 var em = await _emendamentiLogic.GetEM(model.UIDEM);
-
                 if (em == null)
                 {
                     return NotFound();
@@ -392,7 +390,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("")]
+        [Route(ApiRoutes.PEM.Emendamenti.Delete)]
         public async Task<IHttpActionResult> DeleteEmendamento(Guid id)
         {
             try
@@ -421,86 +419,12 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per proiettare un emendamento in aula
-        /// </summary>
-        /// <param name="id">Guid atto</param>
-        /// <param name="ordine">Ordine emendamento in votazione</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("proietta-view")]
-        public async Task<IHttpActionResult> ViewerEmendamento(Guid id, int ordine)
-        {
-            try
-            {
-                var result = await _emendamentiLogic.GetEM_ByProietta(id, ordine, CurrentUser);
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("ProiettaEmendamento", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per conoscere l' emendamento proiettato in aula
-        /// </summary>
-        /// <param name="id">Guid atto</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("proietta-view-live")]
-        public async Task<IHttpActionResult> ViewerEmendamento(Guid id)
-        {
-            try
-            {
-                var result = await _emendamentiLogic.GetEM_LiveProietta(id, CurrentUser);
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                //Log.Error("ProiettaEmendamento", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per impostare l'emendamento da proiettare in aula
-        /// </summary>
-        /// <param name="id">Guid emendamento</param>
-        /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
-        [Route("proietta")]
-        public async Task<IHttpActionResult> ProiettaEmendamento(Guid id)
-        {
-            try
-            {
-                var em = await _emendamentiLogic.GetEM(id);
-                if (em == null)
-                {
-                    return NotFound();
-                }
-
-                await _emendamentiLogic.Proietta(em, Session._currentUId);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("ProiettaEmendamento", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
         ///     Endpoint per avere i firmatari di un emendamento
         /// </summary>
         /// <param name="id"></param>
         /// <param name="tipo"></param>
         /// <returns></returns>
-        [Route("firmatari")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetFirmatari)]
         public async Task<IHttpActionResult> GetFirmatari(Guid id, FirmeTipoEnum tipo)
         {
             try
@@ -526,7 +450,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
-        [Route("invitati")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetInvitati)]
         public async Task<IHttpActionResult> GetInvitati(Guid id)
         {
             try
@@ -553,19 +477,14 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("template-body")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetBody)]
         public async Task<IHttpActionResult> GetBody(GetBodyModel model)
         {
             try
             {
-                var em = await _emendamentiLogic.GetEM(model.Id);
-                if (em == null)
-                {
-                    return NotFound();
-                }
-
-                var firme = await _firmeLogic.GetFirme(em, FirmeTipoEnum.TUTTE);
-                var body = await _emendamentiLogic.GetBodyEM(em
+                var emDto = await _emendamentiLogic.GetEM_DTO(model.Id);
+                var firme = await _firmeLogic.GetFirme(emDto, FirmeTipoEnum.TUTTE);
+                var body = await _emendamentiLogic.GetBodyEM(emDto
                     , firme
                     , CurrentUser
                     , model.Template);
@@ -585,13 +504,12 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("template/copertina")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetBodyCopertina)]
         public async Task<IHttpActionResult> GetBodyCopertina(CopertinaModel model)
         {
             try
             {
                 var body = await _emendamentiLogic.GetCopertina(model);
-
                 return Ok(body);
             }
             catch (Exception e)
@@ -610,15 +528,13 @@ namespace PortaleRegione.API.Controllers
                            RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
                            RuoliExt.Presidente_Regione)]
         [HttpPost]
-        [Route("firma")]
+        [Route(ApiRoutes.PEM.Emendamenti.Firma)]
         public async Task<IHttpActionResult> FirmaEmendamento(ComandiAzioneModel firmaModel)
         {
             try
             {
                 var user = CurrentUser;
-
                 var firmaUfficio = user.IsSegreteriaAssemblea;
-
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
@@ -660,15 +576,13 @@ namespace PortaleRegione.API.Controllers
         /// <param name="firmaModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("ritiro-firma")]
+        [Route(ApiRoutes.PEM.Emendamenti.RitiroFirma)]
         public async Task<IHttpActionResult> RitiroFirmaEmendamento(ComandiAzioneModel firmaModel)
         {
             try
             {
                 var user = CurrentUser;
-
                 var firmaUfficio = user.IsSegreteriaAssemblea;
-
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
@@ -710,15 +624,13 @@ namespace PortaleRegione.API.Controllers
         /// <param name="firmaModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("elimina-firma")]
+        [Route(ApiRoutes.PEM.Emendamenti.EliminaFirma)]
         public async Task<IHttpActionResult> EliminaFirmaEmendamento(ComandiAzioneModel firmaModel)
         {
             try
             {
                 var user = CurrentUser;
-
                 var firmaUfficio = user.IsSegreteriaAssemblea;
-
                 if (firmaUfficio)
                 {
                     if (firmaModel.Pin != AppSettingsConfiguration.MasterPIN)
@@ -760,7 +672,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="depositoModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("deposita")]
+        [Route(ApiRoutes.PEM.Emendamenti.Deposita)]
         public async Task<IHttpActionResult> DepositaEmendamento(ComandiAzioneModel depositoModel)
         {
             try
@@ -820,7 +732,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("ritira")]
+        [Route(ApiRoutes.PEM.Emendamenti.Ritira)]
         public async Task<IHttpActionResult> RitiraEmendamento(Guid id)
         {
             try
@@ -855,7 +767,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("elimina")]
+        [Route(ApiRoutes.PEM.Emendamenti.Elimina)]
         public async Task<IHttpActionResult> EliminaEmendamento(Guid id)
         {
             try
@@ -890,7 +802,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("edit-meta-dati")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetModificaModelloMetaDati)]
         public async Task<IHttpActionResult> GetModificaMetaDatiEmendamento(Guid id)
         {
             try
@@ -910,7 +822,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [Route("meta-dati")]
+        [Route(ApiRoutes.PEM.Emendamenti.AggiornaMetaDati)]
         [HttpPut]
         public async Task<IHttpActionResult> ModificaMetaDatiEmendamento(EmendamentiDto model)
         {
@@ -941,7 +853,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
-        [Route("modifica-stato")]
+        [Route(ApiRoutes.PEM.Emendamenti.ModificaStato)]
         public async Task<IHttpActionResult> ModificaStato(ModificaStatoModel model)
         {
             try
@@ -962,8 +874,8 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
-        [Route("assegna-nuovo-proponente")]
-        public async Task<IHttpActionResult> AssegnaNuovoPorponente(AssegnaProponenteModel model)
+        [Route(ApiRoutes.PEM.Emendamenti.AssegnaNuovoProponente)]
+        public async Task<IHttpActionResult> AssegnaNuovoProponente(AssegnaProponenteModel model)
         {
             try
             {
@@ -1005,7 +917,7 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPut]
-        [Route("raggruppa")]
+        [Route(ApiRoutes.PEM.Emendamenti.Raggruppa)]
         public async Task<IHttpActionResult> RaggruppaEmendamenti(RaggruppaEmendamentiModel model)
         {
             try
@@ -1041,13 +953,12 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("ordina")]
+        [Route(ApiRoutes.PEM.Emendamenti.Ordina)]
         public async Task<IHttpActionResult> ORDINA_EM_TRATTAZIONE(Guid id)
         {
             try
             {
                 await _emendamentiLogic.ORDINA_EM_TRATTAZIONE(id);
-
                 return Ok();
             }
             catch (Exception e)
@@ -1064,13 +975,12 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("ordinamento-concluso")]
+        [Route(ApiRoutes.PEM.Emendamenti.OrdinamentoConcluso)]
         public async Task<IHttpActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
         {
             try
             {
                 await _emendamentiLogic.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id, CurrentUser);
-
                 return Ok();
             }
             catch (Exception e)
@@ -1087,13 +997,12 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("ordina-up")]
+        [Route(ApiRoutes.PEM.Emendamenti.OrdinaUp)]
         public async Task<IHttpActionResult> UP_EM_TRATTAZIONE(Guid id)
         {
             try
             {
                 await _emendamentiLogic.UP_EM_TRATTAZIONE(id);
-
                 return Ok();
             }
             catch (Exception e)
@@ -1110,13 +1019,12 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("ordina-down")]
+        [Route(ApiRoutes.PEM.Emendamenti.OrdinaDown)]
         public async Task<IHttpActionResult> DOWN_EM_TRATTAZIONE(Guid id)
         {
             try
             {
                 await _emendamentiLogic.DOWN_EM_TRATTAZIONE(id);
-
                 return Ok();
             }
             catch (Exception e)
@@ -1134,13 +1042,12 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpGet]
-        [Route("sposta")]
+        [Route(ApiRoutes.PEM.Emendamenti.Sposta)]
         public async Task<IHttpActionResult> SPOSTA_EM_TRATTAZIONE(Guid id, int pos)
         {
             try
             {
                 await _emendamentiLogic.SPOSTA_EM_TRATTAZIONE(id, pos);
-
                 return Ok();
             }
             catch (Exception e)
@@ -1155,7 +1062,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("parti-em")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetParti)]
         public async Task<IHttpActionResult> GetPartiEM()
         {
             try
@@ -1174,7 +1081,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("tipi-em")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetTipi)]
         public async Task<IHttpActionResult> GetTipiEM()
         {
             try
@@ -1193,7 +1100,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("tags")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetTags)]
         public async Task<IHttpActionResult> GetTags()
         {
             try
@@ -1213,7 +1120,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid emendamento</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("file-immediato")]
+        [Route(ApiRoutes.PEM.Emendamenti.StampaImmediata)]
         public async Task<IHttpActionResult> Download(Guid id)
         {
             try
@@ -1241,7 +1148,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("missioni-em")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetMissioni)]
         public async Task<IHttpActionResult> GetMissioniEM()
         {
             try
@@ -1260,7 +1167,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("titoli-missioni-em")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetTitoliMissioni)]
         public async Task<IHttpActionResult> GetTitoliMissioni()
         {
             try
@@ -1279,7 +1186,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("stati-em")]
+        [Route(ApiRoutes.PEM.Emendamenti.GetStati)]
         public async Task<IHttpActionResult> GetStatiEM()
         {
             try

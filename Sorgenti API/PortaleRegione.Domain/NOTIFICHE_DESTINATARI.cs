@@ -26,7 +26,7 @@ namespace PortaleRegione.Domain
         [Key]
         public Guid UID { get; set; }
 
-        public long UIDNotifica { get; set; }
+        public string UIDNotifica { get; set; }
 
         public Guid UIDPersona { get; set; }
 

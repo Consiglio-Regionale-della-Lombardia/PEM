@@ -38,7 +38,7 @@ namespace PortaleRegione.Gateway
         Task EliminaComma(Guid id);
         Task EliminaLettera(Guid id);
         Task<BaseResponse<AttiDto>> Get(BaseRequest<AttiDto> model);
-        Task<AttiDto> Get(Guid attoUId);
+        Task<AttiDto> Get(Guid id);
         Task<BaseResponse<AttiDto>> Get(Guid sedutaUId, ClientModeEnum mode, int page, int size);
         Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id);
         Task<IEnumerable<CommiDto>> GetComma(Guid id, bool expanded);

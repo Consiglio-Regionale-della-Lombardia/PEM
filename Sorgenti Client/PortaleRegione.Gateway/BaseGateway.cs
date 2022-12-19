@@ -19,6 +19,7 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -273,23 +274,9 @@ namespace PortaleRegione.Gateway
 
         public static async Task<bool> SendMail(MailModel model, string token)
         {
-            try
-            {
-                var requestUrl = $"{apiUrl}/util/mail";
-                var body = JsonConvert.SerializeObject(model);
-
-                return JsonConvert.DeserializeObject<bool>(await Post(requestUrl, body, token));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                //Log.Error("SendMail", ex);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                //Log.Error("SendMail", ex);
-                throw ex;
-            }
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Util.InvioMail}";
+            var body = JsonConvert.SerializeObject(model);
+            return JsonConvert.DeserializeObject<bool>(await Post(requestUrl, body, token));
         }
     }
 }

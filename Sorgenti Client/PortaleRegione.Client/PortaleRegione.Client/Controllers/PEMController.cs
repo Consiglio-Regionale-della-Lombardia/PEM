@@ -41,7 +41,7 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.Sedute.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
@@ -54,7 +54,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("delete")]
         public async Task<ActionResult> EliminaSeduta(Guid id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             await apiGateway.Sedute.Elimina(id);
             return RedirectToAction("RiepilogoSedute", "PEM");
         }
@@ -70,7 +70,7 @@ namespace PortaleRegione.Client.Controllers
         [Route("edit/{id:guid}")]
         public async Task<ActionResult> ModificaSeduta(Guid id)
         {
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var seduta = await apiGateway.Sedute.Get(id);
             return View("SedutaForm", seduta);
         }
@@ -82,7 +82,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 if (seduta.UIDSeduta == Guid.Empty)
                     await apiGateway.Sedute.Salva(seduta);
                 else
@@ -105,7 +105,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 return Json(await apiGateway.Legislature.GetLegislature(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -121,7 +121,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 return Json(await apiGateway.Sedute.GetAttive(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -137,7 +137,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 return Json(await apiGateway.Sedute.GetAttiveMOZU(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -153,7 +153,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 return Json(await apiGateway.Sedute.GetAttiveDashboard(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -169,7 +169,7 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                var apiGateway = new ApiGateway(_Token);
+                var apiGateway = new ApiGateway(Token);
                 var model = new BaseRequest<SeduteDto>
                 {
                     filtro = new List<FilterStatement<SeduteDto>>
@@ -255,7 +255,7 @@ namespace PortaleRegione.Client.Controllers
                     Connector = FilterStatementConnector.And
                 });
 
-            var apiGateway = new ApiGateway(_Token);
+            var apiGateway = new ApiGateway(Token);
             var results = await apiGateway.Sedute.Get(model);
 
             var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));

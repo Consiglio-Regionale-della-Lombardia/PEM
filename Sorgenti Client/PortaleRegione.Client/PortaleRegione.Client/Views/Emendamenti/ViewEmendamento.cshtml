@@ -224,7 +224,7 @@
                 @{
                     var tags = new List<TagDto>();
 
-                    if (!string.IsNullOrEmpty(Model.Tags))
+                    if (!string.IsNullOrEmpty(Model.Tags) && Model.IDStato < (int)StatiEnum.Depositato)
                     {
                         tags = JsonConvert.DeserializeObject<List<TagDto>>(Model.Tags);
                     }

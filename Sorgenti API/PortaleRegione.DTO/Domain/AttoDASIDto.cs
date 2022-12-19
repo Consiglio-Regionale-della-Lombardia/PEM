@@ -19,6 +19,7 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +30,10 @@ namespace PortaleRegione.DTO.Domain
 {
     public class AttoDASIDto
     {
+        public AttoDASIDto()
+        {
+            FirmeCartacee = new List<KeyValueDto>();
+        }
         public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
         public Guid? UID_MOZ_Abbinata { get; set; }
@@ -125,6 +130,14 @@ namespace PortaleRegione.DTO.Domain
         public DateTime? DataInvioAlProtocollo { get; set; }
         public bool CapogruppoNeiTermini { get; set; } = false;
         public bool MOZU_Capigruppo { get; set; } = false;
+
+        public string DettaglioMozioniAbbinate { get; set; }
+
+        public string Display { get; set; }
+
+        // Matteo Cattapan #520
+        public List<KeyValueDto> FirmeCartacee { get; set; }
+        public string FirmeCartacee_string { get; set; }
 
         public bool IsMOZ()
         {

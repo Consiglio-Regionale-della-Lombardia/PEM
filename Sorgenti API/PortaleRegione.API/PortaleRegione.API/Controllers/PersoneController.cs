@@ -27,6 +27,7 @@ using PortaleRegione.DTO.Model;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -34,7 +35,6 @@ namespace PortaleRegione.API.Controllers
     ///     Controller per gestire le persone
     /// </summary>
     [Authorize]
-    [RoutePrefix("persone")]
     public class PersoneController : BaseApiController
     {
         /// <summary>
@@ -70,15 +70,15 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per avere le informazioni di una persona
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="IsGiunta"></param>
+        /// <param name="is_giunta"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id:guid}")]
-        public async Task<IHttpActionResult> GetPersona(Guid id, bool IsGiunta = false)
+        [Route(ApiRoutes.Persone.GetPersona)]
+        public async Task<IHttpActionResult> GetPersona(Guid id, bool is_giunta = false)
         {
             try
             {
-                return Ok(await _personeLogic.GetPersona(id, IsGiunta));
+                return Ok(await _personeLogic.GetPersona(id, is_giunta));
             }
             catch (Exception e)
             {
@@ -93,7 +93,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("ruolo/{id:int}")]
+        [Route(ApiRoutes.Ruoli.GetRuolo)]
         public async Task<IHttpActionResult> GetRuolo(int id)
         {
             try
@@ -114,7 +114,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("gruppo/{id:int}/capo-gruppo")]
+        [Route(ApiRoutes.Gruppi.GetCapoGruppo)]
         public async Task<IHttpActionResult> GetCapoGruppo(int id)
         {
             try
@@ -133,18 +133,18 @@ namespace PortaleRegione.API.Controllers
         ///     Endpoint per avere le persone che compongono la segreteria del gruppo
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="notifica_firma"></param>
-        /// <param name="notifica_deposito"></param>
+        /// <param name="firma"></param>
+        /// <param name="deposito"></param>
         /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
-        [Route("gruppo/{id:int}/segreteria-politica")]
-        public async Task<IHttpActionResult> GetSegreteriaPolitica(int id, bool notifica_firma, bool notifica_deposito)
+        [Route(ApiRoutes.Gruppi.GetSegreteriaPoliticaGruppo)]
+        public async Task<IHttpActionResult> GetSegreteriaPolitica(int id, bool firma, bool deposito)
         {
             try
             {
                 var segreteriaPolitica =
-                    await _personeLogic.GetSegreteriaPolitica(id, notifica_firma, notifica_deposito);
+                    await _personeLogic.GetSegreteriaPolitica(id, firma, deposito);
                 return Ok(segreteriaPolitica);
             }
             catch (Exception e)
@@ -159,13 +159,13 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("segreteria-giunta-regionale")]
-        public async Task<IHttpActionResult> GetSegreteriaGiuntaRegionale(bool notifica_firma, bool notifica_deposito)
+        [Route(ApiRoutes.Gruppi.GetSegreteriaGiunta)]
+        public async Task<IHttpActionResult> GetSegreteriaGiuntaRegionale(bool firma, bool deposito)
         {
             try
             {
                 var segreteriaGiuntaRegionale =
-                    await _personeLogic.GetSegreteriaGiuntaRegionale(notifica_firma, notifica_deposito);
+                    await _personeLogic.GetSegreteriaGiuntaRegionale(firma, deposito);
                 return Ok(segreteriaGiuntaRegionale);
             }
             catch (Exception e)
@@ -180,7 +180,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("giunta-regionale")]
+        [Route(ApiRoutes.Gruppi.GetGiunta)]
         public async Task<IHttpActionResult> GetGiuntaRegionale()
         {
             try
@@ -200,7 +200,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("assessori")]
+        [Route(ApiRoutes.Gruppi.GetAssessori)]
         public async Task<IHttpActionResult> GetAssessoriRiferimento()
         {
             try
@@ -222,8 +222,8 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("relatori")]
-        public async Task<IHttpActionResult> GetRelatori(Guid? id)
+        [Route(ApiRoutes.Gruppi.GetRelatori)]
+        public async Task<IHttpActionResult> GetRelatori(Guid id)
         {
             try
             {
@@ -241,7 +241,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("gruppi")]
+        [Route(ApiRoutes.Gruppi.GetAll)]
         public async Task<IHttpActionResult> GetGruppi()
         {
             try
@@ -261,7 +261,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("check-pin")]
+        [Route(ApiRoutes.Persone.CheckPin)]
         public async Task<IHttpActionResult> CheckPin(CambioPinModel model)
         {
             try
@@ -290,7 +290,7 @@ namespace PortaleRegione.API.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("cambio-pin")]
+        [Route(ApiRoutes.Persone.CambioPin)]
         public async Task<IHttpActionResult> CambioPin(CambioPinModel model)
         {
             try
@@ -304,8 +304,7 @@ namespace PortaleRegione.API.Controllers
                 if (currentPin.PIN_Decrypt != model.vecchio_pin)
                     throw new InvalidOperationException("Il vecchio PIN non è corretto!!!");
 
-                int valuePin;
-                var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
+                var checkTry = int.TryParse(model.nuovo_pin, out var _);
                 if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
                 if (model.nuovo_pin.Length != 4)
@@ -329,7 +328,7 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("all")]
+        [Route(ApiRoutes.Persone.GetAll)]
         public async Task<IHttpActionResult> GetPersone()
         {
             try
@@ -347,18 +346,18 @@ namespace PortaleRegione.API.Controllers
 
 
         /// <summary>
+        ///     Endpoint reset pin
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM)]
         [HttpPost]
-        [Route("reset-pin")]
+        [Route(ApiRoutes.Persone.ResetPin)]
         public async Task<IHttpActionResult> ResetPin(ResetPinModel model)
         {
             try
             {
-                int valuePin;
-                var checkTry = int.TryParse(model.nuovo_pin, out valuePin);
+                var checkTry = int.TryParse(model.nuovo_pin, out var _);
                 if (!checkTry) throw new InvalidOperationException("Il pin deve contenere solo cifre numeriche");
 
                 if (model.nuovo_pin.Length != 4)
