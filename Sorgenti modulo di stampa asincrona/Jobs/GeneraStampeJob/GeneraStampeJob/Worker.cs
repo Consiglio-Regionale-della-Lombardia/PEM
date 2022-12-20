@@ -320,6 +320,7 @@ namespace GeneraStampeJob
         {
             try
             {
+                var docs = new List<object>();
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
                 if (_stampa.Da > 0 && _stampa.A > 0)
                 {
@@ -335,12 +336,14 @@ namespace GeneraStampeJob
                         : OrdinamentoEnum.Presentazione
                 });
 
-                var nameFilePDFCopertina = $"COPERTINAEM_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                var DirCopertina = Path.Combine(path, nameFilePDFCopertina);
-                PdfStamper.CreaPDFCopertina(bodyCopertina, DirCopertina);
+                var cover = await _stamper.CreaPDFObject(bodyCopertina);
+                docs.Add(cover);
+
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
+
+                docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null).Select(i => i.Value.Content));
 
                 var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => !File.Exists(item.Value.Path));
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
@@ -348,8 +351,7 @@ namespace GeneraStampeJob
                 //Funzione che fascicola i PDF creati prima
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
-                PdfStamper.CreateMergedPDF(FilePathTarget, DirCopertina,
-                    listaPdfEmendamentiGenerati.ToDictionary(item => item.Key, item => item.Value.Path));
+                _stamper.MergedPDF(FilePathTarget, docs);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
                 //Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
@@ -589,15 +591,14 @@ namespace GeneraStampeJob
                 Directory.CreateDirectory(path);
         }
 
-        private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(IEnumerable<EmendamentiDto> Emendamenti, string _pathTemp)
+        private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(ICollection<EmendamentiDto> lista, string _pathTemp)
         {
-            var listaPercorsiEM = new Dictionary<Guid, BodyModel>();
+            var counter = 1;
+            var listaPercorsi = new Dictionary<Guid, BodyModel>();
             try
             {
-                var listaEmendamenti = Emendamenti.ToList();
-
-                listaPercorsiEM = listaEmendamenti.ToDictionary(em => em.UIDEM, em => new BodyModel());
-                foreach (var item in listaEmendamenti)
+                listaPercorsi = lista.ToDictionary(em => em.UIDEM, em => new BodyModel());
+                foreach (var item in lista)
                 {
                     var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
                     var nameFilePDF =
@@ -610,8 +611,11 @@ namespace GeneraStampeJob
                         Body = bodyPDF,
                         EM = item
                     };
-                    listaPercorsiEM[item.UIDEM] = dettagliCreaPDF;
-                    await CreaPDF(dettagliCreaPDF, listaPercorsiEM.Count);
+                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body);
+                    dettagliCreaPDF.Content = pdf;
+                    listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
+                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
+                    counter++;
                 }
             }
             catch (Exception ex)
@@ -619,16 +623,7 @@ namespace GeneraStampeJob
                 //Log.Error("GeneraPDFEmendamenti Error-->", ex);
             }
 
-            return listaPercorsiEM;
-        }
-
-        private async Task CreaPDF(BodyModel item, long total)
-        {
-            PdfStamper.CreaPDF(item.Body, item.Path, item.EM, Path.Combine(_model.UrlCLIENT, $"public/em?id={item.EM.UID_QRCode}"));
-
-            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(item.Path));
-            var files = dirInfo.GetFiles().Where(f => !f.Name.ToLower().Contains("copertina"));
-            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {files.Count()}/{total}");
+            return listaPercorsi;
         }
 
         private void SpostaFascicolo(string _pathFascicolo, string _pathDestinazione)
