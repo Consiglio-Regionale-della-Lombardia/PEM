@@ -23,6 +23,7 @@
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
     <script src="~/Content/editor/trumbowyg.min.js"></script>
+    <script src="~/Content/editor/langs/it.min.js"></script>
     @*Import Trumbowyg plugins...*@
     <script src="~/Content/editor/plugins/cleanpaste/trumbowyg.cleanpaste.min.js"></script>
     <script src="~/Content/editor/plugins/fontfamily/trumbowyg.fontfamily.min.js"></script>
@@ -181,9 +182,9 @@
 
 <script>
     $('.trumbowyg').trumbowyg({
+        lang: 'it',
         btns: [
             ['viewHTML'],
-            ['undo', 'redo'], // Only supported in Blink browsers
             ['formatting'],
             ['strong', 'em', 'del'],
             ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
