@@ -237,7 +237,7 @@ else
                                         || item.Tipo is (int)TipoAttoEnum.MOZ)
                                     {
                                         <li>
-                                            <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                            <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
                                                 Proponi iscrizione
                                             </a>
                                         </li>

@@ -154,7 +154,7 @@ namespace PortaleRegione.BAL
                 seduteAttive
                     .Select(Mapper.Map<SEDUTE, SeduteDto>),
                 null,
-                seduteAttive.Count());
+                seduteAttive.Count);
         }
 
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveMOZU()
@@ -168,7 +168,7 @@ namespace PortaleRegione.BAL
                 seduteAttive
                     .Select(Mapper.Map<SEDUTE, SeduteDto>),
                 null,
-                seduteAttive.Count());
+                seduteAttive.Count);
         }
 
         public async Task<BaseResponse<SeduteDto>> GetSeduteAttiveDashboard()
