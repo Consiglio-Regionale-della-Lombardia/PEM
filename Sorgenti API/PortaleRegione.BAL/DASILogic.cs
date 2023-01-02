@@ -1879,32 +1879,29 @@ namespace PortaleRegione.API.Controllers
                 atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
 
-                var nomeAtto =
-                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
                 if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     continue;
-                listaRichieste.Add(nomeAtto);
-            }
-
-            try
-            {
-                if (!listaRichieste.Any()) return;
-
-                var mailModel = new MailModel
+                // Matteo Cattapan #533 
+                // Avviso UOLA se atto fuori termine
+                var attoDto = await GetAttoDto(atto.UIDAtto);
+                var out_of_date = IsOutdate(attoDto);
+                try
                 {
-                    DA = persona.email,
-                    A =
-                        AppSettingsConfiguration.EmailInvioDASI,
-                    OGGETTO =
-                        "[RICHIESTA ISCRIZIONE]",
-                    MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
-                };
-                await _logicUtil.InvioMail(mailModel);
-            }
-            catch (Exception)
-            {
-                // ignored
+                    var mailModel = new MailModel
+                    {
+                        DA = persona.email,
+                        A = AppSettingsConfiguration.EmailInvioDASI,
+                        OGGETTO =
+                            $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " - FUORI TERMINE" : "")}",
+                        MESSAGGIO =
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
         }
 
@@ -2022,8 +2019,31 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 attoInDb.MOZU_Capigruppo = checkIfFirmatoDaiCapigruppo;
-
                 await _unitOfWork.CompleteAsync();
+
+                // Matteo Cattapan #533
+                // Invio mail a UOLA per avviso proposta urgenza fuori termine stabilito
+                atto = await GetAttoDto(guid);
+                if (IsOutdate(atto))
+                {
+                    try
+                    {
+                        var mailModel = new MailModel
+                        {
+                            DA = persona.email,
+                            A = AppSettingsConfiguration.EmailInvioDASI,
+                            OGGETTO =
+                                $"{atto.Display} – FUORI TERMINE",
+                            MESSAGGIO =
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione effettuata fuori termine per il provvedimento: <br> {atto.Display}."
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
+                }
             }
             catch (Exception e)
             {

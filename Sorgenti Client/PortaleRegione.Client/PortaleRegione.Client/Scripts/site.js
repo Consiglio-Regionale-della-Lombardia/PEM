@@ -1841,6 +1841,16 @@ function GetFormattedDate(value) {
     return date.format("DD/MM/YYYY HH:mm");
 }
 
+function GetDate(value) {
+    var splitted_date_arr = value.split("(");
+    var splitted_date = splitted_date_arr[splitted_date_arr.length - 1]
+        .replace("/", "")
+        .replace(";", "")
+        .replace(")", "");
+    var dateX = new Date(parseInt(splitted_date));
+    return moment(dateX);
+}
+
 // NOTIFICATION SWEETALERT.JS
 
 function SuccessModal(message, ctrl) {
