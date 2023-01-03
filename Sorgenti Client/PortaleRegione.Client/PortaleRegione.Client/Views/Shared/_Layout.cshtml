@@ -22,16 +22,19 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @Scripts.Render("~/bundles/lib")
     @Scripts.Render("~/bundles/logic")
-    <script src="~/Content/editor/trumbowyg.min.js"></script>
-    <script src="~/Content/editor/langs/it.min.js"></script>
-    @*Import Trumbowyg plugins...*@
-    <script src="~/Content/editor/plugins/cleanpaste/trumbowyg.cleanpaste.min.js"></script>
-    <script src="~/Content/editor/plugins/fontfamily/trumbowyg.fontfamily.min.js"></script>
-    <script src="~/Content/editor/plugins/fontsize/trumbowyg.fontsize.min.js"></script>
-    <script src="~/Content/editor/plugins/indent/trumbowyg.indent.min.js"></script>
-    <script src="~/Content/editor/plugins/table/trumbowyg.table.min.js"></script>
-    <link rel="stylesheet" href="~/Content/editor/ui/trumbowyg.min.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.0/classic/ckeditor.js"></script>
+
+    <script>
+        $(function () {
+            $(".sortable").sortable({
+                placeholder: "empty-room",
+                forcePlaceholderSize: true
+            });
+            $(".sortable").disableSelection();
+        });
+    </script>
 
     <script>
         baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
@@ -199,8 +202,8 @@
         plugins: {
             fontfamily: {
                 fontList: [
-                    {name: 'Arial', family: 'Arial, Helvetica, sans-serif'},
-                    {name: 'Open Sans', family: '\'Open Sans\', sans-serif'}
+                    { name: 'Arial', family: 'Arial, Helvetica, sans-serif' },
+                    { name: 'Open Sans', family: '\'Open Sans\', sans-serif' }
                 ]
             }
         }

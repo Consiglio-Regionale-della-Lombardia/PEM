@@ -17,6 +17,7 @@
  */
 
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -59,5 +60,6 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<Tipi_AttoDto>> GetTipi(bool dasi = true);
         Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm);
 
+        Task<List<EmendamentoExtraLightDto>> GetGrigliaOrdinamento(Guid id);
     }
 }

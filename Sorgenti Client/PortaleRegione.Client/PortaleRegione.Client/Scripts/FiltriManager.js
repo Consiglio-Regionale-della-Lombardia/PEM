@@ -822,6 +822,20 @@ function GetGrigliaTestoEM(attoUId) {
     });
 }
 
+function GetGrigliaOrdinamentoEM(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/griglia-ordinamento",
+            data: { id: attoUId },
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
 function GetCommi(articoloUId, expanded) {
     return new Promise(async function(resolve, reject) {
         $.ajax({

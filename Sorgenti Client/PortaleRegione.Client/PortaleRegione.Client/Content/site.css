@@ -815,3 +815,8 @@ div.input-field > label { line-height: initial; }
 label { color: #424242 !important; }
 
 span.highlight { background-color: yellow; }
+
+.empty-room {
+    background-color: yellow;
+    height: 44px;
+}

@@ -2,17 +2,15 @@
 
 <script>
 
-    var template_item = "<div class='chip white black-text hoverable' style='min-width: unset; border: 1px solid green' onclick=\"goToEM(\'{{UIDEM}}\')\"><b>{{N_EM}}</b> - {{DisplayName}}</div>"
+    var template_item = "<div class='chip white black-text hoverable' style='min-width: unset; border: 1px solid green' onclick=\"goToEM(\'{{UIDEM}}\')\"><b>{{N_EM}}</b> - {{DisplayName}}</div>";
 
-async function viewTestoAtto() {
+    async function viewTestoAtto() {
+        waiting(true);
         await CaricaTesti();
         $('#pnlViewStandard').hide();
+        $('#pnlOrdinamento').hide();
         $('#pnlViewTestoAtto').show();
-    }
-
-    function viewStandard() {
-        $('#pnlViewStandard').show();
-        $('#pnlViewTestoAtto').hide();
+        waiting(false);
     }
 
     async function CaricaTesti() {
@@ -82,8 +80,8 @@ async function viewTestoAtto() {
             });
     }
 
-    function goToEM(uidem){
-        var url ='@Url.Action("Index", "EMPublic")';
+    function goToEM(uidem) {
+        var url = '@Url.Action("Index", "EMPublic")';
         window.open(url + "?id=" + uidem, '_blank');
     }
 

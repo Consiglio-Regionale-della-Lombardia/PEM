@@ -57,7 +57,7 @@ namespace PortaleRegione.Gateway
         Task<EmendamentiViewModel> Get_RichiestaPropriaFirma(Guid attoUId, ClientModeEnum mode, OrdinamentoEnum ordine, int page, int size);
         Task Modifica(EmendamentiDto model);
         Task ModificaMetaDati(EmendamentiDto model);
-        Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id);
+        Task OrdinamentoConcluso(ComandiAzioneModel model);
         Task ORDINA_EM_TRATTAZIONE(Guid id);
         Task<Dictionary<Guid, string>> Raggruppa(RaggruppaEmendamentiModel model);
         Task Ritira(Guid id);

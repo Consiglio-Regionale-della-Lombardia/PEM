@@ -876,14 +876,14 @@ namespace PortaleRegione.Client.Controllers
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
+        [HttpPost]
         [Route("ordinamento-concluso")]
-        public async Task<ActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
+        public async Task<ActionResult> OrdinamentoConcluso(ComandiAzioneModel model)
         {
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                await apiGateway.Emendamento.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id);
+                await apiGateway.Emendamento.OrdinamentoConcluso(model);
                 Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
             }

@@ -87,5 +87,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public PersonaExtraLightDto PersonaProponente { get; set; }
         [StringLength(255)] public string DataDeposito { get; set; }
         public Guid UID_QRCode { get; set; }
+        public int OrdineVotazione { get; set; }
     }
 }

@@ -479,6 +479,22 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("griglia-ordinamento")]
+        public async Task<ActionResult> GetGrigliaOrdinamento(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                return Json(await apiGateway.Atti.GetGrigliaOrdinamento(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
     }
 }

@@ -309,6 +309,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per ottenere la lista degli emendamenti di un atto per essere ordinati
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.GrigliaOrdinamento)]
+        public async Task<IHttpActionResult> GetGrigliaOrdinamento(Guid id)
+        {
+            try
+            {
+                var result = await _attiLogic.GetGrigliaOrdinamento(id);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per creare articoli in un atto
         /// </summary>
         /// <param name="id">Guid atto</param>

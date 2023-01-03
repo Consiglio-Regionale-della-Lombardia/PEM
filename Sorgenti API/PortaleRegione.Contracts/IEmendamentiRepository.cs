@@ -88,5 +88,7 @@ namespace PortaleRegione.Contracts
         Task<List<EM>> GetByLettera(Guid uGuid);
         Task<List<EM>> GetByComma(Guid guid);
         Task<List<EM>> GetByArticolo(Guid guid);
+        Task<List<EM>> GetGrigliaOrdinamento(Guid id);
+        Task SetOrdineVotazione(Guid uidem, int pos);
     }
 }

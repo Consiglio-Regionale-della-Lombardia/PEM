@@ -974,13 +974,18 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id">Guid atto</param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
-        [HttpGet]
+        [HttpPost]
         [Route(ApiRoutes.PEM.Emendamenti.OrdinamentoConcluso)]
-        public async Task<IHttpActionResult> ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
+        public async Task<IHttpActionResult> OrdinamentoConcluso(ComandiAzioneModel model)
         {
             try
             {
-                await _emendamentiLogic.ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(id, CurrentUser);
+                if (model.Azione != ActionEnum.ORDINA)
+                {
+                    throw new Exception("Azione non valida");
+                }
+
+                await _emendamentiLogic.OrdinamentoConcluso(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
