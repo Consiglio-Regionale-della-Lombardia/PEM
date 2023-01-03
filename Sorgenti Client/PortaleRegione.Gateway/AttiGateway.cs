@@ -18,6 +18,7 @@
 
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
@@ -185,6 +186,13 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.GrigliaTesti.Replace("{id}", id.ToString()).Replace("{view}", viewEm.ToString())}";
             var lst = JsonConvert.DeserializeObject<List<ArticoliModel>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task<List<EmendamentoExtraLightDto>> GetGrigliaOrdinamento(Guid id)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.GrigliaOrdinamento.Replace("{id}", id.ToString())}";
+            var lst = JsonConvert.DeserializeObject<List<EmendamentoExtraLightDto>>(await Get(requestUrl, _token));
             return lst;
         }
 

@@ -65,18 +65,26 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid attoUId, PersonaDto persona)
+        public async Task OrdinamentoConcluso(ComandiAzioneModel model, PersonaDto persona)
         {
             try
             {
-                var atto = await _unitOfWork.Atti.Get(attoUId);
+                var atto = await _unitOfWork.Atti.Get(model.AttoUId);
+                var emList = model.Lista.ToArray();
+                for (var i = 0; i < emList.Length; i++)
+                {
+                    var uidem = emList[i];
+                    await _unitOfWork.Emendamenti.SetOrdineVotazione(uidem, i + 1);
+                }
+
+                await _unitOfWork.CompleteAsync();
+
                 var ruolo_segreteria = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                 await _logicUtil.InvioMail(new MailModel
                 {
                     DA = persona.email,
-                    A =
-                        $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
-                    OGGETTO = $"[ORDINAMENTO CONCLUSO] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
+                    A = $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                    OGGETTO = $"[ORDINAMENTO CONCLUSO] {Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}",
                     MESSAGGIO = $"Ordinamento atto concluso da {persona.DisplayName}"
                 });
             }
@@ -822,7 +830,8 @@ namespace PortaleRegione.BAL
                     {
                         //Se è la prima firma dell'emendamento, questo viene cryptato e così certificato e non modificabile
                         em.Hash = firmaUfficio
-                            ? BALHelper.EncryptString(AppSettingsConfiguration.MasterPIN, AppSettingsConfiguration.masterKey)
+                            ? BALHelper.EncryptString(AppSettingsConfiguration.MasterPIN,
+                                AppSettingsConfiguration.masterKey)
                             : pin.PIN;
                         em.UIDPersonaPrimaFirma = persona.UID_persona;
                         em.DataPrimaFirma = DateTime.Now;
@@ -1659,7 +1668,7 @@ namespace PortaleRegione.BAL
             {
                 var queryFilter = new Filter<EM>();
                 foreach (var filterStatement in model.filtro.Where(filterStatement =>
-                    filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
+                             filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
                     filterStatement.Value =
                         BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
 
@@ -1848,7 +1857,7 @@ namespace PortaleRegione.BAL
                             try
                             {
                                 if (firmeDto.Any(f =>
-                                    f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
+                                        f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
                                     firmatari_opendata = GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
                                             f.Timestamp < Convert.ToDateTime(dto.DataDeposito)),
                                         persona.CurrentRole);
@@ -2019,7 +2028,8 @@ namespace PortaleRegione.BAL
         {
             var result = new List<EmendamentiDto>();
 
-            var counter_em = await _unitOfWork.Emendamenti.Count(model.Atto.UIDAtto, persona, CounterEmendamentiEnum.NONE,
+            var counter_em = await _unitOfWork.Emendamenti.Count(model.Atto.UIDAtto, persona,
+                CounterEmendamentiEnum.NONE,
                 (int)model.Mode);
 
             var emList = await GetEmendamenti_RawChunk(new BaseRequest<EmendamentiDto>

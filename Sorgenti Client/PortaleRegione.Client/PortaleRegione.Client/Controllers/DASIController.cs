@@ -687,26 +687,6 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        /// <summary>
-        ///     Controller per andare nella pagina preview degli atti
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="size"></param>
-        /// <param name="tipo"></param>
-        /// <param name="stato"></param>
-        /// <param name="viewModeEnum"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        //[HttpGet]
-        //[Route("preview")]
-        //public async Task<ActionResult> Preview(int mode)
-        //{
-        //    var _mode = (ViewModeEnum) mode;
-        //    if (_mode == ViewModeEnum.GRID)
-        //    {
-        //        //Ritorna la griglia
-        //    }
-        //}
         [HttpGet]
         [Route("{id:guid}/meta-data")]
         public async Task<ActionResult> GetMetaData(Guid id)

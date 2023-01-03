@@ -87,6 +87,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string ModificaFascicoli = Base + "/modifica-fascicoli";
                 public const string DownloadDoc = Base + "/scarica-documento/{path}";
                 public const string GrigliaTesti = Base + "/{id}/griglia-testi/{view}";
+                public const string GrigliaOrdinamento = Base + "/{id}/griglia-ordinamento";
                 public const string AggiornaRelatori = Base + "/aggiorna-relatori";
                 public const string AggiornaTesto = Base + "/aggiorna-testo";
                 public const string AbilitaFascicolo = Base + "/abilita-fascicolo";
@@ -161,7 +162,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string AssegnaNuovoProponente = Base + "/commands/nuovo-proponente";
                 public const string Raggruppa = Base + "/commands/raggruppa";
                 public const string Ordina = Base + "/commands/{id}/ordina";
-                public const string OrdinamentoConcluso = Base + "/commands/{id}/ordina/concluso";
+                public const string OrdinamentoConcluso = Base + "/commands/ordina/concluso";
                 public const string OrdinaUp = Base + "/commands/{id}/ordina/up";
                 public const string OrdinaDown = Base + "/commands/{id}/ordina/down";
                 public const string Sposta = Base + "/commands/{id}/sposta/{pos}";
