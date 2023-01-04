@@ -228,6 +228,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAttiSeduteAttive = Base + "/ordini-del-giorno/sedute/attive";
 
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
+            public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
             public const string SaveCartaceo = Base + "/save-draft";
         }

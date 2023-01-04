@@ -327,7 +327,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_tecnico + allegato_generico);
         }
 
-        internal static void GetBodyTemporaneo(AttoDASIDto atto, ref string body)
+        internal static void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
         {
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
                 || atto.Tipo == (int)TipoAttoEnum.ODG)
@@ -343,11 +343,26 @@ namespace PortaleRegione.BAL
                     DASIHelper.GetDescrizioneRisposta((TipoRispostaEnum)atto.IDTipo_Risposta, atto.Commissioni));
             }
 
-            body = body.Replace("{lblSubTitoloATTOView}", atto.Oggetto);
-            body = body.Replace("{lblPremesseATTOView}",
-                string.IsNullOrEmpty(atto.Premesse_Modificato) ? atto.Premesse : atto.Premesse_Modificato);
-            body = body.Replace("{lblRichiestaATTOView}",
-                string.IsNullOrEmpty(atto.Richiesta_Modificata) ? atto.Richiesta : atto.Richiesta_Modificata);
+            var oggetto = atto.Oggetto;
+            var premesse = atto.Premesse;
+            var richieste = atto.Richiesta;
+
+            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato) && privacy)
+            {
+                oggetto = atto.Oggetto_Modificato;
+            }
+            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy)
+            {
+                premesse = atto.Premesse_Modificato;
+            }
+            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy)
+            {
+                richieste = atto.Richiesta_Modificata;
+            }
+
+            body = body.Replace("{lblSubTitoloATTOView}", oggetto);
+            body = body.Replace("{lblPremesseATTOView}", premesse);
+            body = body.Replace("{lblRichiestaATTOView}", richieste);
 
             var allegato_generico = string.Empty;
 
@@ -541,6 +556,7 @@ namespace PortaleRegione.BAL
         public static void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
+            bool privacy,
             ref string body)
         {
             var firmeDtos = firme.ToList();
@@ -556,14 +572,11 @@ namespace PortaleRegione.BAL
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 
-            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato)
-                || !string.IsNullOrEmpty(atto.Premesse_Modificato)
-                || !string.IsNullOrEmpty(atto.Richiesta_Modificata)
-                || string.IsNullOrEmpty(atto.Atto_Certificato))
+            if (privacy || string.IsNullOrEmpty(atto.Atto_Certificato))
             {
-                //ATTO TEMPORANEO
+                //ATTO NON CERTIFICATO
                 var bodyTemp = GetTemplate(TemplateTypeEnum.FIRMA, true);
-                GetBodyTemporaneo(atto, ref bodyTemp);
+                GetBodyTemporaneo(atto, privacy, ref bodyTemp);
                 body = body.Replace("{ltATTOView}", bodyTemp);
             }
             else
@@ -593,7 +606,7 @@ namespace PortaleRegione.BAL
             if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
             {
                 //DEPOSITATO
-                body = body.Replace("{lblDepositoATTOView}", $"Atto depositato il {atto.DataPresentazione}");
+                body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
 
                 var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
                 var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));

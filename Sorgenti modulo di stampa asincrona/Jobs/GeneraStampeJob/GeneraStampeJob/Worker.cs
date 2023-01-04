@@ -206,9 +206,9 @@ namespace GeneraStampeJob
                 listaPercorsi = lista.ToDictionary(atto => atto.UIDAtto, atto => new BodyModel());
                 foreach (var item in lista)
                 {
-                    var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF);
+                    var bodyPDF = await apiGateway.DASI.GetBody(item.UIDAtto, TemplateTypeEnum.PDF, true);
                     var nameFilePDF =
-                        $"{PortaleRegione.Common.Utility.GetText_Tipo(item.Tipo)}{item.NAtto}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                        $"{item.Display}_{item.UIDAtto}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                     var FilePathComplete = Path.Combine(path, nameFilePDF);
 
                     var dettagliCreaPDF = new BodyModel
