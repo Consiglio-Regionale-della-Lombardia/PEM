@@ -427,7 +427,8 @@ namespace PortaleRegione.API.Controllers
                 var body = await _dasiLogic.GetBodyDASI(atto
                     , await _attiFirmeLogic.GetFirme(atto, FirmeTipoEnum.TUTTE)
                     , CurrentUser
-                    , model.Template);
+                    , model.Template,
+                    model.privacy);
 
                 return Ok(body);
             }
@@ -876,6 +877,31 @@ namespace PortaleRegione.API.Controllers
                 if (atto == null) return NotFound();
 
                 var response = ResponseMessage(await _dasiLogic.DownloadPDFIstantaneo(atto, CurrentUser));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                //Log.Error("Download", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per scaricare il documento pdf dell'atto con il testo e l’oggetto modificati
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.StampaImmediataPrivacy)]
+        public async Task<IHttpActionResult> DownloadWithPrivacy(Guid id)
+        {
+            try
+            {
+                var atto = await _dasiLogic.Get(id);
+                if (atto == null) return NotFound();
+
+                var response = ResponseMessage(await _dasiLogic.DownloadPDFIstantaneo(atto, CurrentUser, true));
 
                 return response;
             }

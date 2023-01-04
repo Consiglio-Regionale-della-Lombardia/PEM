@@ -45,7 +45,7 @@ namespace PortaleRegione.Gateway
         Task<RiepilogoDASIModel> GetBySeduta_Trattazione(Guid id, TipoAttoEnum tipoAtto, string uidAtto, int page = 1,
             int size = 50);
         Task<IEnumerable<AttiFirmeDto>> GetFirmatari(Guid id, FirmeTipoEnum primaDeposito);
-        Task<string> GetBody(Guid id, TemplateTypeEnum template);
+        Task<string> GetBody(Guid id, TemplateTypeEnum template, bool privacy = false);
         Task Elimina(Guid id);
         Task Ritira(Guid id);
         Task<DASIFormModel> GetNuovoModello(TipoAttoEnum tipo);
@@ -67,6 +67,7 @@ namespace PortaleRegione.Gateway
         Task<Dictionary<Guid, string>> RitiraFirma(Guid attoUId, string pin);
         Task PresentazioneCartacea(PresentazioneCartaceaModel model);
         Task<FileResponse> Download(Guid id);
+        Task<FileResponse> DownloadWithPrivacy(Guid id);
         Task InviaAlProtocollo(Guid id);
         Task DeclassaMozione(List<string> data);
         Task<List<AttoDASIDto>> GetCartacei();

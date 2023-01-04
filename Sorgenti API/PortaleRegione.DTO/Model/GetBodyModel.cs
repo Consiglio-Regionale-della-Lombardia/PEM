@@ -26,6 +26,7 @@ namespace PortaleRegione.DTO.Model
         //Emendamento UID
         public Guid Id { get; set; }
         public TemplateTypeEnum Template { get; set; }
+        public bool privacy { get; set; } = false;
         public bool IsDeposito { get; set; } = false;
     }
 }

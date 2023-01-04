@@ -985,6 +985,29 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Controller per scaricare il documento pdf dell'atto con il testo e l’oggetto modificati
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file-privacy")]
+        public async Task<ActionResult> DownloadWithPrivacy(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var file = await apiGateway.DASI.DownloadWithPrivacy(id);
+                return File(file.Content, "application/pdf",
+                    file.FileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
         ///     Controller per inviare l'atto al protocollo
         /// </summary>
         /// <param name="id"></param>

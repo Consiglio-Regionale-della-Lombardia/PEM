@@ -1430,7 +1430,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
-            TemplateTypeEnum template)
+            TemplateTypeEnum template, bool privacy = false)
         {
             try
             {
@@ -1450,16 +1450,16 @@ namespace PortaleRegione.API.Controllers
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBody(dto, tipo, firme, persona, false, ref body);
+                            GetBody(dto, tipo, firme, persona, false, privacy, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBody(dto, tipo, firme, persona, true, ref body);
+                            GetBody(dto, tipo, firme, persona, true, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBody(dto, tipo, firme, persona, false, ref body);
+                            GetBody(dto, tipo, firme, persona, false, true, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
-                            GetBodyTemporaneo(dto, ref body);
+                            GetBodyTemporaneo(dto, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;
@@ -2437,19 +2437,19 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
-            var content = await PDFIstantaneo(atto, persona);
+            var content = await PDFIstantaneo(atto, persona, privacy);
             var res = ComposeFileResponse(content,
                 $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}.pdf");
             return res;
         }
 
-        internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
             var attoDto = await GetAttoDto(atto.UIDAtto);
             var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-            var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
+            var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF, privacy);
             var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
             return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
         }

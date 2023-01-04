@@ -968,11 +968,13 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+
         /// <summary>
         ///     Endpoint per ordinare gli emendamenti di un atto in votazione
         /// </summary>
-        /// <param name="id">Guid atto</param>
+        /// <param name="model"></param>
         /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route(ApiRoutes.PEM.Emendamenti.OrdinamentoConcluso)]
