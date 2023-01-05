@@ -178,14 +178,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 var atto = await apiGateway.DASI.Get(id);
-                if (!string.IsNullOrEmpty(atto.Oggetto_Modificato)
-                    || !string.IsNullOrEmpty(atto.Premesse_Modificato)
-                    || !string.IsNullOrEmpty(atto.Richiesta_Modificata)
-                    || string.IsNullOrEmpty(atto.Atto_Certificato))
-                    atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML);
-                else
-                    atto.BodyAtto = atto.Atto_Certificato;
-
+                atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML, true);
                 atto.Firme = await Utility.GetFirmatariDASI(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                     CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
