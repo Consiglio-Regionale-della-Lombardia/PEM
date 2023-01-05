@@ -231,9 +231,23 @@ else
                     tooltipStato = $"Depositato il {item.DataPresentazione}";
                     if (item.IDStato == (int)StatiAttoEnum.CHIUSO)
                     {
-                        var motivazione = item.IDStato_Motivazione != 1 ? "Decaduto" : "Ritirato";
-                        tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
-                        labelStato += $" - {motivazione}";
+                        var motivazione = "";
+                        switch ((MotivazioneStatoAttoEnum)item.IDStato_Motivazione)
+                        {
+                            case MotivazioneStatoAttoEnum.NESSUNO:
+                                break;
+                            case MotivazioneStatoAttoEnum.RITIRATO:
+                                motivazione = " - Ritirato";
+                                tooltipStato += $"<br>Ritirato il {item.DataRitiro}";
+                                break;
+                            case MotivazioneStatoAttoEnum.DECADUTO:
+                                motivazione = " - Decaduto";
+                                tooltipStato += $"<br>Decaduto il {item.DataRitiro}";
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                        labelStato += motivazione;
                     }
                 }
             }
