@@ -991,5 +991,19 @@ namespace PortaleRegione.Client.Helpers
                     Connector = FilterStatementConnector.And
                 });
         }
+
+        public void AddFilter_ByDataIscrizioneSeduta(ref BaseRequest<AttoDASIDto> model, string data)
+        {
+            if (!string.IsNullOrEmpty(data))
+            {
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.DataIscrizioneSeduta),
+                    Operation = Operation.EqualTo,
+                    Value = Convert.ToDateTime(data).ToString("yyyy-MM-dd"),
+                    Connector = FilterStatementConnector.And
+                });
+            }
+        }
     }
 }
