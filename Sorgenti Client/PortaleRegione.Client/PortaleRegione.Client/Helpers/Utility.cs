@@ -384,6 +384,19 @@ namespace PortaleRegione.Client.Helpers
                 });
         }
 
+        public void AddFilter_ByMozioneUrgente(ref BaseRequest<AttoDASIDto> model, string solo_urgenti)
+        {
+            if (solo_urgenti != "on") return;
+
+            model.filtro.Add(new FilterStatement<AttoDASIDto>
+            {
+                PropertyId = nameof(AttoDASIDto.TipoMOZ),
+                Operation = Operation.EqualTo,
+                Value = Convert.ToInt16(TipoMOZEnum.URGENTE),
+                Connector = FilterStatementConnector.And
+            });
+        }
+
         public void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato, PersonaDto currentUser)
         {
             if (!string.IsNullOrEmpty(filtroStato))
