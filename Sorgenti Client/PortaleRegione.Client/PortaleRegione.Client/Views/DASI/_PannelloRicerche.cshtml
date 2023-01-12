@@ -35,6 +35,12 @@
                                 </select>
                                 <label for="qTipo">Tipo</label>
                             </div>
+                            <div id="pnl_tipo_mozione_urgente" class="input-field col s2" style="display: none;">
+                                <label>
+                                    <input type="checkbox" id="qTipo_Mozione_Urgente" name="filtro_mozione_urgente" onchange="filter_dasi_tipo_mozione_urgente_OnChange()">
+                                    <span for="qTipo_Mozione_Urgente">Solo urgenti</span>
+                                </label>
+                            </div>
                         }
                         <div class="input-field col s4">
                             <select id="qStato" name="filtro_stato" onchange="filter_dasi_stato_OnChange()">

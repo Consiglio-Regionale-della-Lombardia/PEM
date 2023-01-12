@@ -1020,11 +1020,14 @@ async function Filtri_DASI_CaricaStato(ctrlSelect) {
 }
 
 async function Filtri_DASI_CaricaTipo(ctrlSelect) {
+    $('#pnl_tipo_mozione_urgente').hide();
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
     if (filtri != null) {
         filterSelect = filtri.tipo;
     }
+
+    ShowHideSoloUrgenti(filterSelect);
 
     var tipi = await GetTipiDASI();
     if (tipi.length > 0) {
@@ -1033,8 +1036,9 @@ async function Filtri_DASI_CaricaTipo(ctrlSelect) {
         $.each(tipi,
             function(index, item) {
                 var template = "";
-                if (item.IDTipoAtto == filterSelect)
+                if (item.IDTipoAtto == filterSelect) {
                     template = "<option selected='selected'></option>";
+                }
                 else
                     template = "<option></option>";
                 select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
@@ -1052,6 +1056,18 @@ function Filtri_DASI_CaricaTipoRisposta(ctrlSelect) {
         var elems = document.querySelectorAll("#" + ctrlSelect);
         M.FormSelect.init(elems, null);
     }
+}
+
+function Filtri_DASI_CaricaSoloMozioniUrgenti(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.solo_urgenza;
+    }
+    var check = false;
+    if (filterSelect == "1")
+        check = true;
+    $("#" + ctrlSelect).prop("checked", check);
 }
 
 async function Filtri_DASI_CaricaSoggetti(ctrlSelect) {
@@ -1215,6 +1231,26 @@ function filter_dasi_tipo_OnChange() {
     var value = $("#qTipo").val();
     var filtri = get_Filtri_DASI();
     filtri.tipo = value;
+    set_Filtri_DASI(filtri);
+
+    ShowHideSoloUrgenti(value);
+}
+
+function ShowHideSoloUrgenti(tipo) {
+    if (tipo == 6) {
+        $("#qTipo").parent().parent().removeClass("s4").addClass("s2");
+        $('#pnl_tipo_mozione_urgente').show();
+    } else {
+        $("#qTipo").parent().parent().removeClass("s2").addClass("s4");
+        $('#pnl_tipo_mozione_urgente').hide();
+        $('#qTipo_Mozione_Urgente').prop("checked", false);
+    }
+}
+
+function filter_dasi_tipo_mozione_urgente_OnChange() {
+    var value = $("#qTipo_Mozione_Urgente").is(":checked");
+    var filtri = get_Filtri_DASI();
+    filtri.solo_urgenza = value;
     set_Filtri_DASI(filtri);
 }
 

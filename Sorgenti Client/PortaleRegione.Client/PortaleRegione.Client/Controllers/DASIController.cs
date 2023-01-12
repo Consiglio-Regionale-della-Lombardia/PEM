@@ -886,6 +886,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_oggetto = Request.Form["filtro_oggetto"];
             var filtro_stato = Request.Form["filtro_stato"];
             var filtro_tipo = Request.Form["filtro_tipo"];
+            var filtro_mozione_urgente = Request.Form["filtro_mozione_urgente"];
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
             var filtro_natto = Request.Form["filtro_natto"];
             var filtro_natto2 = Request.Form["filtro_natto2"];
@@ -916,6 +917,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
             util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
+            util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             util.AddFilter_BySeduta(ref model, filtro_seduta);
             util.AddFilter_ByLegislatura(ref model, filtro_legislatura);
