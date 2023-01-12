@@ -18,7 +18,8 @@
                     var uidSeduta = sedutaFilter != null ? sedutaFilter.Value : Guid.Empty;
                     var tipoFilter = Model.Data.Filters.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.Tipo));
                     var tipo = tipoFilter != null ? Convert.ToInt16(tipoFilter.Value) : (int)Model.Tipo;
-                        <input id="inputFilterReset" type="hidden" name="reset" value="0" />
+
+                    <input id="inputFilterReset" type="hidden" name="reset" value="0" />
                     <input id="inputFilterSeduta" type="hidden" name="UIDSeduta" value="@uidSeduta" />
                     <input type="hidden" name="Tipo" value="@tipo" />
                     <input id="inputFilterView" type="hidden" name="view" value="@((int)Model.ViewMode)" />
@@ -37,7 +38,7 @@
                         }
                         <div class="input-field col s4">
                             <select id="qStato" name="filtro_stato" onchange="filter_dasi_stato_OnChange()">
-                            </select>
+                            </select>   
                             <label for="qStato">Stato</label>
                         </div>
                         <div class="input-field col s4">

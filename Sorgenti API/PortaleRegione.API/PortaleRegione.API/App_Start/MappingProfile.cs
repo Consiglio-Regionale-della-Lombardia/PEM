@@ -193,8 +193,10 @@ namespace PortaleRegione.API
             #region DASI
 
             Mapper.CreateMap<ATTI_DASI, AttoDASIDto>().ForMember(x => x.FirmeCartacee, opt => opt.Ignore())
+                .ForMember(x => x.IsChiuso, opt => opt.Ignore())
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<AttoDASIDto, ATTI_DASI>().ForMember(x => x.FirmeCartacee, opt => opt.Ignore())
+                .ForMember(x => x.IsChiuso, opt => opt.Ignore())
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<ATTI_FIRME, AttiFirmeDto>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
             Mapper.CreateMap<AttiFirmeDto, ATTI_FIRME>().ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));

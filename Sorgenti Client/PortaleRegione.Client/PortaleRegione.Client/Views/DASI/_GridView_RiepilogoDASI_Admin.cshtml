@@ -229,25 +229,19 @@ else
                 if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                 {
                     tooltipStato = $"Depositato il {item.DataPresentazione}";
-                    if (item.IDStato == (int)StatiAttoEnum.CHIUSO)
+                    var motivazione = "";
+                    if (item.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO)
                     {
-                        var motivazione = "";
-                        switch ((MotivazioneStatoAttoEnum)item.IDStato_Motivazione)
-                        {
-                            case MotivazioneStatoAttoEnum.NESSUNO:
-                                break;
-                            case MotivazioneStatoAttoEnum.RITIRATO:
-                                motivazione = " - Ritirato";
-                                tooltipStato += $"<br>Ritirato il {item.DataRitiro}";
-                                break;
-                            case MotivazioneStatoAttoEnum.DECADUTO:
-                                motivazione = " - Decaduto";
-                                tooltipStato += $"<br>Decaduto il {item.DataRitiro}";
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                        labelStato += motivazione;
+                        motivazione = "Ritirato";
+                    }
+                    else if (item.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO)
+                    {
+                        motivazione = "Decaduto";
+                    }
+
+                    if (!string.IsNullOrEmpty(motivazione))
+                    {
+                        tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
                     }
                 }
             }
@@ -255,7 +249,7 @@ else
             <span id="lblStato_@item.UIDAtto" class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
                 @labelStato
             </span>
-            @if (item.IDStato != (int)StatiAttoEnum.CHIUSO && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
+            @if (!item.IsChiuso && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
             {
                 <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto'>
                     <i class="icon material-icons">refresh</i>

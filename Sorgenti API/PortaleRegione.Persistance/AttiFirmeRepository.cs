@@ -120,7 +120,7 @@ namespace PortaleRegione.Persistance
         public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona)
         {
             //TODO: controllo firmabile proponente
-            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO) return false;
+            if (atto.IsChiuso) return false;
             if (atto.DataIscrizioneSeduta.HasValue) return false;
             if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
                 && (atto.Tipo == (int)TipoAttoEnum.ITL
