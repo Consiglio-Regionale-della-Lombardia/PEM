@@ -968,6 +968,18 @@ function Filtri_DASI_CaricaDataSeduta(ctrlSelect) {
     select.val(filterSelect);
 }
 
+function Filtri_DASI_CaricaDataIscrizioneSeduta(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.data_iscrizione_seduta;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
 function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
@@ -1147,6 +1159,13 @@ function filter_dasi_data_seduta_OnChange() {
     var value = $("#qDataSeduta").val();
     var filtri = get_Filtri_DASI();
     filtri.data_seduta = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_data_iscrizione_seduta_OnChange() {
+    var value = $("#qDataIscrizioneSeduta").val();
+    var filtri = get_Filtri_DASI();
+    filtri.data_iscrizione_seduta = value;
     set_Filtri_DASI(filtri);
 }
 

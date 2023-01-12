@@ -59,15 +59,27 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                    filtro2._statements.Add(f);
+            {
+                if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                {
+                    var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
+                    query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
+                                                && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
+                                                && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
+                }
                 else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
+                }
+                else
+                    filtro2._statements.Add(f);
+            }
+
 
             filtro2.BuildExpression(ref query);
 
@@ -136,15 +148,24 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                    filtro2._statements.Add(f);
+                if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                {
+                    var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
+                    query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
+                                                && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
+                                                && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
+                }
                 else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
+                }
+                else
+                    filtro2._statements.Add(f);
 
             filtro2.BuildExpression(ref query);
 
@@ -219,15 +240,24 @@ namespace PortaleRegione.Persistance
 
                 var filtro2 = new Filter<ATTI_DASI>();
                 foreach (var f in filtro.Statements)
-                    if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                        filtro2._statements.Add(f);
+                    if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                    {
+                        var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
+                        query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
+                                                    && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
+                                                    && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
+                    }
                     else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                    {
                         query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                     || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                     || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                     || item.Premesse.Contains(f.Value.ToString())
                                                     || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                     || item.Richiesta.Contains(f.Value.ToString()));
+                    }
+                    else
+                        filtro2._statements.Add(f);
 
                 filtro2?.BuildExpression(ref query);
 

@@ -892,6 +892,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_da = Request.Form["filtro_da"];
             var filtro_a = Request.Form["filtro_a"];
             var filtro_data_seduta = Request.Form["filtro_data_seduta"];
+            var filtro_data_iscrizione_seduta = Request.Form["filtro_data_iscrizione_seduta"];
             var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
@@ -910,6 +911,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
             var sedutaUId = await GetSedutaByData(filtro_data_seduta);
             util.AddFilter_ByDataSeduta(ref model, sedutaUId);
+            util.AddFilter_ByDataIscrizioneSeduta(ref model, filtro_data_iscrizione_seduta);
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
             util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
