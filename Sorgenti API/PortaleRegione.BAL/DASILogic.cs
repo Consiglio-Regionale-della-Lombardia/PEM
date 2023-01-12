@@ -833,9 +833,9 @@ namespace PortaleRegione.API.Controllers
                     continue;
                 }
 
-                if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                if (atto.IsChiuso)
                     throw new InvalidOperationException(
-                        "Non è possibile ritirare la firma di un atto chiuso.");
+                        "Non è possibile ritirare la firma.");
 
                 if (atto.DataIscrizioneSeduta.HasValue)
                 {
@@ -957,8 +957,7 @@ namespace PortaleRegione.API.Controllers
                             "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
 
                     //RITIRA ATTO
-                    atto.IDStato = (int)StatiAttoEnum.CHIUSO;
-                    atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
+                    atto.IDStato = (int)StatiAttoEnum.CHIUSO_RITIRATO;
                     atto.UIDPersonaRitiro = persona.UID_persona;
                     atto.DataRitiro = DateTime.Now;
                 }
@@ -1536,7 +1535,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Ritira(ATTI_DASI atto, PersonaDto persona)
         {
-            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+            if (atto.IsChiuso)
                 throw new InvalidOperationException(
                     "Non è possibile ritirare un atto chiuso.");
 
@@ -1544,8 +1543,7 @@ namespace PortaleRegione.API.Controllers
                 throw new InvalidOperationException(
                     "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
 
-            atto.IDStato = (int)StatiAttoEnum.CHIUSO;
-            atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
+            atto.IDStato = (int)StatiAttoEnum.CHIUSO_RITIRATO;
             atto.UIDPersonaRitiro = persona.UID_persona;
             atto.DataRitiro = DateTime.Now;
 

@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 16/12/2022 14:22:38 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 12/01/2023 11:24:36 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -51,7 +51,6 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[Note_Pubbliche] [varchar](max) NULL,
 	[Note_Private] [varchar](max) NULL,
 	[IDStato] [int] NOT NULL,
-	[IDStato_Motivazione] [int] NOT NULL,
 	[Firma_su_invito] [bit] NOT NULL,
 	[UID_QRCode] [uniqueidentifier] NOT NULL,
 	[AreaPolitica] [int] NOT NULL,
@@ -91,9 +90,6 @@ ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiesta]  DEFA
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
-GO
-
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_IDStato_Motivazione]  DEFAULT ((0)) FOR [IDStato_Motivazione]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]

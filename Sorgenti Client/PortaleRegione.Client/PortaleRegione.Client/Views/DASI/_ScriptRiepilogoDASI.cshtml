@@ -32,14 +32,26 @@
             var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters));
             console.log("filtri", filtri)
             var filtri_cache = get_Filtri_DASI();
+            var block_stato_each = false;
+            var block_tipo_each = false;
+
             $.each(filtri,
                 function(i, item) {
-                    if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
-                        filtri_cache.stato = item.Value;
-                        set_Filtri_DASI(filtri_cache);
-                    } else if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
-                        filtri_cache.tipo = item.Value;
-                        set_Filtri_DASI(filtri_cache);
+
+                    if (block_stato_each == false) {
+                        if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
+                            filtri_cache.stato = item.Value;
+                            set_Filtri_DASI(filtri_cache);
+                            block_stato_each = true;
+                        }
+                    }
+
+                    if (block_tipo_each == false) {
+                        if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
+                            filtri_cache.tipo = item.Value;
+                            set_Filtri_DASI(filtri_cache);
+                            block_tipo_each = true;
+                        }
                     }
                 });
         }

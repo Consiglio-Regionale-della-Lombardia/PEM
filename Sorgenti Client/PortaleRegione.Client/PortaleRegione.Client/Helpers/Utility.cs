@@ -168,6 +168,8 @@ namespace PortaleRegione.Client.Helpers
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
                 case StatiAttoEnum.CHIUSO:
+                case StatiAttoEnum.CHIUSO_RITIRATO:
+                case StatiAttoEnum.CHIUSO_DECADUTO:
                     return StatiAttoCSSConst.CHIUSO;
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return StatiAttoCSSConst.CARTACEO;
@@ -403,16 +405,47 @@ namespace PortaleRegione.Client.Helpers
                         Value = filtroStato,
                         Connector = FilterStatementConnector.And
                     });
+
+                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.CHIUSO).ToString())
+                    {
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_RITIRATO).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_DECADUTO).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
                 }
                 else
                 {
-                    model.filtro.Add(new FilterStatement<AttoDASIDto>
+                    if (currentUser.IsSegreteriaAssemblea)
                     {
-                        PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = ((int)StatiAttoEnum.BOZZA).ToString(),
-                        Connector = FilterStatementConnector.And
-                    });
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = ((int)StatiAttoEnum.BOZZA).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
                 }
         }
 

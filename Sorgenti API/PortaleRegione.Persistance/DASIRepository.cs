@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
@@ -155,7 +156,7 @@ namespace PortaleRegione.Persistance
                                                     || atto.UIDPersonaProponente == persona.UID_persona)));
 
                 if (!persona.IsSegreteriaAssemblea
-                         && !persona.IsPresidente)
+                    && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
             }
             else
@@ -246,6 +247,8 @@ namespace PortaleRegione.Persistance
                         if (stato == StatiAttoEnum.PRESENTATO
                             && persona.IsConsigliereRegionale)
                             query = query.Where(item => item.IDStato >= (int)stato);
+                        else if (stato == StatiAttoEnum.CHIUSO)
+                            query = query.Where(FilterByClosed());
                         else
                             query = query.Where(item => item.IDStato == (int)stato);
                     }
@@ -337,6 +340,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona)
         {
+            if (dto.IsChiuso) return false;
             if (persona.Gruppo == null) return false;
 
             if (dto.id_gruppo != persona.Gruppo.id_gruppo) return false;
@@ -344,8 +348,7 @@ namespace PortaleRegione.Persistance
             if (dto.DataRitiro.HasValue) return false;
 
             if (dto.IDStato == (int)StatiAttoEnum.BOZZA
-                || dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
-                || dto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                || dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA)
                 return false;
 
             return persona.UID_persona == dto.UIDPersonaProponente;
@@ -689,11 +692,7 @@ namespace PortaleRegione.Persistance
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.RITIRATO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.DECADUTO);
+                                                     && !atto.IsChiuso);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
@@ -706,10 +705,10 @@ namespace PortaleRegione.Persistance
                                                      && atto.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                                                      && atto.Tipo == (int)tipo
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.RITIRATO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.DECADUTO);
+                                                     && atto.IDStato !=
+                                                     (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                     && atto.IDStato !=
+                                                     (int)StatiAttoEnum.CHIUSO_DECADUTO);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
@@ -792,6 +791,13 @@ namespace PortaleRegione.Persistance
             }
 
             return true;
+        }
+
+        private Expression<Func<ATTI_DASI, bool>> FilterByClosed()
+        {
+            return x => x.IDStato == (int)StatiAttoEnum.CHIUSO
+                        || x.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
+                        || x.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
         }
     }
 }

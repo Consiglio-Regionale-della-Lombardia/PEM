@@ -186,7 +186,7 @@ namespace PortaleRegione.Client.Controllers
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                     CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
 
-                if (atto.IDStato != (int)StatiAttoEnum.CHIUSO)
+                if (!atto.IsChiuso)
                     atto.Destinatari =
                         await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
 

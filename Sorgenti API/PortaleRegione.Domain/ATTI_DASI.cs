@@ -74,7 +74,6 @@ namespace PortaleRegione.Domain
         public string Note_Pubbliche { get; set; }
         public string Note_Private { get; set; }
         public int IDStato { get; set; }
-        public int IDStato_Motivazione { get; set; } = (int)MotivazioneStatoAttoEnum.NESSUNO;
         public bool Firma_su_invito { get; set; } = false;
         public Guid UID_QRCode { get; set; }
         public int AreaPolitica { get; set; }
@@ -99,5 +98,10 @@ namespace PortaleRegione.Domain
 
         // Matteo Cattapan #520
         public string FirmeCartacee { get; set; }
+
+        // #558
+        public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
+                                || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
     }
 }
