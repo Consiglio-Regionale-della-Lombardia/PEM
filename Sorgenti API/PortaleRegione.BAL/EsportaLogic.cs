@@ -901,7 +901,7 @@ namespace PortaleRegione.BAL
             book.Write(fileStream);
             return new FileModel
             {
-                Name = "Report.xls",
+                Name = "Report.xlsx",
                 Content = fileStream.GetBuffer()
             };
         }

@@ -279,6 +279,7 @@ namespace PortaleRegione.API.Controllers
             var requestTipo = GetResponseTypeFromFilters(model.filtro);
 
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+            model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
             var filtro_seduta =
                 model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
             var sedutaId = Guid.Empty;
@@ -315,7 +316,8 @@ namespace PortaleRegione.API.Controllers
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
                     soggetti,
-                    stati);
+                    stati,
+                    Convert.ToBoolean(RequireMySign));
 
             if (!atti_in_db.Any())
             {

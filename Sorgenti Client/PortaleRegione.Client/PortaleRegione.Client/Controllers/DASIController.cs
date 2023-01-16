@@ -50,9 +50,12 @@ namespace PortaleRegione.Client.Controllers
         {
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
 
+            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
+
             var apiGateway = new ApiGateway(Token);
+
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
-                CurrentUser.CurrentRole);
+                CurrentUser.CurrentRole, view_require_my_sign);
             model.CurrentUser = CurrentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)

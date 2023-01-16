@@ -51,7 +51,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<int> stati = null)
+            List<int> soggetti = null, List<int> stati = null, bool requireMySign = false)
         {
             var query = PRContext
                 .DASI
@@ -114,6 +114,33 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(item => list.Contains(item.UIDAtto));
                 }
+
+            if (requireMySign)
+            {
+                var atti_da_firmare = new List<Guid>();
+
+                var notificheDestinatari = await PRContext
+                    .NOTIFICHE_DESTINATARI.Where(nd => nd.UIDPersona == persona.UID_persona && !nd.Chiuso).ToListAsync();
+                foreach (var notifica_destinatario in notificheDestinatari)
+                {
+                    var notifica = await PRContext.NOTIFICHE.FindAsync(notifica_destinatario.UIDNotifica);
+                    if (notifica == null)
+                        continue;
+                    if (notifica.Chiuso)
+                        continue; // Notifica chiusa
+                    if (notifica.UIDEM.HasValue)
+                        continue; // notifica PEM
+                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                        continue; // UidAtto già presente
+
+                    atti_da_firmare.Add(notifica.UIDAtto);
+                }
+
+                if (atti_da_firmare.Any())
+                {
+                    query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
+                }
+            }
 
             var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
             if (statoFilter != null)
