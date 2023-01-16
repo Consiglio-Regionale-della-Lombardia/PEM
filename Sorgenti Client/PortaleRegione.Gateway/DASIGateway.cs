@@ -78,14 +78,14 @@ namespace PortaleRegione.Gateway
         }
 
         public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo,
-            RuoliIntEnum ruolo)
+            RuoliIntEnum ruolo, bool propria_firma = false)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var model = new BaseRequest<AttoDASIDto>
             {
                 page = page,
                 size = size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }, { "RequireMySign", propria_firma } }
             };
             var operationStato = Operation.EqualTo;
             if ((int)stato > (int)StatiAttoEnum.BOZZA)
