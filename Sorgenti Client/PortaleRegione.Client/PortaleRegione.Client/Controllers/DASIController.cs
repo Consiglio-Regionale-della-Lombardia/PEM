@@ -901,6 +901,7 @@ namespace PortaleRegione.Client.Controllers
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
             var filtro_legislatura = Request.Form["filtro_legislatura"];
+            var filtro_proponente = Request.Form["filtro_proponente"];
 
             var model = new BaseRequest<AttoDASIDto>
             {
@@ -924,6 +925,7 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             util.AddFilter_BySeduta(ref model, filtro_seduta);
             util.AddFilter_ByLegislatura(ref model, filtro_legislatura);
+            util.AddFilter_Proponents(ref model, filtro_proponente);
 
             return model;
         }

@@ -51,7 +51,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<int> stati = null, bool requireMySign = false)
+            List<int> soggetti = null, List<Guid> proponenti = null, List<int> stati = null, bool requireMySign = false)
         {
             var query = PRContext
                 .DASI
@@ -114,6 +114,12 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(item => list.Contains(item.UIDAtto));
                 }
+
+            if (proponenti != null)
+                if (proponenti.Count > 0)
+                    //Avvio ricerca proponenti;
+                    query = query
+                        .Where(atto => proponenti.Contains(atto.UIDPersonaProponente.Value));
 
             if (requireMySign)
             {
