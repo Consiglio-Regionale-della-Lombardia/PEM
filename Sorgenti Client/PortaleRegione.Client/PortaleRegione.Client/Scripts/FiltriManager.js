@@ -1157,6 +1157,39 @@ async function Filtri_DASI_CaricaLegislature(ctrlSelect) {
     }
 }
 
+async function SetupFiltriProponentiDASI() {
+	var filterSelect = [];
+	var filtri = get_Filtri_DASI();
+	if (filtri != null) {
+		if (filtri.proponenti)
+			filterSelect = filtri.proponenti;
+	}
+	var persone = await GetPersoneFromDB();
+	var select = $("#filter_proponente");
+	select.empty();
+
+	$.each(persone,
+		function(index, item) {
+			var template = "";
+			var find_user = false;
+			for (var i = 0; i < filterSelect.length; i++) {
+				if (filterSelect[i].toString() == item.UID_persona.toString()) {
+					find_user = true;
+					break;
+				}
+			}
+			if (find_user) {
+				template = "<option selected='selected'></option>";
+			}
+			else
+				template = "<option></option>";
+			select.append($(template).val(item.UID_persona).html(item.DisplayName));
+		});
+	var elems = document.querySelectorAll("#filter_proponente");
+	M.FormSelect.init(elems, null);
+}
+
+
 function filter_dasi_da_OnChange() {
     var value = $("#qDataPresentazioneDA").val();
     var filtri = get_Filtri_DASI();
@@ -1469,6 +1502,23 @@ function filter_em_proponenti_OnChange() {
         filtri_em.proponenti = nuovi_proponenti;
     }
     set_Filtri_EM(filtri_em);
+}
+
+function filter_dasi_proponenti_OnChange() {
+    var filtri = get_Filtri_DASI();
+    if (filtri.proponenti == null)
+        filtri.proponenti = [];
+    var nuovi_proponenti = [];
+    if ($("#filter_proponente option").length != 0) {
+        $("#filter_proponente option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("PROPONENTE ATTIVO - ", $(opt).val());
+                nuovi_proponenti.push($(opt).val());
+            }
+        });
+        filtri.proponenti = nuovi_proponenti;
+    }
+    set_Filtri_DASI(filtri);
 }
 
 function filter_em_firmatari_OnChange() {

@@ -934,6 +934,31 @@ namespace PortaleRegione.Client.Helpers
         ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
+        /// <param name="proponenti"></param>
+        public void AddFilter_Proponents(ref BaseRequest<AttoDASIDto> model, string proponenti)
+        {
+            if (string.IsNullOrEmpty(proponenti)) return;
+
+            var prop_split = proponenti.Split(',');
+            if (prop_split.Length <= 0) return;
+
+            foreach (var personaUId in prop_split)
+            {
+                var filtro = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UIDPersonaProponente),
+                    Operation = Operation.EqualTo,
+                    Value = personaUId,
+                    Connector = FilterStatementConnector.Or
+                };
+                model.filtro.Add(filtro);
+            }
+        }
+
+        /// <summary>
+        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
+        /// </summary>
+        /// <param name="model"></param>
         /// <param name="firmatari"></param>
         public void AddFilter_Signers(ref BaseRequest<EmendamentiDto> model, string firmatari)
         {

@@ -88,6 +88,12 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="input-field col s12">
+                            <select multiple id="filter_proponente" name="filtro_proponente" onchange="filter_dasi_proponenti_OnChange()"></select>
+                            <label>Proponenti</label>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="input-field col s3">
                             <select id="qLegislatura" name="filtro_legislatura" class="form-control" onchange="filter_dasi_legislatura_OnChange()" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "")></select>
                             <label for="qLegislatura">Legislatura</label>
@@ -175,6 +181,7 @@
         await Filtri_DASI_CaricaStato("qStato");
         await Filtri_DASI_CaricaTipo("qTipo");
         await Filtri_DASI_CaricaLegislature("qLegislatura");
+        await SetupFiltriProponentiDASI();
 
         $('#qSoggettoDestinatarioDasi option').each(function(index, opt) {
             if ($(opt).is(":checked")) {
