@@ -306,6 +306,17 @@ namespace PortaleRegione.API.Controllers
                 foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
             }
 
+            var provvedimenti = new List<Guid>();
+            var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                provvedimenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
+                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento => new Guid(provvedimento.Value.ToString())));
+                foreach (var provvedimentoStatement in provvedimenti_request) model.filtro.Remove(provvedimentoStatement);
+            }
+
             var stati = new List<int>();
             var stati_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
@@ -328,6 +339,7 @@ namespace PortaleRegione.API.Controllers
                     queryFilter,
                     soggetti,
                     proponenti,
+                    provvedimenti,
                     stati,
                     Convert.ToBoolean(RequireMySign));
 
@@ -393,6 +405,8 @@ namespace PortaleRegione.API.Controllers
                 model.filtro.AddRange(soggetti_request);
             if (proponenti_request.Any())
                 model.filtro.AddRange(proponenti_request);
+            if (provvedimenti_request.Any())
+                model.filtro.AddRange(provvedimenti_request);
             if (stati_request.Any())
                 model.filtro.AddRange(stati_request);
 

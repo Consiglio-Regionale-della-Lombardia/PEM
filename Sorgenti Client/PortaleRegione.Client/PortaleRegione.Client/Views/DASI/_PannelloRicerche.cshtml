@@ -30,18 +30,24 @@
                     <div class="row">
                         @if (!_disabled)
                         {
-                            <div class="input-field col s4">
+                            <div class="input-field col s3">
                                 <select id="qTipo" name="filtro_tipo" onchange="filter_dasi_tipo_OnChange()">
                                 </select>
                                 <label for="qTipo">Tipo</label>
                             </div>
-                            <div id="pnl_tipo_mozione_urgente" class="input-field col s2" style="display: none;">
+                            <div id="pnl_tipo_mozione_urgente" class="input-field col s9" style="display: none;">
                                 <label>
                                     <input type="checkbox" id="qTipo_Mozione_Urgente" name="filtro_mozione_urgente" onchange="filter_dasi_tipo_mozione_urgente_OnChange()">
                                     <span for="qTipo_Mozione_Urgente">Solo urgenti</span>
                                 </label>
                             </div>
+                            <div id="pnl_provvedimenti_odg" class="input-field col s9" style="display: none;">
+                                <select multiple id="filter_provvedimenti" name="filtro_provvedimenti" onchange="filter_dasi_provvedimenti_OnChange()"></select>
+                                <label>Provvedimenti</label>
+                            </div>
                         }
+                    </div>
+                    <div class="row">
                         <div class="input-field col s4">
                             <select id="qStato" name="filtro_stato" onchange="filter_dasi_stato_OnChange()">
                             </select>

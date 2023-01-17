@@ -1028,6 +1028,7 @@ async function Filtri_DASI_CaricaTipo(ctrlSelect) {
     }
 
     ShowHideSoloUrgenti(filterSelect);
+    ShowHideProvvedimenti(filterSelect);
 
     var tipi = await GetTipiDASI();
     if (tipi.length > 0) {
@@ -1267,17 +1268,65 @@ function filter_dasi_tipo_OnChange() {
     set_Filtri_DASI(filtri);
 
     ShowHideSoloUrgenti(value);
+    ShowHideProvvedimenti(value);
 }
 
 function ShowHideSoloUrgenti(tipo) {
     if (tipo == 6) {
-        $("#qTipo").parent().parent().removeClass("s4").addClass("s2");
         $('#pnl_tipo_mozione_urgente').show();
     } else {
-        $("#qTipo").parent().parent().removeClass("s2").addClass("s4");
         $('#pnl_tipo_mozione_urgente').hide();
         $('#qTipo_Mozione_Urgente').prop("checked", false);
     }
+}
+
+function ShowHideProvvedimenti(tipo) {
+    if (tipo == 7) {
+        $('#pnl_provvedimenti_odg').show();
+        CaricaProvvedimenti();
+    } else {
+        $('#pnl_provvedimenti_odg').hide();
+        var filtri = get_Filtri_DASI();
+        if (filtri != null) {
+	        if (filtri.provvedimenti) {
+		        filtri.provvedimenti = [];
+		        set_Filtri_DASI(filtri);
+		        CaricaProvvedimenti();
+	        }
+        }
+    }
+}
+
+async function CaricaProvvedimenti() {
+	var filterSelect = [];
+	var filtri = get_Filtri_DASI();
+	if (filtri != null) {
+		if (filtri.provvedimenti)
+			filterSelect = filtri.provvedimenti;
+	}
+	var provvedimenti = await GetAttiSeduteAttive();
+	var select = $("#filter_provvedimenti");
+	select.empty();
+
+	$.each(provvedimenti,
+		function(index, item) {
+			var template = "";
+			var find = false;
+			for (var i = 0; i < filterSelect.length; i++) {
+				if (filterSelect[i].toString() == item.UIDAtto.toString()) {
+					find = true;
+					break;
+				}
+			}
+			if (find) {
+				template = "<option selected='selected'></option>";
+			}
+			else
+				template = "<option></option>";
+			select.append($(template).val(item.UIDAtto).html(item.NAtto));
+		});
+	var elems = document.querySelectorAll("#filter_provvedimenti");
+	M.FormSelect.init(elems, null);
 }
 
 function filter_dasi_tipo_mozione_urgente_OnChange() {
@@ -1517,6 +1566,22 @@ function filter_dasi_proponenti_OnChange() {
             }
         });
         filtri.proponenti = nuovi_proponenti;
+    }
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_provvedimenti_OnChange() {
+    var filtri = get_Filtri_DASI();
+    if (filtri.provvedimenti == null)
+        filtri.provvedimenti = [];
+    var nuovi_provvedimenti = [];
+    if ($("#filter_provvedimenti option").length != 0) {
+        $("#filter_provvedimenti option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                nuovi_provvedimenti.push($(opt).val());
+            }
+        });
+        filtri.provvedimenti = nuovi_provvedimenti;
     }
     set_Filtri_DASI(filtri);
 }
