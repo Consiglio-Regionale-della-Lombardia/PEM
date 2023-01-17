@@ -931,7 +931,7 @@ namespace PortaleRegione.Client.Helpers
         }
 
         /// <summary>
-        ///     Aggiunge il filtro alla request di ricerca degli emendamenti
+        ///     Aggiunge il filtro alla request di ricerca
         /// </summary>
         /// <param name="model"></param>
         /// <param name="proponenti"></param>
@@ -949,6 +949,31 @@ namespace PortaleRegione.Client.Helpers
                     PropertyId = nameof(AttoDASIDto.UIDPersonaProponente),
                     Operation = Operation.EqualTo,
                     Value = personaUId,
+                    Connector = FilterStatementConnector.Or
+                };
+                model.filtro.Add(filtro);
+            }
+        }
+
+        /// <summary>
+        ///     Aggiunge il filtro alla request di ricerca
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="proponenti"></param>
+        public void AddFilter_Provvedimenti(ref BaseRequest<AttoDASIDto> model, string provvedimenti)
+        {
+            if (string.IsNullOrEmpty(provvedimenti)) return;
+
+            var prop_split = provvedimenti.Split(',');
+            if (prop_split.Length <= 0) return;
+
+            foreach (var guid in prop_split)
+            {
+                var filtro = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UID_Atto_ODG),
+                    Operation = Operation.EqualTo,
+                    Value = guid,
                     Connector = FilterStatementConnector.Or
                 };
                 model.filtro.Add(filtro);
