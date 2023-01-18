@@ -773,6 +773,32 @@ namespace PortaleRegione.Client.Controllers
                     .Results
                     .Select(i => i.UIDAtto));
                 var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
+                return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.FileName);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("esportaZip")]
+        public async Task<ActionResult> EsportaZip()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var lista = new List<Guid>();
+                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                lista.AddRange(model
+                    .Data
+                    .Results
+                    .Select(i => i.UIDAtto));
+                var file = await apiGateway.Esporta.EsportaZipDASI(lista);
                 return File(file.Content, "application/zip", file.FileName);
             }
             catch (Exception e)
