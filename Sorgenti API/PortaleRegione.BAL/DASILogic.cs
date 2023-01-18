@@ -1094,8 +1094,6 @@ namespace PortaleRegione.API.Controllers
         public async Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model,
             PersonaDto persona)
         {
-            if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
-
             var results = new Dictionary<Guid, string>();
             var counterPresentazioni = 1;
             var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -2622,7 +2620,11 @@ namespace PortaleRegione.API.Controllers
         {
             foreach (var firma_cartacea in dto.FirmeCartacee)
             {
-                var persona = await _logicPersona.GetPersona(new Guid(firma_cartacea.uid));
+                var uid_persona = new Guid(firma_cartacea.uid);
+                var check_firmato = await _unitOfWork.Atti_Firme.CheckFirmato(dto.UIDAtto, uid_persona);
+                if (check_firmato) continue;
+
+                var persona = await _logicPersona.GetPersona(uid_persona);
                 persona.Gruppo = await _logicPersona.GetGruppoAttualePersona(persona.UID_persona, false);
                 var result_firma = await Firma(
                     new ComandiAzioneModel
