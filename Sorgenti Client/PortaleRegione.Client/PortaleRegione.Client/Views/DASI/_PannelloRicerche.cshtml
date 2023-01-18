@@ -134,10 +134,11 @@
                                     <i class="icon material-icons left">grid_on</i>
                                     Esporta Excel
                                 </a>
-                                @*<a href="#!" class="collection-item">
-                                        <i class="icon material-icons left">download</i>
-                                        Esporta Word
-                                    </a>*@
+                                
+                                <a id="btnExportZip" class="collection-item" data-href="@Url.Action("EsportaZip", "DASI")">
+                                    <i class="icon material-icons left">archive</i>
+                                    Esporta Zip
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -156,6 +157,25 @@
                 function() {
                     waiting(true);
                     var url = $('#btnExportXLS').data("href");
+                    var request = new XMLHttpRequest();
+                    request.responseType = "blob";
+                    request.open("GET", url);
+                    request.onload = function() {
+                        waiting(false);
+                        var url2 = window.URL.createObjectURL(this.response);
+                        var a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.href = url2;
+                        a.download = this.response.name || "download-" + $.now()
+                        a.click();
+                    }
+                    request.send();
+                });
+            
+            $('#btnExportZip').on("click",
+                function() {
+                    waiting(true);
+                    var url = $('#btnExportZip').data("href");
                     var request = new XMLHttpRequest();
                     request.responseType = "blob";
                     request.open("GET", url);
