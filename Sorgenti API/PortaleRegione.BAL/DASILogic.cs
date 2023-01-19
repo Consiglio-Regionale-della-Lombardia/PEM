@@ -279,6 +279,7 @@ namespace PortaleRegione.API.Controllers
             var requestTipo = GetResponseTypeFromFilters(model.filtro);
 
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+            model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
             var filtro_seduta =
                 model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
             var sedutaId = Guid.Empty;
@@ -292,6 +293,28 @@ namespace PortaleRegione.API.Controllers
                         statement.PropertyId == "SoggettiDestinatari"));
                 soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
                 foreach (var s in soggetti_request) model.filtro.Remove(s);
+            }
+
+            var proponenti = new List<Guid>();
+            var proponenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                proponenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
+                proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
+            }
+
+            var provvedimenti = new List<Guid>();
+            var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                provvedimenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
+                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento => new Guid(provvedimento.Value.ToString())));
+                foreach (var provvedimentoStatement in provvedimenti_request) model.filtro.Remove(provvedimentoStatement);
             }
 
             var stati = new List<int>();
@@ -315,7 +338,10 @@ namespace PortaleRegione.API.Controllers
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
                     soggetti,
-                    stati);
+                    proponenti,
+                    provvedimenti,
+                    stati,
+                    Convert.ToBoolean(RequireMySign));
 
             if (!atti_in_db.Any())
             {
@@ -377,6 +403,10 @@ namespace PortaleRegione.API.Controllers
 
             if (soggetti_request.Any())
                 model.filtro.AddRange(soggetti_request);
+            if (proponenti_request.Any())
+                model.filtro.AddRange(proponenti_request);
+            if (provvedimenti_request.Any())
+                model.filtro.AddRange(provvedimenti_request);
             if (stati_request.Any())
                 model.filtro.AddRange(stati_request);
 
@@ -833,9 +863,9 @@ namespace PortaleRegione.API.Controllers
                     continue;
                 }
 
-                if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                if (atto.IsChiuso)
                     throw new InvalidOperationException(
-                        "Non è possibile ritirare la firma di un atto chiuso.");
+                        "Non è possibile ritirare la firma.");
 
                 if (atto.DataIscrizioneSeduta.HasValue)
                 {
@@ -957,8 +987,7 @@ namespace PortaleRegione.API.Controllers
                             "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
 
                     //RITIRA ATTO
-                    atto.IDStato = (int)StatiAttoEnum.CHIUSO;
-                    atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
+                    atto.IDStato = (int)StatiAttoEnum.CHIUSO_RITIRATO;
                     atto.UIDPersonaRitiro = persona.UID_persona;
                     atto.DataRitiro = DateTime.Now;
                 }
@@ -1065,8 +1094,6 @@ namespace PortaleRegione.API.Controllers
         public async Task<Dictionary<Guid, string>> Presenta(ComandiAzioneModel model,
             PersonaDto persona)
         {
-            if (!persona.IsConsigliereRegionale) throw new Exception("Ruolo non abilitato al deposito di atti");
-
             var results = new Dictionary<Guid, string>();
             var counterPresentazioni = 1;
             var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
@@ -1430,7 +1457,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         public async Task<string> GetBodyDASI(ATTI_DASI atto, IEnumerable<AttiFirmeDto> firme, PersonaDto persona,
-            TemplateTypeEnum template)
+            TemplateTypeEnum template, bool privacy = false)
         {
             try
             {
@@ -1450,16 +1477,16 @@ namespace PortaleRegione.API.Controllers
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
-                            GetBody(dto, tipo, firme, persona, false, ref body);
+                            GetBody(dto, tipo, firme, persona, false, privacy, ref body);
                             break;
                         case TemplateTypeEnum.PDF:
-                            GetBody(dto, tipo, firme, persona, true, ref body);
+                            GetBody(dto, tipo, firme, persona, true, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML:
-                            GetBody(dto, tipo, firme, persona, false, ref body);
+                            GetBody(dto, tipo, firme, persona, false, true, ref body);
                             break;
                         case TemplateTypeEnum.FIRMA:
-                            GetBodyTemporaneo(dto, ref body);
+                            GetBodyTemporaneo(dto, privacy, ref body);
                             break;
                         case TemplateTypeEnum.HTML_MODIFICABILE:
                             break;
@@ -1536,7 +1563,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task Ritira(ATTI_DASI atto, PersonaDto persona)
         {
-            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+            if (atto.IsChiuso)
                 throw new InvalidOperationException(
                     "Non è possibile ritirare un atto chiuso.");
 
@@ -1544,8 +1571,7 @@ namespace PortaleRegione.API.Controllers
                 throw new InvalidOperationException(
                     "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
 
-            atto.IDStato = (int)StatiAttoEnum.CHIUSO;
-            atto.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.RITIRATO;
+            atto.IDStato = (int)StatiAttoEnum.CHIUSO_RITIRATO;
             atto.UIDPersonaRitiro = persona.UID_persona;
             atto.DataRitiro = DateTime.Now;
 
@@ -1879,32 +1905,29 @@ namespace PortaleRegione.API.Controllers
                 atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
 
-                var nomeAtto =
-                    $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}";
                 if (atto.Tipo == (int)TipoAttoEnum.IQT)
                     continue;
-                listaRichieste.Add(nomeAtto);
-            }
-
-            try
-            {
-                if (!listaRichieste.Any()) return;
-
-                var mailModel = new MailModel
+                // Matteo Cattapan #533 
+                // Avviso UOLA se atto fuori termine
+                var attoDto = await GetAttoDto(atto.UIDAtto);
+                var out_of_date = IsOutdate(attoDto);
+                try
                 {
-                    DA = persona.email,
-                    A =
-                        AppSettingsConfiguration.EmailInvioDASI,
-                    OGGETTO =
-                        "[RICHIESTA ISCRIZIONE]",
-                    MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dei seguenti atti: <br> {listaRichieste.Aggregate((i, j) => i + "<br>" + j)} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
-                };
-                await _logicUtil.InvioMail(mailModel);
-            }
-            catch (Exception)
-            {
-                // ignored
+                    var mailModel = new MailModel
+                    {
+                        DA = persona.email,
+                        A = AppSettingsConfiguration.EmailInvioDASI,
+                        OGGETTO =
+                            $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " - FUORI TERMINE" : "")}",
+                        MESSAGGIO =
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
         }
 
@@ -2022,8 +2045,31 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 attoInDb.MOZU_Capigruppo = checkIfFirmatoDaiCapigruppo;
-
                 await _unitOfWork.CompleteAsync();
+
+                // Matteo Cattapan #533
+                // Invio mail a UOLA per avviso proposta urgenza fuori termine stabilito
+                atto = await GetAttoDto(guid);
+                if (IsOutdate(atto))
+                {
+                    try
+                    {
+                        var mailModel = new MailModel
+                        {
+                            DA = persona.email,
+                            A = AppSettingsConfiguration.EmailInvioDASI,
+                            OGGETTO =
+                                $"{atto.Display} – FUORI TERMINE",
+                            MESSAGGIO =
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione effettuata fuori termine per il provvedimento: <br> {atto.Display}."
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -2417,19 +2463,19 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
-            var content = await PDFIstantaneo(atto, persona);
+            var content = await PDFIstantaneo(atto, persona, privacy);
             var res = ComposeFileResponse(content,
                 $"{Utility.GetText_Tipo(atto.Tipo)} {GetNome(atto.NAtto, atto.Progressivo)}.pdf");
             return res;
         }
 
-        internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona)
+        internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
             var attoDto = await GetAttoDto(atto.UIDAtto);
             var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
-            var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF);
+            var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF, privacy);
             var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
             return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
         }
@@ -2574,7 +2620,11 @@ namespace PortaleRegione.API.Controllers
         {
             foreach (var firma_cartacea in dto.FirmeCartacee)
             {
-                var persona = await _logicPersona.GetPersona(new Guid(firma_cartacea.uid));
+                var uid_persona = new Guid(firma_cartacea.uid);
+                var check_firmato = await _unitOfWork.Atti_Firme.CheckFirmato(dto.UIDAtto, uid_persona);
+                if (check_firmato) continue;
+
+                var persona = await _logicPersona.GetPersona(uid_persona);
                 persona.Gruppo = await _logicPersona.GetGruppoAttualePersona(persona.UID_persona, false);
                 var result_firma = await Firma(
                     new ComandiAzioneModel

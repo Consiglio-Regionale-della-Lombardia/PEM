@@ -168,6 +168,8 @@ namespace PortaleRegione.Client.Helpers
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return StatiAttoCSSConst.IN_TRATTAZIONE;
                 case StatiAttoEnum.CHIUSO:
+                case StatiAttoEnum.CHIUSO_RITIRATO:
+                case StatiAttoEnum.CHIUSO_DECADUTO:
                     return StatiAttoCSSConst.CHIUSO;
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return StatiAttoCSSConst.CARTACEO;
@@ -382,6 +384,19 @@ namespace PortaleRegione.Client.Helpers
                 });
         }
 
+        public void AddFilter_ByMozioneUrgente(ref BaseRequest<AttoDASIDto> model, string solo_urgenti)
+        {
+            if (solo_urgenti != "on") return;
+
+            model.filtro.Add(new FilterStatement<AttoDASIDto>
+            {
+                PropertyId = nameof(AttoDASIDto.TipoMOZ),
+                Operation = Operation.EqualTo,
+                Value = Convert.ToInt16(TipoMOZEnum.URGENTE),
+                Connector = FilterStatementConnector.And
+            });
+        }
+
         public void AddFilter_ByStato(ref BaseRequest<AttoDASIDto> model, string filtroStato, PersonaDto currentUser)
         {
             if (!string.IsNullOrEmpty(filtroStato))
@@ -403,16 +418,47 @@ namespace PortaleRegione.Client.Helpers
                         Value = filtroStato,
                         Connector = FilterStatementConnector.And
                     });
+
+                    if (filtroStato == Convert.ToInt32(StatiAttoEnum.CHIUSO).ToString())
+                    {
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_RITIRATO).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = Convert.ToInt32(StatiAttoEnum.CHIUSO_DECADUTO).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
                 }
                 else
                 {
-                    model.filtro.Add(new FilterStatement<AttoDASIDto>
+                    if (currentUser.IsSegreteriaAssemblea)
                     {
-                        PropertyId = nameof(AttoDASIDto.IDStato),
-                        Operation = Operation.EqualTo,
-                        Value = ((int)StatiAttoEnum.BOZZA).ToString(),
-                        Connector = FilterStatementConnector.And
-                    });
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = ((int)StatiAttoEnum.PRESENTATO).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
+                    else
+                    {
+                        model.filtro.Add(new FilterStatement<AttoDASIDto>
+                        {
+                            PropertyId = nameof(AttoDASIDto.IDStato),
+                            Operation = Operation.EqualTo,
+                            Value = ((int)StatiAttoEnum.BOZZA).ToString(),
+                            Connector = FilterStatementConnector.And
+                        });
+                    }
                 }
         }
 
@@ -885,6 +931,56 @@ namespace PortaleRegione.Client.Helpers
         }
 
         /// <summary>
+        ///     Aggiunge il filtro alla request di ricerca
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="proponenti"></param>
+        public void AddFilter_Proponents(ref BaseRequest<AttoDASIDto> model, string proponenti)
+        {
+            if (string.IsNullOrEmpty(proponenti)) return;
+
+            var prop_split = proponenti.Split(',');
+            if (prop_split.Length <= 0) return;
+
+            foreach (var personaUId in prop_split)
+            {
+                var filtro = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UIDPersonaProponente),
+                    Operation = Operation.EqualTo,
+                    Value = personaUId,
+                    Connector = FilterStatementConnector.Or
+                };
+                model.filtro.Add(filtro);
+            }
+        }
+
+        /// <summary>
+        ///     Aggiunge il filtro alla request di ricerca
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="proponenti"></param>
+        public void AddFilter_Provvedimenti(ref BaseRequest<AttoDASIDto> model, string provvedimenti)
+        {
+            if (string.IsNullOrEmpty(provvedimenti)) return;
+
+            var prop_split = provvedimenti.Split(',');
+            if (prop_split.Length <= 0) return;
+
+            foreach (var guid in prop_split)
+            {
+                var filtro = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UID_Atto_ODG),
+                    Operation = Operation.EqualTo,
+                    Value = guid,
+                    Connector = FilterStatementConnector.Or
+                };
+                model.filtro.Add(filtro);
+            }
+        }
+
+        /// <summary>
         ///     Aggiunge il filtro alla request di ricerca degli emendamenti
         /// </summary>
         /// <param name="model"></param>
@@ -957,6 +1053,20 @@ namespace PortaleRegione.Client.Helpers
                     Value = sedutaUId,
                     Connector = FilterStatementConnector.And
                 });
+        }
+
+        public void AddFilter_ByDataIscrizioneSeduta(ref BaseRequest<AttoDASIDto> model, string data)
+        {
+            if (!string.IsNullOrEmpty(data))
+            {
+                model.filtro.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.DataIscrizioneSeduta),
+                    Operation = Operation.EqualTo,
+                    Value = Convert.ToDateTime(data).ToString("yyyy-MM-dd"),
+                    Connector = FilterStatementConnector.And
+                });
+            }
         }
     }
 }

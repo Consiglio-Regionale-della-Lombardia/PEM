@@ -35,5 +35,12 @@ namespace PortaleRegione.Client.Helpers
         public static string GEASI_USERNAME => ConfigurationManager.AppSettings["GEASI_USERNAME"];
         public static string GEASI_PASSWORD => ConfigurationManager.AppSettings["GEASI_PASSWORD"];
         public static int COOKIE_EXPIRE_IN => Convert.ToInt16(ConfigurationManager.AppSettings["COOKIE_EXPIRE_IN"]);
+        public static bool EnablePEM => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["PEM"]));
+        public static bool EnableDASI => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["DASI"]));
+        public static bool EnableITL => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["ITL"]));
+        public static bool EnableITR => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["ITR"]));
+        public static bool EnableIQT => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["IQT"]));
+        public static bool EnableMOZ => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["MOZ"]));
+        public static bool EnableODG => Convert.ToBoolean(Convert.ToInt16(ConfigurationManager.AppSettings["ODG"]));
     }
 }

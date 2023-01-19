@@ -103,15 +103,31 @@ else
             <div class="col s2 valign-wrapper">
                 @{
                     var tooltipStato = "Non ancora depositato";
+                    var labelStato = Utility.GetText_StatoDASI(item.IDStato);
                     if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                     {
                         tooltipStato = $"Depositato il {item.DataPresentazione}";
+                        var motivazione = "";
+                        if (item.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO)
+                        {
+                            motivazione = "Ritirato";
+                        }
+                        else if (item.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO)
+                        {
+                            motivazione = "Decaduto";
+                        }
+
+                        if (!string.IsNullOrEmpty(motivazione))
+                        {
+                            tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
+                            labelStato += $" - {motivazione}";
+                        }
                     }
                 }
                 @if (Model.Stato != StatiAttoEnum.BOZZA)
                 {
                     <span class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
-                        @Html.Raw(Utility.GetText_StatoDASI(item.IDStato))
+                        @labelStato
                     </span>
                 }
             </div>
@@ -229,7 +245,7 @@ else
                                       || item.Tipo is (int)TipoAttoEnum.ODG
                                       || item.Tipo is (int)TipoAttoEnum.MOZ
                                       || item.Tipo is (int)TipoAttoEnum.IQT)
-                                     && item.IDStato != (int)StatiAttoEnum.CHIUSO)
+                                     && !item.IsChiuso)
                                 {
                                     if ((item.Tipo is (int)TipoAttoEnum.IQT
                                          && (Model.CurrentUser.IsCapoGruppo
@@ -237,7 +253,7 @@ else
                                         || item.Tipo is (int)TipoAttoEnum.MOZ)
                                     {
                                         <li>
-                                            <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
+                                            <a onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)', @Html.Raw(item.Tipo), @Html.Raw(item.TipoMOZ))">
                                                 Proponi iscrizione
                                             </a>
                                         </li>
@@ -246,7 +262,7 @@ else
                             </ul>
                         }
 
-                        <a class="black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("Download", "DASI", new { id = item.UIDAtto })">
+                        <a class="black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
                             <i class="material-icons">print</i>
                         </a>
 

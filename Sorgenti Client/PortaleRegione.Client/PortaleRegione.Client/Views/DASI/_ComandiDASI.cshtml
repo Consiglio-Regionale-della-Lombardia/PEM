@@ -31,29 +31,43 @@
 </div>
 @{
     var mode = Convert.ToInt16(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE));
-    var block = mode == (int) ClientModeEnum.GRUPPI || mode == 0 ? "block" : "none";
+    var block = mode == (int)ClientModeEnum.GRUPPI || mode == 0 ? "block" : "none";
 }
 <div id="pnlNuovoDASI" class="fixed-action-btn" style="display: @Html.Raw(block)">
     <a id="btnNuovoDASI" class="btn-floating btn-large blue darken-1">
         <i class="large material-icons">add</i>
     </a>
     <ul>
-        <li>
-            <a class="btn-floating @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ITL})">@Utility.GetText_Tipo((int) TipoAttoEnum.ITL)</a>
-        </li>
-
-        <li>
-            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ITR})">@Utility.GetText_Tipo((int) TipoAttoEnum.ITR)</a>
-        </li>
-        <li>
-            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.IQT})">@Utility.GetText_Tipo((int) TipoAttoEnum.IQT)</a>
-        </li>
-        <li>
-            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.MOZ})">@Utility.GetText_Tipo((int) TipoAttoEnum.MOZ)</a>
-        </li>
-        <li>
-            <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" href="@Url.Action("Nuovo", new {tipo = (int) TipoAttoEnum.ODG})">@Utility.GetText_Tipo((int) TipoAttoEnum.ODG)</a>
-        </li>
+        @if (AppSettingsConfiguration.EnableITL)
+        {
+            <li>
+                <a class="btn-floating @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</a>
+            </li>
+        }
+        @if (AppSettingsConfiguration.EnableITR)
+        {
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</a>
+            </li>
+        }
+        @if (AppSettingsConfiguration.EnableIQT)
+        {
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</a>
+            </li>
+        }
+        @if (AppSettingsConfiguration.EnableMOZ)
+        {
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</a>
+            </li>
+        }
+        @if (AppSettingsConfiguration.EnableODG)
+        {
+            <li>
+                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</a>
+            </li>
+        }
     </ul>
 </div>
 
@@ -78,15 +92,15 @@
             });
             return;
         }
-        
-        if (action == @((int) ActionEnum.FIRMA)) {
+
+        if (action == @((int)ActionEnum.FIRMA)) {
             text = "Inserisci il PIN per firmare ";
             button = "Firma";
-        } else if (action == @((int) ActionEnum.DEPOSITA)) {
+        } else if (action == @((int)ActionEnum.DEPOSITA)) {
             text = "Inserisci il PIN per presentare ";
             button = "Presenta";
-        } else if (action == @((int) ActionEnum.INVITA)) {
-            await NotificaADASI(@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI));
+        } else if (action == @((int)ActionEnum.INVITA)) {
+            await NotificaADASI(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
             return;
         }
         var limite_file = @Html.Raw(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
@@ -145,15 +159,15 @@
     }
 
     function FirmaMassivo_DASI() {
-        MassivoDASI(@Html.Raw((int) ActionEnum.FIRMA));
+        MassivoDASI(@Html.Raw((int)ActionEnum.FIRMA));
     }
 
     function PresentaMassivo_DASI() {
-        MassivoDASI(@Html.Raw((int) ActionEnum.DEPOSITA));
+        MassivoDASI(@Html.Raw((int)ActionEnum.DEPOSITA));
     }
 
     function InvitoMassivo_DASI() {
-        MassivoDASI(@Html.Raw((int) ActionEnum.INVITA));
+        MassivoDASI(@Html.Raw((int)ActionEnum.INVITA));
     }
 
     function AbilitaComandiMassivi_DASI(uidAtto) {
@@ -186,7 +200,7 @@
         } else {
             $("#btnComandiMassivi").hide();
             var mode = getClientMode();
-            if (mode == @((int) ClientModeEnum.GRUPPI)) {
+            if (mode == @((int)ClientModeEnum.GRUPPI)) {
                 $("#pnlNuovoDASI").show();
             } else {
                 $("#pnlNuovoDASI").hide();

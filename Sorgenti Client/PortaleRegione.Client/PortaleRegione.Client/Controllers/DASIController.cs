@@ -50,9 +50,12 @@ namespace PortaleRegione.Client.Controllers
         {
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
 
+            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
+
             var apiGateway = new ApiGateway(Token);
+
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
-                CurrentUser.CurrentRole);
+                CurrentUser.CurrentRole, view_require_my_sign);
             model.CurrentUser = CurrentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)
@@ -178,14 +181,7 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 var atto = await apiGateway.DASI.Get(id);
-                if (!string.IsNullOrEmpty(atto.Oggetto_Modificato)
-                    || !string.IsNullOrEmpty(atto.Premesse_Modificato)
-                    || !string.IsNullOrEmpty(atto.Richiesta_Modificata)
-                    || string.IsNullOrEmpty(atto.Atto_Certificato))
-                    atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML);
-                else
-                    atto.BodyAtto = atto.Atto_Certificato;
-
+                atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML, true);
                 atto.Firme = await Utility.GetFirmatariDASI(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
                     CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
@@ -193,7 +189,7 @@ namespace PortaleRegione.Client.Controllers
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
                     CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
 
-                if (atto.IDStato != (int)StatiAttoEnum.CHIUSO)
+                if (!atto.IsChiuso)
                     atto.Destinatari =
                         await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
 
@@ -687,26 +683,6 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-        /// <summary>
-        ///     Controller per andare nella pagina preview degli atti
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="size"></param>
-        /// <param name="tipo"></param>
-        /// <param name="stato"></param>
-        /// <param name="viewModeEnum"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        //[HttpGet]
-        //[Route("preview")]
-        //public async Task<ActionResult> Preview(int mode)
-        //{
-        //    var _mode = (ViewModeEnum) mode;
-        //    if (_mode == ViewModeEnum.GRID)
-        //    {
-        //        //Ritorna la griglia
-        //    }
-        //}
         [HttpGet]
         [Route("{id:guid}/meta-data")]
         public async Task<ActionResult> GetMetaData(Guid id)
@@ -797,6 +773,32 @@ namespace PortaleRegione.Client.Controllers
                     .Results
                     .Select(i => i.UIDAtto));
                 var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
+                return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.FileName);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per esportare gli atti
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("esportaZip")]
+        public async Task<ActionResult> EsportaZip()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var lista = new List<Guid>();
+                var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                lista.AddRange(model
+                    .Data
+                    .Results
+                    .Select(i => i.UIDAtto));
+                var file = await apiGateway.Esporta.EsportaZipDASI(lista);
                 return File(file.Content, "application/zip", file.FileName);
             }
             catch (Exception e)
@@ -913,16 +915,20 @@ namespace PortaleRegione.Client.Controllers
             var filtro_oggetto = Request.Form["filtro_oggetto"];
             var filtro_stato = Request.Form["filtro_stato"];
             var filtro_tipo = Request.Form["filtro_tipo"];
+            var filtro_mozione_urgente = Request.Form["filtro_mozione_urgente"];
             var filtro_tipo_risposta = Request.Form["filtro_tipo_risposta"];
             var filtro_natto = Request.Form["filtro_natto"];
             var filtro_natto2 = Request.Form["filtro_natto2"];
             var filtro_da = Request.Form["filtro_da"];
             var filtro_a = Request.Form["filtro_a"];
             var filtro_data_seduta = Request.Form["filtro_data_seduta"];
+            var filtro_data_iscrizione_seduta = Request.Form["filtro_data_iscrizione_seduta"];
             var filtro_tipo_trattazione = Request.Form["Tipo"];
             var filtro_soggetto_dest = Request.Form["filtro_soggetto_dest"];
             var filtro_seduta = Request.Form["UIDSeduta"];
             var filtro_legislatura = Request.Form["filtro_legislatura"];
+            var filtro_proponente = Request.Form["filtro_proponente"];
+            var filtro_provvedimenti = Request.Form["filtro_provvedimenti"];
 
             var model = new BaseRequest<AttoDASIDto>
             {
@@ -937,13 +943,17 @@ namespace PortaleRegione.Client.Controllers
             util.AddFilter_ByDataPresentazione(ref model, filtro_da, filtro_a);
             var sedutaUId = await GetSedutaByData(filtro_data_seduta);
             util.AddFilter_ByDataSeduta(ref model, sedutaUId);
+            util.AddFilter_ByDataIscrizioneSeduta(ref model, filtro_data_iscrizione_seduta);
             util.AddFilter_ByOggetto_Testo(ref model, filtro_oggetto);
             util.AddFilter_ByStato(ref model, filtro_stato, CurrentUser);
             util.AddFilter_ByTipoRisposta(ref model, filtro_tipo_risposta);
             util.AddFilter_ByTipo(ref model, filtro_tipo, filtro_tipo_trattazione, mode);
+            util.AddFilter_ByMozioneUrgente(ref model, filtro_mozione_urgente);
             util.AddFilter_BySoggetto(ref model, filtro_soggetto_dest);
             util.AddFilter_BySeduta(ref model, filtro_seduta);
             util.AddFilter_ByLegislatura(ref model, filtro_legislatura);
+            util.AddFilter_Proponents(ref model, filtro_proponente);
+            util.AddFilter_Provvedimenti(ref model, filtro_provvedimenti);
 
             return model;
         }
@@ -994,6 +1004,29 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.DASI.Download(id);
+                return File(file.Content, "application/pdf",
+                    file.FileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///     Controller per scaricare il documento pdf dell'atto con il testo e l’oggetto modificati
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("file-privacy")]
+        public async Task<ActionResult> DownloadWithPrivacy(Guid id)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var file = await apiGateway.DASI.DownloadWithPrivacy(id);
                 return File(file.Content, "application/pdf",
                     file.FileName);
             }

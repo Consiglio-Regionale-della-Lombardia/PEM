@@ -822,6 +822,20 @@ function GetGrigliaTestoEM(attoUId) {
     });
 }
 
+function GetGrigliaOrdinamentoEM(attoUId) {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/atti/griglia-ordinamento",
+            data: { id: attoUId },
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
 function GetCommi(articoloUId, expanded) {
     return new Promise(async function(resolve, reject) {
         $.ajax({
@@ -954,6 +968,18 @@ function Filtri_DASI_CaricaDataSeduta(ctrlSelect) {
     select.val(filterSelect);
 }
 
+function Filtri_DASI_CaricaDataIscrizioneSeduta(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.data_iscrizione_seduta;
+    }
+
+    var select = $("#" + ctrlSelect);
+    select.empty();
+    select.val(filterSelect);
+}
+
 function Filtri_DASI_CaricaOggetto(ctrlSelect) {
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
@@ -994,11 +1020,15 @@ async function Filtri_DASI_CaricaStato(ctrlSelect) {
 }
 
 async function Filtri_DASI_CaricaTipo(ctrlSelect) {
+    $('#pnl_tipo_mozione_urgente').hide();
     var filterSelect = 0;
     var filtri = get_Filtri_DASI();
     if (filtri != null) {
         filterSelect = filtri.tipo;
     }
+
+    ShowHideSoloUrgenti(filterSelect);
+    ShowHideProvvedimenti(filterSelect);
 
     var tipi = await GetTipiDASI();
     if (tipi.length > 0) {
@@ -1007,8 +1037,9 @@ async function Filtri_DASI_CaricaTipo(ctrlSelect) {
         $.each(tipi,
             function(index, item) {
                 var template = "";
-                if (item.IDTipoAtto == filterSelect)
+                if (item.IDTipoAtto == filterSelect) {
                     template = "<option selected='selected'></option>";
+                }
                 else
                     template = "<option></option>";
                 select.append($(template).val(item.IDTipoAtto).html(item.Tipo_Atto));
@@ -1026,6 +1057,18 @@ function Filtri_DASI_CaricaTipoRisposta(ctrlSelect) {
         var elems = document.querySelectorAll("#" + ctrlSelect);
         M.FormSelect.init(elems, null);
     }
+}
+
+function Filtri_DASI_CaricaSoloMozioniUrgenti(ctrlSelect) {
+    var filterSelect = 0;
+    var filtri = get_Filtri_DASI();
+    if (filtri != null) {
+        filterSelect = filtri.solo_urgenza;
+    }
+    var check = false;
+    if (filterSelect == "1")
+        check = true;
+    $("#" + ctrlSelect).prop("checked", check);
 }
 
 async function Filtri_DASI_CaricaSoggetti(ctrlSelect) {
@@ -1115,6 +1158,39 @@ async function Filtri_DASI_CaricaLegislature(ctrlSelect) {
     }
 }
 
+async function SetupFiltriProponentiDASI() {
+	var filterSelect = [];
+	var filtri = get_Filtri_DASI();
+	if (filtri != null) {
+		if (filtri.proponenti)
+			filterSelect = filtri.proponenti;
+	}
+	var persone = await GetPersoneFromDB();
+	var select = $("#filter_proponente");
+	select.empty();
+
+	$.each(persone,
+		function(index, item) {
+			var template = "";
+			var find_user = false;
+			for (var i = 0; i < filterSelect.length; i++) {
+				if (filterSelect[i].toString() == item.UID_persona.toString()) {
+					find_user = true;
+					break;
+				}
+			}
+			if (find_user) {
+				template = "<option selected='selected'></option>";
+			}
+			else
+				template = "<option></option>";
+			select.append($(template).val(item.UID_persona).html(item.DisplayName));
+		});
+	var elems = document.querySelectorAll("#filter_proponente");
+	M.FormSelect.init(elems, null);
+}
+
+
 function filter_dasi_da_OnChange() {
     var value = $("#qDataPresentazioneDA").val();
     var filtri = get_Filtri_DASI();
@@ -1133,6 +1209,13 @@ function filter_dasi_data_seduta_OnChange() {
     var value = $("#qDataSeduta").val();
     var filtri = get_Filtri_DASI();
     filtri.data_seduta = value;
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_data_iscrizione_seduta_OnChange() {
+    var value = $("#qDataIscrizioneSeduta").val();
+    var filtri = get_Filtri_DASI();
+    filtri.data_iscrizione_seduta = value;
     set_Filtri_DASI(filtri);
 }
 
@@ -1182,6 +1265,74 @@ function filter_dasi_tipo_OnChange() {
     var value = $("#qTipo").val();
     var filtri = get_Filtri_DASI();
     filtri.tipo = value;
+    set_Filtri_DASI(filtri);
+
+    ShowHideSoloUrgenti(value);
+    ShowHideProvvedimenti(value);
+}
+
+function ShowHideSoloUrgenti(tipo) {
+    if (tipo == 6) {
+        $('#pnl_tipo_mozione_urgente').show();
+    } else {
+        $('#pnl_tipo_mozione_urgente').hide();
+        $('#qTipo_Mozione_Urgente').prop("checked", false);
+    }
+}
+
+function ShowHideProvvedimenti(tipo) {
+    if (tipo == 7) {
+        $('#pnl_provvedimenti_odg').show();
+        CaricaProvvedimenti();
+    } else {
+        $('#pnl_provvedimenti_odg').hide();
+        var filtri = get_Filtri_DASI();
+        if (filtri != null) {
+	        if (filtri.provvedimenti) {
+		        filtri.provvedimenti = [];
+		        set_Filtri_DASI(filtri);
+		        CaricaProvvedimenti();
+	        }
+        }
+    }
+}
+
+async function CaricaProvvedimenti() {
+	var filterSelect = [];
+	var filtri = get_Filtri_DASI();
+	if (filtri != null) {
+		if (filtri.provvedimenti)
+			filterSelect = filtri.provvedimenti;
+	}
+	var provvedimenti = await GetAttiSeduteAttive();
+	var select = $("#filter_provvedimenti");
+	select.empty();
+
+	$.each(provvedimenti,
+		function(index, item) {
+			var template = "";
+			var find = false;
+			for (var i = 0; i < filterSelect.length; i++) {
+				if (filterSelect[i].toString() == item.UIDAtto.toString()) {
+					find = true;
+					break;
+				}
+			}
+			if (find) {
+				template = "<option selected='selected'></option>";
+			}
+			else
+				template = "<option></option>";
+			select.append($(template).val(item.UIDAtto).html(item.NAtto));
+		});
+	var elems = document.querySelectorAll("#filter_provvedimenti");
+	M.FormSelect.init(elems, null);
+}
+
+function filter_dasi_tipo_mozione_urgente_OnChange() {
+    var value = $("#qTipo_Mozione_Urgente").is(":checked");
+    var filtri = get_Filtri_DASI();
+    filtri.solo_urgenza = value;
     set_Filtri_DASI(filtri);
 }
 
@@ -1400,6 +1551,39 @@ function filter_em_proponenti_OnChange() {
         filtri_em.proponenti = nuovi_proponenti;
     }
     set_Filtri_EM(filtri_em);
+}
+
+function filter_dasi_proponenti_OnChange() {
+    var filtri = get_Filtri_DASI();
+    if (filtri.proponenti == null)
+        filtri.proponenti = [];
+    var nuovi_proponenti = [];
+    if ($("#filter_proponente option").length != 0) {
+        $("#filter_proponente option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                console.log("PROPONENTE ATTIVO - ", $(opt).val());
+                nuovi_proponenti.push($(opt).val());
+            }
+        });
+        filtri.proponenti = nuovi_proponenti;
+    }
+    set_Filtri_DASI(filtri);
+}
+
+function filter_dasi_provvedimenti_OnChange() {
+    var filtri = get_Filtri_DASI();
+    if (filtri.provvedimenti == null)
+        filtri.provvedimenti = [];
+    var nuovi_provvedimenti = [];
+    if ($("#filter_provvedimenti option").length != 0) {
+        $("#filter_provvedimenti option").each(function(index, opt) {
+            if ($(opt).is(":checked")) {
+                nuovi_provvedimenti.push($(opt).val());
+            }
+        });
+        filtri.provvedimenti = nuovi_provvedimenti;
+    }
+    set_Filtri_DASI(filtri);
 }
 
 function filter_em_firmatari_OnChange() {

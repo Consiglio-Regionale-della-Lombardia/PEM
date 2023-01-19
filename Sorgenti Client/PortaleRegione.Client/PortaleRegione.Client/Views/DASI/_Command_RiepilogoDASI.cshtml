@@ -3,6 +3,10 @@
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
+@{
+    var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+}
+
 <div class="row valign-wrapper">
     <div class="col s3 left">
         <label>
@@ -18,6 +22,14 @@
                 <span for="expandAll">Espandi tutti</span>
             </label>
         }
+
+        @if (Model.CurrentUser.IsConsigliereRegionale)
+        {
+            <label style="margin-left: 20px;">
+                <input type="checkbox" id="checkAllMy" onchange="filtraDASI_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
+                <span for="checkAllMy">Visualizza solo gli ATTI per i quali è richiesta la mia firma</span>
+            </label>
+        }
     </div>
     <div class="col s6">
         <div class="right">
@@ -27,7 +39,7 @@
             @{
                 var text = "";
                 var icon = "";
-                var new_view = (int) ViewModeEnum.GRID;
+                var new_view = (int)ViewModeEnum.GRID;
 
                 if (Model.ViewMode == ViewModeEnum.PREVIEW)
                 {
@@ -36,7 +48,7 @@
                 }
                 else if (Model.ViewMode == ViewModeEnum.GRID)
                 {
-                    new_view = (int) ViewModeEnum.PREVIEW;
+                    new_view = (int)ViewModeEnum.PREVIEW;
                     text = "Visualizza Atti in preview";
                     icon = "desktop_windows";
                 }
@@ -44,11 +56,11 @@
                 var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
                 var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
 
-                var url = Url.Action("RiepilogoDASI", "DASI", new {view = new_view, stato = statoFromCache, tipo = tipoFromCache});
+                var url = Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
                 if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
                 {
                     var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-                    url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = uidSeduta, tipo = Model.Tipo, view = new_view});
+                    url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = uidSeduta, tipo = Model.Tipo, view = new_view });
                 }
 
             }
@@ -62,6 +74,16 @@
 </div>
 
 <script>
+
+    function filtraDASI_RichiestaFirma(enable) {
+        var url = '@Url.Action("RiepilogoDASI", "DASI", new { view = Model.ViewMode, stato = Model.Stato, tipo = Model.Tipo })';
+        if (enable) {
+            go(url + '&require_my_sign=true');
+        } else {
+            go(url + '&require_my_sign=false');
+        }
+    }
+
     function gotoPreviewMode() {
         var newMode = @Html.Raw(new_view);
         $('#inputFilterView').val(newMode);

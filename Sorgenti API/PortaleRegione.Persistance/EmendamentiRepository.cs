@@ -880,6 +880,23 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<List<EM>> GetGrigliaOrdinamento(Guid id)
+        {
+            return await PRContext
+                .EM
+                .Where(em => em.UIDAtto == id
+                             && em.IDStato >= (int)StatiEnum.Depositato
+                             && !em.Eliminato)
+                .OrderBy(em => em.OrdineVotazione)
+                .ToListAsync();
+        }
+
+        public async Task SetOrdineVotazione(Guid uidem, int pos)
+        {
+            var em = await Get(uidem);
+            em.OrdineVotazione = pos;
+        }
+
         /// <summary>
         ///     Controlla che il progressivo sia unico all'interno dell'atto
         /// </summary>

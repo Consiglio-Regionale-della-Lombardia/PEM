@@ -64,7 +64,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per esportare la griglia emendamenti in formato excel
+        ///     Endpoint per esportare la griglia emendamenti in formato zip
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -75,6 +75,27 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var file = await _esportaLogic.EsportaGrigliaZipDASI(data);
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                //Log.Error("EsportaGrigliaXLS", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per esportare la griglia emendamenti in formato excel
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.Esporta.EsportaGrigliaExcelDasi)]
+        public async Task<IHttpActionResult> EsportaGrigliaExcelDasi(List<Guid> data)
+        {
+            try
+            {
+                var file = await _esportaLogic.EsportaGrigliaExcelDASI(data);
                 return ResponseMessage(file);
             }
             catch (Exception e)

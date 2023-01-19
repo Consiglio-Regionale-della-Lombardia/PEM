@@ -399,10 +399,11 @@ namespace PortaleRegione.Gateway
             await Get(requestUrl, _token);
         }
 
-        public async Task ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO(Guid id)
+        public async Task OrdinamentoConcluso(ComandiAzioneModel model)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.OrdinamentoConcluso.Replace("{id}", id.ToString())}";
-            await Get(requestUrl, _token);
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.OrdinamentoConcluso}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
         }
     }
 }

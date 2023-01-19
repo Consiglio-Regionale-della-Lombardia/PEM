@@ -41,6 +41,15 @@
     <add key="GEASI_PASSWORD" value="YOUR_GEASI_PASSWORD" />
 
     <add key="COOKIE_EXPIRE_IN" value="TEMPO_IN_ORE" />
+
+    <!--MODULI-->
+    <add key="PEM" value="1" />
+    <add key="DASI" value="1" />
+    <add key="ITL" value="1" />
+    <add key="ITR" value="1" />
+    <add key="IQT" value="1" />
+    <add key="MOZ" value="1" />
+    <add key="ODG" value="1" />
   </appSettings>
   <system.web>
     <authentication mode="Forms">

@@ -10,6 +10,7 @@
     var sedute = [];
     var seduteMOZU = [];
     var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+
     $(window).on('load',
         async function() {
             if (sedute.length == 0) {
@@ -31,14 +32,26 @@
             var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters));
             console.log("filtri", filtri)
             var filtri_cache = get_Filtri_DASI();
+            var block_stato_each = false;
+            var block_tipo_each = false;
+
             $.each(filtri,
                 function(i, item) {
-                    if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
-                        filtri_cache.stato = item.Value;
-                        set_Filtri_DASI(filtri_cache);
-                    } else if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
-                        filtri_cache.tipo = item.Value;
-                        set_Filtri_DASI(filtri_cache);
+
+                    if (block_stato_each == false) {
+                        if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
+                            filtri_cache.stato = item.Value;
+                            set_Filtri_DASI(filtri_cache);
+                            block_stato_each = true;
+                        }
+                    }
+
+                    if (block_tipo_each == false) {
+                        if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
+                            filtri_cache.tipo = item.Value;
+                            set_Filtri_DASI(filtri_cache);
+                            block_tipo_each = true;
+                        }
                     }
                 });
         }
@@ -48,11 +61,14 @@
         Filtri_DASI_CaricaDataPresentazioneDA("qDataPresentazioneDA");
         Filtri_DASI_CaricaDataPresentazioneA("qDataPresentazioneA");
         Filtri_DASI_CaricaDataSeduta("qDataSeduta");
+        Filtri_DASI_CaricaDataIscrizioneSeduta("qDataIscrizioneSeduta");
         Filtri_DASI_CaricaOggetto("qOggetto");
         Filtri_DASI_CaricaTipoRisposta("qTipoRisposta");
+        Filtri_DASI_CaricaSoloMozioniUrgenti("qTipo_Mozione_Urgente");
         await Filtri_DASI_CaricaStato("qStato");
         await Filtri_DASI_CaricaTipo("qTipo");
         await Filtri_DASI_CaricaLegislature("qLegislatura");
+        await SetupFiltriProponentiDASI();
 
         checkSelectedDASI();
     });

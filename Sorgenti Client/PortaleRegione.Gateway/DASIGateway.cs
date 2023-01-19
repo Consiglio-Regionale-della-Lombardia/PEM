@@ -78,14 +78,14 @@ namespace PortaleRegione.Gateway
         }
 
         public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo,
-            RuoliIntEnum ruolo)
+            RuoliIntEnum ruolo, bool propria_firma = false)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
             var model = new BaseRequest<AttoDASIDto>
             {
                 page = page,
                 size = size,
-                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }, { "RequireMySign", propria_firma } }
             };
             var operationStato = Operation.EqualTo;
             if ((int)stato > (int)StatiAttoEnum.BOZZA)
@@ -232,13 +232,14 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<string> GetBody(Guid id, TemplateTypeEnum template)
+        public async Task<string> GetBody(Guid id, TemplateTypeEnum template, bool privacy = false)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetBody}";
             var model = new GetBodyModel
             {
                 Id = id,
-                Template = template
+                Template = template,
+                privacy = privacy
             };
             var body = JsonConvert.SerializeObject(model);
             var result = await Post(requestUrl, body, _token);
@@ -432,6 +433,13 @@ namespace PortaleRegione.Gateway
         public async Task<FileResponse> Download(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.StampaImmediata.Replace("{id}", id.ToString())}";
+            var lst = await GetFile(requestUrl, _token);
+            return lst;
+        }
+
+        public async Task<FileResponse> DownloadWithPrivacy(Guid id)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.StampaImmediataPrivacy.Replace("{id}", id.ToString())}";
             var lst = await GetFile(requestUrl, _token);
             return lst;
         }

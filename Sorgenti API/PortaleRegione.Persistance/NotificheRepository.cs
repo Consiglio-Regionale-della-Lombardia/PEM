@@ -82,7 +82,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfNotificabile(AttoDASIDto atto, PersonaDto persona)
         {
-            if (atto.IDStato == (int)StatiAttoEnum.CHIUSO)
+            if (atto.IsChiuso)
                 return false;
 
             if (atto.DataIscrizioneSeduta.HasValue && atto.Tipo != (int)TipoAttoEnum.ODG)

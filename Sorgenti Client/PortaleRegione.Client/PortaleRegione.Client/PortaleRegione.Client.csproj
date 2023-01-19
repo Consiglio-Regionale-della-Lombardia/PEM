@@ -473,6 +473,8 @@
     <Content Include="Views\Emendamenti\_TestiAttoScript.cshtml" />
     <Content Include="Views\DASI\_FirmatariUfficioPanel.cshtml" />
     <Content Include="Views\DASI\_CartaceoPanelPartial.cshtml" />
+    <Content Include="Views\Emendamenti\_OrdinamentoAttoScript.cshtml" />
+    <Content Include="Views\Emendamenti\_ComandiOrdinamento.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

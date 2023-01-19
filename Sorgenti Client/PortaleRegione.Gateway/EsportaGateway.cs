@@ -60,6 +60,17 @@ namespace PortaleRegione.Gateway
         public async Task<FileResponse> EsportaXLSDASI(List<Guid> lista)
         {
             var requestUrl =
+                $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaExcelDasi}";
+
+            var body = JsonConvert.SerializeObject(lista);
+            var lst = await GetFile(requestUrl, body, _token);
+
+            return lst;
+        }
+
+        public async Task<FileResponse> EsportaZipDASI(List<Guid> lista)
+        {
+            var requestUrl =
                 $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaZip}";
 
             var body = JsonConvert.SerializeObject(lista);

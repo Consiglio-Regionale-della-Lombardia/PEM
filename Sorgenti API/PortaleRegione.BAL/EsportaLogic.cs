@@ -281,10 +281,52 @@ namespace PortaleRegione.BAL
 
             var lookupSheet = workbook.CreateSheet("LOOKUP");
 
-            var pdfs = await GetPDF(attiList);
             var xls = ResponseXLSByte(workbook);
+            var pdfs = await GetPDF(attiList);
 
             return ResponseZip(xls, pdfs);
+        }
+
+        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(List<Guid> data)
+        {
+            var FilePathComplete = GetLocalPath("xlsx");
+
+            IWorkbook workbook = new XSSFWorkbook();
+            var style = workbook.CreateCellStyle();
+            style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
+            style.FillPattern = FillPattern.SolidForeground;
+            var styleReport = workbook.CreateCellStyle();
+            styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
+            styleReport.FillPattern = FillPattern.SolidForeground;
+            styleReport.Alignment = HorizontalAlignment.Center;
+
+            var attiList = new List<AttoDASIDto>();
+            foreach (var uid in data)
+            {
+                var dto = await _logicDasi.GetAttoDto(uid);
+                if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
+                attiList.Add(dto);
+            }
+
+            var dasiSheet =
+                await NewSheetDASI_Atti(
+                    workbook.CreateSheet(
+                        "Atti"),
+                    attiList);
+            var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
+            var firmatariSheet =
+                await NewSheetDASI_Firmatari(
+                    workbook.CreateSheet(
+                        "Firmatari"),
+                    firmatariList);
+
+            var controlliSheet =
+                NewSheetDASI_Controlli(
+                    workbook.CreateSheet(
+                        "Controlli"));
+
+            var lookupSheet = workbook.CreateSheet("LOOKUP");
+            return await Response(FilePathComplete, workbook);
         }
 
         private async Task<List<FileModel>> GetPDF(List<AttoDASIDto> attiList)
@@ -807,7 +849,7 @@ namespace PortaleRegione.BAL
             var _pathTemp = AppSettingsConfiguration.CartellaTemp;
             if (!Directory.Exists(_pathTemp)) Directory.CreateDirectory(_pathTemp);
 
-            var nameFile = $"PEM_{DateTime.Now:ddMMyyyy_hhmmss}.{extension}";
+            var nameFile = $"{DateTime.Now.Ticks}.{extension}";
             var FilePathComplete = Path.Combine(_pathTemp, nameFile);
 
             return FilePathComplete;
@@ -901,7 +943,7 @@ namespace PortaleRegione.BAL
             book.Write(fileStream);
             return new FileModel
             {
-                Name = "Report.xls",
+                Name = "Report.xlsx",
                 Content = fileStream.GetBuffer()
             };
         }

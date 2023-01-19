@@ -24,6 +24,7 @@ namespace PortaleRegione.DTO.Enum
         RITIRA = 2,
         FIRMA = 3,
         DEPOSITA = 4,
-        INVITA = 5
+        INVITA = 5,
+        ORDINA = 6
     }
 }

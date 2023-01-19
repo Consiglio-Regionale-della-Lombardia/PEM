@@ -31,7 +31,8 @@ namespace PortaleRegione.Contracts
     {
         Task<ATTI_DASI> Get(Guid attoUId);
         Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
-            Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<int> stati = null);
+            Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null,
+            bool requireMySign = false);
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
         Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti, List<int> stati = null);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,

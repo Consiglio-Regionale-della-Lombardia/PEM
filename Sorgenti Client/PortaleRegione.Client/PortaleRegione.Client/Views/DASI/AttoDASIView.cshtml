@@ -127,21 +127,6 @@
                         <b>@Model.PersonaProponente.DisplayName</b>
                     </div>
                 </div>
-                @if (!string.IsNullOrEmpty(Model.Atto_Certificato)
-                     && string.IsNullOrEmpty(Model.Oggetto_Modificato)
-                     && string.IsNullOrEmpty(Model.Premesse_Modificato)
-                     && string.IsNullOrEmpty(Model.Richiesta_Modificata))
-
-                {
-                    @* NAtto *@
-                    <div class="row">
-                        <div class="col s12 center">
-                            <h3>
-                                <b>@Html.Raw($"{Utility.GetText_Tipo(Model)} {Model.NAtto}")</b>
-                            </h3>
-                        </div>
-                    </div>
-                }
 
                 @* BODY *@
                 <div class="row">

@@ -19,7 +19,6 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Domain.Essentials;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -204,5 +203,15 @@ namespace PortaleRegione.DTO.Domain
         public FirmeDto Firma_ufficio { get; set; }
 
         #endregion
+
+        public EmendamentoExtraLightDto toLight()
+        {
+            return new EmendamentoExtraLightDto
+            {
+                UIDEM = UIDEM,
+                N_EM = N_EM,
+                OrdineVotazione = OrdineVotazione
+            };
+        }
     }
 }

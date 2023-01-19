@@ -45,65 +45,57 @@ namespace PortaleRegione.BAL
 
         public async Task InvioMail(MailModel model)
         {
-            try
+            if (AppSettingsConfiguration.Invio_Notifiche == 0)
             {
-                if (AppSettingsConfiguration.Invio_Notifiche == 0)
-                {
-                    return;
-                }
+                return;
+            }
 
-                var msg = new MailMessage
-                {
-                    From = new MailAddress(model.DA),
-                    Subject = model.OGGETTO,
-                    Body = model.MESSAGGIO,
-                    IsBodyHtml = true
-                };
+            var msg = new MailMessage
+            {
+                From = new MailAddress(model.DA),
+                Subject = model.OGGETTO,
+                Body = model.MESSAGGIO,
+                IsBodyHtml = true
+            };
 
-                if (!string.IsNullOrEmpty(model.CC))
-                {
-                    var destinatariCC = model.CC.Split(";".ToCharArray());
-                    foreach (var destinatario in destinatariCC)
-                    {
-                        if (!string.IsNullOrEmpty(destinatario))
-                        {
-                            msg.Bcc.Add(new MailAddress(destinatario));
-                        }
-                    }
-                }
-
-                var destinatari = model.A.Split(";".ToCharArray());
-                foreach (var destinatario in destinatari)
+            if (!string.IsNullOrEmpty(model.CC))
+            {
+                var destinatariCC = model.CC.Split(";".ToCharArray());
+                foreach (var destinatario in destinatariCC)
                 {
                     if (!string.IsNullOrEmpty(destinatario))
                     {
                         msg.Bcc.Add(new MailAddress(destinatario));
                     }
                 }
-
-                if (!string.IsNullOrEmpty(model.pathAttachment))
-                {
-                    msg.Attachments.Add(new Attachment(model.pathAttachment));
-                }
-
-                if (model.ATTACHMENTS.Any())
-                {
-                    foreach (var allegatoMail in model.ATTACHMENTS)
-                    {
-                        var stream = new MemoryStream(allegatoMail.content);
-                        msg.Attachments.Add(new Attachment(stream, allegatoMail.nomeFile, "application/pdf"));
-                    }
-                }
-
-                var smtp = new SmtpClient(AppSettingsConfiguration.SMTP);
-
-                await smtp.SendMailAsync(msg);
             }
-            catch (Exception e)
+
+            var destinatari = model.A.Split(";".ToCharArray());
+            foreach (var destinatario in destinatari)
             {
-                //Log.Error("InvioMail", e);
-                throw e;
+                if (!string.IsNullOrEmpty(destinatario))
+                {
+                    msg.Bcc.Add(new MailAddress(destinatario));
+                }
             }
+
+            if (!string.IsNullOrEmpty(model.pathAttachment))
+            {
+                msg.Attachments.Add(new Attachment(model.pathAttachment));
+            }
+
+            if (model.ATTACHMENTS.Any())
+            {
+                foreach (var allegatoMail in model.ATTACHMENTS)
+                {
+                    var stream = new MemoryStream(allegatoMail.content);
+                    msg.Attachments.Add(new Attachment(stream, allegatoMail.nomeFile, "application/pdf"));
+                }
+            }
+
+            var smtp = new SmtpClient(AppSettingsConfiguration.SMTP);
+
+            await smtp.SendMailAsync(msg);
         }
 
         public async Task SalvaDocumento(string proprietarioId, TipoAllegatoEnum tipoDoc, string pathFile)

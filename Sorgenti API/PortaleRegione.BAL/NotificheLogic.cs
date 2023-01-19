@@ -598,8 +598,7 @@ namespace PortaleRegione.BAL
             if (!string.IsNullOrEmpty(check_presentazione))
             {
                 var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);
-                attoInDb.IDStato = (int)StatiAttoEnum.CHIUSO;
-                attoInDb.IDStato_Motivazione = (int)MotivazioneStatoAttoEnum.DECADUTO;
+                attoInDb.IDStato = (int)StatiAttoEnum.CHIUSO_DECADUTO;
                 attoInDb.DataRitiro = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();

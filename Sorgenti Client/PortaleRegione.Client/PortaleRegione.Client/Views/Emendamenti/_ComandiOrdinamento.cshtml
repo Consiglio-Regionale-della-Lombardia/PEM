@@ -1,0 +1,18 @@
+﻿@model Guid
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi ordinamento" data-position="left">
+        <i class="large material-icons">playlist_add</i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating tooltipped green white-text" data-position="left" data-tooltip="Concludi operazione di ordinamento" onclick="OrdinamentoConcluso('@Model')">
+                <i class="material-icons">save</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating tooltipped blue white-text" data-position="left" data-tooltip="Ordinamento automatico" onclick="Ordina_EMTrattazione('@Model')">
+                <i class="material-icons">autorenew</i>
+            </a>
+        </li>
+    </ul>
+</div>

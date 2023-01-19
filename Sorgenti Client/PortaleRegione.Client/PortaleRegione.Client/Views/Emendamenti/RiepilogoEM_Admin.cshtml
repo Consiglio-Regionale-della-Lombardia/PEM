@@ -40,13 +40,20 @@
                 <i class="material-icons">arrow_back</i>
             </a>
             <div class="row valign-wrapper" style="margin-bottom: 0px !important">
-                <div class="col s6">
+                <div class="col s4">
                     <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta</p>
                     <h3>
                         <b>@ViewBag.Title</b>
                     </h3>
                 </div>
-                <div class="col s6 right-align">
+                <div class="col s8 right-align">
+                    @if (Model.Ordinamento == OrdinamentoEnum.Votazione)
+                    {
+                        <a class="btn-flat pink-text tooltipped" data-tooltip="Esegui ordinamento dell'atto con drag&drop" onclick="viewOrdinamentoAtto();">
+                            <i class="material-icons right pink-text">swap_vert</i>
+                            ORDINA ATTO
+                        </a>
+                    }
                     <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
                         <i class="material-icons right pink-text">format_align_left</i>
                         VISUALIZZA ATTO
@@ -88,12 +95,7 @@
             </ul>
 
             Html.RenderPartial("_DataRiepilogoEMPartial", Model);
-
             Html.RenderPartial("_ComandiMassiviAdmin");
-            if (Model.Ordinamento == OrdinamentoEnum.Votazione)
-            {
-                Html.RenderPartial("_ComandiMassiviOrdinamentoAdmin", Model.Atto.UIDAtto);
-            }
         }
     </div>
 </div>
@@ -124,11 +126,38 @@
         </div>
     </div>
 </div>
+<div id="pnlOrdinamento" style="display: none;">
+    <div class="row">
+        <div class="col l12 right-align">
+            <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
+                <i class="material-icons right pink-text">apps</i>
+                VISUALIZZA EM
+            </a>
+        </div>
+        <div class="col l12">
+            <div class="row">
+                <div class="col s1">
+                    <ul id="tablePositions" class="collection">
+                    </ul>
+                </div>
+                <div class="col s11">
+                    <ul id="tableOrdinamento" class="collection sortable">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    @{
+        Html.RenderPartial("_ComandiOrdinamento", Model.Atto.UIDAtto);
+    }
+</div>
 
 @{
     Html.RenderPartial("_PannelloStrumentiRicerche");
     Html.RenderPartial("_TestiAttoScript", Model);
+    Html.RenderPartial("_OrdinamentoAttoScript", Model);
     Html.RenderPartial("_StampaModal", Model.Atto.UIDAtto);
+    Html.RenderPartial("_MetaDatiFormPartial");
 }
 
 <div id="modalEmendamentiUguali" class="modal">
@@ -140,7 +169,7 @@
 
             <div class="form-group">
                 <label>Seleziona colore:</label>
-                <input id="txtColore" name="Colore" class="form-control"/>
+                <input id="txtColore" name="Colore" class="form-control" />
             </div>
         }
         <div class="modal-footer">
@@ -163,7 +192,7 @@
             </div>
             <div class="form-group">
                 <label>
-                    <input id="chkAssegnaComeAssessore" type="checkbox" name="AssegnaComeAssessore"/>
+                    <input id="chkAssegnaComeAssessore" type="checkbox" name="AssegnaComeAssessore" />
                     <span>Assegna come assessore</span>
                 </label>
             </div>
@@ -225,7 +254,12 @@
             checkSelectedEM();
         });
 
-        
+    function viewStandard() {
+        $('#btnSearch').show();
+        $('#pnlViewStandard').show();
+        $('#pnlViewTestoAtto').hide();
+        $('#pnlOrdinamento').hide();
+    }
 
     function filtra() {
         setTimeout(function() {

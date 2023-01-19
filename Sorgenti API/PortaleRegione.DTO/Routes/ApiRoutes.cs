@@ -87,6 +87,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string ModificaFascicoli = Base + "/modifica-fascicoli";
                 public const string DownloadDoc = Base + "/scarica-documento/{path}";
                 public const string GrigliaTesti = Base + "/{id}/griglia-testi/{view}";
+                public const string GrigliaOrdinamento = Base + "/{id}/griglia-ordinamento";
                 public const string AggiornaRelatori = Base + "/aggiorna-relatori";
                 public const string AggiornaTesto = Base + "/aggiorna-testo";
                 public const string AbilitaFascicolo = Base + "/abilita-fascicolo";
@@ -161,7 +162,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string AssegnaNuovoProponente = Base + "/commands/nuovo-proponente";
                 public const string Raggruppa = Base + "/commands/raggruppa";
                 public const string Ordina = Base + "/commands/{id}/ordina";
-                public const string OrdinamentoConcluso = Base + "/commands/{id}/ordina/concluso";
+                public const string OrdinamentoConcluso = Base + "/commands/ordina/concluso";
                 public const string OrdinaUp = Base + "/commands/{id}/ordina/up";
                 public const string OrdinaDown = Base + "/commands/{id}/ordina/down";
                 public const string Sposta = Base + "/commands/{id}/sposta/{pos}";
@@ -227,6 +228,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAttiSeduteAttive = Base + "/ordini-del-giorno/sedute/attive";
 
             public const string StampaImmediata = Base + "/{id}/stampa-immediata";
+            public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
             public const string SaveCartaceo = Base + "/save-draft";
         }
@@ -276,6 +278,7 @@ namespace PortaleRegione.DTO.Routes
             private const string Base = Root + "/esporta";
 
             public const string EsportaGrigliaZip = Base + "/dasi/griglia-zip";
+            public const string EsportaGrigliaExcelDasi = Base + "/dasi/griglia-xlsx";
             public const string EsportaGrigliaExcel = Base + "/pem/griglia-xls";
             public const string EsportaGrigliaExcelUOLA = Base + "/pem/griglia-xls-uola";
             public const string EsportaGrigliaWord = Base + "/pem/griglia-doc/{id}/{ordine}/{mode}";

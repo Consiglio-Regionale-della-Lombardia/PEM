@@ -636,5 +636,18 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
+
+        public async Task<List<EmendamentoExtraLightDto>> GetGrigliaOrdinamento(Guid id)
+        {
+            var result = new List<EmendamentoExtraLightDto>();
+            var em = await _unitOfWork.Emendamenti.GetGrigliaOrdinamento(id);
+            foreach (var emInDb in em)
+            {
+                var emDto = await _logicEm.GetEM_DTO(emInDb.UIDEM);
+                result.Add(emDto.toLight());
+            }
+
+            return result;
+        }
     }
 }

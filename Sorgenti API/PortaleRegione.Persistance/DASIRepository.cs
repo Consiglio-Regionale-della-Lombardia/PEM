@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Persistance
@@ -50,7 +51,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<int> stati = null)
+            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, bool requireMySign = false)
         {
             var query = PRContext
                 .DASI
@@ -58,15 +59,27 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                    filtro2._statements.Add(f);
+            {
+                if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                {
+                    var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
+                    query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
+                                                && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
+                                                && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
+                }
                 else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
+                }
+                else
+                    filtro2._statements.Add(f);
+            }
+
 
             filtro2.BuildExpression(ref query);
 
@@ -102,6 +115,45 @@ namespace PortaleRegione.Persistance
                         .Where(item => list.Contains(item.UIDAtto));
                 }
 
+            if (proponenti != null)
+                if (proponenti.Count > 0)
+                    //Avvio ricerca proponenti;
+                    query = query
+                        .Where(atto => proponenti.Contains(atto.UIDPersonaProponente.Value));
+
+            if (provvedimenti != null)
+                if (provvedimenti.Count > 0)
+                    // #541 Avvio ricerca provvedimenti;
+                    query = query
+                        .Where(atto => provvedimenti.Contains(atto.UID_Atto_ODG.Value));
+
+            if (requireMySign)
+            {
+                var atti_da_firmare = new List<Guid>();
+
+                var notificheDestinatari = await PRContext
+                    .NOTIFICHE_DESTINATARI.Where(nd => nd.UIDPersona == persona.UID_persona && !nd.Chiuso).ToListAsync();
+                foreach (var notifica_destinatario in notificheDestinatari)
+                {
+                    var notifica = await PRContext.NOTIFICHE.FindAsync(notifica_destinatario.UIDNotifica);
+                    if (notifica == null)
+                        continue;
+                    if (notifica.Chiuso)
+                        continue; // Notifica chiusa
+                    if (notifica.UIDEM.HasValue)
+                        continue; // notifica PEM
+                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                        continue; // UidAtto già presente
+
+                    atti_da_firmare.Add(notifica.UIDAtto);
+                }
+
+                if (atti_da_firmare.Any())
+                {
+                    query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
+                }
+            }
+
             var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
             if (statoFilter != null)
             {
@@ -135,15 +187,24 @@ namespace PortaleRegione.Persistance
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
-                if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                    filtro2._statements.Add(f);
+                if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                {
+                    var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
+                    query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
+                                                && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
+                                                && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
+                }
                 else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                {
                     query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                 || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                 || item.Premesse.Contains(f.Value.ToString())
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
+                }
+                else
+                    filtro2._statements.Add(f);
 
             filtro2.BuildExpression(ref query);
 
@@ -155,7 +216,7 @@ namespace PortaleRegione.Persistance
                                                     || atto.UIDPersonaProponente == persona.UID_persona)));
 
                 if (!persona.IsSegreteriaAssemblea
-                         && !persona.IsPresidente)
+                    && !persona.IsPresidente)
                     query = query.Where(item => item.id_gruppo == persona.Gruppo.id_gruppo);
             }
             else
@@ -218,15 +279,24 @@ namespace PortaleRegione.Persistance
 
                 var filtro2 = new Filter<ATTI_DASI>();
                 foreach (var f in filtro.Statements)
-                    if (f.PropertyId != nameof(ATTI_DASI.Oggetto))
-                        filtro2._statements.Add(f);
+                    if (f.PropertyId == nameof(ATTI_DASI.DataIscrizioneSeduta))
+                    {
+                        var data_iscrizione = Convert.ToDateTime(f.Value.ToString());
+                        query = query.Where(item => item.DataIscrizioneSeduta.Value.Year == data_iscrizione.Year
+                                                    && item.DataIscrizioneSeduta.Value.Month == data_iscrizione.Month
+                                                    && item.DataIscrizioneSeduta.Value.Day == data_iscrizione.Day);
+                    }
                     else if (f.PropertyId == nameof(ATTI_DASI.Oggetto))
+                    {
                         query = query.Where(item => item.Oggetto.Contains(f.Value.ToString())
                                                     || item.Oggetto_Modificato.Contains(f.Value.ToString())
                                                     || item.Richiesta_Modificata.Contains(f.Value.ToString())
                                                     || item.Premesse.Contains(f.Value.ToString())
                                                     || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                     || item.Richiesta.Contains(f.Value.ToString()));
+                    }
+                    else
+                        filtro2._statements.Add(f);
 
                 filtro2?.BuildExpression(ref query);
 
@@ -246,6 +316,8 @@ namespace PortaleRegione.Persistance
                         if (stato == StatiAttoEnum.PRESENTATO
                             && persona.IsConsigliereRegionale)
                             query = query.Where(item => item.IDStato >= (int)stato);
+                        else if (stato == StatiAttoEnum.CHIUSO)
+                            query = query.Where(FilterByClosed());
                         else
                             query = query.Where(item => item.IDStato == (int)stato);
                     }
@@ -337,6 +409,7 @@ namespace PortaleRegione.Persistance
 
         public bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona)
         {
+            if (dto.IsChiuso) return false;
             if (persona.Gruppo == null) return false;
 
             if (dto.id_gruppo != persona.Gruppo.id_gruppo) return false;
@@ -344,8 +417,7 @@ namespace PortaleRegione.Persistance
             if (dto.DataRitiro.HasValue) return false;
 
             if (dto.IDStato == (int)StatiAttoEnum.BOZZA
-                || dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA
-                || dto.IDStato == (int)StatiAttoEnum.CHIUSO)
+                || dto.IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA)
                 return false;
 
             return persona.UID_persona == dto.UIDPersonaProponente;
@@ -689,11 +761,7 @@ namespace PortaleRegione.Persistance
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
-                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.RITIRATO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.DECADUTO);
+                                                     && !atto.IsChiuso);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
@@ -706,10 +774,10 @@ namespace PortaleRegione.Persistance
                                                      && atto.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                                                      && atto.Tipo == (int)tipo
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.RITIRATO
-                                                     && atto.IDStato_Motivazione !=
-                                                     (int)MotivazioneStatoAttoEnum.DECADUTO);
+                                                     && atto.IDStato !=
+                                                     (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                     && atto.IDStato !=
+                                                     (int)StatiAttoEnum.CHIUSO_DECADUTO);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
@@ -792,6 +860,13 @@ namespace PortaleRegione.Persistance
             }
 
             return true;
+        }
+
+        private Expression<Func<ATTI_DASI, bool>> FilterByClosed()
+        {
+            return x => x.IDStato == (int)StatiAttoEnum.CHIUSO
+                        || x.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
+                        || x.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
         }
     }
 }

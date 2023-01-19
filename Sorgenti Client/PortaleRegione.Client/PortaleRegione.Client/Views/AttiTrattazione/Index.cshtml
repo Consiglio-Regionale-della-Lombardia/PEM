@@ -4,6 +4,11 @@
 
 @{
     ViewBag.Title = $"Seduta del {Model.Seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")}";
+    var DASIEnabled = Model.CurrentUser.CurrentRole != RuoliIntEnum.Utente
+                      && !Model.CurrentUser.IsGiunta
+                      && AppSettingsConfiguration.EnableDASI;
+    var PEMEnabled = Model.CurrentUser.CurrentRole != RuoliIntEnum.Utente
+                     && AppSettingsConfiguration.EnablePEM;
 }
 
 <div class="row">
@@ -15,7 +20,7 @@
     </div>
 </div>
 
-@if (Model.PEM.Any())
+@if (Model.PEM.Any() && PEMEnabled)
 {
     <div class="row" style="margin: 0 !important">
         <div class="col s12">
@@ -119,7 +124,7 @@
     </ul>
 }
 
-@if (Model.DASI.Any())
+@if (Model.DASI.Any() && DASIEnabled)
 {
     var attoDasi = Model.DASI.First();
     if (attoDasi.Data.Results.Any())

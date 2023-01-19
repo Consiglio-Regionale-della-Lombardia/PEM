@@ -223,6 +223,10 @@ namespace PortaleRegione.Common
                     return "In Trattazione";
                 case StatiAttoEnum.CHIUSO:
                     return "Chiuso";
+                case StatiAttoEnum.CHIUSO_RITIRATO:
+                    return "Chiuso Ritirato";
+                case StatiAttoEnum.CHIUSO_DECADUTO:
+                    return "Chiuso Decaduto";
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
                 case StatiAttoEnum.BOZZA_CARTACEA:
