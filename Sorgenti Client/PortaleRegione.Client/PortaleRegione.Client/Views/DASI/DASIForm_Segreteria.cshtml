@@ -5,14 +5,14 @@
 @{
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
-    var urlView = Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA ? 
-        Url.Action("RiepilogoDASI") : 
+    var urlView = Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA ?
+        Url.Action("RiepilogoDASI") :
         Url.Action("ViewAtto", new { id = Model.Atto.UIDAtto });
 
-    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : urlView;
+    var backUrl = isNew ? Url.Action("RiepilogoDASI", new { tipo = Model.Atto.Tipo }) : urlView;
 }
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#btnSearch').hide();
     });
 </script>
@@ -27,7 +27,7 @@
         <h5>
             <b>
                 <span>@ViewBag.Title</span>
-                <input id="hfIsNew" type="hidden" value="@isNew"/>
+                <input id="hfIsNew" type="hidden" value="@isNew" />
             </b>
         </h5>
     </div>
@@ -160,9 +160,16 @@
                 @if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
                 {
                     <div class="fixed-action-btn">
+                        <button class="btn-floating btn-large pink tooltipped"
+                                type="button"
+                                data-tooltip="Iscrizione in seduta"
+                                data-position="left"
+                                onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
+                            <i class="large material-icons">event</i>
+                        </button>
                         <button id="btnSaveCartaceo"
                                 class="btn-floating btn-large blue tooltipped"
-                                type="button" 
+                                type="button"
                                 data-tooltip="Salva atto cartaceo"
                                 data-position="left">
                             <i class="large material-icons">save</i>
@@ -174,7 +181,7 @@
                     <div class="fixed-action-btn">
                         <button id="btnSave"
                                 class="btn-floating btn-large blue tooltipped"
-                                type="button" 
+                                type="button"
                                 data-tooltip="Salva atto"
                                 data-position="left">
                             <i class="large material-icons">save</i>
@@ -185,6 +192,11 @@
         </div>
     </div>
 </div>
+
+@if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
+{
+    Html.RenderPartial("_RichiestaIscrizioneASedutaModal", false);
+}
 
 @Html.Partial("_ScriptFormDASI")
 

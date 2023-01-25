@@ -1,4 +1,5 @@
 ﻿@using PortaleRegione.DTO.Enum
+@model bool
 <!-- Modal Structure -->
 <div id="modalIscriviSeduta" class="modal bottom-sheet">
     <div class="modal-content">
@@ -127,7 +128,14 @@
                     icon: "error"
                 });
             } else {
-                go(data);
+                @if (Model)
+                {
+                    Html.Raw("go(data);");
+                }
+                else
+                {
+                    Html.Raw("location.reload();");
+                }
             }
         }).fail(function(err) {
             waiting(false);
