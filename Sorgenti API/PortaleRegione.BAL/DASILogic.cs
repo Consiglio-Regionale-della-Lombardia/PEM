@@ -2618,6 +2618,7 @@ namespace PortaleRegione.API.Controllers
 
             atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
             atto.chkf = count_firme.ToString();
+            atto.UIDPersonaPresentazione = atto.UIDPersonaProponente;
 
             await _unitOfWork.CompleteAsync();
         }
