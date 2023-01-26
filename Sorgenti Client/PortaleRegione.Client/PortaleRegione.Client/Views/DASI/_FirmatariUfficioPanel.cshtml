@@ -1,51 +1,53 @@
 ﻿@model PortaleRegione.DTO.Model.DASIFormModel
 
-@if (!Model.CurrentUser.IsSegreteriaAssemblea)
-{
-    //Pannello inserimento firmatari visualizzabile solamente per UOLA
-}
-else
-{
-    <div class="row">
-        <div class="col s4">
-            <label>Nuovo firmatario: </label>
-            @Html.DropDownListFor(m => m.Atto.UIDPersonaProietta, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona", new { @class = "form-control", @onchange = "AggiungiFirmatario(this);" })
-        </div>
-        <div class="col s8">
-            <span>Firmatari</span>
-            <ul id="tableFirmatari" class="collection">
-                @foreach (var firma_cartacea in Model.Atto.FirmeCartacee)
-                {
-                    <li class="collection-item" data-uid="@firma_cartacea.uid" data-txt="@firma_cartacea.descr"><div>@firma_cartacea.descr <a class="secondary-content" onclick="RimuoviFirmaUfficio(this);"><i class="material-icons red-text">close</i></a></div></li>
-                }
-            </ul>
-        </div>
+<div class="row">
+    <div class="col s4">
+        <label>Nuovo firmatario: </label>
+        @Html.DropDownListFor(m => m.Atto.UIDPersonaProietta, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona", new { @class = "form-control", @onchange = "AggiungiFirmatario(this);" })
     </div>
+    <div class="col s8">
+        <span>Firmatari</span>
+        <ul id="tableFirmatari" class="collection">
+            @foreach (var firma_cartacea in Model.Atto.FirmeCartacee)
+            {
+                <li class="collection-item" data-uid="@firma_cartacea.uid" data-txt="@firma_cartacea.descr">
+                    <div>
+                        @firma_cartacea.descr
+                        <a class="secondary-content" onclick="RimuoviFirmaUfficio(this);">
+                            <i class="material-icons red-text">close</i>
+                        </a>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
 
-    <script>
-        $(window).on('load',
-            function() {
-            });
+<script>
+    $(window).on('load',
+        function() {
+        });
 
-        var tableFirmatari = $('#tableFirmatari');
+    var tableFirmatari = $('#tableFirmatari');
 
-        function AggiungiFirmatario(ctrl) {
-            var text = $(ctrl).children("option:selected").text();
-            if (text == "Seleziona" || text == "")
-                return;
-            var val = $(ctrl).children("option:selected").val();
-            tableFirmatari.append('<li class="collection-item" data-uid="'+val+'" data-txt="'+text+'"><div>' + text + '<a class="secondary-content" onclick="RimuoviFirmaUfficio(this);"><i class="material-icons red-text">close</i></a></div></li>');
-            $('select[id="Atto_UIDPersonaProietta"]').val("");
-            $('select[id="Atto_UIDPersonaProietta"]').formSelect();
-        }
+    function AggiungiFirmatario(ctrl) {
+        var text = $(ctrl).children("option:selected").text();
+        if (text == "Seleziona" || text == "")
+            return;
+        var val = $(ctrl).children("option:selected").val();
+        tableFirmatari.append('<li class="collection-item" data-uid="' + val + '" data-txt="' + text + '"><div>' + text + '<a class="secondary-content" onclick="RimuoviFirmaUfficio(this);"><i class="material-icons red-text">close</i></a></div></li>');
+        $('select[id="Atto_UIDPersonaProietta"]').val("");
+        $('select[id="Atto_UIDPersonaProietta"]').formSelect();
+    }
 
-        function RimuoviFirmaUfficio(ctrl) {
-            $(ctrl).parent().parent().remove();
-        }
+    function RimuoviFirmaUfficio(ctrl) {
+        $(ctrl).parent().parent().remove();
+    }
 
-        function GetFirmeCartacee() {
-            var result = [];
-            $.each($('#tableFirmatari > li'), function(i, item) {
+    function GetFirmeCartacee() {
+        var result = [];
+        $.each($('#tableFirmatari > li'),
+            function(i, item) {
                 var val = $(item).data("uid");
                 var text = $(item).data("txt");
                 var obj = {};
@@ -54,7 +56,39 @@ else
                 result.push(obj);
             });
 
-            return result;
-        }
-    </script>
-}
+        return result;
+    }
+
+    $('select[id="Atto_UIDPersonaProponente"]').change(function() {
+        var proponenteId = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").val();
+        var proponenteNome = $('select[id="Atto_UIDPersonaProponente"]').children("option:selected").text();
+
+        swal("Vuoi aggiungere " + proponenteNome + " come primo firmatario?",
+            {
+                buttons: {
+                    cancel: "Annulla",
+                    confirm: {
+                        className: "blue white-text",
+                        title: "Aggiungi firma",
+                        value: true
+                    }
+                }
+            }).then((value) => {
+            if (value == true) {
+                var firme = GetFirmeCartacee();
+                if (firme.length > 0) {
+                    swal({
+                        title: "Azione non valida",
+                        text: "Rimuovere tutti i firmatari, prima di inserire la firma di un nuovo proponente",
+                        icon: "info"
+                    });
+
+                    return;
+                }
+                $('#Atto_UIDPersonaProietta').val(proponenteId);
+                $('#Atto_UIDPersonaProietta').formSelect();
+                AggiungiFirmatario($('#Atto_UIDPersonaProietta'));
+            }
+        });
+    });
+</script>

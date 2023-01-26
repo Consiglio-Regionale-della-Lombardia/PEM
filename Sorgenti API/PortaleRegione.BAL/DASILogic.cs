@@ -2602,6 +2602,12 @@ namespace PortaleRegione.API.Controllers
         {
             await FirmaAttoUfficio(dto);
 
+            if (dto.Tipo == (int)TipoAttoEnum.IQT
+                && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
+            {
+                throw new Exception($"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
+            }
+
             var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
             var controllo_firme = await ControlloFirmePresentazione(dto, count_firme, null);
 
