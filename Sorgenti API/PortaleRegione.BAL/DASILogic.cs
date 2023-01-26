@@ -737,9 +737,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (firmaUfficio)
                     {
-                        firmaCert = BALHelper.EncryptString(
-                            $"Firmato d’ufficio per conto di {persona.DisplayName_GruppoCode}"
-                            , AppSettingsConfiguration.masterKey);
+                        firmaCert = BALHelper.EncryptString($"{persona.DisplayName_GruppoCode}", AppSettingsConfiguration.masterKey); // matcat - #615
                         timestampFirma = atto.Timestamp.AddMinutes(-2);
                         dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
