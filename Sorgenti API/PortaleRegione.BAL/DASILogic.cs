@@ -2602,9 +2602,7 @@ namespace PortaleRegione.API.Controllers
         {
             await FirmaAttoUfficio(dto);
 
-            if (dto.Tipo != (int)TipoAttoEnum.ITL
-                && dto.Tipo != (int)TipoAttoEnum.ITR
-                && dto.Tipo != (int)TipoAttoEnum.ODG
+            if (dto.Tipo == (int)TipoAttoEnum.IQT
                 && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
             {
                 throw new Exception($"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
