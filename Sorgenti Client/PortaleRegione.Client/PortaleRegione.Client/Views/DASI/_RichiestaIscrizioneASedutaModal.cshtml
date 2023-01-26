@@ -130,11 +130,11 @@
             } else {
                 @if (Model)
                 {
-                    Html.Raw("go(data);");
+                    @Html.Raw("go(data);")
                 }
                 else
                 {
-                    Html.Raw("location.reload();");
+                    @Html.Raw("location.reload();")
                 }
             }
         }).fail(function(err) {

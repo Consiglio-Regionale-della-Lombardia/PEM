@@ -12,7 +12,7 @@
     var backUrl = isNew ? Url.Action("RiepilogoDASI", new { tipo = Model.Atto.Tipo }) : urlView;
 }
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>
@@ -27,7 +27,7 @@
         <h5>
             <b>
                 <span>@ViewBag.Title</span>
-                <input id="hfIsNew" type="hidden" value="@isNew" />
+                <input id="hfIsNew" type="hidden" value="@isNew"/>
             </b>
         </h5>
     </div>
@@ -87,7 +87,7 @@
                     if (isNew)
                     {
                         if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-                        && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+                            && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
                         {
                             <div class="row">
                                 <div class="col s12">
@@ -154,19 +154,59 @@
                         </div>
                     }
 
-                    @Html.Partial("_FirmatariUfficioPanel", Model)
+                    if (Model.CurrentUser.IsSegreteriaAssemblea)
+                    {
+                        if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
+                            && Model.Atto.Tipo != (int)TipoAttoEnum.ITL
+                            && Model.Atto.Tipo != (int)TipoAttoEnum.ITR
+                            && Model.Atto.Tipo != (int)TipoAttoEnum.ODG
+                            && string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
+                        {
+                            <div class="row">
+                                <div class="col s12 center">
+                                    <div class="card-panel grey lighten-4">
+                                        <span class="black-text">
+                                            <a class="btn pink tooltipped"
+                                               data-tooltip="Iscrizione in seduta"
+                                               onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
+                                                Iscrizione in seduta
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
+                        {
+                            <div class="row">
+                                <div class="col s12 center">
+                                    <div class="card-panel green lighten-4">
+                                        <span class="black-text">
+                                            @{
+                                                var textSeduta = $"Seduta del {Model.Atto.DataRichiestaIscrizioneSeduta}";
+                                                var tooltipSeduta = "Richiesta in attesa di elaborazione";
+                                            }
+
+                                            <span class="tooltipped" data-tooltip="@tooltipSeduta">
+                                                <i>@textSeduta</i>
+                                                @if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
+                                                {
+                                                    <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">close</i>
+                                                }
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @Html.Partial("_FirmatariUfficioPanel", Model)
+                    }
                 }
 
                 @if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
                 {
                     <div class="fixed-action-btn">
-                        <button class="btn-floating btn-large pink tooltipped"
-                                type="button"
-                                data-tooltip="Iscrizione in seduta"
-                                data-position="left"
-                                onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
-                            <i class="large material-icons">event</i>
-                        </button>
                         <button id="btnSaveCartaceo"
                                 class="btn-floating btn-large blue tooltipped"
                                 type="button"

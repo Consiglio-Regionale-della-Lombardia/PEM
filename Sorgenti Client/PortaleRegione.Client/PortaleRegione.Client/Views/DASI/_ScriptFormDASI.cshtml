@@ -147,11 +147,11 @@
                 }).then((value) => {
                     if (presenta)
                     {
-                        Html.Raw("go(data);");
+                        @Html.Raw("go(data);");
                     }
                     else
                     {
-                        Html.Raw("location.reload();");
+                        @Html.Raw("location.reload();");
                     }
                 });
             }
