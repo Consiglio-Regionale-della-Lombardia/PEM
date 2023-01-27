@@ -524,9 +524,6 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="firmaModel"></param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea + "," +
-                           RuoliExt.Consigliere_Regionale + "," + RuoliExt.Assessore_Sottosegretario_Giunta + "," +
-                           RuoliExt.Presidente_Regione)]
         [HttpPost]
         [Route(ApiRoutes.PEM.Emendamenti.Firma)]
         public async Task<IHttpActionResult> FirmaEmendamento(ComandiAzioneModel firmaModel)
@@ -542,7 +539,8 @@ namespace PortaleRegione.API.Controllers
                         throw new InvalidOperationException("Pin inserito non valido");
                     }
 
-                    return Ok(await _emendamentiLogic.Firma(firmaModel, user, null, true));
+                    var resultFirmaUfficio = await _emendamentiLogic.Firma(firmaModel, user, null, true);
+                    return Ok(resultFirmaUfficio);
                 }
 
                 var pinInDb = await _personeLogic.GetPin(user);
@@ -561,7 +559,8 @@ namespace PortaleRegione.API.Controllers
                     throw new InvalidOperationException("Pin inserito non valido");
                 }
 
-                return Ok(await _emendamentiLogic.Firma(firmaModel, user, pinInDb));
+                var result = await _emendamentiLogic.Firma(firmaModel, user, pinInDb);
+                return Ok(result);
             }
             catch (Exception e)
             {
