@@ -946,6 +946,9 @@ namespace PortaleRegione.API.Controllers
                                     break;
                                 }
 
+                                var _guid = Guid.NewGuid();
+                                var sync_guid = Guid.NewGuid();
+
                                 var newNotifica = new NOTIFICHE
                                 {
                                     UIDAtto = atto.UIDAtto,
@@ -956,12 +959,15 @@ namespace PortaleRegione.API.Controllers
                                         $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
                                     DataCreazione = DateTime.Now,
                                     IdGruppo = atto.id_gruppo,
-                                    SyncGUID = Guid.NewGuid()
+                                    SyncGUID = sync_guid,
+                                    UIDNotifica = _guid.ToString()
                                 };
+
+                                _unitOfWork.Notifiche.Add(newNotifica);
 
                                 var newDestinatario = new NOTIFICHE_DESTINATARI
                                 {
-                                    NOTIFICHE = newNotifica,
+                                    UIDNotifica = _guid.ToString(),
                                     UIDPersona = atto.UIDPersonaProponente.Value,
                                     IdGruppo = atto.id_gruppo,
                                     UID = Guid.NewGuid()
