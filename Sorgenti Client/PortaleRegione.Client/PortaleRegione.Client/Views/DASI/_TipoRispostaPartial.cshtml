@@ -49,10 +49,18 @@
 <script>
     $(document).ready(function() {
 
+        var stato = @Html.Raw(Model.Atto.IDStato);
+
+        if (stato >= @Html.Raw((int)StatiAttoEnum.PRESENTATO)) {
+            console.log("STATO", stato);
+            $('select[id="Atto_TipoRisposta"]').prop('disabled', 'disabled');
+            $('select[id="Atto_TipoRisposta"]').formSelect();
+        }
+
         $('#Atto_TipoRisposta').on("change",
             function() {
                 var selected_option_value = $(this).find(":selected").val();
-                if (selected_option_value == @Html.Raw((int) TipoRispostaEnum.COMMISSIONE)) {
+                if (selected_option_value == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
                     $("#pnlCommissioni").show();
                 } else {
                     $("#pnlCommissioni").hide();
