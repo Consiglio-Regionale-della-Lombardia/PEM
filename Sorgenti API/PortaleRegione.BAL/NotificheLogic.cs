@@ -450,8 +450,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo,
-            PersonaDto persona)
+        public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo, PersonaDto persona)
         {
             var result = new Dictionary<string, string>();
 
