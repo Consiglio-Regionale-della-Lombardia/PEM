@@ -1850,6 +1850,7 @@ function InviaAlProtocollo(attoUId) {
 //NOTIFICHE
 
 function GetDestinatariNotifica(notificaId) {
+    console.log('notificaId', notificaId)
     var panel = $("#pnlDestinatariNotifica_" + notificaId);
     panel.empty();
     $.ajax({
