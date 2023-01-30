@@ -886,7 +886,7 @@ namespace PortaleRegione.API.Controllers
                         "Richiesta di ritiro già inviata al proponente.");
 
                 var dto = await GetAttoDto(idGuid);
-                var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
+                var nome_atto = dto.Display;
 
                 SEDUTE seduta = null;
                 if (atto.DataIscrizioneSeduta.HasValue)
@@ -933,7 +933,7 @@ namespace PortaleRegione.API.Controllers
                                                 OGGETTO =
                                                     $"Non può essere trattata la mozione {nome_atto} come urgente",
                                                 MESSAGGIO =
-                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dalla {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza."
+                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'atto {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza."
                                             };
                                             await _logicUtil.InvioMail(mailModel);
                                         }
@@ -1600,15 +1600,16 @@ namespace PortaleRegione.API.Controllers
 
             try
             {
-                var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                var dto = await GetAttoDto(atto.UIDAtto);
+                var nome_atto = dto.Display;
                 var mailModel = new MailModel
                 {
                     DA = AppSettingsConfiguration.EmailInvioDASI,
                     A = firmatari.Aggregate((i, j) => i + ";" + j),
                     OGGETTO =
-                        "Avviso di ritiro atto",
+                        $"Atto {nome_atto} ritirato dal proponente",
                     MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto."
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
