@@ -2605,15 +2605,24 @@ namespace PortaleRegione.API.Controllers
 
         private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto)
         {
-            await FirmaAttoUfficio(dto);
+            if (!dto.FirmeCartacee.Any())
+                throw new InvalidOperationException(
+                    "Inserire i firmatari.");
 
+            if (dto.FirmeCartacee.First().uid != dto.UIDPersonaProponente.Value.ToString())
+            {
+                throw new InvalidOperationException(
+                    "Il proponente deve essere anche il primo firmatario.");
+            }
+
+            await FirmaAttoUfficio(dto);
+            var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
             if (dto.Tipo == (int)TipoAttoEnum.IQT
                 && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
             {
                 throw new Exception($"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
             }
 
-            var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
             var controllo_firme = await ControlloFirmePresentazione(dto, count_firme, null);
 
             if (!string.IsNullOrEmpty(controllo_firme))
