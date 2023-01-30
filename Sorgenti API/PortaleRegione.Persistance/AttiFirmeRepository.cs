@@ -182,6 +182,7 @@ namespace PortaleRegione.Persistance
                 .SingleOrDefaultAsync(f =>
                     f.UIDAtto == atto.UIDAtto
                     && f.UID_persona == atto.UIDPersonaProponente
+                    && string.IsNullOrEmpty(f.Data_ritirofirma)
                     && f.Valida);
 
             var query = PRContext
