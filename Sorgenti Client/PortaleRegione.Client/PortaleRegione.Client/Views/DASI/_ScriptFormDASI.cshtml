@@ -228,7 +228,11 @@
                         text: "Atto inserito correttamente a sistema.",
                         icon: "success"
                     }).then((value) => {
-                        location.reload();
+                        if ($("#Atto_UIDAtto").val() != '@Html.Raw(Guid.Empty)') {
+                            location.reload();
+                        } else {
+                            go(data);
+                        }
                     });
                 }
             }).fail(function(err) {
