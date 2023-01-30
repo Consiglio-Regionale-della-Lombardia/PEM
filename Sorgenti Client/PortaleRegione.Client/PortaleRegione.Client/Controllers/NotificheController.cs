@@ -76,7 +76,7 @@ namespace PortaleRegione.Client.Controllers
         }
 
         [HttpGet]
-        [Route("{id:int}/destinatari")]
+        [Route("{id}/destinatari")]
         public async Task<ActionResult> GetDestinatariNotifica(string id)
         {
             var apiGateway = new ApiGateway(Token);
