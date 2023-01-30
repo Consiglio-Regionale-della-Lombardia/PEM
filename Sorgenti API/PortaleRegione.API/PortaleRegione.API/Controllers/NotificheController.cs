@@ -208,11 +208,11 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.PEM.GetAllDestinatari)]
-        public async Task<IHttpActionResult> GetListaDestinatari(Guid id, TipoDestinatarioNotificaEnum tipo)
+        public async Task<IHttpActionResult> GetListaDestinatari(Guid atto, int tipo)
         {
             try
             {
-                return Ok(await _notificheLogic.GetListaDestinatari(id, tipo, CurrentUser));
+                return Ok(await _notificheLogic.GetListaDestinatari(atto, (TipoDestinatarioNotificaEnum)tipo, CurrentUser));
             }
             catch (Exception e)
             {
@@ -228,11 +228,11 @@ namespace PortaleRegione.API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route(ApiRoutes.DASI.GetAllDestinatari)]
-        public async Task<IHttpActionResult> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
+        public async Task<IHttpActionResult> GetListaDestinatari(int tipo)
         {
             try
             {
-                return Ok(await _notificheLogic.GetListaDestinatari(tipo, CurrentUser));
+                return Ok(await _notificheLogic.GetListaDestinatari((TipoDestinatarioNotificaEnum)tipo, CurrentUser));
             }
             catch (Exception e)
             {

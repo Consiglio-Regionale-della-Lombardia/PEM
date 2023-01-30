@@ -854,15 +854,10 @@ namespace PortaleRegione.BAL
                     }
 
                     int tipoAreaFirma;
-                    if (firmaUfficio == false)
-                    {
+                    if (!firmaUfficio)
                         tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(persona.Gruppo.id_gruppo);
-                    }
                     else
-                    {
-                        // #610 in caso di firma d'ufficio prendo il tipo area dal proponente dell'emendamento
                         tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(em.id_gruppo);
-                    }
 
                     await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, tipoAreaFirma,
                         firmaUfficio);

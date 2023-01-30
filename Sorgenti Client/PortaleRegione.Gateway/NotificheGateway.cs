@@ -40,7 +40,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<Dictionary<string, string>> GetListaDestinatari(TipoDestinatarioNotificaEnum tipo)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAllDestinatari.Replace("{tipo}", tipo.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAllDestinatari.Replace("{tipo}", ((int)tipo).ToString())}";
             var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
             return lst;
@@ -66,7 +66,8 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
-        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool archivio, bool soloNonViste = false)
+        public async Task<RiepilogoNotificheModel> GetNotificheRicevute(int page, int size, bool archivio,
+            bool soloNonViste = false)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Notifiche.GetRicevute}";
 
@@ -147,7 +148,8 @@ namespace PortaleRegione.Gateway
         public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto,
             TipoDestinatarioNotificaEnum tipo)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.GetAllDestinatari.Replace("{atto}", atto.ToString()).Replace("{tipo}", tipo.ToString())}";
+            var requestUrl =
+                $"{apiUrl}/{ApiRoutes.PEM.GetAllDestinatari.Replace("{atto}", atto.ToString()).Replace("{tipo}", ((int)tipo).ToString())}";
             var lst = JsonConvert.DeserializeObject<Dictionary<string, string>>(await Get(requestUrl, _token));
 
             return lst;
