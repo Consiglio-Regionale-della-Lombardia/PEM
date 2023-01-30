@@ -249,7 +249,7 @@ namespace PortaleRegione.Gateway
 
         public async Task Elimina(Guid id)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Elimina}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.Elimina.Replace("{id}", id.ToString())}";
             JsonConvert.DeserializeObject<string>(await Get(requestUrl, _token));
         }
 
