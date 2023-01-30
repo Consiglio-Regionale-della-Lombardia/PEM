@@ -22,6 +22,7 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Routes;
 using System;
@@ -211,19 +212,19 @@ namespace PortaleRegione.API.Controllers
         /// <param name="id"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [Route(ApiRoutes.Stampe.AddInfo)]
-        public async Task<IHttpActionResult> AddInfoStampa(Guid id, string message)
+        public async Task<IHttpActionResult> AddInfoStampa(InfoModel model)
         {
             try
             {
-                var stampa = await _stampeLogic.GetStampa(id);
+                var stampa = await _stampeLogic.GetStampa(model.Id);
                 if (stampa == null)
                 {
                     return NotFound();
                 }
 
-                await _stampeLogic.AddInfo(stampa, message);
+                await _stampeLogic.AddInfo(stampa, model.Message);
 
                 return Ok();
             }
