@@ -322,7 +322,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Delete = Base + "/{id}";
             public const string Download = Base + "/{id}/download";
             public const string Reset = Base + "/{id}/reset";
-            public const string AddInfo = Base + "/{id}/info/add/{message}";
+            public const string AddInfo = Base + "/info/add";
             public const string GetInfo = Base + "/{id}/info";
             public const string GetAllInfo = Base + "/all/info";
         }

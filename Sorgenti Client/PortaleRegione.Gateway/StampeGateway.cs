@@ -84,8 +84,13 @@ namespace PortaleRegione.Gateway
 
         public async Task AddInfo(Guid id, string message)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.AddInfo.Replace("{id}", id.ToString()).Replace("{message}", message)}";
-            await Get(requestUrl, _token);
+            var body = new InfoModel
+            {
+                Id = id,
+                Message = message
+            };
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.AddInfo}";
+            await Post(requestUrl, JsonConvert.SerializeObject(body), _token);
         }
 
         public async Task<IEnumerable<Stampa_InfoDto>> GetInfo(Guid id)
