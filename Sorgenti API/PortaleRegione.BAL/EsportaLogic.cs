@@ -763,7 +763,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
-                    SetColumnValue(ref rowBody, atto.DataPresentazione.Substring(0, 10)); // data presentazione
+                    SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
                     SetColumnValue(ref rowBody, ""); // oggetto
 
                     //Matteo Cattapan #500
