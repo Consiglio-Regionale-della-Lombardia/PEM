@@ -2,7 +2,7 @@
 
 <script>
 
-    var template_item = "<div class='chip white black-text hoverable' style='min-width: unset; border: 1px solid green' onclick=\"goToEM(\'{{UIDEM}}\')\"><b>{{N_EM}}</b> - {{DisplayName}}</div>";
+    var template_item_testo_atto = "<div class='chip white black-text hoverable' style='min-width: unset; border: 1px solid green' onclick=\"goToEM(\'{{UIDEM}}\')\"><b>{{N_EM}}</b> - {{DisplayName}}</div>";
 
     async function viewTestoAtto() {
         waiting(true);
@@ -25,11 +25,9 @@
                 var testoArticolo = articoloModel.Data.TestoArticolo ? articoloModel.Data.TestoArticolo : "";
                 var emArticoli = "";
                 if (articoloModel.Emendamenti.length > 0) {
-                    emArticoli = "<br>";
-
                     $.each(articoloModel.Emendamenti,
                         function(index, emArtItem) {
-                            var template_item_em = template_item.replace(/{{UIDEM}}/g, emArtItem.UID_QRCode)
+                            var template_item_em = template_item_testo_atto.replace(/{{UIDEM}}/g, emArtItem.UID_QRCode)
                                 .replace(/{{N_EM}}/g, emArtItem.N_EM)
                                 .replace(/{{DisplayName}}/g, emArtItem.PersonaProponente.DisplayName);
                             emArticoli = emArticoli + template_item_em;
@@ -42,11 +40,9 @@
                             var testoComma = commaModel.Data.TestoComma ? commaModel.Data.TestoComma : "";
                             var emCommi = "";
                             if (commaModel.Emendamenti.length > 0) {
-                                emCommi = "<br>";
-
                                 $.each(commaModel.Emendamenti,
                                     function(index, emCommaItem) {
-                                        var template_item_em = template_item.replace(/{{UIDEM}}/g, emCommaItem.UID_QRCode)
+                                        var template_item_em = template_item_testo_atto.replace(/{{UIDEM}}/g, emCommaItem.UID_QRCode)
                                             .replace(/{{N_EM}}/g, emCommaItem.N_EM)
                                             .replace(/{{DisplayName}}/g, emCommaItem.PersonaProponente.DisplayName);
 
@@ -61,11 +57,9 @@
                                         var testoLettera = letteraModel.Data.TestoLettera ? letteraModel.Data.TestoLettera : "";
                                         var emLettere = "";
                                         if (letteraModel.Emendamenti.length > 0) {
-                                            emLettere = "<br>";
-
                                             $.each(letteraModel.Emendamenti,
                                                 function(index, emLetteraItem) {
-                                                    var template_item_em = template_item.replace(/{{UIDEM}}/g, emLetteraItem.UID_QRCode)
+                                                    var template_item_em = template_item_testo_atto.replace(/{{UIDEM}}/g, emLetteraItem.UID_QRCode)
                                                         .replace(/{{N_EM}}/g, emLetteraItem.N_EM)
                                                         .replace(/{{DisplayName}}/g, emLetteraItem.PersonaProponente.DisplayName);
                                                     emLettere = emLettere + template_item_em;
