@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using PortaleRegione.DTO.Domain;
+﻿using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
+using System.Collections.Generic;
 
 namespace PortaleRegione.Client.Models
 {
@@ -13,5 +13,7 @@ namespace PortaleRegione.Client.Models
         public PersonaDto Persona { get; set; }
         public ICollection<AD_ObjectModel> GruppiAD { get; set; }
         public ICollection<KeyValueDto> GruppiInDB { get; set; }
+
+        public PersonaDto CurrentUser { get; set; }
     }
 }

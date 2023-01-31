@@ -245,15 +245,6 @@ namespace PortaleRegione.BAL
 
         public async Task<HttpResponseMessage> EsportaGrigliaZipDASI(List<Guid> data)
         {
-            IWorkbook workbook = new XSSFWorkbook();
-            var style = workbook.CreateCellStyle();
-            style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
-            style.FillPattern = FillPattern.SolidForeground;
-            var styleReport = workbook.CreateCellStyle();
-            styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
-            styleReport.FillPattern = FillPattern.SolidForeground;
-            styleReport.Alignment = HorizontalAlignment.Center;
-
             var attiList = new List<AttoDASIDto>();
             foreach (var uid in data)
             {
@@ -261,30 +252,9 @@ namespace PortaleRegione.BAL
                 if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
                 attiList.Add(dto);
             }
-
-            var dasiSheet =
-                await NewSheetDASI_Atti(
-                    workbook.CreateSheet(
-                        "Atti"),
-                    attiList);
-            var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
-            var firmatariSheet =
-                await NewSheetDASI_Firmatari(
-                    workbook.CreateSheet(
-                        "Firmatari"),
-                    firmatariList);
-
-            var controlliSheet =
-                NewSheetDASI_Controlli(
-                    workbook.CreateSheet(
-                        "Controlli"));
-
-            var lookupSheet = workbook.CreateSheet("LOOKUP");
-
-            var xls = ResponseXLSByte(workbook);
             var pdfs = await GetPDF(attiList);
 
-            return ResponseZip(xls, pdfs);
+            return ResponseZip(pdfs);
         }
 
         public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(List<Guid> data)
@@ -793,7 +763,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
-                    SetColumnValue(ref rowBody, atto.DataPresentazione.Substring(0, 10)); // data presentazione
+                    SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
                     SetColumnValue(ref rowBody, ""); // oggetto
 
                     //Matteo Cattapan #500
@@ -895,13 +865,12 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        private HttpResponseMessage ResponseZip(FileModel report_xls, List<FileModel> pdfs)
+        private HttpResponseMessage ResponseZip(List<FileModel> pdfs)
         {
             var outputMemoryStream = new MemoryStream();
             var zipStream = new ZipOutputStream(outputMemoryStream);
             zipStream.SetLevel(9);
             foreach (var internalZipFile in pdfs) AddToZip(zipStream, internalZipFile);
-            AddToZip(zipStream, report_xls);
             zipStream.IsStreamOwner = false; // to stop the close and underlying stream
             zipStream.Close();
 

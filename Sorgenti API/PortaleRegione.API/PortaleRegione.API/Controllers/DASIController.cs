@@ -100,13 +100,18 @@ namespace PortaleRegione.API.Controllers
             {
                 var atto = await _dasiLogic.Get(id);
                 if (atto == null) return NotFound();
+                var currentUser = CurrentUser;
+                if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
+                {
+                    return NotFound();
+                }
 
                 var countFirme = await _attiFirmeLogic.CountFirme(id);
                 if (countFirme > 1)
                     throw new InvalidOperationException(
                         $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
 
-                return Ok(await _dasiLogic.ModificaModello(atto, CurrentUser));
+                return Ok(await _dasiLogic.ModificaModello(atto, currentUser));
             }
             catch (Exception e)
             {

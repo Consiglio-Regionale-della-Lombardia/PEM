@@ -123,6 +123,8 @@ namespace PortaleRegione.API.Helpers
             {
                 var task_op = Task.Run(async () => await _personeLogic.GetPersona(Session));
                 var persona = task_op.Result;
+                if (persona == null)
+                    return null;
                 persona.CurrentRole = Session._currentRole;
                 return persona;
             }

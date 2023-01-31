@@ -180,7 +180,8 @@ namespace PortaleRegione.Client.Controllers
             {
                 Persona = persona,
                 GruppiAD = listaGruppiRuoliAD,
-                GruppiInDB = gruppiInDb.ToList()
+                GruppiInDB = gruppiInDb.ToList(),
+                CurrentUser = CurrentUser
             });
         }
 

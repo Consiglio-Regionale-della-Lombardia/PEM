@@ -737,9 +737,7 @@ namespace PortaleRegione.API.Controllers
 
                     if (firmaUfficio)
                     {
-                        firmaCert = BALHelper.EncryptString(
-                            $"Firmato d’ufficio per conto di {persona.DisplayName_GruppoCode}"
-                            , AppSettingsConfiguration.masterKey);
+                        firmaCert = BALHelper.EncryptString($"{persona.DisplayName_GruppoCode}", AppSettingsConfiguration.masterKey); // matcat - #615
                         timestampFirma = atto.Timestamp.AddMinutes(-2);
                         dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
@@ -888,7 +886,7 @@ namespace PortaleRegione.API.Controllers
                         "Richiesta di ritiro già inviata al proponente.");
 
                 var dto = await GetAttoDto(idGuid);
-                var nome_atto = $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}";
+                var nome_atto = dto.Display;
 
                 SEDUTE seduta = null;
                 if (atto.DataIscrizioneSeduta.HasValue)
@@ -935,7 +933,7 @@ namespace PortaleRegione.API.Controllers
                                                 OGGETTO =
                                                     $"Non può essere trattata la mozione {nome_atto} come urgente",
                                                 MESSAGGIO =
-                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dalla {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza."
+                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'atto {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza."
                                             };
                                             await _logicUtil.InvioMail(mailModel);
                                         }
@@ -948,6 +946,9 @@ namespace PortaleRegione.API.Controllers
                                     break;
                                 }
 
+                                var _guid = Guid.NewGuid();
+                                var sync_guid = Guid.NewGuid();
+
                                 var newNotifica = new NOTIFICHE
                                 {
                                     UIDAtto = atto.UIDAtto,
@@ -958,12 +959,15 @@ namespace PortaleRegione.API.Controllers
                                         $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
                                     DataCreazione = DateTime.Now,
                                     IdGruppo = atto.id_gruppo,
-                                    SyncGUID = Guid.NewGuid()
+                                    SyncGUID = sync_guid,
+                                    UIDNotifica = _guid.ToString()
                                 };
+
+                                _unitOfWork.Notifiche.Add(newNotifica);
 
                                 var newDestinatario = new NOTIFICHE_DESTINATARI
                                 {
-                                    NOTIFICHE = newNotifica,
+                                    UIDNotifica = _guid.ToString(),
                                     UIDPersona = atto.UIDPersonaProponente.Value,
                                     IdGruppo = atto.id_gruppo,
                                     UID = Guid.NewGuid()
@@ -1596,15 +1600,16 @@ namespace PortaleRegione.API.Controllers
 
             try
             {
-                var nome_atto = $"{Utility.GetText_Tipo(atto.Tipo)} {atto.NAtto}";
+                var dto = await GetAttoDto(atto.UIDAtto);
+                var nome_atto = dto.Display;
                 var mailModel = new MailModel
                 {
                     DA = AppSettingsConfiguration.EmailInvioDASI,
                     A = firmatari.Aggregate((i, j) => i + ";" + j),
                     OGGETTO =
-                        "Avviso di ritiro atto",
+                        $"Atto {nome_atto} ritirato dal proponente",
                     MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto."
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
@@ -2600,9 +2605,24 @@ namespace PortaleRegione.API.Controllers
 
         private async Task PresentaCartaceo(ATTI_DASI atto, AttoDASIDto dto)
         {
-            await FirmaAttoUfficio(dto);
+            if (!dto.FirmeCartacee.Any())
+                throw new InvalidOperationException(
+                    "Inserire i firmatari.");
 
+            if (dto.FirmeCartacee.First().uid != dto.UIDPersonaProponente.Value.ToString())
+            {
+                throw new InvalidOperationException(
+                    "Il proponente deve essere anche il primo firmatario.");
+            }
+
+            await FirmaAttoUfficio(dto);
             var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
+            if (dto.Tipo == (int)TipoAttoEnum.IQT
+                && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
+            {
+                throw new Exception($"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
+            }
+
             var controllo_firme = await ControlloFirmePresentazione(dto, count_firme, null);
 
             if (!string.IsNullOrEmpty(controllo_firme))
@@ -2612,6 +2632,7 @@ namespace PortaleRegione.API.Controllers
 
             atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
             atto.chkf = count_firme.ToString();
+            atto.UIDPersonaPresentazione = atto.UIDPersonaProponente;
 
             await _unitOfWork.CompleteAsync();
         }

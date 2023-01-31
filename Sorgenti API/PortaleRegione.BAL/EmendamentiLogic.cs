@@ -853,7 +853,12 @@ namespace PortaleRegione.BAL
                         em.EM_Certificato = body_encrypt;
                     }
 
-                    int tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(persona.Gruppo.id_gruppo);
+                    int tipoAreaFirma;
+                    if (!firmaUfficio)
+                        tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(persona.Gruppo.id_gruppo);
+                    else
+                        tipoAreaFirma = await _unitOfWork.Gruppi.GetTipoArea(em.id_gruppo);
+
                     await _unitOfWork.Firme.Firma(idGuid, persona.UID_persona, firmaCert, dataFirma, tipoAreaFirma,
                         firmaUfficio);
 

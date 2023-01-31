@@ -1,8 +1,15 @@
 ﻿@using PortaleRegione.DTO.Enum
 <script>
+    var sedute = [];
+    var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
+
     var instanceModalDasi;
     $(window).on("load",
         async function() {
+            if (sedute.length == 0) {
+                var data = await GetSeduteAttive();
+                sedute = data.Results;
+            }
         });
     $("#btnSave").on("click",
         function() {
@@ -130,7 +137,7 @@
                 swal({
                     title: "Errore",
                     text: data.message,
-                    icon: "error"
+                    icon: "error" 
                 });
             } else {
                 swal({
@@ -138,7 +145,14 @@
                     text: "Atto salvato correttamente a sistema.",
                     icon: "success"
                 }).then((value) => {
-                    go(data);
+                    if (presenta)
+                    {
+                        @Html.Raw("go(data);");
+                    }
+                    else
+                    {
+                        @Html.Raw("location.reload();");
+                    }
                 });
             }
         }).fail(function(err) {
@@ -214,7 +228,11 @@
                         text: "Atto inserito correttamente a sistema.",
                         icon: "success"
                     }).then((value) => {
-                        go(data);
+                        if ($("#Atto_UIDAtto").val() != '@Html.Raw(Guid.Empty)') {
+                            location.reload();
+                        } else {
+                            go(data);
+                        }
                     });
                 }
             }).fail(function(err) {

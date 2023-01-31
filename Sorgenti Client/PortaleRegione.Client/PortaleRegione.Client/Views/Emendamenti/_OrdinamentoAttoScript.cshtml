@@ -2,7 +2,7 @@
 
 <script>
 
-    var template_item = "<li class='collection-item' data-uidem='{{UIDEM}}'>{{N_EM}} <a class='secondary-content blue-text' onclick=\"openMetaDati(\'{{UIDEM}}\')\"'><i class='material-icons'>edit</i></li>";
+    var template_item_ordinamento_atto = "<li class='collection-item' data-uidem='{{UIDEM}}'>{{N_EM}} <a class='secondary-content blue-text' onclick=\"openMetaDati(\'{{UIDEM}}\')\"'><i class='material-icons'>edit</i></li>";
     var template_item_pos = "<li class='collection-item'>{{POS}}</li>";
 
     async function viewOrdinamentoAtto() {
@@ -26,7 +26,7 @@
 
         $.each(grigliaInDb,
             function(index, em) {
-                var template_item_em = template_item.replace(/{{N_EM}}/g, em.N_EM)
+                var template_item_em = template_item_ordinamento_atto.replace(/{{N_EM}}/g, em.N_EM)
                     .replace(/{{UIDEM}}/g, em.UIDEM);
                 var template_item_em_pos = template_item_pos.replace(/{{POS}}/g, em.OrdineVotazione);
                 table.append(template_item_em);

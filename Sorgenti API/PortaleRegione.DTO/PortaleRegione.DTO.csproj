@@ -94,6 +94,7 @@
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\CommiModel.cs" />
+    <Compile Include="Model\InfoModel.cs" />
     <Compile Include="Model\JollyODGModel.cs" />
     <Compile Include="Model\LettereModel.cs" />
     <Compile Include="Model\PresentazioneCartaceaModel.cs" />
