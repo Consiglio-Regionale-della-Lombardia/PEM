@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Scheduler.Exceptions;
+using Scheduler.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Windows.Forms;
-using Ionic.Zip;
-using Newtonsoft.Json;
-using Scheduler.Exceptions;
-using Scheduler.Models;
 
 namespace Scheduler.BusinessLogic
 {
@@ -215,11 +215,10 @@ namespace Scheduler.BusinessLogic
         /// <param name="path"></param>
         public void ExtractZipJob(string path, string job_name)
         {
-            using (var zip = ZipFile.Read(path))
+            using (var zip = ZipFile.OpenRead(path))
             {
-                foreach (var e in zip)
-                    e.Extract($"CustomJobs/{job_name}",
-                        ExtractExistingFileAction.OverwriteSilently);
+                foreach (var e in zip.Entries)
+                    e.ExtractToFile($"CustomJobs/{job_name}", true);
             }
         }
     }

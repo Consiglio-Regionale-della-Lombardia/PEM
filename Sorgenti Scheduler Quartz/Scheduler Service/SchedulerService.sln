@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulerService", "SchedulerService.csproj", "{DCBF8F9A-2DA2-42FA-A9B6-94CFBBB81D1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Logger", "..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj", "{1F9EEC0B-08CC-481F-820E-C07B8327AC25}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{DCBF8F9A-2DA2-42FA-A9B6-94CFBBB81D1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCBF8F9A-2DA2-42FA-A9B6-94CFBBB81D1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCBF8F9A-2DA2-42FA-A9B6-94CFBBB81D1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F9EEC0B-08CC-481F-820E-C07B8327AC25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

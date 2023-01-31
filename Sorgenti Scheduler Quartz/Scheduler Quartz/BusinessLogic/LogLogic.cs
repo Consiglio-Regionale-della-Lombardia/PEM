@@ -1,14 +1,13 @@
-﻿using System;
-using System.Configuration;
+﻿using PortaleRegione.Gateway;
+using Scheduler.Exceptions;
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using PortaleRegione.Gateway;
-using Scheduler.Exceptions;
 
 namespace Scheduler.BusinessLogic
 {
-    public class LogLogic :LogicBase
+    public class LogLogic : LogicBase
     {
         public LogLogic()
         {

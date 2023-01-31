@@ -1139,21 +1139,6 @@ namespace PortaleRegione.BAL
 
                     results.Add(idGuid, $"{n_em} - OK");
 
-                    _unitOfWork.Stampe.Add(new STAMPE
-                    {
-                        UIDStampa = Guid.NewGuid(),
-                        UIDUtenteRichiesta = persona.UID_persona,
-                        CurrentRole = (int)persona.CurrentRole,
-                        DataRichiesta = DateTime.Now,
-                        UIDAtto = em.UIDAtto,
-                        Da = 1,
-                        A = 1,
-                        Ordine = 1,
-                        Notifica = true,
-                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
-                        UIDEM = idGuid
-                    });
-                    await _unitOfWork.CompleteAsync();
                     counterDepositi++;
                 }
 
