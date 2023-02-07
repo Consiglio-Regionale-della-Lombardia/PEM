@@ -17,11 +17,14 @@
         $.each(seduteMOZU,
             function(i, item) {
                 var resultDate = GetFormattedDate(item.Data_seduta);
-                var resultDate_MOZU = GetDate(item.DataScadenzaPresentazioneMOZU);
                 var addtext = "";
-                if (resultDate_MOZU < Date.now()) {
-                    addtext = "<i class='material-icons red-text'>warning</i>";
+                if (item.DataScadenzaPresentazioneMOZU) {
+                    var resultDate_MOZU = GetDate(item.DataScadenzaPresentazioneMOZU);
+                    if (resultDate_MOZU < Date.now()) {
+                        addtext = "<i class='material-icons red-text'>warning</i>";
+                    }
                 }
+                
                 var text = "Seduta del " + resultDate + " " + addtext;
                 $('#modalMozioneUrgente>div>ul').append(templateSeduteAttive
                     .replace("{TEXT}", text)
