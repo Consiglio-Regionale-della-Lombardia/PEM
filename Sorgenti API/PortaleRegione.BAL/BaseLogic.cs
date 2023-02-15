@@ -24,6 +24,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Routes;
 using QRCoder;
 using System;
 using System.Collections.Generic;
@@ -371,7 +372,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(atto.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/dasi/file?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO</a></td></tr>";
 
             #endregion
 

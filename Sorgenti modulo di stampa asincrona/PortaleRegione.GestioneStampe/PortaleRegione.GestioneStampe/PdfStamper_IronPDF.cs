@@ -1,6 +1,7 @@
 ﻿using IronPdf;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,17 +14,37 @@ namespace PortaleRegione.GestioneStampe
             License.LicenseKey = license;
         }
 
-        public async Task<byte[]> CreaPDFInMemory(string body, string nome_documento)
+        public async Task<byte[]> CreaPDFInMemory(string body, string nome_documento, List<string> attachments = null)
         {
             try
             {
                 var Renderer = SetupRender();
-                Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" +
-                                                         " Pagina {page} di {total-pages}";
-                Renderer.PrintOptions.Footer.LeftText = "Stampato in data {date} {time}";
-                Renderer.PrintOptions.Footer.DrawDividerLine = true;
-
                 var pdf = await Renderer.RenderHtmlAsPdfAsync(body);
+
+                if (attachments != null)
+                {
+                    if (attachments.Any())
+                    {
+                        foreach (var attachment in attachments)
+                        {
+                            if (!File.Exists(attachment))
+                                continue;
+
+                            if (Path.GetExtension(attachment)
+                                .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                var attach = PdfDocument.FromFile(attachment);
+                                pdf.AppendPdf(attach);
+                                continue;
+                            }
+
+                            pdf.Attachments.AddAttachment(
+                                $"Allegato_{pdf.Attachments.Count() + 1}{Path.GetExtension(attachment)}",
+                                File.ReadAllBytes(attachment));
+                        }
+                    }
+                }
+
                 return pdf.Stream.ToArray();
             }
             catch (Exception ex)
@@ -63,8 +84,8 @@ namespace PortaleRegione.GestioneStampe
         {
             var listPdf = docs.Select(i => (PdfDocument)i);
             var Renderer = SetupRender();
-            Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-            Renderer.PrintOptions.Footer.DrawDividerLine = true;
+            //Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
+            //Renderer.PrintOptions.Footer.DrawDividerLine = true;
             PdfDocument.Merge(listPdf).SaveAs(path);
         }
     }

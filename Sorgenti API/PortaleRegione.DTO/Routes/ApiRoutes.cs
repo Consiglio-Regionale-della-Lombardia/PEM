@@ -215,7 +215,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
             public const string GetBody = Base + "/get-corpo";
             public const string GetBodyCopertina = Base + "/get-copertina";
-            public const string DownloadDoc = Base + "/scarica-documento/{path}";
+            public const string DownloadDoc = Base + "/scarica-documento";
 
             public const string GetInvitati = Base + "/{id}/invitati";
             public const string GetStati = Base + "/stati";
