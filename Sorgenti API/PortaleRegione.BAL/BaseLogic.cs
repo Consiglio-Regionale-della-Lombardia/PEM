@@ -312,7 +312,7 @@ namespace PortaleRegione.BAL
             //Allegato Tecnico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
                 allegato_tecnico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
+                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
 
             #endregion
 
@@ -321,7 +321,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
 
             #endregion
 
@@ -535,20 +535,24 @@ namespace PortaleRegione.BAL
             var textQr = string.Empty;
             if (enableQrCode)
             {
-                var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
-                var qrFilePathComplete =
-                    Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
-                var qrLink = $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}";
+                var qr_contentString = "data:image/png;base64,{{DATA}}";
+                var qrLink =
+                    $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
                 var qrGenerator = new QRCodeGenerator();
                 var urlPayload = new PayloadGenerator.Url(qrLink);
                 var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
                 var qrCode = new QRCode(qrData);
                 using (var qrCodeImage = qrCode.GetGraphic(20))
                 {
-                    qrCodeImage.Save(qrFilePathComplete);
+                    var ms = new MemoryStream();
+                    qrCodeImage.Save(ms, ImageFormat.Png);
+                    var byteImage = ms.ToArray();
+                    qr_contentString =
+                        qr_contentString.Replace("{{DATA}}", Convert.ToBase64String(byteImage));
                 }
 
-                textQr = $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />";
+                textQr =
+                    $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
             }
 
             body = body.Replace("{QRCode}", textQr);

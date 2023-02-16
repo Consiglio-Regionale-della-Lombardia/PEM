@@ -143,7 +143,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
-                public const string DownloadDoc = Base + "/scarica-documento/{path}";
+                public const string DownloadDoc = Base + "/scarica-documento";
 
                 public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
                 public const string GetInvitati = Base + "/{id}/invitati";
