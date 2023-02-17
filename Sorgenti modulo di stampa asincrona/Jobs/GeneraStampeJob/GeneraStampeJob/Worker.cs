@@ -217,7 +217,15 @@ namespace GeneraStampeJob
                         Body = bodyPDF,
                         Atto = item
                     };
-                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body);
+                    var listAttachments = new List<string>();
+                    if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
+                    {
+                        var complete_path = Path.Combine(
+                            _model.PercorsoCompatibilitaDocumenti,
+                            Path.GetFileName(item.PATH_AllegatoGenerico));
+                        listAttachments.Add(complete_path);
+                    }
+                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
                     dettagliCreaPDF.Content = pdf;
                     listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
@@ -611,7 +619,22 @@ namespace GeneraStampeJob
                         Body = bodyPDF,
                         EM = item
                     };
-                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body);
+                    var listAttachments = new List<string>();
+                    if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
+                    {
+                        var complete_path = Path.Combine(
+                            _model.PercorsoCompatibilitaDocumenti,
+                            Path.GetFileName(item.PATH_AllegatoGenerico));
+                        listAttachments.Add(complete_path);
+                    }
+                    if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
+                    {
+                        var complete_path = Path.Combine(
+                            _model.PercorsoCompatibilitaDocumenti,
+                            Path.GetFileName(item.PATH_AllegatoTecnico));
+                        listAttachments.Add(complete_path);
+                    }
+                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
                     dettagliCreaPDF.Content = pdf;
                     listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");

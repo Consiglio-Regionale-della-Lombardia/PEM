@@ -14,16 +14,17 @@ namespace PortaleRegione.JobStampeTest
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("fc21675b-0081-48d6-baf4-dbcf92391776"));
+                var stampa = await apiGateway.Stampe.Get(new Guid("c88b9b1a-0e48-4db7-b583-7ae8059d7e29"));
                 var model = new ThreadWorkerModel
                 {
-                    CartellaLavoroStampe = @"C:\Temp\Regione Lombardia\Stampe",
-                    CartellaLavoroTemporanea = @"C:\Temp\Regione Lombardia\Temp",
+                    CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",
+                    CartellaLavoroTemporanea = @"D:\Regione Lombardia\Temp",
+                    PercorsoCompatibilitaDocumenti = @"D:\DocumentiPEM",
                     EmailFrom = "",
                     NumMaxTentativi = "3",
                     Password = "passWD01",
                     Username = "servizio_pem",
-                    RootRepository = @"C:\Temp\Regione Lombardia\Repository",
+                    RootRepository = @"D:\Regione Lombardia\Emendamenti",
                     UrlAPI = "http://localhost:52415",
                     UrlCLIENT = "http://localhost:58019",
                     PDF_LICENSE = "IRONPDF.NAMIRIALSPA.IRO221014.7583.32109.410122-18A3800A31-CFV723JMBJIYZ4K-HCIT6H72EBCJ-NQYCKHU2WYVO-DUCCQUCNKAXF-MGYXL4N53BA5-UH6NWC-L23P7VJKHTGKUA-LITE.SUB-JVZX4D.RENEW.SUPPORT.14.OCT.2023"

@@ -61,10 +61,23 @@ namespace PortaleRegione.GestioneStampe
             pdf.SaveAs(path);
         }
 
-        public async Task<object> CreaPDFObject(string txtHTML)
+        public async Task<object> CreaPDFObject(string txtHTML, List<string> attachments = null)
         {
             var Renderer = SetupRender();
             var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
+
+            if (attachments == null) return pdf;
+            if (!attachments.Any()) return pdf;
+
+            foreach (var attach in from attachment in attachments
+                                   where File.Exists(attachment)
+                                   where Path.GetExtension(attachment)
+.Equals(".pdf", StringComparison.InvariantCultureIgnoreCase)
+                                   select PdfDocument.FromFile(attachment))
+            {
+                pdf.AppendPdf(attach);
+            }
+
             return pdf;
         }
 
