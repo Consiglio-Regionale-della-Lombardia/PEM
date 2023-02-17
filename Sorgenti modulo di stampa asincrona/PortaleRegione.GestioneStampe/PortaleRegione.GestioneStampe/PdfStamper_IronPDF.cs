@@ -20,7 +20,7 @@ namespace PortaleRegione.GestioneStampe
             {
                 var Renderer = SetupRender();
                 var pdf = await Renderer.RenderHtmlAsPdfAsync(body);
-
+                Renderer.PrintOptions.TextFooter.RightText = $"{nome_documento} " + "Pagina {page} di {total-pages}";
                 if (attachments != null)
                 {
                     if (attachments.Any())
@@ -58,6 +58,7 @@ namespace PortaleRegione.GestioneStampe
         {
             var Renderer = SetupRender();
             var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
+            Renderer.PrintOptions.TextFooter.RightText = "Pagina {page} di {total-pages}";
             pdf.SaveAs(path);
         }
 
@@ -65,7 +66,7 @@ namespace PortaleRegione.GestioneStampe
         {
             var Renderer = SetupRender();
             var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
-
+            Renderer.PrintOptions.TextFooter.RightText = "Pagina {page} di {total-pages}";
             if (attachments == null) return pdf;
             if (!attachments.Any()) return pdf;
 
@@ -97,8 +98,8 @@ namespace PortaleRegione.GestioneStampe
         {
             var listPdf = docs.Select(i => (PdfDocument)i);
             var Renderer = SetupRender();
-            //Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-            //Renderer.PrintOptions.Footer.DrawDividerLine = true;
+            Renderer.PrintOptions.TextFooter.RightText = "Pagina {page} di {total-pages}";
+            Renderer.PrintOptions.TextFooter.DrawDividerLine = true;
             PdfDocument.Merge(listPdf).SaveAs(path);
         }
     }

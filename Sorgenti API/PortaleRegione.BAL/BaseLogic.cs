@@ -388,13 +388,17 @@ namespace PortaleRegione.BAL
 
             body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
             body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
-            var testo_deposito = $"Creato il: {emendamento.DataCreazione.Value:dd/MM/yyyy HH:mm}";
+            var testo_deposito = string.Empty;
             if (emendamento.IDStato >= (int)StatiEnum.Depositato)
             {
-                testo_deposito = $"Depositato il: {emendamento.DataDeposito}";
+                testo_deposito = $"Presentato il: {emendamento.DataDeposito}";
             }
-
             body = body.Replace("{DepositatoEMView}", testo_deposito);
+
+            body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
+            body = body.Replace("{GRUPPO_POLITICO}", emendamento.gruppi_politici.nome_gruppo);
+            body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
+            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 
             if (string.IsNullOrEmpty(emendamento.EM_Certificato))
             {
@@ -572,7 +576,6 @@ namespace PortaleRegione.BAL
             }
 
             body = body.Replace("{lblTitoloATTOView}", title);
-            body = body.Replace("{STATO}", Utility.GetText_StatoDASI(atto.IDStato).ToUpper());
             body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
@@ -759,7 +762,7 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{lblDepositoEMView}",
                         firmeDtos.Any(s => s.ufficio)
                             ? "Emendamento Depositato d'ufficio"
-                            : $"Emendamento Depositato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
+                            : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
 
                     var firmeAnte = firmeDtos.Where(f => f.Timestamp < Convert.ToDateTime(emendamento.DataDeposito));
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));

@@ -1,102 +1,98 @@
-﻿<table style="width: 100%">
-    <tr>
-        <td style="text-align: left; width: 50%">
-            <h5 style="font-size: 15px">
-                {DepositatoEMView}
-            </h5>
-        </td>
-        <td style="text-align: right; width: 50%">
-            <h5 style="font-size: 15px">
-                Stato: {StatoEMView}
-            </h5>
-        </td>
-    </tr>
-</table>
-<table style="width: 100%">
-    {NOTE_PUBBLICHE_COMMENTO_START}
-    <tr>
-        <td style="text-align: left" colspan="2">
-            <h5 style="font-size: 15px">
-                {lblNotePubblicheEMView}
-            </h5>
-        </td>
-    </tr>
-    {NOTE_PUBBLICHE_COMMENTO_END}
-    <tr>
-        <td style="width: 150px; border-right: solid; text-align: center; border-right-width: 1px; border-right-color: #000000; border-right-style: solid; border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: #000000;">
-            <img src="http://pem.consiglio.regione.lombardia.it/images/LogoCRL120px.gif" style="width: 100px"/>
-        </td>
-        <td style="width: 100%; text-align: center; border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: #000000;">
-            <h3>
-                <b>{lblTitoloEMView}</b>
-            </h3>
-        </td>
-    </tr>
-    <tr>
-        <td style="width: 150px; border-right: solid; vertical-align: top; border-right-width: 1px; border-right-color: #000000;">
-            {QRCode}
-        </td>
-        <td style="width: 100%; text-align: left">
-            <table style="width: 100%; vertical-align: top">
-                <tr>
-                    <td style="vertical-align: top;">
-                        {ltEMView}
-                        <br/>
-                        {FIRMEANTE_COMMENTO_START}
-                        <table cellpadding="0" cellspacing="0" border="0" style="margin-top: 50px">
-                            <tr>
-                                <td>
-                                    <div style="margin: 2px; padding: 10px">
-                                        <div style="width: 100%; text-align: left;">
-                                            <h5>Firme</h5>
-                                        </div>
-                                        <div style="text-align: left; font-style: normal;">
-                                            {radGridFirmeView}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            {FIRMEANTE_COMMENTO_END}
-                            {FIRME_COMMENTO_START}
-                            <tr>
-                                <td>
-                                    <div style="margin: 2px; padding: 10px">
-                                        <div style="width: 100%; text-align: left; font-style: normal;">
-                                            {radGridFirmePostView}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                        {FIRME_COMMENTO_END}
-                        {FATTOPROPRIO_COMMENTO_START}
-                        <br/>
-                        <div style="padding: 2px">
-                            <div style="width: 100%; text-align: left; font-style: normal;">
-                                {lblFattoProprioDa}
-                            </div>
-                        </div>
-                        {FATTOPROPRIO_COMMENTO_END}
-                        {TESTOMOD_COMMENTO_START}
-                        <br/>
-                        <div style='margin: 2px; padding: 2px'>
-                            <div style='padding: 10px; text-align: left'>
-                                <br/>
-                                <b>DURANTE LA DISCUSSIONE IN AULA IL TESTO E' STATO COSI' MODIFICATO:</b>
-                                {ltTestoModificabile}
-                            </div>
-                        </div>
-                        {TESTOMOD_COMMENTO_END}
-                        {NOTEPRIV_COMMENTO_START}
-                        <div style='margin: 2px; padding: 2px'>
-                            <div style='padding: 10px; text-align: left; font-size: 15px; font-style: italic;'>
-                                {lblNotePrivateEMView}
-                            </div>
-                        </div>
-                        {NOTEPRIV_COMMENTO_END}
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+﻿<div class="row">
+    <div class="col s4 center">
+        <img src='{urlLogo}' width='50' />
+        <br>
+        <h5>
+            {nomePiattaforma}
+            <span>
+                <h6 style='margin: 2px'>IL CONSIGLIO</h6>
+            </span>
+        </h5>
+    </div>
+    <div class="col s4">
+
+    </div>
+    <div class="col s4 center">
+        {QRCode}
+    </div>
+</div>
+<div>
+    <div class="card-action grey lighten-4">
+        <div class="row" style="margin: 0 !important">
+            <div class="col s8">
+                <h6>
+                    <b>
+                        {GRUPPO_POLITICO}
+                    </b>
+                </h6>
+            </div>
+            <div class="col s4 right-align" style="margin-top: 10px">
+                {STATO}
+            </div>
+        </div>
+    </div>
+
+    <div class="card-content">
+        {NOTE_PUBBLICHE_COMMENTO_START}
+        <div class="row">
+            <div class="col s12 left">
+                <div>
+                    <p style="padding-top: 10px">
+                        <b>Nota ufficio dei lavori assembleari: </b>
+                        {lblNotePubblicheEMView}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {NOTE_PUBBLICHE_COMMENTO_END}
+
+        <div class="row" style="margin: 0 !important">
+            <div class="col s12 center">
+                <h3>
+                    <b>{lblTitoloEMView}</b>
+                </h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 center bodyEMClass">
+                {ltEMView}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                {radGridFirmeView}
+                <h6 class="black-text">
+                    <b>{DepositatoEMView}</b>
+                </h6>
+                {radGridFirmePostView}
+            </div>
+        </div>
+        {FATTOPROPRIO_COMMENTO_START}
+        <div class="row">
+            <div class="col s12">
+                {lblFattoProprioDa}
+            </div>
+        </div>
+        {FATTOPROPRIO_COMMENTO_END}
+        {TESTOMOD_COMMENTO_START}
+        <div class="row">
+            <div class="col s12">
+                <b>DURANTE LA DISCUSSIONE IN AULA IL TESTO E' STATO COSI' MODIFICATO:</b>
+                {ltTestoModificabile}
+            </div>
+        </div>
+        {TESTOMOD_COMMENTO_END}
+        {NOTEPRIV_COMMENTO_START}
+        <div class="row">
+            <div class="col s12 red-text">
+                <p>
+                    <b>Nota riservata:</b>
+                    {lblNotePrivateEMView}
+                </p>
+            </div>
+        </div>
+        {NOTEPRIV_COMMENTO_END}
+    </div>
+</div>
