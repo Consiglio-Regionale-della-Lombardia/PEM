@@ -661,7 +661,11 @@ namespace PortaleRegione.BAL
                 try
                 {
                     var body = GetTemplate(template);
-
+                    body =
+                        "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                        "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                        "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                        body;
                     switch (template)
                     {
                         case TemplateTypeEnum.MAIL:
@@ -2233,11 +2237,27 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                List<string> listAttachments = new List<string>();
+                if (!string.IsNullOrEmpty(em.PATH_AllegatoGenerico))
+                {
+                    var complete_path = Path.Combine(
+                        AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                        Path.GetFileName(em.PATH_AllegatoGenerico));
+                    listAttachments.Add(complete_path);
+                }
+                if (!string.IsNullOrEmpty(em.PATH_AllegatoTecnico))
+                {
+                    var complete_path = Path.Combine(
+                        AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                        Path.GetFileName(em.PATH_AllegatoTecnico));
+                    listAttachments.Add(complete_path);
+                }
+
                 var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
                 var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
 
-                return await stamper.CreaPDFInMemory(body, em.N_EM);
+                return await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
             }
             catch (Exception e)
             {

@@ -2479,10 +2479,19 @@ namespace PortaleRegione.API.Controllers
         internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
             var attoDto = await GetAttoDto(atto.UIDAtto);
+            List<string> listAttachments = new List<string>();
+            if (!string.IsNullOrEmpty(attoDto.PATH_AllegatoGenerico))
+            {
+                var complete_path = Path.Combine(
+                    AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                    Path.GetFileName(attoDto.PATH_AllegatoGenerico));
+                listAttachments.Add(complete_path);
+            }
+
             var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
             var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF, privacy);
             var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
+            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}", listAttachments);
         }
 
         public async Task InviaAlProtocollo(Guid id)
