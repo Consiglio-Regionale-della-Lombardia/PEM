@@ -781,7 +781,7 @@ namespace PortaleRegione.API.Controllers
                                     FirmaCert = firmaCert,
                                     Data_firma = dataFirma,
                                     Timestamp = timestampFirma,
-                                    ufficio = false
+                                    ufficio = firmaUfficio
                                 }
                             }, persona,
                             TemplateTypeEnum.FIRMA);

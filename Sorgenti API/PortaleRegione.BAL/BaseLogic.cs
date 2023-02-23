@@ -42,17 +42,16 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
-        internal IUnitOfWork _unitOfWork;
-        internal EmendamentiLogic _logicEm;
+        private readonly MemoryCache memoryCache = MemoryCache.Default;
         internal AttiLogic _logicAtti;
         internal AttiFirmeLogic _logicAttiFirme;
+        internal DASILogic _logicDasi;
+        internal EmendamentiLogic _logicEm;
         internal FirmeLogic _logicFirme;
         internal PersoneLogic _logicPersona;
         internal SeduteLogic _logicSedute;
         internal UtilsLogic _logicUtil;
-        internal DASILogic _logicDasi;
-
-        private readonly MemoryCache memoryCache = MemoryCache.Default;
+        internal IUnitOfWork _unitOfWork;
 
         internal List<PersonaLightDto> Users
         {
@@ -63,7 +62,7 @@ namespace PortaleRegione.BAL
 
                 return new List<PersonaLightDto>();
             }
-            set { memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1)); }
+            set => memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1));
         }
 
 
@@ -348,18 +347,9 @@ namespace PortaleRegione.BAL
             var premesse = atto.Premesse;
             var richieste = atto.Richiesta;
 
-            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato) && privacy)
-            {
-                oggetto = atto.Oggetto_Modificato;
-            }
-            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy)
-            {
-                premesse = atto.Premesse_Modificato;
-            }
-            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy)
-            {
-                richieste = atto.Richiesta_Modificata;
-            }
+            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato) && privacy) oggetto = atto.Oggetto_Modificato;
+            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy) premesse = atto.Premesse_Modificato;
+            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy) richieste = atto.Richiesta_Modificata;
 
             body = body.Replace("{lblSubTitoloATTOView}", oggetto);
             body = body.Replace("{lblPremesseATTOView}", premesse);
@@ -390,9 +380,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
             var testo_deposito = string.Empty;
             if (emendamento.IDStato >= (int)StatiEnum.Depositato)
-            {
                 testo_deposito = $"Presentato il: {emendamento.DataDeposito}";
-            }
             body = body.Replace("{DepositatoEMView}", testo_deposito);
 
             body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
@@ -570,10 +558,7 @@ namespace PortaleRegione.BAL
         {
             var firmeDtos = firme.ToList();
             var title = $"{tipoAtto} {atto.NAtto}";
-            if (atto.Non_Passaggio_In_Esame)
-            {
-                title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
-            }
+            if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 
             body = body.Replace("{lblTitoloATTOView}", title);
             body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
@@ -712,10 +697,28 @@ namespace PortaleRegione.BAL
 
                 var firmeDtos = firme.ToList();
                 if (!firmeDtos.Any()) return string.Empty;
-                var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
-                        ? $"<h6>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy}</h6><br/>"
-                        : $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy} ({item.Data_ritirofirma})</h6></div><br/>")
-                    .ToList();
+
+                var result = new List<string>();
+                foreach (var attiFirmeDto in firmeDtos)
+                {
+                    var body = attiFirmeDto.FirmaCert;
+                    if (string.IsNullOrEmpty(attiFirmeDto.Data_ritirofirma))
+                    {
+                        if (!attiFirmeDto.ufficio)
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+
+                        body = $"<h6>{body}</h6><br/>";
+                    }
+                    else
+                    {
+                        if (!attiFirmeDto.ufficio)
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+                        body =
+                            $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{body} ({attiFirmeDto.Data_ritirofirma})</h6></div><br/>";
+                    }
+
+                    result.Add(body);
+                }
 
                 return result.Aggregate((i, j) => i + j);
             }

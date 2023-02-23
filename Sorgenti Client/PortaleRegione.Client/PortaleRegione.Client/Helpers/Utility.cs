@@ -343,13 +343,15 @@ namespace PortaleRegione.Client.Helpers
                 if (!string.IsNullOrEmpty(firmeDto.Data_ritirofirma))
                 {
                     body += $"<div><del>{firmeDto.FirmaCert}</del>";
-                    body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
+                    if (!firmeDto.ufficio)
+                        body += $"<br/><label>firmato il </label><del>{firmeDto.Data_firma}</del>";
                     body += $"<br/><label>ritirato il </label>{firmeDto.Data_ritirofirma}</div>";
                 }
                 else
                 {
                     body += $"<div>{firmeDto.FirmaCert}";
-                    body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
+                    if (!firmeDto.ufficio)
+                        body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                     if (currentUId == firmeDto.UID_persona)
                     {
                         if (dto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
