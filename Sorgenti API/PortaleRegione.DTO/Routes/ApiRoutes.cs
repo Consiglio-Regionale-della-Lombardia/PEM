@@ -85,7 +85,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string Create = Base + "/create";
                 public const string Edit = Base + "/edit";
                 public const string ModificaFascicoli = Base + "/modifica-fascicoli";
-                public const string DownloadDoc = Base + "/scarica-documento/{path}";
+                public const string DownloadDoc = Base + "/scarica-documento";
                 public const string GrigliaTesti = Base + "/{id}/griglia-testi/{view}";
                 public const string GrigliaOrdinamento = Base + "/{id}/griglia-ordinamento";
                 public const string AggiornaRelatori = Base + "/aggiorna-relatori";
