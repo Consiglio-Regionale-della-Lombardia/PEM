@@ -14,7 +14,7 @@ namespace PortaleRegione.JobStampeTest
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("c88b9b1a-0e48-4db7-b583-7ae8059d7e29"));
+                var stampa = await apiGateway.Stampe.Get(new Guid("de640bf4-84dc-48fe-949e-634dea486e6f"));
                 var model = new ThreadWorkerModel
                 {
                     CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",
@@ -27,7 +27,7 @@ namespace PortaleRegione.JobStampeTest
                     RootRepository = @"D:\Regione Lombardia\Emendamenti",
                     UrlAPI = "http://localhost:52415",
                     UrlCLIENT = "http://localhost:58019",
-                    PDF_LICENSE = "IRONPDF.NAMIRIALSPA.IRO221014.7583.32109.410122-18A3800A31-CFV723JMBJIYZ4K-HCIT6H72EBCJ-NQYCKHU2WYVO-DUCCQUCNKAXF-MGYXL4N53BA5-UH6NWC-L23P7VJKHTGKUA-LITE.SUB-JVZX4D.RENEW.SUPPORT.14.OCT.2023"
+                    PDF_LICENSE = ""
                 };
 
                 var auth = await apiGateway.Persone.Login(model.Username, model.Password);
