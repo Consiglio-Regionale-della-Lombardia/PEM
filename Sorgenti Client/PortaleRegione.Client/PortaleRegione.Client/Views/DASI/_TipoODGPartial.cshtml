@@ -23,7 +23,8 @@
                             template = "<option selected='selected'></option>";
                         else
                             template = "<option></option>";
-                        select.append($(template).val(item.UIDAtto).html(item.NAtto));
+                        // #665 - matcat - Selezione PDL da abbinare all'odg con oggetto
+                        select.append($(template).val(item.UIDAtto).html(item.NAtto + " - " + item.Oggetto));
                     });
 
                 var elems = document.querySelectorAll("#Atto_ODG");
