@@ -180,7 +180,7 @@ namespace PortaleRegione.BAL
                     }
 
                     SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        ? $"{em.PersonaProponente.UID_persona}-{em.PersonaProponente.DisplayName}"
+                        ? $"{em.PersonaProponente.id_persona}-{em.PersonaProponente.DisplayName}"
                         : em.PersonaProponente.DisplayName);
                     SetColumnValue(ref rowEm, "");
 
