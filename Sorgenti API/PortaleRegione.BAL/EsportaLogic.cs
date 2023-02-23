@@ -764,24 +764,29 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
                     SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
-                    SetColumnValue(ref rowBody, ""); // oggetto
 
-                    //Matteo Cattapan #500
-                    switch ((TipoAttoEnum)atto.Tipo)
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
                     {
-                        case TipoAttoEnum.MOZ:
-                        case TipoAttoEnum.ODG:
-                            {
-                                SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
-                                SetColumnValue(ref rowBody, atto.Oggetto); // oggetto presentato / oggetto commissione 
-                                break;
-                            }
-                        default:
-                            {
-                                SetColumnValue(ref rowBody, atto.Oggetto); // oggetto approvato / oggetto assemblea 
-                                SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione 
-                                break;
-                            }
+                        SetColumnValue(ref rowBody, ""); // oggetto
+                    }
+                    else
+                    {
+                        SetColumnValue(ref rowBody, ""); // oggetto
+                    }
+
+                    //Matteo Cattapan #500 / #676
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
+                    {
+                        SetColumnValue(ref rowBody, atto.Oggetto); // oggetto presentato / oggetto commissione 
+                        SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
+                    }
+                    else
+                    {
+                        SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione 
+                        SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
                     }
 
                     SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
