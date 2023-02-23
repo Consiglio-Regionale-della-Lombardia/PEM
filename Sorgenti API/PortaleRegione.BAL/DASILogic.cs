@@ -2380,7 +2380,8 @@ namespace PortaleRegione.API.Controllers
             {
                 case TipoAttoEnum.IQT:
                     {
-                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
+                        if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
                         break;
                     }
                 case TipoAttoEnum.MOZ:
@@ -2389,20 +2390,23 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
-                                        atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
+                                            atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
-                                        atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
+                                            atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
-                                        atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
+                                            atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
                                     break;
                                 }
                         }
@@ -2413,7 +2417,8 @@ namespace PortaleRegione.API.Controllers
                     {
                         if (atto.CapogruppoNeiTermini) break;
 
-                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
+                        if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
                     }
             }
