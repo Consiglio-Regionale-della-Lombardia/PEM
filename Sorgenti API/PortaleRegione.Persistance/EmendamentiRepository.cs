@@ -467,7 +467,7 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(em => em.id_gruppo == persona.Gruppo.id_gruppo);
 
-                if (persona.CurrentRole == RuoliIntEnum.Segreteria_Assemblea)
+                if (persona.IsSegreteriaAssemblea)
                     query = query.Where(em =>
                         !string.IsNullOrEmpty(em.DataDeposito) ||
                         em.idRuoloCreazione == (int)RuoliIntEnum.Segreteria_Assemblea);

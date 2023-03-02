@@ -47,5 +47,19 @@ namespace PortaleRegione.DTO.Domain
 
 
         public virtual PersonaDto UTENTI_NoCons { get; set; }
+
+        public static implicit operator AttiFirmeDto(FirmeDto firma)
+        {
+            return new AttiFirmeDto
+            {
+                UID_persona = firma.UID_persona,
+                ufficio = firma.ufficio,
+                FirmaCert = firma.FirmaCert,
+                Data_firma = firma.Data_firma,
+                Data_ritirofirma = firma.Data_ritirofirma,
+                Timestamp = firma.Timestamp,
+                id_AreaPolitica = firma.id_AreaPolitica
+            };
+        }
     }
 }

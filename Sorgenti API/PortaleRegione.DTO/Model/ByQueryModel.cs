@@ -20,6 +20,15 @@ namespace PortaleRegione.DTO.Model
 {
     public class ByQueryModel
     {
+        public ByQueryModel()
+        {
+
+        }
+
+        public ByQueryModel(string query)
+        {
+            Query = query;
+        }
         public string Query { get; set; }
         public int page { get; set; } = 1;
     }

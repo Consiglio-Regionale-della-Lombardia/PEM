@@ -37,8 +37,11 @@ namespace PortaleRegione.BAL
 {
     public class StampeLogic : BaseLogic
     {
-        public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi)
+        private readonly Worker _worker;
+
+        public StampeLogic(IUnitOfWork unitOfWork, DASILogic logicDasi, Worker worker)
         {
+            _worker = worker;
             _unitOfWork = unitOfWork;
             _logicDasi = logicDasi;
         }
@@ -57,9 +60,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model, PersonaDto persona)
+        public async Task<StampaDto> InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model, PersonaDto persona)
         {
-            var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+            var stampa = model.entity;
 
             var queryFilter = new Filter<EM>();
             var firmatari = new List<Guid>();
@@ -137,15 +140,19 @@ namespace PortaleRegione.BAL
                 stampa.Scadenza =
                     DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
 
-            _unitOfWork.Stampe.Add(stampa);
+            var stampa_In_Db = stampa;
+            _unitOfWork.Stampe.Add(stampa_In_Db);
+
             await _unitOfWork.CompleteAsync();
+
+            return stampa;
         }
 
-        public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
+        public async Task<StampaDto> InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model, PersonaDto persona)
         {
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
             var mode = (ClientModeEnum)Convert.ToInt16(CLIENT_MODE);
-            var stampa = Mapper.Map<StampaDto, STAMPE>(model.entity);
+            var stampa = model.entity;
             var soggetti = new List<int>();
             var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
             if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
@@ -179,8 +186,12 @@ namespace PortaleRegione.BAL
             }
 
             stampa.DASI = true;
-            _unitOfWork.Stampe.Add(stampa);
+            var stampa_In_Db = stampa;
+            _unitOfWork.Stampe.Add(stampa_In_Db);
+
             await _unitOfWork.CompleteAsync();
+
+            return stampa;
         }
 
         public async Task LockStampa(IEnumerable<StampaDto> listaStampe)
@@ -340,6 +351,31 @@ namespace PortaleRegione.BAL
         {
             _unitOfWork.Stampe.Remove(stampa);
             await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<HttpResponseMessage> Print(string uidStampa)
+        {
+            var stampa = await _unitOfWork.Stampe.Get(new Guid(uidStampa));
+
+            var thread = new ThreadWorkerModel
+            {
+                PDF_LICENSE = AppSettingsConfiguration.PDF_LICENSE,
+                CartellaLavoroStampe = AppSettingsConfiguration.CartellaLavoroStampe,
+                CartellaLavoroTemporanea = AppSettingsConfiguration.CartellaTemp,
+                EmailFrom = AppSettingsConfiguration.EmailFrom,
+                NumMaxTentativi = "3",
+                PercorsoCompatibilitaDocumenti = AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                RootRepository = AppSettingsConfiguration.RootRepository,
+                UrlAPI = AppSettingsConfiguration.URL_API,
+                UrlCLIENT = AppSettingsConfiguration.urlPEM,
+                Username = AppSettingsConfiguration.Service_Username,
+                Password = AppSettingsConfiguration.Service_Password
+            };
+
+            var content = await _worker.ExecuteAsync(stampa.ToDto(), thread);
+            var res = ComposeFileResponse(content,
+                $"fascicolo_{DateTime.Now.Ticks}.pdf");
+            return res;
         }
     }
 }

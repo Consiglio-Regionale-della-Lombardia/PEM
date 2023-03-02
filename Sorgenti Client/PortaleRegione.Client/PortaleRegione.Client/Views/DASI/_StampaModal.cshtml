@@ -70,54 +70,39 @@
         e.preventDefault();
     }).validate({
         submitHandler: function(form) {
-            var obj = {};
+            var data = {};
+            data.da = $("#txtDa").val();
+            data.a = $("#txtA").val();
+            data.client_mode = @Html.Raw(mode);
 
-            obj.param = {
-                Da: $("#txtDa").val(),
-                A: $("#txtA").val(),
-                CLIENT_MODE: @Html.Raw(mode)
-            };
-
+            var filters = [];
             var ls = getListaAtti();
             if (ls.length > 0) {
-                obj.filtro = [];
-                var selezionaTutti = getSelezionaTutti();
                 for (var i = 0; i < ls.length; i++) {
-                    obj.filtro.push({
-                        PropertyId: "UIDATTO",
-                        Operation: selezionaTutti ? 5 : 1,
-                        Value: ls[i],
-                        Connector: @((int) FilterStatementConnector.Or)
-                    });
+                    filters.push(ls[i]);
                 }
             }
-            //submit via ajax
+
+            data.filters = filters;
+
+            waiting(true);
+            var url = baseUrl + "/stampe/nuova-dasi";
             $.ajax({
-                url: baseUrl + "/stampe/nuova-dasi",
+                url: url,
                 type: "POST",
-                data: JSON.stringify(obj),
+                data: JSON.stringify(data),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
-            }).done(function(data) {
-                if (data.message)
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                else {
-                    $("#modalStampa").modal("close");
-                    $("#btnConfermaStampa").off("click");
-                    waiting(false);
-                    M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
-                }
-
-                setListaAtti([]);
-                setSelezionaTutti(false);
+            }).done(function(stampa) {
+                waiting(false);
+                M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
             }).fail(function(err) {
                 console.log("error", err);
                 Error(err);
             });
+
+            setListaAtti([]);
+            setSelezionaTutti(false);
 
             return false; //This doesn't prevent the form from submitting.
         }

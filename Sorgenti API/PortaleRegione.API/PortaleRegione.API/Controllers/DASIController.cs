@@ -972,12 +972,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _stampeLogic.InserisciStampa(model, CurrentUser);
-                return Ok();
+                var result = await _stampeLogic.InserisciStampa(model, CurrentUser);
+                return Ok(result);
             }
             catch (Exception e)
             {
-                //Log.Error("InserisciStampaDifferita DASI", e);
+                //Log.Error("Download", e);
                 return ErrorHandler(e);
             }
         }

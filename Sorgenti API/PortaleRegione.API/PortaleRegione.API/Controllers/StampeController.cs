@@ -243,6 +243,27 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per eseguire la stampa
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Stampe.Print)]
+        public async Task<IHttpActionResult> Stampa(string uid)
+        {
+            try
+            {
+                var response = ResponseMessage(await _stampeLogic.Print(uid));
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                //Log.Error("Get info Stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Costruttore
         /// </summary>
         /// <param name="unitOfWork"></param>

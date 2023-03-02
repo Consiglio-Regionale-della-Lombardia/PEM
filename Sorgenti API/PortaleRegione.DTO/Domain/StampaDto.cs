@@ -72,5 +72,6 @@ namespace PortaleRegione.DTO.Domain
 
         public PersonaLightDto Richiedente { get; set; }
         public string Info { get; set; }
+        public int CurrentRole { get; set; }
     }
 }

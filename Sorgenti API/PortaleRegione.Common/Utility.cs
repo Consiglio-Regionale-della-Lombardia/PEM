@@ -758,5 +758,14 @@ namespace PortaleRegione.Common
 
             return text;
         }
+
+        public static List<List<T>> Split<T>(IList<T> source)
+        {
+            return source
+                .Select((x, i) => new { Index = i, Value = x })
+                .GroupBy(x => x.Index / 100)
+                .Select(x => x.Select(v => v.Value).ToList())
+                .ToList();
+        }
     }
 }

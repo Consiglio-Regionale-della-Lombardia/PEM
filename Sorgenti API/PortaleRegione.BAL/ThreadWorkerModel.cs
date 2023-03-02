@@ -16,22 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.Client.Helpers
+namespace PortaleRegione.BAL
 {
-    public class CacheHelper
+    public class ThreadWorkerModel
     {
-        public static string CLIENT_MODE => "ClientMode";
-        public static string ORDINAMENTO_PEM => "OrdinamentoPEM";
-        public static string VIEW_MODE_PEM => "ViewModePEM";
-        public static string PAGE_PEM => "PagePEM";
-        public static string SIZE_PEM => "SizePEM";
-
-        public static string STATO_DASI => "StatoDASI";
-        public static string TIPO_DASI => "TipoDASI";
-        public static string PAGE_DASI => "PageDASI";
-        public static string SIZE_DASI => "SizeDASI";
-        public static string VIEW_MODE_DASI => "ViewModeDASI";
-
-        public static string GRUPPI_ATTIVI => "GruppiAttivi";
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string UrlAPI { get; set; }
+        public string UrlCLIENT { get; set; }
+        public string NumMaxTentativi { get; set; }
+        public string CartellaLavoroTemporanea { get; set; }
+        public string CartellaLavoroStampe { get; set; }
+        public string PercorsoCompatibilitaDocumenti { get; set; }
+        public string RootRepository { get; set; }
+        public string EmailFrom { get; set; }
+        public string PDF_LICENSE { get; set; }
     }
 }

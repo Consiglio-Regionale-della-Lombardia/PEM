@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionBuilder", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Gateway", "..\..\..\Sorgenti Client\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj", "{34C5C26E-50BD-49F3-8500-62A8C209273B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.JobStampeTest", "PortaleRegione.JobStampeTest\PortaleRegione.JobStampeTest.csproj", "{B8BF4620-C73E-4B03-AE8C-12C1EE0541A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortaleRegione.JobStampeTest", "PortaleRegione.JobStampeTest\PortaleRegione.JobStampeTest.csproj", "{B8BF4620-C73E-4B03-AE8C-12C1EE0541A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

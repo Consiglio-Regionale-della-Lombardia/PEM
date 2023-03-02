@@ -57,7 +57,7 @@ namespace PortaleRegione.Domain
 
         public static implicit operator AttiFirmeDto(ATTI_FIRME firma)
         {
-            return new AttiFirmeDto
+            var result = new AttiFirmeDto
             {
                 UIDAtto = firma.UIDAtto,
                 UID_persona = firma.UID_persona,
@@ -65,11 +65,14 @@ namespace PortaleRegione.Domain
                 PrimoFirmatario = firma.PrimoFirmatario,
                 id_gruppo = firma.id_gruppo,
                 ufficio = firma.ufficio,
-                Data_firma = Convert.ToDateTime(firma.Data_firma).ToString("dd/MM/yyyy"),
                 Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                     ? null
                     : firma.Data_ritirofirma
             };
+
+            result.Data_firma = firma.Timestamp.ToString("dd/MM/yyyy");
+
+            return result;
         }
     }
 }

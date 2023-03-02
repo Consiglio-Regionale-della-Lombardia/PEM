@@ -53,6 +53,7 @@ namespace PortaleRegione.BAL
         //Service JOBBER
         public static string Service_Username => ConfigurationManager.AppSettings["Service_Username"];
         public static string Service_Password => ConfigurationManager.AppSettings["Service_Password"];
+        public static string EmailFrom => ConfigurationManager.AppSettings["EmailFrom"];
 
         //STAMPE
         public static string Logo => ConfigurationManager.AppSettings["Logo"];

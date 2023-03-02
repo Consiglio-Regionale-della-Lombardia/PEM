@@ -380,7 +380,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
             var testo_deposito = string.Empty;
             if (emendamento.IDStato >= (int)StatiEnum.Depositato)
-                testo_deposito = $"Presentato il: {emendamento.DataDeposito}";
+                testo_deposito = $"Presentato il {emendamento.DataDeposito}";
             body = body.Replace("{DepositatoEMView}", testo_deposito);
 
             body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
@@ -432,36 +432,45 @@ namespace PortaleRegione.BAL
 
             #region Firme
 
-            if (emendamento.IDStato >= (int)StatiEnum.Depositato)
-            {
-                //DEPOSITATO
-                body = body.Replace("{lblDepositoEMView}",
-                    firmeDtos.Any(s => s.ufficio)
-                        ? "Emendamento Depositato d'ufficio"
-                        : $"Emendamento Depositato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
-
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito));
-                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
-
-                if (firmeAnte.Any())
-                    body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))
-                        .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
-                        .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
-                else
-                    body = body.Replace("{radGridFirmeView}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
-
-                var TemplatefirmePOST = @"<div>
+            var TemplatefirmeANTE = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme dopo il deposito</h5>
+                                      <h5>Firme</h5>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
                             </div>
                         </div>";
+            var TemplatefirmePOST = @"<div>
+                             <div style='width:100%;'>
+                                      <h5>Firme dopo la presentazione</h5>
+                              </div>
+                              <div style='text-align:left'>
+                                {firme}
+                            </div>
+                        </div>";
+
+            if (emendamento.IDStato >= (int)StatiEnum.Depositato)
+            {
+                //DEPOSITATO
+                body = body.Replace("{lblDepositoEMView}",
+                    firmeDtos.Any(s => s.ufficio)
+                        ? "Emendamento Presentato d'ufficio"
+                        : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
+
+                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
+                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
+
+                if (firmeAnte.Any())
+                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)))
+                        .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
+                        .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                else
+                    body = body.Replace("{radGridFirmePostView}", string.Empty)
+                        .Replace("{FIRMEANTE_COMMENTO_START}", "<!--").Replace("{FIRMEANTE_COMMENTO_END}", "-->");
+
                 if (firmePost.Any())
                     body = body.Replace("{radGridFirmePostView}",
-                            TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost)))
+                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)))
                         .Replace("{FIRME_COMMENTO_START}", string.Empty)
                         .Replace("{FIRME_COMMENTO_END}", string.Empty);
                 else
@@ -471,11 +480,12 @@ namespace PortaleRegione.BAL
             else
             {
                 //FIRMATO MA NON DEPOSITATO
-                var firmatari = GetFirmatariEM(firmeDtos);
+                body = body.Replace("{lblDepositoEMView}", string.Empty);
+                var firmeAnte = firmeDtos.Select(i => (AttiFirmeDto)i);
+                var firmatari = GetFirmatari(firmeAnte);
                 if (!string.IsNullOrEmpty(firmatari))
                 {
-                    body = body.Replace("{lblDepositoEMView}", string.Empty);
-                    body = body.Replace("{radGridFirmeView}", firmatari)
+                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", firmatari))
                         .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
                     body = body.Replace("{radGridFirmePostView}", string.Empty)
@@ -484,7 +494,6 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    body = body.Replace("{lblDepositoEMView}", string.Empty);
                     body = body.Replace("{FIRMEANTE_COMMENTO_START}", "<!--")
                         .Replace("{FIRMEANTE_COMMENTO_END}", "-->");
                     body = body.Replace("{radGridFirmePostView}", string.Empty)

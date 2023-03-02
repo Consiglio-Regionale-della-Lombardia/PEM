@@ -325,6 +325,7 @@ namespace PortaleRegione.DTO.Routes
             public const string AddInfo = Base + "/info/add";
             public const string GetInfo = Base + "/{id}/info";
             public const string GetAllInfo = Base + "/all/info";
+            public const string Print = Base + "/print";
         }
 
         public static class Util
