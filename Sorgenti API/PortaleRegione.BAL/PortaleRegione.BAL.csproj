@@ -144,6 +144,7 @@
     <Compile Include="AuthLogic.cs" />
     <Compile Include="BALConstants.cs" />
     <Compile Include="BALHelper.cs" />
+    <Compile Include="BodyModel.cs" />
     <Compile Include="DASIHelper.cs" />
     <Compile Include="DASILogic.cs" />
     <Compile Include="EmendamentiLogic.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="SeduteLogic.cs" />
     <Compile Include="StampeLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ThreadWorkerModel.cs" />
     <Compile Include="UtilsLogic.cs" />
     <Compile Include="Web References\OpenData\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -174,6 +176,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
+    <Compile Include="Worker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sorgenti modulo di stampa asincrona\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe.csproj">

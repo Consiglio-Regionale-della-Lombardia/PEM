@@ -67,9 +67,7 @@ namespace PortaleRegione.Persistance
             if (lstGruppi.Count == 2)
             {
                 if (!lstGruppi.Any(g => g.giunta))
-                {
                     throw new Exception("Contatta SUBITO l'amministratore del sistema PEM.");
-                }
             }
             else if (lstGruppi.Count > 1)
             {
@@ -91,6 +89,7 @@ namespace PortaleRegione.Persistance
                     g => g.id_gruppo,
                     (p, g) => g);
             var lstGruppi = await query
+                .Where(g => g.attivo)
                 .Select(g => new KeyValueDto
                 {
                     id = g.id_gruppo,
@@ -180,8 +179,8 @@ namespace PortaleRegione.Persistance
             var join_persona_gruppo = await PRContext
                 .join_persona_gruppi_politici
                 .Where(g => g.id_gruppo == id_gruppo
-                && !g.deleted
-                && !g.data_fine.HasValue)
+                            && !g.deleted
+                            && !g.data_fine.HasValue)
                 .Select(j => j.id_persona)
                 .ToListAsync();
             var consiglieri_in_carica = await PRContext
@@ -222,15 +221,9 @@ namespace PortaleRegione.Persistance
                 .UTENTI_NoCons
                 .SqlQuery($"Select * from UTENTI_NoCons where id_gruppo_politico_rif={id}");
 
-            if (notifica_firma)
-            {
-                return query.Where(u => u.notifica_firma).ToList();
-            }
+            if (notifica_firma) return query.Where(u => u.notifica_firma).ToList();
 
-            if (notifica_deposito)
-            {
-                return query.Where(u => u.notifica_deposito).ToList();
-            }
+            if (notifica_deposito) return query.Where(u => u.notifica_deposito).ToList();
 
             return await query.ToListAsync();
         }
@@ -242,10 +235,7 @@ namespace PortaleRegione.Persistance
                 .Where(g => lGruppi.Contains(g.GruppoAD))
                 .FirstOrDefaultAsync();
 
-            if (join_gruppo == null)
-            {
-                return null;
-            }
+            if (join_gruppo == null) return null;
 
             var gruppo = await PRContext
                 .View_gruppi_politici_con_giunta
@@ -289,10 +279,7 @@ namespace PortaleRegione.Persistance
             var gruppo = await PRContext
                 .JOIN_GRUPPO_AD
                 .FirstAsync(g => g.id_gruppo == idGruppo);
-            if (gruppo.id_AreaPolitica.HasValue)
-            {
-                return gruppo.id_AreaPolitica.Value;
-            }
+            if (gruppo.id_AreaPolitica.HasValue) return gruppo.id_AreaPolitica.Value;
 
             return (int)AreaPoliticaIntEnum.Misto;
         }
@@ -308,16 +295,11 @@ namespace PortaleRegione.Persistance
                 role == RuoliIntEnum.Amministratore_Giunta ||
                 role == RuoliIntEnum.Responsabile_Segreteria_Giunta ||
                 role == RuoliIntEnum.Segreteria_Giunta_Regionale)
-            {
                 query = query.Where(g => g.GiuntaRegionale);
-            }
 
             var join_gruppo = await query.FirstOrDefaultAsync();
 
-            if (join_gruppo == null)
-            {
-                return null;
-            }
+            if (join_gruppo == null) return null;
 
             var gruppo = await PRContext
                 .View_gruppi_politici_con_giunta
@@ -341,10 +323,7 @@ namespace PortaleRegione.Persistance
                 .JOIN_GRUPPO_AD
                 .Where(j => j.id_legislatura == id_legislatura);
 
-            if (soloRuoliGiunta)
-            {
-                query = query.Where(j => j.GiuntaRegionale);
-            }
+            if (soloRuoliGiunta) query = query.Where(j => j.GiuntaRegionale);
 
             return await query.ToListAsync();
         }

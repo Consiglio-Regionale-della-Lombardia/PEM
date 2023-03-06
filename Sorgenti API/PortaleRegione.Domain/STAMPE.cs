@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.DTO.Domain;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -78,5 +79,67 @@ namespace PortaleRegione.Domain
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual UTENTI_NoCons UTENTI_NoCons { get; set; }
+
+        public static implicit operator STAMPE(StampaDto stampaDto)
+        {
+            var result = new STAMPE
+            {
+                UIDAtto = stampaDto.UIDAtto,
+                Query = stampaDto.Query,
+                UIDEM = stampaDto.UIDEM,
+                CurrentRole = stampaDto.CurrentRole,
+                DASI = stampaDto.DASI,
+                Da = stampaDto.Da,
+                A = stampaDto.A,
+                DataFineEsecuzione = stampaDto.DataFineEsecuzione,
+                DataInizioEsecuzione = stampaDto.DataInizioEsecuzione,
+                DataInvio = stampaDto.DataInvio,
+                DataLock = stampaDto.DataLock,
+                DataRichiesta = stampaDto.DataRichiesta,
+                Invio = stampaDto.Invio,
+                Lock = stampaDto.Lock,
+                MessaggioErrore = stampaDto.MessaggioErrore,
+                Notifica = stampaDto.Notifica,
+                Ordine = stampaDto.Ordine,
+                PathFile = stampaDto.PathFile,
+                Scadenza = stampaDto.Scadenza,
+                Tentativi = stampaDto.Tentativi,
+                UIDStampa = stampaDto.UIDStampa,
+                UIDUtenteRichiesta = stampaDto.UIDUtenteRichiesta
+            };
+
+            return result;
+        }
+
+        public StampaDto ToDto()
+        {
+            var result = new StampaDto
+            {
+                UIDAtto = UIDAtto,
+                Query = Query,
+                UIDEM = UIDEM,
+                CurrentRole = CurrentRole.Value,
+                DASI = DASI,
+                Da = Da,
+                A = A,
+                DataFineEsecuzione = DataFineEsecuzione,
+                DataInizioEsecuzione = DataInizioEsecuzione,
+                DataInvio = DataInvio,
+                DataLock = DataLock,
+                DataRichiesta = DataRichiesta,
+                Invio = Invio,
+                Lock = Lock,
+                MessaggioErrore = MessaggioErrore,
+                Notifica = Notifica,
+                Ordine = Ordine,
+                PathFile = PathFile,
+                Scadenza = Scadenza,
+                Tentativi = Tentativi,
+                UIDStampa = UIDStampa,
+                UIDUtenteRichiesta = UIDUtenteRichiesta
+            };
+
+            return result;
+        }
     }
 }

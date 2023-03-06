@@ -9,6 +9,7 @@
         public string NumMaxTentativi { get; set; }
         public string CartellaLavoroTemporanea { get; set; }
         public string CartellaLavoroStampe { get; set; }
+        public string PercorsoCompatibilitaDocumenti { get; set; }
         public string RootRepository { get; set; }
         public string EmailFrom { get; set; }
         public string PDF_LICENSE { get; set; }

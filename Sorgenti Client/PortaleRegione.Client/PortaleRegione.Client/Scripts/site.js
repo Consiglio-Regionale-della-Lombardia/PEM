@@ -31,6 +31,10 @@ function waiting(enable, message) {
     }
 }
 
+function update_waiting_message(message) {
+    $("#waiting_info_message").text(message);
+}
+
 var gruppi_theme = "";
 var trattazione_theme = "";
 

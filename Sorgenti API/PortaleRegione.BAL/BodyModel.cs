@@ -16,22 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.Client.Helpers
+using NPOI.HPSF;
+using PortaleRegione.DTO.Domain;
+
+namespace PortaleRegione.BAL
 {
-    public class CacheHelper
+    public class BodyModel
     {
-        public static string CLIENT_MODE => "ClientMode";
-        public static string ORDINAMENTO_PEM => "OrdinamentoPEM";
-        public static string VIEW_MODE_PEM => "ViewModePEM";
-        public static string PAGE_PEM => "PagePEM";
-        public static string SIZE_PEM => "SizePEM";
-
-        public static string STATO_DASI => "StatoDASI";
-        public static string TIPO_DASI => "TipoDASI";
-        public static string PAGE_DASI => "PageDASI";
-        public static string SIZE_DASI => "SizeDASI";
-        public static string VIEW_MODE_DASI => "ViewModeDASI";
-
-        public static string GRUPPI_ATTIVI => "GruppiAttivi";
+        public GUID UID { get; set; }
+        public string Path { get; set; }
+        public string Body { get; set; }
+        public EmendamentiDto EM { get; set; }
+        public AttoDASIDto Atto { get; set; }
+        public object Content { get; set; }
     }
 }

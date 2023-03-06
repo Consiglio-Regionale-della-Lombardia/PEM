@@ -138,7 +138,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<FileResponse> Download(string path)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.DownloadDoc.Replace("{path}", path)}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.DownloadDoc}?path={path}";
             var lst = await GetFile(requestUrl, _token);
             return lst;
         }

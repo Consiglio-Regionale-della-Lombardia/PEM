@@ -27,6 +27,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Security;
 
@@ -184,31 +185,15 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(jwt);
                 var gruppi = await apiGateway.Persone.GetGruppiAttivi();
-                string g1 = string.Empty, g2 = string.Empty, g3 = string.Empty;
-
-                SliceBy3(JsonConvert.SerializeObject(gruppi), ref g1, ref g2, ref g3);
-
-                var groupsTicket1 = new FormsAuthenticationTicket
-                (
-                    1, "gruppi1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, g1
+                HttpContext.Cache.Insert(
+                    CacheHelper.GRUPPI_ATTIVI,
+                    JsonConvert.SerializeObject(gruppi),
+                    null,
+                    Cache.NoAbsoluteExpiration,
+                    Cache.NoSlidingExpiration,
+                    CacheItemPriority.NotRemovable,
+                    (key, value, reason) => { Console.WriteLine("Cache removed"); }
                 );
-                var groupsTicket2 = new FormsAuthenticationTicket
-                (
-                    1, "gruppi2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, g2
-                );
-                var groupsTicket3 = new FormsAuthenticationTicket
-                (
-                    1, "gruppi3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, g3
-                );
-                var gTicket1 = FormsAuthentication.Encrypt(groupsTicket1);
-                var gCookie1 = new HttpCookie("GCookies1", gTicket1) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
-                Response.Cookies.Add(gCookie1);
-                var gTicket2 = FormsAuthentication.Encrypt(groupsTicket2);
-                var gCookie2 = new HttpCookie("GCookies2", gTicket2) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
-                Response.Cookies.Add(gCookie2);
-                var gTicket3 = FormsAuthentication.Encrypt(groupsTicket3);
-                var gCookie3 = new HttpCookie("GCookies3", gTicket3) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
-                Response.Cookies.Add(gCookie3);
             }
 
             #endregion

@@ -1,90 +1,62 @@
-﻿<style>
-    tr, td { border: unset !important }
-
-    .left-border {
-        border-left: 1px solid !important;
-        border-right: 1px solid !important;
-    }
-
-    .parte {
-        border: solid !important;
-        font-size: 13px;
-        margin: 10px;
-        padding: 10px;
-        text-align: center;
-        width: 40%;
-    }
-</style>
-
-<table style="width: 100%">
-    {NOTE_PUBBLICHE_COMMENTO_START}
-    <tr>
-        <td style="text-align: left">
-            <h5 style="font-size: 15px">
+﻿{NOTE_PUBBLICHE_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left-align">
+        <div>
+            <p style="padding-top: 10px">
+                <b>Nota ufficio dei lavori assembleari: </b>
                 {lblNotePubblicheEMView}
-            </h5>
-        </td>
-    </tr>
-    {NOTE_PUBBLICHE_COMMENTO_END}
-    <tr>
-        <td style="text-align: center">
-            <h3>
-                <b>{lblTitoloEMView}</b>
-            </h3>
-        </td>
-    </tr>
-    <tr>
-        <td style="text-align: center; width: 100%;">
-            <table style="vertical-align: top; width: 100%;">
-                <tr>
-                    <td style="vertical-align: top;">
-                        {ltEMView}
-                        <br/>
-                        <table>
-                            {FIRMEANTE_COMMENTO_START}
-                            <tr>
-                                <td style="text-align: left!important">
-                                    <h5>Firme</h5>
-                                    {radGridFirmeView}
-                                </td>
-                            </tr>
-                            {FIRMEANTE_COMMENTO_END}
-                            {FIRME_COMMENTO_START}
-                            <tr>
-                                <td style="text-align: left!important">
-                                    {radGridFirmePostView}
-                                </td>
-                            </tr>
-                            {FIRME_COMMENTO_END}
-                        </table>
-                        {FATTOPROPRIO_COMMENTO_START}
-                        <br/>
-                        <div style="padding: 2px">
-                            <div style="font-style: normal; text-align: left; width: 100%;">
-                                {lblFattoProprioDa}
-                            </div>
-                        </div>
-                        {FATTOPROPRIO_COMMENTO_END}
-                        {TESTOMOD_COMMENTO_START}
-                        <br/>
-                        <div style="margin: 2px; padding: 2px">
-                            <div style="padding: 10px; text-align: left">
-                                <br/>
-                                <b>DURANTE LA DISCUSSIONE IN AULA IL TESTO E' STATO COSI' MODIFICATO:</b>
-                                {ltTestoModificabile}
-                            </div>
-                        </div>
-                        {TESTOMOD_COMMENTO_END}
-                        {NOTEPRIV_COMMENTO_START}
-                        <div style="margin: 2px; padding: 2px">
-                            <div style="font-size: 15px; font-style: italic; padding: 10px; text-align: left;">
-                                {lblNotePrivateEMView}
-                            </div>
-                        </div>
-                        {NOTEPRIV_COMMENTO_END}
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+            </p>
+        </div>
+    </div>
+</div>
+{NOTE_PUBBLICHE_COMMENTO_END}
+
+<div class="row" style="margin: 0 !important">
+    <div class="col s12 center">
+        <h3>
+            <b>{lblTitoloEMView}</b>
+        </h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 center bodyEMClass">
+        {ltEMView}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col s12 left-align">
+        {FIRMEANTE_COMMENTO_START}
+        {radGridFirmeView}
+        {FIRMEANTE_COMMENTO_END}
+        {FIRME_COMMENTO_START}
+        {radGridFirmePostView}
+        {FIRME_COMMENTO_END}
+    </div>
+</div>
+{FATTOPROPRIO_COMMENTO_START}
+
+<div class="row">
+    <div class="col s12 left-align">
+        {lblFattoProprioDa}
+    </div>
+</div>
+{FATTOPROPRIO_COMMENTO_END}
+{TESTOMOD_COMMENTO_START}
+<div class="row">
+    <div class="col s12 left-align">
+        <h6>DURANTE LA DISCUSSIONE IN AULA IL TESTO E' STATO COSI' MODIFICATO:</h6>
+        {ltTestoModificabile}
+    </div>
+</div>
+{TESTOMOD_COMMENTO_END}
+{NOTEPRIV_COMMENTO_START}
+<div class="row">
+    <div class="col s12 red-text left-align">
+        <p>
+            <b>Nota riservata:</b>
+            {lblNotePrivateEMView}
+        </p>
+    </div>
+</div>
+{NOTEPRIV_COMMENTO_END}

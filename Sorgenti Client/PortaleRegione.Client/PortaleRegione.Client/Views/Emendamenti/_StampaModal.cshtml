@@ -1,5 +1,4 @@
-﻿@using ExpressionBuilder.Common
-@model Guid
+﻿@model Guid
 
 <div id="modalStampa" class="modal">
     <div class="modal-content">
@@ -74,56 +73,45 @@
         e.preventDefault();
     }).validate({
         submitHandler: function(form) {
-            var obj = {};
 
-            obj.param = {
-                UIDAtto: $("#hdUIdAtto").val(),
-                Da: $("#txtDa").val(),
-                A: $("#txtA").val(),
-                CLIENT_MODE: @Html.Raw(mode)
-            };
+            var data = {};
+            data.uid_atto = $("#hdUIdAtto").val();
+            data.da = $("#txtDa").val();
+            data.a = $("#txtA").val();
+            data.client_mode = @Html.Raw(mode);
+            data.ordine = $("#inputFilterOrdine").val();
 
             var lstEM = getListaEmendamenti();
-        if (lstEM.length > 0) {
-            obj.filtro = [];
-            var selezionaTutti = getSelezionaTutti();
-            for (var i = 0; i < lstEM.length; i++) {
-                obj.filtro.push({
-                    PropertyId: "UIDEM",
-                    Operation: selezionaTutti ? 5 : 1,
-                    Value: lstEM[i],
-                    Connector: i == lstEM.length - 1 ? @((int)FilterStatementConnector.And) : @((int)FilterStatementConnector.Or)
-                });
+            var filters = [];
+            if (lstEM.length > 0) {
+                for (var i = 0; i < lstEM.length; i++) {
+                    filters.push(lsEM[i]);
+                }
             }
-        }
 
-            //submit via ajax
+            data.filters = filters;
+
+            waiting(true);
+            var url = baseUrl + "/stampe/nuova";
             $.ajax({
-                url: baseUrl + "/stampe/nuova",
+                url: url,
                 type: "POST",
-                data: JSON.stringify(obj),
+                data: JSON.stringify(data),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
-            }).done(function(data) {
-                if (data.message)
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                else {
-                    $("#modalStampa").modal("close");
-                    $("#btnConfermaStampa").off("click");
-                    waiting(false);
-                    M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
-                }
-
-                setListaEmendamenti([]);
-                setSelezionaTutti(false);
+            }).done(function(stampa) {
+                
+                $("#modalStampa").modal("close");
+                $("#btnConfermaStampa").off("click");
+                waiting(false);
+                M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"@Url.Action("Index", "Stampe")\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
             }).fail(function(err) {
                 console.log("error", err);
                 Error(err);
             });
+
+            setListaEmendamenti([]);
+            setSelezionaTutti(false);
 
             return false; //This doesn't prevent the form from submitting.
         }

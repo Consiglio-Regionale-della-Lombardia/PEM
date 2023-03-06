@@ -85,6 +85,12 @@ namespace PortaleRegione.Persistance
             if (atto.IsChiuso)
                 return false;
 
+            // #669 - matcat - Le ITR in trattazione non sono più sottoscrivibili
+            if (atto.IDStato > (int)StatiAttoEnum.PRESENTATO && atto.Tipo == (int)TipoAttoEnum.ITR)
+            {
+                return false;
+            }
+
             if (atto.DataIscrizioneSeduta.HasValue && atto.Tipo != (int)TipoAttoEnum.ODG)
             {
                 return false;

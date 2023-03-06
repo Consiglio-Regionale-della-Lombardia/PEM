@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -25,6 +26,7 @@ using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -49,84 +51,129 @@ namespace PortaleRegione.Client.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [Route("print")]
+        public async Task<ActionResult> Stampa(string uid)
+        {
+            var apiGateway = new ApiGateway(Token);
+            var file = await apiGateway.Stampe.Stampa(uid);
+            return File(file.Content, "application/pdf",
+                file.FileName);
+        }
+
         [HttpPost]
         [Route("nuova")]
-        public async Task<ActionResult> NuovaStampa(BaseRequest<EmendamentiDto, StampaDto> model)
+        public async Task<ActionResult> NuovaStampa(StampaModel model)
         {
-            model.param.TryGetValue("UIDAtto", out var UIDAtto);
-            model.param.TryGetValue("Da", out var DA);
-            model.param.TryGetValue("A", out var A);
-            model.param.TryGetValue("CLIENT_MODE", out var client_mode);
-            model.param.TryGetValue("Ordine", out var ordine);
-            model.entity = new StampaDto
+            var request = new BaseRequest<EmendamentiDto, StampaDto>();
+
+            var modelFiltro = string.Empty;
+            if (model.filters != null)
             {
-                UIDAtto = new Guid(UIDAtto.ToString()),
-                Da = Convert.ToInt16(DA),
-                A = Convert.ToInt16(A),
-                Ordine = Convert.ToInt32(ordine),
-                CLIENT_MODE = Convert.ToInt32(client_mode)
-            };
+                modelFiltro = model.filters.FirstOrDefault();
+            }
 
-
-            if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel modelInCache)
-                try
-                {
-                    if (model.filtro == null)
-                        model.filtro = new List<FilterStatement<EmendamentiDto>>();
-                    model.page = 1;
-                    model.size = modelInCache.Data.Paging.Total;
-                    model.filtro.AddRange(modelInCache.Data.Filters);
-                    model.ordine = modelInCache.Ordinamento;
-                    model.param = new Dictionary<string, object>
+            if (string.IsNullOrEmpty(modelFiltro))
+            {
+                if (Session["RiepilogoEmendamenti"] is EmendamentiViewModel modelInCache)
+                    try
+                    {
+                        request.filtro = new List<FilterStatement<EmendamentiDto>>();
+                        request.page = 1;
+                        request.size = modelInCache.Data.Paging.Total;
+                        request.filtro.AddRange(modelInCache.Data.Filters);
+                        request.ordine = modelInCache.Ordinamento;
+                        request.param = new Dictionary<string, object>
                         {
                             {
                                 "CLIENT_MODE", (int) modelInCache.Mode
                             }
                         };
-                }
-                catch (Exception)
+                    }
+                    catch (Exception)
+                    {
+                    }
+            }
+            else
+            {
+                request.param = new Dictionary<string, object>
                 {
-                }
+                    { "UIDAtto", model.uid_atto },
+                    { "Da", model.da },
+                    { "A", model.a },
+                    { "CLIENT_MODE", model.client_mode },
+                    { "Ordine", model.ordine }
+                };
+                var split_filters = modelFiltro.Split(',').Select(i => new FilterStatement<EmendamentiDto>
+                {
+                    PropertyId = nameof(EmendamentiDto.UIDEM),
+                    Operation = Operation.EqualTo,
+                    Value = i
+                }).ToList();
 
+                request.filtro = new List<FilterStatement<EmendamentiDto>>(split_filters);
+            }
 
+            request.entity = new StampaDto
+            {
+                UIDAtto = new Guid(model.uid_atto),
+                Da = Convert.ToInt32(model.da),
+                A = Convert.ToInt32(model.a),
+                Ordine = Convert.ToInt32(model.ordine),
+                CLIENT_MODE = Convert.ToInt32(model.client_mode)
+            };
             var apiGateway = new ApiGateway(Token);
-            await apiGateway.Stampe.InserisciStampa(model);
-            return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
+            return Json(await apiGateway.Stampe.InserisciStampa(request), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         [Route("nuova-dasi")]
-        public async Task<ActionResult> NuovaStampaDasi(BaseRequest<AttoDASIDto, StampaDto> model)
+        public async Task<ActionResult> NuovaStampaDasi(StampaModel model)
         {
-            model.param.TryGetValue("Da", out var da);
-            model.param.TryGetValue("A", out var a);
-
-            model.entity = new StampaDto
+            var request = new BaseRequest<AttoDASIDto, StampaDto>();
+            var modelFiltro = model.filters.FirstOrDefault();
+            if (string.IsNullOrEmpty(modelFiltro))
             {
-                Da = Convert.ToInt16(da),
-                A = Convert.ToInt16(a)
-            };
-
-            if (model.filtro == null)
-            {
-                model.filtro = new List<FilterStatement<AttoDASIDto>>();
+                request.filtro = new List<FilterStatement<AttoDASIDto>>();
                 if (Session["RiepilogoDASI"] is RiepilogoDASIModel modelInCache)
                     try
                     {
-                        model.page = 1;
-                        model.size = modelInCache.Data.Paging.Total;
-                        model.filtro.AddRange(modelInCache.Data.Filters);
-                        model.param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } };
+                        request.page = 1;
+                        request.size = modelInCache.Data.Paging.Total;
+                        request.filtro.AddRange(modelInCache.Data.Filters);
+                        request.param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } };
                     }
                     catch (Exception)
                     {
                         // ignored
                     }
             }
+            else
+            {
+                request.param = new Dictionary<string, object>
+                {
+                    { "Da", model.da },
+                    { "A", model.a },
+                    { "CLIENT_MODE", model.client_mode }
+                };
+                var split_filters = modelFiltro.Split(',').Select(i => new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.UIDAtto),
+                    Operation = Operation.EqualTo,
+                    Value = i
+                }).ToList();
 
+                request.filtro = new List<FilterStatement<AttoDASIDto>>(split_filters);
+            }
+
+            request.entity = new StampaDto
+            {
+                Da = Convert.ToInt32(model.da),
+                A = Convert.ToInt32(model.a),
+                CLIENT_MODE = Convert.ToInt32(model.client_mode)
+            };
             var apiGateway = new ApiGateway(Token);
-            await apiGateway.Stampe.InserisciStampa(model);
-            return Json(Url.Action("Index", "Stampe"), JsonRequestBehavior.AllowGet);
+            return Json(await apiGateway.Stampe.InserisciStampa(request), JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -177,5 +224,32 @@ namespace PortaleRegione.Client.Controllers
                 return Json(e.Message, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpGet]
+        [Route("info")]
+        public async Task<ActionResult> InfoStampa(string uid)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var result = await apiGateway.Stampe.GetInfo(new Guid(uid));
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+    }
+
+    public class StampaModel
+    {
+        public string da { get; set; }
+        public string a { get; set; }
+        public string client_mode { get; set; }
+        public List<string> filters { get; set; }
+        public string uid_atto { get; set; }
+        public string ordine { get; set; }
     }
 }

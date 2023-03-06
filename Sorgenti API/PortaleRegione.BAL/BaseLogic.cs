@@ -24,6 +24,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Routes;
 using QRCoder;
 using System;
 using System.Collections.Generic;
@@ -41,17 +42,16 @@ namespace PortaleRegione.BAL
 {
     public class BaseLogic
     {
-        internal IUnitOfWork _unitOfWork;
-        internal EmendamentiLogic _logicEm;
+        private readonly MemoryCache memoryCache = MemoryCache.Default;
         internal AttiLogic _logicAtti;
         internal AttiFirmeLogic _logicAttiFirme;
+        internal DASILogic _logicDasi;
+        internal EmendamentiLogic _logicEm;
         internal FirmeLogic _logicFirme;
         internal PersoneLogic _logicPersona;
         internal SeduteLogic _logicSedute;
         internal UtilsLogic _logicUtil;
-        internal DASILogic _logicDasi;
-
-        private readonly MemoryCache memoryCache = MemoryCache.Default;
+        internal IUnitOfWork _unitOfWork;
 
         internal List<PersonaLightDto> Users
         {
@@ -62,7 +62,7 @@ namespace PortaleRegione.BAL
 
                 return new List<PersonaLightDto>();
             }
-            set { memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1)); }
+            set => memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1));
         }
 
 
@@ -311,7 +311,7 @@ namespace PortaleRegione.BAL
             //Allegato Tecnico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
                 allegato_tecnico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
+                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
 
             #endregion
 
@@ -320,7 +320,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/emendamenti/file?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
 
             #endregion
 
@@ -347,18 +347,9 @@ namespace PortaleRegione.BAL
             var premesse = atto.Premesse;
             var richieste = atto.Richiesta;
 
-            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato) && privacy)
-            {
-                oggetto = atto.Oggetto_Modificato;
-            }
-            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy)
-            {
-                premesse = atto.Premesse_Modificato;
-            }
-            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy)
-            {
-                richieste = atto.Richiesta_Modificata;
-            }
+            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato) && privacy) oggetto = atto.Oggetto_Modificato;
+            if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy) premesse = atto.Premesse_Modificato;
+            if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy) richieste = atto.Richiesta_Modificata;
 
             body = body.Replace("{lblSubTitoloATTOView}", oggetto);
             body = body.Replace("{lblPremesseATTOView}", premesse);
@@ -371,7 +362,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(atto.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/dasi/file?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO</a></td></tr>";
 
             #endregion
 
@@ -387,13 +378,15 @@ namespace PortaleRegione.BAL
 
             body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
             body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
-            var testo_deposito = $"Creato il: {emendamento.DataCreazione.Value:dd/MM/yyyy HH:mm}";
+            var testo_deposito = string.Empty;
             if (emendamento.IDStato >= (int)StatiEnum.Depositato)
-            {
-                testo_deposito = $"Depositato il: {emendamento.DataDeposito}";
-            }
-
+                testo_deposito = $"Presentato il {emendamento.DataDeposito}";
             body = body.Replace("{DepositatoEMView}", testo_deposito);
+
+            body = body.Replace("{STATO}", emendamento.STATI_EM.Stato.ToUpper());
+            body = body.Replace("{GRUPPO_POLITICO}", emendamento.gruppi_politici.nome_gruppo);
+            body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
+            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
 
             if (string.IsNullOrEmpty(emendamento.EM_Certificato))
             {
@@ -439,36 +432,45 @@ namespace PortaleRegione.BAL
 
             #region Firme
 
-            if (emendamento.IDStato >= (int)StatiEnum.Depositato)
-            {
-                //DEPOSITATO
-                body = body.Replace("{lblDepositoEMView}",
-                    firmeDtos.Any(s => s.ufficio)
-                        ? "Emendamento Depositato d'ufficio"
-                        : $"Emendamento Depositato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
-
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito));
-                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));
-
-                if (firmeAnte.Any())
-                    body = body.Replace("{radGridFirmeView}", GetFirmatariEM(firmeAnte))
-                        .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
-                        .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
-                else
-                    body = body.Replace("{radGridFirmeView}", string.Empty)
-                        .Replace("{FIRME_COMMENTO_START}", "<!--").Replace("{FIRME_COMMENTO_END}", "-->");
-
-                var TemplatefirmePOST = @"<div>
+            var TemplatefirmeANTE = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme dopo il deposito</h5>
+                                      <h5>Firme</h5>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
                             </div>
                         </div>";
+            var TemplatefirmePOST = @"<div>
+                             <div style='width:100%;'>
+                                      <h5>Firme dopo la presentazione</h5>
+                              </div>
+                              <div style='text-align:left'>
+                                {firme}
+                            </div>
+                        </div>";
+
+            if (emendamento.IDStato >= (int)StatiEnum.Depositato)
+            {
+                //DEPOSITATO
+                body = body.Replace("{lblDepositoEMView}",
+                    firmeDtos.Any(s => s.ufficio)
+                        ? "Emendamento Presentato d'ufficio"
+                        : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
+
+                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
+                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
+
+                if (firmeAnte.Any())
+                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)))
+                        .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
+                        .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
+                else
+                    body = body.Replace("{radGridFirmePostView}", string.Empty)
+                        .Replace("{FIRMEANTE_COMMENTO_START}", "<!--").Replace("{FIRMEANTE_COMMENTO_END}", "-->");
+
                 if (firmePost.Any())
                     body = body.Replace("{radGridFirmePostView}",
-                            TemplatefirmePOST.Replace("{firme}", GetFirmatariEM(firmePost)))
+                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)))
                         .Replace("{FIRME_COMMENTO_START}", string.Empty)
                         .Replace("{FIRME_COMMENTO_END}", string.Empty);
                 else
@@ -478,11 +480,12 @@ namespace PortaleRegione.BAL
             else
             {
                 //FIRMATO MA NON DEPOSITATO
-                var firmatari = GetFirmatariEM(firmeDtos);
+                body = body.Replace("{lblDepositoEMView}", string.Empty);
+                var firmeAnte = firmeDtos.Select(i => (AttiFirmeDto)i);
+                var firmatari = GetFirmatari(firmeAnte);
                 if (!string.IsNullOrEmpty(firmatari))
                 {
-                    body = body.Replace("{lblDepositoEMView}", string.Empty);
-                    body = body.Replace("{radGridFirmeView}", firmatari)
+                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", firmatari))
                         .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
                     body = body.Replace("{radGridFirmePostView}", string.Empty)
@@ -491,7 +494,6 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    body = body.Replace("{lblDepositoEMView}", string.Empty);
                     body = body.Replace("{FIRMEANTE_COMMENTO_START}", "<!--")
                         .Replace("{FIRMEANTE_COMMENTO_END}", "-->");
                     body = body.Replace("{radGridFirmePostView}", string.Empty)
@@ -534,20 +536,24 @@ namespace PortaleRegione.BAL
             var textQr = string.Empty;
             if (enableQrCode)
             {
-                var nameFileQrCode = $"QR_{emendamento.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.png"; //QRCODE
-                var qrFilePathComplete =
-                    Path.Combine(AppSettingsConfiguration.CartellaTemp, nameFileQrCode); //QRCODE
-                var qrLink = $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}";
+                var qr_contentString = "data:image/png;base64,{{DATA}}";
+                var qrLink =
+                    $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
                 var qrGenerator = new QRCodeGenerator();
                 var urlPayload = new PayloadGenerator.Url(qrLink);
                 var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
                 var qrCode = new QRCode(qrData);
                 using (var qrCodeImage = qrCode.GetGraphic(20))
                 {
-                    qrCodeImage.Save(qrFilePathComplete);
+                    var ms = new MemoryStream();
+                    qrCodeImage.Save(ms, ImageFormat.Png);
+                    var byteImage = ms.ToArray();
+                    qr_contentString =
+                        qr_contentString.Replace("{{DATA}}", Convert.ToBase64String(byteImage));
                 }
 
-                textQr = $"<img src=\"{qrFilePathComplete}\" style=\"height:100px; width:100px; border=0;\" />";
+                textQr =
+                    $"<img src=\"{qr_contentString}\" style=\"height:100px; width:100px; border=0;\" /><br><label>Collegamento alla piattaforma</label>";
             }
 
             body = body.Replace("{QRCode}", textQr);
@@ -561,13 +567,9 @@ namespace PortaleRegione.BAL
         {
             var firmeDtos = firme.ToList();
             var title = $"{tipoAtto} {atto.NAtto}";
-            if (atto.Non_Passaggio_In_Esame)
-            {
-                title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
-            }
+            if (atto.Non_Passaggio_In_Esame) title += "<br><h6>ODG DI NON PASSAGGIO ALL’ESAME</h6>";
 
             body = body.Replace("{lblTitoloATTOView}", title);
-            body = body.Replace("{STATO}", Utility.GetText_StatoDASI(atto.IDStato).ToUpper());
             body = body.Replace("{GRUPPO_POLITICO}", atto.gruppi_politici.nome_gruppo);
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
             body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
@@ -704,10 +706,28 @@ namespace PortaleRegione.BAL
 
                 var firmeDtos = firme.ToList();
                 if (!firmeDtos.Any()) return string.Empty;
-                var result = firmeDtos.Select(item => string.IsNullOrEmpty(item.Data_ritirofirma)
-                        ? $"<h6>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy}</h6><br/>"
-                        : $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{item.FirmaCert}, {Convert.ToDateTime(item.Data_firma):dd/MM/yyyy} ({item.Data_ritirofirma})</h6></div><br/>")
-                    .ToList();
+
+                var result = new List<string>();
+                foreach (var attiFirmeDto in firmeDtos)
+                {
+                    var body = attiFirmeDto.FirmaCert;
+                    if (string.IsNullOrEmpty(attiFirmeDto.Data_ritirofirma))
+                    {
+                        if (!attiFirmeDto.ufficio)
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+
+                        body = $"<h6>{body}</h6><br/>";
+                    }
+                    else
+                    {
+                        if (!attiFirmeDto.ufficio)
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+                        body =
+                            $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{body} ({attiFirmeDto.Data_ritirofirma})</h6></div><br/>";
+                    }
+
+                    result.Add(body);
+                }
 
                 return result.Aggregate((i, j) => i + j);
             }
@@ -754,7 +774,7 @@ namespace PortaleRegione.BAL
                     body = body.Replace("{lblDepositoEMView}",
                         firmeDtos.Any(s => s.ufficio)
                             ? "Emendamento Depositato d'ufficio"
-                            : $"Emendamento Depositato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
+                            : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
 
                     var firmeAnte = firmeDtos.Where(f => f.Timestamp < Convert.ToDateTime(emendamento.DataDeposito));
                     var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito));

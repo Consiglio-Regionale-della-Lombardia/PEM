@@ -36,24 +36,6 @@
                 ruoli = data.Ruoli;
                 gruppo = data.Gruppo;
                 carica = data.IsGiunta ? data.Carica : string.Empty;
-                if (HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
-                {
-                    var gCookie1 = Request.Cookies["GCookies1"];
-                    var gCookie2 = Request.Cookies["GCookies2"];
-                    var gCookie3 = Request.Cookies["GCookies3"];
-
-                    if (!string.IsNullOrEmpty(gCookie1.Value) && !string.IsNullOrEmpty(gCookie2.Value) && !string.IsNullOrEmpty(gCookie3.Value))
-                    {
-                        var gTicket1 = FormsAuthentication.Decrypt(gCookie1.Value);
-                        var gTicket2 = FormsAuthentication.Decrypt(gCookie2.Value);
-                        var gTicket3 = FormsAuthentication.Decrypt(gCookie3.Value);
-                        var gData = JsonConvert.DeserializeObject<IEnumerable<KeyValueDto>>($"{gTicket1.UserData}{gTicket2.UserData}{gTicket3.UserData}");
-                        if (gData != null)
-                        {
-                            gruppiAdmin = gData;
-                        }
-                    }
-                }
             }
         }
     }
@@ -157,21 +139,27 @@
                             }
                             var triggerClassGruppi = "";
                             var iconClassSwapGruppi = "";
-                            if (gruppiAdmin.Any())
+                            var gruppiCache = HttpContext.Current.Cache.Get(CacheHelper.GRUPPI_ATTIVI)?.ToString();
+                            if (gruppiCache != null)
                             {
-                                triggerClassGruppi = "dropdown-trigger";
-                                iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
-                                <ul id='ddlCambioGruppo' class='dropdown-content'>
-                                    @foreach (var gruppiDto in gruppiAdmin)
-                                    {
-                                        <li>
-                                            <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
-                                               href="@Url.Action("CambioGruppo", "Autenticazione", new { gruppo = gruppiDto.id, returnUrl = Request.Url })">
-                                                <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
-                                            </a>
-                                        </li>
-                                    }
-                                </ul>
+                                var gruppiJson = JsonConvert.DeserializeObject<List<KeyValueDto>>(gruppiCache);
+
+                                if (gruppiJson.Any())
+                                {
+                                    triggerClassGruppi = "dropdown-trigger";
+                                    iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
+                                    <ul id='ddlCambioGruppo' class='dropdown-content'>
+                                        @foreach (var gruppiDto in gruppiJson)
+                                        {
+                                            <li>
+                                                <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
+                                                   href="@Url.Action("CambioGruppo", "Autenticazione", new { gruppo = gruppiDto.id, returnUrl = Request.Url })">
+                                                    <label class="active">(@gruppiDto.sigla)</label> @gruppiDto.descr
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
                             }
 
                             if (currentRole != RuoliIntEnum.Segreteria_Assemblea)

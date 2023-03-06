@@ -37,18 +37,24 @@ namespace PortaleRegione.Gateway
             _token = token;
         }
 
-        public async Task InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model)
+        public async Task<FileResponse> Stampa(string uid)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Stampe.Print}?uid={uid}";
+            return await GetFile(requestUrl, _token);
+        }
+
+        public async Task<StampaDto> InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.InserisciStampaDifferita}";
             var body = JsonConvert.SerializeObject(model);
-            await Post(requestUrl, body, _token);
+            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
         }
 
-        public async Task InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model)
+        public async Task<StampaDto> InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InserisciStampaDifferita}";
             var body = JsonConvert.SerializeObject(model);
-            await Post(requestUrl, body, _token);
+            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
         }
 
         public async Task EliminaStampa(Guid id)

@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Scheduler.BusinessLogic;
+using Scheduler.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using Ionic.Zip;
 using Quartz;
-using Scheduler.BusinessLogic;
-using Scheduler.Models;
 
 namespace Scheduler.Forms
 {
@@ -82,15 +82,15 @@ namespace Scheduler.Forms
                     //verifica che nello zip ci sia una cartella plugin
                     //verifica che ci sia un solo file fuori dalla cartella plugin
                     var trovatoEntryPoint = 0;
-                    using (var zip = ZipFile.Read(txtPath.Text))
+                    using (var zip = ZipFile.OpenRead(txtPath.Text))
                     {
-                        foreach (var z in zip)
-                            if (z.FileName.ToUpper().Contains("JOB"))
+                        foreach (var z in zip.Entries)
+                            if (z.Name.ToUpper().Contains("JOB"))
                             {
-                                if (!Path.GetExtension(z.FileName).Contains("dll"))
+                                if (!Path.GetExtension(z.Name).Contains("dll"))
                                     continue;
                                 trovatoEntryPoint++;
-                                txtEntryPoint.Text = z.FileName;
+                                txtEntryPoint.Text = z.Name;
                             }
                     }
 

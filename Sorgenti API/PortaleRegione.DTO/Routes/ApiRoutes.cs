@@ -85,7 +85,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string Create = Base + "/create";
                 public const string Edit = Base + "/edit";
                 public const string ModificaFascicoli = Base + "/modifica-fascicoli";
-                public const string DownloadDoc = Base + "/scarica-documento/{path}";
+                public const string DownloadDoc = Base + "/scarica-documento";
                 public const string GrigliaTesti = Base + "/{id}/griglia-testi/{view}";
                 public const string GrigliaOrdinamento = Base + "/{id}/griglia-ordinamento";
                 public const string AggiornaRelatori = Base + "/aggiorna-relatori";
@@ -143,7 +143,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
-                public const string DownloadDoc = Base + "/scarica-documento/{path}";
+                public const string DownloadDoc = Base + "/scarica-documento";
 
                 public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
                 public const string GetInvitati = Base + "/{id}/invitati";
@@ -215,7 +215,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetFirmatari = Base + "/{id}/firme/{tipo}";
             public const string GetBody = Base + "/get-corpo";
             public const string GetBodyCopertina = Base + "/get-copertina";
-            public const string DownloadDoc = Base + "/scarica-documento/{path}";
+            public const string DownloadDoc = Base + "/scarica-documento";
 
             public const string GetInvitati = Base + "/{id}/invitati";
             public const string GetStati = Base + "/stati";
@@ -325,6 +325,7 @@ namespace PortaleRegione.DTO.Routes
             public const string AddInfo = Base + "/info/add";
             public const string GetInfo = Base + "/{id}/info";
             public const string GetAllInfo = Base + "/all/info";
+            public const string Print = Base + "/print";
         }
 
         public static class Util

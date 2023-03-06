@@ -415,142 +415,161 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
         {
-            var attoInDb = await _unitOfWork.DASI.Get(attoUid);
-
-            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
-
-            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
-            dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
-
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
-                dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
-                dto.DataPresentazione_MOZ_URGENTE = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
-                dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
-            if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
-                dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
-
-            if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
-                dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
-
-            if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
-                                    persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
-                dto.Firmato_Da_Me = await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, persona.UID_persona);
-
-            dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
-            dto.Firmato_Dal_Proponente =
-                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
-
-            dto.PersonaCreazione = Users.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
-            dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
-                ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente)
-                : dto.PersonaCreazione;
-
-            if (dto.UIDPersonaModifica.HasValue)
-                dto.PersonaModifica =
-                    Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
-
-            dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
-
-            if (dto.ConteggioFirme > 1)
+            try
             {
-                var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                dto.Firme = firme
-                    .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                    .Select(f => f.FirmaCert)
-                    .Aggregate((i, j) => i + "<br>" + j);
-            }
+                var attoInDb = await _unitOfWork.DASI.Get(attoUid);
 
-            dto.gruppi_politici =
-                Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                    await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+                var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
-            if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
-                dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
+                dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+                dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
 
-            if (persona != null)
-            {
-                if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                    dto.Presentabile = _unitOfWork
-                        .DASI
-                        .CheckIfPresentabile(dto,
-                            persona);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                    dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
+                    dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
+                    dto.DataPresentazione_MOZ_URGENTE = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
+                if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
+                    dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
+                if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
+                    dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
 
-                dto.Firmabile = await _unitOfWork
-                    .Atti_Firme
-                    .CheckIfFirmabile(dto,
-                        persona);
+                if (!string.IsNullOrEmpty(attoInDb.Atto_Certificato))
+                    dto.Atto_Certificato = BALHelper.Decrypt(attoInDb.Atto_Certificato, attoInDb.Hash);
 
-                if (!dto.DataRitiro.HasValue)
-                    dto.Ritirabile = _unitOfWork
-                        .DASI
-                        .CheckIfRitirabile(dto,
-                            persona);
+                if (persona != null && (persona.CurrentRole == RuoliIntEnum.Consigliere_Regionale ||
+                                        persona.CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta))
+                    dto.Firmato_Da_Me = await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, persona.UID_persona);
 
-                if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                    dto.Eliminabile = _unitOfWork
-                        .DASI
-                        .CheckIfEliminabile(dto,
-                            persona);
+                dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
+                dto.Firmato_Dal_Proponente =
+                    await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
 
-                dto.Modificabile = _unitOfWork
-                    .DASI
-                    .CheckIfModificabile(dto,
-                        persona);
+                dto.PersonaCreazione = Users.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
+                dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
+                    ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente)
+                    : dto.PersonaCreazione;
 
-                dto.Invito_Abilitato = _unitOfWork
-                    .Notifiche
-                    .CheckIfNotificabile(dto,
-                        persona);
-            }
+                if (dto.UIDPersonaModifica.HasValue)
+                    dto.PersonaModifica =
+                        Users.First(p => p.UID_persona == attoInDb.UIDPersonaModifica);
 
-            var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
-            dto.Commissioni = commissioni
-                .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
+                dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
 
-            if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
-            {
-                SEDUTE sedutaInDb = null;
-
-                if (!dto.UIDSeduta.HasValue)
-                    sedutaInDb =
-                        await _logicSedute.GetSeduta(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
-                else
-                    sedutaInDb = await _logicSedute.GetSeduta(dto.UIDSeduta.Value);
-
-                if (sedutaInDb != null)
+                if (dto.ConteggioFirme > 1)
                 {
-                    dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
-
-                    var presentato_oltre_termini = IsOutdate(dto);
-                    dto.PresentatoOltreITermini = presentato_oltre_termini;
+                    var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                    dto.Firme = firme
+                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
+                        .Select(f => f.FirmaCert)
+                        .Aggregate((i, j) => i + "<br>" + j);
                 }
-            }
 
-            if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA &&
-                attoInDb.UID_MOZ_Abbinata.HasValue)
+                dto.gruppi_politici =
+                    Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                        await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+                if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
+                    dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
+
+                if (persona != null)
+                {
+                    if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                        dto.Presentabile = _unitOfWork
+                            .DASI
+                            .CheckIfPresentabile(dto,
+                                persona);
+
+                    dto.Firmabile = await _unitOfWork
+                        .Atti_Firme
+                        .CheckIfFirmabile(dto,
+                            persona);
+
+                    if (!dto.DataRitiro.HasValue)
+                        dto.Ritirabile = _unitOfWork
+                            .DASI
+                            .CheckIfRitirabile(dto,
+                                persona);
+
+                    if (string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                        dto.Eliminabile = _unitOfWork
+                            .DASI
+                            .CheckIfEliminabile(dto,
+                                persona);
+
+                    dto.Modificabile = _unitOfWork
+                        .DASI
+                        .CheckIfModificabile(dto,
+                            persona);
+
+                    dto.Invito_Abilitato = _unitOfWork
+                        .Notifiche
+                        .CheckIfNotificabile(dto,
+                            persona);
+                }
+
+                var commissioni = await _unitOfWork.DASI.GetCommissioni(dto.UIDAtto);
+                dto.Commissioni = commissioni
+                    .Select(Mapper.Map<View_Commissioni_attive, CommissioneDto>).ToList();
+
+                if (attoInDb.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                    && attoInDb.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
+                {
+                    SEDUTE sedutaInDb = null;
+
+                    if (!dto.UIDSeduta.HasValue)
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
+                                sedutaInDb =
+                                    await _logicSedute.GetSeduta(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            throw;
+                        }
+                    }
+                    else
+                        sedutaInDb = await _logicSedute.GetSeduta(dto.UIDSeduta.Value);
+
+                    if (sedutaInDb != null)
+                    {
+                        dto.Seduta = Mapper.Map<SEDUTE, SeduteDto>(sedutaInDb);
+
+                        var presentato_oltre_termini = IsOutdate(dto);
+                        dto.PresentatoOltreITermini = presentato_oltre_termini;
+                    }
+                }
+
+                if (attoInDb.Tipo == (int)TipoAttoEnum.MOZ && attoInDb.TipoMOZ == (int)TipoMOZEnum.ABBINATA &&
+                    attoInDb.UID_MOZ_Abbinata.HasValue)
+                {
+                    var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
+                    dto.MOZ_Abbinata =
+                        $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo)}";
+                }
+
+                if (attoInDb.Tipo == (int)TipoAttoEnum.ODG && attoInDb.UID_Atto_ODG.HasValue)
+                {
+                    var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
+                    dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && persona != null &&
+                                       !persona.IsSegreteriaAssemblea
+                        ? $"{attoPem.Oggetto}"
+                        : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+                }
+
+                dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
+
+                return dto;
+            }
+            catch (Exception e)
             {
-                var attoAbbinato = await _unitOfWork.DASI.Get(attoInDb.UID_MOZ_Abbinata.Value);
-                dto.MOZ_Abbinata =
-                    $"{Utility.GetText_Tipo(attoAbbinato.Tipo)} {GetNome(attoAbbinato.NAtto, attoAbbinato.Progressivo)}";
+                Console.WriteLine(e);
+                throw;
             }
-
-            if (attoInDb.Tipo == (int)TipoAttoEnum.ODG && attoInDb.UID_Atto_ODG.HasValue)
-            {
-                var attoPem = await _unitOfWork.Atti.Get(attoInDb.UID_Atto_ODG.Value);
-                dto.ODG_Atto_PEM = attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO && persona != null &&
-                                   !persona.IsSegreteriaAssemblea
-                    ? $"{attoPem.Oggetto}"
-                    : $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
-            }
-
-            dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
-
-            return dto;
         }
 
         private async Task<string> GetDettagioMozioniAbbinate(Guid uidAtto)
@@ -781,7 +800,7 @@ namespace PortaleRegione.API.Controllers
                                     FirmaCert = firmaCert,
                                     Data_firma = dataFirma,
                                     Timestamp = timestampFirma,
-                                    ufficio = false
+                                    ufficio = firmaUfficio
                                 }
                             }, persona,
                             TemplateTypeEnum.FIRMA);
@@ -2261,6 +2280,35 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task<string> GetCopertina(List<AttoDASIDto> atti)
+        {
+            var legislatura = await _unitOfWork.Legislature.Get(atti.First().Legislatura);
+            var body = GetTemplate(TemplateTypeEnum.PDF_COPERTINA, true);
+            body =
+                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                body;
+            body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
+            body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
+            body = body.Replace("{urlLogo}", AppSettingsConfiguration.Logo);
+
+            var templateItemIndice = GetTemplate(TemplateTypeEnum.INDICE_DASI);
+            var bodyIndice = new StringBuilder();
+            foreach (var dasiDto in atti)
+                bodyIndice.Append(templateItemIndice
+                    .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
+                    .Replace("{NAtto}", dasiDto.NAtto)
+                    .Replace("{Oggetto}", dasiDto.Oggetto)
+                    .Replace("{Firmatari}",
+                        $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
+                    .Replace("{Stato}", Utility.GetText_StatoDASI(dasiDto.IDStato)));
+
+            body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
+
+            return body;
+        }
+
         public async Task<string> GetCopertina(ByQueryModel model)
         {
             var count = await CountByQuery(model);
@@ -2380,7 +2428,8 @@ namespace PortaleRegione.API.Controllers
             {
                 case TipoAttoEnum.IQT:
                     {
-                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
+                        if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
                         break;
                     }
                 case TipoAttoEnum.MOZ:
@@ -2389,20 +2438,23 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
-                                        atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
+                                            atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
-                                        atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
+                                            atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
-                                    if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
-                                        atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
+                                            atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
                                     break;
                                 }
                         }
@@ -2413,7 +2465,8 @@ namespace PortaleRegione.API.Controllers
                     {
                         if (atto.CapogruppoNeiTermini) break;
 
-                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
+                        if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
                         break;
                     }
             }
@@ -2479,10 +2532,19 @@ namespace PortaleRegione.API.Controllers
         internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
             var attoDto = await GetAttoDto(atto.UIDAtto);
+            List<string> listAttachments = new List<string>();
+            if (!string.IsNullOrEmpty(attoDto.PATH_AllegatoGenerico))
+            {
+                var complete_path = Path.Combine(
+                    AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                    Path.GetFileName(attoDto.PATH_AllegatoGenerico));
+                listAttachments.Add(complete_path);
+            }
+
             var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
             var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF, privacy);
             var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}");
+            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}", listAttachments);
         }
 
         public async Task InviaAlProtocollo(Guid id)

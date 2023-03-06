@@ -160,7 +160,8 @@
                             && Model.Atto.Tipo != (int)TipoAttoEnum.ITL
                             && Model.Atto.Tipo != (int)TipoAttoEnum.ITR
                             && Model.Atto.Tipo != (int)TipoAttoEnum.ODG
-                            && string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
+                            && string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta)
+                            && Model.Atto.UIDPersonaProponente.HasValue)
                         {
                             <div class="row">
                                 <div class="col s12 center">

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using PortaleRegione.Logger;
 
 namespace Scheduler
 {
@@ -14,7 +13,6 @@ namespace Scheduler
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Log.Initialize();
             Application.Run(new MainPage());
         }
     }

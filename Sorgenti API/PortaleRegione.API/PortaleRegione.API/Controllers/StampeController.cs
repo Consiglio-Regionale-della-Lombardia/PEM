@@ -80,48 +80,6 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per accodare una stampa
-        /// </summary>
-        /// <param name="model">Modello specifico per richiesta stampa</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route(ApiRoutes.PEM.InserisciStampaDifferita)]
-        public async Task<IHttpActionResult> InserisciStampaDifferita(BaseRequest<EmendamentiDto, StampaDto> model)
-        {
-            try
-            {
-                await _stampeLogic.InserisciStampa(model, CurrentUser);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("InserisciStampaDifferita", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
-        ///     Endpoint per accodare una stampa DASI
-        /// </summary>
-        /// <param name="model">Modello specifico per richiesta stampa</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route(ApiRoutes.DASI.InserisciStampaDifferita)]
-        public async Task<IHttpActionResult> InserisciStampaDifferitaDASI(BaseRequest<AttoDASIDto, StampaDto> model)
-        {
-            try
-            {
-                await _stampeLogic.InserisciStampa(model, CurrentUser);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                //Log.Error("InserisciStampaDifferita DASI", e);
-                return ErrorHandler(e);
-            }
-        }
-
-        /// <summary>
         ///     Endpoint per scaricare il file generato
         /// </summary>
         /// <param name="id">Guid stampa</param>
@@ -276,6 +234,27 @@ namespace PortaleRegione.API.Controllers
                 var result = await _stampeLogic.GetInfo();
 
                 return Ok(result);
+            }
+            catch (Exception e)
+            {
+                //Log.Error("Get info Stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per eseguire la stampa
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Stampe.Print)]
+        public async Task<IHttpActionResult> Stampa(string uid)
+        {
+            try
+            {
+                var response = ResponseMessage(await _stampeLogic.Print(uid));
+
+                return response;
             }
             catch (Exception e)
             {

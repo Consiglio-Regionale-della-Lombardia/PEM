@@ -49,20 +49,12 @@ namespace PortaleRegione.BAL
                 var result = new List<AttiFirmeDto>();
                 foreach (var firma in firme)
                 {
-                    var firmaDto = new AttiFirmeDto
-                    {
-                        UIDAtto = firma.UIDAtto,
-                        UID_persona = firma.UID_persona,
-                        FirmaCert = BALHelper.Decrypt(firma.FirmaCert),
-                        PrimoFirmatario = firma.PrimoFirmatario,
-                        id_gruppo = firma.id_gruppo,
-                        Data_firma = Convert.ToDateTime(BALHelper.Decrypt(firma.Data_firma)).ToString("dd/MM/yyyy"),
-                        Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
-                            ? null
-                            : BALHelper.Decrypt(firma.Data_ritirofirma)
-                    };
+                    firma.FirmaCert = BALHelper.Decrypt(firma.FirmaCert);
+                    firma.Data_firma = BALHelper.Decrypt(firma.Data_firma);
+                    if (!string.IsNullOrEmpty(firma.Data_ritirofirma))
+                        firma.Data_ritirofirma = BALHelper.Decrypt(firma.Data_ritirofirma);
 
-                    result.Add(firmaDto);
+                    result.Add(firma);
                 }
 
                 return result;

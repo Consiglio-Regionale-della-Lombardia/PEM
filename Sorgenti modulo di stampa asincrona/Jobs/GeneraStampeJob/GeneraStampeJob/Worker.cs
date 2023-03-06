@@ -217,7 +217,15 @@ namespace GeneraStampeJob
                         Body = bodyPDF,
                         Atto = item
                     };
-                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body);
+                    var listAttachments = new List<string>();
+                    if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
+                    {
+                        var complete_path = Path.Combine(
+                            _model.PercorsoCompatibilitaDocumenti,
+                            Path.GetFileName(item.PATH_AllegatoGenerico));
+                        listAttachments.Add(complete_path);
+                    }
+                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
                     dettagliCreaPDF.Content = pdf;
                     listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
@@ -345,7 +353,7 @@ namespace GeneraStampeJob
 
                 docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null).Select(i => i.Value.Content));
 
-                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => !File.Exists(item.Value.Path));
+                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content != null);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
 
                 //Funzione che fascicola i PDF creati prima
@@ -362,7 +370,6 @@ namespace GeneraStampeJob
                 await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
                 if (_stampa.Scadenza.HasValue)
                 {
-
                     try
                     {
                         var bodyMail = $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
@@ -611,9 +618,24 @@ namespace GeneraStampeJob
                         Body = bodyPDF,
                         EM = item
                     };
-                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body);
+                    var listAttachments = new List<string>();
+                    if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
+                    {
+                        var complete_path = Path.Combine(
+                            _model.PercorsoCompatibilitaDocumenti,
+                            Path.GetFileName(item.PATH_AllegatoGenerico));
+                        listAttachments.Add(complete_path);
+                    }
+                    if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
+                    {
+                        var complete_path = Path.Combine(
+                            _model.PercorsoCompatibilitaDocumenti,
+                            Path.GetFileName(item.PATH_AllegatoTecnico));
+                        listAttachments.Add(complete_path);
+                    }
+                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
                     dettagliCreaPDF.Content = pdf;
-                    listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
+                    listaPercorsi[item.UIDEM] = dettagliCreaPDF;
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
                     counter++;
                 }

@@ -1,8 +1,9 @@
-﻿using System.Configuration;
+﻿using PortaleRegione.DTO.Response;
+using PortaleRegione.Gateway;
+using System;
+using System.Configuration;
 using System.IO;
 using System.Threading.Tasks;
-using PortaleRegione.DTO.Response;
-using PortaleRegione.Gateway;
 
 namespace Scheduler.BusinessLogic
 {
@@ -17,13 +18,21 @@ namespace Scheduler.BusinessLogic
 
         protected async Task<LoginResponse> Init()
         {
-            BaseGateway.apiUrl = ConfigurationManager.AppSettings["UrlApi"];
-            var apiGateway = new ApiGateway();
-            var result = await apiGateway.Persone.Login(
-                ConfigurationManager.AppSettings["ServiceUsername"],
-                ConfigurationManager.AppSettings["ServicePassword"]);
-            currentServiceUser = result;
-            return result;
+            try
+            {
+                BaseGateway.apiUrl = ConfigurationManager.AppSettings["UrlApi"];
+                var apiGateway = new ApiGateway();
+                var result = await apiGateway.Persone.Login(
+                    ConfigurationManager.AppSettings["ServiceUsername"],
+                    ConfigurationManager.AppSettings["ServicePassword"]);
+                currentServiceUser = result;
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }
