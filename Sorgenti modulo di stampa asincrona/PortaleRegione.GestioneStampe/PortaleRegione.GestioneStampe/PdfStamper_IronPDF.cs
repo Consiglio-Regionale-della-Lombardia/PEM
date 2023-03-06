@@ -19,9 +19,8 @@ namespace PortaleRegione.GestioneStampe
             try
             {
                 var Renderer = SetupRender();
+                Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
                 var pdf = await Renderer.RenderHtmlAsPdfAsync(body);
-                Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" +
-                                                         " Pagina {page} di {total-pages}";
                 if (attachments != null)
                 {
                     if (attachments.Any())
@@ -53,16 +52,16 @@ namespace PortaleRegione.GestioneStampe
         public async void CreaPDF(string txtHTML, string path)
         {
             var Renderer = SetupRender();
-            var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
             Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
+            var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
             pdf.SaveAs(path);
         }
 
         public async Task<object> CreaPDFObject(string txtHTML, List<string> attachments = null)
         {
             var Renderer = SetupRender();
-            var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
             Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
+            var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
             if (attachments == null) return pdf;
             if (!attachments.Any()) return pdf;
 

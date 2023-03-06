@@ -14,7 +14,7 @@ namespace PortaleRegione.JobStampeTest
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("de640bf4-84dc-48fe-949e-634dea486e6f"));
+                var stampa = await apiGateway.Stampe.Get(new Guid("a67eec90-00b3-45b0-a9d8-01b772c7279f"));
                 var model = new ThreadWorkerModel
                 {
                     CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",

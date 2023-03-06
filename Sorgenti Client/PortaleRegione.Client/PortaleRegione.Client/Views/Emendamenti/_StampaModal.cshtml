@@ -100,8 +100,11 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(stampa) {
+                
+                $("#modalStampa").modal("close");
+                $("#btnConfermaStampa").off("click");
                 waiting(false);
-                M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"" + data + "\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
+                M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"@Url.Action("Index", "Stampe")\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
             }).fail(function(err) {
                 console.log("error", err);
                 Error(err);

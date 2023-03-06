@@ -370,7 +370,6 @@ namespace GeneraStampeJob
                 await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
                 if (_stampa.Scadenza.HasValue)
                 {
-
                     try
                     {
                         var bodyMail = $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
