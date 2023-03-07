@@ -461,7 +461,7 @@ namespace PortaleRegione.BAL
                 var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
 
                 if (firmeAnte.Any())
-                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)))
+                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
                         .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
                 else
@@ -470,7 +470,7 @@ namespace PortaleRegione.BAL
 
                 if (firmePost.Any())
                     body = body.Replace("{radGridFirmePostView}",
-                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)))
+                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost, "dd/MM/yyyy HH:mm")))
                         .Replace("{FIRME_COMMENTO_START}", string.Empty)
                         .Replace("{FIRME_COMMENTO_END}", string.Empty);
                 else
@@ -482,7 +482,7 @@ namespace PortaleRegione.BAL
                 //FIRMATO MA NON DEPOSITATO
                 body = body.Replace("{lblDepositoEMView}", string.Empty);
                 var firmeAnte = firmeDtos.Select(i => (AttiFirmeDto)i);
-                var firmatari = GetFirmatari(firmeAnte);
+                var firmatari = GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm");
                 if (!string.IsNullOrEmpty(firmatari))
                 {
                     body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", firmatari))
@@ -698,7 +698,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        private string GetFirmatari(IEnumerable<AttiFirmeDto> firme)
+        private string GetFirmatari(IEnumerable<AttiFirmeDto> firme, string format = "dd/MM/yyyy")
         {
             try
             {
@@ -714,14 +714,14 @@ namespace PortaleRegione.BAL
                     if (string.IsNullOrEmpty(attiFirmeDto.Data_ritirofirma))
                     {
                         if (!attiFirmeDto.ufficio)
-                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
 
                         body = $"<h6>{body}</h6><br/>";
                     }
                     else
                     {
                         if (!attiFirmeDto.ufficio)
-                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
                         body =
                             $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{body} ({attiFirmeDto.Data_ritirofirma})</h6></div><br/>";
                     }
