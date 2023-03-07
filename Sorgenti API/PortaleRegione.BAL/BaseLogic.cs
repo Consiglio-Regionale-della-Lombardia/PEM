@@ -145,7 +145,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
+        internal string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
         {
             try
             {
@@ -180,13 +180,13 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static string GetNomeEM(EM emendamento, EM riferimento)
+        internal string GetNomeEM(EM emendamento, EM riferimento)
         {
             return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
                 Mapper.Map<EM, EmendamentiDto>(riferimento));
         }
 
-        internal static string GetNome(string nAtto, int? progressivo)
+        internal string GetNome(string nAtto, int? progressivo)
         {
             progressivo ??= 0;
             var result = string.Empty;
@@ -204,7 +204,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetFirmatariEM(IEnumerable<FirmeDto> firme)
+        internal string GetFirmatariEM(IEnumerable<FirmeDto> firme)
         {
             if (firme == null) return string.Empty;
 
@@ -219,7 +219,7 @@ namespace PortaleRegione.BAL
             return result.Aggregate((i, j) => i + j);
         }
 
-        internal static string GetTemplate(TemplateTypeEnum templateType, bool dasi = false)
+        internal string GetTemplate(TemplateTypeEnum templateType, bool dasi = false)
         {
             var path = "";
             if (dasi == false)
@@ -282,7 +282,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
+        internal void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
         {
             if (!string.IsNullOrEmpty(emendamento.EM_Certificato)) return;
             //EM TEMPORANEO
@@ -327,7 +327,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_tecnico + allegato_generico);
         }
 
-        internal static void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
+        internal void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
         {
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
                 || atto.Tipo == (int)TipoAttoEnum.ODG)
@@ -369,7 +369,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_generico);
         }
 
-        public static void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
+        public void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             ref string body)
@@ -559,7 +559,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        public static void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
+        public void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,
@@ -698,7 +698,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        private static string GetFirmatari(IEnumerable<AttiFirmeDto> firme)
+        private string GetFirmatari(IEnumerable<AttiFirmeDto> firme)
         {
             try
             {
@@ -738,7 +738,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        internal static void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
+        internal void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
             ref string body)
         {
             try

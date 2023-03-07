@@ -1556,7 +1556,8 @@ namespace PortaleRegione.BAL
 
                 emendamentoDto.Firmato_Dal_Proponente =
                     await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente);
-
+                emendamentoDto.PersonaProponente =
+                    Users.First(p => p.UID_persona == em.UIDPersonaProponente);
                 emendamentoDto.gruppi_politici =
                     Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                         await _unitOfWork.Gruppi.Get(em.id_gruppo));
@@ -1603,11 +1604,13 @@ namespace PortaleRegione.BAL
                 em.ATTI = atto;
 
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+                EmendamentiDto rifEM = null;
+                if (em.Rif_UIDEM.HasValue)
+                {
+                    rifEM = await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona);
+                }
 
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                    em.Rif_UIDEM.HasValue
-                        ? await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona)
-                        : null);
+                emendamentoDto.N_EM = GetNomeEM(emendamentoDto, rifEM);
 
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = BALHelper.Decrypt(emendamentoDto.DataDeposito);
@@ -1829,18 +1832,11 @@ namespace PortaleRegione.BAL
 
                 var result = new List<EmendamentiDto>();
                 var totalProcessTime = 0f;
-                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First(), false);
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
 
                 foreach (var guid in em_in_db)
                     try
                     {
-                        var startTimer = DateTime.Now;
-                        EmendamentiDto dto;
-                        if (light_version)
-                            dto = await GetEM_DTO_Light(guid, atto, persona);
-                        else
-                            dto = await GetEM_DTO(guid, atto, persona);
+                        var dto = await GetEM_DTO(guid);
 
                         if (open_data_enabled)
                         {
@@ -1865,8 +1861,6 @@ namespace PortaleRegione.BAL
                         }
 
                         result.Add(dto);
-                        var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
-                        totalProcessTime += (float)spentTime;
                     }
                     catch (Exception e)
                     {

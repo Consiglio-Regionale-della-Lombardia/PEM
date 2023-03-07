@@ -20,6 +20,8 @@ using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using HtmlToOpenXml;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
@@ -33,6 +35,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
@@ -432,32 +435,64 @@ namespace PortaleRegione.BAL
         private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)
         {
-            var emList =
-                await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, false, true);
-            var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
+            var request = new BaseRequest<EmendamentiDto>
+            {
+                filtro = new List<FilterStatement<EmendamentiDto>>
+                {
+                    new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.UIDAtto),
+                        Connector = FilterStatementConnector.And,
+                        Operation = Operation.EqualTo,
+                        Value = attoUID
+                    }
+                },
+                id = attoUID,
+                ordine = ordine,
+                page = 1,
+                size = 1
+            };
+            var countEM = await _logicEm.CountEM(request, persona, (int)mode);
+            request.size = countEM;
 
-            var body = "<html>";
-            body += "<body style='page-orientation: landscape'>";
-            body += "<table>";
+            try
+            {
+                var emList =
+                    await _logicEm.GetEmendamenti(request,
+                        persona,
+                        (int)mode,
+                        (int)ViewModeEnum.GRID,
+                        null,
+                        null);
 
-            body += "<thead>";
-            body += "<tr>";
-            body += ComposeHeaderColumn("EM/SUB");
-            body += ComposeHeaderColumn("Testo");
-            body += ComposeHeaderColumn("Relazione");
-            body += ComposeHeaderColumn("Proponente");
-            body += ComposeHeaderColumn("Stato");
-            body += "</tr>";
-            body += "</thead>";
+                var body = "<html>";
+                body += "<body style='page-orientation: landscape'>";
+                body += "<table>";
 
-            body += "<tbody>";
-            body = list.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
-            body += "</tbody>";
+                body += "<thead>";
+                body += "<tr>";
+                body += ComposeHeaderColumn("EM/SUB");
+                body += ComposeHeaderColumn("Testo");
+                body += ComposeHeaderColumn("Relazione");
+                body += ComposeHeaderColumn("Proponente");
+                body += ComposeHeaderColumn("Stato");
+                body += "</tr>";
+                body += "</thead>";
 
-            body += "</table>";
-            body += "</body>";
-            body += "</html>";
-            return body;
+                body += "<tbody>";
+                body = emList.Data.Results.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
+                body += "</tbody>";
+
+                body += "</table>";
+                body += "</body>";
+                body += "</html>";
+                return body;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         private string ComposeHeaderColumn(string column_title)
