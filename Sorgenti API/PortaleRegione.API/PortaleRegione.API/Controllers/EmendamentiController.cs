@@ -485,7 +485,7 @@ namespace PortaleRegione.API.Controllers
                 var emDto = await _emendamentiLogic.GetEM_DTO(model.Id);
                 var firme = await _firmeLogic.GetFirme(emDto, FirmeTipoEnum.TUTTE);
                 var body = await _emendamentiLogic.GetBodyEM(emDto
-                    , firme
+                    , firme.ToList()
                     , CurrentUser
                     , model.Template);
 

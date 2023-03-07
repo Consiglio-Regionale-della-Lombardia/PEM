@@ -369,13 +369,11 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_generico);
         }
 
-        public void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
+        public void GetBody(EmendamentiDto emendamento, AttiDto atto, List<FirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             ref string body)
         {
-            var firmeDtos = firme.ToList();
-
             body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
             body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
             var testo_deposito = string.Empty;
@@ -453,12 +451,12 @@ namespace PortaleRegione.BAL
             {
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoEMView}",
-                    firmeDtos.Any(s => s.ufficio)
+                    firme.Any(s => s.ufficio)
                         ? "Emendamento Presentato d'ufficio"
-                        : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
+                        : $"Emendamento Presentato il {emendamento.Timestamp:dd/MM/yyyy HH:mm}");
 
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
-                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
+                var firmeAnte = firme.Where(f => f.Timestamp <= emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
+                var firmePost = firme.Where(f => f.Timestamp > emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
 
                 if (firmeAnte.Any())
                     body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
@@ -481,7 +479,7 @@ namespace PortaleRegione.BAL
             {
                 //FIRMATO MA NON DEPOSITATO
                 body = body.Replace("{lblDepositoEMView}", string.Empty);
-                var firmeAnte = firmeDtos.Select(i => (AttiFirmeDto)i);
+                var firmeAnte = firme.Select(i => (AttiFirmeDto)i);
                 var firmatari = GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm");
                 if (!string.IsNullOrEmpty(firmatari))
                 {

@@ -418,7 +418,7 @@ namespace PortaleRegione.BAL
                             Timestamp = item.Timestamp
                         }, FirmeTipoEnum.TUTTE);
                         var bodyPDF = await _logicEm.GetBodyEM(item,
-                            firme,
+                            firme.ToList(),
                             null,
                             TemplateTypeEnum.PDF);
                         var nameFilePDF =

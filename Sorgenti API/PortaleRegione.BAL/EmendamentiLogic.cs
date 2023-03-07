@@ -649,7 +649,7 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<string> GetBodyEM(EmendamentiDto em, IEnumerable<FirmeDto> firme, PersonaDto persona,
+        public async Task<string> GetBodyEM(EmendamentiDto em, List<FirmeDto> firme, PersonaDto persona,
             TemplateTypeEnum template)
         {
             try
@@ -2248,7 +2248,7 @@ namespace PortaleRegione.BAL
                 }
 
                 var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
+                var body = await GetBodyEM(em, firme.ToList(), persona, TemplateTypeEnum.PDF);
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
 
                 return await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);

@@ -33,7 +33,7 @@ namespace PortaleRegione.BAL
                 try
                 {
                     var body = GetTemplate(TemplateTypeEnum.PDF);
-                    GetBody(emendamentoDto, attoDto, firme, personaDto, false, ref body);
+                    GetBody(emendamentoDto, attoDto, firme.ToList(), personaDto, false, ref body);
                     return body;
                 }
                 catch (Exception e)

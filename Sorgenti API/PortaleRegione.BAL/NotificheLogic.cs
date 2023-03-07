@@ -383,7 +383,7 @@ namespace PortaleRegione.BAL
                     }
 
                     var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                    bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
+                    bodyMail += await _logicEm.GetBodyEM(em, firme.ToList(), currentUser, TemplateTypeEnum.HTML);
                     bodyMail +=
                         $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
                     results.Add(idGuid, $"{n_em} - OK");
