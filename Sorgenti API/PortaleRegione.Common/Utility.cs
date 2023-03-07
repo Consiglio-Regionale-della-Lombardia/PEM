@@ -39,14 +39,14 @@ namespace PortaleRegione.Common
 
         public static List<int> statiNonVisibili_Segreteria = new List<int>
         {
-            (int) StatiAttoEnum.BOZZA,
-            (int) StatiAttoEnum.BOZZA_RISERVATA,
-            (int) StatiAttoEnum.BOZZA_CARTACEA
+            (int)StatiAttoEnum.BOZZA,
+            (int)StatiAttoEnum.BOZZA_RISERVATA,
+            (int)StatiAttoEnum.BOZZA_CARTACEA
         };
 
         public static List<int> statiNonVisibili_Standard = new List<int>
         {
-            (int) StatiAttoEnum.BOZZA_CARTACEA
+            (int)StatiAttoEnum.BOZZA_CARTACEA
         };
 
         public static List<TipoAttoEnum> tipiNonVisibili = new List<TipoAttoEnum>
@@ -209,7 +209,7 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_StatoDASI(int stato)
+        public static string GetText_StatoDASI(int stato, bool excel = false)
         {
             switch ((StatiAttoEnum)stato)
             {
@@ -218,7 +218,9 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.BOZZA:
                     return "Bozza";
                 case StatiAttoEnum.PRESENTATO:
-                    return "Depositato";
+                    {
+                        return excel ? "Presentato" : "Depositato";
+                    }
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In Trattazione";
                 case StatiAttoEnum.CHIUSO:

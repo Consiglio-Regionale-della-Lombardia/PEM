@@ -795,7 +795,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
                     SetColumnValue(ref rowBody, ""); // tipo mozione
                     SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
-                    SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
+                    SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato, true)); // stato atto
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
                     SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
