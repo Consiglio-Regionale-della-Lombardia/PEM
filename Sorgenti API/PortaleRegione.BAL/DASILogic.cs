@@ -313,8 +313,10 @@ namespace PortaleRegione.API.Controllers
                 provvedimenti_request =
                     new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
                         statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
-                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento => new Guid(provvedimento.Value.ToString())));
-                foreach (var provvedimentoStatement in provvedimenti_request) model.filtro.Remove(provvedimentoStatement);
+                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
+                    new Guid(provvedimento.Value.ToString())));
+                foreach (var provvedimentoStatement in provvedimenti_request)
+                    model.filtro.Remove(provvedimentoStatement);
             }
 
             var stati = new List<int>();
@@ -519,7 +521,6 @@ namespace PortaleRegione.API.Controllers
                     SEDUTE sedutaInDb = null;
 
                     if (!dto.UIDSeduta.HasValue)
-                    {
                         try
                         {
                             if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
@@ -531,7 +532,6 @@ namespace PortaleRegione.API.Controllers
                             Console.WriteLine(e);
                             throw;
                         }
-                    }
                     else
                         sedutaInDb = await _logicSedute.GetSeduta(dto.UIDSeduta.Value);
 
@@ -756,7 +756,8 @@ namespace PortaleRegione.API.Controllers
 
                     if (firmaUfficio)
                     {
-                        firmaCert = BALHelper.EncryptString($"{persona.DisplayName_GruppoCode}", AppSettingsConfiguration.masterKey); // matcat - #615
+                        firmaCert = BALHelper.EncryptString($"{persona.DisplayName_GruppoCode}",
+                            AppSettingsConfiguration.masterKey); // matcat - #615
                         timestampFirma = atto.Timestamp.AddMinutes(-2);
                         dataFirma = BALHelper.EncryptString(timestampFirma.ToString("dd/MM/yyyy HH:mm"),
                             AppSettingsConfiguration.masterKey);
@@ -817,7 +818,8 @@ namespace PortaleRegione.API.Controllers
 
                     var id_gruppo = persona.Gruppo?.id_gruppo ?? 0;
                     var valida = !(id_gruppo != attoInDb.id_gruppo && destinatario_notifica == null && !firmaUfficio);
-                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma, timestampFirma,
+                    await _unitOfWork.Atti_Firme.Firma(idGuid, persona.UID_persona, id_gruppo, firmaCert, dataFirma,
+                        timestampFirma,
                         firmaUfficio, primoFirmatario, valida, persona.IsCapoGruppo);
 
                     if (destinatario_notifica != null)
@@ -1058,10 +1060,7 @@ namespace PortaleRegione.API.Controllers
                     var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
                     atto.UIDPersonaProponente = firme.First().UID_persona;
                     var gruppo = await _logicPersona.GetGruppoAttualePersona(atto.UIDPersonaProponente.Value, false);
-                    if (gruppo.id_gruppo != atto.id_gruppo)
-                    {
-                        atto.id_gruppo = gruppo.id_gruppo;
-                    }
+                    if (gruppo.id_gruppo != atto.id_gruppo) atto.id_gruppo = gruppo.id_gruppo;
 
                     await _unitOfWork.CompleteAsync();
                 }
@@ -1140,6 +1139,7 @@ namespace PortaleRegione.API.Controllers
                 var attoDto = await GetAttoDto(idGuid, persona);
                 var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
                 if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
+
                 if (atto.Tipo == (int)TipoAttoEnum.IQT
                     && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                 {
@@ -1250,7 +1250,10 @@ namespace PortaleRegione.API.Controllers
 
                 if (!attoDto.Presentabile)
                 {
-                    results.Add(idGuid, $"ERROR: {nome_atto} non depositabile");
+                    results.Add(idGuid,
+                        !attoDto.Firmato_Dal_Proponente
+                            ? $"ERROR: {nome_atto} non depositabile. Deposito dell’atto consentito solo al proponente o al capogruppo, dopo la firma del proponente"
+                            : $"ERROR: {nome_atto} non depositabile");
                     continue;
                 }
 
@@ -2075,7 +2078,6 @@ namespace PortaleRegione.API.Controllers
                 // Invio mail a UOLA per avviso proposta urgenza fuori termine stabilito
                 atto = await GetAttoDto(guid);
                 if (IsOutdate(atto))
-                {
                     try
                     {
                         var mailModel = new MailModel
@@ -2093,7 +2095,6 @@ namespace PortaleRegione.API.Controllers
                     {
                         // ignored
                     }
-                }
             }
             catch (Exception e)
             {
@@ -2429,7 +2430,8 @@ namespace PortaleRegione.API.Controllers
                 case TipoAttoEnum.IQT:
                     {
                         if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
-                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT) result = true;
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
+                                result = true;
                         break;
                     }
                 case TipoAttoEnum.MOZ:
@@ -2440,21 +2442,24 @@ namespace PortaleRegione.API.Controllers
                                 {
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
-                                            atto.Seduta.DataScadenzaPresentazioneMOZU) result = true;
+                                            atto.Seduta.DataScadenzaPresentazioneMOZU)
+                                            result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
-                                            atto.Seduta.DataScadenzaPresentazioneMOZA) result = true;
+                                            atto.Seduta.DataScadenzaPresentazioneMOZA)
+                                            result = true;
                                     break;
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
-                                            atto.Seduta.DataScadenzaPresentazioneMOZ) result = true;
+                                            atto.Seduta.DataScadenzaPresentazioneMOZ)
+                                            result = true;
                                     break;
                                 }
                         }
@@ -2466,7 +2471,8 @@ namespace PortaleRegione.API.Controllers
                         if (atto.CapogruppoNeiTermini) break;
 
                         if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
-                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG) result = true;
+                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
+                                result = true;
                         break;
                     }
             }
@@ -2521,7 +2527,8 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
+        public async Task<HttpResponseMessage> DownloadPDFIstantaneo(ATTI_DASI atto, PersonaDto persona,
+            bool privacy = false)
         {
             var content = await PDFIstantaneo(atto, persona, privacy);
             var res = ComposeFileResponse(content,
@@ -2532,7 +2539,7 @@ namespace PortaleRegione.API.Controllers
         internal async Task<byte[]> PDFIstantaneo(ATTI_DASI atto, PersonaDto persona, bool privacy = false)
         {
             var attoDto = await GetAttoDto(atto.UIDAtto);
-            List<string> listAttachments = new List<string>();
+            var listAttachments = new List<string>();
             if (!string.IsNullOrEmpty(attoDto.PATH_AllegatoGenerico))
             {
                 var complete_path = Path.Combine(
@@ -2544,7 +2551,8 @@ namespace PortaleRegione.API.Controllers
             var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.TUTTE);
             var body = await GetBodyDASI(atto, firme, persona, TemplateTypeEnum.PDF, privacy);
             var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}", listAttachments);
+            return await stamper.CreaPDFInMemory(body, $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}",
+                listAttachments);
         }
 
         public async Task InviaAlProtocollo(Guid id)
@@ -2672,25 +2680,19 @@ namespace PortaleRegione.API.Controllers
                     "Inserire i firmatari.");
 
             if (dto.FirmeCartacee.First().uid != dto.UIDPersonaProponente.Value.ToString())
-            {
                 throw new InvalidOperationException(
                     "Il proponente deve essere anche il primo firmatario.");
-            }
 
             await FirmaAttoUfficio(dto);
             var count_firme = await _unitOfWork.Atti_Firme.CountFirme(atto.UIDAtto);
             if (dto.Tipo == (int)TipoAttoEnum.IQT
                 && string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
-            {
-                throw new Exception($"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
-            }
+                throw new Exception(
+                    $"Requisiti presentazione: {nameof(AttoDASIDto.DataRichiestaIscrizioneSeduta)} non specificato.");
 
-            var controllo_firme = await ControlloFirmePresentazione(dto, count_firme, null);
+            var controllo_firme = await ControlloFirmePresentazione(dto, count_firme);
 
-            if (!string.IsNullOrEmpty(controllo_firme))
-            {
-                throw new Exception(controllo_firme);
-            }
+            if (!string.IsNullOrEmpty(controllo_firme)) throw new Exception(controllo_firme);
 
             atto.IDStato = (int)StatiAttoEnum.PRESENTATO;
             atto.chkf = count_firme.ToString();

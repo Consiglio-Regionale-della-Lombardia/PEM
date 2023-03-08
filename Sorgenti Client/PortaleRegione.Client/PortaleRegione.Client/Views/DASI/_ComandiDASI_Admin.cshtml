@@ -1,5 +1,4 @@
-﻿@using PortaleRegione.Common
-@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.DTO.Enum
 <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
     <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
         <i class="large material-icons">playlist_add</i>
@@ -105,11 +104,11 @@
 
     var itl_tipi_risposta = [
         { id: @((int)TipoRispostaEnum.ORALE), value: '@(TipoRispostaEnum.ORALE)'},
-        { id: @((int)TipoRispostaEnum.SCRITTO), value: '@(TipoRispostaEnum.SCRITTO)'},
+        { id: @((int)TipoRispostaEnum.SCRITTA), value: '@(TipoRispostaEnum.SCRITTA)'},
         { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
     ];
     var itr_tipi_risposta = [
-        { id: @((int)TipoRispostaEnum.SCRITTO), value: '@(TipoRispostaEnum.SCRITTO)'},
+        { id: @((int)TipoRispostaEnum.SCRITTA), value: '@(TipoRispostaEnum.SCRITTA)'},
         { id: @((int)TipoRispostaEnum.COMMISSIONE), value: '@(TipoRispostaEnum.COMMISSIONE)'}
     ];
     var iqt_tipi_risposta = [
