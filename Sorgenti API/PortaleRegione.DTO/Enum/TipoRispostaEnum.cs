@@ -21,7 +21,7 @@ namespace PortaleRegione.DTO.Enum
     public enum TipoRispostaEnum
     {
         ORALE = 1,
-        SCRITTO = 2,
+        SCRITTA = 2,
         COMMISSIONE = 3,
         IMMEDIATA = 4
     }

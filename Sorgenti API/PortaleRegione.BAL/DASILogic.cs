@@ -1850,7 +1850,7 @@ namespace PortaleRegione.API.Controllers
                 var atto = await Get(guid);
                 if (atto == null) throw new Exception("ERROR: NON TROVATO");
                 if (atto.Tipo == (int)TipoAttoEnum.ITL
-                    && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
+                    && (atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
                         || atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE))
                     throw new Exception(
                         "ERROR: Non è possibile iscrivere in seduta per le ITL SCRITTE o IN COMMISSIONE.");

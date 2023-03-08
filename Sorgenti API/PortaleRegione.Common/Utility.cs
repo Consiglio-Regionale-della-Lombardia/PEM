@@ -244,8 +244,8 @@ namespace PortaleRegione.Common
             {
                 case TipoRispostaEnum.ORALE:
                     return "Orale";
-                case TipoRispostaEnum.SCRITTO:
-                    return "Scritto";
+                case TipoRispostaEnum.SCRITTA:
+                    return "Scritta";
                 case TipoRispostaEnum.COMMISSIONE:
                     {
                         return "In Commissione";
