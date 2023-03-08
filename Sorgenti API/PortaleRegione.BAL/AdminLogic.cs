@@ -550,7 +550,6 @@ namespace PortaleRegione.BAL
                 _unitOfWork.Persone.Add(newUser);
                 await _unitOfWork.CompleteAsync();
 
-
                 await _logicUtil.InvioMail(new MailModel
                 {
                     DA = "pem@consiglio.regione.lombardia.it",
@@ -598,10 +597,9 @@ namespace PortaleRegione.BAL
                     }
                 }
 
-
                 if (request.no_Cons == 1)
                 {
-                    //Consigliere/Assessore
+                    // NON CONSIGLIERE
                     var persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
                     persona.nome = request.nome;
                     persona.cognome = request.cognome;
@@ -615,8 +613,8 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                        request.userAD.Replace(@"CONSIGLIO\", ""));
+                    //Consigliere/Assessore
+                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona, request.userAD);
                 }
             }
 

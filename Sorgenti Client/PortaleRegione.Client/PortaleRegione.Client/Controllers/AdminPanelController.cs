@@ -215,6 +215,7 @@ namespace PortaleRegione.Client.Controllers
             return View("ViewUtente", new ViewUtenteModel
             {
                 Persona = persona,
+                CurrentUser = CurrentUser,
                 GruppiAD = listaGruppiRuoliAD,
                 GruppiInDB = gruppiInDb.ToList()
             });
