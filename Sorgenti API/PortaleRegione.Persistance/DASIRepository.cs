@@ -162,7 +162,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .Where(item => !item.Eliminato);
+                .Where(item => !item.Eliminato && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA);
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)
@@ -263,7 +263,7 @@ namespace PortaleRegione.Persistance
             {
                 var query = PRContext
                     .DASI
-                    .Where(item => !item.Eliminato);
+                    .Where(item => !item.Eliminato && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA);
 
                 var filtro2 = new Filter<ATTI_DASI>();
                 foreach (var f in filtro.Statements)
@@ -301,10 +301,7 @@ namespace PortaleRegione.Persistance
 
                     if (stato != StatiAttoEnum.TUTTI)
                     {
-                        if (stato == StatiAttoEnum.PRESENTATO
-                            && persona.IsConsigliereRegionale)
-                            query = query.Where(item => item.IDStato >= (int)stato);
-                        else if (stato == StatiAttoEnum.CHIUSO)
+                        if (stato == StatiAttoEnum.CHIUSO)
                             query = query.Where(FilterByClosed());
                         else
                             query = query.Where(item => item.IDStato == (int)stato);
