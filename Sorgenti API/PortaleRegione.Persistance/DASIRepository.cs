@@ -51,7 +51,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
             Filter<ATTI_DASI> filtro = null,
-            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, bool requireMySign = false)
+            List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, List<Guid> atti_da_firmare = null)
         {
             var query = PRContext
                 .DASI
@@ -127,32 +127,11 @@ namespace PortaleRegione.Persistance
                     query = query
                         .Where(atto => provvedimenti.Contains(atto.UID_Atto_ODG.Value));
 
-            if (requireMySign)
-            {
-                var atti_da_firmare = new List<Guid>();
-
-                var notificheDestinatari = await PRContext
-                    .NOTIFICHE_DESTINATARI.Where(nd => nd.UIDPersona == persona.UID_persona && !nd.Chiuso).ToListAsync();
-                foreach (var notifica_destinatario in notificheDestinatari)
-                {
-                    var notifica = await PRContext.NOTIFICHE.FindAsync(notifica_destinatario.UIDNotifica);
-                    if (notifica == null)
-                        continue;
-                    if (notifica.Chiuso)
-                        continue; // Notifica chiusa
-                    if (notifica.UIDEM.HasValue)
-                        continue; // notifica PEM
-                    if (atti_da_firmare.Contains(notifica.UIDAtto))
-                        continue; // UidAtto già presente
-
-                    atti_da_firmare.Add(notifica.UIDAtto);
-                }
-
+            if (atti_da_firmare != null)
                 if (atti_da_firmare.Any())
                 {
                     query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
                 }
-            }
 
             var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
             if (statoFilter != null)
@@ -179,7 +158,7 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro,
-            List<int> soggetti, List<int> stati)
+            List<int> soggetti, List<int> stati, List<Guid> atti_da_firmare = null)
         {
             var query = PRContext
                 .DASI
@@ -240,6 +219,15 @@ namespace PortaleRegione.Persistance
                         .Where(item => list.Contains(item.UIDAtto));
                 }
 
+            if (atti_da_firmare == null)
+                return await query
+                    .CountAsync();
+
+            if (atti_da_firmare.Any())
+            {
+                query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
+            }
+
             return await query
                 .CountAsync();
         }
@@ -269,7 +257,7 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null)
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> atti_da_firmare = null)
         {
             try
             {
@@ -348,6 +336,15 @@ namespace PortaleRegione.Persistance
                         query = query
                             .Where(item => list.Contains(item.UIDAtto));
                     }
+
+                if (atti_da_firmare == null)
+                    return await query
+                        .CountAsync();
+
+                if (atti_da_firmare.Any())
+                {
+                    query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
+                }
 
                 return await query
                     .CountAsync();
@@ -724,6 +721,18 @@ namespace PortaleRegione.Persistance
                 .OrderBy(item => item.Tipo)
                 .ThenByDescending(item => item.NAtto_search)
                 .Select(atto => atto.UIDAtto)
+                .ToListAsync();
+        }
+
+        public async Task<List<Guid>> GetAttiProponente(Guid personaUid)
+        {
+            return await PRContext
+                .DASI
+                .Where(dasi => dasi.UIDPersonaProponente == personaUid
+                               && !dasi.UIDPersonaPrimaFirma.HasValue
+                               && dasi.IDStato < (int)StatiAttoEnum.PRESENTATO
+                               && !dasi.Eliminato)
+                .Select(dasi => dasi.UIDAtto)
                 .ToListAsync();
         }
 

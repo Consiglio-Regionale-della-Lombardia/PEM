@@ -330,6 +330,30 @@ namespace PortaleRegione.API.Controllers
                 foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
             }
 
+            var atti_da_firmare = new List<Guid>();
+            if (Convert.ToBoolean(RequireMySign))
+            {
+                var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(persona.UID_persona);
+                foreach (var notifica_destinatario in notificheDestinatari)
+                {
+                    var notifica = await _unitOfWork.Notifiche.Get(notifica_destinatario.UIDNotifica);
+                    if (notifica == null)
+                        continue;
+                    if (notifica.Chiuso)
+                        continue; // Notifica chiusa
+                    if (notifica.UIDEM.HasValue)
+                        continue; // notifica PEM
+                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                        continue; // UidAtto già presente
+
+                    atti_da_firmare.Add(notifica.UIDAtto);
+                }
+
+                var my_atti_proponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
+                if (my_atti_proponente.Any())
+                    atti_da_firmare.AddRange(my_atti_proponente);
+            }
+
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
             var atti_in_db = await _unitOfWork
@@ -343,7 +367,7 @@ namespace PortaleRegione.API.Controllers
                     proponenti,
                     provvedimenti,
                     stati,
-                    Convert.ToBoolean(RequireMySign));
+                    atti_da_firmare);
 
             if (!atti_in_db.Any())
             {
@@ -383,7 +407,8 @@ namespace PortaleRegione.API.Controllers
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
                     soggetti,
-                    stati);
+                    stati,
+                    atti_da_firmare);
 
             queryFilter.ImportStatements(model.filtro);
             var responseModel = new RiepilogoDASIModel
@@ -398,7 +423,7 @@ namespace PortaleRegione.API.Controllers
                 Stato = requestStato,
                 Tipo = requestTipo,
                 CountBarData = await GetResponseCountBar(persona, requestTipo, sedutaId, CLIENT_MODE,
-                    queryFilter, soggetti)
+                    queryFilter, soggetti, atti_da_firmare)
             };
 
             if (persona.IsSegreteriaAssemblea) responseModel.CommissioniAttive = await GetCommissioniAttive();
@@ -613,7 +638,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti)
+            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti, List<Guid> atti_da_firmare = null)
         {
             var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
             var filtro = PulisciFiltro(_filtro);
@@ -623,52 +648,52 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITL
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 ITR = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ITR
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 IQT = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.IQT
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 MOZ = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.MOZ
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 ODG = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.ODG
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 TUTTI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         TipoAttoEnum.TUTTI
-                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.TUTTI, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 BOZZE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.BOZZA, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.BOZZA, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 PRESENTATI = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti),
+                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti, atti_da_firmare),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro, soggetti)
+                        , StatiAttoEnum.CHIUSO, sedutaId, clientMode, filtro, soggetti, atti_da_firmare)
             };
 
             return result;

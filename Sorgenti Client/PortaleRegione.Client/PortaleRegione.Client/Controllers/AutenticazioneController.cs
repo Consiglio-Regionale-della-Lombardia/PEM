@@ -55,7 +55,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                response = await apiGateway.Persone.Login(model.Username, model.Password);
+                response = await apiGateway.Persone.Login(model);
             }
             catch (Exception e)
             {

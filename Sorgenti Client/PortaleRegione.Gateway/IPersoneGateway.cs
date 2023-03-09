@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -40,7 +41,7 @@ namespace PortaleRegione.Gateway
         Task<RuoliDto> GetRuolo(RuoliIntEnum ruolo);
         Task<IEnumerable<PersonaDto>> GetSegreteriaGiuntaRegionale(bool notifica_firma, bool notifica_deposito);
         Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma, bool deposito);
-        Task<LoginResponse> Login(string username, string password);
+        Task<LoginResponse> Login(LoginRequest request);
         Task SalvaPin(CambioPinModel model);
     }
 }

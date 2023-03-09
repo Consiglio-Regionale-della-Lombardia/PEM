@@ -18,6 +18,7 @@
 
 using PortaleRegione.Domain;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortaleRegione.Contracts
@@ -28,6 +29,7 @@ namespace PortaleRegione.Contracts
     public interface INotifiche_DestinatariRepository : IRepository<NOTIFICHE_DESTINATARI>
     {
         Task<NOTIFICHE_DESTINATARI> Get(string notificaId, Guid personaUId);
+        Task<List<NOTIFICHE_DESTINATARI>> Get(Guid personaUId);
         Task<NOTIFICHE_DESTINATARI> ExistDestinatarioNotifica(Guid guid, Guid personaUId, bool dasi = false);
         Task SetSeen_DestinatarioNotifica(NOTIFICHE_DESTINATARI destinatario, Guid personaUId);
     }

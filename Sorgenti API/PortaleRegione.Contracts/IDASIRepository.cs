@@ -31,12 +31,11 @@ namespace PortaleRegione.Contracts
     {
         Task<ATTI_DASI> Get(Guid attoUId);
         Task<List<Guid>> GetAll(PersonaDto persona, int page, int size, ClientModeEnum mode,
-            Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null,
-            bool requireMySign = false);
+            Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> proponenti = null, List<Guid> provvedimenti = null, List<int> stati = null, List<Guid> atti_da_firmare = null);
         Task<int> Count(Filter<ATTI_DASI> queryFilter);
-        Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti, List<int> stati = null);
+        Task<int> Count(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> queryFilter, List<int> soggetti, List<int> stati = null, List<Guid> atti_da_firmare = null);
         Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null);
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> atti_da_firmare = null);
         Task<ATTI_DASI_CONTATORI> GetContatore(int tipo, int tipo_risposta);
         bool CheckIfPresentabile(AttoDASIDto dto, PersonaDto persona);
         bool CheckIfRitirabile(AttoDASIDto dto, PersonaDto persona);
@@ -67,5 +66,6 @@ namespace PortaleRegione.Contracts
         Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti);
         Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto);
         Task<List<Guid>> GetAllCartacei(int legislatura);
+        Task<List<Guid>> GetAttiProponente(Guid personaUid);
     }
 }
