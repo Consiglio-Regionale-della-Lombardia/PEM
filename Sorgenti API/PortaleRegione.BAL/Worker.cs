@@ -68,7 +68,7 @@ namespace PortaleRegione.BAL
             try
             {
                 _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa,
-                   $"Inizio lavorazione - Tentativo {_stampa.Tentativi} di {_model.NumMaxTentativi}");
+                    $"Inizio lavorazione - Tentativo {_stampa.Tentativi} di {_model.NumMaxTentativi}");
                 if (_stampa.Tentativi < Convert.ToInt16(_model.NumMaxTentativi))
                 {
                     //GetFascicolo
@@ -175,7 +175,7 @@ namespace PortaleRegione.BAL
                                 listAttachments.Add(complete_path);
                             }
 
-                            var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
+                            var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, true, listAttachments);
                             dettagliCreaPDF.Content = pdf;
                             listaPercorsi.Add(dettagliCreaPDF);
                             _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
@@ -448,7 +448,7 @@ namespace PortaleRegione.BAL
                             listAttachments.Add(complete_path);
                         }
 
-                        var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
+                        var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, true, listAttachments);
                         dettagliCreaPDF.Content = pdf;
                         listaPercorsi.Add(dettagliCreaPDF);
                         _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");

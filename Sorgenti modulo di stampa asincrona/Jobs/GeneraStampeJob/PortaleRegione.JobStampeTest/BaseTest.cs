@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
+using System.Threading.Tasks;
 
 namespace PortaleRegione.JobStampeTest
 {
@@ -17,7 +18,11 @@ namespace PortaleRegione.JobStampeTest
 
         protected async Task<LoginResponse> Init(string username, string password)
         {
-            var result = await apiGateway.Persone.Login(username, password);
+            var result = await apiGateway.Persone.Login(new LoginRequest
+            {
+                Username = username,
+                Password = password
+            });
             apiGateway = new ApiGateway(result.jwt);
             return result;
         }

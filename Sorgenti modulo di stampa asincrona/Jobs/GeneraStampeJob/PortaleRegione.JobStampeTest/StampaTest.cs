@@ -1,5 +1,6 @@
 using GeneraStampeJob;
 using NUnit.Framework;
+using PortaleRegione.DTO.Autenticazione;
 using System;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace PortaleRegione.JobStampeTest
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("a67eec90-00b3-45b0-a9d8-01b772c7279f"));
+                var stampa = await apiGateway.Stampe.Get(new Guid("2b6d63d0-c980-4ba5-9e1a-30c94bcdb5a6"));
                 var model = new ThreadWorkerModel
                 {
                     CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",
@@ -27,10 +28,14 @@ namespace PortaleRegione.JobStampeTest
                     RootRepository = @"D:\Regione Lombardia\Emendamenti",
                     UrlAPI = "http://localhost:52415",
                     UrlCLIENT = "http://localhost:58019",
-                    PDF_LICENSE = ""
+                    PDF_LICENSE = "IRONPDF.NAMIRIALSPA.IRO221014.7583.32109.410122-18A3800A31-CFV723JMBJIYZ4K-HCIT6H72EBCJ-NQYCKHU2WYVO-DUCCQUCNKAXF-MGYXL4N53BA5-UH6NWC-L23P7VJKHTGKUA-LITE.SUB-JVZX4D.RENEW.SUPPORT.14.OCT.2023"
                 };
 
-                var auth = await apiGateway.Persone.Login(model.Username, model.Password);
+                var auth = await apiGateway.Persone.Login(new LoginRequest
+                {
+                    Username = model.Username,
+                    Password = model.Password
+                });
 
                 var worker = new Worker(auth, ref model);
                 var result_of_work = false;

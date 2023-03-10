@@ -1,4 +1,5 @@
-﻿using PortaleRegione.Gateway;
+﻿using PortaleRegione.DTO.Autenticazione;
+using PortaleRegione.Gateway;
 using System;
 using System.Threading.Tasks;
 
@@ -23,7 +24,11 @@ namespace GeneraStampeJob
                 BaseGateway.apiUrl = _model.UrlAPI;
                 var apiGateway = new ApiGateway();
                 //Log.Debug($"User service [{_model.Username}][{_model.Password}]");
-                var auth = await apiGateway.Persone.Login(_model.Username, _model.Password);
+                var auth = await apiGateway.Persone.Login(new LoginRequest
+                {
+                    Username = _model.Username,
+                    Password = _model.Password
+                });
                 //Log.Debug($"User service [{auth.id}][{auth.jwt}]");
                 apiGateway = new ApiGateway(auth.jwt);
                 var stampe = await apiGateway.Stampe.JobGetStampe(1, 1);

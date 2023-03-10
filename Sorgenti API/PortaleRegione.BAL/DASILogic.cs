@@ -2328,7 +2328,7 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{Oggetto}", dasiDto.Oggetto)
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                    .Replace("{Stato}", Utility.GetText_StatoDASI(dasiDto.IDStato)));
+                    .Replace("{DataDeposito}", string.IsNullOrEmpty(dasiDto.DataPresentazione) ? "" : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2366,7 +2366,7 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{Oggetto}", dasiDto.Oggetto)
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                    .Replace("{Stato}", Utility.GetText_StatoDASI(dasiDto.IDStato)));
+                    .Replace("{DataDeposito}", string.IsNullOrEmpty(dasiDto.DataPresentazione) ? "" : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 

@@ -19,12 +19,11 @@ namespace PortaleRegione.GestioneStampe
             try
             {
                 var Renderer = SetupRender();
-                Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
+                if (!string.IsNullOrEmpty(nome_documento))
+                    Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
                 var pdf = await Renderer.RenderHtmlAsPdfAsync(body);
                 if (attachments != null)
-                {
                     if (attachments.Any())
-                    {
                         foreach (var attachment in attachments)
                         {
                             if (!File.Exists(attachment))
@@ -37,8 +36,6 @@ namespace PortaleRegione.GestioneStampe
                                 pdf.AppendPdf(attach);
                             }
                         }
-                    }
-                }
 
                 return pdf.Stream.ToArray();
             }
@@ -49,18 +46,24 @@ namespace PortaleRegione.GestioneStampe
             }
         }
 
-        public async void CreaPDF(string txtHTML, string path)
+        public async Task<byte[]> CreaPDFInMemory(string body)
+        {
+            return await CreaPDFInMemory(body, string.Empty);
+        }
+
+        public void CreaPDF(string txtHTML, string path)
         {
             var Renderer = SetupRender();
             Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-            var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
+            var pdf = Renderer.RenderHtmlAsPdf(txtHTML);
             pdf.SaveAs(path);
         }
 
-        public async Task<object> CreaPDFObject(string txtHTML, List<string> attachments = null)
+        public async Task<object> CreaPDFObject(string txtHTML, bool abilitaPaginazione = true, List<string> attachments = null)
         {
             var Renderer = SetupRender();
-            Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
+            if (abilitaPaginazione)
+                Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
             var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
             if (attachments == null) return pdf;
             if (!attachments.Any()) return pdf;
@@ -68,11 +71,9 @@ namespace PortaleRegione.GestioneStampe
             foreach (var attach in from attachment in attachments
                                    where File.Exists(attachment)
                                    where Path.GetExtension(attachment)
-.Equals(".pdf", StringComparison.InvariantCultureIgnoreCase)
+                                       .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase)
                                    select PdfDocument.FromFile(attachment))
-            {
                 pdf.AppendPdf(attach);
-            }
 
             return pdf;
         }
@@ -92,11 +93,15 @@ namespace PortaleRegione.GestioneStampe
         public void MergedPDF(string path, List<object> docs)
         {
             var listPdf = docs.Select(i => (PdfDocument)i);
-            var Renderer = SetupRender();
-            Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-            Renderer.PrintOptions.Footer.DrawDividerLine = true;
             PdfDocument.Merge(listPdf).SaveAs(path);
         }
+
+        public void MergedPDF(string path, List<byte[]> docs)
+        {
+            var listPdf = docs.Select(i => new PdfDocument(i));
+            PdfDocument.Merge(listPdf).SaveAs(path);
+        }
+
         public byte[] MergedPDFInMemory(string path, List<object> docs)
         {
             var listPdf = docs.Select(i => (PdfDocument)i);

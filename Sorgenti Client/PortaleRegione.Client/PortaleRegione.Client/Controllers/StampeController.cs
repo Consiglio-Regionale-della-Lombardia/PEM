@@ -131,6 +131,9 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> NuovaStampaDasi(StampaModel model)
         {
             var request = new BaseRequest<AttoDASIDto, StampaDto>();
+            if (model.filters == null)
+                model.filters = new List<string>();
+
             var modelFiltro = model.filters.FirstOrDefault();
             if (string.IsNullOrEmpty(modelFiltro))
             {
