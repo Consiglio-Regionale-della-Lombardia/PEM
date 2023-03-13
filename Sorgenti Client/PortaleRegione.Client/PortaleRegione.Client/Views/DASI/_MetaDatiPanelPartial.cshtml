@@ -49,6 +49,12 @@
                                     <span>Oggetto Modificato</span>
                                 </label>
                             </p>
+                            <p style="padding-left: 10px">
+                                <label>
+                                    <input name="Oggetto" type="radio" value="2"/>
+                                    <span>Oggetto Privacy</span>
+                                </label>
+                            </p>
                         </span>
                         <input id="EditorOggetto" class="form-control"/>
                     </div>
@@ -139,7 +145,7 @@
             if (carica_oggetto) {
                 if ($("input[type=radio][name='Oggetto']:checked").val() == 0) {
                     carica_oggetto = false;
-                    $("input[type=radio][name='Oggetto']:not(:checked)").click();
+                    $("input[type=radio][name='Oggetto'][value='1']").click();
                 }
             }
         });
@@ -153,6 +159,12 @@
                         $('#EditorOggetto').val(atto.Oggetto);
                     else
                         $('#EditorOggetto').val(atto.Oggetto_Modificato);
+                    $('#metaDatiOggetto> .form-group > p').show();
+                }else if (this.value == 2) {
+                    if (atto.Oggetto_Privacy == null || atto.Oggetto_Privacy == "")
+                        $('#EditorOggetto').val(atto.Oggetto);
+                    else
+                        $('#EditorOggetto').val(atto.Oggetto_Privacy);
                     $('#metaDatiOggetto> .form-group > p').show();
                 }
             } else {
@@ -234,8 +246,8 @@
             var oggetto_modificabile = $("input[type=radio][name='Oggetto']:checked")[0];
             if ($(oggetto_modificabile).val() == 1) {
                 atto.Oggetto_Modificato = $('#EditorOggetto').val();
-            } else {
-                atto.Oggetto_Modificato = "";
+            } else if ($(oggetto_modificabile).val() == 2) {
+                atto.Oggetto_Privacy = $('#EditorOggetto').val();
             }
 
             var premesse_modificabile = $("input[type=radio][name='Premesse']:checked")[0];
@@ -353,6 +365,7 @@
     }
 
     function LoadMetaDati_Oggetto(atto) {
+        console.log(atto);
         if (atto.Oggetto_Modificato != null && atto.Oggetto_Modificato !== "") {
             $("input[type=radio][name='Oggetto'][value=1]").prop("checked", true);
         } else {

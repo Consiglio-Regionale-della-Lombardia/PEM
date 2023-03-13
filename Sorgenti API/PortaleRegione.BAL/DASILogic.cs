@@ -2424,6 +2424,12 @@ namespace PortaleRegione.API.Controllers
                      !string.IsNullOrEmpty(atto.Oggetto_Modificato))
                 //caso in cui l'utente voglia tornare allo stato precedente
                 atto.Oggetto_Modificato = string.Empty;
+
+            if (!string.IsNullOrEmpty(model.Oggetto_Privacy) && !model.Oggetto_Privacy.Equals(model.Oggetto))
+            {
+                atto.Oggetto_Privacy = model.Oggetto_Privacy;
+            }
+
             if (!string.IsNullOrEmpty(model.Premesse_Modificato))
                 atto.Premesse_Modificato = model.Premesse_Modificato;
             else if (string.IsNullOrEmpty(model.Premesse_Modificato) &&

@@ -30,7 +30,7 @@
             set_Filtri_DASI({});
         } else {
             var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters));
-            console.log("filtri", filtri)
+            console.log("filtri", filtri);
             var filtri_cache = get_Filtri_DASI();
             var block_stato_each = false;
             var block_tipo_each = false;

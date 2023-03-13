@@ -1,11 +1,11 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
-@using PortaleRegione.DTO.Model
 @using Utility = PortaleRegione.Common.Utility
-@model PortaleRegione.DTO.Domain.AttoDASIDto
+@model PortaleRegione.DTO.Model.DASIFormModel
 
 @{
-    ViewBag.Title = $"{Utility.GetText_Tipo(Model)} {Model.NAtto}";
+    var atto = Model.Atto;
+    ViewBag.Title = $"{Utility.GetText_Tipo(atto)} {atto.NAtto}";
 
     var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
     var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
@@ -24,9 +24,9 @@
         view = viewFromCache
     };
     var backUrl = Url.Action("RiepilogoDASI", objParams);
-    if (Convert.ToInt16(modeFromCache)  == (int)ClientModeEnum.TRATTAZIONE)
+    if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
     {
-        backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = Model.UIDSeduta, tipo = Model.Tipo });
+        backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo });
     }
 }
 
@@ -43,57 +43,57 @@
                 <a class="grey-arrow-back" style="left: 10px; min-width: unset; position: absolute; top: 18px;" onclick="go('@backUrl')">
                     <i class="material-icons">arrow_back</i>
                 </a>
-                <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(Model.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: 18px;">@Utility.GetText_StatoDASI(Model.IDStato)</div>
+                <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: 18px;">@Utility.GetText_StatoDASI(atto.IDStato)</div>
                 <h6>
                     <b>
-                        <span>@Html.Raw(Model.gruppi_politici.nome_gruppo)</span>
+                        <span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
                     </b>
                 </h6>
             </div>
-            @if (Model.Firmabile 
-                 || Model.Presentabile 
-                 || Model.Eliminabile 
-                 || Model.Ritirabile 
-                 || Model.Modificabile 
-                 || Model.Invito_Abilitato
-                 && Convert.ToInt16(modeFromCache) != (int)ClientModeEnum.TRATTAZIONE)
+            @if (atto.Firmabile
+                 || atto.Presentabile
+                 || atto.Eliminabile
+                 || atto.Ritirabile
+                 || atto.Modificabile
+                 || (atto.Invito_Abilitato
+                     && Convert.ToInt16(modeFromCache) != (int)ClientModeEnum.TRATTAZIONE))
             {
                 <div class="card-action grey lighten-4 center" style="border-top: unset">
                     <div class="row" style="margin: 0 !important">
                         <div class="col s12" style="margin-top: 5px">
-                            @if (Model.Firmabile)
+                            @if (atto.Firmabile)
                             {
-                                <div class="btn chip hoverable green center white-text" onclick="RevealFirmaDepositoDASI('@Model.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                <div class="btn chip hoverable green center white-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                                     <i class="icon material-icons">gavel</i> Firma
                                 </div>
                             }
-                            @if (Model.Presentabile)
+                            @if (atto.Presentabile)
                             {
-                                <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDepositoDASI('@Model.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDepositoDASI('@atto.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                                     <i class="icon material-icons">lock</i> Deposita
                                 </div>
                             }
-                            @if (Model.Modificabile)
+                            @if (atto.Modificabile)
                             {
-                                <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("Modifica", new {id = Model.UIDAtto})')">
+                                <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("Modifica", new { id = atto.UIDAtto })')">
                                     <i class="icon material-icons">edit</i> Modifica
                                 </div>
                             }
-                            @if (Model.Invito_Abilitato)
+                            @if (atto.Invito_Abilitato)
                             {
-                                <div class="btn chip hoverable amber center" onclick="NotificaADASI('@Model.UIDAtto', @Model.Tipo)">
+                                <div class="btn chip hoverable amber center" onclick="NotificaADASI('@atto.UIDAtto', @atto.Tipo)">
                                     <i class="icon material-icons">share</i> Invita
                                 </div>
                             }
-                            @if (Model.Eliminabile)
+                            @if (atto.Eliminabile)
                             {
-                                <div class="btn chip hoverable red center white-text" onclick="ConfirmActionDASI('@Model.UIDAtto', '', @Html.Raw((int) ActionEnum.ELIMINA))">
+                                <div class="btn chip hoverable red center white-text" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.ELIMINA))">
                                     <i class="icon material-icons">delete</i> Elimina
                                 </div>
                             }
-                            @if (Model.Ritirabile)
+                            @if (atto.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmActionDASI('@Model.UIDAtto', '', @Html.Raw((int) ActionEnum.RITIRA))">
+                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmActionDASI('@atto.UIDAtto', '', @Html.Raw((int)ActionEnum.RITIRA))">
                                     <i class="icon material-icons">settings_backup_restore</i> Ritira
                                 </div>
                             }
@@ -105,18 +105,18 @@
                 @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
                 <div class="row">
                     <div class="col s6 left">
-                        @if (Model.UIDPersonaModifica.HasValue && Model.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                        @if (atto.UIDPersonaModifica.HasValue && atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                         {
                             <label style="font-size: small !important">Ultima modifica: </label>
                             <br/>
-                            <b>[@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @Model.PersonaModifica.DisplayName</b>
+                            <b>[@atto.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @atto.PersonaModifica.DisplayName</b>
                         }
-                        @if (!string.IsNullOrEmpty(Model.Note_Pubbliche))
+                        @if (!string.IsNullOrEmpty(atto.Note_Pubbliche))
                         {
                             <div class="green-text">
                                 <p style="padding-top: 10px">
                                     <b>Nota ufficio dei lavori assembleari: </b>
-                                    @Html.Raw(Model.Note_Pubbliche)
+                                    @Html.Raw(atto.Note_Pubbliche)
                                 </p>
                             </div>
                         }
@@ -124,53 +124,53 @@
                     <div class="col s6 right-align">
                         <label style="font-size: small !important">Proponente: </label>
                         <br/>
-                        <b>@Model.PersonaProponente.DisplayName</b>
+                        <b>@atto.PersonaProponente.DisplayName</b>
                     </div>
                 </div>
 
                 @* BODY *@
                 <div class="row">
                     <div class="col s12 center bodyEMClass">
-                        @Html.Raw(Model.BodyAtto)
+                        @Html.Raw(atto.BodyAtto)
                     </div>
                 </div>
                 @* FIRME *@
                 <div class="row">
                     <div class="col s12">
-                        @Html.Raw(Model.Firme)
+                        @Html.Raw(atto.Firme)
 
-                        @if (!string.IsNullOrEmpty(Model.DataPresentazione))
+                        @if (!string.IsNullOrEmpty(atto.DataPresentazione))
                         {
                             var testoDeposito = "Atto presentato";
-                            if (Model.Firma_da_ufficio)
+                            if (atto.Firma_da_ufficio)
                             {
                                 testoDeposito += " d'ufficio";
                             }
 
-                            <label class="green-text">@testoDeposito il @Html.Raw(Model.DataPresentazione)</label>
+                            <label class="green-text">@testoDeposito il @Html.Raw(atto.DataPresentazione)</label>
                         }
 
-                        @if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))
+                        @if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
                         {
-                            @Html.Raw(Model.Firme_dopo_deposito)
+                            @Html.Raw(atto.Firme_dopo_deposito)
                         }
                     </div>
                 </div>
 
                 @* INVITI *@
-                @if (!string.IsNullOrEmpty(Model.Destinatari))
+                @if (!string.IsNullOrEmpty(atto.Destinatari))
                 {
                     <div class="row">
                         <div class="col s12">
                             <h5>Invitati</h5>
                             <hr/>
-                            @Html.Raw(Model.Destinatari)
+                            @Html.Raw(atto.Destinatari)
                         </div>
                     </div>
                 }
 
                 @* NOTE RISERVATE *@
-                @if (!string.IsNullOrEmpty(Model.Note_Private) &&
+                @if (!string.IsNullOrEmpty(atto.Note_Private) &&
                      (User.IsInRole(RuoliExt.Amministratore_PEM)
                       || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
                 {
@@ -178,7 +178,7 @@
                         <div class="col s12 red-text">
                             <p>
                                 <b>Nota riservata:</b>
-                                @Html.Raw(Model.Note_Private)
+                                @Html.Raw(atto.Note_Private)
                             </p>
                         </div>
                     </div>
@@ -189,9 +189,29 @@
 </div>
 
 <div class="fixed-action-btn">
-    <a class="btn-floating btn-large white black-text tooltipped" data-position="left" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "DASI", new { id = Model.UIDAtto })">
-        <i class="large material-icons">print</i>
-    </a>
+    @if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
+    {
+        <a class="btn-floating btn-large white black-text tooltipped"
+           data-position="left"
+           data-tooltip="Stampa"
+           data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
+           data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+           onclick="StampaUOLA(this)"
+           style="margin-right: 15px;">
+            <i class="material-icons">print</i>
+        </a>
+    }
+    else
+    {
+        <a class="btn-floating btn-large white black-text tooltipped"
+           data-position="left"
+           data-tooltip="Stampa"
+           target="_blank"
+           href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+           style="margin-right: 15px;">
+            <i class="material-icons">print</i>
+        </a>
+    }
 </div>
 
-@Html.Partial("_InvitoPanel", Model)
+@Html.Partial("_InvitoPanel", atto)

@@ -179,21 +179,26 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
+                var currentUser = CurrentUser;
                 var apiGateway = new ApiGateway(Token);
                 var atto = await apiGateway.DASI.Get(id);
                 atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML, true);
                 atto.Firme = await Utility.GetFirmatariDASI(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
-                    CurrentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
+                    currentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
                 atto.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
                     await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
-                    CurrentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
+                    currentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
 
                 if (!atto.IsChiuso)
                     atto.Destinatari =
                         await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
 
-                return View("AttoDASIView", atto);
+                return View("AttoDASIView", new DASIFormModel
+                {
+                    CurrentUser = currentUser,
+                    Atto = atto
+                });
             }
             catch (Exception e)
             {
