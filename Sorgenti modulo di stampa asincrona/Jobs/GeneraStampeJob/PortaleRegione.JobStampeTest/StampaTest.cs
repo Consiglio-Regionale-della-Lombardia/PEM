@@ -9,7 +9,7 @@ namespace PortaleRegione.JobStampeTest
     public class Tests : BaseTest
     {
         [Test]
-        [TestCase("matteo.c", "Opencast88")]
+        [TestCase("matteo.c", "")]
         public async Task Stampa(string username, string password)
         {
             await Init(username, password);
