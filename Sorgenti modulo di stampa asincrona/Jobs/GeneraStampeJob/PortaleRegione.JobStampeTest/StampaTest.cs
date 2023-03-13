@@ -28,7 +28,7 @@ namespace PortaleRegione.JobStampeTest
                     RootRepository = @"D:\Regione Lombardia\Emendamenti",
                     UrlAPI = "http://localhost:52415",
                     UrlCLIENT = "http://localhost:58019",
-                    PDF_LICENSE = "IRONPDF.NAMIRIALSPA.IRO221014.7583.32109.410122-18A3800A31-CFV723JMBJIYZ4K-HCIT6H72EBCJ-NQYCKHU2WYVO-DUCCQUCNKAXF-MGYXL4N53BA5-UH6NWC-L23P7VJKHTGKUA-LITE.SUB-JVZX4D.RENEW.SUPPORT.14.OCT.2023"
+                    PDF_LICENSE = ""
                 };
 
                 var auth = await apiGateway.Persone.Login(new LoginRequest
