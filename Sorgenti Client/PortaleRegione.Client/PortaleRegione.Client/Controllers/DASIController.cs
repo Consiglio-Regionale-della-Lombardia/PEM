@@ -48,15 +48,15 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
             int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
         {
+            var currentUser = CurrentUser;
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
-
+            await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
 
             var apiGateway = new ApiGateway(Token);
-
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
-                CurrentUser.CurrentRole, view_require_my_sign);
-            model.CurrentUser = CurrentUser;
+                currentUser.CurrentRole, view_require_my_sign);
+            model.CurrentUser = currentUser;
             SetCache(page, size, tipo, stato, view);
             if (view == (int)ViewModeEnum.PREVIEW)
             {

@@ -25,6 +25,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Routes;
+using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -53,7 +54,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetStampe", e);
+                Log.Error("GetStampe", e);
                 return ErrorHandler(e);
             }
         }
@@ -74,7 +75,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetStampa", e);
+                Log.Error("GetStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -103,7 +104,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("DownloadStampa", e);
+                Log.Error("DownloadStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -131,7 +132,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("EliminaStampa", e);
+                Log.Error("EliminaStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -159,7 +160,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("ResetStampa", e);
+                Log.Error("ResetStampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -188,7 +189,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Add info Stampa", e);
+                Log.Error("Add info Stampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -216,7 +217,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Get info Stampa", e);
+                Log.Error("Get info Stampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -237,7 +238,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Get info Stampa", e);
+                Log.Error("Get info Stampa", e);
                 return ErrorHandler(e);
             }
         }
@@ -258,7 +259,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Get info Stampa", e);
+                Log.Error("Get info Stampa", e);
                 return ErrorHandler(e);
             }
         }

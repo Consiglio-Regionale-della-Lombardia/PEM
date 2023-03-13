@@ -27,6 +27,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,7 +104,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetNotificheInviate", e);
+                Log.Error("Logic - GetNotificheInviate", e);
                 throw e;
             }
         }
@@ -445,7 +446,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - NotificaVista", e);
+                Log.Error("Logic - NotificaVista", e);
                 throw e;
             }
         }

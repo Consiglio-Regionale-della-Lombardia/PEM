@@ -26,6 +26,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -189,7 +190,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception ex)
             {
-                //Log.Error("GeneraPDFAtti Error-->", ex);
+                Log.Error("GeneraPDFAtti Error-->", ex);
             }
 
             return listaPercorsi;
@@ -259,7 +260,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("StampaEmendamenti ERROR", e);
+                Log.Error("StampaEmendamenti ERROR", e);
                 throw e;
             }
         }
@@ -457,7 +458,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception ex)
             {
-                //Log.Error("GeneraPDFEmendamenti Error-->", ex);
+                Log.Error("GeneraPDFEmendamenti Error-->", ex);
             }
 
             return listaPercorsi;
@@ -479,7 +480,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error($"ERRORE PULIZIA CARTELLA TEMPORANEA [{_pathTemp}]", e);
+                Log.Error($"ERRORE PULIZIA CARTELLA TEMPORANEA [{_pathTemp}]", e);
             }
         }
     }

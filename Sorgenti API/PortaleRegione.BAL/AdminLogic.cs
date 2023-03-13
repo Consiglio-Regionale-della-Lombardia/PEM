@@ -27,6 +27,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetPersoneIn_DB", e);
+                Log.Error("Logic - GetPersoneIn_DB", e);
                 throw e;
             }
         }
@@ -131,7 +132,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetPersoneIn_DB_ByGiunta", e);
+                Log.Error("Logic - GetPersoneIn_DB_ByGiunta", e);
                 throw e;
             }
         }
@@ -207,7 +208,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountAll", e);
+                Log.Error("Logic - CountAll", e);
                 throw e;
             }
         }
@@ -245,7 +246,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountAllByGiunta", e);
+                Log.Error("Logic - CountAllByGiunta", e);
                 throw e;
             }
         }

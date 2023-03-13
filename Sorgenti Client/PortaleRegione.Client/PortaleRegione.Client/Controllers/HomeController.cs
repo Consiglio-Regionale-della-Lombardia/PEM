@@ -34,14 +34,16 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                CheckCacheClientMode(ClientModeEnum.GRUPPI);
-
                 var apiGateway = new ApiGateway(Token);
                 var model = new DashboardModel
                 {
                     Sedute = await apiGateway.Sedute.GetAttiveDashboard(),
                     CurrentUser = CurrentUser
                 };
+
+                CheckCacheClientMode(ClientModeEnum.GRUPPI);
+                await CheckCacheGruppiAdmin(model.CurrentUser.CurrentRole);
+
                 foreach (var seduta in model.Sedute.Results)
                 {
                     var attiPEM = await apiGateway.Atti.Get(seduta.UIDSeduta, ClientModeEnum.TRATTAZIONE, 1, 99);

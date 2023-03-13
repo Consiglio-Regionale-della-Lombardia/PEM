@@ -25,6 +25,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Routes;
+using PortaleRegione.Logger;
 using QRCoder;
 using System;
 using System.Collections.Generic;
@@ -175,7 +176,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("GetNomeEM", e);
+                Log.Error("GetNomeEM", e);
                 throw e;
             }
         }
@@ -731,7 +732,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("GetFirmatari - DASI", e);
+                Log.Error("GetFirmatari - DASI", e);
                 throw e;
             }
         }
@@ -805,7 +806,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("GetBodyMail", e);
+                Log.Error("GetBodyMail", e);
                 throw e;
             }
         }

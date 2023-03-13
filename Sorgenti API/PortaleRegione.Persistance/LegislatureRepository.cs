@@ -41,8 +41,8 @@ namespace PortaleRegione.Persistance
 
         public async Task<int> Legislatura_Attiva()
         {
-            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
-            var result = await PRContext.legislature.SingleOrDefaultAsync(l => l.attiva);
+            PRContext.legislature.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            var result = await PRContext.legislature.Where(l => l.attiva).OrderBy(l => l.id_legislatura).FirstOrDefaultAsync();
             return result?.id_legislatura ?? 0;
         }
 

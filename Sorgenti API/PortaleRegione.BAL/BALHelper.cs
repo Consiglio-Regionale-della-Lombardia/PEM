@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Logger;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -36,7 +37,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("DecryptString", e);
+                Log.Error("DecryptString", e);
                 throw e;
             }
         }
@@ -114,7 +115,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("EncryptString", e);
+                Log.Error("EncryptString", e);
                 throw e;
             }
         }

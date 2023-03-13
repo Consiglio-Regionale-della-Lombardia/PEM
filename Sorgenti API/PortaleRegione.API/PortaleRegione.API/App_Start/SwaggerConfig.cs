@@ -32,7 +32,7 @@ namespace PortaleRegione.API
                         // the docs is taken as the default. If your API supports multiple schemes and you want to be explicit
                         // about them, you can use the "Schemes" option as shown below.
                         //
-                        //c.Schemes(new[] { "http", "https" });
+                        c.Schemes(new[] { "http", "https" });
 
                         // Use "SingleApiVersion" to describe a single version API. Swagger 2.0 includes an "Info" object to
                         // hold additional metadata for an API. Version and title are required but you can also provide
@@ -67,7 +67,7 @@ namespace PortaleRegione.API
                         //c.BasicAuth("basic")
                         //    .Description("Basic HTTP Authentication");
                         //
-						// NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
+                        // NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
                         //c.ApiKey("apiKey")
                         //    .Description("API Key Authentication")
                         //    .Name("apiKey")
@@ -213,7 +213,7 @@ namespace PortaleRegione.API
                         // in a badge at the bottom of the page. Use these options to set a different validator URL or to disable the
                         // feature entirely.
                         //c.SetValidatorUrl("http://localhost/validator");
-                        //c.DisableValidator();
+                        c.DisableValidator();
 
                         // Use this option to control how the Operation listing is displayed.
                         // It can be set to "None" (default), "List" (shows operations for each resource),

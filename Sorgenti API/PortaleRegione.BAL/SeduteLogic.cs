@@ -40,10 +40,10 @@ namespace PortaleRegione.BAL
 
         public async Task<BaseResponse<SeduteDto>> GetSedute(BaseRequest<SeduteDto> model, Uri url)
         {
+            var legislatura_attiva = await _unitOfWork.Legislature.Legislatura_Attiva();
             var queryFilter = new Filter<SEDUTE>();
             queryFilter.ImportStatements(model.filtro);
 
-            var legislatura_attiva = await _unitOfWork.Legislature.Legislatura_Attiva();
             var listaSedute = await _unitOfWork.Sedute
                 .GetAll(legislatura_attiva, model.page, model.size, queryFilter);
             var countSedute = await _unitOfWork.Sedute.Count(legislatura_attiva, queryFilter);

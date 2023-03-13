@@ -26,6 +26,7 @@ using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,7 +56,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetStampa", e);
+                Log.Error("Logic - GetStampa", e);
                 throw e;
             }
         }

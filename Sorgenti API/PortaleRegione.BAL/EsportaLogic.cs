@@ -37,6 +37,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -241,7 +242,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - EsportaGrigliaXLS", e);
+                Log.Error("Logic - EsportaGrigliaXLS", e);
                 throw e;
             }
         }
@@ -564,7 +565,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - EsportaGrigliaReportXLS", e);
+                Log.Error("Logic - EsportaGrigliaReportXLS", e);
                 throw e;
             }
         }

@@ -31,6 +31,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -888,7 +889,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - Firma - DASI", e);
+                Log.Error("Logic - Firma - DASI", e);
                 throw e;
             }
         }
@@ -1133,7 +1134,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - EliminaFirma - DASI", e);
+                Log.Error("Logic - EliminaFirma - DASI", e);
                 throw e;
             }
         }
@@ -1549,13 +1550,13 @@ namespace PortaleRegione.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    //Log.Error("GetBodyDASI", e);
+                    Log.Error("GetBodyDASI", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetBodyDASI", e);
+                Log.Error("Logic - GetBodyDASI", e);
                 throw e;
             }
         }
@@ -1863,7 +1864,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ModificaStato", e);
+                Log.Error("Logic - ModificaStato", e);
                 throw e;
             }
         }
@@ -2002,7 +2003,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - RimuoviSeduta", e);
+                Log.Error("Logic - RimuoviSeduta", e);
                 throw e;
             }
         }
@@ -2029,7 +2030,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - RimuoviRichiesta", e);
+                Log.Error("Logic - RimuoviRichiesta", e);
                 throw e;
             }
         }
@@ -2123,7 +2124,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ProponiMozioneUrgente", e);
+                Log.Error("Logic - ProponiMozioneUrgente", e);
                 throw e;
             }
         }
@@ -2151,7 +2152,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ProponiMozioneAbbinata", e);
+                Log.Error("Logic - ProponiMozioneAbbinata", e);
                 throw e;
             }
         }
@@ -2215,7 +2216,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetDASI_UID_RawChunk", e);
+                Log.Error("Logic - GetDASI_UID_RawChunk", e);
                 throw e;
             }
         }
@@ -2237,7 +2238,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
+                Log.Error("Logic - GetDASI_Firmatari_RawChunk", e);
                 throw e;
             }
         }
@@ -2265,7 +2266,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetInvitati", e);
+                Log.Error("Logic - GetInvitati", e);
                 throw e;
             }
         }
@@ -2278,7 +2279,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - Count DASI By Query", e);
+                Log.Error("Logic - Count DASI By Query", e);
                 throw e;
             }
         }
@@ -2301,7 +2302,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetByQuery", e);
+                Log.Error("Logic - GetByQuery", e);
                 throw e;
             }
         }

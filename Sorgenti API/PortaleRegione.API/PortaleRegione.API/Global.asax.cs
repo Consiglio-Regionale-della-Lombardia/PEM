@@ -17,6 +17,7 @@
  */
 
 using AutoMapper;
+using PortaleRegione.Logger;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -35,7 +36,7 @@ namespace PortaleRegione.API
         protected void Application_Start()
         {
             // Inizializza Log
-            //Log.Initialize();
+            Log.Initialize();
             // Inizializza mappaggio dominio database
             Mapper.Initialize(c => c.AddProfile<MappingProfile>());
             AreaRegistration.RegisterAllAreas();
