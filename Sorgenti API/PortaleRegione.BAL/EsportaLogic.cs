@@ -804,7 +804,7 @@ namespace PortaleRegione.BAL
                         || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
                         || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
                     {
-                        SetColumnValue(ref rowBody, ""); // oggetto
+                        SetColumnValue(ref rowBody, atto.Oggetto); // oggetto
                     }
                     else
                     {
@@ -838,7 +838,18 @@ namespace PortaleRegione.BAL
 
         private void SetColumnValue(ref IRow row, string val, CellType type = CellType.String)
         {
-            row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
+            if (DateTime.TryParse(val, out var dataTime))
+            {
+                row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(dataTime);
+            }
+            else if (int.TryParse(val, out var interoResult))
+            {
+                row.CreateCell(GetColumn(row.LastCellNum), CellType.Numeric).SetCellValue(interoResult);
+            }
+            else
+            {
+                row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
+            }
         }
 
         private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
