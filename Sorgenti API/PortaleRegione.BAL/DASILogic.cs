@@ -1327,6 +1327,8 @@ namespace PortaleRegione.API.Controllers
 
                 atto.chkf = count_firme.ToString();
 
+                _unitOfWork.DASI.IncrementaContatore(contatore);
+
                 await _unitOfWork.CompleteAsync();
 
                 var new_nome_atto =
@@ -1335,8 +1337,6 @@ namespace PortaleRegione.API.Controllers
                 var content = await PDFIstantaneo(atto, null);
                 attachList.Add(new AllegatoMail(content, $"{new_nome_atto}.pdf"));
                 results.Add(idGuid, $"{new_nome_atto} - OK");
-
-                _unitOfWork.DASI.IncrementaContatore(contatore);
 
                 if (atto.Tipo == (int)TipoAttoEnum.ODG)
                     if (atto.Non_Passaggio_In_Esame)
@@ -1359,7 +1359,7 @@ namespace PortaleRegione.API.Controllers
                             // ignored
                         }
 
-                await _unitOfWork.CompleteAsync();
+
                 counterPresentazioni++;
             }
 
@@ -1390,7 +1390,7 @@ namespace PortaleRegione.API.Controllers
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
             {
-                var firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(atto.UIDAtto);
+                var firmatari = await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
@@ -1436,7 +1436,7 @@ namespace PortaleRegione.API.Controllers
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
-                            $"{BALHelper.Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
+                            $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var moz in moz_da_esaminare)
                         {
@@ -1473,7 +1473,7 @@ namespace PortaleRegione.API.Controllers
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
-                            $"{BALHelper.Decrypt(firma.FirmaCert)}, firma non valida perchè già presente in [[LISTA]]; ";
+                            $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var odg in iqt_da_esaminare)
                         {

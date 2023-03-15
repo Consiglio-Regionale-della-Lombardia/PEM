@@ -22,6 +22,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.Logger;
 using System;
 using System.Data.Entity.Validation;
 using System.Security.Claims;
@@ -106,6 +107,8 @@ namespace PortaleRegione.API.Helpers
             _stampeLogic = stampeLogic;
             _utilsLogic = utilsLogic;
             _adminLogic = adminLogic;
+
+            Log.Initialize();
         }
 
         /// <summary>

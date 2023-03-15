@@ -1,4 +1,5 @@
 ﻿using IronPdf;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,7 +42,7 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                //Log.Error("CreaPDFInMemory DASI Error-->", ex);
+                Log.Error("CreaPDFInMemory Error-->", ex);
                 throw ex;
             }
         }

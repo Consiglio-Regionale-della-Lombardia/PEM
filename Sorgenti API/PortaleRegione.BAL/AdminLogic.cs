@@ -375,10 +375,15 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<BaseResponse<PersonaDto>> GetUtenti(BaseRequest<PersonaDto> model, PersonaDto persona,
-            Uri url)
+            Uri url, bool ignora_ruolo = false)
         {
             try
             {
+                if (ignora_ruolo)
+                {
+                    persona = null;
+                }
+
                 var intranetAdService = new proxyAD();
 
                 var filtri_ruoli_gruppi = new List<string>();
@@ -403,10 +408,13 @@ namespace PortaleRegione.BAL
                         filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
                     }
                 }
-                else if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                else if (persona != null)
                 {
-                    var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(persona.Gruppo.id_gruppo);
-                    filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                    if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                    {
+                        var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(persona.Gruppo.id_gruppo);
+                        filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                    }
                 }
 
                 if (filtri_ruoli_gruppi.Any())
@@ -455,9 +463,15 @@ namespace PortaleRegione.BAL
                     results.Add(persona_in_db);
                 }
 
+                var size = model.size;
+                if (persona != null)
+                {
+                    size = persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica ? counter : model.size;
+                }
+
                 return new BaseResponse<PersonaDto>(
                     model.page,
-                    persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica ? counter : model.size,
+                    size,
                     results,
                     model.filtro,
                     counter,

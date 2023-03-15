@@ -1136,13 +1136,10 @@ async function Filtri_DASI_CaricaLegislature(ctrlSelect) {
     }
 
     var legislature = await GetLegislature();
-    if (!filterSelect) {
-        filterSelect = legislature[0].id_legislatura;
-    }
     if (legislature.length > 0) {
         var select = $("#" + ctrlSelect);
         select.empty();
-
+        select.append($("<option selected='selected'></option>").val("").html(""));
         $.each(legislature,
             function (index, item) {
                 var template = "";

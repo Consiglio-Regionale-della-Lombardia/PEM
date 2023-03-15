@@ -353,7 +353,7 @@ namespace GeneraStampeJob
 
                 docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null).Select(i => (byte[])i.Value.Content));
 
-                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content != null);
+                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content == null);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
 
                 //Funzione che fascicola i PDF creati prima

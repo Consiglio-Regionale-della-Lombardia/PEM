@@ -609,8 +609,8 @@ namespace PortaleRegione.BAL
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
 
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
-                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));
+                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= atto.Timestamp);
+                var firmePost = firmeDtos.Where(f => f.Timestamp > atto.Timestamp);
 
                 if (firmeAnte.Any())
                     body = body.Replace("{radGridFirmeView}",

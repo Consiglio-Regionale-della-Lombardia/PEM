@@ -75,6 +75,10 @@
       <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Sorgenti API\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
+      <Project>{1F9EEC0B-08CC-481F-820E-C07B8327AC25}</Project>
+      <Name>PortaleRegione.Logger</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

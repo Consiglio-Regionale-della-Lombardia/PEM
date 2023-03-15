@@ -2230,11 +2230,14 @@ namespace PortaleRegione.BAL
 
         internal async Task<byte[]> PDFIstantaneo(EmendamentiDto em, PersonaDto persona)
         {
+            var currentMethod = "PDFIstantaneo";
             try
             {
+                Log.Debug($"{currentMethod} - Inizio");
                 List<string> listAttachments = new List<string>();
                 if (!string.IsNullOrEmpty(em.PATH_AllegatoGenerico))
                 {
+                    Log.Debug($"{currentMethod} - Aggiunto [{em.PATH_AllegatoGenerico}]");
                     var complete_path = Path.Combine(
                         AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                         Path.GetFileName(em.PATH_AllegatoGenerico));
@@ -2242,6 +2245,7 @@ namespace PortaleRegione.BAL
                 }
                 if (!string.IsNullOrEmpty(em.PATH_AllegatoTecnico))
                 {
+                    Log.Debug($"{currentMethod} - Aggiunto [{em.PATH_AllegatoTecnico}]");
                     var complete_path = Path.Combine(
                         AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                         Path.GetFileName(em.PATH_AllegatoTecnico));
@@ -2249,10 +2253,14 @@ namespace PortaleRegione.BAL
                 }
 
                 var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
+                Log.Debug($"{currentMethod} - Firme [{firme.Count()}]");
                 var body = await GetBodyEM(em, firme.ToList(), persona, TemplateTypeEnum.PDF);
+                Log.Debug($"{currentMethod} - HaveBody [{!string.IsNullOrEmpty(body)}]");
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-
-                return await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
+                var result = await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
+                Log.Debug($"{currentMethod} - HaveContent [{result != null}]");
+                Log.Debug($"{currentMethod} - ContentLength [{result.Length}]");
+                return result;
             }
             catch (Exception e)
             {

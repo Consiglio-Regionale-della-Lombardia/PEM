@@ -83,8 +83,11 @@ namespace PortaleRegione.API.Controllers
                             }
                         }
                 }, user
-                    , Request.RequestUri);
-                var presidente = ricerca_presidente_regione.Results.First();
+                    , Request.RequestUri,
+                    true);
+                PersonaDto presidente = null;
+                if (ricerca_presidente_regione.Results.Any())
+                    presidente = ricerca_presidente_regione.Results.First();
                 var results =
                     await _emendamentiLogic.GetEmendamenti(model, user, Convert.ToInt16(CLIENT_MODE), (int)VIEW_MODE,
                         presidente, Request.RequestUri);
