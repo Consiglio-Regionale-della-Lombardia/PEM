@@ -163,13 +163,13 @@
 
                         @if (!string.IsNullOrEmpty(Model.DataDeposito))
                         {
-                            var testoDeposito = "Emendamento presentato";
+                            var testoDeposito = "Emendamento depositato";
                             if (Model.Firma_da_ufficio)
                             {
                                 testoDeposito += " d'ufficio";
                             }
 
-                            <label class="green-text">@testoDeposito il @Html.Raw(Model.DataDeposito)</label>
+                            <label class="black-text"><b>@testoDeposito il @Html.Raw(Model.DataDeposito)</b></label>
                         }
 
                         @if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))

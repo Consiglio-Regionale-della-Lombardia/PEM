@@ -312,7 +312,7 @@ namespace PortaleRegione.BAL
             //Allegato Tecnico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoTecnico))
                 allegato_tecnico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></td></tr>";
+                    $"<div class=\"chip white black-text\"><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoTecnico}' target='_blank'>SCARICA ALLEGATO TECNICO</a></div>";
 
             #endregion
 
@@ -321,7 +321,7 @@ namespace PortaleRegione.BAL
             //Allegato Generico
             if (!string.IsNullOrEmpty(emendamento.PATH_AllegatoGenerico))
                 allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></td></tr>";
+                    $"<div class=\"chip white black-text\"><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.PEM.Emendamenti.DownloadDoc}?path={emendamento.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO GENERICO</a></div>";
 
             #endregion
 
@@ -433,7 +433,7 @@ namespace PortaleRegione.BAL
 
             var TemplatefirmeANTE = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme</h5>
+                                      <h6>Firmatari</h6>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
@@ -441,7 +441,7 @@ namespace PortaleRegione.BAL
                         </div>";
             var TemplatefirmePOST = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme dopo la presentazione</h5>
+                                      <h6>Firmatari dopo il deposito</h6>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
@@ -589,7 +589,7 @@ namespace PortaleRegione.BAL
 
             var TemplatefirmeANTE = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme</h5>
+                                      <h6>Firmatari</h6>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
@@ -597,7 +597,7 @@ namespace PortaleRegione.BAL
                         </div>";
             var TemplatefirmePOST = @"<div>
                              <div style='width:100%;'>
-                                      <h5>Firme dopo il deposito</h5>
+                                      <h6>Firmatari dopo la presentazione</h6>
                               </div>
                               <div style='text-align:left'>
                                 {firme}
@@ -715,14 +715,14 @@ namespace PortaleRegione.BAL
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
 
-                        body = $"<h6>{body}</h6><br/>";
+                        body = $"<div class='chip white black-text'>{body}</div></br>";
                     }
                     else
                     {
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
                         body =
-                            $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{body} ({attiFirmeDto.Data_ritirofirma})</h6></div><br/>";
+                            $"<div style='text-decoration:line-through;'><div class='chip white black-text'>{body} ({attiFirmeDto.Data_ritirofirma})</div></div></br>";
                     }
 
                     result.Add(body);
