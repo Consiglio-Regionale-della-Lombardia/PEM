@@ -81,6 +81,7 @@ namespace PortaleRegione.DTO.Domain
         //Parametro valorizzato solo da pannello amministratore
         public StatoPinEnum Stato_Pin { get; set; }
         public bool IsSegreteriaAssemblea => IsAmministratorePEM || CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
+        public bool IsSoloSegreteriaAssemblea => CurrentRole == RuoliIntEnum.Segreteria_Assemblea;
         public bool IsConsigliereRegionale => CurrentRole == RuoliIntEnum.Consigliere_Regionale;
         public bool IsAssessore => CurrentRole == RuoliIntEnum.Assessore_Sottosegretario_Giunta;
         public bool IsPresidente => CurrentRole == RuoliIntEnum.Presidente_Regione;
