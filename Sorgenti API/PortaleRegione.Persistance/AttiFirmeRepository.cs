@@ -125,10 +125,10 @@ namespace PortaleRegione.Persistance
             if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE
                 && (atto.Tipo == (int)TipoAttoEnum.ITL
                  && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
-                 || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO
+                 || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA
                 || atto.Tipo == (int)TipoAttoEnum.ITR
                     && atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE
-                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO))
+                    || atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA))
             {
                 return false;
             }

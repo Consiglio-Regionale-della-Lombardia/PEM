@@ -48,7 +48,7 @@ namespace PortaleRegione.DTO.Domain
         [Display(Name = "Foto")] public string foto { get; set; }
         [Display(Name = "Login di rete")] public string userAD { get; set; }
 
-        [Display(Name = "Consigliere/Assessore")]
+        [Display(Name = "Non consigliere")]
         public int No_Cons { get; set; } = 0;
 
         [Display(Name = "Notifica alla firma")]

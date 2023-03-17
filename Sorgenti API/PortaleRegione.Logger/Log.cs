@@ -23,11 +23,10 @@ namespace PortaleRegione.Logger
 {
     public class Log
     {
-        protected static ILog debugLogger;
+        private static readonly ILog log = LogManager.GetLogger(typeof(Log));
 
         private Log()
         {
-            debugLogger = LogManager.GetLogger("DebugLogger");
         }
 
         public static void Initialize()
@@ -41,17 +40,7 @@ namespace PortaleRegione.Logger
         /// <param name="message">The object message to log</param>
         public static void Debug(string message)
         {
-            debugLogger.Debug(message);
-        }
-
-
-        /// <summary>
-        /// </summary>
-        /// <param name="message">The object message to log</param>
-        /// <param name="exception">The exception to log, including its stack trace </param>
-        public static void Debug(string message, Exception exception)
-        {
-            debugLogger.Debug(message, exception);
+            log.Debug(message);
         }
 
         /// <summary>
@@ -59,7 +48,7 @@ namespace PortaleRegione.Logger
         /// <param name="message">The object message to log</param>
         public static void Error(string message)
         {
-            debugLogger.Error(message);
+            log.Error(message);
         }
 
         /// <summary>
@@ -68,7 +57,7 @@ namespace PortaleRegione.Logger
         /// <param name="exception">The exception to log, including its stack trace </param>
         public static void Error(string message, Exception exception)
         {
-            debugLogger.Error(message, exception);
+            log.Error(message, exception);
         }
     }
 }

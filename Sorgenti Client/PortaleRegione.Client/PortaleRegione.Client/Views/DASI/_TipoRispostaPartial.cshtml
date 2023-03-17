@@ -6,7 +6,7 @@
         <div class="input-field">
             <select id='Atto_TipoRisposta'>
                 <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>Orale</option>
-                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO ? "selected=\"selected\"" : "")>Scritto</option>
+                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>Scritto</option>
                 <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
             </select>
             <label for="Atto_TipoRisposta">Tipo Risposta</label>
@@ -16,7 +16,7 @@
     {
         <div class="input-field">
             <select id='Atto_TipoRisposta'>
-                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTO)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTO ? "selected=\"selected\"" : "")>Scritto</option>
+                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>Scritto</option>
                 <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
             </select>
             <label for="Atto_TipoRisposta">Tipo Risposta</label>

@@ -19,6 +19,7 @@
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.Logger;
 using System;
 using System.IO;
 using System.Linq;
@@ -153,7 +154,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("ARCHIVIO", e);
+                Log.Error("ARCHIVIO", e);
                 throw e;
             }
         }

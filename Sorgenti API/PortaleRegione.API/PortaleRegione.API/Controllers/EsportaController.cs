@@ -21,6 +21,7 @@ using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -79,7 +80,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("EsportaGrigliaXLS", e);
+                Log.Error("EsportaGrigliaXLS", e);
                 return ErrorHandler(e);
             }
         }
@@ -100,7 +101,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("EsportaGrigliaXLS", e);
+                Log.Error("EsportaGrigliaXLS", e);
                 return ErrorHandler(e);
             }
         }
@@ -121,7 +122,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("EsportaGrigliaXLS", e);
+                Log.Error("EsportaGrigliaXLS", e);
                 return ErrorHandler(e);
             }
         }
@@ -146,7 +147,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("EsportaGrigliaXLS", e);
+                Log.Error("EsportaGrigliaXLS", e);
                 return ErrorHandler(e);
             }
         }
@@ -171,7 +172,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("EsportaGrigliaDOC", e);
+                Log.Error("EsportaGrigliaDOC", e);
                 return ErrorHandler(e);
             }
         }

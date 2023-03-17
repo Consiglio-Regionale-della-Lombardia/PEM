@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.XPath;
-using PortaleRegione.DTO.Domain;
+﻿using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using System.Collections.Generic;
 
 namespace PortaleRegione.BAL
 {
@@ -18,7 +15,7 @@ namespace PortaleRegione.BAL
                 case TipoRispostaEnum.ORALE:
                     result = "Orale";
                     break;
-                case TipoRispostaEnum.SCRITTO:
+                case TipoRispostaEnum.SCRITTA:
                     result = "Scritto";
                     break;
                 case TipoRispostaEnum.COMMISSIONE:

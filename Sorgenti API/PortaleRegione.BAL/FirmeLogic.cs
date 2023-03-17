@@ -20,6 +20,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +60,8 @@ namespace PortaleRegione.BAL
                         Data_firma = BALHelper.Decrypt(firma.Data_firma),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
-                            : BALHelper.Decrypt(firma.Data_ritirofirma)
+                            : BALHelper.Decrypt(firma.Data_ritirofirma),
+                        Timestamp = firma.Timestamp
                     };
 
                     result.Add(firmaDto);
@@ -69,7 +71,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetFirme", e);
+                Log.Error("Logic - GetFirme", e);
                 throw e;
             }
         }
@@ -84,7 +86,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountFirme", e);
+                Log.Error("Logic - CountFirme", e);
                 throw e;
             }
         }
@@ -112,7 +114,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetFirmaUfficio", e);
+                Log.Error("Logic - GetFirmaUfficio", e);
                 throw e;
             }
         }

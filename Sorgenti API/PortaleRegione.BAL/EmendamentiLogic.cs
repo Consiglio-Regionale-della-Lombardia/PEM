@@ -30,6 +30,7 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,7 +61,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ORDINA_EM_TRATTAZIONE", e);
+                Log.Error("Logic - ORDINA_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -90,7 +91,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", e);
+                Log.Error("Logic - ORDINAMENTO_EM_TRATTAZIONE_CONCLUSO", e);
                 throw e;
             }
         }
@@ -103,7 +104,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - UP_EM_TRATTAZIONE", e);
+                Log.Error("Logic - UP_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -116,7 +117,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - DOWN_EM_TRATTAZIONE", e);
+                Log.Error("Logic - DOWN_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -129,7 +130,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - SPOSTA_EM_TRATTAZIONE", e);
+                Log.Error("Logic - SPOSTA_EM_TRATTAZIONE", e);
                 throw e;
             }
         }
@@ -275,7 +276,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ModelloNuovoEM", e);
+                Log.Error("Logic - ModelloNuovoEM", e);
                 throw e;
             }
         }
@@ -324,7 +325,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ModelloModificaEM", e);
+                Log.Error("Logic - ModelloModificaEM", e);
                 throw e;
             }
         }
@@ -397,7 +398,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - NuovoEmendamento", e);
+                Log.Error("Logic - NuovoEmendamento", e);
                 throw e;
             }
         }
@@ -480,7 +481,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ModificaEmendamento", e);
+                Log.Error("Logic - ModificaEmendamento", e);
                 throw e;
             }
         }
@@ -532,7 +533,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - ModificaMetaDatiEmendamento", e);
+                Log.Error("Logic - ModificaMetaDatiEmendamento", e);
                 throw e;
             }
         }
@@ -616,7 +617,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - DeleteEmendamento", e);
+                Log.Error("Logic - DeleteEmendamento", e);
                 throw e;
             }
         }
@@ -644,12 +645,12 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetInvitati", e);
+                Log.Error("Logic - GetInvitati", e);
                 throw e;
             }
         }
 
-        public async Task<string> GetBodyEM(EmendamentiDto em, IEnumerable<FirmeDto> firme, PersonaDto persona,
+        public async Task<string> GetBodyEM(EmendamentiDto em, List<FirmeDto> firme, PersonaDto persona,
             TemplateTypeEnum template)
         {
             try
@@ -688,13 +689,13 @@ namespace PortaleRegione.BAL
                 }
                 catch (Exception e)
                 {
-                    //Log.Error("GetBodyEM", e);
+                    Log.Error("GetBodyEM", e);
                     throw e;
                 }
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetBodyEM", e);
+                Log.Error("Logic - GetBodyEM", e);
                 throw e;
             }
         }
@@ -729,7 +730,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetCopertina", e);
+                Log.Error("Logic - GetCopertina", e);
                 throw e;
             }
         }
@@ -893,7 +894,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - FirmaEmendamento", e);
+                Log.Error("Logic - FirmaEmendamento", e);
                 throw e;
             }
         }
@@ -1028,7 +1029,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - RitiroFirmaEmendamento", e);
+                Log.Error("Logic - RitiroFirmaEmendamento", e);
                 throw e;
             }
         }
@@ -1071,7 +1072,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - EliminaFirmaEmendamento", e);
+                Log.Error("Logic - EliminaFirmaEmendamento", e);
                 throw e;
             }
         }
@@ -1150,7 +1151,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - DepositaEmendamento", e);
+                Log.Error("Logic - DepositaEmendamento", e);
                 throw e;
             }
         }
@@ -1188,7 +1189,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - RitiraEmendamento", e);
+                Log.Error("Logic - RitiraEmendamento", e);
                 throw e;
             }
         }
@@ -1525,7 +1526,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEM_DTO", e);
+                Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1556,7 +1557,8 @@ namespace PortaleRegione.BAL
 
                 emendamentoDto.Firmato_Dal_Proponente =
                     await _unitOfWork.Firme.CheckFirmato(em.UIDEM, em.UIDPersonaProponente);
-
+                emendamentoDto.PersonaProponente =
+                    Users.First(p => p.UID_persona == em.UIDPersonaProponente);
                 emendamentoDto.gruppi_politici =
                     Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
                         await _unitOfWork.Gruppi.Get(em.id_gruppo));
@@ -1565,7 +1567,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEM_DTO", e);
+                Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1603,11 +1605,13 @@ namespace PortaleRegione.BAL
                 em.ATTI = atto;
 
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
+                EmendamentiDto rifEM = null;
+                if (em.Rif_UIDEM.HasValue)
+                {
+                    rifEM = await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona);
+                }
 
-                emendamentoDto.N_EM = GetNomeEM(Mapper.Map<EM, EmendamentiDto>(em),
-                    em.Rif_UIDEM.HasValue
-                        ? await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona)
-                        : null);
+                emendamentoDto.N_EM = GetNomeEM(emendamentoDto, rifEM);
 
                 if (!string.IsNullOrEmpty(emendamentoDto.DataDeposito))
                     emendamentoDto.DataDeposito = BALHelper.Decrypt(emendamentoDto.DataDeposito);
@@ -1619,7 +1623,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEM_DTO", e);
+                Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1650,7 +1654,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEM_DTO", e);
+                Log.Error("Logic - GetEM_DTO", e);
                 throw e;
             }
         }
@@ -1805,7 +1809,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEmendamenti", e);
+                Log.Error("Logic - GetEmendamenti", e);
                 throw e;
             }
         }
@@ -1829,18 +1833,11 @@ namespace PortaleRegione.BAL
 
                 var result = new List<EmendamentiDto>();
                 var totalProcessTime = 0f;
-                var firstEM = await _unitOfWork.Emendamenti.Get(em_in_db.First(), false);
-                var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
 
                 foreach (var guid in em_in_db)
                     try
                     {
-                        var startTimer = DateTime.Now;
-                        EmendamentiDto dto;
-                        if (light_version)
-                            dto = await GetEM_DTO_Light(guid, atto, persona);
-                        else
-                            dto = await GetEM_DTO(guid, atto, persona);
+                        var dto = await GetEM_DTO(guid);
 
                         if (open_data_enabled)
                         {
@@ -1865,8 +1862,6 @@ namespace PortaleRegione.BAL
                         }
 
                         result.Add(dto);
-                        var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
-                        totalProcessTime += (float)spentTime;
                     }
                     catch (Exception e)
                     {
@@ -1891,7 +1886,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEmendamenti_RawChunk", e);
+                Log.Error("Logic - GetEmendamenti_RawChunk", e);
                 throw e;
             }
         }
@@ -1926,7 +1921,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEmendamenti", e);
+                Log.Error("Logic - GetEmendamenti", e);
                 throw e;
             }
         }
@@ -1950,7 +1945,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetEmendamenti", e);
+                Log.Error("Logic - GetEmendamenti", e);
                 throw e;
             }
         }
@@ -1969,7 +1964,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountEM", e);
+                Log.Error("Logic - CountEM", e);
                 throw e;
             }
         }
@@ -1982,7 +1977,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountEM", e);
+                Log.Error("Logic - CountEM", e);
                 throw e;
             }
         }
@@ -2228,18 +2223,21 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("DownloadPDFIstantaneo", e);
+                Log.Error("DownloadPDFIstantaneo", e);
                 throw e;
             }
         }
 
         internal async Task<byte[]> PDFIstantaneo(EmendamentiDto em, PersonaDto persona)
         {
+            var currentMethod = "PDFIstantaneo";
             try
             {
+                Log.Debug($"{currentMethod} - Inizio");
                 List<string> listAttachments = new List<string>();
                 if (!string.IsNullOrEmpty(em.PATH_AllegatoGenerico))
                 {
+                    Log.Debug($"{currentMethod} - Aggiunto [{em.PATH_AllegatoGenerico}]");
                     var complete_path = Path.Combine(
                         AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                         Path.GetFileName(em.PATH_AllegatoGenerico));
@@ -2247,6 +2245,7 @@ namespace PortaleRegione.BAL
                 }
                 if (!string.IsNullOrEmpty(em.PATH_AllegatoTecnico))
                 {
+                    Log.Debug($"{currentMethod} - Aggiunto [{em.PATH_AllegatoTecnico}]");
                     var complete_path = Path.Combine(
                         AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                         Path.GetFileName(em.PATH_AllegatoTecnico));
@@ -2254,14 +2253,18 @@ namespace PortaleRegione.BAL
                 }
 
                 var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                var body = await GetBodyEM(em, firme, persona, TemplateTypeEnum.PDF);
+                Log.Debug($"{currentMethod} - Firme [{firme.Count()}]");
+                var body = await GetBodyEM(em, firme.ToList(), persona, TemplateTypeEnum.PDF);
+                Log.Debug($"{currentMethod} - HaveBody [{!string.IsNullOrEmpty(body)}]");
                 var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
-
-                return await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
+                var result = await stamper.CreaPDFInMemory(body, em.N_EM, listAttachments);
+                Log.Debug($"{currentMethod} - HaveContent [{result != null}]");
+                Log.Debug($"{currentMethod} - ContentLength [{result.Length}]");
+                return result;
             }
             catch (Exception e)
             {
-                //Log.Error("PDFIstantaneo", e);
+                Log.Error("PDFIstantaneo", e);
                 throw e;
             }
         }

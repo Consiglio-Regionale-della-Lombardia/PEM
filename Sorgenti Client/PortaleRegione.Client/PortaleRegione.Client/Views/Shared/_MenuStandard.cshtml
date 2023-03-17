@@ -10,7 +10,7 @@
         <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
     </li>
 }
-@if (AppSettingsConfiguration.EnableDASI)
+@if (AppSettingsConfiguration.EnableDASI && !User.IsInRole(((int)RuoliIntEnum.Amministratore_Giunta).ToString()))
 {
     <li class="menuItem_DASI bold">
         <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>

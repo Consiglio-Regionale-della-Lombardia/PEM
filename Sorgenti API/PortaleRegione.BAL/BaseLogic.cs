@@ -25,6 +25,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Routes;
+using PortaleRegione.Logger;
 using QRCoder;
 using System;
 using System.Collections.Generic;
@@ -145,7 +146,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
+        internal string GetNomeEM(EmendamentiDto emendamento, EmendamentiDto riferimento)
         {
             try
             {
@@ -175,18 +176,18 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("GetNomeEM", e);
+                Log.Error("GetNomeEM", e);
                 throw e;
             }
         }
 
-        internal static string GetNomeEM(EM emendamento, EM riferimento)
+        internal string GetNomeEM(EM emendamento, EM riferimento)
         {
             return GetNomeEM(Mapper.Map<EM, EmendamentiDto>(emendamento),
                 Mapper.Map<EM, EmendamentiDto>(riferimento));
         }
 
-        internal static string GetNome(string nAtto, int? progressivo)
+        internal string GetNome(string nAtto, int? progressivo)
         {
             progressivo ??= 0;
             var result = string.Empty;
@@ -204,7 +205,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static string GetFirmatariEM(IEnumerable<FirmeDto> firme)
+        internal string GetFirmatariEM(IEnumerable<FirmeDto> firme)
         {
             if (firme == null) return string.Empty;
 
@@ -219,7 +220,7 @@ namespace PortaleRegione.BAL
             return result.Aggregate((i, j) => i + j);
         }
 
-        internal static string GetTemplate(TemplateTypeEnum templateType, bool dasi = false)
+        internal string GetTemplate(TemplateTypeEnum templateType, bool dasi = false)
         {
             var path = "";
             if (dasi == false)
@@ -282,7 +283,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        internal static void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
+        internal void GetBodyTemporaneo(EmendamentiDto emendamento, AttiDto atto, ref string body)
         {
             if (!string.IsNullOrEmpty(emendamento.EM_Certificato)) return;
             //EM TEMPORANEO
@@ -327,7 +328,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_tecnico + allegato_generico);
         }
 
-        internal static void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
+        internal void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
         {
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
                 || atto.Tipo == (int)TipoAttoEnum.ODG)
@@ -347,7 +348,7 @@ namespace PortaleRegione.BAL
             var premesse = atto.Premesse;
             var richieste = atto.Richiesta;
 
-            if (!string.IsNullOrEmpty(atto.Oggetto_Modificato) && privacy) oggetto = atto.Oggetto_Modificato;
+            if (!string.IsNullOrEmpty(atto.Oggetto_Privacy) && privacy) oggetto = atto.Oggetto_Privacy; //#631
             if (!string.IsNullOrEmpty(atto.Premesse_Modificato) && privacy) premesse = atto.Premesse_Modificato;
             if (!string.IsNullOrEmpty(atto.Richiesta_Modificata) && privacy) richieste = atto.Richiesta_Modificata;
 
@@ -369,13 +370,11 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblAllegati}", allegato_generico);
         }
 
-        public static void GetBody(EmendamentiDto emendamento, AttiDto atto, IEnumerable<FirmeDto> firme,
+        public void GetBody(EmendamentiDto emendamento, AttiDto atto, List<FirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             ref string body)
         {
-            var firmeDtos = firme.ToList();
-
             body = body.Replace("{lblTitoloEMView}", emendamento.N_EM);
             body = body.Replace("{StatoEMView}", emendamento.STATI_EM.Stato);
             var testo_deposito = string.Empty;
@@ -453,15 +452,15 @@ namespace PortaleRegione.BAL
             {
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoEMView}",
-                    firmeDtos.Any(s => s.ufficio)
+                    firme.Any(s => s.ufficio)
                         ? "Emendamento Presentato d'ufficio"
-                        : $"Emendamento Presentato il {Convert.ToDateTime(emendamento.DataDeposito):dd/MM/yyyy HH:mm}");
+                        : $"Emendamento Presentato il {emendamento.Timestamp:dd/MM/yyyy HH:mm}");
 
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
-                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(emendamento.DataDeposito)).Select(i => (AttiFirmeDto)i);
+                var firmeAnte = firme.Where(f => f.Timestamp <= emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
+                var firmePost = firme.Where(f => f.Timestamp > emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
 
                 if (firmeAnte.Any())
-                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte)))
+                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
                         .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
                 else
@@ -470,7 +469,7 @@ namespace PortaleRegione.BAL
 
                 if (firmePost.Any())
                     body = body.Replace("{radGridFirmePostView}",
-                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost)))
+                            TemplatefirmePOST.Replace("{firme}", GetFirmatari(firmePost, "dd/MM/yyyy HH:mm")))
                         .Replace("{FIRME_COMMENTO_START}", string.Empty)
                         .Replace("{FIRME_COMMENTO_END}", string.Empty);
                 else
@@ -481,8 +480,8 @@ namespace PortaleRegione.BAL
             {
                 //FIRMATO MA NON DEPOSITATO
                 body = body.Replace("{lblDepositoEMView}", string.Empty);
-                var firmeAnte = firmeDtos.Select(i => (AttiFirmeDto)i);
-                var firmatari = GetFirmatari(firmeAnte);
+                var firmeAnte = firme.Select(i => (AttiFirmeDto)i);
+                var firmatari = GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm");
                 if (!string.IsNullOrEmpty(firmatari))
                 {
                     body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", firmatari))
@@ -559,7 +558,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        public static void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
+        public void GetBody(AttoDASIDto atto, string tipoAtto, IEnumerable<AttiFirmeDto> firme,
             PersonaDto currentUser,
             bool enableQrCode,
             bool privacy,
@@ -610,8 +609,8 @@ namespace PortaleRegione.BAL
                 //DEPOSITATO
                 body = body.Replace("{lblDepositoATTOView}", $"Atto presentato il {atto.DataPresentazione}");
 
-                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= Convert.ToDateTime(atto.DataPresentazione));
-                var firmePost = firmeDtos.Where(f => f.Timestamp > Convert.ToDateTime(atto.DataPresentazione));
+                var firmeAnte = firmeDtos.Where(f => f.Timestamp <= atto.Timestamp);
+                var firmePost = firmeDtos.Where(f => f.Timestamp > atto.Timestamp);
 
                 if (firmeAnte.Any())
                     body = body.Replace("{radGridFirmeView}",
@@ -698,7 +697,7 @@ namespace PortaleRegione.BAL
             body = body.Replace("{QRCode}", textQr);
         }
 
-        private static string GetFirmatari(IEnumerable<AttiFirmeDto> firme)
+        private string GetFirmatari(IEnumerable<AttiFirmeDto> firme, string format = "dd/MM/yyyy")
         {
             try
             {
@@ -714,14 +713,14 @@ namespace PortaleRegione.BAL
                     if (string.IsNullOrEmpty(attiFirmeDto.Data_ritirofirma))
                     {
                         if (!attiFirmeDto.ufficio)
-                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
 
                         body = $"<h6>{body}</h6><br/>";
                     }
                     else
                     {
                         if (!attiFirmeDto.ufficio)
-                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma):dd/MM/yyyy}";
+                            body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
                         body =
                             $"<div style='text-decoration:line-through;'><h6 style='font-size:12px'>{body} ({attiFirmeDto.Data_ritirofirma})</h6></div><br/>";
                     }
@@ -733,12 +732,12 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("GetFirmatari - DASI", e);
+                Log.Error("GetFirmatari - DASI", e);
                 throw e;
             }
         }
 
-        internal static void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
+        internal void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
             ref string body)
         {
             try
@@ -807,7 +806,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("GetBodyMail", e);
+                Log.Error("GetBodyMail", e);
                 throw e;
             }
         }

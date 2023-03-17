@@ -20,6 +20,7 @@ using PortaleRegione.Contracts;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,6 +42,12 @@ namespace PortaleRegione.Persistance
         {
             return await PRContext.NOTIFICHE_DESTINATARI.SingleOrDefaultAsync(nd =>
                 nd.UIDNotifica == notificaId && nd.UIDPersona == personaUId);
+        }
+
+        public async Task<List<NOTIFICHE_DESTINATARI>> Get(Guid personaUId)
+        {
+            return await PRContext
+                .NOTIFICHE_DESTINATARI.Where(nd => nd.UIDPersona == personaUId && !nd.Chiuso).ToListAsync();
         }
 
         public async Task<NOTIFICHE_DESTINATARI> ExistDestinatarioNotifica(Guid guid, Guid personaUId, bool dasi = false)

@@ -23,6 +23,7 @@ using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -87,7 +88,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetNotificheInviate", e);
+                Log.Error("GetNotificheInviate", e);
                 return ErrorHandler(e);
             }
         }
@@ -108,7 +109,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("NotificaVista", e);
+                Log.Error("NotificaVista", e);
                 return ErrorHandler(e);
             }
         }
@@ -136,7 +137,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetNotificheRicevute", e);
+                Log.Error("GetNotificheRicevute", e);
                 return ErrorHandler(e);
             }
         }
@@ -157,7 +158,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetDestinatariNotifica", e);
+                Log.Error("GetDestinatariNotifica", e);
                 return ErrorHandler(e);
             }
         }
@@ -195,7 +196,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("InvitaAFirmare", e);
+                Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }
@@ -216,7 +217,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetListaDestinatari", e);
+                Log.Error("GetListaDestinatari", e);
                 return ErrorHandler(e);
             }
         }
@@ -236,7 +237,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetListaDestinatari", e);
+                Log.Error("GetListaDestinatari", e);
                 return ErrorHandler(e);
             }
         }
@@ -257,7 +258,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("AccettaPropostaFirma", e);
+                Log.Error("AccettaPropostaFirma", e);
                 return ErrorHandler(e);
             }
         }
@@ -278,7 +279,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("AccettaRitiroFirma", e);
+                Log.Error("AccettaRitiroFirma", e);
                 return ErrorHandler(e);
             }
         }
@@ -300,7 +301,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("InvitaAFirmare", e);
+                Log.Error("InvitaAFirmare", e);
                 return ErrorHandler(e);
             }
         }

@@ -23,6 +23,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.Gateway;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -117,6 +118,28 @@ namespace PortaleRegione.Client.Controllers
                     CacheItemPriority.NotRemovable,
                     (key, value, reason) => { Console.WriteLine("Cache removed"); }
                 );
+            }
+        }
+
+        internal async Task CheckCacheGruppiAdmin(RuoliIntEnum ruolo)
+        {
+            if (ruolo == RuoliIntEnum.Amministratore_PEM)
+            {
+                var currentGroups = HttpContext.Cache.Get(CacheHelper.GRUPPI_ATTIVI);
+                if (currentGroups == null)
+                {
+                    var apiGateway = new ApiGateway(Token);
+                    var gruppi = await apiGateway.Persone.GetGruppiAttivi();
+                    HttpContext.Cache.Insert(
+                        CacheHelper.GRUPPI_ATTIVI,
+                        JsonConvert.SerializeObject(gruppi),
+                        null,
+                        Cache.NoAbsoluteExpiration,
+                        Cache.NoSlidingExpiration,
+                        CacheItemPriority.NotRemovable,
+                        (key, value, reason) => { Console.WriteLine("Cache removed"); }
+                    );
+                }
             }
         }
 

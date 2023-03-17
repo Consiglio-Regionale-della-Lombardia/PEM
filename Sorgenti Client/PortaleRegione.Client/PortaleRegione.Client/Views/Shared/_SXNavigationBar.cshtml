@@ -180,7 +180,7 @@
             {
                 Html.RenderPartial("_MenuAdmin");
             }
-            else if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica || persona.IsResponsabileSegreteriaGiunta)
+            else if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica || persona.IsResponsabileSegreteriaGiunta || persona.IsAmministratoreGiunta)
             {
                 Html.RenderPartial("_MenuCapogruppo");
             }

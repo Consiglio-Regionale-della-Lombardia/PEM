@@ -24,6 +24,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
+using PortaleRegione.Logger;
 using System;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -82,7 +83,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetPersona", e);
+                Log.Error("GetPersona", e);
                 return ErrorHandler(e);
             }
         }
@@ -103,7 +104,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetRuolo", e);
+                Log.Error("GetRuolo", e);
                 return ErrorHandler(e);
             }
         }
@@ -124,7 +125,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetCapoGruppo", e);
+                Log.Error("GetCapoGruppo", e);
                 return ErrorHandler(e);
             }
         }
@@ -149,7 +150,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetSegreteriaPolitica", e);
+                Log.Error("GetSegreteriaPolitica", e);
                 return ErrorHandler(e);
             }
         }
@@ -170,7 +171,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetSegreteriaGiuntaRegionale", e);
+                Log.Error("GetSegreteriaGiuntaRegionale", e);
                 return ErrorHandler(e);
             }
         }
@@ -190,7 +191,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetGiuntaRegionale", e);
+                Log.Error("GetGiuntaRegionale", e);
                 return ErrorHandler(e);
             }
         }
@@ -211,7 +212,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetAssessoriRiferimento", e);
+                Log.Error("GetAssessoriRiferimento", e);
                 return ErrorHandler(e);
             }
         }
@@ -231,7 +232,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetRelatori", e);
+                Log.Error("GetRelatori", e);
                 return ErrorHandler(e);
             }
         }
@@ -250,7 +251,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetGruppi", e);
+                Log.Error("GetGruppi", e);
                 return ErrorHandler(e);
             }
         }
@@ -279,7 +280,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("CheckPin", e);
+                Log.Error("CheckPin", e);
                 return ErrorHandler(e);
             }
         }
@@ -318,7 +319,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("CambioPin", e);
+                Log.Error("CambioPin", e);
                 return ErrorHandler(e);
             }
         }
@@ -339,7 +340,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("GetPersone", e);
+                Log.Error("GetPersone", e);
                 return ErrorHandler(e);
             }
         }
@@ -369,7 +370,7 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                //Log.Error("ResetPin", e);
+                Log.Error("ResetPin", e);
                 return ErrorHandler(e);
             }
         }

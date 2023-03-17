@@ -1889,6 +1889,35 @@ function GetDate(value) {
     return moment(dateX);
 }
 
+function StampaUOLA(ctrl) {
+        swal({
+            title: "Formato stampa",
+            text: "Scegli se stampare il testo originale o offuscato per motivi di privacy",
+            buttons: {
+                cancel: "Annulla",
+                privacy: {
+                    className: "purple white-text",
+                    text: "PRIVACY",
+                    value: "privacy"
+                },
+                confirm: {
+                    className: "blue white-text",
+                    text: "ORIGINALE",
+                    value: "default"
+                }
+            },
+            icon: "info"
+        }).then(function(value) {
+            if (value == "default") {
+                //redirect default
+                window.open($(ctrl).data("url"), '_blank');
+            } else if (value == "privacy") {
+                //redirect to privacy print mode
+                window.open($(ctrl).data("url-privacy"), '_blank');
+            }
+        });
+    }
+
 // NOTIFICATION SWEETALERT.JS
 
 function SuccessModal(message, ctrl) {

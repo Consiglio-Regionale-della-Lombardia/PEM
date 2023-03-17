@@ -244,7 +244,7 @@ namespace PortaleRegione.Client.Helpers
                 ? "Firme aggiunte dopo il deposito"
                 : "Firmatari";
             var table = "<ul class=\"collection\">{{BODY_FIRME}}</ul>";
-            var body = "<li class=\"collection-header\"><h4 style=\"margin-left:10px\">Firmatari</h4></li>";
+            var body = $"<li class=\"collection-header\"><h4 style=\"margin-left:10px\">{titoloColonna}</h4></li>";
             var em = await apiGateway.Emendamento.Get(firmeDtos.Select(f => f.UIDEM).First());
             foreach (var firmeDto in firmeDtos)
             {

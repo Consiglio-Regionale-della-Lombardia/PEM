@@ -129,7 +129,7 @@
                 <p>
                     <label>
                         <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
-                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "" : "checked=\"checked\"")>
+                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"": "")>
                         <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
                     </label>
                 </p>
@@ -267,7 +267,7 @@
                 notifica_deposito: $('input[name="notifica_deposito"]').is(":checked"),
                 attivo: $('input[name="attivo"]').is(":checked"),
                 deleted: $('input[name="deleted"]').is(":checked"),
-                no_cons: $('input[name="No_Cons"]').is(":checked") ? 0 : 1,
+                no_cons: $('input[name="No_Cons"]').is(":checked") ? 1 : 0,
                 gruppiAd: selected_groups,
                 id_gruppo_politico_rif: id_gruppo_politico_rif
             };

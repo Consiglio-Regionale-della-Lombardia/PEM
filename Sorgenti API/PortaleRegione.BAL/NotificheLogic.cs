@@ -27,6 +27,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,7 +104,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetNotificheInviate", e);
+                Log.Error("Logic - GetNotificheInviate", e);
                 throw e;
             }
         }
@@ -383,7 +384,7 @@ namespace PortaleRegione.BAL
                     }
 
                     var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                    bodyMail += await _logicEm.GetBodyEM(em, firme, currentUser, TemplateTypeEnum.HTML);
+                    bodyMail += await _logicEm.GetBodyEM(em, firme.ToList(), currentUser, TemplateTypeEnum.HTML);
                     bodyMail +=
                         $"<br/> <a href='{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}'>Vedi online</a>";
                     results.Add(idGuid, $"{n_em} - OK");
@@ -445,7 +446,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - NotificaVista", e);
+                Log.Error("Logic - NotificaVista", e);
                 throw e;
             }
         }

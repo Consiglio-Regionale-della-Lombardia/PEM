@@ -1,7 +1,7 @@
 USE [dbDASI]
 GO
 
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 12/01/2023 11:24:36 ******/
+/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 10/03/2023 11:25:30 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -18,6 +18,7 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[NAtto_search] [int] NOT NULL,
 	[Oggetto] [varchar](max) NULL,
 	[Oggetto_Modificato] [varchar](max) NULL,
+	[Oggetto_Privacy] [varchar](max) NULL,
 	[Premesse] [varchar](max) NULL,
 	[Premesse_Modificato] [varchar](max) NULL,
 	[TipoRichiesta] [int] NOT NULL,

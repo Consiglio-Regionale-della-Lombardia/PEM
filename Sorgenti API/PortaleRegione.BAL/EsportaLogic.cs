@@ -20,6 +20,8 @@ using AutoMapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
 using HtmlToOpenXml;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
@@ -33,7 +35,9 @@ using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -238,7 +242,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - EsportaGrigliaXLS", e);
+                Log.Error("Logic - EsportaGrigliaXLS", e);
                 throw e;
             }
         }
@@ -432,32 +436,64 @@ namespace PortaleRegione.BAL
         private async Task<string> ComposeWordTable(Guid attoUID, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)
         {
-            var emList =
-                await _logicEm.ScaricaEmendamenti(attoUID, ordine, mode, persona, false, true);
-            var list = emList.Where(em => em.IDStato >= (int)StatiEnum.Depositato);
+            var request = new BaseRequest<EmendamentiDto>
+            {
+                filtro = new List<FilterStatement<EmendamentiDto>>
+                {
+                    new FilterStatement<EmendamentiDto>
+                    {
+                        PropertyId = nameof(EmendamentiDto.UIDAtto),
+                        Connector = FilterStatementConnector.And,
+                        Operation = Operation.EqualTo,
+                        Value = attoUID
+                    }
+                },
+                id = attoUID,
+                ordine = ordine,
+                page = 1,
+                size = 1
+            };
+            var countEM = await _logicEm.CountEM(request, persona, (int)mode);
+            request.size = countEM;
 
-            var body = "<html>";
-            body += "<body style='page-orientation: landscape'>";
-            body += "<table>";
+            try
+            {
+                var emList =
+                    await _logicEm.GetEmendamenti(request,
+                        persona,
+                        (int)mode,
+                        (int)ViewModeEnum.GRID,
+                        null,
+                        null);
 
-            body += "<thead>";
-            body += "<tr>";
-            body += ComposeHeaderColumn("EM/SUB");
-            body += ComposeHeaderColumn("Testo");
-            body += ComposeHeaderColumn("Relazione");
-            body += ComposeHeaderColumn("Proponente");
-            body += ComposeHeaderColumn("Stato");
-            body += "</tr>";
-            body += "</thead>";
+                var body = "<html>";
+                body += "<body style='page-orientation: landscape'>";
+                body += "<table>";
 
-            body += "<tbody>";
-            body = list.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
-            body += "</tbody>";
+                body += "<thead>";
+                body += "<tr>";
+                body += ComposeHeaderColumn("EM/SUB");
+                body += ComposeHeaderColumn("Testo");
+                body += ComposeHeaderColumn("Relazione");
+                body += ComposeHeaderColumn("Proponente");
+                body += ComposeHeaderColumn("Stato");
+                body += "</tr>";
+                body += "</thead>";
 
-            body += "</table>";
-            body += "</body>";
-            body += "</html>";
-            return body;
+                body += "<tbody>";
+                body = emList.Data.Results.Aggregate(body, (current, em) => current + ComposeBodyRow(em));
+                body += "</tbody>";
+
+                body += "</table>";
+                body += "</body>";
+                body += "</html>";
+                return body;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         private string ComposeHeaderColumn(string column_title)
@@ -529,7 +565,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - EsportaGrigliaReportXLS", e);
+                Log.Error("Logic - EsportaGrigliaReportXLS", e);
                 throw e;
             }
         }
@@ -760,7 +796,7 @@ namespace PortaleRegione.BAL
                     SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
                     SetColumnValue(ref rowBody, ""); // tipo mozione
                     SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
-                    SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato)); // stato atto
+                    SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato, true)); // stato atto
                     SetColumnValue(ref rowBody, ""); // protocollo
                     SetColumnValue(ref rowBody, ""); // codice materia
                     SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
@@ -769,7 +805,7 @@ namespace PortaleRegione.BAL
                         || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
                         || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
                     {
-                        SetColumnValue(ref rowBody, ""); // oggetto
+                        SetColumnValue(ref rowBody, atto.Oggetto); // oggetto
                     }
                     else
                     {
@@ -803,7 +839,18 @@ namespace PortaleRegione.BAL
 
         private void SetColumnValue(ref IRow row, string val, CellType type = CellType.String)
         {
-            row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
+            if (DateTime.TryParse(val, out var dataTime))
+            {
+                row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(dataTime);
+            }
+            else if (int.TryParse(val, out var interoResult))
+            {
+                row.CreateCell(GetColumn(row.LastCellNum), CellType.Numeric).SetCellValue(interoResult);
+            }
+            else
+            {
+                row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
+            }
         }
 
         private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)

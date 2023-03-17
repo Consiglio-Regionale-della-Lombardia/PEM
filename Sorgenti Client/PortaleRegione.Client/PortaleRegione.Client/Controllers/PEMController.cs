@@ -41,6 +41,8 @@ namespace PortaleRegione.Client.Controllers
     {
         public async Task<ActionResult> RiepilogoSedute(int page = 1, int size = 50)
         {
+            var currentUser = CurrentUser;
+            await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.Sedute.Get(page, size);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||

@@ -66,6 +66,9 @@
     <Reference Include="IronPdf.Assets.Rendering.Windows, Version=22.0.0.0, Culture=neutral, PublicKeyToken=94e1c31412563c75, processorArchitecture=MSIL">
       <HintPath>..\packages\IronPdf.Assets.Rendering.Windows.22.0.0\lib\net40\IronPdf.Assets.Rendering.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
@@ -256,6 +259,10 @@
     <ProjectReference Include="..\..\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
       <Project>{A7ADA419-A178-40DA-85CC-63F6875E5793}</Project>
       <Name>PortaleRegione.DTO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PortaleRegione.Logger\PortaleRegione.Logger.csproj">
+      <Project>{1F9EEC0B-08CC-481F-820E-C07B8327AC25}</Project>
+      <Name>PortaleRegione.Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\PortaleRegione.Persistance\PortaleRegione.Persistance.csproj">
       <Project>{C13E361D-1C00-4ACE-989D-F2C00AB4F590}</Project>

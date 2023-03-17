@@ -27,6 +27,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetPersoneIn_DB", e);
+                Log.Error("Logic - GetPersoneIn_DB", e);
                 throw e;
             }
         }
@@ -131,7 +132,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - GetPersoneIn_DB_ByGiunta", e);
+                Log.Error("Logic - GetPersoneIn_DB_ByGiunta", e);
                 throw e;
             }
         }
@@ -207,7 +208,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountAll", e);
+                Log.Error("Logic - CountAll", e);
                 throw e;
             }
         }
@@ -245,7 +246,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("Logic - CountAllByGiunta", e);
+                Log.Error("Logic - CountAllByGiunta", e);
                 throw e;
             }
         }
@@ -374,10 +375,15 @@ namespace PortaleRegione.BAL
         }
 
         public async Task<BaseResponse<PersonaDto>> GetUtenti(BaseRequest<PersonaDto> model, PersonaDto persona,
-            Uri url)
+            Uri url, bool ignora_ruolo = false)
         {
             try
             {
+                if (ignora_ruolo)
+                {
+                    persona = null;
+                }
+
                 var intranetAdService = new proxyAD();
 
                 var filtri_ruoli_gruppi = new List<string>();
@@ -402,10 +408,13 @@ namespace PortaleRegione.BAL
                         filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
                     }
                 }
-                else if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                else if (persona != null)
                 {
-                    var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(persona.Gruppo.id_gruppo);
-                    filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                    if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                    {
+                        var gruppo_ad = await _unitOfWork.Gruppi.GetJoinGruppoAdmin(persona.Gruppo.id_gruppo);
+                        filtri_ruoli_gruppi.Add(gruppo_ad.GruppoAD.Replace(@"CONSIGLIO\", ""));
+                    }
                 }
 
                 if (filtri_ruoli_gruppi.Any())
@@ -454,9 +463,15 @@ namespace PortaleRegione.BAL
                     results.Add(persona_in_db);
                 }
 
+                var size = model.size;
+                if (persona != null)
+                {
+                    size = persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica ? counter : model.size;
+                }
+
                 return new BaseResponse<PersonaDto>(
                     model.page,
-                    persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica ? counter : model.size,
+                    size,
                     results,
                     model.filtro,
                     counter,
@@ -550,7 +565,6 @@ namespace PortaleRegione.BAL
                 _unitOfWork.Persone.Add(newUser);
                 await _unitOfWork.CompleteAsync();
 
-
                 await _logicUtil.InvioMail(new MailModel
                 {
                     DA = "pem@consiglio.regione.lombardia.it",
@@ -598,10 +612,9 @@ namespace PortaleRegione.BAL
                     }
                 }
 
-
                 if (request.no_Cons == 1)
                 {
-                    //Consigliere/Assessore
+                    // NON CONSIGLIERE
                     var persona = await _unitOfWork.Persone.Get_NoCons(request.UID_persona);
                     persona.nome = request.nome;
                     persona.cognome = request.cognome;
@@ -615,8 +628,8 @@ namespace PortaleRegione.BAL
                 }
                 else
                 {
-                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona,
-                        request.userAD.Replace(@"CONSIGLIO\", ""));
+                    //Consigliere/Assessore
+                    await _unitOfWork.Persone.UpdateUtente_NoCons(request.UID_persona, request.id_persona, request.userAD);
                 }
             }
 

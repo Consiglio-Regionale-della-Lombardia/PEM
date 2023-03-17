@@ -78,7 +78,7 @@ namespace PortaleRegione.BAL
                         if (!authResult)
                         {
                             throw new Exception(
-                                "Nome Utente o Password non validi! Utilizza le credenziali di accesso al pc ([nome.cognome] - [propriapassword])");
+                                "Nome Utente o Password non validi!");
                         }
                     }
                     else

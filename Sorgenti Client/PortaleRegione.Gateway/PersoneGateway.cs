@@ -42,14 +42,10 @@ namespace PortaleRegione.Gateway
             _token = token;
         }
 
-        public async Task<LoginResponse> Login(string username, string password)
+        public async Task<LoginResponse> Login(LoginRequest model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Autenticazione.Login}";
-            var body = JsonConvert.SerializeObject(new LoginRequest
-            {
-                Username = username,
-                Password = password
-            });
+            var body = JsonConvert.SerializeObject(model);
 
             return JsonConvert.DeserializeObject<LoginResponse>(await Post(requestUrl, body, _token));
         }

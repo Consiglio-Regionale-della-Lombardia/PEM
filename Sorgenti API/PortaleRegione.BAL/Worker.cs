@@ -26,6 +26,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
+using PortaleRegione.Logger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -68,7 +69,7 @@ namespace PortaleRegione.BAL
             try
             {
                 _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa,
-                   $"Inizio lavorazione - Tentativo {_stampa.Tentativi} di {_model.NumMaxTentativi}");
+                    $"Inizio lavorazione - Tentativo {_stampa.Tentativi} di {_model.NumMaxTentativi}");
                 if (_stampa.Tentativi < Convert.ToInt16(_model.NumMaxTentativi))
                 {
                     //GetFascicolo
@@ -175,7 +176,7 @@ namespace PortaleRegione.BAL
                                 listAttachments.Add(complete_path);
                             }
 
-                            var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
+                            var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, true, listAttachments);
                             dettagliCreaPDF.Content = pdf;
                             listaPercorsi.Add(dettagliCreaPDF);
                             _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
@@ -189,7 +190,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception ex)
             {
-                //Log.Error("GeneraPDFAtti Error-->", ex);
+                Log.Error("GeneraPDFAtti Error-->", ex);
             }
 
             return listaPercorsi;
@@ -259,7 +260,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error("StampaEmendamenti ERROR", e);
+                Log.Error("StampaEmendamenti ERROR", e);
                 throw e;
             }
         }
@@ -418,7 +419,7 @@ namespace PortaleRegione.BAL
                             Timestamp = item.Timestamp
                         }, FirmeTipoEnum.TUTTE);
                         var bodyPDF = await _logicEm.GetBodyEM(item,
-                            firme,
+                            firme.ToList(),
                             null,
                             TemplateTypeEnum.PDF);
                         var nameFilePDF =
@@ -448,7 +449,7 @@ namespace PortaleRegione.BAL
                             listAttachments.Add(complete_path);
                         }
 
-                        var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
+                        var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, true, listAttachments);
                         dettagliCreaPDF.Content = pdf;
                         listaPercorsi.Add(dettagliCreaPDF);
                         _unitOfWork.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
@@ -457,7 +458,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception ex)
             {
-                //Log.Error("GeneraPDFEmendamenti Error-->", ex);
+                Log.Error("GeneraPDFEmendamenti Error-->", ex);
             }
 
             return listaPercorsi;
@@ -479,7 +480,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                //Log.Error($"ERRORE PULIZIA CARTELLA TEMPORANEA [{_pathTemp}]", e);
+                Log.Error($"ERRORE PULIZIA CARTELLA TEMPORANEA [{_pathTemp}]", e);
             }
         }
     }

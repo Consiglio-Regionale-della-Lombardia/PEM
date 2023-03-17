@@ -135,7 +135,7 @@ namespace GeneraStampeJob
         {
             try
             {
-                var docs = new List<object>();
+                var docs = new List<byte[]>();
                 if (_stampa.Da > 0 && _stampa.A > 0)
                 {
                     lista = lista.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
@@ -146,13 +146,13 @@ namespace GeneraStampeJob
                     Query = _stampa.Query
                 });
 
-                var cover = await _stamper.CreaPDFObject(bodyCopertina);
-                docs.Add(cover);
+                docs.Add(await _stamper.CreaPDFInMemory(bodyCopertina));
+
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
 
                 var attiGenerati = await GeneraPDFAtti(lista, path);
 
-                docs.AddRange(attiGenerati.Where(item => item.Value.Content != null).Select(i => i.Value.Content));
+                docs.AddRange(attiGenerati.Where(item => item.Value.Content != null).Select(i => (byte[])i.Value.Content));
 
                 var countNonGenerati = attiGenerati.Count(item => item.Value.Content == null);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
@@ -225,7 +225,7 @@ namespace GeneraStampeJob
                             Path.GetFileName(item.PATH_AllegatoGenerico));
                         listAttachments.Add(complete_path);
                     }
-                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
+                    var pdf = await _stamper.CreaPDFInMemory(dettagliCreaPDF.Body, item.Display, listAttachments);
                     dettagliCreaPDF.Content = pdf;
                     listaPercorsi[item.UIDAtto] = dettagliCreaPDF;
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
@@ -328,7 +328,7 @@ namespace GeneraStampeJob
         {
             try
             {
-                var docs = new List<object>();
+                var docs = new List<byte[]>();
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
                 if (_stampa.Da > 0 && _stampa.A > 0)
                 {
@@ -344,16 +344,16 @@ namespace GeneraStampeJob
                         : OrdinamentoEnum.Presentazione
                 });
 
-                var cover = await _stamper.CreaPDFObject(bodyCopertina);
+                var cover = await _stamper.CreaPDFInMemory(bodyCopertina);
                 docs.Add(cover);
 
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
 
-                docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null).Select(i => i.Value.Content));
+                docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null).Select(i => (byte[])i.Value.Content));
 
-                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content != null);
+                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content == null);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
 
                 //Funzione che fascicola i PDF creati prima
@@ -633,7 +633,7 @@ namespace GeneraStampeJob
                             Path.GetFileName(item.PATH_AllegatoTecnico));
                         listAttachments.Add(complete_path);
                     }
-                    var pdf = await _stamper.CreaPDFObject(dettagliCreaPDF.Body, listAttachments);
+                    var pdf = await _stamper.CreaPDFInMemory(dettagliCreaPDF.Body, item.N_EM, listAttachments);
                     dettagliCreaPDF.Content = pdf;
                     listaPercorsi[item.UIDEM] = dettagliCreaPDF;
                     await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");

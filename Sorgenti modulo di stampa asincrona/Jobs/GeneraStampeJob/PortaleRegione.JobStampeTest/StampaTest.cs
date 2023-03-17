@@ -1,5 +1,6 @@
 using GeneraStampeJob;
 using NUnit.Framework;
+using PortaleRegione.DTO.Autenticazione;
 using System;
 using System.Threading.Tasks;
 
@@ -8,13 +9,13 @@ namespace PortaleRegione.JobStampeTest
     public class Tests : BaseTest
     {
         [Test]
-        [TestCase("matteo.c", "Opencast88")]
+        [TestCase("matteo.c", "")]
         public async Task Stampa(string username, string password)
         {
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("a67eec90-00b3-45b0-a9d8-01b772c7279f"));
+                var stampa = await apiGateway.Stampe.Get(new Guid("2b6d63d0-c980-4ba5-9e1a-30c94bcdb5a6"));
                 var model = new ThreadWorkerModel
                 {
                     CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",
@@ -30,7 +31,11 @@ namespace PortaleRegione.JobStampeTest
                     PDF_LICENSE = ""
                 };
 
-                var auth = await apiGateway.Persone.Login(model.Username, model.Password);
+                var auth = await apiGateway.Persone.Login(new LoginRequest
+                {
+                    Username = model.Username,
+                    Password = model.Password
+                });
 
                 var worker = new Worker(auth, ref model);
                 var result_of_work = false;

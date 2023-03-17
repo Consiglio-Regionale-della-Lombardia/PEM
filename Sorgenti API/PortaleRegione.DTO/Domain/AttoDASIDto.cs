@@ -41,6 +41,7 @@ namespace PortaleRegione.DTO.Domain
 
         public string Oggetto { get; set; }
         public string Oggetto_Modificato { get; set; }
+        public string Oggetto_Privacy { get; set; }
 
         [AllowHtml]
         public string Premesse { get; set; }

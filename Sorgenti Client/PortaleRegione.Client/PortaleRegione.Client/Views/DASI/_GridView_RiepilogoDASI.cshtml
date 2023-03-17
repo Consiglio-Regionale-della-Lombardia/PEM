@@ -262,9 +262,19 @@ else
                             </ul>
                         }
 
-                        <a class="black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
-                            <i class="material-icons">print</i>
-                        </a>
+                        if (Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                        {
+                            <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
+                               data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })" onclick="StampaUOLA(this)">
+                                <i class="material-icons">print</i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
+                                <i class="material-icons">print</i>
+                            </a>
+                        }
 
                         if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                         {
@@ -290,7 +300,11 @@ else
                 <div class="col s12">
                     <label>Oggetto:</label>
                     <span style="font-weight: normal !important">
-                        @if (string.IsNullOrEmpty(item.Oggetto_Modificato))
+                        @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
+                        {
+                            @Html.Raw(item.Oggetto_Privacy)
+                        }
+                        else if (string.IsNullOrEmpty(item.Oggetto_Modificato))
                         {
                             @Html.Raw(item.Oggetto)
                         }
