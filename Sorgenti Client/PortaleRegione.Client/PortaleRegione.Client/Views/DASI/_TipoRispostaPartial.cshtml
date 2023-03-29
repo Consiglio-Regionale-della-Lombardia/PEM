@@ -1,13 +1,14 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.DASIFormModel
 
     @if (Model.Atto.Tipo == (int)TipoAttoEnum.ITL)
     {
         <div class="input-field">
             <select id='Atto_TipoRisposta'>
-                <option value="@Html.Raw((int) TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>Orale</option>
-                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>Scritto</option>
-                <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
             </select>
             <label for="Atto_TipoRisposta">Tipo Risposta</label>
         </div>
@@ -16,8 +17,8 @@
     {
         <div class="input-field">
             <select id='Atto_TipoRisposta'>
-                <option value="@Html.Raw((int) TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>Scritto</option>
-                <option value="@Html.Raw((int) TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>Commissione</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")> @Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
             </select>
             <label for="Atto_TipoRisposta">Tipo Risposta</label>
         </div>
@@ -26,7 +27,7 @@
     {
         <div class="input-field">
             <select id='Atto_TipoRisposta' disabled="disabled">
-                <option value="@Html.Raw((int) TipoRispostaEnum.IMMEDIATA)" selected="selected">Immediata</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.IMMEDIATA)" selected="selected">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.IMMEDIATA)</option>
             </select>
             <label for="Atto_TipoRisposta">Tipo Risposta</label>
         </div>
