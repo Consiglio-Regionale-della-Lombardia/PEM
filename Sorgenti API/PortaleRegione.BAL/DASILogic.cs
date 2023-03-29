@@ -639,7 +639,8 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti, List<Guid> atti_da_firmare = null)
+            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti,
+            List<Guid> atti_da_firmare = null)
         {
             var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
             var filtro = PulisciFiltro(_filtro);
@@ -1390,7 +1391,8 @@ namespace PortaleRegione.API.Controllers
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
             {
-                var firmatari = await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
+                var firmatari =
+                    await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
@@ -2334,7 +2336,10 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{Oggetto}", dasiDto.Oggetto)
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                    .Replace("{DataDeposito}", string.IsNullOrEmpty(dasiDto.DataPresentazione) ? "" : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
+                    .Replace("{DataDeposito}",
+                        string.IsNullOrEmpty(dasiDto.DataPresentazione)
+                            ? ""
+                            : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2372,7 +2377,10 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{Oggetto}", dasiDto.Oggetto)
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                    .Replace("{DataDeposito}", string.IsNullOrEmpty(dasiDto.DataPresentazione) ? "" : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
+                    .Replace("{DataDeposito}",
+                        string.IsNullOrEmpty(dasiDto.DataPresentazione)
+                            ? ""
+                            : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2432,9 +2440,7 @@ namespace PortaleRegione.API.Controllers
                 atto.Oggetto_Modificato = string.Empty;
 
             if (!string.IsNullOrEmpty(model.Oggetto_Privacy) && !model.Oggetto_Privacy.Equals(model.Oggetto))
-            {
                 atto.Oggetto_Privacy = model.Oggetto_Privacy;
-            }
 
             if (!string.IsNullOrEmpty(model.Premesse_Modificato))
                 atto.Premesse_Modificato = model.Premesse_Modificato;
@@ -2466,6 +2472,8 @@ namespace PortaleRegione.API.Controllers
             {
                 case TipoAttoEnum.IQT:
                     {
+                        if (atto.Seduta.DataScadenzaPresentazioneIQT == null)
+                            break;
                         if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
                             if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
                                 result = true;
@@ -2477,6 +2485,8 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZU == null)
+                                        break;
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
                                             atto.Seduta.DataScadenzaPresentazioneMOZU)
@@ -2485,6 +2495,8 @@ namespace PortaleRegione.API.Controllers
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZA == null)
+                                        break;
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
                                             atto.Seduta.DataScadenzaPresentazioneMOZA)
@@ -2493,6 +2505,8 @@ namespace PortaleRegione.API.Controllers
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZ == null)
+                                        break;
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
                                             atto.Seduta.DataScadenzaPresentazioneMOZ)
@@ -2506,7 +2520,8 @@ namespace PortaleRegione.API.Controllers
                 case TipoAttoEnum.ODG:
                     {
                         if (atto.CapogruppoNeiTermini) break;
-
+                        if (atto.Seduta.DataScadenzaPresentazioneODG == null)
+                            break;
                         if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
                             if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
                                 result = true;
