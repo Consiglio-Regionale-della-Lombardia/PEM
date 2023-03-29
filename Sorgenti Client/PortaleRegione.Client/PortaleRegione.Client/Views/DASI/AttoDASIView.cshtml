@@ -142,10 +142,6 @@
                         @if (!string.IsNullOrEmpty(atto.DataPresentazione))
                         {
                             var testoDeposito = "Atto presentato";
-                            if (atto.Firma_da_ufficio)
-                            {
-                                testoDeposito += " d'ufficio";
-                            }
 
                             <label class="black-text"><b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b></label>
                         }
