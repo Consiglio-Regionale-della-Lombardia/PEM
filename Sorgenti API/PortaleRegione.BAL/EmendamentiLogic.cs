@@ -1576,23 +1576,25 @@ namespace PortaleRegione.BAL
         {
             var result = false;
             if (emendamentoDto.IDStato >= (int)StatiEnum.Depositato)
-                if (Convert.ToDateTime(emendamentoDto.DataDeposito) >
-                    emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione)
-                {
-                    result = true;
+                if (emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione == null)
+                    return result;
+            if (emendamentoDto.Timestamp >
+                emendamentoDto.ATTI.SEDUTE.Scadenza_presentazione)
+            {
+                result = true;
 
-                    if (emendamentoDto.IsSUBEM)
+                if (emendamentoDto.IsSUBEM)
+                    result = false;
+
+                if (emendamentoDto.Proponente_Relatore || emendamentoDto.Proponente_Assessore_Riferimento)
+                    result = false;
+
+                if (emendamentoDto.Firmato_Dal_Proponente)
+                    if (emendamentoDto.UIDPersonaProponente == presidente_regione.UID_persona)
                         result = false;
 
-                    if (emendamentoDto.Proponente_Relatore || emendamentoDto.Proponente_Assessore_Riferimento)
-                        result = false;
-
-                    if (emendamentoDto.Firmato_Dal_Proponente)
-                        if (emendamentoDto.UIDPersonaProponente == presidente_regione.UID_persona)
-                            result = false;
-
-                    if (emendamentoDto.Rif_UIDEM != null) result = false;
-                }
+                if (emendamentoDto.Rif_UIDEM != null) result = false;
+            }
 
             return result;
         }
