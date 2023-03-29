@@ -2133,6 +2133,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                //#713 
+                if (model.AttoUId == Guid.Empty)
+                    throw new InvalidOperationException(
+                        "Selezionare un atto da abbinare");
+
                 var guid = model.Lista.First();
                 var atto = await Get(guid);
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");

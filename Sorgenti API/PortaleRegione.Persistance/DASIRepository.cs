@@ -767,7 +767,9 @@ namespace PortaleRegione.Persistance
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
-                                                     && !atto.IsChiuso);
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 

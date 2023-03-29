@@ -76,7 +76,7 @@ namespace PortaleRegione.DTO.Domain
         public Guid UIDSeduta { get; set; }
 
         [Display(Name = "Data seduta")]
-        public DateTime Data_seduta { get; set; }
+        public DateTime Data_seduta { get; set; } = DateTime.Now;
         [Display(Name = "Data apertura")]
         public DateTime? Data_apertura { get; set; }
         [Display(Name = "Data effettiva inizio")]

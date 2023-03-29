@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -233,6 +234,18 @@ namespace PortaleRegione.Client.Controllers
             }
 
             FormsAuthentication.SignOut();
+
+            try
+            {
+                foreach (DictionaryEntry entry in HttpContext.Cache)
+                {
+                    HttpContext.Cache.Remove((string)entry.Key);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
 #if DEBUG == true
