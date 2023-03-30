@@ -451,7 +451,8 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo, PersonaDto persona)
+        public async Task<Dictionary<string, string>> GetListaDestinatari(Guid atto, TipoDestinatarioNotificaEnum tipo,
+            PersonaDto persona)
         {
             var result = new Dictionary<string, string>();
 
@@ -589,10 +590,7 @@ namespace PortaleRegione.BAL
             await _unitOfWork.CompleteAsync();
             var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
             SEDUTE seduta = null;
-            if (atto.UIDSeduta.HasValue)
-            {
-                seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
-            }
+            if (atto.UIDSeduta.HasValue) seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
 
             var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
             if (!string.IsNullOrEmpty(check_presentazione))
@@ -617,12 +615,26 @@ namespace PortaleRegione.BAL
                 else
                 {
                     var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(id, user.UID_persona);
-                    if (notificheDestinatari != null)
-                    {
-                        notificheDestinatari.Chiuso = true;
-                    }
+                    if (notificheDestinatari != null) notificheDestinatari.Chiuso = true;
                 }
+
                 await _unitOfWork.CompleteAsync();
+            }
+        }
+
+        public async Task ControlloNotifiche(PersonaDto currentUser, Guid uid)
+        {
+            try
+            {
+                if (!currentUser.IsConsigliereRegionale && !currentUser.IsAssessore) return;
+
+                var result = await _unitOfWork.Notifiche.UpdateNotificaVista(currentUser, uid);
+                if (result)
+                    await _unitOfWork.CompleteAsync();
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
     }

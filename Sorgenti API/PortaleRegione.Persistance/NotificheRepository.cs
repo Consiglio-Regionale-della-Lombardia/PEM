@@ -279,9 +279,28 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public Task<IEnumerable<NOTIFICHE>> GetNotificheNonViste(PersonaDto currentUser)
+        public async Task<bool> UpdateNotificaVista(PersonaDto currentUser, Guid uid)
         {
-            throw new NotImplementedException();
+            var notifiches = await PRContext.NOTIFICHE.Where(n => n.UIDEM == uid || n.UIDAtto == uid).ToListAsync();
+            if (!notifiches.Any())
+                return false;
+
+            foreach (var notifica in notifiches)
+            {
+                var destinatario = await PRContext
+                    .NOTIFICHE_DESTINATARI
+                    .FirstOrDefaultAsync(n =>
+                        n.UIDPersona == currentUser.UID_persona && n.Visto == false &&
+                        notifica.UIDNotifica == n.UIDNotifica);
+                if (destinatario == null)
+                    continue;
+
+                destinatario.Visto = true;
+                destinatario.DataVisto = DateTime.Now;
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<NOTIFICHE> Get(string id)

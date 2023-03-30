@@ -174,7 +174,12 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atto = await _dasiLogic.GetAttoDto(id, CurrentUser);
+                var currentUser = CurrentUser;
+                var atto = await _dasiLogic.GetAttoDto(id, currentUser);
+
+                // #711 Controllo se l'utente che sta richiedendo (consigliere/assessore) ha una notifica pendente.
+                // In quel caso aggiorno il campo "Visto" nei destinatari della notifica
+                await _notificheLogic.ControlloNotifiche(currentUser, atto.UIDAtto);
 
                 return Ok(atto);
             }
