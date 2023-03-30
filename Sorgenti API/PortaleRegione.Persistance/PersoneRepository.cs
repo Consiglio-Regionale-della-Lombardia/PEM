@@ -210,8 +210,15 @@ namespace PortaleRegione.Persistance
             var result = new List<View_UTENTI>();
             foreach (var assessoriInCarica in assessori.Distinct())
             {
-                var persona = await PRContext.View_UTENTI.FindAsync(assessoriInCarica.UID_persona);
-                result.Add(persona);
+                try
+                {
+                    var persona = await PRContext.View_UTENTI.FindAsync(assessoriInCarica.UID_persona);
+                    result.Add(persona);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
 
             return result;
