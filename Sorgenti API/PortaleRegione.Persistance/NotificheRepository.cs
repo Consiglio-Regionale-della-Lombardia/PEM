@@ -240,7 +240,6 @@ namespace PortaleRegione.Persistance
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 !currentUser.IsAmministratorePEM)
             {
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
@@ -278,6 +277,11 @@ namespace PortaleRegione.Persistance
 
             var result = await query2.ToListAsync();
             return result;
+        }
+
+        public Task<IEnumerable<NOTIFICHE>> GetNotificheNonViste(PersonaDto currentUser)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<NOTIFICHE> Get(string id)
