@@ -1169,10 +1169,10 @@ namespace PortaleRegione.BAL
                 {
                     // INVIO MAIL A SEGRETERIA PER AVVISARE DEL RITIRO DELL'EM DOPO IL TERMINE DELL'ATTO
                     var nome_em = GetNomeEM(em, em.Rif_UIDEM.HasValue ? await GetEM(em.Rif_UIDEM.Value) : null);
-                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get(10);
+                    var ruoloSegreterie = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                     await _logicUtil.InvioMail(new MailModel
                     {
-                        DA = "pem@consiglio.regione.lombardia.it",
+                        DA = AppSettingsConfiguration.EmailFrom,
                         A =
                             $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                         OGGETTO = $"Ritirato {nome_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
