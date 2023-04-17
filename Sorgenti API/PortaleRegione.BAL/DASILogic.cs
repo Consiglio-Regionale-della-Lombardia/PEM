@@ -1477,14 +1477,14 @@ namespace PortaleRegione.API.Controllers
                         var firmatario_indagato =
                             $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
-                        foreach (var odg in iqt_da_esaminare)
+                        foreach (var iqt in iqt_da_esaminare)
                         {
-                            var firmatari_odg = await _unitOfWork.Atti_Firme.GetFirmatari(odg.UIDAtto);
-                            var _firmatari_odg = firmatari_odg.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                            var firmatari_iqt = await _unitOfWork.Atti_Firme.GetFirmatari(iqt.UIDAtto);
+                            var _firmatari_iqt = firmatari_iqt.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
                                 .ToList();
-                            if (_firmatari_odg.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            if (_firmatari_iqt.All(item => item.FirmaCert != firma.FirmaCert)) continue;
                             firmatario_valido = false;
-                            var dto = await GetAttoDto(odg.UIDAtto);
+                            var dto = await GetAttoDto(iqt.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
                                 $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
                             break;
