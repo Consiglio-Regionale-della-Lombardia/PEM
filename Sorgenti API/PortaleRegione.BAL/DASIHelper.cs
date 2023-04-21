@@ -16,7 +16,7 @@ namespace PortaleRegione.BAL
                     result = "Orale";
                     break;
                 case TipoRispostaEnum.SCRITTA:
-                    result = "Scritto";
+                    result = "Scritta"; //#725
                     break;
                 case TipoRispostaEnum.COMMISSIONE:
                     result = "In Commissione";
