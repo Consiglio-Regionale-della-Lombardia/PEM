@@ -4,7 +4,7 @@
 
 @{
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
-    ViewBag.Title = isNew ? "Nuova atto" : "Modifica atto";
+    ViewBag.Title = isNew ? "Nuovo atto" : "Modifica atto";
 
     Html.RenderPartial("_AttoFormScript", Model);
 
@@ -18,16 +18,8 @@
     <div class="col s6">
         <h5>
             <b>
-                @if (isNew)
-                {
-                    <span>Nuova atto</span>
-                    <input id="hfMode" type="hidden" value="new"/>
-                }
-                else
-                {
-                    <span>Modifica atto</span>
-                    <input id="hfMode" type="hidden" value="edit"/>
-                }
+                <span>@ViewBag.Title</span>
+                <input id="hfMode" type="hidden" value="edit"/>
             </b>
         </h5>
     </div>
