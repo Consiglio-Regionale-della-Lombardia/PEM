@@ -107,6 +107,16 @@ namespace PortaleRegione.BAL
                         "Autenticazione corretta, ma l'utente non risulta presente nel sistema. Contattare l'amministratore di sistema.");
                 }
 
+                // #730 - Utente non attivo non deve poter entrare nella piattaforma
+                if (!persona.attivo.HasValue)
+                {
+                    throw new Exception("Utente non attivato.");
+                }
+                if (persona.attivo == false)
+                {
+                    throw new Exception("Utente non attivo.");
+                }
+
                 var Gruppi_Utente = new List<string>();
 
                 if (AppSettingsConfiguration.AutenticazioneAD == 1)
