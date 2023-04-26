@@ -122,7 +122,6 @@ namespace PortaleRegione.BAL
             var idGruppo = 0;
             if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
                 || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
-                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Politica
                 || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
                 idGruppo = currentUser.Gruppo.id_gruppo;
 
@@ -416,9 +415,7 @@ namespace PortaleRegione.BAL
             queryFilter.ImportStatements(model.filtro);
             var idGruppo = 0;
             if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
-                || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
-                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Politica
-                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
                 idGruppo = currentUser.Gruppo.id_gruppo;
 
             return await _unitOfWork.Notifiche.CountRicevute(currentUser, idGruppo, Archivio, Solo_Non_Viste,
@@ -431,9 +428,7 @@ namespace PortaleRegione.BAL
             queryFilter.ImportStatements(model.filtro);
             var idGruppo = 0;
             if (currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Politica
-                || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta
-                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Politica
-                || currentUser.CurrentRole == RuoliIntEnum.Segreteria_Giunta_Regionale)
+                || currentUser.CurrentRole == RuoliIntEnum.Responsabile_Segreteria_Giunta)
                 idGruppo = currentUser.Gruppo.id_gruppo;
 
             var result = await _unitOfWork.Notifiche.CountInviate(currentUser, idGruppo, Archivio, queryFilter);

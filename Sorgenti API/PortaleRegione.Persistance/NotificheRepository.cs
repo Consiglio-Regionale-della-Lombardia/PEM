@@ -153,7 +153,6 @@ namespace PortaleRegione.Persistance
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
@@ -240,7 +239,6 @@ namespace PortaleRegione.Persistance
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Segreteria_Giunta_Regionale &&
                 !currentUser.IsAmministratorePEM)
             {
