@@ -15,6 +15,8 @@ namespace GeneraStampeJob
         public string EmailFrom { get; set; }
         public string RootRepository { get; set; }
         public string PDF_LICENSE { get; set; }
+        public string PercorsoCompatibilitaDocumenti { get; set; }
+
 
         public async Task Execute(IJobExecutionContext context)
         {
@@ -32,7 +34,8 @@ namespace GeneraStampeJob
                 RootRepository = RootRepository,
                 CartellaLavoroStampe = CartellaLavoroStampe,
                 CartellaLavoroTemporanea = CartellaLavoroTemporanea,
-                PDF_LICENSE = PDF_LICENSE
+                PDF_LICENSE = PDF_LICENSE,
+                PercorsoCompatibilitaDocumenti = PercorsoCompatibilitaDocumenti
             });
             await manager.Run();
         }
@@ -116,6 +119,9 @@ namespace GeneraStampeJob
             }
             if (data.ContainsKey(nameof(ThreadWorkerModel.PDF_LICENSE)))
                 PDF_LICENSE = data.Get(nameof(ThreadWorkerModel.PDF_LICENSE)).ToString();
+
+            if (data.ContainsKey(nameof(ThreadWorkerModel.PercorsoCompatibilitaDocumenti)))
+                PercorsoCompatibilitaDocumenti = data.Get(nameof(ThreadWorkerModel.PercorsoCompatibilitaDocumenti)).ToString();
 
             //if (error)
             //    throw new Exception("Mancano dei parametri alla configurazione.");
