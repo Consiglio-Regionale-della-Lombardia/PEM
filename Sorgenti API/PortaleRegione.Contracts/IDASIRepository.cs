@@ -63,7 +63,8 @@ namespace PortaleRegione.Contracts
         Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona);
         Task<bool> CheckMOZUrgente(SEDUTE seduta, string dataSedutaEncrypt, Guid personaUID);
         Task<bool> CheckIfFirmatoDaiCapigruppo(Guid uidAtto);
-        Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti);
+        Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro, List<int> soggetti,
+            List<int> stati);
         Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto);
         Task<List<Guid>> GetAllCartacei(int legislatura);
         Task<List<Guid>> GetAttiProponente(Guid personaUid);
