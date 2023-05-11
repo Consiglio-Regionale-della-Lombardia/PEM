@@ -137,7 +137,7 @@
                 swal({
                     title: "Errore",
                     text: data.message,
-                    icon: "error" 
+                    icon: "error"
                 });
             } else {
                 swal({
@@ -147,11 +147,11 @@
                 }).then((value) => {
                     if (presenta)
                     {
-                        @Html.Raw("go(data);");
+                        go(data);
                     }
                     else
                     {
-                        @Html.Raw("location.reload();");
+                        location.reload();
                     }
                 });
             }
@@ -228,11 +228,7 @@
                         text: "Atto inserito correttamente a sistema.",
                         icon: "success"
                     }).then((value) => {
-                        if ($("#Atto_UIDAtto").val() != '@Html.Raw(Guid.Empty)') {
-                            location.reload();
-                        } else {
-                            go(data);
-                        }
+                        go(data);
                     });
                 }
             }).fail(function(err) {
