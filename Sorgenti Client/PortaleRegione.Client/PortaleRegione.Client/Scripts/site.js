@@ -518,6 +518,7 @@ function ConfirmAction(id, name, action) {
 }
 
 function ConfirmActionDASI(id, name, action) {
+    
     $("#attoActionDisplayName").empty();
     $("#attoActionDisplayName").append(name);
     $("#attoActionMessage").empty();
@@ -531,21 +532,24 @@ function ConfirmActionDASI(id, name, action) {
     }
     $("#btnConfermaActionDASI").on("click",
         function() {
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action,
                 method: "GET"
             }).done(function(data) {
+                
                 $("#modalActionDASI").modal("close");
                 $("#btnConfermaActionDASI").off("click");
-                console.log(data.message);
+               
                 if (data.message) {
+                    waiting(false);
                     swal({
                         title: "Errore",
                         text: data.message,
                         icon: "error"
                     });
-                } else {
-                    go(data);
+                } else {            
+                    location.reload();
                 }
             }).fail(function(err) {
                 console.log("error", err);
