@@ -22,7 +22,16 @@
         ordine = ordineFromCache,
         view = viewFromCache
     };
-    var backUrl = Url.Action("RiepilogoEmendamenti", objParams);
+    string previousPageUrl = HttpContext.Current.Request.Headers["Referer"];
+    var backUrl = string.Empty;
+    if (previousPageUrl.Contains(Url.Action("RiepilogoNotifiche", "Notifiche")))
+    {
+        backUrl = HttpContext.Current.Request.Headers["Referer"];
+    }
+    else
+    {
+        backUrl = Url.Action("RiepilogoEmendamenti", objParams);
+    }
 
     var gruppoText = "";
     if (Model.id_gruppo >= 10000)

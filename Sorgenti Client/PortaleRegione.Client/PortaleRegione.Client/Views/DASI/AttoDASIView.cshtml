@@ -23,10 +23,20 @@
         stato = statoFromCache,
         view = viewFromCache
     };
-    var backUrl = Url.Action("RiepilogoDASI", objParams);
-    if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
+
+    string previousPageUrl = HttpContext.Current.Request.Headers["Referer"];
+    var backUrl = string.Empty;
+    if (previousPageUrl.Contains(Url.Action("RiepilogoNotifiche", "Notifiche")))
     {
-        backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo });
+        backUrl = HttpContext.Current.Request.Headers["Referer"];
+    }
+    else
+    {
+        backUrl = Url.Action("RiepilogoDASI", objParams);
+        if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
+        {
+            backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo });
+        } 
     }
 }
 
