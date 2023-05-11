@@ -765,9 +765,13 @@ namespace PortaleRegione.API.Controllers
 
                     var attoInDb = await _unitOfWork.DASI.Get(idGuid);
                     var atto = await GetAttoDto(idGuid, persona);
+                    var firmabile = await _unitOfWork
+                        .Atti_Firme
+                        .CheckIfFirmabile(atto,
+                            persona, firmaUfficio);
                     var nome_atto = atto.Display;
 
-                    if (!atto.Firmabile)
+                    if (!firmabile)
                     {
                         results.Add(idGuid,
                             $"ERROR: Atto {nome_atto} non è più sottoscrivibile");
