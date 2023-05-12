@@ -552,6 +552,7 @@ function ConfirmActionDASI(id, name, action) {
                     location.reload();
                 }
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });

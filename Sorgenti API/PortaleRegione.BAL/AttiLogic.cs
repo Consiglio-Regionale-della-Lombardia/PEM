@@ -650,5 +650,14 @@ namespace PortaleRegione.BAL
 
             return result;
         }
+
+        public async Task SpostaInAltraSeduta(Guid uidAtto, Guid uidSeduta)
+        {
+            var attoInDb = await GetAtto(uidAtto);
+            var atto_clone = attoInDb.Clona();
+            _unitOfWork.Atti.Add(atto_clone);
+            attoInDb.UIDSeduta = uidSeduta;
+            await _unitOfWork.CompleteAsync();
+        }
     }
 }
