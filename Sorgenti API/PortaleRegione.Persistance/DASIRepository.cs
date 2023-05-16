@@ -784,11 +784,7 @@ namespace PortaleRegione.Persistance
             var query = PRContext.DASI.Where(atto => !atto.Eliminato
                                                      && atto.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                                                      && atto.Tipo == (int)tipo
-                                                     && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
-                                                     && atto.IDStato !=
-                                                     (int)StatiAttoEnum.CHIUSO_RITIRATO
-                                                     && atto.IDStato !=
-                                                     (int)StatiAttoEnum.CHIUSO_DECADUTO);
+                                                     && atto.IDStato < (int)StatiAttoEnum.PRESENTATO);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 
