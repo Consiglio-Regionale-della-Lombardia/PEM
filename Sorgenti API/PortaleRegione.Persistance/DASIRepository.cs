@@ -798,7 +798,9 @@ namespace PortaleRegione.Persistance
                 .CountAsync(item => !item.Eliminato
                                     && item.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                     && item.UID_Atto_ODG == uidAtto
-                                    && item.DataIscrizioneSeduta.HasValue);
+                                    && item.DataIscrizioneSeduta.HasValue
+                                    && item.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                    && item.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
         }
 
         public async Task<bool> CheckIscrizioneSedutaIQT(string dataRichiesta, Guid uidPersona)
@@ -808,7 +810,9 @@ namespace PortaleRegione.Persistance
             var atti_proposti_in_seduta = await PRContext.DASI
                 .Where(i => i.DataRichiestaIscrizioneSeduta.Equals(dataRichiesta)
                             && i.Tipo == (int)TipoAttoEnum.IQT
-                            && i.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                            && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO)
                 .ToListAsync();
 
             foreach (var attiDasi in atti_proposti_in_seduta)
@@ -828,6 +832,8 @@ namespace PortaleRegione.Persistance
             var atti_proposti_in_seduta = await PRContext.DASI
                 .Where(i => !i.Eliminato
                             && i.IDStato >= (int)StatiAttoEnum.PRESENTATO
+                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                            && i.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO
                             && (i.UIDSeduta == seduta.UIDSeduta
                                 || i.DataRichiestaIscrizioneSeduta == dataSedutaEncrypt)
                             && i.Tipo == (int)TipoAttoEnum.MOZ
