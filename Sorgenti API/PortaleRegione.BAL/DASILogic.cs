@@ -998,6 +998,9 @@ namespace PortaleRegione.API.Controllers
                                     break;
                                 }
 
+                                // #748 - Ritiro firma da parte del proponente - Se il proponente ritira la propria firma non invia il messaggio di notifica
+                                if (atto.UIDPersonaProponente == persona.UID_persona) break;
+
                                 var _guid = Guid.NewGuid();
                                 var sync_guid = Guid.NewGuid();
 
@@ -1439,7 +1442,8 @@ namespace PortaleRegione.API.Controllers
                     if (moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
                         moz_da_esaminare.RemoveAt(moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
-                    var moz_firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList());
+                    var moz_firmatari =
+                        await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList());
 
                     foreach (var firma in firme)
                     {
@@ -1477,7 +1481,8 @@ namespace PortaleRegione.API.Controllers
                     if (iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
                         iqt_da_esaminare.RemoveAt(iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
-                    var iqt_firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList());
+                    var iqt_firmatari =
+                        await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList());
 
                     foreach (var firma in firme)
                     {
