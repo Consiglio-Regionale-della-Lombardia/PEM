@@ -328,7 +328,7 @@ else
                                 {
                                     if (item.Tipo != (int)TipoAttoEnum.ODG
                                         && Model.CurrentUser.UID_persona == item.UIDPersonaProponente
-                                        || (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
+                                        || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
                                     {
                                         <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
                                     }
