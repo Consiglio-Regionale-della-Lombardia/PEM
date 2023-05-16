@@ -80,6 +80,9 @@ namespace PortaleRegione.BAL
 
         public async Task<SEDUTE> NuovaSeduta(SEDUTE seduta, PersonaDto persona)
         {
+            //#712
+            if (seduta.Data_seduta <= DateTime.MinValue)
+                throw new InvalidOperationException("Data seduta non valida");
             seduta.UIDSeduta = Guid.NewGuid();
             seduta.Eliminato = false;
             seduta.UIDPersonaCreazione = persona.UID_persona;
@@ -92,6 +95,10 @@ namespace PortaleRegione.BAL
 
         public async Task ModificaSeduta(SeduteFormUpdateDto sedutaDto, PersonaDto persona)
         {
+            //#712
+            if (sedutaDto.Data_seduta <= DateTime.MinValue)
+                throw new InvalidOperationException("Data seduta non valida");
+
             var sedutaInDb = await _unitOfWork.Sedute.Get(sedutaDto.UIDSeduta);
             Mapper.Map(sedutaDto, sedutaInDb);
             CleanSeduta(sedutaDto, sedutaInDb);

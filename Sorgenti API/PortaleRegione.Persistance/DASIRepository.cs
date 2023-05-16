@@ -133,10 +133,9 @@ namespace PortaleRegione.Persistance
                     query = query.Where(i => atti_da_firmare.Contains(i.UIDAtto));
                 }
 
-            var statoFilter = filtro.Statements.FirstOrDefault(i => i.PropertyId == nameof(ATTI_DASI.IDStato));
-            if (statoFilter != null)
+            if (stati.Any())
             {
-                if (Convert.ToInt16(statoFilter.Value) == (int)StatiAttoEnum.BOZZA)
+                if (stati.Any(item => item.Equals((int)StatiAttoEnum.BOZZA)))
                 {
                     return await query
                         .OrderBy(item => item.Tipo)
@@ -632,7 +631,8 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<string> GetAll_Query(PersonaDto persona, ClientModeEnum mode, Filter<ATTI_DASI> filtro,
-            List<int> soggetti)
+            List<int> soggetti,
+            List<int> stati)
         {
             var query = PRContext
                 .DASI
@@ -669,6 +669,9 @@ namespace PortaleRegione.Persistance
             {
                 query = query.Where(item => item.DataIscrizioneSeduta.HasValue);
             }
+
+            if (stati.Any())
+                query = query.Where(i => stati.Contains(i.IDStato));
 
             if (soggetti != null)
                 if (soggetti.Count > 0)
@@ -767,7 +770,9 @@ namespace PortaleRegione.Persistance
                                                      && atto.id_gruppo == gruppoId
                                                      && atto.IDStato >= (int)StatiAttoEnum.PRESENTATO
                                                      && atto.Tipo == (int)tipo
-                                                     && !atto.IsChiuso);
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                     && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
 
             if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
 

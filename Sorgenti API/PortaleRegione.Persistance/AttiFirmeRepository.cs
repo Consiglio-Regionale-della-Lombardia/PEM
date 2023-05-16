@@ -100,6 +100,16 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids)
+        {
+            var result = await PRContext
+                .ATTI_FIRME
+                .Where(f => guids.Contains(f.UIDAtto) && f.Valida)
+                .ToListAsync();
+
+            return result;
+        }
+
         public async Task CancellaFirme(Guid attoUId)
         {
             var firmeDaEliminare = await PRContext
@@ -117,9 +127,11 @@ namespace PortaleRegione.Persistance
         /// <param name="atto"></param>
         /// <param name="persona"></param>
         /// <returns></returns>
-        public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona)
+        public async Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona, bool firma_ufficio = false)
         {
-            //TODO: controllo firmabile proponente
+            // #721
+            if (!persona.IsConsigliereRegionale && !firma_ufficio)
+                return false;
             if (atto.IsChiuso) return false;
             if (atto.DataIscrizioneSeduta.HasValue) return false;
             if (atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE

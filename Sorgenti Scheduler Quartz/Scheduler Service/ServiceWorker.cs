@@ -33,7 +33,7 @@ namespace SchedulerService
             // write code here that runs when the Windows Service starts up.  
             var props = new NameValueCollection
             {
-                {"quartz.serializer.type", "binary"}
+                { "quartz.serializer.type", "binary" }
             };
             var factory = new StdSchedulerFactory(props);
             scheduler = await factory.GetScheduler();
@@ -47,16 +47,10 @@ namespace SchedulerService
             foreach (var itemTrigger in Triggers)
             {
                 var itemJob = Jobs.FirstOrDefault(x => x.name == itemTrigger.jobname);
-                if (itemJob == null)
-                {
-                    continue;
-                }
+                if (itemJob == null) continue;
                 var pathAssembly = Path.Combine(ConfigurationSettings.AppSettings["PathCustomJobs"], itemJob.path);
                 var info = new FileInfo(pathAssembly);
-                if (!info.Exists)
-                {
-                    continue;
-                }
+                if (!info.Exists) continue;
                 var assembly =
                     Assembly.LoadFrom(pathAssembly);
                 var types = assembly.GetTypes();

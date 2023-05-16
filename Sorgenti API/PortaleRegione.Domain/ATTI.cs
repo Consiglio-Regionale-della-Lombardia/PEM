@@ -20,13 +20,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PortaleRegione.Domain
 {
     [Table("ATTI")]
-    public partial class ATTI
+    public class ATTI
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ATTI()
         {
             ARTICOLI = new HashSet<ARTICOLI>();
@@ -37,20 +38,15 @@ namespace PortaleRegione.Domain
             STAMPE = new HashSet<STAMPE>();
         }
 
-        [Key]
-        public Guid UIDAtto { get; set; }
+        [Key] public Guid UIDAtto { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string NAtto { get; set; }
+        [Required] [StringLength(50)] public string NAtto { get; set; }
 
         public int IDTipoAtto { get; set; }
 
-        [StringLength(500)]
-        public string Oggetto { get; set; }
+        [StringLength(500)] public string Oggetto { get; set; }
 
-        [StringLength(255)]
-        public string Note { get; set; }
+        [StringLength(255)] public string Note { get; set; }
 
         public string Path_Testo_Atto { get; set; }
 
@@ -92,33 +88,65 @@ namespace PortaleRegione.Domain
 
         public DateTime? DataUltimaModificaEM { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ARTICOLI> ARTICOLI { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ATTI_RELATORI> ATTI_RELATORI { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual SEDUTE SEDUTE { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual TIPI_ATTO TIPI_ATTO { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<COMMI> COMMI { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<EM> EM { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<NOTIFICHE> NOTIFICHE { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STAMPE> STAMPE { get; set; }
 
-        public bool BloccoODG { get; set; } = false;
-        public bool Jolly { get; set; } = false;
-        public bool Emendabile { get; set; } = false;
-        public bool Fascicoli_Da_Aggiornare { get; set; } = false;
+        public bool BloccoODG { get; set; }
+        public bool Jolly { get; set; }
+        public bool Emendabile { get; set; }
+        public bool Fascicoli_Da_Aggiornare { get; set; }
+
+        public ATTI Clona()
+        {
+            var result = new ATTI
+            {
+                UIDAtto = Guid.NewGuid(),
+                UIDSeduta = UIDSeduta,
+                NAtto = NAtto,
+                IDTipoAtto = IDTipoAtto,
+                Oggetto = Oggetto,
+                Note = "Votazione degli em/subem dell'atto spostati in altra seduta",
+                Path_Testo_Atto = Path_Testo_Atto,
+                Data_apertura = Data_apertura,
+                Data_chiusura = Data_chiusura,
+                VIS_Mis_Prog = VIS_Mis_Prog,
+                UIDAssessoreRiferimento = UIDAssessoreRiferimento,
+                Notifica_deposito_differita = Notifica_deposito_differita,
+                OrdinePresentazione = OrdinePresentazione,
+                OrdineVotazione = OrdineVotazione,
+                Priorita = Priorita,
+                DataCreazione = DateTime.Now,
+                UIDPersonaCreazione = UIDPersonaCreazione,
+                LinkFascicoloPresentazione = "",
+                LinkFascicoloVotazione = "",
+                BloccoODG = BloccoODG,
+                Jolly = Jolly,
+                Emendabile = Emendabile,
+                Fascicoli_Da_Aggiornare = Fascicoli_Da_Aggiornare,
+                Eliminato = false
+            };
+            return result;
+        }
     }
 }

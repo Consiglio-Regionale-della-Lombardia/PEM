@@ -140,7 +140,7 @@
                             var triggerClassGruppi = "";
                             var iconClassSwapGruppi = "";
                             var gruppiCache = HttpContext.Current.Cache.Get(CacheHelper.GRUPPI_ATTIVI)?.ToString();
-                            if (gruppiCache != null)
+                            if (gruppiCache != null && User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
                                 var gruppiJson = JsonConvert.DeserializeObject<List<KeyValueDto>>(gruppiCache);
 

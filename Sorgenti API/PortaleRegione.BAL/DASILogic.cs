@@ -639,7 +639,8 @@ namespace PortaleRegione.API.Controllers
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, TipoAttoEnum tipo,
-            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti, List<Guid> atti_da_firmare = null)
+            Guid sedutaId, object _clientMode, Filter<ATTI_DASI> _filtro, List<int> soggetti,
+            List<Guid> atti_da_firmare = null)
         {
             var clientMode = (ClientModeEnum)Convert.ToInt16(_clientMode);
             var filtro = PulisciFiltro(_filtro);
@@ -764,9 +765,13 @@ namespace PortaleRegione.API.Controllers
 
                     var attoInDb = await _unitOfWork.DASI.Get(idGuid);
                     var atto = await GetAttoDto(idGuid, persona);
+                    var firmabile = await _unitOfWork
+                        .Atti_Firme
+                        .CheckIfFirmabile(atto,
+                            persona, firmaUfficio);
                     var nome_atto = atto.Display;
 
-                    if (!atto.Firmabile)
+                    if (!firmabile)
                     {
                         results.Add(idGuid,
                             $"ERROR: Atto {nome_atto} non è più sottoscrivibile");
@@ -1390,7 +1395,8 @@ namespace PortaleRegione.API.Controllers
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA)
                 || (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.CENSURA))
             {
-                var firmatari = await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
+                var firmatari =
+                    await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
@@ -1433,6 +1439,8 @@ namespace PortaleRegione.API.Controllers
                     if (moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
                         moz_da_esaminare.RemoveAt(moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
+                    var moz_firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList());
+
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
@@ -1440,14 +1448,13 @@ namespace PortaleRegione.API.Controllers
                         var firmatario_valido = true;
                         foreach (var moz in moz_da_esaminare)
                         {
-                            var firmatari_moz = await _unitOfWork.Atti_Firme.GetFirmatari(moz.UIDAtto);
-                            var _firmatari_moz = firmatari_moz.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                            var firmatari_moz = moz_firmatari.Where(f => f.UIDAtto == moz.UIDAtto
+                                                                         && string.IsNullOrEmpty(f.Data_ritirofirma))
                                 .ToList();
-                            if (_firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            if (firmatari_moz.All(item => item.UID_persona != firma.UID_persona)) continue;
                             firmatario_valido = false;
-                            var dto = await GetAttoDto(moz.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
-                                $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
+                                $"{Utility.GetText_Tipo(moz.Tipo)} {GetNome(moz.NAtto, moz.Progressivo)}");
                             break;
                         }
 
@@ -1470,21 +1477,22 @@ namespace PortaleRegione.API.Controllers
                     if (iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
                         iqt_da_esaminare.RemoveAt(iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
+                    var iqt_firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList());
+
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
-                            $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
+                            $"{firma.FirmaCert}, firma non <b>valida</b> perchè già presente in [[LISTA]]; <br/> ";
                         var firmatario_valido = true;
-                        foreach (var odg in iqt_da_esaminare)
+                        foreach (var iqt in iqt_da_esaminare)
                         {
-                            var firmatari_odg = await _unitOfWork.Atti_Firme.GetFirmatari(odg.UIDAtto);
-                            var _firmatari_odg = firmatari_odg.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                            var firmatari_iqt = iqt_firmatari.Where(f => f.UIDAtto == iqt.UIDAtto
+                                                                         && string.IsNullOrEmpty(f.Data_ritirofirma))
                                 .ToList();
-                            if (_firmatari_odg.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            if (firmatari_iqt.All(item => item.UID_persona != firma.UID_persona)) continue;
                             firmatario_valido = false;
-                            var dto = await GetAttoDto(odg.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
-                                $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
+                                $"{Utility.GetText_Tipo(iqt.Tipo)} {GetNome(iqt.NAtto, iqt.Progressivo)}");
                             break;
                         }
 
@@ -2133,6 +2141,11 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                //#713 
+                if (model.AttoUId == Guid.Empty)
+                    throw new InvalidOperationException(
+                        "Selezionare un atto da abbinare");
+
                 var guid = model.Lista.First();
                 var atto = await Get(guid);
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
@@ -2329,7 +2342,10 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{Oggetto}", dasiDto.Oggetto)
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                    .Replace("{DataDeposito}", string.IsNullOrEmpty(dasiDto.DataPresentazione) ? "" : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
+                    .Replace("{DataDeposito}",
+                        string.IsNullOrEmpty(dasiDto.DataPresentazione)
+                            ? ""
+                            : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2367,7 +2383,10 @@ namespace PortaleRegione.API.Controllers
                     .Replace("{Oggetto}", dasiDto.Oggetto)
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
-                    .Replace("{DataDeposito}", string.IsNullOrEmpty(dasiDto.DataPresentazione) ? "" : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
+                    .Replace("{DataDeposito}",
+                        string.IsNullOrEmpty(dasiDto.DataPresentazione)
+                            ? ""
+                            : "<br>Depositato il " + dasiDto.Timestamp.ToString("dd/MM/yyyy")));
 
             body = body.Replace("{LISTA_LIGHT}", bodyIndice.ToString());
 
@@ -2427,9 +2446,7 @@ namespace PortaleRegione.API.Controllers
                 atto.Oggetto_Modificato = string.Empty;
 
             if (!string.IsNullOrEmpty(model.Oggetto_Privacy) && !model.Oggetto_Privacy.Equals(model.Oggetto))
-            {
                 atto.Oggetto_Privacy = model.Oggetto_Privacy;
-            }
 
             if (!string.IsNullOrEmpty(model.Premesse_Modificato))
                 atto.Premesse_Modificato = model.Premesse_Modificato;
@@ -2461,6 +2478,8 @@ namespace PortaleRegione.API.Controllers
             {
                 case TipoAttoEnum.IQT:
                     {
+                        if (atto.Seduta.DataScadenzaPresentazioneIQT == null)
+                            break;
                         if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
                             if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
                                 result = true;
@@ -2472,6 +2491,8 @@ namespace PortaleRegione.API.Controllers
                         {
                             case TipoMOZEnum.URGENTE:
                                 {
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZU == null)
+                                        break;
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
                                             atto.Seduta.DataScadenzaPresentazioneMOZU)
@@ -2480,6 +2501,8 @@ namespace PortaleRegione.API.Controllers
                                 }
                             case TipoMOZEnum.ABBINATA:
                                 {
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZA == null)
+                                        break;
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
                                             atto.Seduta.DataScadenzaPresentazioneMOZA)
@@ -2488,6 +2511,8 @@ namespace PortaleRegione.API.Controllers
                                 }
                             case TipoMOZEnum.ORDINARIA:
                                 {
+                                    if (atto.Seduta.DataScadenzaPresentazioneMOZ == null)
+                                        break;
                                     if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
                                         if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
                                             atto.Seduta.DataScadenzaPresentazioneMOZ)
@@ -2501,7 +2526,8 @@ namespace PortaleRegione.API.Controllers
                 case TipoAttoEnum.ODG:
                     {
                         if (atto.CapogruppoNeiTermini) break;
-
+                        if (atto.Seduta.DataScadenzaPresentazioneODG == null)
+                            break;
                         if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
                             if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
                                 result = true;

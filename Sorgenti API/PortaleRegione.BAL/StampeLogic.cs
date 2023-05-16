@@ -164,10 +164,20 @@ namespace PortaleRegione.BAL
                 soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
                 foreach (var s in soggetti_request) model.filtro.Remove(s);
             }
+            var stati = new List<int>();
+            var stati_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
+            {
+                stati_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.IDStato)));
+                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+            }
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(model.filtro);
-            var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti);
+            var query = await _unitOfWork.DASI.GetAll_Query(persona, mode, queryFilter, soggetti, stati);
             stampa.Query = query;
 
             stampa.DataRichiesta = DateTime.Now;

@@ -15,6 +15,15 @@
         $('#btnSearch').hide();
     });
 </script>
+<style>
+    .trumbowyg-editor > p > ul {
+        padding-left: 30px !important;
+        list-style-type: disc !important;
+    }
+    .trumbowyg-editor > p > ul > li {
+        list-style-type: disc !important;
+    }
+</style>
 
 <div class="row">
     <div class="col l1 s2">
@@ -91,8 +100,19 @@
                     </div>
                     if (isNew)
                     {
-                        if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-                        && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+                        if (Model.Atto.Tipo == (int)TipoAttoEnum.IQT)
+                        {
+                            <div class="row">
+                                <div class="col s12">
+                                    <label class="black-text" style="margin-left: 20px">
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                        else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
+                       && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
                         {
                             <div class="row">
                                 <div class="col s12">
@@ -105,7 +125,7 @@
                                         <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
                                     </label>
                                     <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)"/>
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)" />
                                         <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
                                     </label>
                                 </div>

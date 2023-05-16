@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Domain;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -54,25 +53,5 @@ namespace PortaleRegione.Domain
         public virtual UTENTI_NoCons UTENTI_NoCons { get; set; }
         public bool Valida { get; set; } = true;
         public bool Capogruppo { get; set; } = false;
-
-        public static implicit operator AttiFirmeDto(ATTI_FIRME firma)
-        {
-            var result = new AttiFirmeDto
-            {
-                UIDAtto = firma.UIDAtto,
-                UID_persona = firma.UID_persona,
-                FirmaCert = firma.FirmaCert,
-                PrimoFirmatario = firma.PrimoFirmatario,
-                id_gruppo = firma.id_gruppo,
-                ufficio = firma.ufficio,
-                Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
-                    ? null
-                    : firma.Data_ritirofirma
-            };
-
-            result.Data_firma = firma.Timestamp.ToString("dd/MM/yyyy");
-
-            return result;
-        }
     }
 }

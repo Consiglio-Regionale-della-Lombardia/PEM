@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -88,7 +89,8 @@ namespace PortaleRegione.Client.Controllers
                 return HttpNotFound(e.Message);
             }
 
-            await SalvaDatiInCookies(response.persona, response.jwt, response.persona.userAD.Replace(@"CONSIGLIO\", ""));
+            await SalvaDatiInCookies(response.persona, response.jwt,
+                response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
             return RedirectToAction("Index", "Home");
         }
@@ -110,7 +112,8 @@ namespace PortaleRegione.Client.Controllers
                 return HttpNotFound(e.Message);
             }
 
-            await SalvaDatiInCookies(response.persona, response.jwt, response.persona.userAD.Replace(@"CONSIGLIO\", ""));
+            await SalvaDatiInCookies(response.persona, response.jwt,
+                response.persona.userAD.Replace(@"CONSIGLIO\", ""));
 
             return RedirectToAction("Index", "Home");
         }
@@ -129,25 +132,31 @@ namespace PortaleRegione.Client.Controllers
 
             var authTicket1 = new FormsAuthenticationTicket
             (
-                1, $"{username}1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, p1
+                1, $"{username}1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true,
+                p1
             );
             var authTicket2 = new FormsAuthenticationTicket
             (
-                1, $"{username}2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, p2
+                1, $"{username}2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true,
+                p2
             );
             var authTicket3 = new FormsAuthenticationTicket
             (
-                1, $"{username}3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, p3
+                1, $"{username}3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true,
+                p3
             );
 
             var enTicket1 = FormsAuthentication.Encrypt(authTicket1);
-            var faCookie1 = new HttpCookie("PRCookies1", enTicket1) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+            var faCookie1 = new HttpCookie("PRCookies1", enTicket1)
+            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie1);
             var enTicket2 = FormsAuthentication.Encrypt(authTicket2);
-            var faCookie2 = new HttpCookie("PRCookies2", enTicket2) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+            var faCookie2 = new HttpCookie("PRCookies2", enTicket2)
+            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie2);
             var enTicket3 = FormsAuthentication.Encrypt(authTicket3);
-            var faCookie3 = new HttpCookie("PRCookies3", enTicket3) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+            var faCookie3 = new HttpCookie("PRCookies3", enTicket3)
+            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie3);
 
             #endregion
@@ -156,25 +165,31 @@ namespace PortaleRegione.Client.Controllers
 
             var securetyTicket1 = new FormsAuthenticationTicket
             (
-                1, "token_jwt1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, jwt1
+                1, "token_jwt1", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true,
+                jwt1
             );
             var securetyTicket2 = new FormsAuthenticationTicket
             (
-                1, "token_jwt2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, jwt2
+                1, "token_jwt2", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true,
+                jwt2
             );
             var securetyTicket3 = new FormsAuthenticationTicket
             (
-                1, "token_jwt3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true, jwt3
+                1, "token_jwt3", DateTime.Now, DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN), true,
+                jwt3
             );
 
             var sTicket1 = FormsAuthentication.Encrypt(securetyTicket1);
-            var sCookie1 = new HttpCookie("SCookies1", sTicket1) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+            var sCookie1 = new HttpCookie("SCookies1", sTicket1)
+            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie1);
             var sTicket2 = FormsAuthentication.Encrypt(securetyTicket2);
-            var sCookie2 = new HttpCookie("SCookies2", sTicket2) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+            var sCookie2 = new HttpCookie("SCookies2", sTicket2)
+            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie2);
             var sTicket3 = FormsAuthentication.Encrypt(securetyTicket3);
-            var sCookie3 = new HttpCookie("SCookies3", sTicket3) { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+            var sCookie3 = new HttpCookie("SCookies3", sTicket3)
+            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie3);
 
             #endregion
@@ -233,6 +248,17 @@ namespace PortaleRegione.Client.Controllers
             }
 
             FormsAuthentication.SignOut();
+
+            try
+            {
+                if (HttpContext?.Cache == null) return;
+                foreach (DictionaryEntry entry in HttpContext.Cache)
+                    HttpContext.Cache.Remove((string)entry.Key);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
 #if DEBUG == true
@@ -246,7 +272,8 @@ namespace PortaleRegione.Client.Controllers
 
             LogoutFlow();
 
-            return RedirectToAction("FormAutenticazioneDEBUG", new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx" });
+            return RedirectToAction("FormAutenticazioneDEBUG",
+                new { username = $"***{persona.userAD.Replace(@"CONSIGLIO\", "")}", password = "xx" });
         }
 
         [AllowAnonymous]
@@ -260,7 +287,5 @@ namespace PortaleRegione.Client.Controllers
             });
         }
 #endif
-
-
     }
 }

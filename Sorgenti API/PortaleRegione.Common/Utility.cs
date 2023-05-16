@@ -271,6 +271,8 @@ namespace PortaleRegione.Common
                         return "INVITA";
                     case TipoRichiestaEnum.IMPEGNA:
                         return "IMPEGNA";
+                    case TipoRichiestaEnum.INTERROGA:
+                        return "INTERROGA";
                     default:
                         return " ";
                 }

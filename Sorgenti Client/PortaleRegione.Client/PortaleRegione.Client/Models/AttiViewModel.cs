@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
+using System.Collections.Generic;
 
 namespace PortaleRegione.Client.Models
 {
@@ -30,5 +30,6 @@ namespace PortaleRegione.Client.Models
         public AttiFormUpdateModel Atto { get; set; }
         public IEnumerable<PersonaDto> Assessori { get; set; }
         public IEnumerable<PersonaDto> Relatori { get; set; }
+        public BaseResponse<SeduteDto> Sedute { get; set; }
     }
 }
