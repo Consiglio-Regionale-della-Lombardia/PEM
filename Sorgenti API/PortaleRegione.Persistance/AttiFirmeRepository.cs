@@ -100,6 +100,16 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids)
+        {
+            var result = await PRContext
+                .ATTI_FIRME
+                .Where(f => guids.Contains(f.UIDAtto) && f.Valida)
+                .ToListAsync();
+
+            return result;
+        }
+
         public async Task CancellaFirme(Guid attoUId)
         {
             var firmeDaEliminare = await PRContext

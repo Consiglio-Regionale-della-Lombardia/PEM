@@ -925,6 +925,7 @@ function RevealFirmaDepositoDASI(id, action) {
                         typeMessage = "info";
                         message = "Proposta di firma inviata al proponente";
                     }
+                    
                     swal({
                         title: "Esito " + button,
                         text: message,
@@ -934,7 +935,7 @@ function RevealFirmaDepositoDASI(id, action) {
                         if (data.message.includes("OK") || data.message.includes("?!?")) {
                             location.reload();
                         }
-                    });
+                    });          
                 }
             }).fail(function(err) {
                 console.log("error", err);

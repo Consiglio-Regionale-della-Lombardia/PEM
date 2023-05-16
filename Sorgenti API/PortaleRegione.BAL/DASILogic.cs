@@ -1439,6 +1439,8 @@ namespace PortaleRegione.API.Controllers
                     if (moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
                         moz_da_esaminare.RemoveAt(moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
+                    var moz_firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList());
+
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
@@ -1446,14 +1448,13 @@ namespace PortaleRegione.API.Controllers
                         var firmatario_valido = true;
                         foreach (var moz in moz_da_esaminare)
                         {
-                            var firmatari_moz = await _unitOfWork.Atti_Firme.GetFirmatari(moz.UIDAtto);
-                            var _firmatari_moz = firmatari_moz.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                            var firmatari_moz = moz_firmatari.Where(f => f.UIDAtto == moz.UIDAtto
+                                                                         && string.IsNullOrEmpty(f.Data_ritirofirma))
                                 .ToList();
-                            if (_firmatari_moz.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            if (firmatari_moz.All(item => item.UID_persona != firma.UID_persona)) continue;
                             firmatario_valido = false;
-                            var dto = await GetAttoDto(moz.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
-                                $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
+                                $"{Utility.GetText_Tipo(moz.Tipo)} {GetNome(moz.NAtto, moz.Progressivo)}");
                             break;
                         }
 
@@ -1476,21 +1477,22 @@ namespace PortaleRegione.API.Controllers
                     if (iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto) != -1)
                         iqt_da_esaminare.RemoveAt(iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
+                    var iqt_firmatari = await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList());
+
                     foreach (var firma in firme)
                     {
                         var firmatario_indagato =
-                            $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
+                            $"{firma.FirmaCert}, firma non <b>valida</b> perchè già presente in [[LISTA]]; <br/> ";
                         var firmatario_valido = true;
                         foreach (var iqt in iqt_da_esaminare)
                         {
-                            var firmatari_iqt = await _unitOfWork.Atti_Firme.GetFirmatari(iqt.UIDAtto);
-                            var _firmatari_iqt = firmatari_iqt.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma))
+                            var firmatari_iqt = iqt_firmatari.Where(f => f.UIDAtto == iqt.UIDAtto
+                                                                         && string.IsNullOrEmpty(f.Data_ritirofirma))
                                 .ToList();
-                            if (_firmatari_iqt.All(item => item.FirmaCert != firma.FirmaCert)) continue;
+                            if (firmatari_iqt.All(item => item.UID_persona != firma.UID_persona)) continue;
                             firmatario_valido = false;
-                            var dto = await GetAttoDto(iqt.UIDAtto);
                             firmatario_indagato = firmatario_indagato.Replace("[[LISTA]]",
-                                $"{Utility.GetText_Tipo(dto.Tipo)} {dto.NAtto}");
+                                $"{Utility.GetText_Tipo(iqt.Tipo)} {GetNome(iqt.NAtto, iqt.Progressivo)}");
                             break;
                         }
 
