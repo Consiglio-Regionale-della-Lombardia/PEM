@@ -100,12 +100,18 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
-        public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids)
+        public async Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids, int max_result)
         {
-            var result = await PRContext
-                .ATTI_FIRME
-                .Where(f => guids.Contains(f.UIDAtto) && f.Valida)
-                .ToListAsync();
+            var result = new List<ATTI_FIRME>();
+            foreach (var guid in guids)
+            {
+                result.AddRange(await PRContext
+                    .ATTI_FIRME
+                    .Where(f => guid == f.UIDAtto && f.Valida)
+                    .OrderBy(f => f.Timestamp)
+                    .Take(max_result)
+                    .ToListAsync());
+            }
 
             return result;
         }

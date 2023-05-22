@@ -1410,16 +1410,17 @@ namespace PortaleRegione.API.Controllers
                 var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
-                var minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriIQT;
+                var minimo_consiglieri_config = AppSettingsConfiguration.MinimoConsiglieriIQT;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                 {
                     if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
-                        minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriMOZU;
+                        minimo_consiglieri_config = AppSettingsConfiguration.MinimoConsiglieriMOZU;
                     if (atto.TipoMOZ == (int)TipoMOZEnum.SFIDUCIA
                         || atto.TipoMOZ == (int)TipoMOZEnum.CENSURA)
-                        minimo_consiglieri = AppSettingsConfiguration.MinimoConsiglieriMOZC_MOZS;
+                        minimo_consiglieri_config = AppSettingsConfiguration.MinimoConsiglieriMOZC_MOZS;
                 }
 
+                var minimo_consiglieri = minimo_consiglieri_config;
                 var consiglieriGruppo =
                     await _unitOfWork.Gruppi.GetConsiglieriGruppo(atto.Legislatura, atto.id_gruppo);
                 var count_consiglieri = consiglieriGruppo.Count();
@@ -1453,7 +1454,7 @@ namespace PortaleRegione.API.Controllers
                         moz_da_esaminare.RemoveAt(moz_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
                     var moz_firmatari =
-                        await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList());
+                        await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList(), minimo_consiglieri_config);
 
                     foreach (var firma in firme)
                     {
@@ -1495,7 +1496,7 @@ namespace PortaleRegione.API.Controllers
                         iqt_da_esaminare.RemoveAt(iqt_da_esaminare.FindIndex(i => i.UIDAtto == atto.UIDAtto));
 
                     var iqt_firmatari =
-                        await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList());
+                        await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList(), minimo_consiglieri_config);
 
                     foreach (var firma in firme)
                     {
