@@ -10,7 +10,13 @@
         <a class="waves-effect" href="@Url.Action("RiepilogoSedute", "PEM")"><i class="material-icons">event</i>PEM</a>
     </li>
 }
-@if (AppSettingsConfiguration.EnableDASI && !User.IsInRole(((int)RuoliIntEnum.Amministratore_Giunta).ToString()))
+@if (AppSettingsConfiguration.EnableDASI 
+     && !User.IsInRole(((int)RuoliIntEnum.Amministratore_Giunta).ToString())
+     && !User.IsInRole(((int)RuoliIntEnum.Assessore_Sottosegretario_Giunta).ToString())
+     && !User.IsInRole(((int)RuoliIntEnum.Responsabile_Segreteria_Giunta).ToString())
+     && !User.IsInRole(((int)RuoliIntEnum.Segreteria_Giunta_Regionale).ToString())
+     && !User.IsInRole(((int)RuoliIntEnum.Presidente_Regione).ToString())
+     && !User.IsInRole(((int)RuoliIntEnum.Utente).ToString()))
 {
     <li class="menuItem_DASI bold">
         <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
