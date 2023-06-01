@@ -23,10 +23,20 @@
         stato = statoFromCache,
         view = viewFromCache
     };
-    var backUrl = Url.Action("RiepilogoDASI", objParams);
-    if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
+
+    string previousPageUrl = HttpContext.Current.Request.Headers["Referer"];
+    var backUrl = string.Empty;
+    if (previousPageUrl.Contains(Url.Action("RiepilogoNotifiche", "Notifiche")))
     {
-        backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo });
+        backUrl = HttpContext.Current.Request.Headers["Referer"];
+    }
+    else
+    {
+        backUrl = Url.Action("RiepilogoDASI", objParams);
+        if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
+        {
+            backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo });
+        } 
     }
 }
 
@@ -142,12 +152,8 @@
                         @if (!string.IsNullOrEmpty(atto.DataPresentazione))
                         {
                             var testoDeposito = "Atto presentato";
-                            if (atto.Firma_da_ufficio)
-                            {
-                                testoDeposito += " d'ufficio";
-                            }
 
-                            <label class="green-text">@testoDeposito il @Html.Raw(atto.DataPresentazione)</label>
+                            <label class="black-text"><b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b></label>
                         }
 
                         @if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))

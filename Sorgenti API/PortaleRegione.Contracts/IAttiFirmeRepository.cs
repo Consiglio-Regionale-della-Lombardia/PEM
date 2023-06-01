@@ -35,9 +35,10 @@ namespace PortaleRegione.Contracts
         Task<int> CountFirme(Guid attoUId);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(ATTI_DASI atto, FirmeTipoEnum tipo);
         Task<IEnumerable<ATTI_FIRME>> GetFirmatari(Guid attoUId);
+        Task<List<ATTI_FIRME>> GetFirmatari(List<Guid> guids, int max_result);
         Task CancellaFirme(Guid attoUId);
         Task<bool> CheckFirmato(Guid attoUId, Guid? personaUId);
-        Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona);
+        Task<bool> CheckIfFirmabile(AttoDASIDto atto, PersonaDto persona, bool firma_ufficio = false);
         Task<bool> CheckFirmatoDaUfficio(Guid attoUId);
         Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId);
     }

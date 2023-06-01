@@ -76,7 +76,7 @@
                 <div class="col s4 right-align" style="margin-top: 15px;">
                     @if (!chiusa)
                     {
-                        <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                        <a class="black-text" onclick="go('@Url.Action("Index", "AttiTrattazione", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
                             <i class="material-icons">chevron_right</i>
                         </a>
                     }

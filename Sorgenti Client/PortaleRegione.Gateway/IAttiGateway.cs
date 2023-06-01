@@ -61,5 +61,6 @@ namespace PortaleRegione.Gateway
         Task<List<ArticoliModel>> GetGrigliaTesto(Guid id, bool viewEm);
 
         Task<List<EmendamentoExtraLightDto>> GetGrigliaOrdinamento(Guid id);
+        Task SpostaInAltraSeduta(Guid uidAtto, Guid uidSeduta);
     }
 }

@@ -1131,8 +1131,10 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 await apiGateway.DASI.SalvaCartaceo(request);
-                Session["RiepilogoDASI"] = null;
-                return Json(Url.Action("RiepilogoDASI"), JsonRequestBehavior.AllowGet);
+                return Json(Url.Action("ViewAtto", "DASI", new
+                {
+                    id = request.UIDAtto
+                }), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

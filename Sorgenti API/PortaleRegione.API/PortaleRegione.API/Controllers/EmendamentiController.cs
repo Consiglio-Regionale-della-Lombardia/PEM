@@ -176,7 +176,6 @@ namespace PortaleRegione.API.Controllers
         [Route(ApiRoutes.PEM.Emendamenti.Get)]
         public async Task<IHttpActionResult> GetEmendamento(Guid id)
         {
-            //TODO: implementare i controlli anche sull'atto
             try
             {
                 var em = await _emendamentiLogic.GetEM(id);
@@ -186,8 +185,13 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 var atto = await _unitOfWork.Atti.Get(em.UIDAtto);
+                var currentUser = CurrentUser;
+                var result = await _emendamentiLogic.GetEM_DTO(em, atto, currentUser);
 
-                var result = await _emendamentiLogic.GetEM_DTO(em, atto, CurrentUser);
+                // #711 Controllo se l'utente che sta richiedendo (consigliere/assessore) ha una notifica pendente.
+                // In quel caso aggiorno il campo "Visto" nei destinatari della notifica
+                await _notificheLogic.ControlloNotifiche(currentUser, em.UIDEM);
+
                 return Ok(result);
             }
             catch (Exception e)

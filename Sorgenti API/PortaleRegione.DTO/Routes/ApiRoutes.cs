@@ -96,6 +96,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string SpostaUp = Base + "/{id}/sposta/up";
                 public const string SpostaDown = Base + "/{id}/sposta/down";
                 public const string GetTipi = Base + "/tipi/{dasi}";
+                public const string SpostaInAltraSeduta = Base + "/{uidAtto}/sposta-in-altra-seduta/{uidSeduta}";
 
                 public static class Articoli
                 {
@@ -156,7 +157,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string EliminaFirma = Base + "/commands/firma/elimina";
 
                 public const string Deposita = Base + "/commands/deposita";
-                public const string Ritira = Base + "/commands/ritiro";
+                public const string Ritira = Base + "/{id}/commands/ritiro";
 
                 public const string ModificaStato = Base + "/commands/stato";
                 public const string AssegnaNuovoProponente = Base + "/commands/nuovo-proponente";

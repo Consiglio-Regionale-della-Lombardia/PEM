@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2023.4.28.0</FileVersion>
+    <Version>2023.4.28</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +16,12 @@
     <ProjectReference Include="..\..\..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj" />
     <ProjectReference Include="..\..\..\..\Sorgenti Client\PortaleRegione.Gateway\PortaleRegione.Gateway.csproj" />
     <ProjectReference Include="..\..\..\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe\PortaleRegione.GestioneStampe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PortaleRegione.Logger">
+      <HintPath>..\..\..\..\Sorgenti API\PortaleRegione.Logger\bin\Debug\PortaleRegione.Logger.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

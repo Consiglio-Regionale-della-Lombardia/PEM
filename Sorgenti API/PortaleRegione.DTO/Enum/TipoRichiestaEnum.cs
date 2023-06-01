@@ -22,6 +22,7 @@ namespace PortaleRegione.DTO.Enum
     {
         CHIEDE = 1,
         INVITA = 2,
-        IMPEGNA = 3
+        IMPEGNA = 3,
+        INTERROGA = 4
     }
 }

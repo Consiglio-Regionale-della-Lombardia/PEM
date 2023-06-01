@@ -196,6 +196,12 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task SpostaInAltraSeduta(Guid uidAtto, Guid uidSeduta)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.SpostaInAltraSeduta.Replace("{uidAtto}", uidAtto.ToString()).Replace("{uidSeduta}", uidSeduta.ToString())}";
+            await Get(requestUrl, _token);
+        }
+
         public async Task<IEnumerable<ArticoliDto>> GetArticoli(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Atti.Articoli.GetAll.Replace("{id}", id.ToString())}";

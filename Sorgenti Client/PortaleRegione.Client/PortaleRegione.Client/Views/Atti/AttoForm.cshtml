@@ -4,7 +4,7 @@
 
 @{
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
-    ViewBag.Title = isNew ? "Nuova atto" : "Modifica atto";
+    ViewBag.Title = isNew ? "Nuovo atto" : "Modifica atto";
 
     Html.RenderPartial("_AttoFormScript", Model);
 
@@ -18,16 +18,8 @@
     <div class="col s6">
         <h5>
             <b>
-                @if (isNew)
-                {
-                    <span>Nuova atto</span>
-                    <input id="hfMode" type="hidden" value="new"/>
-                }
-                else
-                {
-                    <span>Modifica atto</span>
-                    <input id="hfMode" type="hidden" value="edit"/>
-                }
+                <span>@ViewBag.Title</span>
+                <input id="hfMode" type="hidden" value="edit"/>
             </b>
         </h5>
     </div>
@@ -40,6 +32,10 @@
                 <label>Seduta</label>
                 <select id="selectSpostaAtto">
                     <option selected="selected">Seleziona</option>
+                    @foreach (var seduta in Model.Sedute.Results)
+                    {
+                        <option value="@seduta.UIDSeduta">@seduta.Data_seduta.ToString("dd/MM/yyyy")</option>
+                    }
                 </select>
             </div>
         </div>
@@ -169,7 +165,7 @@
                         </div>
                     </div>
                 </div>
-                        }
+            }
             <div id="assessoreRelatoriTab" class="col s12">
                 <div class="form-group">
                     @Html.LabelFor(s => s.Atto.UIDAssessoreRiferimento)
@@ -213,3 +209,40 @@
         }
     </div>
 </div>
+
+
+<script>
+
+    function spostaAtto(uidAtto) {
+        var seduta = $('select[id="selectSpostaAtto"]').children("option:selected").val();
+
+        if (!seduta) {
+            return;
+        }
+
+        var url = baseUrl + '@Url.Action("SpostaInAltraSeduta", "Atti")?uidAtto=' + uidAtto + '&uidSeduta=' + seduta;
+        console.log("URL", url);
+        waiting(true);
+        $.ajax({
+            url: url,
+            type: "GET"
+        }).done(function(data) {
+            console.log(data);
+            if (data.message) {
+                waiting(false);
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                go(data);
+            }
+        }).fail(function(err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+        });
+    }
+
+</script>

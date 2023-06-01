@@ -755,5 +755,25 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per spostare un atto in un altra seduta
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.PEM.Atti.SpostaInAltraSeduta)]
+        public async Task<IHttpActionResult> SpostaInAltraSeduta(Guid uidAtto, Guid uidSeduta)
+        {
+            try
+            {
+                await _attiLogic.SpostaInAltraSeduta(uidAtto, uidSeduta);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("SpostaInAltraSeduta", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

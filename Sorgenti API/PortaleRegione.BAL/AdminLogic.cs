@@ -426,8 +426,8 @@ namespace PortaleRegione.BAL
                         model.filtro.Add(new FilterStatement<PersonaDto>
                         {
                             PropertyId = nameof(PersonaDto.userAD),
-                            Operation = Operation.Contains,
-                            Value = user,
+                            Operation = Operation.EqualTo,
+                            Value = $@"CONSIGLIO\{user}",
                             Connector = FilterStatementConnector.Or
                         });
                     }

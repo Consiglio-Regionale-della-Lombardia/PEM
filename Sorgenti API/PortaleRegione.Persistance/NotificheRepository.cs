@@ -153,7 +153,6 @@ namespace PortaleRegione.Persistance
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 currentUser.CurrentRole != RuoliIntEnum.Amministratore_PEM)
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
 
@@ -240,7 +239,6 @@ namespace PortaleRegione.Persistance
 
             if (currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Giunta &&
                 currentUser.CurrentRole != RuoliIntEnum.Responsabile_Segreteria_Politica &&
-                currentUser.CurrentRole != RuoliIntEnum.Segreteria_Politica &&
                 !currentUser.IsAmministratorePEM)
             {
                 queryDestinatari = queryDestinatari.Where(n => n.UIDPersona == currentUser.UID_persona);
@@ -278,6 +276,30 @@ namespace PortaleRegione.Persistance
 
             var result = await query2.ToListAsync();
             return result;
+        }
+
+        public async Task<bool> UpdateNotificaVista(PersonaDto currentUser, Guid uid)
+        {
+            var notifiches = await PRContext.NOTIFICHE.Where(n => n.UIDEM == uid || n.UIDAtto == uid).ToListAsync();
+            if (!notifiches.Any())
+                return false;
+
+            foreach (var notifica in notifiches)
+            {
+                var destinatario = await PRContext
+                    .NOTIFICHE_DESTINATARI
+                    .FirstOrDefaultAsync(n =>
+                        n.UIDPersona == currentUser.UID_persona && n.Visto == false &&
+                        notifica.UIDNotifica == n.UIDNotifica);
+                if (destinatario == null)
+                    continue;
+
+                destinatario.Visto = true;
+                destinatario.DataVisto = DateTime.Now;
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<NOTIFICHE> Get(string id)

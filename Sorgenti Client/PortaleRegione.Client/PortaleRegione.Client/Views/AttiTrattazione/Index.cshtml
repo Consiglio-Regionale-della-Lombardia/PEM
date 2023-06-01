@@ -1,5 +1,6 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.DashboardModel
 
 @{
@@ -13,10 +14,20 @@
 
 <div class="row">
     <div class="col s12">
-        <h5>
-            <span class="chip red white-text" style="min-width: unset !important;">AULA</span>
-            <b>@ViewBag.Title</b>
-        </h5>
+        <a class="btn-floating waves-effect waves-light grey" href="@Url.Action("Archivio")">
+            <i class="material-icons">arrow_back</i>
+        </a>
+        <div class="row valign-wrapper" style="margin-bottom: 0px !important">
+            <div class="col s12">
+                <h5>
+                    <span class="chip red white-text" style="min-width: unset !important;">AULA</span>
+                    <b>@ViewBag.Title</b>
+                </h5>
+            </div>
+        </div>
+    </div>
+    <div class="col s11">
+        
     </div>
 </div>
 
@@ -29,11 +40,11 @@
             </h6>
         </div>
     </div>
-    <hr />
+    <hr/>
     <ul class="collapsible" style="position: relative">
         @foreach (var attoPem in Model.PEM.First().Results)
         {
-            var titolo_atto = $"{PortaleRegione.Common.Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+            var titolo_atto = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
             if (attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
             {
                 titolo_atto = attoPem.Oggetto;
@@ -60,7 +71,7 @@
                             <label>
                                 <b>Oggetto</b>
                             </label>
-                            <br />
+                            <br/>
                             <p>@attoPem.Oggetto</p>
                         </div>
                         @if (attoPem.UIDAssessoreRiferimento.HasValue)
@@ -69,7 +80,7 @@
                                 <label>
                                     <b>Assessore di Riferimento</b>
                                 </label>
-                                <br />
+                                <br/>
                                 <div class="chip" style="margin-left: 5px; min-width: unset;">
                                     <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
                                     @attoPem.PersonaAssessore.DisplayName
@@ -82,8 +93,8 @@
                                 <label>
                                     <b>Relatori</b>
                                 </label>
-                                <br />
-                                @Html.Raw(Utility.GetRelatori(attoPem.Relatori))
+                                <br/>
+                                @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
                             </div>
                         }
                     </div>
@@ -92,7 +103,7 @@
                             @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
                             {
                                 <a class="btn-flat pink-text"
-                                   href="@Url.Action("Download", "Atti", new {path = attoPem.Path_Testo_Atto})">
+                                   href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
                                     <i class="material-icons left">download</i>
                                     Scarica
                                 </a>
@@ -102,7 +113,7 @@
                             @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
                             {
                                 <a class="btn-flat blue-text tooltipped"
-                                   onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = attoPem.UIDAtto})')" data-tooltip="Riepilogo emendamenti">
+                                   onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = attoPem.UIDAtto })')" data-tooltip="Riepilogo emendamenti">
                                     <i class="material-icons right">chevron_right</i>
                                     Riepilogo EM In Seduta
                                 </a>
@@ -111,7 +122,7 @@
                             @if (attoPem.CounterODG > 0)
                             {
                                 <a class="btn-flat blue-text tooltipped"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = attoPem.UIDSeduta, tipo = (int) TipoAttoEnum.ODG, uidAtto=attoPem.UIDAtto})')" data-tooltip="Riepilogo ordini del giorno">
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = attoPem.UIDSeduta, tipo = (int)TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto })')" data-tooltip="Riepilogo ordini del giorno">
                                     <i class="material-icons right">chevron_right</i>
                                     Riepilogo Ordini del giorno
                                 </a>
@@ -137,7 +148,7 @@
                 </h6>
             </div>
         </div>
-        <hr />
+        <hr/>
         <ul class="collapsible" style="position: relative">
 
             @if (attoDasi.CountBarData.ITL > 0)
@@ -145,7 +156,7 @@
                 <li>
                     <div class="collapsible-header">
                         <i class="material-icons pink-text">textsms</i>
-                        @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.ITL)
+                        @Utility.GetText_Tipo((int)TipoAttoEnum.ITL)
                         <div class="collapsabile-secondary-header">
                             <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
                         </div>
@@ -154,7 +165,7 @@
                         <div class="row">
                             <div class="col s12 right-align">
                                 <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = sedutaUid, tipo = (int) TipoAttoEnum.ITL})')" title="Riepilogo atti in seduta">
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaUid, tipo = (int)TipoAttoEnum.ITL })')" title="Riepilogo atti in seduta">
                                     <i class="material-icons right">chevron_right</i>
                                     Riepilogo Atti In Seduta
                                 </a>
@@ -168,7 +179,7 @@
                 <li>
                     <div class="collapsible-header">
                         <i class="material-icons pink-text">textsms</i>
-                        @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.IQT)
+                        @Utility.GetText_Tipo((int)TipoAttoEnum.IQT)
                         <div class="collapsabile-secondary-header">
                             <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
                         </div>
@@ -177,7 +188,7 @@
                         <div class="row">
                             <div class="col s12 right-align">
                                 <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = sedutaUid, tipo = (int) TipoAttoEnum.IQT})')" title="Riepilogo atti in seduta">
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaUid, tipo = (int)TipoAttoEnum.IQT })')" title="Riepilogo atti in seduta">
                                     <i class="material-icons right">chevron_right</i>
                                     Riepilogo Atti In Seduta
                                 </a>
@@ -191,7 +202,7 @@
                 <li>
                     <div class="collapsible-header">
                         <i class="material-icons pink-text">textsms</i>
-                        @PortaleRegione.Common.Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)
+                        @Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)
                         <div class="collapsabile-secondary-header">
                             <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
                         </div>
@@ -200,7 +211,7 @@
                         <div class="row">
                             <div class="col s12 right-align">
                                 <a class="btn-flat blue-text"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new {id = sedutaUid, tipo = (int) TipoAttoEnum.MOZ})')" title="Riepilogo atti in seduta">
+                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = sedutaUid, tipo = (int)TipoAttoEnum.MOZ })')" title="Riepilogo atti in seduta">
                                     <i class="material-icons right">chevron_right</i>
                                     Riepilogo Atti In Seduta
                                 </a>
@@ -215,7 +226,7 @@
 
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#btnSearch').hide();
     });
 </script>

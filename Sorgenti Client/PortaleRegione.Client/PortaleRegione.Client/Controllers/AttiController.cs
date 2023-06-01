@@ -115,7 +115,8 @@ namespace PortaleRegione.Client.Controllers
             {
                 Assessori = await apiGateway.Persone.GetAssessoriRiferimento(),
                 Relatori = await apiGateway.Persone.GetRelatori(null),
-                Atto = await apiGateway.Atti.GetFormUpdate(id)
+                Atto = await apiGateway.Atti.GetFormUpdate(id),
+                Sedute = await apiGateway.Sedute.GetAttive()
             };
 
             return View("AttoForm", model);
@@ -400,7 +401,7 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        /// Controller per bloccare la presentazione degli ordini del giorno per un atto
+        ///     Controller per bloccare la presentazione degli ordini del giorno per un atto
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -424,7 +425,7 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        /// Controller per attivare o disattivare il jolly che toglie il limite alla presentazione degli ordini del giorno
+        ///     Controller per attivare o disattivare il jolly che toglie il limite alla presentazione degli ordini del giorno
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -495,6 +496,21 @@ namespace PortaleRegione.Client.Controllers
             }
         }
 
-
+        [HttpGet]
+        [Route("sposta-in-altra-seduta")]
+        public async Task<ActionResult> SpostaInAltraSeduta(Guid uidAtto, Guid uidSeduta)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.Atti.SpostaInAltraSeduta(uidAtto, uidSeduta);
+                return Json(Url.Action("RiepilogoAtti", "Atti", new { id = uidSeduta }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

@@ -324,10 +324,16 @@ else
 
                             <span class="tooltipped" data-tooltip="@tooltipSeduta">
                                 <i>@textSeduta</i>
-                                @if (item.Tipo != (int)TipoAttoEnum.ODG)
+                                @if (item.IDStato < (int)StatiAttoEnum.PRESENTATO)
                                 {
-                                    <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
+                                    if (item.Tipo != (int)TipoAttoEnum.ODG
+                                        && Model.CurrentUser.UID_persona == item.UIDPersonaProponente
+                                        || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
+                                    {
+                                        <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
+                                    }
                                 }
+                                
                             </span>
                         }
                         else if (item.DataIscrizioneSeduta.HasValue)

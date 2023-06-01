@@ -14,7 +14,7 @@ namespace PortaleRegione.Client
                 "~/Scripts/modernizr-*",
                 "~/Scripts/materialize.js"));
             bundles.Add(new ScriptBundle("~/bundles/logic")
-                .Include("~/Scripts/loader.js", "~/Scripts/site.js", 
+                .Include("~/Scripts/loader.js", "~/Scripts/site.js",
                     "~/Scripts/SessionManager.js",
                     "~/Scripts/FiltriManager.js",
                     "~/Content/editor/trumbowyg.min.js"));
