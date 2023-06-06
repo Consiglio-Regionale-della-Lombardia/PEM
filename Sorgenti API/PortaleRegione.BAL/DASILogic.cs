@@ -1456,7 +1456,7 @@ namespace PortaleRegione.API.Controllers
                     var moz_firmatari =
                         await _unitOfWork.Atti_Firme.GetFirmatari(moz_da_esaminare.Select(i => i.UIDAtto).ToList(), minimo_consiglieri_config);
 
-                    foreach (var firma in firme)
+                    foreach (var firma in firme.Take(minimo_consiglieri_config).ToList())
                     {
                         var firmatario_indagato =
                             $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
@@ -1498,10 +1498,10 @@ namespace PortaleRegione.API.Controllers
                     var iqt_firmatari =
                         await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList(), minimo_consiglieri_config);
 
-                    foreach (var firma in firme)
+                    foreach (var firma in firme.Take(minimo_consiglieri_config).ToList())
                     {
                         var firmatario_indagato =
-                            $"{firma.FirmaCert}, firma non <b>valida</b> perchè già presente in [[LISTA]]; <br/> ";
+                            $"{firma.FirmaCert}, firma non valida perchè già presente in [[LISTA]]; ";
                         var firmatario_valido = true;
                         foreach (var iqt in iqt_da_esaminare)
                         {
@@ -1521,7 +1521,7 @@ namespace PortaleRegione.API.Controllers
                     }
                 }
 
-                if (anomalie.Length > 0 && count_firme < minimo_firme)
+                if (anomalie.Length > 0)
                     return
                         $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
             }
