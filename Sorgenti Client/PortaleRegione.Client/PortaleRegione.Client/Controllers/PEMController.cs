@@ -44,12 +44,27 @@ namespace PortaleRegione.Client.Controllers
             var currentUser = CurrentUser;
             await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var apiGateway = new ApiGateway(Token);
-            var model = await apiGateway.Sedute.Get(page, size);
+
+            var model = new BaseRequest<SeduteDto>
+            {
+                page = page,
+                size = size
+            };
+
+            var legislature = await apiGateway.Legislature.GetLegislature();
+            model.filtro.Add(new FilterStatement<SeduteDto>
+            {
+                PropertyId = nameof(SeduteDto.id_legislatura),
+                Operation = Operation.EqualTo,
+                Value = legislature.First().id_legislatura,
+                Connector = FilterStatementConnector.And
+            });
+            var results = await apiGateway.Sedute.Get(model);
             if (HttpContext.User.IsInRole(RuoliExt.Amministratore_PEM) ||
                 HttpContext.User.IsInRole(RuoliExt.Segreteria_Assemblea))
-                return View("RiepilogoSedute_Admin", model);
+                return View("RiepilogoSedute_Admin", results);
 
-            return View("RiepilogoSedute", model);
+            return View("RiepilogoSedute", results);
         }
 
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]

@@ -1,4 +1,6 @@
-﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
+﻿@using Newtonsoft.Json
+@using PortaleRegione.DTO.Domain
+@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
 
 @{
     ViewBag.Title = "Riepilogo Sedute";
@@ -162,8 +164,26 @@
 <script>
     $(document).ready(function() {
         var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
-        if (filters == 0)
+        if (filters == 0) {
             set_Filtri_Sedute({});
+        }else {
+            var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Filters));
+            console.log("filtri", filtri);
+            var filtri_cache = get_Filtri_Sedute();
+            var block_legislatura_each = false;
+
+            $.each(filtri,
+                function(i, item) {
+
+                    if (block_legislatura_each == false) {
+                        if (item.PropertyId == '@Html.Raw(nameof(SeduteDto.id_legislatura))') {
+                            filtri_cache.legislatura = item.Value;
+                            set_Filtri_Sedute(filtri_cache);
+                            block_legislatura_each = true;
+                        }
+                    }
+                });
+        }
 
         Filtri_Sedute_CaricaLegislature("filter_sedute_legislature");
         Filtri_Sedute_CaricaAnni("filter_sedute_anno");

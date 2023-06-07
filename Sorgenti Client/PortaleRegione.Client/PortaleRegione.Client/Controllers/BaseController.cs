@@ -155,5 +155,12 @@ namespace PortaleRegione.Client.Controllers
                 else
                     str3 += c;
         }
+
+        public string GetLegislaturaDaUtente()
+        {
+            var split = CurrentUser.legislature.Split('-');
+            var legislatura_corrente = split[split.Length - 2];
+            return legislatura_corrente;
+        }
     }
 }
