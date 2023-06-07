@@ -107,7 +107,7 @@ namespace PortaleRegione.Persistance
             {
                 result.AddRange(await PRContext
                     .ATTI_FIRME
-                    .Where(f => guid == f.UIDAtto && f.Valida)
+                    .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma))
                     .OrderBy(f => f.Timestamp)
                     .Take(max_result)
                     .ToListAsync());
