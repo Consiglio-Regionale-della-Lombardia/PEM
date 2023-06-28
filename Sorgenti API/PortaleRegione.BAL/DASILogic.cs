@@ -1523,7 +1523,7 @@ namespace PortaleRegione.API.Controllers
 
                 if (anomalie.Length > 0)
                     return
-                        $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano {minimo_firme - count_firme} firme. Riscontrate le seguenti anomalie: {anomalie}";
+                        $"{error_title}. Firme {count_firme}/{minimo_firme}. Mancano firme valide. Riscontrate le seguenti anomalie: {anomalie}";
             }
 
             return default;
@@ -1673,10 +1673,11 @@ namespace PortaleRegione.API.Controllers
 
             if (firmatari.Count <= 0) return;
 
+            var dto = await GetAttoDto(atto.UIDAtto);
+            var nome_atto = dto.Display;
+
             try
             {
-                var dto = await GetAttoDto(atto.UIDAtto);
-                var nome_atto = dto.Display;
                 var mailModel = new MailModel
                 {
                     DA = AppSettingsConfiguration.EmailInvioDASI,
@@ -1685,6 +1686,25 @@ namespace PortaleRegione.API.Controllers
                         $"Atto {nome_atto} ritirato dal proponente",
                     MESSAGGIO =
                         $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto."
+                };
+                await _logicUtil.InvioMail(mailModel);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            try
+            {
+                //#754
+                var mailModel = new MailModel
+                {
+                    DA = AppSettingsConfiguration.EmailInvioDASI,
+                    A = AppSettingsConfiguration.EmailInvioDASI,
+                    OGGETTO =
+                        $"Atto {nome_atto} ritirato dal proponente",
+                    MESSAGGIO =
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
