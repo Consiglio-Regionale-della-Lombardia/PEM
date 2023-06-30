@@ -137,6 +137,12 @@
                             {
                                 testoGruppo = "Giunta";
                             }
+                            
+                            if(persona.IsResponsabileSegreteriaPolitica 
+                               || persona.IsSegreteriaPolitica)
+                            {
+                                testoGruppo = string.Empty;
+                            }
                             var triggerClassGruppi = "";
                             var iconClassSwapGruppi = "";
                             var gruppiCache = HttpContext.Current.Cache.Get(CacheHelper.GRUPPI_ATTIVI)?.ToString();
