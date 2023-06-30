@@ -549,6 +549,7 @@ namespace PortaleRegione.BAL
 
                 //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
                 var autoPassword = _logicUtil.GenerateRandomCode();
+                autoPassword = $"Pem.{autoPassword}";
                 intranetAdService.CreatePEMADUser(
                     request.userAD,
                     autoPassword,
