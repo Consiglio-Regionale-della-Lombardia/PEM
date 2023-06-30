@@ -26,6 +26,7 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -158,9 +159,15 @@ namespace PortaleRegione.Client.Controllers
         [Route("view/{id:guid}")]
         public async Task<ActionResult> ViewUtente(Guid id)
         {
+            var currentUser = CurrentUser;
             var apiGateway = new ApiGateway(Token);
             var persona = await apiGateway.Admin.GetPersona(id);
             var ruoli = await apiGateway.Admin.GetRuoliAD();
+            if (currentUser.IsGiunta)
+            {
+                ruoli.RemoveAt(ruoli.FindIndex(i => i.IDruolo == (int)RuoliIntEnum.Presidente_Regione));
+                ruoli.RemoveAt(ruoli.FindIndex(i => i.IDruolo == (int)RuoliIntEnum.Assessore_Sottosegretario_Giunta));
+            }
             var gruppiAD = await apiGateway.Admin.GetGruppiPoliticiAD();
             var listaGruppiRuoliAD = ruoli.Select(ruolo => new AD_ObjectModel
             {
@@ -174,6 +181,26 @@ namespace PortaleRegione.Client.Controllers
                 Membro = persona.Gruppi.Contains(gruppo.GruppoAD.Replace(@"CONSIGLIO\", "")),
                 IsRuolo = false
             }));
+            if (currentUser.IsGiunta)
+            {
+                var gruppo_giunta = gruppiAD.First(i => i.id_gruppo >= 10000);
+                persona.id_gruppo_politico_rif = gruppo_giunta.id_gruppo;
+
+                var gruppo_ad = listaGruppiRuoliAD.First(i => !i.IsRuolo);
+                gruppo_ad.Membro = true;
+
+                return View("ViewUtente", new ViewUtenteModel
+                {
+                    Persona = persona,
+                    CurrentUser = currentUser,
+                    GruppiAD = listaGruppiRuoliAD,
+                    GruppiInDB = new List<KeyValueDto>
+                    {
+                        new KeyValueDto { id = gruppo_giunta.id_gruppo, descr = "GIUNTA" }
+                    }
+                });
+            }
+
             var gruppiInDb = await apiGateway.Persone.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
@@ -181,7 +208,7 @@ namespace PortaleRegione.Client.Controllers
                 Persona = persona,
                 GruppiAD = listaGruppiRuoliAD,
                 GruppiInDB = gruppiInDb.ToList(),
-                CurrentUser = CurrentUser
+                CurrentUser = currentUser
             });
         }
 
@@ -194,9 +221,18 @@ namespace PortaleRegione.Client.Controllers
         [Route("new")]
         public async Task<ActionResult> NuovoUtente()
         {
+            var currentUser = CurrentUser;
             var apiGateway = new ApiGateway(Token);
-            var persona = new PersonaDto();
+            var persona = new PersonaDto
+            {
+                userAD = @"CONSIGLIO\"
+            };
             var ruoli = await apiGateway.Admin.GetRuoliAD();
+            if (currentUser.IsAmministratoreGiunta)
+            {
+                ruoli.RemoveAt(ruoli.FindIndex(i => i.IDruolo == (int)RuoliIntEnum.Presidente_Regione));
+                ruoli.RemoveAt(ruoli.FindIndex(i => i.IDruolo == (int)RuoliIntEnum.Assessore_Sottosegretario_Giunta));
+            }
             var gruppiAD = await apiGateway.Admin.GetGruppiPoliticiAD();
             var listaGruppiRuoliAD = ruoli.Select(ruolo => new AD_ObjectModel
             {
@@ -210,12 +246,32 @@ namespace PortaleRegione.Client.Controllers
                 Membro = false,
                 IsRuolo = false
             }));
+            if (currentUser.IsAmministratoreGiunta)
+            {
+                var gruppo_giunta = gruppiAD.First(i => i.id_gruppo >= 10000);
+                persona.id_gruppo_politico_rif = gruppo_giunta.id_gruppo;
+
+                var gruppo_ad = listaGruppiRuoliAD.First(i => !i.IsRuolo);
+                gruppo_ad.Membro = true;
+
+                return View("ViewUtente", new ViewUtenteModel
+                {
+                    Persona = persona,
+                    CurrentUser = currentUser,
+                    GruppiAD = listaGruppiRuoliAD,
+                    GruppiInDB = new List<KeyValueDto>
+                    {
+                        new KeyValueDto { id = gruppo_giunta.id_gruppo, descr = "GIUNTA" }
+                    }
+                });
+            }
+
             var gruppiInDb = await apiGateway.Persone.GetGruppiAttivi();
 
             return View("ViewUtente", new ViewUtenteModel
             {
                 Persona = persona,
-                CurrentUser = CurrentUser,
+                CurrentUser = currentUser,
                 GruppiAD = listaGruppiRuoliAD,
                 GruppiInDB = gruppiInDb.ToList()
             });
@@ -234,6 +290,21 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                var currentUser = CurrentUser;
+                if (currentUser.IsAmministratoreGiunta)
+                {
+                    var gruppiAD = await apiGateway.Admin.GetGruppiPoliticiAD();
+                    if (currentUser.IsAmministratoreGiunta)
+                    {
+                        var gruppo_giunta = gruppiAD.First(i => i.id_gruppo >= 10000);
+                        request.id_gruppo_politico_rif = gruppo_giunta.id_gruppo;
+                        request.notifica_firma = true;
+                        request.notifica_deposito = true;
+                        var gruppo_ad = request.gruppiAd.First(i => !i.IsRuolo);
+                        gruppo_ad.Membro = true;
+                    }
+                }
+
                 var result = await apiGateway.Admin.SalvaPersona(request);
 
                 return Json(Url.Action("ViewUtente", "AdminPanel", new { id = result })

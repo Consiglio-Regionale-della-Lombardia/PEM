@@ -19,7 +19,6 @@
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,10 +29,10 @@ namespace PortaleRegione.Gateway
     {
         Task<RiepilogoGruppiModel> GetGruppiAdmin(BaseRequest<GruppiDto> request);
         Task<IEnumerable<KeyValueDto>> GetGruppiInDb();
-        Task<IEnumerable<GruppoAD_Dto>> GetGruppiPoliticiAD();
+        Task<List<GruppoAD_Dto>> GetGruppiPoliticiAD();
         Task<PersonaDto> GetPersona(Guid id);
         Task<RiepilogoUtentiModel> GetPersone(BaseRequest<PersonaDto> request);
-        Task<IEnumerable<RuoliDto>> GetRuoliAD();
+        Task<List<RuoliDto>> GetRuoliAD();
         Task ResetPassword(ResetRequest request);
         Task ResetPin(ResetRequest request);
         Task SalvaGruppo(SalvaGruppoRequest request);

@@ -547,7 +547,6 @@ namespace PortaleRegione.BAL
             {
                 //NUOVO
 
-                //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
                 var autoPassword = _logicUtil.GenerateRandomCode();
                 autoPassword = $"Pem.{autoPassword}";
                 intranetAdService.CreatePEMADUser(
@@ -563,6 +562,13 @@ namespace PortaleRegione.BAL
                 request.UID_persona = Guid.NewGuid();
                 request.no_Cons = 1;
                 UTENTI_NoCons newUser = request;
+                if (ruolo == RuoliIntEnum.Amministratore_Giunta)
+                {
+                    newUser.notifica_firma = true;
+                    newUser.notifica_deposito = true;
+                    newUser.attivo = true;
+                }
+
                 _unitOfWork.Persone.Add(newUser);
                 await _unitOfWork.CompleteAsync();
 
