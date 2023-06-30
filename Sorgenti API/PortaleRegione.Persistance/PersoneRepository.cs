@@ -82,7 +82,9 @@ namespace PortaleRegione.Persistance
                 }
                 else if (persona.IsGiunta)
                 {
-                    query = query.Where(u => u.No_Cons == 1 && u.id_gruppo_politico_rif >= 10000);
+                    query = query.Where(u => u.No_Cons == 1
+                                             && u.id_gruppo_politico_rif >= 10000
+                                             && u.deleted == false);
                 }
             }
 
