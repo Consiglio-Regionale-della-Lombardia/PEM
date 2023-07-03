@@ -110,6 +110,13 @@ label {
     min-width: 180px;
 }
 
+.chip-centered {
+    cursor: pointer;
+    min-width: 180px;
+    height: unset !important;
+	text-align: center!important;
+}
+
 div.chips.chips-autocomplete > .chip {
     background-color: unset !important;
     font-weight: bold;
