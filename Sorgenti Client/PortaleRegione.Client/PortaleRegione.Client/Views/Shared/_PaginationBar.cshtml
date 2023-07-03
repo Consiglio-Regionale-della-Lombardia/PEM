@@ -40,7 +40,7 @@
     }
 
     <div class="row valign-wrapper">
-        <div class="col l6 m6 s12">
+        <div class="col l6 m6 s8">
             <ul class="pagination">
                 @if (Model.Has_Prev)
                 {
@@ -100,6 +100,13 @@
                               onclick="ShowHidePaginationTabs()">
                             Pagina @Model.Page di @Model.Last_Page
                         </span>
+                        <br/>
+                        <span class="hide-on-large-only" style="margin-top: -5px;
+                                                          margin-left: 20px;
+                                                          font-size: 12px;
+                                                          position: absolute;">
+                            @Model.Total risultati
+                        </span>
                     </li>
                 }
 
@@ -151,15 +158,16 @@
                     }
                 }
 
-                <li>
+                <li class="hide-on-med-and-down">
                     <div class="chip deep-purple lighten-5" style="margin-top: -5px;">@Model.Total elementi trovati</div>
-                    <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total"/>
                 </li>
             </ul>
         </div>
-        <div class="col l6 m6 s12 right-align" style="margin-top: -5px;">
+        <input id="hdTotaleDocumenti" type="hidden" value="@Model.Total" />
+        <div class="col l6 m6 s4 right-align">
             <div class="chip deep-purple lighten-5 center" style="min-width: unset">
-                Paginazione
+                <span class="hide-on-med-and-down">Paginazione</span>
+                <span class="hide-on-large-only">Pag.</span>
                 <a class='dropdown-trigger chip grey white-text' href='#' data-target='ddlPaginazione' style="font-size: small; margin-right: -12px; min-width: unset">@Model.Limit</a>
                 <ul id='ddlPaginazione' class='dropdown-content' style="width: 100px !important">
                     @for (var i = 0; i < sizeArray.Length; i++)
