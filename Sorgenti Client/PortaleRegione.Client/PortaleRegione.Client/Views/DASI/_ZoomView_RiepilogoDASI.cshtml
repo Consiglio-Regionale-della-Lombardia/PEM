@@ -1,4 +1,4 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -33,8 +33,7 @@ else
 {
     foreach (var item in Model.Data.Results)
     {
-        
-        var title = $"{PortaleRegione.Common.Utility.GetText_Tipo(item.Tipo)} ";
+        var title = $"{Utility.GetText_Tipo(item.Tipo)} ";
         title += item.NAtto;
 
         <div class="col s12 m12 l12" id="atto_@item.UIDAtto" data-nome-atto="@title">
@@ -50,8 +49,8 @@ else
                     </div>
                     <div class='col s4'>
                         <div class='card-action center'>
-                            <div class="chip center white-text @Utility.GetCSS_StatoDASI(item.IDStato)" style="min-width: 180px">
-                                @PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato)
+                            <div class="chip center white-text @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)" style="min-width: 180px">
+                                @Utility.GetText_StatoDASI(item.IDStato)
                             </div>
                         </div>
                     </div>
@@ -64,14 +63,14 @@ else
                                 </a>
                             }
 
-                            <a class="black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')" style="margin: 2px"
+                            <a class="black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')" style="margin: 2px"
                                data-position="left" data-tooltip="Visualizza atto">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
                     </div>
                 </div>
-                <div class='card-content' style="padding: 0">
+                <div class='card-content' style="margin-top: -20px">
                     @Html.Raw(item.BodyAtto)
                 </div>
                 @if (item.Firmabile || item.Presentabile)
@@ -82,7 +81,7 @@ else
 
                                 @if (item.Firmabile)
                                 {
-                                    <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
+                                    <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                                         <i class="material-icons right green-text">gavel</i>
                                         FIRMA
                                     </a>
@@ -90,7 +89,7 @@ else
                                 @if (item.Presentabile)
                                 {
                                     <a class="btn-flat purple-text"
-                                       onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                       onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                                         <i class="material-icons right purple-text">lock</i>
                                         PRESENTA
                                     </a>
