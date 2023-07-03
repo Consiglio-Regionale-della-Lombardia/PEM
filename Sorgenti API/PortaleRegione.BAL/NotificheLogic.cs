@@ -594,6 +594,10 @@ namespace PortaleRegione.BAL
             var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
             SEDUTE seduta = null;
             if (atto.UIDSeduta.HasValue) seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+            //#755 Se l'atto non ha una seduta assegnata controllo la data di proposta
+            if (!string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta) && seduta == null)
+                seduta =
+                    await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
 
             var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
             if (!string.IsNullOrEmpty(check_presentazione))
