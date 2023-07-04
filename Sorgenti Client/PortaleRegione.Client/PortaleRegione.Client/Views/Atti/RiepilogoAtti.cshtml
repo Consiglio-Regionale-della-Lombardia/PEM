@@ -98,6 +98,13 @@
                             <div class="col s8">
                                 <h5>
                                     <b>@titolo_atto</b>
+                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                    {
+                                        <a class="btn-flat pink-text hide-on-large-only"
+                                           href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
+                                            <i class="material-icons right pink-text">cloud_download</i>
+                                        </a>
+                                    }
                                 </h5>
                                 <h6 class="active">
                                     <i>@Html.Raw(atto.Oggetto)</i>
@@ -114,10 +121,10 @@
                             <div class="col s4">
                                 @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
-                                    <a class="btn-flat pink-text"
+                                    <a class="btn-flat pink-text hide-on-med-and-down"
                                        href="@Url.Action("Download", "Atti", new {path = atto.Path_Testo_Atto})" title="Scarica documento">
                                         <i class="material-icons right pink-text">cloud_download</i>
-                                        SCARICA DOCUMENTO
+                                        SCARICA TESTO
                                     </a>
                                 }
 
