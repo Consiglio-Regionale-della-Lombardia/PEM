@@ -60,7 +60,7 @@
                     <div class="col s9 valign-wrapper">
                         <span style="padding-right: 50px">
                             Seduta del
-                            <br class="hide-on-large-only" />
+                            <br class="hide-on-large-only"/>
                             @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")
                         </span>
                         @if (!seduta.Data_apertura.HasValue)
@@ -82,7 +82,7 @@
                     </div>
 
                     @*COMANDI*@
-                    <div class="col s3 right-align hide-on-med-and-down" style="margin-top: 15px; display: block">
+                    <div class="col s3 right-align hide-on-med-and-down" style="display: block; margin-top: 15px;">
                         <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
                             <i class="material-icons">edit</i>
                         </a>
@@ -91,7 +91,7 @@
                         </a>
                     </div>
                     @*COMANDI MOBILE*@
-                    <div class="col s3 right-align hide-on-large-only" style="margin-top: 15px; display: flex">
+                    <div class="col s3 right-align hide-on-large-only" style="display: flex; margin-top: 15px;">
                         <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
                             <i class="material-icons">edit</i>
                         </a>
@@ -105,26 +105,22 @@
                         <div class="col s12">
                             <ul class="collection">
                                 @{
-                                    var testoStato = "Archiviata";
-                                    var colorStato = "blue-text";
+                                    var testoStato = "";
+                                    var colorStato = "grey-text";
 
                                     if (!seduta.Data_apertura.HasValue)
                                     {
                                         testoStato = "Chiuso";
-                                        colorStato = "grey-text";
-
                                     }
                                     else if (seduta.Data_apertura > DateTime.Now)
                                     {
                                         testoStato = "Chiuso";
-                                        colorStato = "grey-text";
                                     }
                                     else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                                     {
                                         testoStato = "Aperta";
                                         colorStato = "green-text";
                                     }
-
                                 }
                                 <li class="collection-item">
                                     <div>
