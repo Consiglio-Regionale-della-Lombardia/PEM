@@ -72,11 +72,11 @@
                             }
                             else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                             {
-                                <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
+                                <div class="chip white green-text hide-on-med-and-down" style="min-width: unset; border: 1px solid green">Aperta</div>
                             }
                             @if (!string.IsNullOrEmpty(seduta.Note))
                             {
-                                <div class="chip chip-centered white black-text" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
+                                <div class="chip chip-centered white black-text hide-on-med-and-down" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
                             }
                         </div>
 
@@ -94,12 +94,45 @@
                         }
                     </div>
                     </div>
-                    @if (!chiusa)
-                    {
-                        <div class="collapsible-body">
+                    <div class="collapsible-body">
                             <div class="row">
                                 <div class="col s12">
                                     <ul class="collection">
+                                        @{
+                                            var testoStato = "Archiviata";
+                                            var colorStato = "blue-text";
+
+                                            if (!seduta.Data_apertura.HasValue)
+                                            {
+                                                testoStato = "Chiuso";
+                                                colorStato = "grey-text";
+
+                                            }
+                                            else if (seduta.Data_apertura > DateTime.Now)
+                                            {
+                                                testoStato = "Chiuso";
+                                                colorStato = "grey-text";
+                                            }
+                                            else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                                            {
+                                                testoStato = "Aperta";
+                                                colorStato = "green-text";
+                                            }
+
+                                        }
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Stato:</label><a href="#!" class="secondary-content @colorStato">@testoStato</a>
+                                            </div>
+                                        </li>
+                                        @if (!string.IsNullOrEmpty(seduta.Note))
+                                        {
+                                            <li class="collection-item">
+                                                <div>
+                                                    <label>Note:</label><a href="#!" class="secondary-content">@seduta.Note</a>
+                                                </div>
+                                            </li>
+                                        }
                                         @if (seduta.Scadenza_presentazione.HasValue)
                                         {
                                             <li class="collection-item">
@@ -152,7 +185,6 @@
                                 </div>
                             </div>
                         </div>
-                    }
                 </li>
             }
         </ul>
