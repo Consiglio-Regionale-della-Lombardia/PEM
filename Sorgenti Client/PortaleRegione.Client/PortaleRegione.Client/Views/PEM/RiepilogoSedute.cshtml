@@ -65,12 +65,10 @@
                             @if (!seduta.Data_apertura.HasValue)
                             {
                                 chiusa = true;
-                                <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
                             }
                             else if (seduta.Data_apertura > DateTime.Now)
                             {
                                 chiusa = true;
-                                <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
                             }
                             else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                             {
@@ -78,19 +76,23 @@
                             }
                             @if (!string.IsNullOrEmpty(seduta.Note))
                             {
-                                <div class="chip white black-text" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
+                                <div class="chip chip-centered white black-text" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
                             }
                         </div>
 
                         @*COMANDI*@
-                        <div class="col s4 right-align" style="margin-top: 15px;">
-                            @if (!chiusa)
-                            {
-                                <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                                    <i class="material-icons">chevron_right</i>
-                                </a>
-                            }
-                        </div>
+                    <div class="col s4 right-align" style="margin-top: 15px;">
+                        @if (!chiusa)
+                        {
+                            <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                        }
+                    </div>
                     </div>
                     @if (!chiusa)
                     {

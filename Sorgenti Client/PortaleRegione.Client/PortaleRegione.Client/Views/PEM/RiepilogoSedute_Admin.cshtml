@@ -57,28 +57,41 @@
 
             <li class="badgeBody">
                 <div class="collapsible-header" tabindex="0">
-                    <div class="col s8 valign-wrapper">
-                        <span style="padding-right: 50px">Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</span>
+                    <div class="col s9 valign-wrapper">
+                        <span style="padding-right: 50px">
+                            Seduta del
+                            <br class="hide-on-large-only" />
+                            @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")
+                        </span>
                         @if (!seduta.Data_apertura.HasValue)
                         {
-                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
                         }
                         else if (seduta.Data_apertura > DateTime.Now)
                         {
-                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
                         }
                         else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                         {
-                            <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
+                            <div class="chip white green-text hide-on-med-and-down" style="border: 1px solid green; min-width: unset;">Aperta</div>
                         }
                         @if (!string.IsNullOrEmpty(seduta.Note))
                         {
-                            <div class="chip white black-text" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
+                            <div class="chip chip-centered white black-text hide-on-med-and-down" style="border: 1px solid black; min-width: unset;">@seduta.Note</div>
                         }
                     </div>
 
                     @*COMANDI*@
-                    <div class="col s4 right-align" style="margin-top: 15px">
+                    <div class="col s3 right-align hide-on-med-and-down" style="margin-top: 15px; display: block">
+                        <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            <i class="material-icons">edit</i>
+                        </a>
+                        <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    </div>
+                    @*COMANDI MOBILE*@
+                    <div class="col s3 right-align hide-on-large-only" style="margin-top: 15px; display: flex">
                         <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
                             <i class="material-icons">edit</i>
                         </a>
@@ -91,6 +104,38 @@
                     <div class="row">
                         <div class="col s12">
                             <ul class="collection">
+                                @{
+                                    var testoStato = "";
+                                    var colorStato = "grey-text";
+
+                                    if (!seduta.Data_apertura.HasValue)
+                                    {
+                                        testoStato = "Chiuso";
+                                    }
+                                    else if (seduta.Data_apertura > DateTime.Now)
+                                    {
+                                        testoStato = "Chiuso";
+                                    }
+                                    else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                                    {
+                                        testoStato = "Aperta";
+                                        colorStato = "green-text";
+                                    }
+
+                                }
+                                <li class="collection-item">
+                                    <div>
+                                        <label>Stato:</label><a href="#!" class="secondary-content @colorStato">@testoStato</a>
+                                    </div>
+                                </li>
+                                @if (!string.IsNullOrEmpty(seduta.Note))
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Note:</label><a href="#!" class="secondary-content">@seduta.Note</a>
+                                        </div>
+                                    </li>
+                                }
                                 @if (seduta.Scadenza_presentazione.HasValue)
                                 {
                                     <li class="collection-item">
