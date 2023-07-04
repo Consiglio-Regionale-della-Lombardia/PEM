@@ -106,15 +106,19 @@
                                         </a>
                                     }
                                 </h5>
-                                <h6 class="active">
-                                    <i>@Html.Raw(atto.Oggetto)</i>
-                                </h6>
                             </div>
                             <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
                                     <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
                                 }
+                            </div>
+                        </div>
+                        <div class="row" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s12">
+                                <h6 class="active">
+                                    <i>@Html.Raw(atto.Oggetto)</i>
+                                </h6>
                             </div>
                         </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
@@ -131,12 +135,12 @@
                             </div>
                             @if (atto.IDTipoAtto == (int) TipoAttoEnum.PDL)
                             {
-                                <div class="col s7 right-align">
+                                <div class="col s6 right-align">
                                     <h6 class="black-text">
                                         @atto.Conteggio_EM EM / @atto.Conteggio_SubEM SUBEM
                                     </h6>
                                 </div>
-                                <div class="col s1 right-align">
+                                <div class="col s2 right-align">
                                     @if (atto.Data_apertura.HasValue)
                                     {
                                         <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new {id = atto.UIDAtto})')" title="Riepilogo emendamenti">

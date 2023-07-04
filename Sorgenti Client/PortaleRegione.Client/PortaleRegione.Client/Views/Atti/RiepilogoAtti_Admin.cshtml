@@ -176,15 +176,19 @@
                                         </a>
                                     }
                                 </h5>
-                                <h6 class="active">
-                                    <i>@Html.Raw(atto.Oggetto)</i>
-                                </h6>
                             </div>
                             <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
                                 {
                                     <div class="chip white @coloreStatoAtto-text" style="min-width: unset; border: 1px solid @coloreStatoAtto">@statoAtto</div>
                                 }
+                            </div>
+                        </div>
+                        <div class="row" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s12">
+                                <h6 class="active">
+                                    <i>@Html.Raw(atto.Oggetto)</i>
+                                </h6>
                             </div>
                         </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">

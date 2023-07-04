@@ -76,6 +76,17 @@ namespace PortaleRegione.Common
         }
 
         /// <summary>
+        ///     Metodo per avere i metadati dell'emendamento in formato visualizzabile
+        /// </summary>
+        /// <param name="em"></param>
+        /// <returns></returns>
+        public static string MetaDatiEM_LabelHtml(EmendamentiDto em)
+        {
+            var result = $"Emendamento {em.TIPI_EM.Tipo_EM} <br> {GetParteEM(em)}";
+            return result;
+        }
+
+        /// <summary>
         ///     Metodo per visualizzare la parte dell'emendamento
         /// </summary>
         /// <param name="em"></param>

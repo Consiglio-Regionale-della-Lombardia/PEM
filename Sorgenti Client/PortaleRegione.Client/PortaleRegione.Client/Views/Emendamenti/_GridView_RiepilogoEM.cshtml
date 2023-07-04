@@ -1,4 +1,5 @@
 ﻿@using Newtonsoft.Json
+@using PortaleRegione.Common
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
@@ -37,19 +38,19 @@ else
             lastRow = 1;
         }
 
-        <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s6" : "s12")">
+        <div class="col l6 m12 s12">
             <div class="card sticky-action hoverable" style="min-height: 300px">
                 <div class="card-content">
                     <div class="card-title">
                         <div class="row" style="margin: unset !important;">
                             <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s12" : "s6")">
-                                <div class="col l1" style="margin-top: 10px">
+                                <div class="col l1 s12" style="margin-top: 10px">
                                     <label>
                                         <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
                                         <span></span>
                                     </label>
                                 </div>
-                                <div class="col l11 center">
+                                <div class="col l11 s12 center">
                                     <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip @itemEM.STATI_EM.CssClass" style="width: 100%">
                                         @if (itemEM.Depositabile)
                                         {
@@ -69,10 +70,10 @@ else
                                 </div>
                                 <div class="row">
                                     <div class="col l12 center">
-                                        <h5 style="margin-top: 7px">
+                                        <h4 style="margin-top: 7px">
                                             <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
-                                        </h5>
-                                        <h6>@PortaleRegione.Common.Utility.MetaDatiEM_Label(itemEM)</h6>
+                                        </h4>
+                                        <h6>@Html.Raw(Utility.MetaDatiEM_LabelHtml(itemEM)))</h6>
                                         @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
                                         {
                                             <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
@@ -106,7 +107,8 @@ else
                                                 }
                                                 else
                                                 {
-                                                    <span>Firmato dal proponente:</span>
+                                                    <span class="hide-on-med-and-down">Firmato dal proponente:</span>
+                                                    <span class="hide-on-large-only">Proponente:</span>
                                                     if (itemEM.Firmato_Dal_Proponente)
                                                     {
                                                         @itemEM.PersonaProponente.DisplayName
@@ -175,20 +177,20 @@ else
                 </div>
                 <div class="card-action grey lighten-4">
                     <div class="row" style="margin: 0 !important">
-                        <div class="col s8 left">
-                            <label style="font-size: small !important">Proponente: </label>
+                        <div class="col s6 left">
+                            <label class="hide-on-med-and-down" style="font-size: small !important">Proponente: </label>
                             <h6 id="lblProponente_@itemEM.UIDEM">
                                 <b>@itemEM.PersonaProponente.DisplayName @Html.Raw(Model.Mode == ClientModeEnum.TRATTAZIONE ? string.Format("({0})", itemEM.gruppi_politici.codice_gruppo) : "")</b>
                             </h6>
                         </div>
-                        <div class="col s4 right-align" style="margin-top: 9px">
-                            <a class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags" style="margin-right: 15px;" onclick="RevealTags('@itemEM.UIDEM')">
+                        <div class="col s6 right-align">
+                            <a class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags"onclick="RevealTags('@itemEM.UIDEM')">
                                 <i class="material-icons">filter_frames</i>
                             </a>
-                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 15px;" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
+                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
                                 <i class="material-icons">print</i>
                             </a>
-                            <a class="btn-floating green tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
+                            <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         </div>
