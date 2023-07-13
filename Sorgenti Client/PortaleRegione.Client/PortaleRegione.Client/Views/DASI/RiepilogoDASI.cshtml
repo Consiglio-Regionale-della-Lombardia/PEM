@@ -55,19 +55,19 @@
             <div class="col s12">
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
-                    <h5>
+                    <h4>
                         <b>Riepilogo Atti Sindacato Ispettivo @textTitoloRicerca</b>
-                    </h5>
+                    </h4>
                 }
                 else
                 {
                     var tipo = Convert.ToInt16(Model.Tipo);
-                    <h5>
+                    <h4>
                         <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
                             @PortaleRegione.Common.Utility.GetText_Tipo(tipo)
                         </div>
                         <b> - Aula Atti Sindacato Ispettivo @textTitoloRicerca</b>
-                    </h5>
+                    </h4>
                 }
             </div>
         </div>

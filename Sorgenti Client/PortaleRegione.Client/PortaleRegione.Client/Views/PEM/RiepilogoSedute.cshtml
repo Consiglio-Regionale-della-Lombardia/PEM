@@ -17,9 +17,9 @@
         </a>
         <div class="row valign-wrapper">
             <div class="col s12">
-                <h5>
+                <h4>
                     <b>@ViewBag.Title</b>
-                </h5>
+                </h4>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
                     <div class="col s4 right-align" style="margin-top: 15px;">
                         @if (!chiusa)
                         {
-                            <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <a class="black-text tooltipped" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" data-tooltip="Riepilogo atti">
                                 <i class="material-icons">chevron_right</i>
                             </a>
                         }
