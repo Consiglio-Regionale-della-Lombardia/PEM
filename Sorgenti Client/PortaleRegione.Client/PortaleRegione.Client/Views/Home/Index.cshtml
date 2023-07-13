@@ -81,9 +81,9 @@
     }
 
     <li class="active grey lighten-4">
-        <div class="collapsible-header black-text">
-            <i class="material-icons">event</i>
-            Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")
+        <div class="collapsible-header black-text valign-wrapper">
+            <i class="material-icons hide-on-med-and-down">event</i>
+            <h5>Seduta del @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")</h5>
         </div>
         @if (PEMEnabled)
         {
@@ -112,7 +112,7 @@
                                     }
                                     <li>
                                         <div class="collapsible-header">
-                                            <i class="material-icons pink-text">textsms</i>
+                                            <i class="material-icons pink-text hide-on-med-and-down">textsms</i>
                                             @titolo_atto
                                             <div class="collapsabile-secondary-header">
                                                 @if (attoPem.Emendabile)
