@@ -25,11 +25,13 @@
             break;
     }
     var url = Url.Action("Index", "Home");
-
+    var data_seduta = "";
     if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
     {
         var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
         url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
+
+        data_seduta = @Model.Data.Results.First().Seduta.Data_seduta.ToString("dd/MM/yyyy");
     }
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
@@ -63,10 +65,7 @@
                 {
                     var tipo = Convert.ToInt16(Model.Tipo);
                     <h4>
-                        <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
-                            @PortaleRegione.Common.Utility.GetText_Tipo(tipo)
-                        </div>
-                        <b> - Aula Atti Sindacato Ispettivo @textTitoloRicerca</b>
+                        <b>@PortaleRegione.Common.Utility.GetText_Tipo(tipo) iscritte alla seduta del @data_seduta @textTitoloRicerca</b>
                     </h4>
                 }
             </div>
