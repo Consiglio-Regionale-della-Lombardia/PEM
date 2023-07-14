@@ -23,7 +23,7 @@
             </label>
         }
 
-        @if (Model.CurrentUser.IsConsigliereRegionale)
+        @if (Model.CurrentUser.IsConsigliereRegionale && Model.ClientMode == ClientModeEnum.GRUPPI)
         {
             <label style="margin-left: 20px;">
                 <input type="checkbox" id="checkAllMy" onchange="filtraDASI_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
