@@ -20,102 +20,98 @@
 
 }
 <div class="row valign-wrapper">
-    <div class="col s3 left">
+    <div class="col l6 s6 left">
         <label>
             <input type="checkbox" id="checkAll"/>
             <span for="checkAll">Seleziona tutti</span>
         </label>
-    </div>
-    <div class="col s5 left">
         @if ((User.IsInRole(RuoliExt.Consigliere_Regionale) || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)) && Model.mode == ClientModeEnum.GRUPPI)
         {
+            <br/>
             <label>
                 <input type="checkbox" id="checkAllMy" onchange="filtraEM_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
                 <span for="checkAllMy">Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma</span>
             </label>
         }
     </div>
-    <div class="col s6">
-        <div class="right">
+    <div class="col l6 s6 right-align">
 
-            @if (Model.mode == ClientModeEnum.TRATTAZIONE)
+        @if (Model.mode == ClientModeEnum.TRATTAZIONE)
+        {
+            if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione)
+                && Model.Atto.OrdinePresentazione == true
+                && ordine == OrdinamentoEnum.Presentazione)
             {
-                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloPresentazione)
-                    && Model.Atto.OrdinePresentazione == true
-                    && ordine == OrdinamentoEnum.Presentazione)
-                {
-                    <a class="btn-flat pink-text tooltipped"
-                       href="@Model.Atto.LinkFascicoloPresentazione"
-                       data-position="bottom"
-                       data-tooltip="Scarica fascicolo presentazione"
-                       target="_blank"
-                       style="margin-top: -10px;">
-                        @if (Model.Atto.Fascicoli_Da_Aggiornare)
-                        {
-                            <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
-                        }
-                        else
-                        {
-                            <i class="material-icons right">file_download</i>
-                        }
+                <a class="btn-floating white black-text tooltipped"
+                   href="@Model.Atto.LinkFascicoloPresentazione"
+                   data-position="bottom"
+                   data-tooltip="Scarica fascicolo presentazione"
+                   target="_blank"
+                   style="margin-top: -10px;">
+                    @if (Model.Atto.Fascicoli_Da_Aggiornare)
+                    {
+                        <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
+                    }
+                    else
+                    {
+                        <i class="material-icons right">file_download</i>
+                    }
 
-                        Fascicolo presentazione
-                    </a>
-                }
-                if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione)
-                    && Model.Atto.OrdineVotazione == true
-                    && ordine == OrdinamentoEnum.Votazione)
-                {
-                    <a class="btn-flat pink-text tooltipped"
-                       href="@Model.Atto.LinkFascicoloVotazione"
-                       data-position="bottom"
-                       data-tooltip="Scarica fascicolo votazione"
-                       target="_blank"
-                       style="margin-top: -10px;">
-                        @if (Model.Atto.Fascicoli_Da_Aggiornare)
-                        {
-                            <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
-                        }
-                        else
-                        {
-                            <i class="material-icons right">file_download</i>
-                        }
-                        Fascicolo votazione
-                    </a>
-                }
+                    Fascicolo presentazione
+                </a>
             }
-
-            <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
-                <i class="material-icons">print</i>
-            </a>
-            @{
-                var text = "";
-                var icon = "";
-                var new_view = ViewModeEnum.GRID;
-
-                if (Model.view == ViewModeEnum.PREVIEW)
-                {
-                    text = "Visualizza EM in griglia";
-                    icon = "developer_board";
-                }
-                else if (Model.view == ViewModeEnum.GRID)
-                {
-                    new_view = ViewModeEnum.PREVIEW;
-                    text = "Visualizza EM in preview";
-                    icon = "desktop_windows";
-                }
+            if (!string.IsNullOrEmpty(Model.Atto.LinkFascicoloVotazione)
+                && Model.Atto.OrdineVotazione == true
+                && ordine == OrdinamentoEnum.Votazione)
+            {
+                <a class="btn-floating white black-text tooltipped"
+                   href="@Model.Atto.LinkFascicoloVotazione"
+                   data-position="bottom"
+                   data-tooltip="Scarica fascicolo votazione"
+                   target="_blank"
+                   style="margin-top: -10px;">
+                    @if (Model.Atto.Fascicoli_Da_Aggiornare)
+                    {
+                        <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
+                    }
+                    else
+                    {
+                        <i class="material-icons right">file_download</i>
+                    }
+                    Fascicolo votazione
+                </a>
             }
+        }
+
+        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+            <i class="material-icons">print</i>
+        </a>
+        @{
+            var text = "";
+            var icon = "";
+            var new_view = ViewModeEnum.GRID;
+
+            if (Model.view == ViewModeEnum.PREVIEW)
+            {
+                text = "Visualizza EM in griglia";
+                icon = "developer_board";
+            }
+            else if (Model.view == ViewModeEnum.GRID)
+            {
+                new_view = ViewModeEnum.PREVIEW;
+                text = "Visualizza EM in preview";
+                icon = "desktop_windows";
+            }
+        }
 
 
-            <a class="blue-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="left">
-                <i class="icon material-icons">@icon</i>
-            </a>
-            
-            <a class="pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
-                <i class="icon material-icons">format_align_left</i>
-            </a>
+        <a class="btn-floating white black-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="left">
+            <i class="icon material-icons">@icon</i>
+        </a>
 
-        </div>
+        <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
+            <i class="icon material-icons">format_align_left</i>
+        </a>
     </div>
 </div>
 

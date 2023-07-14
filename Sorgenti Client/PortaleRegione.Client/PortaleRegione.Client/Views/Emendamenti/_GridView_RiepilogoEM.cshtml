@@ -32,142 +32,128 @@ else
     var lastRow = 0;
     foreach (var itemEM in Model.Data.Results)
     {
-        countRow++;
-        if (countRow >= Model.Data.Paging.Entities)
-        {
-            lastRow = 1;
-        }
-
-        <div class="col l6 m12 s12">
+        <div class="col l12 m12 s12">
             <div class="card sticky-action hoverable" style="min-height: 300px">
                 <div class="card-content">
                     <div class="card-title">
                         <div class="row" style="margin: unset !important;">
-                            <div class="col @Html.Raw(itemEM.IDStato >= (int)StatiEnum.Depositato ? "s12" : "s6")">
-                                <div class="col l1 s12" style="margin-top: 10px">
-                                    <label>
-                                        <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
-                                        <span></span>
-                                    </label>
+                            <div class="col l1 s12" style="margin-top: 10px">
+                                <label>
+                                    <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');" />
+                                    <span></span>
+                                </label>
+                            </div>
+                            <div class="col l11 s12 center">
+                                <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip @itemEM.STATI_EM.CssClass" style="width: 100%">
+                                    @if (itemEM.Depositabile)
+                                    {
+                                        <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top: -2px">gavel</i>
+                                    }
+                                    @itemEM.STATI_EM.Stato
+                                    @if (itemEM.PresentatoOltreITermini)
+                                    {
+                                        //presentato oltre i termini
+                                        <i class="icon material-icons red-text right tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" style="margin-top: -3px">warning</i>
+                                    }
+                                    @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
+                                    {
+                                        <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)" style="margin-top: -2px">chat</i>
+                                    }
                                 </div>
-                                <div class="col l11 s12 center">
-                                    <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip @itemEM.STATI_EM.CssClass" style="width: 100%">
-                                        @if (itemEM.Depositabile)
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col l12 s12 center">
+                                <h4 style="margin-top: 7px">
+                                    <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
+                                </h4>
+                                <h6>@Html.Raw(Utility.MetaDatiEM_LabelHtml(itemEM)))</h6>
+                                @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
+                                {
+                                    <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
+                                        Bozza predisposta da:
+                                        <span id="lblCreatore_@itemEM.UIDEM">
+                                            @itemEM.PersonaCreazione.DisplayName
+                                        </span>
+                                    </h6>
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(itemEM.DataDeposito))
+                                    {
+                                        <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
+                                            Depositato da
+                                            <span id="lblPersonaDeposito_@itemEM.UIDEM">
+                                                @itemEM.PersonaDeposito.DisplayName
+                                            </span>
+                                            il @itemEM.DataDeposito
+
+                                        </h6>
+                                    }
+                                }
+
+                                @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
+                                {
+                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 10px; min-width: unset;">
+                                        @if (itemEM.Firma_da_ufficio)
                                         {
-                                            <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top: -2px">gavel</i>
-                                        }
-                                        @itemEM.STATI_EM.Stato
-                                        @if (itemEM.PresentatoOltreITermini)
-                                        {
-                                            //presentato oltre i termini
-                                            <i class="icon material-icons red-text right tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" style="margin-top: -3px">warning</i>
-                                        }
-                                        @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
-                                        {
-                                            <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)" style="margin-top: -2px">chat</i>
-                                        }
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col l12 center">
-                                        <h4 style="margin-top: 7px">
-                                            <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
-                                        </h4>
-                                        <h6>@Html.Raw(Utility.MetaDatiEM_LabelHtml(itemEM)))</h6>
-                                        @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
-                                        {
-                                            <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
-                                                Bozza predisposta da:
-                                                <span id="lblCreatore_@itemEM.UIDEM">
-                                                    @itemEM.PersonaCreazione.DisplayName
-                                                </span>
-                                            </h6>
+                                            <b>@itemEM.Firma_ufficio.FirmaCert</b>
                                         }
                                         else
                                         {
-                                            if (!string.IsNullOrEmpty(itemEM.DataDeposito))
+                                            <span class="hide-on-med-and-down">Firmato dal proponente:</span>
+                                            <span class="hide-on-large-only">Proponente:</span>
+                                            if (itemEM.Firmato_Dal_Proponente)
                                             {
-                                                <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
-                                                    Depositato da
-                                                    <span id="lblPersonaDeposito_@itemEM.UIDEM">
-                                                        @itemEM.PersonaDeposito.DisplayName
-                                                    </span>
-                                                    il @itemEM.DataDeposito
+                                                @itemEM.PersonaProponente.DisplayName
+                                            }
+                                            else
+                                            {
+                                                <span style="color: grey; text-decoration: line-through;">
+                                                    @itemEM.PersonaProponente.DisplayName
+                                                </span>
+                                            }
 
-                                                </h6>
+                                            if (itemEM.Proponente_Relatore)
+                                            {
+                                                <b>(RELATORE)</b>
                                             }
                                         }
 
-                                        @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
+                                        @if (itemEM.ConteggioFirme > 1)
                                         {
-                                            <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 10px; min-width: unset;">
-                                                @if (itemEM.Firma_da_ufficio)
-                                                {
-                                                    <b>@itemEM.Firma_ufficio.FirmaCert</b>
-                                                }
-                                                else
-                                                {
-                                                    <span class="hide-on-med-and-down">Firmato dal proponente:</span>
-                                                    <span class="hide-on-large-only">Proponente:</span>
-                                                    if (itemEM.Firmato_Dal_Proponente)
-                                                    {
-                                                        @itemEM.PersonaProponente.DisplayName
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color: grey; text-decoration: line-through;">
-                                                            @itemEM.PersonaProponente.DisplayName
-                                                        </span>
-                                                    }
-
-                                                    if (itemEM.Proponente_Relatore)
-                                                    {
-                                                        <b>(RELATORE)</b>
-                                                    }
-                                                }
-
-                                                @if (itemEM.ConteggioFirme > 1)
-                                                {
-                                                    <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
-                                                        + @(itemEM.ConteggioFirme - 1)
-                                                    </span>
-                                                }
-                                            </div>
+                                            <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
+                                                + @(itemEM.ConteggioFirme - 1)
+                                            </span>
                                         }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        @if (itemEM.IDStato < (int)StatiEnum.Depositato && !string.IsNullOrEmpty(itemEM.Firmatari))
+                        {
+                            <div class="row">
+                                <div class="col l12 s12">
+                                    <div id="pnlAzioniEM_@itemEM.UIDEM">
+                                        <h6>
+                                            <b>Firmatari</b>
+                                        </h6>
+                                        <hr />
+                                        @Html.Raw(itemEM.Firmatari)
                                     </div>
                                 </div>
                             </div>
-                            @if (itemEM.IDStato < (int)StatiEnum.Depositato)
-                            {
-                                <div class="col s6">
-                                    <div id="pnlAzioniEM_@itemEM.UIDEM" class="col l12 center">
-
-                                        @if (!string.IsNullOrEmpty(itemEM.Firmatari))
-                                        {
-                                            <div class="row">
-                                                <div class="col s12 left-align">
-                                                    <h6>
-                                                        <b>Firmatari</b>
-                                                    </h6>
-                                                    <hr/>
-                                                    @Html.Raw(itemEM.Firmatari)
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        </div>
+                        }
                         @if (itemEM.IDStato < (int)StatiEnum.Depositato)
                         {
                             if (!string.IsNullOrEmpty(itemEM.Destinatari))
                             {
                                 <div class="row">
-                                    <div class="col s12">
+                                    <div class="col l12 s12">
                                         <h6>
                                             <b>Invitati</b>
                                         </h6>
-                                        <hr/>
+                                        <hr />
                                         @Html.Raw(itemEM.Destinatari)
                                     </div>
                                 </div>
