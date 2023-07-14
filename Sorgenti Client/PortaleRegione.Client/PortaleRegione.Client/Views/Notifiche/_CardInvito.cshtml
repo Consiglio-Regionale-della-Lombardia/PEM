@@ -34,7 +34,7 @@
     else if (notifica.IsDasi)
     {
         titolo = $"{Utility.GetText_Tipo(notifica.ATTO_DASI.Tipo)} {notifica.ATTO_DASI.NAtto}";
-        if (!string.IsNullOrEmpty(notifica.Messaggio) && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA || notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
+        if ((!string.IsNullOrEmpty(notifica.Messaggio) && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA) || notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
         {
             titolo = notifica.Messaggio;
         }
@@ -47,7 +47,7 @@
             <td style="border: unset" width="5">
                 <p>
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox"/>
                     </label>
                 </p>
             </td>
@@ -62,9 +62,9 @@
                 }
             </td>
             <td style="border: unset">
-                <label>
+                <h5>
                     <b>@titolo</b>@Html.Raw(sub_titolo)
-                </label>
+                </h5>
             </td>
             <td style="border: unset; text-align: right; width: 10px">
                 @{
@@ -111,21 +111,29 @@
 
 </div>
 <div class="collapsible-body">
-    <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
-        <div class="col s6">
-            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
-                @if (notifica.UTENTI_NoCons.UID_persona != Model.User.UID_persona)
-                {
+    @if (notifica.UTENTI_NoCons.UID_persona != Model.User.UID_persona)
+    {
+        <div class="row">
+            <div class="col l6 s12">
+                <h5>Mittente</h5>
+                <hr/>
+                <div class="chip" style="min-width: unset">
+                    <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@notifica.UTENTI_NoCons.foto" alt="@notifica.UTENTI_NoCons.DisplayName">
+                    @notifica.UTENTI_NoCons.DisplayName_GruppoCode
+                </div>
+            </div>
+            <div class="col l6 s12">
+                <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
                     <div class="col s12">
-                        <h5>Mittente</h5>
-                        <hr />
-                        <div class="chip" style="min-width: unset">
-                            <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@notifica.UTENTI_NoCons.foto" alt="@notifica.UTENTI_NoCons.DisplayName">
-                            @notifica.UTENTI_NoCons.DisplayName_GruppoCode
-                        </div>
+                        @Html.Partial("_CardInvito_Destinatari", notifica.UIDNotifica)
                     </div>
-                }
-
+                </div>
+            </div>
+        </div>
+    }
+    <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+        <div class="col l6 s12">
+            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
                 <div class="col s12">
                     <h5>
                         @if (notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
@@ -141,111 +149,105 @@
                             @Html.Raw("Proposta di ritiro firma")
                         }
                     </h5>
+                    <hr/>
                     @if (notifica.IsPem)
                     {
-                        <div class="form-group">
-                            <p>
-                                <b>@notifica.EM.N_EM</b>
-                            </p>
-                            <h6>@Utility.MetaDatiEM_Label(notifica.EM)</h6>
-                            @if (notifica.EM.ATTI.SEDUTE.Scadenza_presentazione.HasValue)
-                            {
-                                <label>
-                                    <b>Scadenza Presentazione EM:</b> @notifica.EM.ATTI.SEDUTE.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")
-                                </label>
-                            }
-                        </div>
-                        <div class="form-group" style="margin-top: 20px">
-                            @if (notifica.EM.Firmabile && notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
-                            {
-                                <a class="btn-flat green-text" onclick="RevealFirmaDeposito('@notifica.EM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
-                                    <i class="material-icons right green-text">gavel</i>
-                                    FIRMA
-                                </a>
-                            }
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="form-group">
+                                    <label>Metadati: </label>
+                                    <h6>@Utility.MetaDatiEM_Label(notifica.EM)</h6>
+                                    @if (notifica.EM.ATTI.SEDUTE.Scadenza_presentazione.HasValue)
+                                    {
+                                        <label>
+                                            <b>Scadenza Presentazione EM:</b> @notifica.EM.ATTI.SEDUTE.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                            <div class="card-action right-align">
 
-                            <a class="btn-flat blue-text" onclick="go('@Url.Action("ViewEmendamento", "Emendamenti", new {id = notifica.UIDEM, notificaId = notifica.UIDNotifica})')">
-                                Vedi EM
-                            </a>
-                            @if (!archivio)
-                            {
-                                <a class="btn-flat red-text" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
-                                    Archivia notifica
+                                @if (!archivio)
+                                {
+                                    <a class="btn-floating white red-text tooltipped" data-tooltip="Archivia notifica" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
+                                        <i class="material-icons">close</i>
+                                    </a>
+                                }
+
+                                <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi emendamento" onclick="go('@Url.Action("ViewEmendamento", "Emendamenti", new { id = notifica.UIDEM, notificaId = notifica.UIDNotifica })')">
+                                    <i class="material-icons">remove_red_eye</i>
                                 </a>
-                            }
+
+                                @if (notifica.EM.Firmabile && notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
+                                {
+                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDeposito('@notifica.EM.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
+                                        <i class="material-icons">gavel</i>
+                                    </a>
+                                }
+                            </div>
                         </div>
                     }
                     else if (notifica.IsDasi)
                     {
-                        <div class="form-group">
-                            <p>
-                                <b>@titolo</b>
-                            </p>
-                            <p>
-                                @if (string.IsNullOrEmpty(notifica.ATTO_DASI.Oggetto_Modificato))
-                                {
-                                    @notifica.ATTO_DASI.Oggetto
-                                }
-                                else
-                                {
-                                    @notifica.ATTO_DASI.Oggetto_Modificato
-                                }
-                            </p>
-                        </div>
-                        <div class="form-group" style="margin-top: 20px">
-                            @if (notifica.ATTO_DASI.Firmabile && notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
-                            {
-                                <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@notifica.ATTO_DASI.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
-                                    <i class="material-icons right green-text">gavel</i>
-                                    FIRMA
-                                </a>
-                            }
-
-                            <a class="btn-flat blue-text" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = notifica.ATTO_DASI.UIDAtto})')">
-                                Vedi Atto
-                            </a>
-                            @if (!archivio)
-                            {
-                                <a class="btn-flat red-text" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
-                                    Archivia notifica
-                                </a>
-                            }
-                        </div>
-
-                        if (!notifica.Chiuso
-                        && !notifica.Valida
-                             && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
-                             && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA)
-                        {
-                            <div class="form-group">
-                                <a class="btn-flat green-text" onclick="AccettaPropostaFirmaAttoDASI('@notifica.UIDNotifica')">
-                                    Accetta proposta
-                                </a>
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title grey-text text-darken-4">
+                                    Oggetto
+                                </span>
+                                <p>@notifica.ATTO_DASI.Oggetto</p>
                             </div>
-                        }
-                        else if (!notifica.Chiuso
-                                 && notifica.Valida
-                                 && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
-                                 && notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
-                        {
-                            <div class="form-group">
-                                <a class="btn-flat green-text" onclick="AccettaRitiroFirmaAttoDASI('@notifica.UIDNotifica')">
-                                    Accetta ritiro
+                            <div class="card-action right-align">
+                                @if (!archivio)
+                                {
+                                    <a class="btn-floating white red-text tooltipped" data-tooltip="Archivia notifica" onclick="ArchiviaNotifica(this, '@notifica.UIDNotifica')">
+                                        <i class="material-icons">close</i>
+                                    </a>
+                                }
+                                <a class="btn-floating white black-text tooltipped" data-tooltip="Vedi atto"
+                                   onclick="go('@Url.Action("ViewAtto", "DASI", new { id = notifica.ATTO_DASI.UIDAtto })')">
+                                    <i class="material-icons">remove_red_eye</i>
                                 </a>
+
+                                @if (notifica.ATTO_DASI.Firmabile && notifica.IDTipo == (int)TipoNotificaEnum.INVITO)
+                                {
+                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@notifica.ATTO_DASI.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                                        <i class="material-icons">gavel</i>
+                                    </a>
+                                }
+
+                                @if (!notifica.Chiuso
+                                     && !notifica.Valida
+                                     && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
+                                     && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA)
+                                {
+                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Accetta proposta" onclick="AccettaPropostaFirmaAttoDASI('@notifica.UIDNotifica')">
+                                        <i class="material-icons">check</i>
+                                    </a>
+                                }
+                                else if (!notifica.Chiuso
+                                         && notifica.Valida
+                                         && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
+                                         && notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
+                                {
+                                    <a class="btn-floating white green-text tooltipped" data-tooltip="Accetta ritiro" onclick="AccettaRitiroFirmaAttoDASI('@notifica.UIDNotifica')">
+                                        <i class="material-icons">check</i>
+                                    </a>
+                                }
                             </div>
-                        }
+                        </div>
                     }
-
-
                 </div>
             </div>
         </div>
-        <div class="col s6">
-            <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
-                <div class="col s12">
-                    @Html.Partial("_CardInvito_Destinatari", notifica.UIDNotifica)
+        @if (notifica.UTENTI_NoCons.UID_persona == Model.User.UID_persona)
+        {
+            <div class="col l6 s12">
+                <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
+                    <div class="col s12">
+                        @Html.Partial("_CardInvito_Destinatari", notifica.UIDNotifica)
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 </div>
