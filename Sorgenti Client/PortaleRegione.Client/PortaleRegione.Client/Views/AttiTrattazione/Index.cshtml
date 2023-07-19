@@ -68,14 +68,40 @@
             <div class="collapsible-body">
                 <div class="card">
                     <div class="card-content">
-                        <span class="card-title grey-text text-darken-4">
-                            Oggetto
-                            @if ((seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile) || seduta.DataScadenzaPresentazioneODG.HasValue)
-                            {
-                                <i class="material-icons activator right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
-                            }
-                        </span>
-                        <p>@attoPem.Oggetto</p>
+                        @if ((seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile) || seduta.DataScadenzaPresentazioneODG.HasValue)
+                        {
+                            <div class="row" style="margin: 0 !important">
+                                <div class="col l12 s12 right-align">
+                                    <a class="btn-flat black-text">
+                                        <i class="material-icons activator right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
+                                        SCADENZE
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="col l12 s12">
+                                <div class="card-panel grey lighten-5">
+                                    <span class="card-title grey-text text-darken-4">
+                                        Oggetto
+                                    </span>
+                                    <p>@attoPem.Oggetto</p>
+
+                                    @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
+                                    {
+                                        <div class="row">
+                                            <div class="col s12 l12 right-align">
+                                                <a class="btn-flat pink-text"
+                                                   href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
+                                                    <i class="material-icons right">download</i>
+                                                    Scarica documento
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             @if (attoPem.UIDAssessoreRiferimento.HasValue)
                             {
@@ -101,18 +127,6 @@
                                 </div>
                             }
 
-                        </div>
-                        <div class="row">
-                            <div class="col l6 s12">
-                                @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
-                                {
-                                    <a class="btn-flat pink-text"
-                                       href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
-                                        <i class="material-icons left">download</i>
-                                        Scarica
-                                    </a>
-                                }
-                            </div>
                         </div>
                         <div class="col l6 s12 right-align">
                             @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
