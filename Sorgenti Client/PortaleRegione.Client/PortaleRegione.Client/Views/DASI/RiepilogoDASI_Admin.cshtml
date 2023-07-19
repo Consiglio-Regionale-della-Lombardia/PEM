@@ -83,17 +83,17 @@
         {
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s4">
+                    <li class="tab col l4 s12">
                         <a class="@classTabPresentati" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.PRESENTATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Depositati (@Model.CountBarData.PRESENTATI)
                         </a>
                     </li>
-                    <li class="tab col s4">
+                    <li class="tab col l4 s12">
                         <a class="@classTabInTrattazione" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.IN_TRATTAZIONE));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
                         </a>
                     </li>
-                    <li class="tab col s4">
+                    <li class="tab col l4 s12">
                         <a class="@classTabChiuso" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.CHIUSO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
                             Chiusi (@Model.CountBarData.CHIUSO)
                         </a>
