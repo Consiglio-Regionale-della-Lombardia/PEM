@@ -27,6 +27,11 @@ main { margin-bottom: 150px; }
 
 .btn-flat { font-weight: bold !important; }
 
+.btn-flat.black-text {
+	border: 1px black solid;
+	border-radius: 5px;
+}
+
 .btn-flat.pink-text {
 	border: 1px #e91e63 solid;
 	border-radius: 5px;
