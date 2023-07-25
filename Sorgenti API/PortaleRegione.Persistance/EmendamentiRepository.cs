@@ -832,8 +832,12 @@ namespace PortaleRegione.Persistance
                 .OrderByDescending(o => o.num_em)
                 .ToListAsync();
 
-            var emendamenti_atto_by_giunta = await PRContext.EM.Where(em =>
-                em.UIDAtto == uidAtto && em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID).ToListAsync();
+            var emendamenti_atto_by_giunta = await PRContext
+                .EM
+                .Where(em => em.UIDAtto == uidAtto
+                             && em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID
+                             && em.IDStato >= (int)StatiEnum.Depositato
+                             && !em.Eliminato).ToListAsync();
 
             if (emendamenti_atto_by_giunta.Any())
                 result.Add(new View_Conteggi_EM_Gruppi_Politici
