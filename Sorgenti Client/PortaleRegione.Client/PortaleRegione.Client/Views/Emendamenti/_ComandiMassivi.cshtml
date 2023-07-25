@@ -1,6 +1,6 @@
 ﻿@using PortaleRegione.DTO.Enum
-@model bool
-@if (!Model)
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+@if (!Model.Atto.Chiuso)
 {
     <div id="btnComandiMassivi" class="fixed-action-btn" style="display: none">
         <a class="btn-floating btn-large pink tooltipped" data-tooltip="Comandi massivi" data-position="left">
@@ -9,11 +9,14 @@
         <ul>
             @if (User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica) || User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta))
             {
-            <li>
-                <a id="btnDepositaMassivo" class="btn-floating purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int) ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
-                    <i class="material-icons">lock</i>
-                </a>
-            </li>
+                if (Model.Mode != ClientModeEnum.TRATTAZIONE) // #808 Trattazione AULA: operazioni consentite
+                {
+                    <li>
+                        <a id="btnDepositaMassivo" class="btn-floating purple darken-1 tooltipped" onclick="RevealMassivo(@Html.Raw((int)ActionEnum.DEPOSITA))" data-position="left" data-tooltip="Deposito massivo">
+                            <i class="material-icons">lock</i>
+                        </a>
+                    </li>
+                }
             }else if (User.IsInRole(RuoliExt.Consigliere_Regionale)
                 || User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
                 || User.IsInRole(RuoliExt.Presidente_Regione))
