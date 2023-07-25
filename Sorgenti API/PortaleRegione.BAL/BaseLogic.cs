@@ -536,8 +536,7 @@ namespace PortaleRegione.BAL
             if (enableQrCode)
             {
                 var qr_contentString = "data:image/png;base64,{{DATA}}";
-                var qrLink =
-                    $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
+                var qrLink = $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}";
                 var qrGenerator = new QRCodeGenerator();
                 var urlPayload = new PayloadGenerator.Url(qrLink);
                 var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
