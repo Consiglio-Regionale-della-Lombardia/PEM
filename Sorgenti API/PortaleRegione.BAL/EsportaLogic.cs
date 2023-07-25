@@ -26,6 +26,7 @@ using HtmlToOpenXml;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -44,6 +45,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
+using Color = System.Drawing.Color;
 
 namespace PortaleRegione.BAL
 {
@@ -68,7 +70,7 @@ namespace PortaleRegione.BAL
                     $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}");
 
                 var row = 1;
-                int columnIndex = 1; // Inizia dalla colonna 1
+                var columnIndex = 1; // Inizia dalla colonna 1
 
                 SetColumnValue(ref row, excelSheet, "Ordine", ref columnIndex);
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
@@ -119,7 +121,8 @@ namespace PortaleRegione.BAL
                         SetColumnValue(ref row, excelSheet, em.UIDEM.ToString(), ref columnIndex);
                         var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
                         SetColumnValue(ref row, excelSheet,
-                            $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}", ref columnIndex);
+                            $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}",
+                            ref columnIndex);
                     }
 
                     SetColumnValue(ref row, excelSheet, em.N_EM, ref columnIndex);
@@ -229,13 +232,14 @@ namespace PortaleRegione.BAL
                         SetColumnValue(ref row, excelSheet, "--", ref columnIndex);
                     }
 
-                    SetColumnValue(ref row, excelSheet, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}",
+                        ref columnIndex);
                     var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
                     totalProcessTime += (float)spentTime;
                 }
 
                 // Imposta il percorso della cartella temporanea sul server
-                string tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+                var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
 
                 // Salva il file Excel nella cartella virtuale
                 var fileName =
@@ -259,6 +263,215 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(EmendamentiViewModel model, PersonaDto persona)
+        {
+            try
+            {
+                using (var package = new ExcelPackage())
+                {
+                    var emList = await _logicEm.ScaricaEmendamenti(model, persona);
+
+                    await NewSheet(package, nameof(ReportType.UOLA), model.Atto.UIDAtto, ReportType.UOLA, emList
+                        .OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato));
+                    await NewSheet(package, nameof(ReportType.PCR), model.Atto.UIDAtto, ReportType.PCR, emList
+                        .OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato));
+                    await NewSheet(package, nameof(ReportType.PROGRESSIVO), model.Atto.UIDAtto, ReportType.PROGRESSIVO,
+                        emList
+                            .OrderBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.OrdinePresentazione));
+
+                    // Imposta il percorso della cartella temporanea sul server
+                    var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+
+                    // Salva il file Excel nella cartella virtuale
+                    var fileName =
+                        $"Esportazione_{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}_{Guid.NewGuid()}.xlsx"; // Utilizza un nome di file univoco
+                    var filePath = Path.Combine(tempFolderPath, fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                    {
+                        package.SaveAs(fileStream);
+                    }
+
+                    // Creazione della risposta con il link di download
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - EsportaGrigliaReportXLS", e);
+                throw e;
+            }
+        }
+
+        private async Task NewSheet(ExcelPackage package, string sheetName, Guid attoUId, ReportType reportType,
+            IEnumerable<EmendamentiDto> emendamentiDtos)
+        {
+            var worksheet = package.Workbook.Worksheets.Add(sheetName);
+            var atto = await _unitOfWork.Atti.Get(attoUId);
+
+            //HEADER
+            var row = 1;
+            var columnIndex = 1;
+            SetColumnValue(ref row, worksheet, "Numero EM", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Proponente", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Articolo", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Comma", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Lettera", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Titolo", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Capo", ref columnIndex);
+
+            if (atto.VIS_Mis_Prog)
+            {
+                SetColumnValue(ref row, worksheet, "Missione", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "Programma", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "TitoloB", ref columnIndex);
+            }
+
+            SetColumnValue(ref row, worksheet, "Contenuto", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "INAMM.", ref columnIndex);
+
+            if (reportType != ReportType.PCR)
+            {
+                SetColumnValue(ref row, worksheet, "RITIRATO", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "SI", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "NO", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "DECADE", ref columnIndex);
+            }
+
+            SetColumnValue(ref row, worksheet, "NOTE", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "NOTE_RISERVATE", ref columnIndex);
+
+            var oldParte = emendamentiDtos.First().IDParte;
+            int currentParte_Missione = default, oldParte_Missione = default;
+            Guid currentParte_Articolo = default, oldParte_Articolo = default;
+
+            row++;
+
+            foreach (var em in emendamentiDtos)
+            {
+                var currentParte = em.IDParte;
+                if (oldParte != currentParte)
+                {
+                    SetSeparator(ref worksheet, ref reportType, ref row);
+                    oldParte = em.IDParte;
+                }
+                else
+                {
+                    if (em.IDParte == (int)PartiEMEnum.Missione)
+                    {
+                        if (em.NMissione.HasValue)
+                        {
+                            currentParte_Missione = em.NMissione!.Value;
+                            if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
+                                SetSeparator(ref worksheet, ref reportType, ref row);
+
+                            oldParte_Missione = currentParte_Missione;
+                        }
+                    }
+                    else
+                    {
+                        if (em.UIDArticolo.HasValue)
+                        {
+                            currentParte_Articolo = em.UIDArticolo!.Value;
+                            if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
+                                SetSeparator(ref worksheet, ref reportType, ref row);
+
+                            oldParte_Articolo = currentParte_Articolo;
+                        }
+                    }
+                }
+
+                columnIndex = 1; // Reset columnIndex for each row
+                SetColumnValue(ref row, worksheet, em.N_EM, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.PersonaProponente.DisplayName, ref columnIndex);
+                if (em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty)
+                    SetColumnValue(ref row, worksheet, em.ARTICOLI.Articolo, ref columnIndex);
+                else
+                    SetColumnValue(ref row, worksheet, "--", ref columnIndex);
+
+                SetColumnValue(ref row, worksheet, em.COMMI?.Comma ?? "--", ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.LETTERE?.Lettera ?? em.NLettera ?? "--", ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.NTitolo, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.NCapo, ref columnIndex);
+
+                if (atto.VIS_Mis_Prog)
+                {
+                    SetColumnValue(ref row, worksheet, em.NMissione?.ToString() ?? "--", ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.NProgramma?.ToString() ?? "--", ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.NTitoloB?.ToString() ?? "--", ref columnIndex);
+                }
+
+                SetColumnValue(ref row, worksheet, em.TIPI_EM.Tipo_EM, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "",
+                    ref columnIndex);
+
+                if (reportType != ReportType.PCR)
+                {
+                    SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "",
+                        ref columnIndex);
+                    SetColumnValue(ref row, worksheet,
+                        em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche
+                            ? "X"
+                            : "", ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "",
+                        ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "",
+                        ref columnIndex);
+                }
+
+                SetColumnValue(ref row, worksheet, em.NOTE_Griglia, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.NOTE_EM, ref columnIndex);
+
+                row++;
+            }
+
+            // Calculate statistics and set summary row
+            var countEM = emendamentiDtos.Count();
+            var approvati = emendamentiDtos.Count(em =>
+                em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
+            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
+            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
+            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
+            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
+
+            var rowReport = worksheet.Row(row);
+            rowReport.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            rowReport.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+
+            SetColumnValue(ref row, worksheet, countEM.ToString(), 1);
+            var colonna_conteggi = atto.VIS_Mis_Prog ? 11 : 8;
+            SetColumnValue(ref row, worksheet, inammissibili.ToString(), colonna_conteggi + 1);
+
+            if (reportType != ReportType.PCR)
+            {
+                SetColumnValue(ref row, worksheet, ritirati.ToString(), colonna_conteggi + 2);
+                SetColumnValue(ref row, worksheet, approvati.ToString(), colonna_conteggi + 3);
+                SetColumnValue(ref row, worksheet, non_approvati.ToString(), colonna_conteggi + 4);
+                SetColumnValue(ref row, worksheet, decaduti.ToString(), colonna_conteggi + 5);
+            }
+        }
+
+        private void SetSeparator(ref ExcelWorksheet sheet, ref ReportType reportType, ref int row)
+        {
+            if (reportType == ReportType.PROGRESSIVO) return;
+
+            sheet.InsertRow(row, 1);
+
+            var rowSep = sheet.Row(row);
+            rowSep.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            rowSep.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            row++;
+        }
+
 
         public async Task<HttpResponseMessage> EsportaGrigliaZipDASI(List<Guid> data)
         {
@@ -536,358 +749,15 @@ namespace PortaleRegione.BAL
             return $"<td>{column_body}</td>";
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(EmendamentiViewModel model, PersonaDto persona)
-        {
-            try
-            {
-                //var FilePathComplete = GetLocalPath("xlsx");
-
-                //IWorkbook workbook = new XSSFWorkbook();
-                //var style = workbook.CreateCellStyle();
-                //style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
-                //style.FillPattern = FillPattern.SolidForeground;
-                //var styleReport = workbook.CreateCellStyle();
-                //styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
-                //styleReport.FillPattern = FillPattern.SolidForeground;
-                //styleReport.Alignment = HorizontalAlignment.Center;
-                //var emList = await _logicEm.ScaricaEmendamenti(model, persona);
-
-                //var uolaSheet =
-                //    await NewSheet(
-                //        workbook.CreateSheet(
-                //            nameof(ReportType.UOLA)),
-                //        model.Atto.UIDAtto,
-                //        ReportType.UOLA,
-                //        emList
-                //            .OrderBy(em => em.OrdineVotazione)
-                //            .ThenBy(em => em.Rif_UIDEM)
-                //            .ThenBy(em => em.IDStato),
-                //        style,
-                //        styleReport);
-                //var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), model.Atto.UIDAtto,
-                //    ReportType.PCR, emList
-                //        .OrderBy(em => em.OrdineVotazione)
-                //        .ThenBy(em => em.Rif_UIDEM)
-                //        .ThenBy(em => em.IDStato),
-                //    style,
-                //    styleReport);
-                //var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), model.Atto.UIDAtto,
-                //    ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
-                //        .ThenBy(em => em.OrdinePresentazione),
-                //    style,
-                //    styleReport);
-
-                //return await Response(FilePathComplete, workbook);
-
-                return null;
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - EsportaGrigliaReportXLS", e);
-                throw e;
-            }
-        }
-
-        //private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
-        //    IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, ICellStyle styleR)
-        //{
-        //    var atto = await _unitOfWork.Atti.Get(attoUId);
-
-        //    //HEADER
-        //    var row = sheet.CreateRow(0);
-        //    SetColumnValue(ref row, "Numero EM");
-        //    SetColumnValue(ref row, "Proponente");
-        //    SetColumnValue(ref row, "Articolo");
-        //    SetColumnValue(ref row, "Comma");
-        //    SetColumnValue(ref row, "Lettera");
-        //    SetColumnValue(ref row, "Titolo");
-        //    SetColumnValue(ref row, "Capo");
-        //    if (atto.VIS_Mis_Prog)
-        //    {
-        //        SetColumnValue(ref row, "Missione");
-        //        SetColumnValue(ref row, "Programma");
-        //        SetColumnValue(ref row, "TitoloB");
-        //    }
-
-        //    SetColumnValue(ref row, "Contenuto");
-        //    SetColumnValue(ref row, "INAMM.");
-        //    if (reportType != ReportType.PCR)
-        //    {
-        //        SetColumnValue(ref row, "RITIRATO");
-        //        SetColumnValue(ref row, "SI");
-        //        SetColumnValue(ref row, "NO");
-        //        SetColumnValue(ref row, "DECADE");
-        //    }
-
-        //    SetColumnValue(ref row, "NOTE");
-        //    SetColumnValue(ref row, "NOTE_RISERVATE");
-
-        //    var oldParte = emendamentiDtos.First().IDParte;
-        //    int currentParte_Missione = default, oldParte_Missione = default;
-        //    Guid currentParte_Articolo = default, oldParte_Articolo = default;
-
-        //    foreach (var em in emendamentiDtos)
-        //    {
-        //        var currentParte = em.IDParte;
-        //        if (oldParte != currentParte)
-        //        {
-        //            SetSeparator(ref sheet, ref style, ref reportType);
-        //            oldParte = em.IDParte;
-        //        }
-        //        else
-        //        {
-        //            if (em.IDParte == (int)PartiEMEnum.Missione)
-        //            {
-        //                if (em.NMissione.HasValue)
-        //                {
-        //                    currentParte_Missione = em.NMissione!.Value;
-        //                    if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
-        //                        SetSeparator(ref sheet, ref style, ref reportType);
-
-        //                    oldParte_Missione = currentParte_Missione;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (em.UIDArticolo.HasValue)
-        //                {
-        //                    currentParte_Articolo = em.UIDArticolo!.Value;
-        //                    if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
-        //                        SetSeparator(ref sheet, ref style, ref reportType);
-
-        //                    oldParte_Articolo = currentParte_Articolo;
-        //                }
-        //            }
-        //        }
-
-        //        var rowEm = sheet.CreateRow(sheet.LastRowNum + 1);
-        //        SetColumnValue(ref rowEm, em.N_EM);
-        //        SetColumnValue(ref rowEm, em.PersonaProponente.DisplayName);
-        //        if (em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty)
-        //            SetColumnValue(ref rowEm, em.ARTICOLI.Articolo);
-        //        else
-        //            SetColumnValue(ref rowEm, "--");
-
-        //        if (em.UIDComma.HasValue && em.UIDComma.Value != Guid.Empty)
-        //            SetColumnValue(ref rowEm, em.COMMI.Comma);
-        //        else
-        //            SetColumnValue(ref rowEm, "--");
-
-        //        if (em.UIDLettera.HasValue && em.UIDLettera.Value != Guid.Empty)
-        //        {
-        //            SetColumnValue(ref rowEm, em.LETTERE.Lettera);
-        //        }
-        //        else
-        //        {
-        //            if (!string.IsNullOrEmpty(em.NLettera))
-        //                SetColumnValue(ref rowEm, em.NLettera);
-        //            else
-        //                SetColumnValue(ref rowEm, "--");
-        //        }
-
-        //        SetColumnValue(ref rowEm, em.NTitolo);
-        //        SetColumnValue(ref rowEm, em.NCapo);
-
-        //        if (atto.VIS_Mis_Prog)
-        //        {
-        //            if (em.NMissione.HasValue && em.NMissione.Value != 0)
-        //                SetColumnValue(ref rowEm, em.NMissione.Value.ToString());
-        //            else
-        //                SetColumnValue(ref rowEm, "--");
-
-        //            if (em.NProgramma.HasValue && em.NProgramma.Value != 0)
-        //                SetColumnValue(ref rowEm, em.NProgramma.Value.ToString());
-        //            else
-        //                SetColumnValue(ref rowEm, "--");
-
-        //            if (em.NTitoloB.HasValue && em.NTitoloB.Value != 0)
-        //                SetColumnValue(ref rowEm, em.NTitoloB.Value.ToString());
-        //            else
-        //                SetColumnValue(ref rowEm, "--");
-        //        }
-
-        //        SetColumnValue(ref rowEm, em.TIPI_EM.Tipo_EM);
-        //        SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "");
-
-        //        if (reportType != ReportType.PCR)
-        //        {
-        //            SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "");
-        //            SetColumnValue(ref rowEm,
-        //                em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche
-        //                    ? "X"
-        //                    : "");
-        //            SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "");
-        //            SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "");
-        //        }
-
-        //        SetColumnValue(ref rowEm, em.NOTE_Griglia);
-        //        SetColumnValue(ref rowEm, em.NOTE_EM);
-        //    }
-
-        //    var countEM = emendamentiDtos.Count();
-        //    var approvati = emendamentiDtos.Count(em =>
-        //        em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
-        //    var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
-        //    var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
-        //    var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
-        //    var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
-
-        //    var rowReport = sheet.CreateRow(sheet.LastRowNum + 1);
-        //    rowReport.RowStyle = styleR;
-        //    var cellCount = rowReport.CreateCell(0);
-        //    cellCount.CellStyle = styleR;
-        //    cellCount.SetCellValue(countEM);
-        //    var colonna_conteggi = atto.VIS_Mis_Prog ? 11 : 8;
-        //    var cellInamm = rowReport.CreateCell(colonna_conteggi);
-        //    cellInamm.CellStyle = styleR;
-        //    cellInamm.SetCellValue(inammissibili);
-
-        //    if (reportType == ReportType.PCR) return sheet;
-
-        //    var cellRit = rowReport.CreateCell(colonna_conteggi + 1);
-        //    cellRit.CellStyle = styleR;
-        //    cellRit.SetCellValue(ritirati);
-        //    var cellApp = rowReport.CreateCell(colonna_conteggi + 2);
-        //    cellApp.CellStyle = styleR;
-        //    cellApp.SetCellValue(approvati);
-        //    var cellNonApp = rowReport.CreateCell(colonna_conteggi + 3);
-        //    cellNonApp.CellStyle = styleR;
-        //    cellNonApp.SetCellValue(non_approvati);
-        //    var cellDeca = rowReport.CreateCell(colonna_conteggi + 4);
-        //    cellDeca.CellStyle = styleR;
-        //    cellDeca.SetCellValue(decaduti);
-
-        //    return sheet;
-        //}
-
-        //private Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList)
-        //{
-        //    //HEADER
-        //    try
-        //    {
-        //        var rowH = sheet.CreateRow(0);
-        //        var row = sheet.CreateRow(1);
-        //        SetColumnValue(ref row, "TIPO ATTO");
-        //        SetColumnValue(ref row, "TIPO MOZIONE");
-        //        SetColumnValue(ref row, "NUMERO ATTO");
-        //        SetColumnValue(ref row, "STATO");
-        //        SetColumnValue(ref row, "PROTOCOLLO");
-        //        SetColumnValue(ref row, "CODICE MATERIA");
-        //        SetColumnValue(ref row, "DATA PRESENTAZIONE");
-        //        SetColumnValue(ref row, "OGGETTO");
-        //        SetColumnValue(ref row, "OGGETTO PRESENTATO/OGGETTO COMMISSIONE");
-        //        SetColumnValue(ref row, "OGGETTO APPROVATO/OGGETTO ASSEMBLEA");
-        //        SetColumnValue(ref row, "RISPOSTA RICHIESTA");
-        //        SetColumnValue(ref row, "AREA");
-        //        SetColumnValue(ref row, "DATA ANNUNZIO");
-        //        SetColumnValue(ref row, "PUBBLICATO");
-        //        SetColumnValue(ref row, "RISPOSTA FORNITA");
-        //        SetColumnValue(ref row, "ITER MULTIPLO");
-        //        SetColumnValue(ref row, "NOTE RISPOSTA");
-        //        SetColumnValue(ref row, "ANNOTAZIONI");
-        //        SetColumnValue(ref row, "TIPO CHIUSURA ITER");
-        //        SetColumnValue(ref row, "DATA CHIUSURA ITER");
-        //        SetColumnValue(ref row, "NOTE CHIUSURA ITER");
-        //        SetColumnValue(ref row, "RISULTATO VOTAZIONE");
-        //        SetColumnValue(ref row, "DATA TRASMISSIONE");
-        //        SetColumnValue(ref row, "TIPO CHIUSURA ITER");
-        //        SetColumnValue(ref row, "DATA CHIUSURA ITER");
-        //        SetColumnValue(ref row, "NOTE CHIUSURA ITER");
-        //        SetColumnValue(ref row, "TIPO VOTAZIONE");
-        //        SetColumnValue(ref row, "DCR");
-        //        SetColumnValue(ref row, "NUMERO DCR");
-        //        SetColumnValue(ref row, "NUMERO DCRC");
-        //        SetColumnValue(ref row, "BURL");
-        //        SetColumnValue(ref row, "EMENDATO");
-        //        SetColumnValue(ref row, "DATA COMUNICAZIONE ASSEMBLEA");
-        //        SetColumnValue(ref row, "AREA TEMATICA");
-        //        SetColumnValue(ref row, "DATA TRASMISSIONE");
-        //        SetColumnValue(ref row, "ALTRI SOGGETTI");
-        //        SetColumnValue(ref row, "COMPETENZA");
-        //        SetColumnValue(ref row, "IMPEGNI E SCADENZE");
-        //        SetColumnValue(ref row, "STATO DI ATTUAZIONE");
-        //        SetColumnValue(ref row, "CONCLUSO");
-
-        //        foreach (var atto in attiList)
-        //        {
-        //            var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-        //            SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
-        //            SetColumnValue(ref rowBody, ""); // tipo mozione
-        //            SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
-        //            SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato, true)); // stato atto
-        //            SetColumnValue(ref rowBody, ""); // protocollo
-        //            SetColumnValue(ref rowBody, ""); // codice materia
-        //            SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
-
-        //            if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
-        //                || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
-        //                || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
-        //            {
-        //                SetColumnValue(ref rowBody, atto.Oggetto); // oggetto
-        //            }
-        //            else
-        //            {
-        //                SetColumnValue(ref rowBody, ""); // oggetto
-        //            }
-
-        //            //Matteo Cattapan #500 / #676
-        //            if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
-        //                || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
-        //            {
-        //                SetColumnValue(ref rowBody, atto.Oggetto); // oggetto presentato / oggetto commissione 
-        //                SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
-        //            }
-        //            else
-        //            {
-        //                SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione 
-        //                SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
-        //            }
-
-        //            SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
-        //        }
-
-        //        return Task.FromResult(sheet);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e);
-        //        throw;
-        //    }
-        //}
-
-        //private void SetColumnValue(ref IRow row, string val, CellType type = CellType.String)
-        //{
-        //    if (DateTime.TryParse(val, out var dataTime))
-        //    {
-        //        row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(dataTime);
-        //    }
-        //    else if (int.TryParse(val, out var interoResult))
-        //    {
-        //        row.CreateCell(GetColumn(row.LastCellNum), CellType.Numeric).SetCellValue(interoResult);
-        //    }
-        //    else
-        //    {
-        //        row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
-        //    }
-        //}
-
-        //private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
-        //{
-        //    if (reportType == ReportType.PROGRESSIVO) return;
-
-        //    var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
-        //    rowSep.RowStyle = style;
-        //}
-
-        //private short GetColumn(short column)
-        //{
-        //    return column < 0 ? (short)0 : column;
-        //}
-
         private void SetColumnValue(ref int row, ExcelWorksheet worksheet, string value, ref int columnIndex)
         {
             worksheet.Cells[row, columnIndex].Value = value;
             columnIndex++; // Incrementa l'indice della colonna per la prossima chiamata
+        }
+
+        private void SetColumnValue(ref int row, ExcelWorksheet worksheet, string value, int columnIndex)
+        {
+            worksheet.Cells[row, columnIndex].Value = value;
         }
 
         private string GetLocalPath(string extension)

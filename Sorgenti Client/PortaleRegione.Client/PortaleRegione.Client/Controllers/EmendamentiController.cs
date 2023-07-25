@@ -721,7 +721,7 @@ namespace PortaleRegione.Client.Controllers
 
                 var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.Esporta.EsportaXLS_UOLA(modelInCache);
-                return Json(Convert.ToBase64String(file.Content), JsonRequestBehavior.AllowGet);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
