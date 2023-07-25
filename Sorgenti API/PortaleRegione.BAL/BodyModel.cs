@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using NPOI.HPSF;
 using PortaleRegione.DTO.Domain;
+using System;
 
 namespace PortaleRegione.BAL
 {
     public class BodyModel
     {
-        public GUID UID { get; set; }
+        public Guid UID { get; set; }
         public string Path { get; set; }
         public string Body { get; set; }
         public EmendamentiDto EM { get; set; }

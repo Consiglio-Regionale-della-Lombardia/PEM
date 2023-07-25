@@ -1086,7 +1086,6 @@ function EsportaXLS() {
 
             if (value == null || value == "")
                 return;
-
             go("emendamenti/esporta-xls");
         });
 }

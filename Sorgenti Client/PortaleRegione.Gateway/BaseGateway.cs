@@ -259,11 +259,31 @@ namespace PortaleRegione.Gateway
                 case HttpStatusCode.Created:
                 case HttpStatusCode.OK:
                     {
-                        return new FileResponse
+                        try
                         {
-                            Content = await result.Content.ReadAsByteArrayAsync(),
-                            FileName = result.Content.Headers.ContentDisposition.FileName
-                        };
+                            return new FileResponse
+                            {
+                                Url = await result.Content.ReadAsStringAsync(),
+                            };
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+
+                        try
+                        {
+                            return new FileResponse
+                            {
+                                Content = await result.Content.ReadAsByteArrayAsync(),
+                                FileName = result.Content.Headers.ContentDisposition.FileName
+                            };
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            throw;
+                        }
                     }
                 default:
                     {

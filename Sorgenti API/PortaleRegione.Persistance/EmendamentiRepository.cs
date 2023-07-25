@@ -146,9 +146,8 @@ namespace PortaleRegione.Persistance
 
                 case CounterEmendamentiEnum.SUB_EM:
                     if (persona.IsSegreteriaAssemblea)
-                        return await query.CountAsync(e => string.IsNullOrEmpty(e.N_EM));
-                    return await query.CountAsync(e =>
-                        string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
+                        return await query.CountAsync(e => string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
+                    return await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
 
                 default:
                     return 0;
