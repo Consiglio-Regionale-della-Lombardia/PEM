@@ -11,6 +11,7 @@
 *.config
 /Sorgenti API/PortaleRegione.API/.vs/PortaleRegione.API/v16/TestStore/0
 /Sorgenti API/PortaleRegione.API/packages
+/Sorgenti API/PortaleRegione.API/PortaleRegione.API/esportazioni
 /Sorgenti API/PortaleRegione.API/PortaleRegione.API/bin
 /Sorgenti API/PortaleRegione.API/PortaleRegione.API/obj/Debug
 /Sorgenti API/PortaleRegione.API/PortaleRegione.API/Properties/PublishProfiles
