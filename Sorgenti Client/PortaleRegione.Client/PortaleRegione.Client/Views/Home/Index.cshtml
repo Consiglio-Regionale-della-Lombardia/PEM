@@ -85,198 +85,211 @@
     @if (PEMEnabled)
     {
         <div class="collapsible-body">
+        <div class="row" style="margin: 0 !important">
+
+        <div class="col @Html.Raw(DASIEnabled ? "l6" : "l12") s12">
             <div class="row" style="margin: 0 !important">
+                <div class="col s12">
+                    <h6>
+                        <b>Atti iscritti alla seduta</b>
+                    </h6>
+                </div>
+            </div>
+            <hr/>
 
-                <div class="col @Html.Raw(DASIEnabled ? "l6" : "l12") s12">
-                    <div class="row" style="margin: 0 !important">
-                        <div class="col s12">
-                            <h6>
-                                <b>Atti iscritti alla seduta</b>
-                            </h6>
-                        </div>
-                    </div>
-                    <hr/>
-
-                    @if (pemList != null)
+            @if (pemList != null)
+            {
+                <ul class="collapsible" style="position: relative">
+                    @foreach (var attoPem in pemList.Results)
                     {
-                        <ul class="collapsible" style="position: relative">
-                            @foreach (var attoPem in pemList.Results)
-                            {
-                                var titolo_atto = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
-                                if (attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
-                                {
-                                    titolo_atto = attoPem.Oggetto;
-                                }
-                                <li>
-                                    <div class="collapsible-header">
-                                        <i class="material-icons pink-text hide-on-med-and-down">textsms</i>
-                                        @titolo_atto
-                                        <div class="collapsabile-secondary-header">
-                                            @if (attoPem.Emendabile)
-                                            {
-                                                <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
-                                            }
-                                            @if (attoPem.CounterODG > 0)
-                                            {
-                                                <div class="chip">@(attoPem.CounterODG) ODG</div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="collapsible-body">
-                                        <div class="card">
-                                            <div class="card-content">
-                                                @if ((seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile) || seduta.DataScadenzaPresentazioneODG.HasValue)
-                                                {
-                                                    <div class="row" style="margin: 0 !important">
-                                                        <div class="col l12 s12 right-align">
-                                                            <a class="btn-flat black-text">
-                                                                <i class="material-icons activator right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
-                                                                SCADENZE
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                }
-                                                <div class="row">
-                                                    <div class="col l12 s12">
-                                                        <div class="card-panel grey lighten-5">
-                                                            <span class="card-title grey-text text-darken-4">
-                                                                Oggetto
-                                                            </span>
-                                                            <p>@attoPem.Oggetto</p>
-
-                                                            @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
-                                                            {
-                                                                <div class="row">
-                                                                    <div class="col s12 l12 right-align">
-                                                                        <a class="btn-flat pink-text"
-                                                                           href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
-                                                                            <i class="material-icons right">download</i>
-                                                                            Scarica documento
-                                                                        </a>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    </div>
+                        var titolo_atto = $"{Utility.GetText_Tipo(attoPem.IDTipoAtto)} {attoPem.NAtto}";
+                        if (attoPem.IDTipoAtto == (int)TipoAttoEnum.ALTRO)
+                        {
+                            titolo_atto = attoPem.Oggetto;
+                        }
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons pink-text hide-on-med-and-down">textsms</i>
+                                @titolo_atto
+                                <div class="collapsabile-secondary-header">
+                                    @if (attoPem.Emendabile)
+                                    {
+                                        <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
+                                    }
+                                    @if (attoPem.CounterODG > 0)
+                                    {
+                                        <div class="chip">@(attoPem.CounterODG) ODG</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="collapsible-body">
+                                <div class="card">
+                                    <div class="card-content">
+                                        @if ((seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile) || seduta.DataScadenzaPresentazioneODG.HasValue)
+                                        {
+                                            <div class="row" style="margin: 0 !important">
+                                                <div class="col l12 s12 right-align">
+                                                    <a class="btn-flat black-text activator">
+                                                        <i class="material-icons activator right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
+                                                        SCADENZE
+                                                    </a>
                                                 </div>
+                                            </div>
+                                        }
+                                        <div class="row">
+                                            <div class="col l12 s12">
+                                                <div class="card-panel grey lighten-5">
+                                                    <label>
+                                                        <b>Oggetto</b>
+                                                    </label>
+                                                    <br />
+                                                    <p>@attoPem.Oggetto</p>
 
-                                                <div class="row">
-                                                    @if (attoPem.UIDAssessoreRiferimento.HasValue)
+                                                    @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
                                                     {
-                                                        <div class="col s12">
-                                                            <label>
-                                                                <b>Assessore di Riferimento</b>
-                                                            </label>
-                                                            <br/>
-                                                            <div class="chip" style="margin-left: 5px; min-width: unset;">
-                                                                <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
-                                                                @attoPem.PersonaAssessore.DisplayName
+                                                        <div class="row">
+                                                            <div class="col s12 l12 right-align">
+                                                                <a class="btn-flat pink-text"
+                                                                   href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
+                                                                    <i class="material-icons right">download</i>
+                                                                    Scarica atto
+                                                                </a>
                                                             </div>
                                                         </div>
                                                     }
-                                                    @if (attoPem.Relatori.Any())
-                                                    {
-                                                        <div class="col s12">
-                                                            <label>
-                                                                <b>Relatori</b>
-                                                            </label>
-                                                            <br/>
-                                                            @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
-                                                        </div>
-                                                    }
-
                                                 </div>
                                             </div>
-                                            <div class="card-reveal">
-                                                <span class="card-title grey-text text-darken-4">Scadenze <i class="material-icons right">close</i></span>
-                                                <ul class="collection">
-                                                    @if (seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile)
-                                                    {
-                                                        <li class="collection-item">
-                                                            <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
-                                                        </li>
-                                                    }
-                                                    @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                                                    {
-                                                        <li class="collection-item">
-                                                            <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            @if (attoPem.UIDAssessoreRiferimento.HasValue)
+                                            {
+                                                <div class="col s12">
+                                                    <label>
+                                                        <b>Assessore di Riferimento</b>
+                                                    </label>
+                                                    <br/>
+                                                    <div class="chip" style="margin-left: 5px; min-width: unset;">
+                                                        <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                                        @attoPem.PersonaAssessore.DisplayName
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (attoPem.Relatori.Any())
+                                            {
+                                                <div class="col s12">
+                                                    <label>
+                                                        <b>Relatori</b>
+                                                    </label>
+                                                    <br/>
+                                                    @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
+                                                </div>
+                                            }
+
                                         </div>
                                     </div>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <div class="row" style="margin: 0 !important">
-                            <div class="col s12">
-                                <div class="card-panel panel-warning center">
-                                    <span class="center">
-                                        Non ci sono atti al momento
-                                    </span>
+                                    <div class="card-reveal">
+                                        <span class="card-title grey-text text-darken-4">Scadenze <i class="material-icons right">close</i></span>
+                                        <ul class="collection">
+                                            @if (seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile)
+                                            {
+                                                <li class="collection-item">
+                                                    <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                                                </li>
+                                            }
+                                            @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                                            {
+                                                <li class="collection-item">
+                                                    <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </li>
                     }
-                </div>
-                @if (DASIEnabled)
-                {
-                    <div class="col l6 s12">
-                        <div class="row" style="margin: 0 !important">
-                            <div class="col s12">
-                                <h6>
-                                    <b class="hide-on-large-only">Atti di indirizzo e sindacato ispettivo</b>
-                                    <b class="hide-on-med-and-down">Atti di indirizzo e sindacato iscritti alla seduta</b>
-                                </h6>
-                            </div>
+                </ul>
+            }
+            else
+            {
+                <div class="row" style="margin: 0 !important">
+                    <div class="col s12">
+                        <div class="card-panel panel-warning center">
+                            <span class="center">
+                                Non ci sono atti al momento
+                            </span>
                         </div>
-                        <hr/>
-                        <ul class="collapsible" style="position: relative">
-
-                            @if (attoDasi.CountBarData.ITL > 0)
-                            {
-                                <li>
-                                    <div class="collapsible-header">
-                                        <i class="material-icons pink-text">textsms</i>
-                                        @Utility.GetText_Tipo((int)TipoAttoEnum.ITL)
-                                        <div class="collapsabile-secondary-header">
-                                            <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
-                                        </div>
-                                    </div>
-                                </li>
-                            }
-                            @if (attoDasi.CountBarData.IQT > 0)
-                            {
-                                <li>
-                                    <div class="collapsible-header">
-                                        <i class="material-icons pink-text">textsms</i>
-                                        @Utility.GetText_Tipo((int)TipoAttoEnum.IQT)
-                                        <div class="collapsabile-secondary-header">
-                                            <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
-                                        </div>
-                                    </div>
-                                </li>
-                            }
-                            @if (attoDasi.CountBarData.MOZ > 0)
-                            {
-                                <li>
-                                    <div class="collapsible-header">
-                                        <i class="material-icons pink-text">textsms</i>
-                                        @Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)
-                                        <div class="collapsabile-secondary-header">
-                                            <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
-                                        </div>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
                     </div>
-                }
+                </div>
+            }
+        </div>
+        @if (DASIEnabled)
+        {
+            <div class="col l6 s12">
+                <div class="row" style="margin: 0 !important">
+                    <div class="col s12">
+                        <h6>
+                            <b class="hide-on-large-only">Atti di indirizzo e sindacato ispettivo</b>
+                            <b class="hide-on-med-and-down">Atti di indirizzo e sindacato iscritti alla seduta</b>
+                        </h6>
+                    </div>
+                </div>
+                <hr/>
+                <ul class="collapsible" style="position: relative">
+
+                    @if (attoDasi.CountBarData.ITL > 0)
+                    {
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons pink-text">textsms</i>
+                                @Utility.GetText_Tipo((int)TipoAttoEnum.ITL)
+                                <div class="collapsabile-secondary-header">
+                                    <div class="chip">@(attoDasi.CountBarData.ITL) Atti</div>
+                                </div>
+                            </div>
+                            <div class="collapsible-body">
+                                <div id="@seduta.UIDSeduta--content--@((int)TipoAttoEnum.ITL)">
+                                </div>
+                            </div>
+                        </li>
+                    }
+                    @if (attoDasi.CountBarData.IQT > 0)
+                    {
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons pink-text">textsms</i>
+                                @Utility.GetText_Tipo((int)TipoAttoEnum.IQT)
+                                <div class="collapsabile-secondary-header">
+                                    <div class="chip">@(attoDasi.CountBarData.IQT) Atti</div>
+                                </div>
+                            </div>
+                            <div class="collapsible-body">
+                                <div id="@seduta.UIDSeduta--content--@((int)TipoAttoEnum.IQT)">
+                                </div>
+                            </div>
+                        </li>
+                    }
+                    @if (attoDasi.CountBarData.MOZ > 0)
+                    {
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons pink-text">textsms</i>
+                                @Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)
+                                <div class="collapsabile-secondary-header">
+                                    <div class="chip">@(attoDasi.CountBarData.MOZ) Atti</div>
+                                </div>
+                            </div>
+                            <div class="collapsible-body">
+                                <div id="@seduta.UIDSeduta--content--@((int)TipoAttoEnum.MOZ)">
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
             </div>
+        }
+        </div>
         </div>
     }
     </li>
@@ -296,5 +309,36 @@
         set_ListaStatiDASI([]);
 
         $('#btnSearch').hide();
+
+        $('[id*="--content--"]').each(function() {
+            var panel = this;
+            var id = $(panel).attr('id');
+            var parts = id.split('--content--');
+            var ID = parts[0];
+            var TIPO = parts[1];
+
+            $.get('@Url.Action("RiepilogoDASI_BySedutaJSON", "DASI")', {
+                id: ID,
+                tipo: TIPO
+            }, function(response) {
+                response.forEach(function(item) {
+                    var sigla = item.sigla;
+                    var descr = item.descr;
+                    if (!descr) {
+                        descr = "Nessun oggetto";
+                    }
+
+                    var template = '<div class="chip tooltipped" data-tooltip="' + descr + '">' + sigla + '</div>';
+
+                    $(panel).append(template);
+                }.bind(this));
+
+                // Inizializza i tooltip dopo aver aggiunto i contenuti
+                var elems = document.querySelectorAll('.tooltipped');
+                var instances = M.Tooltip.init(elems);
+            }).fail(function(xhr, status, error) {
+                console.error(error);
+            });
+        });
     });
 </script>

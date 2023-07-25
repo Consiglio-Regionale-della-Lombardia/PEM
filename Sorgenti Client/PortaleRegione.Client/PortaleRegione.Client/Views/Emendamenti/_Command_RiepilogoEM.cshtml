@@ -46,8 +46,7 @@
                    href="@Model.Atto.LinkFascicoloPresentazione"
                    data-position="bottom"
                    data-tooltip="Scarica fascicolo presentazione"
-                   target="_blank"
-                   style="margin-top: -10px;">
+                   target="_blank">
                     @if (Model.Atto.Fascicoli_Da_Aggiornare)
                     {
                         <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>
@@ -68,8 +67,7 @@
                    href="@Model.Atto.LinkFascicoloVotazione"
                    data-position="bottom"
                    data-tooltip="Scarica fascicolo votazione"
-                   target="_blank"
-                   style="margin-top: -10px;">
+                   target="_blank">
                     @if (Model.Atto.Fascicoli_Da_Aggiornare)
                     {
                         <i class="material-icons red-text right tooltipped" data-position="up" data-tooltip="Sono intervenute modifiche successive alla data di generazione del fascicolo (es. aggiunta/ritiro di una firma). Il fascicolo non è attuale">report</i>

@@ -128,6 +128,20 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base alla seduta in formato json
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("seduta-json")]
+        public async Task<ActionResult> RiepilogoDASI_BySedutaJSON(Guid id, int tipo = (int)TipoAttoEnum.TUTTI)
+        {
+            var apiGateway = new ApiGateway(Token);
+            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 5);
+            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto }).ToList();
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
         ///     Controller per aggiungere un atto di sindacato ispettivo. Restituisce il modello dell'atto pre-compilato.
         /// </summary>
         /// <returns></returns>

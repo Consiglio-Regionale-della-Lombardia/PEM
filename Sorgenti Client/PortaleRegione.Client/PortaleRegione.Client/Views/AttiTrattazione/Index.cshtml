@@ -72,8 +72,8 @@
                         {
                             <div class="row" style="margin: 0 !important">
                                 <div class="col l12 s12 right-align">
-                                    <a class="btn-flat black-text">
-                                        <i class="material-icons activator right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
+                                    <a class="btn-flat black-text activator">
+                                        <i class="material-icons right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
                                         SCADENZE
                                     </a>
                                 </div>
@@ -82,9 +82,10 @@
                         <div class="row">
                             <div class="col l12 s12">
                                 <div class="card-panel grey lighten-5">
-                                    <span class="card-title grey-text text-darken-4">
-                                        Oggetto
-                                    </span>
+                                    <label>
+                                        <b>Oggetto</b>
+                                    </label>
+                                    <br />
                                     <p>@attoPem.Oggetto</p>
 
                                     @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
@@ -94,7 +95,7 @@
                                                 <a class="btn-flat pink-text"
                                                    href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
                                                     <i class="material-icons right">download</i>
-                                                    Scarica documento
+                                                    Scarica atto
                                                 </a>
                                             </div>
                                         </div>

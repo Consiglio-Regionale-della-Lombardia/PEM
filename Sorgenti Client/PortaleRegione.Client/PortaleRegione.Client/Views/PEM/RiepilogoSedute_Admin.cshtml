@@ -82,21 +82,21 @@
                     </div>
 
                     @*COMANDI*@
-                    <div class="col s3 right-align hide-on-med-and-down" style="display: block; margin-top: 15px;">
-                        <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
-                            <i class="material-icons">edit</i>
+                    <div class="col s3 right-align hide-on-med-and-down" style="margin: 5px;">
+                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            <i class="material-icons" style="margin-right:5px">edit</i>
                         </a>
-                        <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                            <i class="material-icons">chevron_right</i>
+                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <i class="material-icons" style="margin-right:5px">chevron_right</i>
                         </a>
                     </div>
                     @*COMANDI MOBILE*@
-                    <div class="col s3 right-align hide-on-large-only" style="display: flex; margin-top: 15px;">
-                        <a class="center blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
-                            <i class="material-icons">edit</i>
+                    <div class="col s3 right-align hide-on-large-only" style="margin: 5px;">
+                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            <i class="material-icons" style="margin-right:5px">edit</i>
                         </a>
-                        <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                            <i class="material-icons">chevron_right</i>
+                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <i class="material-icons" style="margin-right:5px">chevron_right</i>
                         </a>
                     </div>
                 </div>

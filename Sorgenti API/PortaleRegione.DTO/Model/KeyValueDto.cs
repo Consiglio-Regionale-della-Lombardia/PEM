@@ -22,8 +22,8 @@ namespace PortaleRegione.DTO.Model
     {
         public int id { get; set; }
         public string uid { get; set; }
-        public string descr { get; set; }
-        public string descr_con_legislatura { get; set; }
-        public string sigla { get; set; }
+        public string descr { get; set; } = string.Empty;
+        public string descr_con_legislatura { get; set; } = string.Empty;
+        public string sigla { get; set; } = string.Empty;
     }
 }

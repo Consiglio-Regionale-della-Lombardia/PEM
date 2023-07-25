@@ -126,7 +126,6 @@ label {
 
 .chip {
 	cursor: pointer;
-	min-width: 180px;
 }
 
 .chip-centered {

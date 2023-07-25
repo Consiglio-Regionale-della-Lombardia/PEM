@@ -135,13 +135,13 @@ else
                 {
                     if (item.Firmabile)
                     {
-                        <a class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                        <a class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                             <i class="icon material-icons" style="margin-right: 5px">gavel</i>
                         </a>
                     }
                     if (item.Presentabile)
                     {
-                        <a class="btn-floating white purple-text tooltipped" data-tooltip="Deposita" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                        <a class="btn-floating white purple-text tooltipped" style="margin: 5px" data-tooltip="Deposita" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
                             <i class="material-icons" style="margin-right: 5px">lock</i>
                         </a>
                     }
@@ -150,12 +150,12 @@ else
                 {
                     if (item.Firmabile)
                     {
-                        <a class="btn-floating white green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                        <a class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
                             <i class="icon material-icons" style="margin-right: 5px">gavel</i>
                         </a>
                     }
                 }
-                <a class="btn-floating white black-text tooltipped" data-tooltip="Entra" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
+                <a class="btn-floating white black-text tooltipped" style="margin: 5px" data-tooltip="Entra" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
                     <i class="icon material-icons" style="margin-right: 5px">chevron_right</i>
                 </a>
             </div>
