@@ -290,8 +290,7 @@
 
 <script>
     $(window).on('load', async function() {
-        var mode = getClientMode();
-        $("#hdMode").val(mode);
+        var mode = $("#hdMode").val();
         var load_gruppi = @Html.Raw(load_gruppi.ToString().ToLower());
         if (mode == 2 || load_gruppi == true) {
             $("#pnlFiltroGruppo").show();
