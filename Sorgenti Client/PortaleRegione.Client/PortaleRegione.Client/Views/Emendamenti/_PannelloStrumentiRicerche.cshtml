@@ -370,16 +370,18 @@
                     console.log("RICHIESTA INVIATA");
                     waiting(true, "Elaborazione in corso..");
                 },
-                success: function(response) {
-                    var blob = new Blob([s2ab(atob(response))], { type: 'application/doc' });
-                    var link = URL.createObjectURL(blob);
+                success: function (response, status, xhr) {
+                    console.log(response)
                     var a = document.createElement("a");
-                    a.href = link;
-                    a.download = "Esportazione.docx";
+                    a.href = response;
                     document.body.appendChild(a);
                     a.click();
                 },
-                complete: function() {
+                error: function (xhr, status, error) {
+                    console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                    waiting(false);
+                },
+                complete: function () {
                     console.log("OK");
                     waiting(false);
                 },

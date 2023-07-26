@@ -52,12 +52,13 @@ namespace PortaleRegione.BAL
     public class EsportaLogic : BaseLogic
     {
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme)
+            FirmeLogic logicFirme, AttiLogic logicAtti)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
             _logicDasi = logicDASI;
             _logicFirme = logicFirme;
+            _logicAtti = logicAtti;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
@@ -488,50 +489,6 @@ namespace PortaleRegione.BAL
             return ResponseZip(pdfs);
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(List<Guid> data)
-        {
-            //var FilePathComplete = GetLocalPath("xlsx");
-
-            //IWorkbook workbook = new XSSFWorkbook();
-            //var style = workbook.CreateCellStyle();
-            //style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
-            //style.FillPattern = FillPattern.SolidForeground;
-            //var styleReport = workbook.CreateCellStyle();
-            //styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
-            //styleReport.FillPattern = FillPattern.SolidForeground;
-            //styleReport.Alignment = HorizontalAlignment.Center;
-
-            //var attiList = new List<AttoDASIDto>();
-            //foreach (var uid in data)
-            //{
-            //    var dto = await _logicDasi.GetAttoDto(uid);
-            //    if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
-            //    attiList.Add(dto);
-            //}
-
-            //var dasiSheet =
-            //    await NewSheetDASI_Atti(
-            //        workbook.CreateSheet(
-            //            "Atti"),
-            //        attiList);
-            //var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
-            //var firmatariSheet =
-            //    await NewSheetDASI_Firmatari(
-            //        workbook.CreateSheet(
-            //            "Firmatari"),
-            //        firmatariList);
-
-            //var controlliSheet =
-            //    NewSheetDASI_Controlli(
-            //        workbook.CreateSheet(
-            //            "Controlli"));
-
-            //var lookupSheet = workbook.CreateSheet("LOOKUP");
-            //return await Response(FilePathComplete, workbook);
-
-            return null;
-        }
-
         private async Task<List<FileModel>> GetPDF(List<AttoDASIDto> attiList)
         {
             var pdfs = new List<FileModel>();
@@ -546,6 +503,204 @@ namespace PortaleRegione.BAL
             }
 
             return pdfs;
+        }
+
+        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(List<Guid> data)
+        {
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename = $"EsportazioneDASI{DateTime.Now.Ticks}.xlsx";
+            var FilePathComplete = Path.Combine(tempFolderPath, filename);
+
+            using (var package = new ExcelPackage())
+            {
+                var attiList = new List<AttoDASIDto>();
+                foreach (var uid in data)
+                {
+                    var dto = await _logicDasi.GetAttoDto(uid);
+                    if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
+                    attiList.Add(dto);
+                }
+
+                var dasiSheet = package.Workbook.Worksheets.Add("Atti");
+                FillSheetDASI_Atti(dasiSheet, attiList);
+
+                var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
+                var firmatariSheet = package.Workbook.Worksheets.Add("Firmatari");
+                await FillSheetDASI_Firmatari(firmatariSheet, firmatariList);
+
+                var controlliSheet = package.Workbook.Worksheets.Add("Controlli");
+                FillSheetDASI_Controlli(controlliSheet);
+
+                var lookupSheet = package.Workbook.Worksheets.Add("LOOKUP");
+
+                package.SaveAs(new FileInfo(FilePathComplete));
+            }
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}")
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return result;
+        }
+
+        private void FillSheetDASI_Controlli(ExcelWorksheet sheet)
+        {
+            try
+            {
+                sheet.Cells[1, 1].Value = "Codice di controllo del template:";
+                sheet.Cells[1, 2].Value = "TY86Z5s6VfZtRFF46fi54qskISyv36_v007";
+
+                sheet.Cells[2, 1].Value = "Numero massimo atti da importare:";
+                sheet.Cells[2, 2].Value = "1000";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private async Task FillSheetDASI_Firmatari(ExcelWorksheet sheet, List<AttiFirmeDto> firmatariList)
+        {
+            try
+            {
+                //HEADER
+                sheet.Cells[1, 1].Value = "TIPO ATTO";
+                sheet.Cells[1, 2].Value = "NUMERO ATTO";
+                sheet.Cells[1, 3].Value = "FIRMATARIO";
+                sheet.Cells[1, 4].Value = "GRUPPO";
+                sheet.Cells[1, 5].Value = "DATA FIRMA";
+                sheet.Cells[1, 6].Value = "DATA RITIRO FIRMA";
+                sheet.Cells[1, 7].Value = "PRIMO FIRMATARIO";
+
+                int row = 2;
+                foreach (var firma in firmatariList)
+                {
+                    try
+                    {
+                        var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
+                        var gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
+                        sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
+                        sheet.Cells[row, 2].Value = atto.NAtto;
+                        var firmacert = firma.FirmaCert;
+                        var indiceParentesiApertura = firmacert.IndexOf('(');
+                        firmacert = firmacert.Remove(indiceParentesiApertura - 1);
+                        sheet.Cells[row, 3].Value = firmacert;
+                        sheet.Cells[row, 4].Value = gruppo != null ? gruppo.codice_gruppo : "";
+                        sheet.Cells[row, 5].Value = firma.Data_firma.Substring(0, 10);
+                        var data_ritiro_firma = firma.Data_ritirofirma;
+                        if (!string.IsNullOrEmpty(data_ritiro_firma))
+                            data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
+
+                        sheet.Cells[row, 6].Value = data_ritiro_firma;
+                        sheet.Cells[row, 7].Value = firma.PrimoFirmatario ? "SI" : "NO";
+                        row++;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private void FillSheetDASI_Atti(ExcelWorksheet sheet, IEnumerable<AttoDASIDto> attiList)
+        {
+            try
+            {
+                //HEADER
+                sheet.Cells[1, 1].Value = "TIPO ATTO";
+                sheet.Cells[1, 2].Value = "TIPO MOZIONE";
+                sheet.Cells[1, 3].Value = "NUMERO ATTO";
+                sheet.Cells[1, 4].Value = "STATO";
+                sheet.Cells[1, 5].Value = "PROTOCOLLO";
+                sheet.Cells[1, 6].Value = "CODICE MATERIA";
+                sheet.Cells[1, 7].Value = "DATA PRESENTAZIONE";
+                sheet.Cells[1, 8].Value = "OGGETTO";
+                sheet.Cells[1, 9].Value = "OGGETTO PRESENTATO/OGGETTO COMMISSIONE";
+                sheet.Cells[1, 10].Value = "OGGETTO APPROVATO/OGGETTO ASSEMBLEA";
+                sheet.Cells[1, 11].Value = "RISPOSTA RICHIESTA";
+                sheet.Cells[1, 12].Value = "AREA";
+                sheet.Cells[1, 13].Value = "DATA ANNUNZIO";
+                sheet.Cells[1, 14].Value = "PUBBLICATO";
+                sheet.Cells[1, 15].Value = "RISPOSTA FORNITA";
+                sheet.Cells[1, 16].Value = "ITER MULTIPLO";
+                sheet.Cells[1, 17].Value = "NOTE RISPOSTA";
+                sheet.Cells[1, 18].Value = "ANNOTAZIONI";
+                sheet.Cells[1, 19].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[1, 20].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[1, 21].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[1, 22].Value = "RISULTATO VOTAZIONE";
+                sheet.Cells[1, 23].Value = "DATA TRASMISSIONE";
+                sheet.Cells[1, 24].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[1, 25].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[1, 26].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[1, 27].Value = "TIPO VOTAZIONE";
+                sheet.Cells[1, 28].Value = "DCR";
+                sheet.Cells[1, 29].Value = "NUMERO DCR";
+                sheet.Cells[1, 30].Value = "NUMERO DCRC";
+                sheet.Cells[1, 31].Value = "BURL";
+                sheet.Cells[1, 32].Value = "EMENDATO";
+                sheet.Cells[1, 33].Value = "DATA COMUNICAZIONE ASSEMBLEA";
+                sheet.Cells[1, 34].Value = "AREA TEMATICA";
+                sheet.Cells[1, 35].Value = "DATA TRASMISSIONE";
+                sheet.Cells[1, 36].Value = "ALTRI SOGGETTI";
+                sheet.Cells[1, 37].Value = "COMPETENZA";
+                sheet.Cells[1, 38].Value = "IMPEGNI E SCADENZE";
+                sheet.Cells[1, 39].Value = "STATO DI ATTUAZIONE";
+                sheet.Cells[1, 40].Value = "CONCLUSO";
+
+                int row = 2;
+                foreach (var atto in attiList)
+                {
+                    sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
+                    sheet.Cells[row, 2].Value = "";
+                    sheet.Cells[row, 3].Value = atto.NAtto;
+                    sheet.Cells[row, 4].Value = Utility.GetText_StatoDASI(atto.IDStato, true);
+                    sheet.Cells[row, 5].Value = "";
+                    sheet.Cells[row, 6].Value = "";
+                    sheet.Cells[row, 7].Value = atto.Timestamp.ToString("dd/MM/yyyy");
+
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
+                    {
+                        sheet.Cells[row, 8].Value = atto.Oggetto;
+                    }
+                    else
+                    {
+                        sheet.Cells[row, 8].Value = "";
+                    }
+
+                    //Matteo Cattapan #500 / #676
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
+                    {
+                        sheet.Cells[row, 9].Value = atto.Oggetto; // oggetto presentato / oggetto commissione 
+                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
+                    }
+                    else
+                    {
+                        sheet.Cells[row, 9].Value = ""; // oggetto presentato / oggetto commissione 
+                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
+                    }
+
+                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta); // risposta
+                    row++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         //private ISheet NewSheetDASI_Controlli(ISheet sheet)
@@ -623,7 +778,11 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var FilePathComplete = GetLocalPath("docx");
+                var atto = await _logicAtti.GetAtto(attoUId);
+                var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+                var fileName =
+                    $"Esportazione_{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto.Replace('/', '-')}_{Guid.NewGuid()}.docx"; // Utilizza un nome di file univoco
+                var filePath = Path.Combine(tempFolderPath, fileName);
 
                 using var generatedDocument = new MemoryStream();
                 using (var package =
@@ -642,18 +801,14 @@ namespace PortaleRegione.BAL
                     mainPart.Document.Save();
                 }
 
-                File.WriteAllBytes(FilePathComplete, generatedDocument.ToArray());
-                var result = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new ByteArrayContent(generatedDocument.ToArray())
-                };
-                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                {
-                    FileName = Path.GetFileName(FilePathComplete)
-                };
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/doc");
+                File.WriteAllBytes(filePath, generatedDocument.ToArray());
 
-                return result;
+                // Creazione della risposta con il link di download
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+                return response;
             }
             catch (Exception e)
             {
@@ -760,57 +915,6 @@ namespace PortaleRegione.BAL
             worksheet.Cells[row, columnIndex].Value = value;
         }
 
-        private string GetLocalPath(string extension)
-        {
-            var _pathTemp = AppSettingsConfiguration.CartellaTemp;
-            if (!Directory.Exists(_pathTemp)) Directory.CreateDirectory(_pathTemp);
-
-            var nameFile = $"{DateTime.Now.Ticks}.{extension}";
-            var FilePathComplete = Path.Combine(_pathTemp, nameFile);
-
-            return FilePathComplete;
-        }
-
-        private async Task<HttpResponseMessage> Response<T>(string path, T book)
-        {
-            var contentType = "";
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
-            {
-                var bookType = book.GetType();
-                //if (typeof(XSSFWorkbook) == bookType)
-                //{
-                //    var t = book as IWorkbook;
-                //    t?.Write(fs);
-                //    contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                //}
-
-                //if (typeof(XWPFDocument) == bookType)
-                //{
-                //    var t = book as XWPFDocument;
-                //    t?.Write(fs);
-                //    contentType = "application/doc";
-                //}
-            }
-
-            var stream = new MemoryStream();
-            using (var fileStream = new FileStream(path, FileMode.Open))
-            {
-                await fileStream.CopyToAsync(stream);
-            }
-
-            stream.Position = 0;
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StreamContent(stream)
-            };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = Path.GetFileName(path)
-            };
-            return result;
-        }
-
         private HttpResponseMessage ResponseZip(List<FileModel> pdfs)
         {
             var outputMemoryStream = new MemoryStream();
@@ -822,22 +926,22 @@ namespace PortaleRegione.BAL
 
             outputMemoryStream.Position = 0;
             var zipByteArray = outputMemoryStream.ToArray();
-            var pathZip = Path.Combine(AppSettingsConfiguration.CartellaLavoroStampe,
-                $"EsportazioneDASI{DateTime.Now.Ticks}.zip");
+
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename = $"EsportazioneDASI{DateTime.Now.Ticks}.zip";
+            var pathZip = Path.Combine(tempFolderPath, filename);
+
             using (var fileStream = new FileStream(pathZip, FileMode.Create))
             {
                 fileStream.Write(zipByteArray, 0, zipByteArray.Length);
             }
 
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(zipByteArray)
-            };
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = Path.GetFileName(pathZip)
-            };
-            return result;
+            // Creazione della risposta con il link di download
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return response;
         }
 
         private void AddToZip(ZipOutputStream zipStream, FileModel internalZipFile)
@@ -853,17 +957,6 @@ namespace PortaleRegione.BAL
             StreamUtils.Copy(inputMemoryStream, zipStream, new byte[1024]);
             zipStream.CloseEntry();
         }
-
-        //private FileModel ResponseXLSByte(IWorkbook book)
-        //{
-        //    using var fileStream = new MemoryStream();
-        //    book.Write(fileStream);
-        //    return new FileModel
-        //    {
-        //        Name = "Report.xlsx",
-        //        Content = fileStream.GetBuffer()
-        //    };
-        //}
 
         private enum ReportType
         {

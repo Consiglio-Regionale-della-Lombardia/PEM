@@ -792,7 +792,7 @@ namespace PortaleRegione.Client.Controllers
                     .Results
                     .Select(i => i.UIDAtto));
                 var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
-                return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.FileName);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -818,7 +818,7 @@ namespace PortaleRegione.Client.Controllers
                     .Results
                     .Select(i => i.UIDAtto));
                 var file = await apiGateway.Esporta.EsportaZipDASI(lista);
-                return File(file.Content, "application/zip", file.FileName);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
