@@ -31,6 +31,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         [Required(ErrorMessage = "E' obbligatorio indicare il modo")]
         public int IDTipo_EM { get; set; }
+        public virtual Tipi_EmendamentiDto TIPI_EM { get; set; }
 
         public int IDStato { get; set; }
 
@@ -88,5 +89,6 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [StringLength(255)] public string DataDeposito { get; set; }
         public Guid UID_QRCode { get; set; }
         public int OrdineVotazione { get; set; }
+        public virtual Tipi_EmendamentiDto TIPI_EM { get; set; }
     }
 }
