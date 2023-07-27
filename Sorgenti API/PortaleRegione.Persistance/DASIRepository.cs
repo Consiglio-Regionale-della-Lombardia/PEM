@@ -696,7 +696,7 @@ namespace PortaleRegione.Persistance
 
             return query
                 .OrderBy(item => item.Tipo)
-                .ThenByDescending(item => item.NAtto_search)
+                .ThenBy(item => item.NAtto_search)
                 .ToTraceQuery();
         }
 
