@@ -117,10 +117,40 @@
             <div class="col l6 s12">
                 <h5>Mittente</h5>
                 <hr/>
+
+                @{
+                    var mittente_visualizzato = notifica.UTENTI_NoCons.DisplayName_GruppoCode;
+                    var mittente_foto = notifica.UTENTI_NoCons.foto;
+                    var mittente_sub = "";
+
+                    if (notifica.IsPem)
+                    {
+                        if (notifica.EM.UIDPersonaProponente != notifica.Mittente)
+                        {
+                            mittente_visualizzato = $"{notifica.EM.PersonaProponente.DisplayName} ({notifica.EM.gruppi_politici.codice_gruppo})";
+                            mittente_foto = notifica.EM.PersonaProponente.foto;
+                            mittente_sub = notifica.UTENTI_NoCons.DisplayName;
+                        }
+                    }else if (notifica.IsDasi)
+                    {
+                        if (notifica.ATTO_DASI.UIDPersonaProponente != notifica.Mittente)
+                        {
+                            mittente_visualizzato = $"{notifica.ATTO_DASI.PersonaProponente.DisplayName} ({notifica.ATTO_DASI.gruppi_politici.codice_gruppo})";
+                            mittente_sub = notifica.UTENTI_NoCons.DisplayName;
+                            mittente_foto = notifica.ATTO_DASI.PersonaProponente.foto;
+                        }
+                    }
+                }
+
                 <div class="chip" style="min-width: unset">
-                    <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@notifica.UTENTI_NoCons.foto" alt="@notifica.UTENTI_NoCons.DisplayName">
-                    @notifica.UTENTI_NoCons.DisplayName_GruppoCode
+                    <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@mittente_foto">
+                    @mittente_visualizzato
                 </div>
+                @if (!string.IsNullOrEmpty(mittente_sub))
+                {
+                    <br/>
+                    <i>Inviato da @mittente_sub</i>
+                }
             </div>
             <div class="col l6 s12">
                 <div class="row" style="margin-bottom: unset !important; margin-top: unset !important;">
