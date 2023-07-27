@@ -190,10 +190,25 @@
                 @if (!string.IsNullOrEmpty(Model.TestoEM_Modificabile))
                 {
                     <div class="row">
-                        <div class="col s12">
+                        <div class="col s12 l12">
                             <h5>Durante la discussione in aula il testo è stato così modificato:</h5>
                             <hr />
                             @Html.Raw(Model.TestoEM_Modificabile)
+                        </div>
+                    </div>
+                }
+                @if (Model.UIDPersonaProponenteOLD.HasValue)
+                {
+                    <div class="row">
+                        <div class="col s12 l12">
+                            <div class="card amber">
+                                <div class="card-content">
+                                    <span class="black-text">
+                                        L'emendamento ritirato è stato fatto proprio da @Model.PersonaProponente.DisplayName
+                                    </span>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 }

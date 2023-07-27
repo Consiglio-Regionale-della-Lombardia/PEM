@@ -12,12 +12,17 @@ document.addEventListener("DOMContentLoaded",
         var mode = getClientMode();
         if (mode == null)
             setClientMode(1);
-
-        setTimeout(function() {
-                $("body").addClass("loaded");
-            },
-            200);
+        loaderView(false);
     });
+
+function loaderView(enable) {
+    console.log("ENABLE", enable)
+    if (enable) {
+        $("body").removeClass("loaded");
+    } else {
+        $("body").addClass("loaded");
+    }
+}
 
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
@@ -1136,6 +1141,7 @@ function ResetStampa(stampaUId, url) {
 }
 
 function CambioStato(uidem, stato) {
+    waiting(true);
     var obj = {};
     obj.Stato = stato;
     obj.Lista = [];
@@ -1148,6 +1154,7 @@ function CambioStato(uidem, stato) {
         contentType: "application/json; charset=utf-8",
         dataType: "json"
     }).done(function(data) {
+        waiting(false);
         if (data.message) {
             swal({
                 title: "Errore",
@@ -1191,7 +1198,7 @@ function CambioStato(uidem, stato) {
 }
 
 function CambioStatoDASI(uidatto, stato) {
-    console.log("uidatto", uidatto);
+    waiting(true);
     var obj = {};
     obj.Stato = stato;
     obj.Lista = [];
@@ -1204,6 +1211,7 @@ function CambioStatoDASI(uidatto, stato) {
         contentType: "application/json; charset=utf-8",
         dataType: "json"
     }).done(function(data) {
+        waiting(false);
         if (data.message) {
             swal({
                 title: "Errore",

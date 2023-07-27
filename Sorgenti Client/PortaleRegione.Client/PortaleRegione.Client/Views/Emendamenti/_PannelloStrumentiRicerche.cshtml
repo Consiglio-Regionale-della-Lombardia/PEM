@@ -290,6 +290,7 @@
 
 <script>
     $(window).on('load', async function() {
+        loaderView(true);
         var mode = $("#hdMode").val();
         var load_gruppi = @Html.Raw(load_gruppi.ToString().ToLower());
         if (mode == 2 || load_gruppi == true) {
@@ -301,6 +302,8 @@
         await SetupFiltriFirmatari();
         await SetupFiltriProponenti();
         await SetupFiltriTags();
+
+        loaderView(false);
 
         $('#btnExportXLS').on("click", function() {
             var url = $('#btnExportXLS').data("href");

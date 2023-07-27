@@ -84,7 +84,8 @@ namespace PortaleRegione.BAL
                 await _logicUtil.InvioMail(new MailModel
                 {
                     DA = persona.email,
-                    A = $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
+                    A =
+                        $"{ruolo_segreteria.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                     OGGETTO = $"[ORDINAMENTO CONCLUSO] {Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}",
                     MESSAGGIO = $"Ordinamento atto concluso da {persona.DisplayName}"
                 });
@@ -385,7 +386,7 @@ namespace PortaleRegione.BAL
                     var tags = JsonConvert.DeserializeObject<List<TagDto>>(em.Tags);
                     foreach (var t in tags)
                     {
-                        bool exists = await _unitOfWork.Emendamenti.TagExists(t.tag);
+                        var exists = await _unitOfWork.Emendamenti.TagExists(t.tag);
                         if (!exists)
                         {
                             _unitOfWork.Emendamenti.AddTag(t.tag);
@@ -409,9 +410,7 @@ namespace PortaleRegione.BAL
             {
                 if (model.IDStato != (int)StatiEnum.Bozza
                     && model.IDStato != (int)StatiEnum.Bozza_Riservata)
-                {
                     throw new InvalidOperationException($"Stato non valido [{model.IDStato}]");
-                }
 
                 var updateDto = Mapper.Map<EmendamentiDto, EmendamentoLightDto>(model);
                 Mapper.Map(updateDto, em);
@@ -470,7 +469,7 @@ namespace PortaleRegione.BAL
                     var tags = JsonConvert.DeserializeObject<List<TagDto>>(model.Tags);
                     foreach (var t in tags)
                     {
-                        bool exists = await _unitOfWork.Emendamenti.TagExists(t.tag);
+                        var exists = await _unitOfWork.Emendamenti.TagExists(t.tag);
                         if (!exists)
                         {
                             _unitOfWork.Emendamenti.AddTag(t.tag);
@@ -523,13 +522,11 @@ namespace PortaleRegione.BAL
                 if (!atto.Fascicoli_Da_Aggiornare &&
                     (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
                      !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
-                {
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
                         atto.Fascicoli_Da_Aggiornare = true;
                         await _unitOfWork.CompleteAsync();
                     }
-                }
             }
             catch (Exception e)
             {
@@ -665,7 +662,7 @@ namespace PortaleRegione.BAL
                     body =
                         "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
                         "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                        "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                        $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
                         body;
                     switch (template)
                     {
@@ -800,7 +797,7 @@ namespace PortaleRegione.BAL
                         {
                             var check_notifica = await _unitOfWork.Notifiche_Destinatari.ExistDestinatarioNotifica(
                                 emDto.UIDEM,
-                                persona.UID_persona, false);
+                                persona.UID_persona);
 
                             if (check_notifica == null)
                             {
@@ -881,13 +878,11 @@ namespace PortaleRegione.BAL
                     if (!atto.Fascicoli_Da_Aggiornare &&
                         (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
                          !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
-                    {
                         if (!string.IsNullOrEmpty(em.DataDeposito))
                         {
                             atto.Fascicoli_Da_Aggiornare = true;
                             await _unitOfWork.CompleteAsync();
                         }
-                    }
                 }
 
                 return results;
@@ -912,21 +907,13 @@ namespace PortaleRegione.BAL
                 var firme_minoranza = firme.Count(f => f.id_AreaPolitica == (int)AreaPoliticaIntEnum.Minoranza);
 
                 if (firme_maggioranza > 0 && firme_misto == 0)
-                {
                     em.AreaPolitica = (int)AreaPoliticaIntEnum.Maggioranza;
-                }
                 else if (firme_minoranza > 0 && firme_misto == 0)
-                {
                     em.AreaPolitica = (int)AreaPoliticaIntEnum.Minoranza;
-                }
                 else if (firme_maggioranza > 0 && firme_misto > 0)
-                {
                     em.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Maggioranza;
-                }
                 else if (firme_minoranza > 0 && firme_misto > 0)
-                {
                     em.AreaPolitica = (int)AreaPoliticaIntEnum.Misto_Minoranza;
-                }
 
                 await _unitOfWork.CompleteAsync();
             }
@@ -1239,13 +1226,11 @@ namespace PortaleRegione.BAL
                 if (!atto.Fascicoli_Da_Aggiornare &&
                     (!string.IsNullOrEmpty(atto.LinkFascicoloPresentazione) ||
                      !string.IsNullOrEmpty(atto.LinkFascicoloVotazione)))
-                {
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
                         atto.Fascicoli_Da_Aggiornare = true;
                         await _unitOfWork.CompleteAsync();
                     }
-                }
 
                 try
                 {
@@ -1353,14 +1338,21 @@ namespace PortaleRegione.BAL
         public async Task AssegnaNuovoProponente(EM em, AssegnaProponenteModel model)
         {
             var persona = await _logicPersona.GetPersona(model.NuovoProponente);
+            persona.Gruppo = await _logicPersona
+                .GetGruppoAttualePersona(model.NuovoProponente, model.IsAssessore);
+            persona.CurrentRole = (!model.IsAssessore) ? RuoliIntEnum.Consigliere_Regionale : RuoliIntEnum.Assessore_Sottosegretario_Giunta;
             em.IDStato = (int)StatiEnum.Depositato;
             em.UIDPersonaProponenteOLD = em.UIDPersonaProponente;
             em.UIDPersonaProponente = model.NuovoProponente;
-            em.id_gruppo = (await _logicPersona
-                    .GetGruppoAttualePersona(new List<string> { persona.GruppiAD }))
-                .id_gruppo;
-
+            em.id_gruppo = persona.Gruppo.id_gruppo;
             await _unitOfWork.CompleteAsync();
+
+            var pin = await _logicPersona.GetPin(persona);
+            await Firma(new ComandiAzioneModel
+            {
+                Lista = new List<Guid> { em.UIDEM },
+                Azione = ActionEnum.FIRMA
+            }, persona, pin);
         }
 
         public async Task RaggruppaEmendamento(EM em, string colore)
@@ -1456,11 +1448,11 @@ namespace PortaleRegione.BAL
 
                 if (persona == null) return emendamentoDto;
 
-                emendamentoDto.AbilitaSUBEM = emendamentoDto.IDStato == (int)StatiEnum.Depositato
-                                              && emendamentoDto.UIDPersonaProponente != persona.UID_persona
-                                              && !emendamentoDto.ATTI.Chiuso ||
-                                              persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
-                                              persona.IsSegreteriaAssemblea;
+                emendamentoDto.AbilitaSUBEM = (emendamentoDto.IDStato == (int)StatiEnum.Depositato
+                                               && emendamentoDto.UIDPersonaProponente != persona.UID_persona
+                                               && !emendamentoDto.ATTI.Chiuso) ||
+                                              (persona.CurrentRole == RuoliIntEnum.Amministratore_Giunta &&
+                                               persona.IsSegreteriaAssemblea);
 
                 if (persona.IsSegreteriaAssemblea)
                     if (emendamentoDto.ConteggioFirme > 1)
@@ -1608,10 +1600,7 @@ namespace PortaleRegione.BAL
 
                 var emendamentoDto = Mapper.Map<EM, EmendamentiDto>(em);
                 EmendamentiDto rifEM = null;
-                if (em.Rif_UIDEM.HasValue)
-                {
-                    rifEM = await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona);
-                }
+                if (em.Rif_UIDEM.HasValue) rifEM = await GetEM_DTO_Light(em.Rif_UIDEM.Value, atto, persona);
 
                 emendamentoDto.N_EM = GetNomeEM(emendamentoDto, rifEM);
 
@@ -2003,7 +1992,7 @@ namespace PortaleRegione.BAL
             },
                 persona,
                 (int)mode,
-                new Uri(AppSettingsConfiguration.urlPEM),
+                new Uri(AppSettingsConfiguration.url_CLIENT),
                 open_data_enabled,
                 light_version);
 
@@ -2033,7 +2022,7 @@ namespace PortaleRegione.BAL
             },
                 persona,
                 (int)model.Mode,
-                new Uri(AppSettingsConfiguration.urlPEM),
+                new Uri(AppSettingsConfiguration.url_CLIENT),
                 open_data_enabled,
                 light_version);
 
@@ -2236,7 +2225,7 @@ namespace PortaleRegione.BAL
             try
             {
                 Log.Debug($"{currentMethod} - Inizio");
-                List<string> listAttachments = new List<string>();
+                var listAttachments = new List<string>();
                 if (!string.IsNullOrEmpty(em.PATH_AllegatoGenerico))
                 {
                     Log.Debug($"{currentMethod} - Aggiunto [{em.PATH_AllegatoGenerico}]");
@@ -2245,6 +2234,7 @@ namespace PortaleRegione.BAL
                         Path.GetFileName(em.PATH_AllegatoGenerico));
                     listAttachments.Add(complete_path);
                 }
+
                 if (!string.IsNullOrEmpty(em.PATH_AllegatoTecnico))
                 {
                     Log.Debug($"{currentMethod} - Aggiunto [{em.PATH_AllegatoTecnico}]");

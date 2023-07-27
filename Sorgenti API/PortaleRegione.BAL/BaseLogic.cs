@@ -330,6 +330,20 @@ namespace PortaleRegione.BAL
 
         internal void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
         {
+            if (atto.Tipo == (int)TipoAttoEnum.ODG)
+            {
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_START}", "");
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "");
+
+                body = body.Replace("{lblTitoloPDLEMView}", atto.ODG_Atto_PEM);
+                body = body.Replace("{lblSubTitoloPDLEMView}", atto.ODG_Atto_Oggetto_PEM);
+            }
+            else
+            {
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_START}", "<!--");
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "-->");
+            }
+
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
                 || atto.Tipo == (int)TipoAttoEnum.ODG)
             {
@@ -795,7 +809,7 @@ namespace PortaleRegione.BAL
                 #endregion
 
                 body = body.Replace("{IMGLOGO}",
-                    "<img src='" + Path.Combine(AppSettingsConfiguration.urlPEM, "/images/LogoCRL120px.gif") +
+                    "<img src='" + Path.Combine(AppSettingsConfiguration.url_CLIENT, "/images/LogoCRL120px.gif") +
                     " style='120px;'/>");
 
                 body = body.Replace("{LINKPEM}",

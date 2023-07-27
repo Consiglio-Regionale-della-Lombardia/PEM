@@ -126,6 +126,8 @@ namespace PortaleRegione.DTO.Domain
 
         public string MOZ_Abbinata { get; set; }
         public string ODG_Atto_PEM { get; set; }
+        public string ODG_Atto_Oggetto_PEM { get; set; }
+
         public bool Inviato_Al_Protocollo { get; set; } = false;
         public DateTime? DataInvioAlProtocollo { get; set; }
         public bool CapogruppoNeiTermini { get; set; } = false;
@@ -184,5 +186,6 @@ namespace PortaleRegione.DTO.Domain
         public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+
     }
 }

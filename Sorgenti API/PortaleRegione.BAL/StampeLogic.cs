@@ -378,7 +378,7 @@ namespace PortaleRegione.BAL
                 PercorsoCompatibilitaDocumenti = AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                 RootRepository = AppSettingsConfiguration.RootRepository,
                 UrlAPI = AppSettingsConfiguration.URL_API,
-                UrlCLIENT = AppSettingsConfiguration.urlPEM,
+                UrlCLIENT = AppSettingsConfiguration.url_CLIENT,
                 Username = AppSettingsConfiguration.Service_Username,
                 Password = AppSettingsConfiguration.Service_Password
             };

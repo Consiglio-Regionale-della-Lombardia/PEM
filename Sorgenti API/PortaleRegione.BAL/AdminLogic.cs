@@ -579,7 +579,7 @@ namespace PortaleRegione.BAL
                     CC = "max.pagliaro@consiglio.regione.lombardia.it",
                     OGGETTO = "PEM - Utenza aperta",
                     MESSAGGIO =
-                        $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                        $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.url_CLIENT}"
                 });
             }
             else
