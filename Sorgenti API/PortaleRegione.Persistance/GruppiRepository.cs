@@ -139,6 +139,15 @@ namespace PortaleRegione.Persistance
                 .FirstOrDefaultAsync(g => g.id_gruppo == gruppoId);
         }
 
+        public async Task<List<View_gruppi_politici_con_giunta>> GetAllWithGiunta()
+        {
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
+            return await PRContext
+                .View_gruppi_politici_con_giunta
+                .ToListAsync();
+        }
+
         public async Task<View_UTENTI> GetCapoGruppo(int gruppoId)
         {
             var result = PRContext

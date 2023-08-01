@@ -104,11 +104,10 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, excelSheet, "Firmatari dopo deposito", ref columnIndex);
                 SetColumnValue(ref row, excelSheet, "LinkEM", ref columnIndex);
 
+                var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
                 var emList = await _logicEm.ScaricaEmendamenti(model, persona, false, true);
-                var totalProcessTime = 0f;
                 foreach (var em in emList)
                 {
-                    var startTimer = DateTime.Now;
                     row++;
                     columnIndex = 1;
                     SetColumnValue(ref row, excelSheet,
@@ -120,12 +119,10 @@ namespace PortaleRegione.BAL
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                     {
                         SetColumnValue(ref row, excelSheet, em.UIDEM.ToString(), ref columnIndex);
-                        var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
                         SetColumnValue(ref row, excelSheet,
                             $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}",
                             ref columnIndex);
                     }
-
                     SetColumnValue(ref row, excelSheet, em.N_EM, ref columnIndex);
                     SetColumnValue(ref row, excelSheet, em.DataDeposito, ref columnIndex);
                     SetColumnValue(ref row, excelSheet,
@@ -235,8 +232,6 @@ namespace PortaleRegione.BAL
 
                     SetColumnValue(ref row, excelSheet, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}",
                         ref columnIndex);
-                    var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
-                    totalProcessTime += (float)spentTime;
                 }
 
                 // Imposta il percorso della cartella temporanea sul server

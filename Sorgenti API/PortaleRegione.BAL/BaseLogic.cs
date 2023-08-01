@@ -66,6 +66,18 @@ namespace PortaleRegione.BAL
             set => memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1));
         }
 
+        internal List<GruppiDto> Groups
+        {
+            get
+            {
+                if (memoryCache.Contains(BALConstants.GROUPS_IN_DATABASE))
+                    return memoryCache.Get(BALConstants.GROUPS_IN_DATABASE) as List<GruppiDto>;
+
+                return new List<GruppiDto>();
+            }
+            set => memoryCache.Add(BALConstants.GROUPS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1));
+        }
+
 
         internal void GetUsersInDb()
         {
@@ -76,6 +88,17 @@ namespace PortaleRegione.BAL
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
             Users = personeInDbLight;
+        }
+
+        internal void GetGroupsInDb()
+        {
+            if (Groups.Any())
+                return;
+            var task_op = Task.Run(async () => await _unitOfWork.Gruppi.GetAllWithGiunta());
+            var personeInDb = task_op.Result;
+            var personeInDbLight = personeInDb.Select(Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>).ToList();
+
+            Groups = personeInDbLight;
         }
 
 

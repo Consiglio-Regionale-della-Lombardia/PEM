@@ -33,6 +33,8 @@ namespace PortaleRegione.DTO.Domain
         public AttoDASIDto()
         {
             FirmeCartacee = new List<KeyValueDto>();
+            FirmeAnte = new List<AttiFirmeDto>();
+            FirmePost = new List<AttiFirmeDto>();
         }
         public Guid UIDAtto { get; set; }
         public Guid? UIDSeduta { get; set; }
@@ -187,5 +189,7 @@ namespace PortaleRegione.DTO.Domain
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
 
+        public List<AttiFirmeDto> FirmeAnte { get; set; }
+        public List<AttiFirmeDto> FirmePost { get; set; }
     }
 }

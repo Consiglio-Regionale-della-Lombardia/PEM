@@ -55,6 +55,7 @@ namespace PortaleRegione.API.Controllers
             _logicUtil = logicUtil;
 
             GetUsersInDb();
+            GetGroupsInDb();
         }
 
         public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto persona)

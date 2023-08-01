@@ -405,6 +405,13 @@ namespace PortaleRegione.Persistance
                 query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo)
                     .ThenBy(em => em.SubProgressivo);
 
+            if (size == -1)
+            {
+                return await query
+                    .Select(em => em.UIDEM)
+                    .ToListAsync();
+            }
+
             return await query
                 .Select(em => em.UIDEM)
                 .Skip((page.Value - 1) * size.Value)
