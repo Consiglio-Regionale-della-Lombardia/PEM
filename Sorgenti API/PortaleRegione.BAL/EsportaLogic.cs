@@ -105,6 +105,19 @@ namespace PortaleRegione.BAL
                 SetColumnValue(ref row, excelSheet, "LinkEM", ref columnIndex);
 
                 var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
+                var articoli = await _unitOfWork.Articoli.GetArticoli(model.Atto.UIDAtto);
+                var commi = new List<COMMI>();
+                foreach (var art in articoli)
+                {
+                    commi.AddRange(await _unitOfWork.Commi.GetCommi(art.UIDArticolo));
+                }
+
+                var lettere = new List<LETTERE>();
+                foreach (var comm in commi)
+                {
+                    lettere.AddRange(await _unitOfWork.Lettere.GetLettere(comm.UIDComma));
+                }
+
                 var emList = await _logicEm.ScaricaEmendamenti(model, persona, false, true);
                 foreach (var em in emList)
                 {
@@ -140,7 +153,7 @@ namespace PortaleRegione.BAL
 
                     if (em.UIDArticolo.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
-                        var articolo = await _unitOfWork.Articoli.GetArticolo(em.UIDArticolo.Value);
+                        var articolo = articoli.First(i => i.UIDArticolo == em.UIDArticolo.Value);
                         SetColumnValue(ref row, excelSheet, articolo.Articolo, ref columnIndex);
                     }
                     else
@@ -150,7 +163,7 @@ namespace PortaleRegione.BAL
 
                     if (em.UIDComma.HasValue && em.UIDComma != Guid.Empty && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
-                        var comma = await _unitOfWork.Commi.GetComma(em.UIDComma.Value);
+                        var comma = commi.First(i => i.UIDComma == em.UIDComma.Value);
                         SetColumnValue(ref row, excelSheet, comma.Comma, ref columnIndex);
                     }
                     else
@@ -161,7 +174,7 @@ namespace PortaleRegione.BAL
                     if (em.UIDLettera.HasValue && em.UIDLettera != Guid.Empty &&
                         em.IDParte == (int)PartiEMEnum.Articolo)
                     {
-                        var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
+                        var lettera = lettere.First(i => i.UIDLettera == em.UIDLettera.Value);
                         SetColumnValue(ref row, excelSheet, lettera.Lettera, ref columnIndex);
                     }
                     else

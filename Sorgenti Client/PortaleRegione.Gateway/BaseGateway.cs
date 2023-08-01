@@ -146,7 +146,7 @@ namespace PortaleRegione.Gateway
                 using var httpClient = new HttpClient();
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 var result = await httpClient.GetAsync(requestUrl);
                 return await CheckResponseFile(result);
             }
@@ -175,6 +175,7 @@ namespace PortaleRegione.Gateway
                 using var httpClient = new HttpClient();
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 var content = new StringContent(body, Encoding.UTF8, "application/json");
                 var result = await httpClient.PostAsync(url, content);
                 return await CheckResponseUrl(result);
@@ -204,7 +205,7 @@ namespace PortaleRegione.Gateway
                 using var httpClient = new HttpClient();
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 var result = await httpClient.GetAsync(url);
                 return await CheckResponseUrl(result);
             }

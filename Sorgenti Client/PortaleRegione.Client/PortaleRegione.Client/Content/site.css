@@ -52,6 +52,11 @@ main { margin-bottom: 150px; }
 	border-radius: 5px;
 }
 
+.btn-flat.purple-text {
+	border: 1px #9c27b0 solid;
+	border-radius: 5px;
+}
+
 .btn-floating > i { color: unset; }
 
 .collapsible-body { padding: 1rem !important; }
@@ -124,9 +129,7 @@ label {
 	padding-left: 8px;
 }
 
-.chip {
-	cursor: pointer;
-}
+.chip { cursor: pointer; }
 
 .chip-centered {
 	cursor: pointer;

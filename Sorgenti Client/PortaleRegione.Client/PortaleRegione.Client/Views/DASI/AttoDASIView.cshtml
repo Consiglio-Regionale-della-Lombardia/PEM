@@ -149,8 +149,13 @@
                             </div>
                         </div>
                         @* FIRME *@
-                        <div class="row">
+                        <div class="row" id="pnlStandardFirme">
                             <div class="col s12">
+                                <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+                                    Visualizza priorita
+                                    <i class="material-icons right pink-text">low_priority</i>
+                                </a>
+                                <br/>
                                 @Html.Raw(atto.Firme)
 
                                 @if (!string.IsNullOrEmpty(atto.DataPresentazione))
@@ -164,6 +169,29 @@
                                 {
                                     @Html.Raw(atto.Firme_dopo_deposito)
                                 }
+                            </div>
+                        </div>
+                        @* FIRME PRIORITA' *@
+                        <div class="row" id="pnlPrioritaFirme" style="display: none;">
+                            <div class="col s12">
+                                <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+                                    Visualizza griglia
+                                    <i class="material-icons right pink-text">grid_on</i>
+                                </a>
+                                <br />
+                                
+                                <ul class="collection">
+                                    
+                                    @foreach (var firme in atto.FirmeAnte)
+                                    {
+                                        <li class="collection-item avatar">
+                                            <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@firme.UTENTI_NoCons.foto" alt="" class="circle">
+                                            <span class="title">@firme.FirmaCert</span>
+                                            <a href="#!" class="secondary-content"><i class="material-icons">star_border</i></a>
+                                        </li>
+                                    }
+                                </ul>
+
                             </div>
                         </div>
 
