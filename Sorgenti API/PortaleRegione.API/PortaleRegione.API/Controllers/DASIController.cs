@@ -164,6 +164,26 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///  Endpoint per cambiare la priorità di una firma
+        /// </summary>
+        /// <param name="firma"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.CambiaPrioritaFirma)]
+        public async Task<IHttpActionResult> CambiaPrioritaFirma(AttiFirmeDto firma)
+        {
+            try
+            {
+                await _dasiLogic.CambiaPrioritaFirma(firma);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere le inforazioni dell'atto archiviato
         /// </summary>
         /// <param name="id"></param>

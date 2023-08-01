@@ -204,7 +204,7 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per avere i destinatari da invitare alla firma
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="atto"></param>
         /// <param name="tipo"></param>
         /// <returns></returns>
         [HttpGet]

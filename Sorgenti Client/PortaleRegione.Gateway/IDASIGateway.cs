@@ -72,5 +72,6 @@ namespace PortaleRegione.Gateway
         Task DeclassaMozione(List<string> data);
         Task<List<AttoDASIDto>> GetCartacei();
         Task SalvaCartaceo(AttoDASIDto atto);
+        Task CambiaPrioritaFirma(AttiFirmeDto firma);
     }
 }

@@ -45,6 +45,8 @@ namespace PortaleRegione.DTO.Domain
         public int id_gruppo { get; set; } = 0;
         public bool Capogruppo { get; set; } = false;
 
+        public bool Prioritario { get; set; } = true;
+
 
         public virtual PersonaDto UTENTI_NoCons { get; set; }
 
@@ -58,7 +60,8 @@ namespace PortaleRegione.DTO.Domain
                 Data_firma = firma.Data_firma,
                 Data_ritirofirma = firma.Data_ritirofirma,
                 Timestamp = firma.Timestamp,
-                id_AreaPolitica = firma.id_AreaPolitica
+                id_AreaPolitica = firma.id_AreaPolitica,
+                Prioritario = false
             };
         }
     }

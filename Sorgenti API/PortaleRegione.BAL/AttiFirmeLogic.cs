@@ -64,7 +64,8 @@ namespace PortaleRegione.BAL
                         Timestamp = firma.Timestamp,
                         Capogruppo = firma.Capogruppo,
                         id_AreaPolitica = firma.id_AreaPolitica,
-                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy")
+                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy"),
+                        Prioritario = firma.Prioritario
                     };
 
                     result.Add(dto);

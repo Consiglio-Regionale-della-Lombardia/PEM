@@ -105,12 +105,13 @@ namespace PortaleRegione.Persistance
             var result = new List<ATTI_FIRME>();
             foreach (var guid in guids)
             {
-                result.AddRange(await PRContext
+                var res = await PRContext
                     .ATTI_FIRME
-                    .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma))
+                    .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma) &&
+                                f.Prioritario)
                     .OrderBy(f => f.Timestamp)
-                    .Take(max_result)
-                    .ToListAsync());
+                    .ToListAsync();
+                result.AddRange(res.Take(max_result));
             }
 
             return result;
@@ -243,11 +244,24 @@ namespace PortaleRegione.Persistance
         /// <param name="attoUId"></param>
         /// <param name="personaUId"></param>
         /// <returns></returns>
-        public async Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId)
+        public async Task<ATTI_FIRME> FindInCache(Guid attoUId, Guid personaUId)
         {
             return await PRContext
                 .ATTI_FIRME
                 .FindAsync(attoUId, personaUId);
+        }
+
+        /// <summary>
+        ///     Ritorna singola firma
+        /// </summary>
+        /// <param name="attoUId"></param>
+        /// <param name="personaUId"></param>
+        /// <returns></returns>
+        public async Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId)
+        {
+            return await PRContext
+                .ATTI_FIRME
+                .FirstOrDefaultAsync(i => i.UIDAtto == attoUId && i.UID_persona == personaUId);
         }
     }
 }

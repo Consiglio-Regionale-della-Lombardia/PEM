@@ -232,6 +232,7 @@ namespace PortaleRegione.DTO.Routes
             public const string StampaImmediataPrivacy = Base + "/{id}/stampa-immediata-privacy";
             public const string InviaAlProtocollo = Base + "/{id}/invia-al-protocollo";
             public const string SaveCartaceo = Base + "/save-draft";
+            public const string CambiaPrioritaFirma = Base + "/change-signature-priority";
         }
 
         public static class Notifiche

@@ -1887,7 +1887,6 @@ namespace PortaleRegione.BAL
                         tags);
 
                 var result = new List<EmendamentiDto>();
-                var totalProcessTime = 0f;
 
                 foreach (var guid in em_in_db)
                     try

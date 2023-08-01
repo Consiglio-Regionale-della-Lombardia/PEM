@@ -197,10 +197,13 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 var atto = await apiGateway.DASI.Get(id);
                 atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML, true);
-                var firme_ante = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO);
-                var firme_post = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO);
-                atto.FirmeAnte = firme_ante.ToList();
-                atto.FirmePost = firme_post.ToList();
+                if (currentUser.IsSegreteriaAssemblea)
+                {
+                    var firme_ante = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO);
+                    var firme_post = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO);
+                    atto.FirmeAnte = firme_ante.ToList();
+                    atto.FirmePost = firme_post.ToList();
+                }
                 atto.Firme = await Utility.GetFirmatariDASI(
                     atto.FirmeAnte,
                     currentUser.UID_persona,
@@ -1157,6 +1160,22 @@ namespace PortaleRegione.Client.Controllers
                 {
                     id = request.UIDAtto
                 }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [Route("cambia-priorita-firma")]
+        public async Task<ActionResult> CambiaPrioritaFirma(AttiFirmeDto firma)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.CambiaPrioritaFirma(firma);
+                return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

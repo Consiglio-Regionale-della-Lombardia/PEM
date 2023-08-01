@@ -1140,7 +1140,7 @@ namespace PortaleRegione.API.Controllers
                     var firmeAttive = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
                     var firma_utente = firmeAttive.Single(f => f.UID_persona == persona.UID_persona);
                     var firma_da_ritirare =
-                        await _unitOfWork.Atti_Firme.Get(firma_utente.UIDAtto, firma_utente.UID_persona);
+                        await _unitOfWork.Atti_Firme.FindInCache(firma_utente.UIDAtto, firma_utente.UID_persona);
                     _unitOfWork.Atti_Firme.Remove(firma_da_ritirare);
 
                     results.Add(idGuid, "OK");
@@ -1409,7 +1409,7 @@ namespace PortaleRegione.API.Controllers
             {
                 var firmatari =
                     await _logicAttiFirme.GetFirme(Mapper.Map<AttoDASIDto, ATTI_DASI>(atto), FirmeTipoEnum.TUTTE);
-                var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma)).ToList();
+                var firme = firmatari.Where(i => string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario).ToList();
                 var firmatari_di_altri_gruppi = firme.Any(i => i.id_gruppo != atto.id_gruppo);
 
                 var minimo_consiglieri_config = AppSettingsConfiguration.MinimoConsiglieriIQT;
@@ -1499,6 +1499,8 @@ namespace PortaleRegione.API.Controllers
 
                     var iqt_firmatari =
                         await _unitOfWork.Atti_Firme.GetFirmatari(iqt_da_esaminare.Select(i => i.UIDAtto).ToList(), minimo_consiglieri_config);
+
+                    count_firme = minimo_consiglieri_config;
 
                     foreach (var firma in firme.Take(minimo_consiglieri_config).ToList())
                     {
@@ -2701,6 +2703,14 @@ namespace PortaleRegione.API.Controllers
             }
 
             return result;
+        }
+
+        public async Task CambiaPrioritaFirma(AttiFirmeDto firma)
+        {
+            var firma_in_db = await _unitOfWork.Atti_Firme.Get(firma.UIDAtto, firma.UID_persona);
+            firma_in_db.Prioritario = !firma_in_db.Prioritario;
+
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task SalvaCartaceo(AttoDASIDto attoDto, PersonaDto currentUser)
