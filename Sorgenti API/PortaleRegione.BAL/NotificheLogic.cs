@@ -599,7 +599,7 @@ namespace PortaleRegione.BAL
                 seduta =
                     await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
 
-            var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
+            var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, true, seduta);
             if (!string.IsNullOrEmpty(check_presentazione))
             {
                 var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);

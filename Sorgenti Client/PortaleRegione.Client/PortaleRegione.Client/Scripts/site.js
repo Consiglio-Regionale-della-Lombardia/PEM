@@ -579,7 +579,7 @@ function RitiraFirma(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -590,6 +590,7 @@ function RitiraFirma(id) {
                 if (pos > 0) {
                     typeMessage = "success";
                 }
+                waiting(false);
                 swal({
                     title: "Esito ritiro firma",
                     text: data.message,
@@ -599,6 +600,7 @@ function RitiraFirma(id) {
                     location.reload();
                 });
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -619,7 +621,7 @@ function EliminaFirma(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -631,6 +633,7 @@ function EliminaFirma(id) {
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    waiting(false);
                     swal({
                         title: "Esito ritiro firma",
                         text: data.message,
@@ -640,9 +643,11 @@ function EliminaFirma(id) {
                         location.reload();
                     });
                 } else {
+                    waiting(false);
                     go(data);
                 }
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -662,7 +667,7 @@ function RitiraFirmaDASI(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -678,16 +683,18 @@ function RitiraFirmaDASI(id) {
                     typeMessage = "info";
                     data.message = data.message.replace("INFO: ", "");
                 }
+                waiting(false);
                 swal({
                     title: "Esito ritiro firma",
                     text: data.message,
                     icon: typeMessage,
                     button: "OK"
-                }).then(() => {
+                }).then(() => {                    
                     location.reload();
                 });
             }).fail(function(err) {
                 console.log("error", err);
+                waiting(false);
                 Error(err);
             });
         });
@@ -707,7 +714,7 @@ function EliminaFirmaDASI(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/elimina-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -719,6 +726,7 @@ function EliminaFirmaDASI(id) {
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    waiting(false);
                     swal({
                         title: "Esito ritiro firma",
                         text: data.message,
@@ -728,10 +736,12 @@ function EliminaFirmaDASI(id) {
                         location.reload();
                     });
                 } else {
+                    waiting(false);
                     go(data);
                 }
             }).fail(function(err) {
                 console.log("error", err);
+                waiting(false);
                 Error(err);
             });
         });

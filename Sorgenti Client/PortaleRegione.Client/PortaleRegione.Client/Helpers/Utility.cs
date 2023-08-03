@@ -349,7 +349,14 @@ namespace PortaleRegione.Client.Helpers
                 }
                 else
                 {
-                    body += $"<div>{firmeDto.FirmaCert}";
+                    if (firmeDto.Prioritario)
+                    {
+                        body += $"<div><b>{firmeDto.FirmaCert}</b>";
+                    }
+                    else
+                    {
+                        body += $"<div>{firmeDto.FirmaCert}";
+                    }
                     if (!firmeDto.ufficio)
                         body += $"<br/><label>firmato il </label>{firmeDto.Data_firma}";
                     if (currentUId == firmeDto.UID_persona)

@@ -137,7 +137,8 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 5);
-            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto }).ToList();
+            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto })
+                .ToList();
             return Json(items, JsonRequestBehavior.AllowGet);
         }
 
@@ -197,13 +198,12 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 var atto = await apiGateway.DASI.Get(id);
                 atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML, true);
-                if (currentUser.IsSegreteriaAssemblea)
-                {
-                    var firme_ante = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO);
-                    var firme_post = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO);
-                    atto.FirmeAnte = firme_ante.ToList();
-                    atto.FirmePost = firme_post.ToList();
-                }
+
+                var firme_ante = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO);
+                var firme_post = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO);
+                atto.FirmeAnte = firme_ante.ToList();
+                atto.FirmePost = firme_post.ToList();
+
                 atto.Firme = await Utility.GetFirmatariDASI(
                     atto.FirmeAnte,
                     currentUser.UID_persona,
