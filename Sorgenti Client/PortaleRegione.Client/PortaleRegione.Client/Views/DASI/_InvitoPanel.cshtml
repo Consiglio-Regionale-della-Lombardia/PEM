@@ -158,6 +158,8 @@
             obj.Lista = listaAtti.length > 0 ? listaAtti : [];
             obj.ListaDestinatari = listaDestinatari;
 
+            waiting(true);
+
             $.ajax({
                 url: baseUrl + "/dasi/azioni-massive",
                 type: "POST",
@@ -172,6 +174,7 @@
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    waiting(false);
                     swal({
                         title: "Esito Inviti",
                         text: data.message,
@@ -181,7 +184,7 @@
                         location.reload();
                     });
                 } else {
-                    go(data);
+                    location.reload();
                 }
             }).fail(function(err) {
                 console.log("error", err);

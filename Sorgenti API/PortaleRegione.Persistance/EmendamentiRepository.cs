@@ -146,7 +146,8 @@ namespace PortaleRegione.Persistance
 
                 case CounterEmendamentiEnum.SUB_EM:
                     if (persona.IsSegreteriaAssemblea)
-                        return await query.CountAsync(e => string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
+                        return await query.CountAsync(e =>
+                            string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
                     return await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
 
                 default:
@@ -392,7 +393,8 @@ namespace PortaleRegione.Persistance
                 switch (ordine)
                 {
                     case OrdinamentoEnum.Presentazione:
-                        query = query.OrderBy(em => em.OrdinePresentazione);
+                        //query = query.OrderBy(em => em.OrdinePresentazione);
+                        query = query.OrderBy(em => string.IsNullOrEmpty(em.N_SUBEM)).ThenBy(em => string.IsNullOrWhiteSpace(em.N_EM)).ThenBy(em => em.OrdinePresentazione);
                         break;
                     case OrdinamentoEnum.Votazione:
                         query = query.OrderBy(em => em.OrdineVotazione);
@@ -406,11 +408,9 @@ namespace PortaleRegione.Persistance
                     .ThenBy(em => em.SubProgressivo);
 
             if (size == -1)
-            {
                 return await query
                     .Select(em => em.UIDEM)
                     .ToListAsync();
-            }
 
             return await query
                 .Select(em => em.UIDEM)

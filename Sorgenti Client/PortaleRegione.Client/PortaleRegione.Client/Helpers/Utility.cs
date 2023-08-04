@@ -365,8 +365,12 @@ namespace PortaleRegione.Client.Helpers
                             body +=
                                 $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"RitiraFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Ritira</a>";
                         else
+                        {
+                            if (dto.UIDPersonaProponente == firmeDto.UID_persona) continue;
+
                             body +=
                                 $"<a class='chip red center white-text secondary-content' style=\"min-width:unset;margin-top:-16px\" onclick=\"EliminaFirmaDASI('{firmeDto.UIDAtto}')\"><i class='icon material-icons'>delete</i> Elimina</a>";
+                        }
                     }
                 }
 

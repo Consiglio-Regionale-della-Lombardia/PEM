@@ -98,7 +98,9 @@ namespace PortaleRegione.Domain
 
         public Guid? UIDLettera { get; set; }
 
-        [StringLength(5)] public string NLettera { get; set; } = string.Empty; // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/809
+        [StringLength(5)]
+        public string NLettera { get; set; } =
+            string.Empty; // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/809
 
         [StringLength(5)] public string NNumero { get; set; }
 
