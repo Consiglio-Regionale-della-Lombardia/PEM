@@ -109,6 +109,55 @@ namespace PortaleRegione.Persistance
             return result;
         }
 
+        public async Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null, Filter<View_UTENTI> filtro = null, List<string> userAd = null)
+        {
+            var query = PRContext
+                .View_UTENTI
+                .Where(u => u.UID_persona != Guid.Empty);
+
+            if (persona != null)
+            {
+                if (persona.IsCapoGruppo || persona.IsResponsabileSegreteriaPolitica)
+                {
+                    query = query.Where(u => u.deleted == false);
+                }
+                else if (persona.IsGiunta)
+                {
+                    query = query.Where(u => u.No_Cons == 1
+                                             && u.id_gruppo_politico_rif >= 10000
+                                             && u.deleted == false);
+                }
+            }
+
+            filtro?.BuildExpression(ref query);
+
+            query = query.OrderBy(u => u.cognome)
+                .ThenBy(u => u.nome);
+
+            if (userAd != null)
+            {
+                if (userAd.Any())
+                {
+                    query = query.Where(u => userAd.Contains(u.userAD));
+                }
+            }
+
+            var result = await query
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
+            if (filtro._statements.Any(i => i.PropertyId == nameof(PersonaDto.nome)))
+            {
+                var q_nome = filtro._statements.First(i => i.PropertyId == nameof(PersonaDto.nome)).Value.ToString().ToLower();
+                result = result.Where(i => i.nome.ToLower().Contains(q_nome)
+                                           || i.cognome.ToLower().Contains(q_nome)
+                                           || i.userAD.ToLower().Contains(q_nome))
+                    .ToList();
+            }
+
+            return result;
+        }
+
         public async Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size,
             Filter<View_UTENTI> filtro = null)
         {

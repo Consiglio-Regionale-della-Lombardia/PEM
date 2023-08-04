@@ -72,6 +72,40 @@ else
                 </div>
                 <div class='card-content' style="margin-top: -20px">
                     @Html.Raw(item.BodyAtto)
+                    <br/>
+                    @* FIRME *@
+                    <div class="row" id="pnlStandardFirme">
+                        <div class="col s12">
+                            @if ((item.FirmeAnte.Any()
+                                  && item.UIDPersonaProponente == Model.CurrentUser.UID_persona && item.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                 || Model.CurrentUser.IsSegreteriaAssemblea
+                                 && (item.Tipo == (int)TipoAttoEnum.IQT
+                                     || item.Tipo == (int)TipoAttoEnum.MOZ))
+                            {
+                                <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+                                    Visualizza priorita
+                                    <i class="material-icons right pink-text">low_priority</i>
+                                </a>
+                                <br/>
+                            }
+
+                            @Html.Raw(item.Firme)
+
+                            @if (!string.IsNullOrEmpty(item.DataPresentazione))
+                            {
+                                var testoDeposito = "Atto presentato";
+
+                                <label class="black-text">
+                                    <b>@testoDeposito il @Html.Raw(item.DataPresentazione)</b>
+                                </label>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.Firme_dopo_deposito))
+                            {
+                                @Html.Raw(item.Firme_dopo_deposito)
+                            }
+                        </div>
+                    </div>
                 </div>
                 @if (item.Firmabile || item.Presentabile)
                 {

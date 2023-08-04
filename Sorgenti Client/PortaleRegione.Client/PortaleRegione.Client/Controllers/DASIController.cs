@@ -924,6 +924,22 @@ namespace PortaleRegione.Client.Controllers
                     result.ViewMode = ViewModeEnum.PREVIEW;
                     atti.BodyAtto =
                         await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+
+                    var firme_ante = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.PRIMA_DEPOSITO);
+                    var firme_post = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.DOPO_DEPOSITO);
+                    atti.FirmeAnte = firme_ante.ToList();
+                    atti.FirmePost = firme_post.ToList();
+
+                    atti.Firme = await Utility.GetFirmatariDASI(
+                        atti.FirmeAnte,
+                        result.CurrentUser.UID_persona,
+                        FirmeTipoEnum.PRIMA_DEPOSITO,
+                        Token);
+                    atti.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                        atti.FirmePost,
+                        result.CurrentUser.UID_persona,
+                        FirmeTipoEnum.DOPO_DEPOSITO,
+                        Token);
                 }
 
             Session["RiepilogoDASI"] = result;
