@@ -1891,30 +1891,23 @@ namespace PortaleRegione.BAL
                 foreach (var guid in em_in_db)
                     try
                     {
-                        var dto = await GetEM_DTO(guid);
-
-                        if (open_data_enabled)
+                        var em = await GetEM(guid);
+                        EM subem = null;
+                        if (em.Rif_UIDEM.HasValue)
                         {
-                            var firme = await _logicFirme.GetFirme(dto, FirmeTipoEnum.TUTTE);
-                            var firmeDto = firme.ToList();
-
-                            var firmatari_opendata = "--";
-                            try
-                            {
-                                if (firmeDto.Any(f =>
-                                        f.Timestamp < Convert.ToDateTime(dto.DataDeposito)))
-                                    firmatari_opendata = GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
-                                            f.Timestamp < Convert.ToDateTime(dto.DataDeposito)),
-                                        persona.CurrentRole);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                            }
-
-                            dto.Firme_OPENDATA = firmatari_opendata;
+                            subem = await GetEM(em.Rif_UIDEM.Value);
                         }
 
+                        var dto = Mapper.Map<EM, EmendamentiDto>(em);
+                        dto.N_EM = GetNomeEM(dto,
+                            em.Rif_UIDEM.HasValue
+                                ? Mapper.Map<EM, EmendamentiDto>(subem)
+                                : null);
+                        if (!string.IsNullOrEmpty(dto.DataDeposito))
+                            dto.DataDeposito = BALHelper.Decrypt(dto.DataDeposito);
+                        dto.PersonaProponente =
+                            Users.First(p => p.UID_persona == em.UIDPersonaProponente);
+                        dto.gruppi_politici = Groups.First(i => i.id_gruppo == em.id_gruppo);
                         result.Add(dto);
                     }
                     catch (Exception e)

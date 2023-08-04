@@ -105,16 +105,20 @@
                         <div class="col s12">
                             <ul class="collection">
                                 @{
-                                    var testoStato = "";
-                                    var colorStato = "grey-text";
+                                    var testoStato = "Archiviata";
+                                    var colorStato = "blue-text";
 
                                     if (!seduta.Data_apertura.HasValue)
                                     {
                                         testoStato = "Chiuso";
+                                        colorStato = "grey-text";
+
                                     }
                                     else if (seduta.Data_apertura > DateTime.Now)
                                     {
                                         testoStato = "Chiuso";
+                                        colorStato = "grey-text";
+
                                     }
                                     else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                                     {

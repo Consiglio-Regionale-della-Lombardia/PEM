@@ -181,6 +181,10 @@ namespace PortaleRegione.Domain
 
         public virtual ICollection<NOTIFICHE> NOTIFICHE { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Column("SubEM", TypeName = "int")]
+        public int SubEM { get; set; }
+
         public static implicit operator EM(EmendamentiDto dto)
         {
             return new EM

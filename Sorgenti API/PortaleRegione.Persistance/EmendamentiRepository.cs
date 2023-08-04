@@ -393,8 +393,7 @@ namespace PortaleRegione.Persistance
                 switch (ordine)
                 {
                     case OrdinamentoEnum.Presentazione:
-                        //query = query.OrderBy(em => em.OrdinePresentazione);
-                        query = query.OrderBy(em => string.IsNullOrEmpty(em.N_SUBEM)).ThenBy(em => string.IsNullOrWhiteSpace(em.N_EM)).ThenBy(em => em.OrdinePresentazione);
+                        query = query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
                         break;
                     case OrdinamentoEnum.Votazione:
                         query = query.OrderBy(em => em.OrdineVotazione);

@@ -118,5 +118,46 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task<List<FirmeDto>> GetFirmatariAtto(Guid attoUid)
+        {
+            try
+            {
+                var firmeInDb = await _unitOfWork
+                    .Firme
+                    .GetFirmatariAtto(attoUid);
+
+                if (firmeInDb == null) return new List<FirmeDto>();
+
+                var firme = firmeInDb.ToList();
+
+                if (!firme.Any()) return new List<FirmeDto>();
+
+                var result = new List<FirmeDto>();
+                foreach (var firma in firme)
+                {
+                    var firmaDto = new FirmeDto
+                    {
+                        UIDEM = firma.UIDEM,
+                        UID_persona = firma.UID_persona,
+                        FirmaCert = BALHelper.Decrypt(firma.FirmaCert),
+                        Data_firma = BALHelper.Decrypt(firma.Data_firma),
+                        Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
+                            ? null
+                            : BALHelper.Decrypt(firma.Data_ritirofirma),
+                        Timestamp = firma.Timestamp
+                    };
+
+                    result.Add(firmaDto);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetFirme", e);
+                throw e;
+            }
+        }
     }
 }

@@ -118,6 +118,8 @@ namespace PortaleRegione.BAL
                     lettere.AddRange(await _unitOfWork.Lettere.GetLettere(comm.UIDComma));
                 }
 
+                var firmeComplete = await _logicFirme.GetFirmatariAtto(model.Atto.UIDAtto);
+
                 var emList = await _logicEm.ScaricaEmendamenti(model, persona, false, true);
                 foreach (var em in emList)
                 {
@@ -203,8 +205,7 @@ namespace PortaleRegione.BAL
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
-                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                        var firmeDto = firme.ToList();
+                        var firmeDto = firmeComplete.Where(f => f.UIDEM == em.UIDEM).ToList();
 
                         var firmatari_opendata_ante = "--";
                         try
