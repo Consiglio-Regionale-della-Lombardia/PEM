@@ -125,7 +125,7 @@
 <div id="pnlOrdinamento" style="display: none;">
     <div class="row">
         <div class="col l12 right-align">
-            <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
+            <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="location.reload();">
                 <i class="material-icons right pink-text">apps</i>
                 VISUALIZZA EM
             </a>
@@ -257,13 +257,6 @@
             checkSelectedEM();
             waiting(false);
         });
-
-    function viewStandard() {
-        $('#btnSearch').show();
-        $('#pnlViewStandard').show();
-        $('#pnlViewTestoAtto').hide();
-        $('#pnlOrdinamento').hide();
-    }
 
     function filtra() {
         setTimeout(function() {

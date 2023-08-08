@@ -24,18 +24,7 @@
     @Scripts.Render("~/bundles/logic")
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.0/classic/ckeditor.js"></script>
-
-    <script>
-        $(function () {
-            $(".sortable").sortable({
-                placeholder: "empty-room",
-                forcePlaceholderSize: true
-            });
-            $(".sortable").disableSelection();
-        });
-    </script>
-
+    
     <script>
         baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
         AggiornaPosizioneTemi(baseUrl);

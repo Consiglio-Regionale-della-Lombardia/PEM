@@ -72,15 +72,6 @@ namespace PortaleRegione.BAL
             try
             {
                 var atto = await _unitOfWork.Atti.Get(model.AttoUId);
-                var emList = model.Lista.ToArray();
-                for (var i = 0; i < emList.Length; i++)
-                {
-                    var uidem = emList[i];
-                    await _unitOfWork.Emendamenti.SetOrdineVotazione(uidem, i + 1);
-                }
-
-                await _unitOfWork.CompleteAsync();
-
                 var ruolo_segreteria = await _unitOfWork.Ruoli.Get((int)RuoliIntEnum.Segreteria_Assemblea);
                 await _logicUtil.InvioMail(new MailModel
                 {

@@ -81,7 +81,7 @@
             }
         }
 
-        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="bottom">
             <i class="material-icons">print</i>
         </a>
         @{
@@ -103,11 +103,11 @@
         }
 
 
-        <a class="btn-floating white black-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="left">
+        <a class="btn-floating white black-text tooltipped" onclick="filtra_View('@new_view')" data-tooltip="@text" data-position="bottom">
             <i class="icon material-icons">@icon</i>
         </a>
 
-        <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
+        <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" data-position="bottom" onclick="viewTestoAtto();">
             <i class="icon material-icons">format_align_left</i>
         </a>
     </div>

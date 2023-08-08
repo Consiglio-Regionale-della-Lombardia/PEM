@@ -118,13 +118,15 @@
 }
 <div class="card-content">
     @if (atto.Tipo == (int)TipoAttoEnum.IQT
+        || atto.Tipo == (int)TipoAttoEnum.MOZ
+        || atto.Tipo == (int)TipoAttoEnum.ODG
          && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
     {
         if (string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
         {
             <div class="row" style="margin: 0 !important">
                 <div class="col s12 center">
-                    <div class="card-panel grey lighten-4">
+                    <div class="card-panel amber lighten-4">
                         <span class="black-text">
                             <a class="btn pink tooltipped"
                                data-tooltip="Iscrizione in seduta"
@@ -140,14 +142,9 @@
         {
             <div class="row" style="margin: 0 !important">
                 <div class="col s12 center">
-                    <div class="card-panel green lighten-4">
+                    <div class="card-panel amber lighten-4">
                         <span class="black-text">
-                            @{
-                                var textSeduta = $"Seduta del {Model.Atto.DataRichiestaIscrizioneSeduta}";
-                                var tooltipSeduta = "Richiesta in attesa di elaborazione";
-                            }
-
-                            <h6>Richiesta iscrizione alla seduta del @Model.Atto.DataRichiestaIscrizioneSeduta in attesa di elaborazione</h6>
+                            <h6>Richiesta iscrizione alla seduta del <b><u>@Model.Atto.DataRichiestaIscrizioneSeduta</u></b> in attesa di elaborazione</h6>
                             @if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
                             {
                                 <a class="btn-floating white" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">

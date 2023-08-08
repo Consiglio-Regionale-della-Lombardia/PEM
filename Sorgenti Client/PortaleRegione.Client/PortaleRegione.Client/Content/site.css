@@ -58,6 +58,12 @@ main { margin-bottom: 150px; }
 }
 
 .btn-floating > i { color: unset; }
+.btn-floating:hover {
+	background-color: #f0f0f0 !important;
+}
+.btn-flat:hover {
+	background-color: #f0f0f0 !important;
+}
 
 .collapsible-body { padding: 1rem !important; }
 

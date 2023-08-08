@@ -1398,64 +1398,6 @@ function Ordina_EMTrattazione(attoUId) {
     });
 }
 
-
-function OrdinamentoConcluso(attoUId) {
-swal({
-    title: "Concudi ordinamento",
-    text: "Vuoi concludere l'operazione di ordinamento?",
-    icon: "info",
-            buttons: {
-                cancel: "Annulla",
-                confirm: {
-                    className: "blue white-text",
-                    title: "Accetta",
-                    value: true
-                }
-            }
-        }).then((value) => {
-        if (value == true) {
-            waiting(true);
-
-            var emListItems = $('#tableOrdinamento>li');
-            var emList = [];
-            $.each(emListItems, function (i, item) {
-                emList.push($(item).data("uidem"));
-            });
-
-            var obj = {};
-            obj.AttoUId = attoUId;
-            obj.Azione = 6;
-            obj.Lista = emList;
-
-            $.ajax({
-                url: baseUrl + "/emendamenti/ordinamento-concluso",
-                type: "POST",
-                data: JSON.stringify(obj),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                waiting(false);
-                if (data.message) {
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                } else {
-                    swal("Ordinamento salvato!").then((val) => {
-                        location.reload();
-                    });
-                }
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        }
-    });
-    
-}
-
 function Proponenti_OnChange(tipo) {
     var pnlConsiglieri = $("#pnlProponentiConsiglieri");
     var pnlAssessori = $("#pnlProponentiAssessori");
