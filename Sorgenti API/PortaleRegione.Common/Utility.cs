@@ -249,7 +249,7 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_TipoRispostaDASI(int IdTipoRisposta)
+        public static string GetText_TipoRispostaDASI(int IdTipoRisposta, bool excel = false)
         {
             switch ((TipoRispostaEnum)IdTipoRisposta)
             {
@@ -259,7 +259,7 @@ namespace PortaleRegione.Common
                     return "Scritta";
                 case TipoRispostaEnum.COMMISSIONE:
                     {
-                        return "In Commissione";
+                        return excel ? "In commissione" : "In Commissione";
                     }
                 case TipoRispostaEnum.IMMEDIATA:
                     {

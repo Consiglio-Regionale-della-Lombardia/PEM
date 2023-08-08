@@ -751,14 +751,14 @@ namespace PortaleRegione.BAL
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
 
-                        body = $"<div class='chip white black-text'>{body}</div></br>";
+                        body = $"<label class='black-text'>{body}</label></br>";
                     }
                     else
                     {
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
                         body =
-                            $"<div style='text-decoration:line-through;'><div class='chip white black-text'>{body} ({attiFirmeDto.Data_ritirofirma})</div></div></br>";
+                            $"<label style='text-decoration:line-through!important;' class='black-text'>{body} ({attiFirmeDto.Data_ritirofirma})</label></br>";
                     }
 
                     result.Add(body);

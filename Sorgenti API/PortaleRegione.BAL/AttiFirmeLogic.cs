@@ -129,7 +129,8 @@ namespace PortaleRegione.BAL
                         Data_firma = BALHelper.Decrypt(firma.Data_firma),
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
-                            : BALHelper.Decrypt(firma.Data_ritirofirma)
+                            : BALHelper.Decrypt(firma.Data_ritirofirma),
+                        Timestamp = firma.Timestamp
                     };
 
                     result.Add(firmaDto);

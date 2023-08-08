@@ -562,7 +562,7 @@ namespace PortaleRegione.BAL
                 sheet.Cells[1, 2].Value = "TY86Z5s6VfZtRFF46fi54qskISyv36_v007";
 
                 sheet.Cells[2, 1].Value = "Numero massimo atti da importare:";
-                sheet.Cells[2, 2].Value = "1000";
+                sheet.Cells[2, 2].Value = 1000;
             }
             catch (Exception e)
             {
@@ -590,20 +590,26 @@ namespace PortaleRegione.BAL
                     try
                     {
                         var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
-                        var gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
                         sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
-                        sheet.Cells[row, 2].Value = atto.NAtto;
+                        sheet.Cells[row, 2].Value = Convert.ToInt32(atto.NAtto);
                         var firmacert = firma.FirmaCert;
                         var indiceParentesiApertura = firmacert.IndexOf('(');
                         firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                         sheet.Cells[row, 3].Value = firmacert;
-                        sheet.Cells[row, 4].Value = gruppo != null ? gruppo.codice_gruppo : "";
-                        sheet.Cells[row, 5].Value = firma.Data_firma.Substring(0, 10);
-                        var data_ritiro_firma = firma.Data_ritirofirma;
-                        if (!string.IsNullOrEmpty(data_ritiro_firma))
-                            data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
+                        sheet.Cells[row, 4].Value = atto.gruppi_politici.codice_gruppo;
+                        sheet.Cells[row, 5].Value = firma.Timestamp;
+                        sheet.Cells[row, 5].Style.Numberformat.Format = "dd/MM/yyyy";
 
-                        sheet.Cells[row, 6].Value = data_ritiro_firma;
+                        if (!string.IsNullOrEmpty(firma.Data_ritirofirma))
+                        {
+                            sheet.Cells[row, 6].Value = Convert.ToDateTime(firma.Data_ritirofirma);
+                        }
+                        else
+                        {
+                            sheet.Cells[row, 6].Value = "";
+                        }
+
+                        sheet.Cells[row, 6].Style.Numberformat.Format = "dd/MM/yyyy";
                         sheet.Cells[row, 7].Value = firma.PrimoFirmatario ? "SI" : "NO";
                         row++;
                     }
@@ -625,57 +631,66 @@ namespace PortaleRegione.BAL
             try
             {
                 //HEADER
-                sheet.Cells[1, 1].Value = "TIPO ATTO";
-                sheet.Cells[1, 2].Value = "TIPO MOZIONE";
-                sheet.Cells[1, 3].Value = "NUMERO ATTO";
-                sheet.Cells[1, 4].Value = "STATO";
-                sheet.Cells[1, 5].Value = "PROTOCOLLO";
-                sheet.Cells[1, 6].Value = "CODICE MATERIA";
-                sheet.Cells[1, 7].Value = "DATA PRESENTAZIONE";
-                sheet.Cells[1, 8].Value = "OGGETTO";
-                sheet.Cells[1, 9].Value = "OGGETTO PRESENTATO/OGGETTO COMMISSIONE";
-                sheet.Cells[1, 10].Value = "OGGETTO APPROVATO/OGGETTO ASSEMBLEA";
-                sheet.Cells[1, 11].Value = "RISPOSTA RICHIESTA";
-                sheet.Cells[1, 12].Value = "AREA";
-                sheet.Cells[1, 13].Value = "DATA ANNUNZIO";
-                sheet.Cells[1, 14].Value = "PUBBLICATO";
-                sheet.Cells[1, 15].Value = "RISPOSTA FORNITA";
-                sheet.Cells[1, 16].Value = "ITER MULTIPLO";
-                sheet.Cells[1, 17].Value = "NOTE RISPOSTA";
-                sheet.Cells[1, 18].Value = "ANNOTAZIONI";
-                sheet.Cells[1, 19].Value = "TIPO CHIUSURA ITER";
-                sheet.Cells[1, 20].Value = "DATA CHIUSURA ITER";
-                sheet.Cells[1, 21].Value = "NOTE CHIUSURA ITER";
-                sheet.Cells[1, 22].Value = "RISULTATO VOTAZIONE";
-                sheet.Cells[1, 23].Value = "DATA TRASMISSIONE";
-                sheet.Cells[1, 24].Value = "TIPO CHIUSURA ITER";
-                sheet.Cells[1, 25].Value = "DATA CHIUSURA ITER";
-                sheet.Cells[1, 26].Value = "NOTE CHIUSURA ITER";
-                sheet.Cells[1, 27].Value = "TIPO VOTAZIONE";
-                sheet.Cells[1, 28].Value = "DCR";
-                sheet.Cells[1, 29].Value = "NUMERO DCR";
-                sheet.Cells[1, 30].Value = "NUMERO DCRC";
-                sheet.Cells[1, 31].Value = "BURL";
-                sheet.Cells[1, 32].Value = "EMENDATO";
-                sheet.Cells[1, 33].Value = "DATA COMUNICAZIONE ASSEMBLEA";
-                sheet.Cells[1, 34].Value = "AREA TEMATICA";
-                sheet.Cells[1, 35].Value = "DATA TRASMISSIONE";
-                sheet.Cells[1, 36].Value = "ALTRI SOGGETTI";
-                sheet.Cells[1, 37].Value = "COMPETENZA";
-                sheet.Cells[1, 38].Value = "IMPEGNI E SCADENZE";
-                sheet.Cells[1, 39].Value = "STATO DI ATTUAZIONE";
-                sheet.Cells[1, 40].Value = "CONCLUSO";
+                var headerRow = 2;
+                sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
+                sheet.Cells[headerRow, 2].Value = "TIPO MOZIONE";
+                sheet.Cells[headerRow, 3].Value = "NUMERO ATTO";
+                sheet.Cells[headerRow, 4].Value = "STATO";
+                sheet.Cells[headerRow, 5].Value = "PROTOCOLLO";
+                sheet.Cells[headerRow, 6].Value = "CODICE MATERIA";
+                sheet.Cells[headerRow, 7].Value = "DATA PRESENTAZIONE";
+                sheet.Cells[headerRow, 8].Value = "OGGETTO";
+                sheet.Cells[headerRow, 9].Value = "OGGETTO PRESENTATO/OGGETTO COMMISSIONE";
+                sheet.Cells[headerRow, 10].Value = "OGGETTO APPROVATO/OGGETTO ASSEMBLEA";
+                sheet.Cells[headerRow, 11].Value = "RISPOSTA RICHIESTA";
+                sheet.Cells[headerRow, 12].Value = "AREA";
+                sheet.Cells[headerRow, 13].Value = "DATA ANNUNZIO";
+                sheet.Cells[headerRow, 14].Value = "PUBBLICATO";
+                sheet.Cells[headerRow, 15].Value = "RISPOSTA FORNITA";
+                sheet.Cells[headerRow, 16].Value = "ITER MULTIPLO";
+                sheet.Cells[headerRow, 17].Value = "NOTE RISPOSTA";
+                sheet.Cells[headerRow, 18].Value = "ANNOTAZIONI";
+                sheet.Cells[headerRow, 19].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 20].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[headerRow, 21].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[headerRow, 22].Value = "RISULTATO VOTAZIONE";
+                sheet.Cells[headerRow, 23].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 24].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 25].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[headerRow, 26].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[headerRow, 27].Value = "TIPO VOTAZIONE";
+                sheet.Cells[headerRow, 28].Value = "DCR";
+                sheet.Cells[headerRow, 29].Value = "NUMERO DCR";
+                sheet.Cells[headerRow, 30].Value = "NUMERO DCRC";
+                sheet.Cells[headerRow, 31].Value = "BURL";
+                sheet.Cells[headerRow, 32].Value = "EMENDATO";
+                sheet.Cells[headerRow, 33].Value = "DATA COMUNICAZIONE ASSEMBLEA";
+                sheet.Cells[headerRow, 34].Value = "AREA TEMATICA";
+                sheet.Cells[headerRow, 35].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 36].Value = "ALTRI SOGGETTI";
+                sheet.Cells[headerRow, 37].Value = "COMPETENZA";
+                sheet.Cells[headerRow, 38].Value = "IMPEGNI E SCADENZE";
+                sheet.Cells[headerRow, 39].Value = "STATO DI ATTUAZIONE";
+                sheet.Cells[headerRow, 40].Value = "CONCLUSO";
 
-                int row = 2;
+                int row = 3;
                 foreach (var atto in attiList)
                 {
                     sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
-                    sheet.Cells[row, 2].Value = "";
-                    sheet.Cells[row, 3].Value = atto.NAtto;
+                    var tipoMozione = "";
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        tipoMozione = Utility.GetText_TipoMOZDASI(atto.TipoMOZ);
+
+                    }
+
+                    sheet.Cells[row, 2].Value = tipoMozione;
+                    sheet.Cells[row, 3].Value = Convert.ToInt32(atto.NAtto);
                     sheet.Cells[row, 4].Value = Utility.GetText_StatoDASI(atto.IDStato, true);
                     sheet.Cells[row, 5].Value = "";
                     sheet.Cells[row, 6].Value = "";
-                    sheet.Cells[row, 7].Value = atto.Timestamp.ToString("dd/MM/yyyy");
+                    sheet.Cells[row, 7].Value = atto.Timestamp;
+                    sheet.Cells[row, 7].Style.Numberformat.Format = "dd/MM/yyyy";
 
                     if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
                         || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
@@ -701,7 +716,7 @@ namespace PortaleRegione.BAL
                         sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
                     }
 
-                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta); // risposta
+                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta, true); // risposta
                     row++;
                 }
             }
@@ -711,76 +726,6 @@ namespace PortaleRegione.BAL
                 throw;
             }
         }
-
-        //private ISheet NewSheetDASI_Controlli(ISheet sheet)
-        //{
-        //    try
-        //    {
-        //        var row = sheet.CreateRow(0);
-        //        SetColumnValue(ref row, "Codice di controllo del template:");
-        //        SetColumnValue(ref row, "TY86Z5s6VfZtRFF46fi54qskISyv36_v007");
-
-        //        var row1 = sheet.CreateRow(1);
-        //        SetColumnValue(ref row1, "Numero massimo atti da importare:");
-        //        SetColumnValue(ref row1, "1000");
-
-        //        return sheet;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e);
-        //        throw;
-        //    }
-        //}
-
-        //private async Task<ISheet> NewSheetDASI_Firmatari(ISheet sheet, List<AttiFirmeDto> firmatariList)
-        //{
-        //    //HEADER
-        //    try
-        //    {
-        //        var row = sheet.CreateRow(0);
-        //        SetColumnValue(ref row, "TIPO ATTO");
-        //        SetColumnValue(ref row, "NUMERO ATTO");
-        //        SetColumnValue(ref row, "FIRMATARIO");
-        //        SetColumnValue(ref row, "GRUPPO");
-        //        SetColumnValue(ref row, "DATA FIRMA");
-        //        SetColumnValue(ref row, "DATA RITIRO FIRMA");
-        //        SetColumnValue(ref row, "PRIMO FIRMATARIO");
-
-        //        foreach (var firma in firmatariList)
-        //            try
-        //            {
-        //                var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
-        //                var gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
-        //                var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-        //                SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
-        //                SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
-        //                var firmacert = firma.FirmaCert;
-        //                var indiceParentesiApertura = firmacert.IndexOf('(');
-        //                firmacert = firmacert.Remove(indiceParentesiApertura - 1);
-        //                SetColumnValue(ref rowBody, firmacert); // firmatario
-        //                SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
-        //                SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 10)); // data firma
-        //                var data_ritiro_firma = firma.Data_ritirofirma;
-        //                if (!string.IsNullOrEmpty(data_ritiro_firma))
-        //                    data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
-
-        //                SetColumnValue(ref rowBody, data_ritiro_firma); // data ritiro firma
-        //                SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                Console.WriteLine(e);
-        //            }
-
-        //        return sheet;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e);
-        //        throw;
-        //    }
-        //}
 
         public async Task<HttpResponseMessage> HTMLtoWORD(Guid attoUId, OrdinamentoEnum ordine, ClientModeEnum mode,
             PersonaDto persona)
