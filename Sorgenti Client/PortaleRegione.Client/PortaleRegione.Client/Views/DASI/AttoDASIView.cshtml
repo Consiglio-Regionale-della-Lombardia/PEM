@@ -117,9 +117,9 @@
     </div>
 }
 <div class="card-content">
-    @if (atto.Tipo == (int)TipoAttoEnum.IQT
+    @if ((atto.Tipo == (int)TipoAttoEnum.IQT
         || atto.Tipo == (int)TipoAttoEnum.MOZ
-        || atto.Tipo == (int)TipoAttoEnum.ODG
+        || atto.Tipo == (int)TipoAttoEnum.ODG)
          && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
     {
         if (string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))

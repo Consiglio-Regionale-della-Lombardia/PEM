@@ -125,7 +125,7 @@
 
                     if (notifica.IsPem)
                     {
-                        if (notifica.EM.UIDPersonaProponente != notifica.Mittente)
+                        if (notifica.EM.UIDPersonaProponente != notifica.Mittente && notifica.RuoloMittente != RuoliIntEnum.Consigliere_Regionale)
                         {
                             mittente_visualizzato = $"{notifica.EM.PersonaProponente.DisplayName} ({notifica.EM.gruppi_politici.codice_gruppo})";
                             mittente_foto = notifica.EM.PersonaProponente.foto;
@@ -133,7 +133,7 @@
                         }
                     }else if (notifica.IsDasi)
                     {
-                        if (notifica.ATTO_DASI.UIDPersonaProponente != notifica.Mittente)
+                        if (notifica.ATTO_DASI.UIDPersonaProponente != notifica.Mittente && notifica.RuoloMittente != RuoliIntEnum.Consigliere_Regionale)
                         {
                             mittente_visualizzato = $"{notifica.ATTO_DASI.PersonaProponente.DisplayName} ({notifica.ATTO_DASI.gruppi_politici.codice_gruppo})";
                             mittente_sub = notifica.UTENTI_NoCons.DisplayName;
@@ -247,7 +247,7 @@
 
                                 @if (!notifica.Chiuso
                                      && !notifica.Valida
-                                     && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
+                                     && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaProponente
                                      && notifica.IDTipo == (int)TipoNotificaEnum.RICHIESTA)
                                 {
                                     <a class="btn-floating white green-text tooltipped" data-tooltip="Accetta proposta" onclick="AccettaPropostaFirmaAttoDASI('@notifica.UIDNotifica')">
@@ -256,7 +256,7 @@
                                 }
                                 else if (!notifica.Chiuso
                                          && notifica.Valida
-                                         && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaPrimaFirma
+                                         && Model.User.UID_persona == notifica.ATTO_DASI.UIDPersonaProponente
                                          && notifica.IDTipo == (int)TipoNotificaEnum.RITIRO)
                                 {
                                     <a class="btn-floating white green-text tooltipped" data-tooltip="Accetta ritiro" onclick="AccettaRitiroFirmaAttoDASI('@notifica.UIDNotifica')">
