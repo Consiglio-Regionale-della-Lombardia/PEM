@@ -54,10 +54,6 @@
                             ORDINA ATTO
                         </a>
                     }
-                    <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
-                        <i class="material-icons right pink-text">format_align_left</i>
-                        VISUALIZZA ATTO
-                    </a>
                     @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
                     {
                         <a class="btn-flat pink-text tooltipped"
@@ -129,7 +125,7 @@
 <div id="pnlOrdinamento" style="display: none;">
     <div class="row">
         <div class="col l12 right-align">
-            <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="viewStandard();">
+            <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza la griglia emendamenti" onclick="location.reload();">
                 <i class="material-icons right pink-text">apps</i>
                 VISUALIZZA EM
             </a>
@@ -186,15 +182,19 @@
         {
             @Html.AntiForgeryToken()
 
-            <div class="form-group">
-                <label>Seleziona proponente:</label>
-                <div id="autocompleteProponenti" class="chips chips-autocomplete"></div>
+            <div class="row">
+                <div class="col s12 l12">
+                    <label>
+                        <input id="chkAssegnaComeAssessore" type="checkbox" name="AssegnaComeAssessore" />
+                        <span>Assegna come assessore</span>
+                    </label>
+                </div>
             </div>
-            <div class="form-group">
-                <label>
-                    <input id="chkAssegnaComeAssessore" type="checkbox" name="AssegnaComeAssessore" />
-                    <span>Assegna come assessore</span>
-                </label>
+            <div class="row">
+                <div class="col s12 l12">
+                    <label>Seleziona proponente:</label>
+                    <div id="autocompleteProponenti" class="chips chips-autocomplete"></div>
+                </div>
             </div>
         }
         <div class="modal-footer">
@@ -224,11 +224,14 @@
 
 <script>
     $(window).on('load',
-        async function() {
+        function() {
             $('#btnSearch').on("click",
                 function() {
                     openSearch();
                 });
+
+            waiting(true);
+
             $("#hdOrdine").val(@((int)Model.Ordinamento));
             var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
             if (filters == 0) {
@@ -252,14 +255,8 @@
             Filtri_EM_CaricaPartiEM("filter_em_parte");
 
             checkSelectedEM();
+            waiting(false);
         });
-
-    function viewStandard() {
-        $('#btnSearch').show();
-        $('#pnlViewStandard').show();
-        $('#pnlViewTestoAtto').hide();
-        $('#pnlOrdinamento').hide();
-    }
 
     function filtra() {
         setTimeout(function() {
@@ -468,10 +465,7 @@
 
         $("#btnConfermaNuovoProponente").on("click",
             function() {
-                setTimeout(function() {
-                        $('body').removeClass('loaded');
-                    },
-                    200);
+                waiting(true);
                 $("#formAssegnaA").submit();
             });
     }
@@ -512,6 +506,7 @@
                 if (pos > 0) {
                     typeMessage = "success";
                 }
+                waiting(false);
                 swal({
                     title: "Esito procedura",
                     text: data.message,
@@ -520,10 +515,11 @@
                 }).then(() => {
                     setSelezionaTutti(false);
                     setListaEmendamenti([]);
-                    go(data);
+                    location.reload();
                 });
             }).fail(function(err) {
                 console.log("error", err);
+                waiting(false);
                 Error(err);
             });
 

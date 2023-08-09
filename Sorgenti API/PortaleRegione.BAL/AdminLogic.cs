@@ -53,6 +53,7 @@ namespace PortaleRegione.BAL
                 var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
                 var filtro_ruoli = new List<int>();
                 var filtro_gruppi = new List<int>();
+                var filtro_userAd = new List<string>();
                 if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
                 {
                     var filtro_ruoli_da_rimuovere = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
@@ -74,6 +75,17 @@ namespace PortaleRegione.BAL
                     }
                 }
 
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.userAD)))
+                {
+                    var filtro_userAd_da_rimuovere =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.userAD));
+                    foreach (var userAd in filtro_userAd_da_rimuovere)
+                    {
+                        filtro_userAd.Add(userAd.Value.ToString());
+                        result_filtro.Remove(userAd);
+                    }
+                }
+
                 var queryFilter = new Filter<View_UTENTI>();
                 queryFilter.ImportStatements(result_filtro);
 
@@ -82,10 +94,72 @@ namespace PortaleRegione.BAL
                         .GetAll(model.page,
                             model.size,
                             personaDto,
-                            queryFilter))
+                            queryFilter,
+                            filtro_userAd))
                     .Select(Mapper.Map<View_UTENTI, PersonaDto>);
 
                 return listaPersone;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetPersoneIn_DB", e);
+                throw e;
+            }
+        }
+
+        public async Task<int> GetPersoneIn_DB_Count(BaseRequest<PersonaDto> model,
+            PersonaDto personaDto = null)
+        {
+            try
+            {
+                var result_filtro = new List<FilterStatement<PersonaDto>>(model.filtro);
+                var filtro_ruoli = new List<int>();
+                var filtro_gruppi = new List<int>();
+                var filtro_userAd = new List<string>();
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.Ruoli)))
+                {
+                    var filtro_ruoli_da_rimuovere = model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.Ruoli));
+                    foreach (var ruolo in filtro_ruoli_da_rimuovere)
+                    {
+                        filtro_ruoli.Add(Convert.ToInt16(ruolo.Value));
+                        result_filtro.Remove(ruolo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif)))
+                {
+                    var filtro_gruppi_da_rimuovere =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.id_gruppo_politico_rif));
+                    foreach (var gruppo in filtro_gruppi_da_rimuovere)
+                    {
+                        filtro_gruppi.Add(Convert.ToInt32(gruppo.Value));
+                        result_filtro.Remove(gruppo);
+                    }
+                }
+
+                if (model.filtro.Any(f => f.PropertyId == nameof(PersonaDto.userAD)))
+                {
+                    var filtro_userAd_da_rimuovere =
+                        model.filtro.Where(f => f.PropertyId == nameof(PersonaDto.userAD));
+                    foreach (var userAd in filtro_userAd_da_rimuovere)
+                    {
+                        filtro_userAd.Add(userAd.Value.ToString());
+                        result_filtro.Remove(userAd);
+                    }
+                }
+
+                var queryFilter = new Filter<View_UTENTI>();
+                queryFilter.ImportStatements(result_filtro);
+
+                var listaPersone = await _unitOfWork
+                        .Persone
+                        .GetAll(model.page,
+                            100000,
+                            personaDto,
+                            queryFilter,
+                            filtro_userAd);
+
+                return listaPersone.Count();
             }
             catch (Exception e)
             {
@@ -436,7 +510,7 @@ namespace PortaleRegione.BAL
                 var results = new List<PersonaDto>();
                 var persone_In_Db = new List<PersonaDto>();
 
-                var counter = await Count(model, persona);
+                var counter = await GetPersoneIn_DB_Count(model, persona);
                 persone_In_Db.AddRange(await GetPersoneIn_DB(model, persona));
 
                 foreach (var persona_in_db in persone_In_Db)
@@ -547,8 +621,8 @@ namespace PortaleRegione.BAL
             {
                 //NUOVO
 
-                //string ldapPath = "OU=PEM,OU=Intranet,OU=Gruppi,DC=consiglio,DC=lombardia";
                 var autoPassword = _logicUtil.GenerateRandomCode();
+                autoPassword = $"Pem.{autoPassword}";
                 intranetAdService.CreatePEMADUser(
                     request.userAD,
                     autoPassword,
@@ -562,6 +636,13 @@ namespace PortaleRegione.BAL
                 request.UID_persona = Guid.NewGuid();
                 request.no_Cons = 1;
                 UTENTI_NoCons newUser = request;
+                if (ruolo == RuoliIntEnum.Amministratore_Giunta)
+                {
+                    newUser.notifica_firma = true;
+                    newUser.notifica_deposito = true;
+                    newUser.attivo = true;
+                }
+
                 _unitOfWork.Persone.Add(newUser);
                 await _unitOfWork.CompleteAsync();
 
@@ -572,7 +653,7 @@ namespace PortaleRegione.BAL
                     CC = "max.pagliaro@consiglio.regione.lombardia.it",
                     OGGETTO = "PEM - Utenza aperta",
                     MESSAGGIO =
-                        $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.urlPEM}"
+                        $"Benvenuto in PEM, <br/> utilizza le seguenti credenziali: <br/> <b>Username</b> <br/> {request.userAD.Replace(@"CONSIGLIO\", "")}<br/> <b>Password</b> <br/> {autoPassword}<br/><br/> {AppSettingsConfiguration.url_CLIENT}"
                 });
             }
             else

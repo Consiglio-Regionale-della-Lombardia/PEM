@@ -83,7 +83,7 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Esporta.EsportaGrigliaWord.Replace("{id}", attoUId.ToString()).Replace("{ordine}", ordine.ToString()).Replace("{mode}", mode.ToString())}";
 
-            var lst = await GetFile(requestUrl, _token);
+            var lst = await GetFileWord(requestUrl, _token);
 
             return lst;
         }

@@ -28,9 +28,9 @@
         </a>
         <div class="row valign-wrapper">
             <div class="col s12">
-                <h5>
+                <h4>
                     <b>@ViewBag.Title</b>
-                </h5>
+                </h4>
             </div>
         </div>
     </div>
@@ -168,10 +168,14 @@
                             <div class="col s8">
                                 <h5>
                                     <b>@titolo_atto</b>
+                                    @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
+                                    {
+                                        <a class="btn-flat pink-text hide-on-large-only"
+                                           href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
+                                            <i class="material-icons right pink-text">cloud_download</i>
+                                        </a>
+                                    }
                                 </h5>
-                                <h6 class="active">
-                                    <i>@Html.Raw(atto.Oggetto)</i>
-                                </h6>
                             </div>
                             <div class="col s4 right-align">
                                 @if (!string.IsNullOrEmpty(statoAtto))
@@ -180,17 +184,23 @@
                                 }
                             </div>
                         </div>
+                        <div class="row" style="margin: 0; margin-bottom: 0 !important">
+                            <div class="col s12">
+                                <h6 class="active">
+                                    <i>@Html.Raw(atto.Oggetto)</i>
+                                </h6>
+                            </div>
+                        </div>
                         <div class="row valign-wrapper" style="margin-bottom: unset !important; margin-left: unset !important; margin-right: unset !important;">
                             <div class="col s4">
                                 @if (!string.IsNullOrEmpty(atto.Path_Testo_Atto))
                                 {
-                                    <a class="btn-flat pink-text"
+                                    <a class="btn-flat pink-text hide-on-med-and-down"
                                        href="@Url.Action("Download", "Atti", new { path = atto.Path_Testo_Atto })" title="Scarica documento">
                                         <i class="material-icons right pink-text">cloud_download</i>
-                                        SCARICA DOCUMENTO
+                                        SCARICA TESTO
                                     </a>
                                 }
-
                             </div>
                             @if (atto.IDTipoAtto == (int)TipoAttoEnum.PDL)
                             {
@@ -207,7 +217,7 @@
                                 <div class="col s1 right-align">
                                     @if (atto.Data_apertura.HasValue)
                                     {
-                                        <a class="btn-floating green" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti">
+                                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = atto.UIDAtto })')" title="Riepilogo emendamenti">
                                             <i class="material-icons" style="line-height: unset">chevron_right</i>
                                         </a>
                                     }

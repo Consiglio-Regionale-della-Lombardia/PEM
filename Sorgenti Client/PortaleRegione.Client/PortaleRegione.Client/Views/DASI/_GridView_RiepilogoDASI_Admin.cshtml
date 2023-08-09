@@ -1,5 +1,4 @@
-﻿@using System.Data
-@using PortaleRegione.Common
+﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -32,7 +31,7 @@
 }
 else
 {
-    <table class="responsive-table highlight">
+    <table class="highlight">
     <thead>
     <tr>
         <th class="center">
@@ -79,7 +78,7 @@ else
                 }
             }
 
-            <div id="atto_@item.UIDAtto" class="chip hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item))" data-nome-atto="@title" @Html.Raw(onclick_event)>
+            <div id="atto_@item.UIDAtto" class="chip chip-centered hoverable @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item))" data-nome-atto="@title" @Html.Raw(onclick_event)>
                 @Html.Raw(title)
                 @if (item.PresentatoOltreITermini)
                 {
@@ -106,14 +105,6 @@ else
                     <i class="close material-icons red-text tooltipped" data-position="bottom" data-tooltip="Ordine del giorno di NON passaggio in esame">new_releases</i>
                 }
             </div>
-            @if (item.Inviato_Al_Protocollo && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
-            {
-                <i class="material-icons green-text tooltipped" data-tooltip="Inviato il @item.DataInvioAlProtocollo.Value.ToString("dd/MM/yyyy HH:mm")" style="cursor: pointer; margin-top: 3px; position: absolute;">sync</i>
-            }
-            else if (Model.ClientMode == ClientModeEnum.GRUPPI && item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
-            {
-                <i class="material-icons orange-text tooltipped" data-tooltip="Invia al protocollo" style="cursor: pointer; margin-top: 3px; position: absolute;" onclick="InviaAlProtocollo('@item.UIDAtto')">sync_problem</i>
-            }
         </td>
         @if (item.Tipo != (int)TipoAttoEnum.MOZ)
         {
@@ -184,6 +175,7 @@ else
         <td style="width: 18%;">
             @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
             {
+                <i class="material-icons red-text tooltipped" data-tooltip="Atto contenente dati personali">key</i>
                 @Html.Raw(item.Oggetto_Privacy)
             }
             else if (string.IsNullOrEmpty(item.Oggetto_Modificato))
@@ -221,8 +213,8 @@ else
             @if (item.ConteggioFirme > 1)
             {
                 <br/>
-                <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset">
-                    + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset">group</i>
+                <a class='chip tooltipped blue white-text' data-position='left' data-tooltip='@item.Firme' style="min-width: unset;">
+                    + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
                 </a>
             }
         </td>
@@ -344,7 +336,7 @@ else
             }
             else
             {
-                <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("Modifica", new {id = item.UIDAtto})')">
+                <a class="blue-text tooltipped" data-tooltip="Modifica" onclick="go('@Url.Action("Modifica", new { id = item.UIDAtto })')">
                     <i class="icon material-icons">edit</i>
                 </a>
             }

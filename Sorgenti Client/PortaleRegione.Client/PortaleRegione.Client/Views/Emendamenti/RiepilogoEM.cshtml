@@ -51,25 +51,18 @@
                 <i class="material-icons">arrow_back</i>
             </a>
             <div class="row valign-wrapper" style="margin-bottom: 0px !important">
-                <div class="col s6">
+                <div class="col s12">
                     <p style="position: absolute">Seduta del @Model.Atto.SEDUTE.Data_seduta.ToString("dd/MM/yyyy HH:mm")</p>
                     <h3>
                         <b>@ViewBag.Title</b>
+                        @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
+                        {
+                            <a class="btn-flat pink-text tooltipped"
+                               href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica testo">
+                                <i class="material-icons right pink-text">cloud_download</i> SCARICA
+                            </a>
+                        }
                     </h3>
-                </div>
-                <div class="col s6 right-align">
-                    <a class="btn-flat pink-text tooltipped" data-tooltip="Visualizza testo atto con emendamenti approvati" onclick="viewTestoAtto();">
-                        <i class="material-icons right pink-text">format_align_left</i>
-                        VISUALIZZA ATTO
-                    </a>
-                    @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
-                    {
-                        <a class="btn-flat pink-text tooltipped"
-                           href="@Url.Action("Download", "Atti", new { path = Model.Atto.Path_Testo_Atto })" data-tooltip="Scarica documento">
-                            <i class="material-icons right pink-text">cloud_download</i>
-                            SCARICA DOCUMENTO
-                        </a>
-                    }
                 </div>
             </div>
         </div>
@@ -134,7 +127,7 @@
 </div>
 
 @{
-    Html.RenderPartial("_ComandiMassivi", Model.Atto.Chiuso);
+    Html.RenderPartial("_ComandiMassivi", Model);
     Html.RenderPartial("_PannelloStrumentiRicerche");
     Html.RenderPartial("_TestiAttoScript", Model);
     Html.RenderPartial("_InvitoPanel", new InvitoPanelModel

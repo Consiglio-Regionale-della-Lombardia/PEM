@@ -290,8 +290,8 @@
 
 <script>
     $(window).on('load', async function() {
-        var mode = getClientMode();
-        $("#hdMode").val(mode);
+        loaderView(true);
+        var mode = $("#hdMode").val();
         var load_gruppi = @Html.Raw(load_gruppi.ToString().ToLower());
         if (mode == 2 || load_gruppi == true) {
             $("#pnlFiltroGruppo").show();
@@ -303,6 +303,8 @@
         await SetupFiltriProponenti();
         await SetupFiltriTags();
 
+        loaderView(false);
+
         $('#btnExportXLS').on("click", function() {
             var url = $('#btnExportXLS').data("href");
             $.ajax({
@@ -312,14 +314,16 @@
                     console.log("RICHIESTA INVIATA");
                     waiting(true, "Elaborazione in corso..");
                 },
-                success: function (response) {
-                    var blob = new Blob([s2ab(atob(response))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                    var link = URL.createObjectURL(blob);
+                success: function (response, status, xhr) {
+                    console.log(response)
                     var a = document.createElement("a");
-                    a.href = link;
-                    a.download = "Esportazione.xlsx";
+                    a.href = response;
                     document.body.appendChild(a);
                     a.click();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                    waiting(false);
                 },
                 complete: function() {
                     console.log("OK");
@@ -339,16 +343,18 @@
                     console.log("RICHIESTA INVIATA");
                     waiting(true, "Elaborazione in corso..");
                 },
-                success: function(response) {
-                    var blob = new Blob([s2ab(atob(response))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                    var link = URL.createObjectURL(blob);
+                success: function (response, status, xhr) {
+                    console.log(response)
                     var a = document.createElement("a");
-                    a.href = link;
-                    a.download = "Esportazione_Segreteria.xlsx";
+                    a.href = response;
                     document.body.appendChild(a);
                     a.click();
                 },
-                complete: function() {
+                error: function (xhr, status, error) {
+                    console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                    waiting(false);
+                },
+                complete: function () {
                     console.log("OK");
                     waiting(false);
                 },
@@ -366,16 +372,18 @@
                     console.log("RICHIESTA INVIATA");
                     waiting(true, "Elaborazione in corso..");
                 },
-                success: function(response) {
-                    var blob = new Blob([s2ab(atob(response))], { type: 'application/doc' });
-                    var link = URL.createObjectURL(blob);
+                success: function (response, status, xhr) {
+                    console.log(response)
                     var a = document.createElement("a");
-                    a.href = link;
-                    a.download = "Esportazione.docx";
+                    a.href = response;
                     document.body.appendChild(a);
                     a.click();
                 },
-                complete: function() {
+                error: function (xhr, status, error) {
+                    console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                    waiting(false);
+                },
+                complete: function () {
                     console.log("OK");
                     waiting(false);
                 },

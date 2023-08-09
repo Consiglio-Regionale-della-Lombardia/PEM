@@ -696,7 +696,7 @@ namespace PortaleRegione.Persistance
 
             return query
                 .OrderBy(item => item.Tipo)
-                .ThenByDescending(item => item.NAtto_search)
+                .ThenBy(item => item.NAtto_search)
                 .ToTraceQuery();
         }
 
@@ -821,7 +821,7 @@ namespace PortaleRegione.Persistance
             foreach (var attiDasi in atti_proposti_in_seduta)
             {
                 var firmatari = await PRContext.ATTI_FIRME
-                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma))
+                    .Where(i => i.UIDAtto == attiDasi.UIDAtto && string.IsNullOrEmpty(i.Data_ritirofirma) && i.Prioritario)
                     .ToListAsync();
                 if (firmatari.Any(i => i.UID_persona == uidPersona)) res = false;
             }

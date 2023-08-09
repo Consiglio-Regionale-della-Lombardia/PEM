@@ -17,9 +17,9 @@
         </a>
         <div class="row valign-wrapper">
             <div class="col s12">
-                <h5>
+                <h4>
                     <b>@ViewBag.Title</b>
-                </h5>
+                </h4>
             </div>
         </div>
     </div>
@@ -65,39 +65,75 @@
                             @if (!seduta.Data_apertura.HasValue)
                             {
                                 chiusa = true;
-                                <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
                             }
                             else if (seduta.Data_apertura > DateTime.Now)
                             {
                                 chiusa = true;
-                                <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
                             }
                             else if (!string.IsNullOrEmpty(css_sedutaAttiva))
                             {
-                                <div class="chip white green-text" style="min-width: unset; border: 1px solid green">Aperta</div>
+                                <div class="chip white green-text hide-on-med-and-down" style="min-width: unset; border: 1px solid green">Aperta</div>
                             }
                             @if (!string.IsNullOrEmpty(seduta.Note))
                             {
-                                <div class="chip white black-text" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
+                                <div class="chip chip-centered white black-text hide-on-med-and-down" style="min-width: unset; border: 1px solid black">@seduta.Note</div>
                             }
                         </div>
 
                         @*COMANDI*@
-                        <div class="col s4 right-align" style="margin-top: 15px;">
-                            @if (!chiusa)
-                            {
-                                <a class="black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
-                                    <i class="material-icons">chevron_right</i>
-                                </a>
-                            }
-                        </div>
+                    <div class="col s4 right-align" style="margin-top: 15px;">
+                        @if (!chiusa)
+                        {
+                            <a class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" data-tooltip="Riepilogo atti">
+                                <i class="material-icons" style="margin-right: 5px">chevron_right</i>
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="chip white grey-text" style="min-width: unset; border: 1px solid grey">Chiusa</div>
+                        }
                     </div>
-                    @if (!chiusa)
-                    {
-                        <div class="collapsible-body">
+                    </div>
+                    <div class="collapsible-body">
                             <div class="row">
                                 <div class="col s12">
                                     <ul class="collection">
+                                        @{
+                                            var testoStato = "Archiviata";
+                                            var colorStato = "blue-text";
+
+                                            if (!seduta.Data_apertura.HasValue)
+                                            {
+                                                testoStato = "Chiuso";
+                                                colorStato = "grey-text";
+
+                                            }
+                                            else if (seduta.Data_apertura > DateTime.Now)
+                                            {
+                                                testoStato = "Chiuso";
+                                                colorStato = "grey-text";
+
+                                            }
+                                            else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                                            {
+                                                testoStato = "Aperta";
+                                                colorStato = "green-text";
+                                            }
+
+                                        }
+                                        <li class="collection-item">
+                                            <div>
+                                                <label>Stato:</label><a href="#!" class="secondary-content @colorStato">@testoStato</a>
+                                            </div>
+                                        </li>
+                                        @if (!string.IsNullOrEmpty(seduta.Note))
+                                        {
+                                            <li class="collection-item">
+                                                <div>
+                                                    <label>Note:</label><a href="#!" class="secondary-content">@seduta.Note</a>
+                                                </div>
+                                            </li>
+                                        }
                                         @if (seduta.Scadenza_presentazione.HasValue)
                                         {
                                             <li class="collection-item">
@@ -150,7 +186,6 @@
                                 </div>
                             </div>
                         </div>
-                    }
                 </li>
             }
         </ul>

@@ -52,8 +52,9 @@ namespace PortaleRegione.Persistance
         /// <param name="em"></param>
         public async Task Firma(Guid attoUId, Guid personaUId, int id_gruppo, string firmaCert,
             string dataFirmaCert, DateTime timestamp,
-            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false)
+            bool ufficio = false, bool primoFirmatario = false, bool valida = true, bool capogruppo = false, bool prioritario = true)
         {
+
             PRContext
                 .ATTI_FIRME
                 .Add(new ATTI_FIRME
@@ -67,7 +68,8 @@ namespace PortaleRegione.Persistance
                     PrimoFirmatario = primoFirmatario,
                     id_gruppo = id_gruppo,
                     Valida = valida,
-                    Capogruppo = capogruppo
+                    Capogruppo = capogruppo,
+                    Prioritario = prioritario
                 });
             await PRContext.SaveChangesAsync();
         }
@@ -82,6 +84,18 @@ namespace PortaleRegione.Persistance
             return await PRContext
                 .ATTI_FIRME
                 .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida);
+        }
+
+        /// <summary>
+        ///     Conta le firme attive nell'atto
+        /// </summary>
+        /// <param name="attoUId"></param>
+        /// <returns></returns>
+        public async Task<int> CountFirmePrioritarie(Guid attoUId)
+        {
+            return await PRContext
+                .ATTI_FIRME
+                .CountAsync(f => f.UIDAtto == attoUId && string.IsNullOrEmpty(f.Data_ritirofirma) && f.Valida && f.Prioritario);
         }
 
         /// <summary>
@@ -105,12 +119,13 @@ namespace PortaleRegione.Persistance
             var result = new List<ATTI_FIRME>();
             foreach (var guid in guids)
             {
-                result.AddRange(await PRContext
+                var res = await PRContext
                     .ATTI_FIRME
-                    .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma))
+                    .Where(f => guid == f.UIDAtto && f.Valida && string.IsNullOrEmpty(f.Data_ritirofirma) &&
+                                f.Prioritario)
                     .OrderBy(f => f.Timestamp)
-                    .Take(max_result)
-                    .ToListAsync());
+                    .ToListAsync();
+                result.AddRange(res.Take(max_result));
             }
 
             return result;
@@ -243,11 +258,24 @@ namespace PortaleRegione.Persistance
         /// <param name="attoUId"></param>
         /// <param name="personaUId"></param>
         /// <returns></returns>
-        public async Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId)
+        public async Task<ATTI_FIRME> FindInCache(Guid attoUId, Guid personaUId)
         {
             return await PRContext
                 .ATTI_FIRME
                 .FindAsync(attoUId, personaUId);
+        }
+
+        /// <summary>
+        ///     Ritorna singola firma
+        /// </summary>
+        /// <param name="attoUId"></param>
+        /// <param name="personaUId"></param>
+        /// <returns></returns>
+        public async Task<ATTI_FIRME> Get(Guid attoUId, Guid personaUId)
+        {
+            return await PRContext
+                .ATTI_FIRME
+                .FirstOrDefaultAsync(i => i.UIDAtto == attoUId && i.UID_persona == personaUId);
         }
     }
 }

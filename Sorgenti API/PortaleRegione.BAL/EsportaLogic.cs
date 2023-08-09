@@ -25,10 +25,8 @@ using ExpressionBuilder.Generics;
 using HtmlToOpenXml;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
-using NPOI.HSSF.Util;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
-using NPOI.XWPF.UserModel;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts;
@@ -46,161 +44,177 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
+using System.Web;
+using Color = System.Drawing.Color;
 
 namespace PortaleRegione.BAL
 {
     public class EsportaLogic : BaseLogic
     {
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme)
+            FirmeLogic logicFirme, AttiLogic logicAtti)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
             _logicDasi = logicDASI;
             _logicFirme = logicFirme;
+            _logicAtti = logicAtti;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
         public async Task<HttpResponseMessage> EsportaGrigliaExcel(EmendamentiViewModel model, PersonaDto persona)
         {
             try
             {
-                var FilePathComplete = GetLocalPath("xlsx");
+                var excelPackage = new ExcelPackage();
+                var excelSheet = excelPackage.Workbook.Worksheets.Add(
+                    $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}");
 
-                IWorkbook workbook = new XSSFWorkbook();
-                var excelSheet =
-                    workbook.CreateSheet(
-                        $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}");
+                var row = 1;
+                var columnIndex = 1; // Inizia dalla colonna 1
 
-                var row = excelSheet.CreateRow(0);
-                SetColumnValue(ref row, "Ordine");
+                SetColumnValue(ref row, excelSheet, "Ordine", ref columnIndex);
                 if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                 {
-                    SetColumnValue(ref row, "IDEM");
-                    SetColumnValue(ref row, "Atto");
+                    SetColumnValue(ref row, excelSheet, "IDEM", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, "Atto", ref columnIndex);
                 }
 
-                SetColumnValue(ref row, "Numero EM");
-                SetColumnValue(ref row, "Data Deposito");
-                SetColumnValue(ref row, "Stato");
-                SetColumnValue(ref row, "Tipo");
-                SetColumnValue(ref row, "Parte");
-                SetColumnValue(ref row, "Articolo");
-                SetColumnValue(ref row, "Comma");
-                SetColumnValue(ref row, "Lettera");
-                SetColumnValue(ref row, "Titolo");
-                SetColumnValue(ref row, "Capo");
+                SetColumnValue(ref row, excelSheet, "Numero EM", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Data Deposito", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Stato", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Tipo", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Parte", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Articolo", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Comma", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Lettera", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Titolo", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Capo", ref columnIndex);
 
                 if (model.Atto.VIS_Mis_Prog)
                 {
-                    SetColumnValue(ref row, "Missione");
-                    SetColumnValue(ref row, "Programma");
-                    SetColumnValue(ref row, "TitoloB");
+                    SetColumnValue(ref row, excelSheet, "Missione", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, "Programma", ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, "TitoloB", ref columnIndex);
                 }
 
-                SetColumnValue(ref row, "Proponente");
-                SetColumnValue(ref row, "Area Politica");
-                SetColumnValue(ref row, "Firmatari");
-                SetColumnValue(ref row, "Firmatari dopo deposito");
-                SetColumnValue(ref row, "LinkEM");
+                SetColumnValue(ref row, excelSheet, "Proponente", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Area Politica", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Firmatari", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "Firmatari dopo deposito", ref columnIndex);
+                SetColumnValue(ref row, excelSheet, "LinkEM", ref columnIndex);
 
-                var emList =
-                    await _logicEm.ScaricaEmendamenti(model, persona, false, true);
-                var totalProcessTime = 0f;
+                var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
+                var articoli = await _unitOfWork.Articoli.GetArticoli(model.Atto.UIDAtto);
+                var commi = new List<COMMI>();
+                foreach (var art in articoli)
+                {
+                    commi.AddRange(await _unitOfWork.Commi.GetCommi(art.UIDArticolo));
+                }
+
+                var lettere = new List<LETTERE>();
+                foreach (var comm in commi)
+                {
+                    lettere.AddRange(await _unitOfWork.Lettere.GetLettere(comm.UIDComma));
+                }
+
+                var firmeComplete = await _logicFirme.GetFirmatariAtto(model.Atto.UIDAtto);
+
+                var emList = await _logicEm.ScaricaEmendamenti(model, persona, false, true);
                 foreach (var em in emList)
                 {
-                    var startTimer = DateTime.Now;
-                    var rowEm = excelSheet.CreateRow(excelSheet.LastRowNum + 1);
-
-                    if (model.Ordinamento == OrdinamentoEnum.Presentazione)
-                        SetColumnValue(ref rowEm, em.OrdinePresentazione.ToString());
-                    else if (model.Ordinamento == OrdinamentoEnum.Votazione)
-                        SetColumnValue(ref rowEm, em.OrdineVotazione.ToString());
+                    row++;
+                    columnIndex = 1;
+                    SetColumnValue(ref row, excelSheet,
+                        model.Ordinamento == OrdinamentoEnum.Presentazione
+                            ? em.OrdinePresentazione.ToString()
+                            : em.OrdineVotazione.ToString()
+                        , ref columnIndex);
 
                     if (persona.CurrentRole == RuoliIntEnum.Amministratore_PEM)
                     {
-                        SetColumnValue(ref rowEm, em.UIDEM.ToString());
-                        var legislatura = await _unitOfWork.Legislature.Get(model.Atto.SEDUTE.id_legislatura);
-                        SetColumnValue(ref rowEm,
-                            $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}");
+                        SetColumnValue(ref row, excelSheet, em.UIDEM.ToString(), ref columnIndex);
+                        SetColumnValue(ref row, excelSheet,
+                            $"{Utility.GetText_Tipo(model.Atto.IDTipoAtto)}-{model.Atto.NAtto}-{legislatura.num_legislatura}",
+                            ref columnIndex);
                     }
-
-                    SetColumnValue(ref rowEm, em.N_EM);
-                    SetColumnValue(ref rowEm, em.DataDeposito);
-                    SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        ? $"{em.STATI_EM.IDStato}-{em.STATI_EM.Stato}"
-                        : em.STATI_EM.Stato);
-
-                    SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        ? $"{em.TIPI_EM.IDTipo_EM}-{em.TIPI_EM.Tipo_EM}"
-                        : em.TIPI_EM.Tipo_EM);
-
-                    SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        ? $"{em.IDParte}-{em.PARTI_TESTO.Parte}"
-                        : em.PARTI_TESTO.Parte);
+                    SetColumnValue(ref row, excelSheet, em.N_EM, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.DataDeposito, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                            ? $"{em.STATI_EM.IDStato}-{em.STATI_EM.Stato}"
+                            : em.STATI_EM.Stato, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                            ? $"{em.TIPI_EM.IDTipo_EM}-{em.TIPI_EM.Tipo_EM}"
+                            : em.TIPI_EM.Tipo_EM, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet,
+                        persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                            ? $"{em.IDParte}-{em.PARTI_TESTO.Parte}"
+                            : em.PARTI_TESTO.Parte, ref columnIndex);
 
                     if (em.UIDArticolo.HasValue && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
-                        var articolo = await _unitOfWork.Articoli.GetArticolo(em.UIDArticolo.Value);
-                        SetColumnValue(ref rowEm, articolo.Articolo);
+                        var articolo = articoli.First(i => i.UIDArticolo == em.UIDArticolo.Value);
+                        SetColumnValue(ref row, excelSheet, articolo.Articolo, ref columnIndex);
                     }
                     else
                     {
-                        SetColumnValue(ref rowEm, "");
+                        SetColumnValue(ref row, excelSheet, "", ref columnIndex);
                     }
 
                     if (em.UIDComma.HasValue && em.UIDComma != Guid.Empty && em.IDParte == (int)PartiEMEnum.Articolo)
                     {
-                        var comma = await _unitOfWork.Commi.GetComma(em.UIDComma.Value);
-                        SetColumnValue(ref rowEm, comma.Comma);
+                        var comma = commi.First(i => i.UIDComma == em.UIDComma.Value);
+                        SetColumnValue(ref row, excelSheet, comma.Comma, ref columnIndex);
                     }
                     else
                     {
-                        SetColumnValue(ref rowEm, "");
+                        SetColumnValue(ref row, excelSheet, "", ref columnIndex);
                     }
 
                     if (em.UIDLettera.HasValue && em.UIDLettera != Guid.Empty &&
                         em.IDParte == (int)PartiEMEnum.Articolo)
                     {
-                        var lettera = await _unitOfWork.Lettere.GetLettera(em.UIDLettera.Value);
-                        SetColumnValue(ref rowEm, lettera.Lettera);
+                        var lettera = lettere.First(i => i.UIDLettera == em.UIDLettera.Value);
+                        SetColumnValue(ref row, excelSheet, lettera.Lettera, ref columnIndex);
                     }
                     else
                     {
                         if (!string.IsNullOrEmpty(em.NLettera) && em.IDParte == (int)PartiEMEnum.Articolo)
-                            SetColumnValue(ref rowEm, em.NLettera);
+                            SetColumnValue(ref row, excelSheet, em.NLettera, ref columnIndex);
                         else
-                            SetColumnValue(ref rowEm, "");
+                            SetColumnValue(ref row, excelSheet, "", ref columnIndex);
                     }
 
-                    SetColumnValue(ref rowEm, em.NTitolo);
-                    SetColumnValue(ref rowEm, em.NCapo);
+                    SetColumnValue(ref row, excelSheet, em.NTitolo, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, em.NCapo, ref columnIndex);
 
                     if (model.Atto.VIS_Mis_Prog)
                     {
-                        SetColumnValue(ref rowEm, em.NMissione.ToString());
-                        SetColumnValue(ref rowEm, em.NProgramma.ToString());
-                        SetColumnValue(ref rowEm, em.NTitoloB.ToString());
+                        SetColumnValue(ref row, excelSheet, em.NMissione.ToString(), ref columnIndex);
+                        SetColumnValue(ref row, excelSheet, em.NProgramma.ToString(), ref columnIndex);
+                        SetColumnValue(ref row, excelSheet, em.NTitoloB.ToString(), ref columnIndex);
                     }
 
-                    SetColumnValue(ref rowEm, persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
-                        ? $"{em.PersonaProponente.id_persona}-{em.PersonaProponente.DisplayName}"
-                        : em.PersonaProponente.DisplayName);
-                    SetColumnValue(ref rowEm, "");
+                    SetColumnValue(ref row, excelSheet,
+                        persona.CurrentRole == RuoliIntEnum.Amministratore_PEM
+                            ? $"{em.PersonaProponente.id_persona}-{em.PersonaProponente.DisplayName}"
+                            : em.PersonaProponente.DisplayName, ref columnIndex);
+                    SetColumnValue(ref row, excelSheet, "", ref columnIndex);
 
                     if (!string.IsNullOrEmpty(em.DataDeposito))
                     {
-                        var firme = await _logicFirme.GetFirme(em, FirmeTipoEnum.TUTTE);
-                        var firmeDto = firme.ToList();
+                        var firmeDto = firmeComplete.Where(f => f.UIDEM == em.UIDEM).ToList();
 
                         var firmatari_opendata_ante = "--";
                         try
                         {
-                            if (firmeDto.Any(f =>
-                                    f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
-                                firmatari_opendata_ante = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
-                                        f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
-                                    persona.CurrentRole);
+                            if (firmeDto.Any(f => f.Timestamp < Convert.ToDateTime(em.DataDeposito)))
+                                firmatari_opendata_ante =
+                                    _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                            f.Timestamp < Convert.ToDateTime(em.DataDeposito)),
+                                        persona.CurrentRole);
                         }
                         catch (Exception e)
                         {
@@ -210,35 +224,48 @@ namespace PortaleRegione.BAL
                         var firmatari_opendata_post = "--";
                         try
                         {
-                            if (firmeDto.Any(f =>
-                                    f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
-                                firmatari_opendata_post = _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
-                                        f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
-                                    persona.CurrentRole);
+                            if (firmeDto.Any(f => f.Timestamp > Convert.ToDateTime(em.DataDeposito)))
+                                firmatari_opendata_post =
+                                    _logicEm.GetFirmatariEM_OPENDATA(firmeDto.Where(f =>
+                                            f.Timestamp > Convert.ToDateTime(em.DataDeposito)),
+                                        persona.CurrentRole);
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e);
                         }
 
-                        SetColumnValue(ref rowEm, firmatari_opendata_ante);
-                        SetColumnValue(ref rowEm, firmatari_opendata_post);
+                        SetColumnValue(ref row, excelSheet, firmatari_opendata_ante, ref columnIndex);
+                        SetColumnValue(ref row, excelSheet, firmatari_opendata_post, ref columnIndex);
                     }
                     else
                     {
-                        SetColumnValue(ref rowEm, "--");
-                        SetColumnValue(ref rowEm, "--");
+                        SetColumnValue(ref row, excelSheet, "--", ref columnIndex);
+                        SetColumnValue(ref row, excelSheet, "--", ref columnIndex);
                     }
 
-                    SetColumnValue(ref rowEm, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}");
-                    var spentTime = Math.Round((DateTime.Now - startTimer).TotalSeconds, 2);
-                    totalProcessTime += (float)spentTime;
+                    SetColumnValue(ref row, excelSheet, $"{AppSettingsConfiguration.urlPEM_ViewEM}{em.UID_QRCode}",
+                        ref columnIndex);
                 }
 
-                //Log.Debug($"EsportaGrigliaXLS: Compilazione XLS eseguita in {totalProcessTime} s");
+                // Imposta il percorso della cartella temporanea sul server
+                var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
 
-                Console.WriteLine($"Excel row count: {excelSheet.LastRowNum}");
-                return await Response(FilePathComplete, workbook);
+                // Salva il file Excel nella cartella virtuale
+                var fileName =
+                    $"Esportazione_{excelSheet.Name}_{Guid.NewGuid()}.xlsx"; // Utilizza un nome di file univoco
+                var filePath = Path.Combine(tempFolderPath, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    excelPackage.SaveAs(fileStream);
+                }
+
+                // Creazione della risposta con il link di download
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+                return response;
             }
             catch (Exception e)
             {
@@ -246,6 +273,215 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+
+        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(EmendamentiViewModel model, PersonaDto persona)
+        {
+            try
+            {
+                using (var package = new ExcelPackage())
+                {
+                    var emList = await _logicEm.ScaricaEmendamenti(model, persona);
+
+                    await NewSheet(package, nameof(ReportType.UOLA), model.Atto.UIDAtto, ReportType.UOLA, emList
+                        .OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato));
+                    await NewSheet(package, nameof(ReportType.PCR), model.Atto.UIDAtto, ReportType.PCR, emList
+                        .OrderBy(em => em.OrdineVotazione)
+                        .ThenBy(em => em.Rif_UIDEM)
+                        .ThenBy(em => em.IDStato));
+                    await NewSheet(package, nameof(ReportType.PROGRESSIVO), model.Atto.UIDAtto, ReportType.PROGRESSIVO,
+                        emList
+                            .OrderBy(em => em.Rif_UIDEM)
+                            .ThenBy(em => em.OrdinePresentazione));
+
+                    // Imposta il percorso della cartella temporanea sul server
+                    var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+
+                    // Salva il file Excel nella cartella virtuale
+                    var fileName =
+                        $"Esportazione_{Utility.GetText_Tipo(model.Atto.IDTipoAtto)} {model.Atto.NAtto.Replace('/', '-')}_{Guid.NewGuid()}.xlsx"; // Utilizza un nome di file univoco
+                    var filePath = Path.Combine(tempFolderPath, fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                    {
+                        package.SaveAs(fileStream);
+                    }
+
+                    // Creazione della risposta con il link di download
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - EsportaGrigliaReportXLS", e);
+                throw e;
+            }
+        }
+
+        private async Task NewSheet(ExcelPackage package, string sheetName, Guid attoUId, ReportType reportType,
+            IEnumerable<EmendamentiDto> emendamentiDtos)
+        {
+            var worksheet = package.Workbook.Worksheets.Add(sheetName);
+            var atto = await _unitOfWork.Atti.Get(attoUId);
+
+            //HEADER
+            var row = 1;
+            var columnIndex = 1;
+            SetColumnValue(ref row, worksheet, "Numero EM", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Proponente", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Articolo", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Comma", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Lettera", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Titolo", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "Capo", ref columnIndex);
+
+            if (atto.VIS_Mis_Prog)
+            {
+                SetColumnValue(ref row, worksheet, "Missione", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "Programma", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "TitoloB", ref columnIndex);
+            }
+
+            SetColumnValue(ref row, worksheet, "Contenuto", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "INAMM.", ref columnIndex);
+
+            if (reportType != ReportType.PCR)
+            {
+                SetColumnValue(ref row, worksheet, "RITIRATO", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "SI", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "NO", ref columnIndex);
+                SetColumnValue(ref row, worksheet, "DECADE", ref columnIndex);
+            }
+
+            SetColumnValue(ref row, worksheet, "NOTE", ref columnIndex);
+            SetColumnValue(ref row, worksheet, "NOTE_RISERVATE", ref columnIndex);
+
+            var oldParte = emendamentiDtos.First().IDParte;
+            int currentParte_Missione = default, oldParte_Missione = default;
+            Guid currentParte_Articolo = default, oldParte_Articolo = default;
+
+            row++;
+
+            foreach (var em in emendamentiDtos)
+            {
+                var currentParte = em.IDParte;
+                if (oldParte != currentParte)
+                {
+                    SetSeparator(ref worksheet, ref reportType, ref row);
+                    oldParte = em.IDParte;
+                }
+                else
+                {
+                    if (em.IDParte == (int)PartiEMEnum.Missione)
+                    {
+                        if (em.NMissione.HasValue)
+                        {
+                            currentParte_Missione = em.NMissione!.Value;
+                            if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
+                                SetSeparator(ref worksheet, ref reportType, ref row);
+
+                            oldParte_Missione = currentParte_Missione;
+                        }
+                    }
+                    else
+                    {
+                        if (em.UIDArticolo.HasValue)
+                        {
+                            currentParte_Articolo = em.UIDArticolo!.Value;
+                            if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
+                                SetSeparator(ref worksheet, ref reportType, ref row);
+
+                            oldParte_Articolo = currentParte_Articolo;
+                        }
+                    }
+                }
+
+                columnIndex = 1; // Reset columnIndex for each row
+                SetColumnValue(ref row, worksheet, em.N_EM, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.PersonaProponente.DisplayName, ref columnIndex);
+                if (em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty)
+                    SetColumnValue(ref row, worksheet, em.ARTICOLI.Articolo, ref columnIndex);
+                else
+                    SetColumnValue(ref row, worksheet, "--", ref columnIndex);
+
+                SetColumnValue(ref row, worksheet, em.COMMI?.Comma ?? "--", ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.LETTERE?.Lettera ?? em.NLettera ?? "--", ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.NTitolo, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.NCapo, ref columnIndex);
+
+                if (atto.VIS_Mis_Prog)
+                {
+                    SetColumnValue(ref row, worksheet, em.NMissione?.ToString() ?? "--", ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.NProgramma?.ToString() ?? "--", ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.NTitoloB?.ToString() ?? "--", ref columnIndex);
+                }
+
+                SetColumnValue(ref row, worksheet, em.TIPI_EM.Tipo_EM, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "",
+                    ref columnIndex);
+
+                if (reportType != ReportType.PCR)
+                {
+                    SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "",
+                        ref columnIndex);
+                    SetColumnValue(ref row, worksheet,
+                        em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche
+                            ? "X"
+                            : "", ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "",
+                        ref columnIndex);
+                    SetColumnValue(ref row, worksheet, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "",
+                        ref columnIndex);
+                }
+
+                SetColumnValue(ref row, worksheet, em.NOTE_Griglia, ref columnIndex);
+                SetColumnValue(ref row, worksheet, em.NOTE_EM, ref columnIndex);
+
+                row++;
+            }
+
+            // Calculate statistics and set summary row
+            var countEM = emendamentiDtos.Count();
+            var approvati = emendamentiDtos.Count(em =>
+                em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
+            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
+            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
+            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
+            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
+
+            var rowReport = worksheet.Row(row);
+            rowReport.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            rowReport.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+
+            SetColumnValue(ref row, worksheet, countEM.ToString(), 1);
+            var colonna_conteggi = atto.VIS_Mis_Prog ? 11 : 8;
+            SetColumnValue(ref row, worksheet, inammissibili.ToString(), colonna_conteggi + 1);
+
+            if (reportType != ReportType.PCR)
+            {
+                SetColumnValue(ref row, worksheet, ritirati.ToString(), colonna_conteggi + 2);
+                SetColumnValue(ref row, worksheet, approvati.ToString(), colonna_conteggi + 3);
+                SetColumnValue(ref row, worksheet, non_approvati.ToString(), colonna_conteggi + 4);
+                SetColumnValue(ref row, worksheet, decaduti.ToString(), colonna_conteggi + 5);
+            }
+        }
+
+        private void SetSeparator(ref ExcelWorksheet sheet, ref ReportType reportType, ref int row)
+        {
+            if (reportType == ReportType.PROGRESSIVO) return;
+
+            sheet.InsertRow(row, 1);
+
+            var rowSep = sheet.Row(row);
+            rowSep.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            rowSep.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            row++;
+        }
+
 
         public async Task<HttpResponseMessage> EsportaGrigliaZipDASI(List<Guid> data)
         {
@@ -256,51 +492,10 @@ namespace PortaleRegione.BAL
                 if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
                 attiList.Add(dto);
             }
+
             var pdfs = await GetPDF(attiList);
 
             return ResponseZip(pdfs);
-        }
-
-        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(List<Guid> data)
-        {
-            var FilePathComplete = GetLocalPath("xlsx");
-
-            IWorkbook workbook = new XSSFWorkbook();
-            var style = workbook.CreateCellStyle();
-            style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
-            style.FillPattern = FillPattern.SolidForeground;
-            var styleReport = workbook.CreateCellStyle();
-            styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
-            styleReport.FillPattern = FillPattern.SolidForeground;
-            styleReport.Alignment = HorizontalAlignment.Center;
-
-            var attiList = new List<AttoDASIDto>();
-            foreach (var uid in data)
-            {
-                var dto = await _logicDasi.GetAttoDto(uid);
-                if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
-                attiList.Add(dto);
-            }
-
-            var dasiSheet =
-                await NewSheetDASI_Atti(
-                    workbook.CreateSheet(
-                        "Atti"),
-                    attiList);
-            var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
-            var firmatariSheet =
-                await NewSheetDASI_Firmatari(
-                    workbook.CreateSheet(
-                        "Firmatari"),
-                    firmatariList);
-
-            var controlliSheet =
-                NewSheetDASI_Controlli(
-                    workbook.CreateSheet(
-                        "Controlli"));
-
-            var lookupSheet = workbook.CreateSheet("LOOKUP");
-            return await Response(FilePathComplete, workbook);
         }
 
         private async Task<List<FileModel>> GetPDF(List<AttoDASIDto> attiList)
@@ -319,19 +514,55 @@ namespace PortaleRegione.BAL
             return pdfs;
         }
 
-        private ISheet NewSheetDASI_Controlli(ISheet sheet)
+        public async Task<HttpResponseMessage> EsportaGrigliaExcelDASI(List<Guid> data)
+        {
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename = $"EsportazioneDASI{DateTime.Now.Ticks}.xlsx";
+            var FilePathComplete = Path.Combine(tempFolderPath, filename);
+
+            using (var package = new ExcelPackage())
+            {
+                var attiList = new List<AttoDASIDto>();
+                foreach (var uid in data)
+                {
+                    var dto = await _logicDasi.GetAttoDto(uid);
+                    if (dto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA) continue;
+                    attiList.Add(dto);
+                }
+
+                var dasiSheet = package.Workbook.Worksheets.Add("Atti");
+                FillSheetDASI_Atti(dasiSheet, attiList);
+
+                var firmatariList = await _logicDasi.ScaricaAtti_Firmatari(attiList);
+                var firmatariSheet = package.Workbook.Worksheets.Add("Firmatari");
+                await FillSheetDASI_Firmatari(firmatariSheet, firmatariList);
+
+                var controlliSheet = package.Workbook.Worksheets.Add("Controlli");
+                FillSheetDASI_Controlli(controlliSheet);
+
+                var lookupSheet = package.Workbook.Worksheets.Add("LOOKUP");
+
+                package.SaveAs(new FileInfo(FilePathComplete));
+            }
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}")
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return result;
+        }
+
+        private void FillSheetDASI_Controlli(ExcelWorksheet sheet)
         {
             try
             {
-                var row = sheet.CreateRow(0);
-                SetColumnValue(ref row, "Codice di controllo del template:");
-                SetColumnValue(ref row, "TY86Z5s6VfZtRFF46fi54qskISyv36_v007");
+                sheet.Cells[1, 1].Value = "Codice di controllo del template:";
+                sheet.Cells[1, 2].Value = "TY86Z5s6VfZtRFF46fi54qskISyv36_v007";
 
-                var row1 = sheet.CreateRow(1);
-                SetColumnValue(ref row1, "Numero massimo atti da importare:");
-                SetColumnValue(ref row1, "1000");
-
-                return sheet;
+                sheet.Cells[2, 1].Value = "Numero massimo atti da importare:";
+                sheet.Cells[2, 2].Value = 1000;
             }
             catch (Exception e)
             {
@@ -340,47 +571,154 @@ namespace PortaleRegione.BAL
             }
         }
 
-        private async Task<ISheet> NewSheetDASI_Firmatari(ISheet sheet, List<AttiFirmeDto> firmatariList)
+        private async Task FillSheetDASI_Firmatari(ExcelWorksheet sheet, List<AttiFirmeDto> firmatariList)
         {
-            //HEADER
             try
             {
-                var row = sheet.CreateRow(0);
-                SetColumnValue(ref row, "TIPO ATTO");
-                SetColumnValue(ref row, "NUMERO ATTO");
-                SetColumnValue(ref row, "FIRMATARIO");
-                SetColumnValue(ref row, "GRUPPO");
-                SetColumnValue(ref row, "DATA FIRMA");
-                SetColumnValue(ref row, "DATA RITIRO FIRMA");
-                SetColumnValue(ref row, "PRIMO FIRMATARIO");
+                //HEADER
+                sheet.Cells[1, 1].Value = "TIPO ATTO";
+                sheet.Cells[1, 2].Value = "NUMERO ATTO";
+                sheet.Cells[1, 3].Value = "FIRMATARIO";
+                sheet.Cells[1, 4].Value = "GRUPPO";
+                sheet.Cells[1, 5].Value = "DATA FIRMA";
+                sheet.Cells[1, 6].Value = "DATA RITIRO FIRMA";
+                sheet.Cells[1, 7].Value = "PRIMO FIRMATARIO";
 
+                int row = 2;
                 foreach (var firma in firmatariList)
+                {
                     try
                     {
                         var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
-                        var gruppo = await _unitOfWork.Gruppi.Get(firma.id_gruppo);
-                        var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-                        SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
-                        SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
+                        sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
+                        sheet.Cells[row, 2].Value = Convert.ToInt32(atto.NAtto);
                         var firmacert = firma.FirmaCert;
                         var indiceParentesiApertura = firmacert.IndexOf('(');
                         firmacert = firmacert.Remove(indiceParentesiApertura - 1);
-                        SetColumnValue(ref rowBody, firmacert); // firmatario
-                        SetColumnValue(ref rowBody, gruppo != null ? gruppo.codice_gruppo : ""); // gruppo
-                        SetColumnValue(ref rowBody, firma.Data_firma.Substring(0, 10)); // data firma
-                        var data_ritiro_firma = firma.Data_ritirofirma;
-                        if (!string.IsNullOrEmpty(data_ritiro_firma))
-                            data_ritiro_firma = data_ritiro_firma.Substring(0, 10);
+                        sheet.Cells[row, 3].Value = firmacert;
+                        sheet.Cells[row, 4].Value = atto.gruppi_politici.codice_gruppo;
+                        sheet.Cells[row, 5].Value = firma.Timestamp;
+                        sheet.Cells[row, 5].Style.Numberformat.Format = "dd/MM/yyyy";
 
-                        SetColumnValue(ref rowBody, data_ritiro_firma); // data ritiro firma
-                        SetColumnValue(ref rowBody, firma.PrimoFirmatario ? "SI" : "NO"); // primo firmatario
+                        if (!string.IsNullOrEmpty(firma.Data_ritirofirma))
+                        {
+                            sheet.Cells[row, 6].Value = Convert.ToDateTime(firma.Data_ritirofirma);
+                        }
+                        else
+                        {
+                            sheet.Cells[row, 6].Value = "";
+                        }
+
+                        sheet.Cells[row, 6].Style.Numberformat.Format = "dd/MM/yyyy";
+                        sheet.Cells[row, 7].Value = firma.PrimoFirmatario ? "SI" : "NO";
+                        row++;
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
 
-                return sheet;
+        private void FillSheetDASI_Atti(ExcelWorksheet sheet, IEnumerable<AttoDASIDto> attiList)
+        {
+            try
+            {
+                //HEADER
+                var headerRow = 2;
+                sheet.Cells[headerRow, 1].Value = "TIPO ATTO";
+                sheet.Cells[headerRow, 2].Value = "TIPO MOZIONE";
+                sheet.Cells[headerRow, 3].Value = "NUMERO ATTO";
+                sheet.Cells[headerRow, 4].Value = "STATO";
+                sheet.Cells[headerRow, 5].Value = "PROTOCOLLO";
+                sheet.Cells[headerRow, 6].Value = "CODICE MATERIA";
+                sheet.Cells[headerRow, 7].Value = "DATA PRESENTAZIONE";
+                sheet.Cells[headerRow, 8].Value = "OGGETTO";
+                sheet.Cells[headerRow, 9].Value = "OGGETTO PRESENTATO/OGGETTO COMMISSIONE";
+                sheet.Cells[headerRow, 10].Value = "OGGETTO APPROVATO/OGGETTO ASSEMBLEA";
+                sheet.Cells[headerRow, 11].Value = "RISPOSTA RICHIESTA";
+                sheet.Cells[headerRow, 12].Value = "AREA";
+                sheet.Cells[headerRow, 13].Value = "DATA ANNUNZIO";
+                sheet.Cells[headerRow, 14].Value = "PUBBLICATO";
+                sheet.Cells[headerRow, 15].Value = "RISPOSTA FORNITA";
+                sheet.Cells[headerRow, 16].Value = "ITER MULTIPLO";
+                sheet.Cells[headerRow, 17].Value = "NOTE RISPOSTA";
+                sheet.Cells[headerRow, 18].Value = "ANNOTAZIONI";
+                sheet.Cells[headerRow, 19].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 20].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[headerRow, 21].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[headerRow, 22].Value = "RISULTATO VOTAZIONE";
+                sheet.Cells[headerRow, 23].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 24].Value = "TIPO CHIUSURA ITER";
+                sheet.Cells[headerRow, 25].Value = "DATA CHIUSURA ITER";
+                sheet.Cells[headerRow, 26].Value = "NOTE CHIUSURA ITER";
+                sheet.Cells[headerRow, 27].Value = "TIPO VOTAZIONE";
+                sheet.Cells[headerRow, 28].Value = "DCR";
+                sheet.Cells[headerRow, 29].Value = "NUMERO DCR";
+                sheet.Cells[headerRow, 30].Value = "NUMERO DCRC";
+                sheet.Cells[headerRow, 31].Value = "BURL";
+                sheet.Cells[headerRow, 32].Value = "EMENDATO";
+                sheet.Cells[headerRow, 33].Value = "DATA COMUNICAZIONE ASSEMBLEA";
+                sheet.Cells[headerRow, 34].Value = "AREA TEMATICA";
+                sheet.Cells[headerRow, 35].Value = "DATA TRASMISSIONE";
+                sheet.Cells[headerRow, 36].Value = "ALTRI SOGGETTI";
+                sheet.Cells[headerRow, 37].Value = "COMPETENZA";
+                sheet.Cells[headerRow, 38].Value = "IMPEGNI E SCADENZE";
+                sheet.Cells[headerRow, 39].Value = "STATO DI ATTUAZIONE";
+                sheet.Cells[headerRow, 40].Value = "CONCLUSO";
+
+                int row = 3;
+                foreach (var atto in attiList)
+                {
+                    sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
+                    var tipoMozione = "";
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        tipoMozione = Utility.GetText_TipoMOZDASI(atto.TipoMOZ);
+
+                    }
+
+                    sheet.Cells[row, 2].Value = tipoMozione;
+                    sheet.Cells[row, 3].Value = Convert.ToInt32(atto.NAtto);
+                    sheet.Cells[row, 4].Value = Utility.GetText_StatoDASI(atto.IDStato, true);
+                    sheet.Cells[row, 5].Value = "";
+                    sheet.Cells[row, 6].Value = "";
+                    sheet.Cells[row, 7].Value = atto.Timestamp;
+                    sheet.Cells[row, 7].Style.Numberformat.Format = "dd/MM/yyyy";
+
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
+                    {
+                        sheet.Cells[row, 8].Value = atto.Oggetto;
+                    }
+                    else
+                    {
+                        sheet.Cells[row, 8].Value = "";
+                    }
+
+                    //Matteo Cattapan #500 / #676
+                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
+                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
+                    {
+                        sheet.Cells[row, 9].Value = atto.Oggetto; // oggetto presentato / oggetto commissione 
+                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
+                    }
+                    else
+                    {
+                        sheet.Cells[row, 9].Value = ""; // oggetto presentato / oggetto commissione 
+                        sheet.Cells[row, 10].Value = ""; // oggetto approvato / oggetto assemblea 
+                    }
+
+                    sheet.Cells[row, 11].Value = Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta, true); // risposta
+                    row++;
+                }
             }
             catch (Exception e)
             {
@@ -394,7 +732,11 @@ namespace PortaleRegione.BAL
         {
             try
             {
-                var FilePathComplete = GetLocalPath("docx");
+                var atto = await _logicAtti.GetAtto(attoUId);
+                var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+                var fileName =
+                    $"Esportazione_{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto.Replace('/', '-')}_{Guid.NewGuid()}.docx"; // Utilizza un nome di file univoco
+                var filePath = Path.Combine(tempFolderPath, fileName);
 
                 using var generatedDocument = new MemoryStream();
                 using (var package =
@@ -413,18 +755,14 @@ namespace PortaleRegione.BAL
                     mainPart.Document.Save();
                 }
 
-                File.WriteAllBytes(FilePathComplete, generatedDocument.ToArray());
-                var result = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new ByteArrayContent(generatedDocument.ToArray())
-                };
-                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                {
-                    FileName = Path.GetFileName(FilePathComplete)
-                };
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/doc");
+                File.WriteAllBytes(filePath, generatedDocument.ToArray());
 
-                return result;
+                // Creazione della risposta con il link di download
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{fileName}");
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+                return response;
             }
             catch (Exception e)
             {
@@ -520,401 +858,15 @@ namespace PortaleRegione.BAL
             return $"<td>{column_body}</td>";
         }
 
-        public async Task<HttpResponseMessage> EsportaGrigliaReportExcel(EmendamentiViewModel model, PersonaDto persona)
+        private void SetColumnValue(ref int row, ExcelWorksheet worksheet, string value, ref int columnIndex)
         {
-            try
-            {
-                var FilePathComplete = GetLocalPath("xlsx");
-
-                IWorkbook workbook = new XSSFWorkbook();
-                var style = workbook.CreateCellStyle();
-                style.FillForegroundColor = HSSFColor.Grey25Percent.Index;
-                style.FillPattern = FillPattern.SolidForeground;
-                var styleReport = workbook.CreateCellStyle();
-                styleReport.FillForegroundColor = HSSFColor.LightGreen.Index;
-                styleReport.FillPattern = FillPattern.SolidForeground;
-                styleReport.Alignment = HorizontalAlignment.Center;
-                var emList = await _logicEm.ScaricaEmendamenti(model, persona);
-
-                var uolaSheet =
-                    await NewSheet(
-                        workbook.CreateSheet(
-                            nameof(ReportType.UOLA)),
-                        model.Atto.UIDAtto,
-                        ReportType.UOLA,
-                        emList
-                            .OrderBy(em => em.OrdineVotazione)
-                            .ThenBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.IDStato),
-                        style,
-                        styleReport);
-                var pcrSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PCR)), model.Atto.UIDAtto,
-                    ReportType.PCR, emList
-                        .OrderBy(em => em.OrdineVotazione)
-                        .ThenBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.IDStato),
-                    style,
-                    styleReport);
-                var progSheet = await NewSheet(workbook.CreateSheet(nameof(ReportType.PROGRESSIVO)), model.Atto.UIDAtto,
-                    ReportType.PROGRESSIVO, emList.OrderBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.OrdinePresentazione),
-                    style,
-                    styleReport);
-
-                return await Response(FilePathComplete, workbook);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Logic - EsportaGrigliaReportXLS", e);
-                throw e;
-            }
+            worksheet.Cells[row, columnIndex].Value = value;
+            columnIndex++; // Incrementa l'indice della colonna per la prossima chiamata
         }
 
-        private async Task<ISheet> NewSheet(ISheet sheet, Guid attoUId, ReportType reportType,
-            IEnumerable<EmendamentiDto> emendamentiDtos, ICellStyle style, ICellStyle styleR)
+        private void SetColumnValue(ref int row, ExcelWorksheet worksheet, string value, int columnIndex)
         {
-            var atto = await _unitOfWork.Atti.Get(attoUId);
-
-            //HEADER
-            var row = sheet.CreateRow(0);
-            SetColumnValue(ref row, "Numero EM");
-            SetColumnValue(ref row, "Proponente");
-            SetColumnValue(ref row, "Articolo");
-            SetColumnValue(ref row, "Comma");
-            SetColumnValue(ref row, "Lettera");
-            SetColumnValue(ref row, "Titolo");
-            SetColumnValue(ref row, "Capo");
-            if (atto.VIS_Mis_Prog)
-            {
-                SetColumnValue(ref row, "Missione");
-                SetColumnValue(ref row, "Programma");
-                SetColumnValue(ref row, "TitoloB");
-            }
-
-            SetColumnValue(ref row, "Contenuto");
-            SetColumnValue(ref row, "INAMM.");
-            if (reportType != ReportType.PCR)
-            {
-                SetColumnValue(ref row, "RITIRATO");
-                SetColumnValue(ref row, "SI");
-                SetColumnValue(ref row, "NO");
-                SetColumnValue(ref row, "DECADE");
-            }
-
-            SetColumnValue(ref row, "NOTE");
-            SetColumnValue(ref row, "NOTE_RISERVATE");
-
-            var oldParte = emendamentiDtos.First().IDParte;
-            int currentParte_Missione = default, oldParte_Missione = default;
-            Guid currentParte_Articolo = default, oldParte_Articolo = default;
-
-            foreach (var em in emendamentiDtos)
-            {
-                var currentParte = em.IDParte;
-                if (oldParte != currentParte)
-                {
-                    SetSeparator(ref sheet, ref style, ref reportType);
-                    oldParte = em.IDParte;
-                }
-                else
-                {
-                    if (em.IDParte == (int)PartiEMEnum.Missione)
-                    {
-                        if (em.NMissione.HasValue)
-                        {
-                            currentParte_Missione = em.NMissione!.Value;
-                            if (oldParte_Missione != currentParte_Missione && oldParte_Missione != default)
-                                SetSeparator(ref sheet, ref style, ref reportType);
-
-                            oldParte_Missione = currentParte_Missione;
-                        }
-                    }
-                    else
-                    {
-                        if (em.UIDArticolo.HasValue)
-                        {
-                            currentParte_Articolo = em.UIDArticolo!.Value;
-                            if (oldParte_Articolo != currentParte_Articolo && oldParte_Articolo != default)
-                                SetSeparator(ref sheet, ref style, ref reportType);
-
-                            oldParte_Articolo = currentParte_Articolo;
-                        }
-                    }
-                }
-
-                var rowEm = sheet.CreateRow(sheet.LastRowNum + 1);
-                SetColumnValue(ref rowEm, em.N_EM);
-                SetColumnValue(ref rowEm, em.PersonaProponente.DisplayName);
-                if (em.UIDArticolo.HasValue && em.UIDArticolo.Value != Guid.Empty)
-                    SetColumnValue(ref rowEm, em.ARTICOLI.Articolo);
-                else
-                    SetColumnValue(ref rowEm, "--");
-
-                if (em.UIDComma.HasValue && em.UIDComma.Value != Guid.Empty)
-                    SetColumnValue(ref rowEm, em.COMMI.Comma);
-                else
-                    SetColumnValue(ref rowEm, "--");
-
-                if (em.UIDLettera.HasValue && em.UIDLettera.Value != Guid.Empty)
-                {
-                    SetColumnValue(ref rowEm, em.LETTERE.Lettera);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(em.NLettera))
-                        SetColumnValue(ref rowEm, em.NLettera);
-                    else
-                        SetColumnValue(ref rowEm, "--");
-                }
-
-                SetColumnValue(ref rowEm, em.NTitolo);
-                SetColumnValue(ref rowEm, em.NCapo);
-
-                if (atto.VIS_Mis_Prog)
-                {
-                    if (em.NMissione.HasValue && em.NMissione.Value != 0)
-                        SetColumnValue(ref rowEm, em.NMissione.Value.ToString());
-                    else
-                        SetColumnValue(ref rowEm, "--");
-
-                    if (em.NProgramma.HasValue && em.NProgramma.Value != 0)
-                        SetColumnValue(ref rowEm, em.NProgramma.Value.ToString());
-                    else
-                        SetColumnValue(ref rowEm, "--");
-
-                    if (em.NTitoloB.HasValue && em.NTitoloB.Value != 0)
-                        SetColumnValue(ref rowEm, em.NTitoloB.Value.ToString());
-                    else
-                        SetColumnValue(ref rowEm, "--");
-                }
-
-                SetColumnValue(ref rowEm, em.TIPI_EM.Tipo_EM);
-                SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Inammissibile ? "X" : "");
-
-                if (reportType != ReportType.PCR)
-                {
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Ritirato ? "X" : "");
-                    SetColumnValue(ref rowEm,
-                        em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche
-                            ? "X"
-                            : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Non_Approvato ? "X" : "");
-                    SetColumnValue(ref rowEm, em.IDStato == (int)StatiEnum.Decaduto ? "X" : "");
-                }
-
-                SetColumnValue(ref rowEm, em.NOTE_Griglia);
-                SetColumnValue(ref rowEm, em.NOTE_EM);
-            }
-
-            var countEM = emendamentiDtos.Count();
-            var approvati = emendamentiDtos.Count(em =>
-                em.IDStato == (int)StatiEnum.Approvato || em.IDStato == (int)StatiEnum.Approvato_Con_Modifiche);
-            var non_approvati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Non_Approvato);
-            var ritirati = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Ritirato);
-            var decaduti = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Decaduto);
-            var inammissibili = emendamentiDtos.Count(em => em.IDStato == (int)StatiEnum.Inammissibile);
-
-            var rowReport = sheet.CreateRow(sheet.LastRowNum + 1);
-            rowReport.RowStyle = styleR;
-            var cellCount = rowReport.CreateCell(0);
-            cellCount.CellStyle = styleR;
-            cellCount.SetCellValue(countEM);
-            var colonna_conteggi = atto.VIS_Mis_Prog ? 11 : 8;
-            var cellInamm = rowReport.CreateCell(colonna_conteggi);
-            cellInamm.CellStyle = styleR;
-            cellInamm.SetCellValue(inammissibili);
-
-            if (reportType == ReportType.PCR) return sheet;
-
-            var cellRit = rowReport.CreateCell(colonna_conteggi + 1);
-            cellRit.CellStyle = styleR;
-            cellRit.SetCellValue(ritirati);
-            var cellApp = rowReport.CreateCell(colonna_conteggi + 2);
-            cellApp.CellStyle = styleR;
-            cellApp.SetCellValue(approvati);
-            var cellNonApp = rowReport.CreateCell(colonna_conteggi + 3);
-            cellNonApp.CellStyle = styleR;
-            cellNonApp.SetCellValue(non_approvati);
-            var cellDeca = rowReport.CreateCell(colonna_conteggi + 4);
-            cellDeca.CellStyle = styleR;
-            cellDeca.SetCellValue(decaduti);
-
-            return sheet;
-        }
-
-        private Task<ISheet> NewSheetDASI_Atti(ISheet sheet, IEnumerable<AttoDASIDto> attiList)
-        {
-            //HEADER
-            try
-            {
-                var rowH = sheet.CreateRow(0);
-                var row = sheet.CreateRow(1);
-                SetColumnValue(ref row, "TIPO ATTO");
-                SetColumnValue(ref row, "TIPO MOZIONE");
-                SetColumnValue(ref row, "NUMERO ATTO");
-                SetColumnValue(ref row, "STATO");
-                SetColumnValue(ref row, "PROTOCOLLO");
-                SetColumnValue(ref row, "CODICE MATERIA");
-                SetColumnValue(ref row, "DATA PRESENTAZIONE");
-                SetColumnValue(ref row, "OGGETTO");
-                SetColumnValue(ref row, "OGGETTO PRESENTATO/OGGETTO COMMISSIONE");
-                SetColumnValue(ref row, "OGGETTO APPROVATO/OGGETTO ASSEMBLEA");
-                SetColumnValue(ref row, "RISPOSTA RICHIESTA");
-                SetColumnValue(ref row, "AREA");
-                SetColumnValue(ref row, "DATA ANNUNZIO");
-                SetColumnValue(ref row, "PUBBLICATO");
-                SetColumnValue(ref row, "RISPOSTA FORNITA");
-                SetColumnValue(ref row, "ITER MULTIPLO");
-                SetColumnValue(ref row, "NOTE RISPOSTA");
-                SetColumnValue(ref row, "ANNOTAZIONI");
-                SetColumnValue(ref row, "TIPO CHIUSURA ITER");
-                SetColumnValue(ref row, "DATA CHIUSURA ITER");
-                SetColumnValue(ref row, "NOTE CHIUSURA ITER");
-                SetColumnValue(ref row, "RISULTATO VOTAZIONE");
-                SetColumnValue(ref row, "DATA TRASMISSIONE");
-                SetColumnValue(ref row, "TIPO CHIUSURA ITER");
-                SetColumnValue(ref row, "DATA CHIUSURA ITER");
-                SetColumnValue(ref row, "NOTE CHIUSURA ITER");
-                SetColumnValue(ref row, "TIPO VOTAZIONE");
-                SetColumnValue(ref row, "DCR");
-                SetColumnValue(ref row, "NUMERO DCR");
-                SetColumnValue(ref row, "NUMERO DCRC");
-                SetColumnValue(ref row, "BURL");
-                SetColumnValue(ref row, "EMENDATO");
-                SetColumnValue(ref row, "DATA COMUNICAZIONE ASSEMBLEA");
-                SetColumnValue(ref row, "AREA TEMATICA");
-                SetColumnValue(ref row, "DATA TRASMISSIONE");
-                SetColumnValue(ref row, "ALTRI SOGGETTI");
-                SetColumnValue(ref row, "COMPETENZA");
-                SetColumnValue(ref row, "IMPEGNI E SCADENZE");
-                SetColumnValue(ref row, "STATO DI ATTUAZIONE");
-                SetColumnValue(ref row, "CONCLUSO");
-
-                foreach (var atto in attiList)
-                {
-                    var rowBody = sheet.CreateRow(sheet.LastRowNum + 1);
-                    SetColumnValue(ref rowBody, Utility.GetText_Tipo(atto)); // tipo atto
-                    SetColumnValue(ref rowBody, ""); // tipo mozione
-                    SetColumnValue(ref rowBody, atto.NAtto, CellType.Numeric); // numero atto
-                    SetColumnValue(ref rowBody, Utility.GetText_StatoDASI(atto.IDStato, true)); // stato atto
-                    SetColumnValue(ref rowBody, ""); // protocollo
-                    SetColumnValue(ref rowBody, ""); // codice materia
-                    SetColumnValue(ref rowBody, atto.Timestamp.ToString("dd/MM/yyyy")); // data presentazione
-
-                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT
-                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITR
-                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ITL)
-                    {
-                        SetColumnValue(ref rowBody, atto.Oggetto); // oggetto
-                    }
-                    else
-                    {
-                        SetColumnValue(ref rowBody, ""); // oggetto
-                    }
-
-                    //Matteo Cattapan #500 / #676
-                    if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.MOZ
-                        || (TipoAttoEnum)atto.Tipo == TipoAttoEnum.ODG)
-                    {
-                        SetColumnValue(ref rowBody, atto.Oggetto); // oggetto presentato / oggetto commissione 
-                        SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
-                    }
-                    else
-                    {
-                        SetColumnValue(ref rowBody, ""); // oggetto presentato / oggetto commissione 
-                        SetColumnValue(ref rowBody, ""); // oggetto approvato / oggetto assemblea 
-                    }
-
-                    SetColumnValue(ref rowBody, Utility.GetText_TipoRispostaDASI(atto.IDTipo_Risposta)); // risposta
-                }
-
-                return Task.FromResult(sheet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-
-        private void SetColumnValue(ref IRow row, string val, CellType type = CellType.String)
-        {
-            if (DateTime.TryParse(val, out var dataTime))
-            {
-                row.CreateCell(GetColumn(row.LastCellNum)).SetCellValue(dataTime);
-            }
-            else if (int.TryParse(val, out var interoResult))
-            {
-                row.CreateCell(GetColumn(row.LastCellNum), CellType.Numeric).SetCellValue(interoResult);
-            }
-            else
-            {
-                row.CreateCell(GetColumn(row.LastCellNum), type).SetCellValue(val);
-            }
-        }
-
-        private void SetSeparator(ref ISheet sheet, ref ICellStyle style, ref ReportType reportType)
-        {
-            if (reportType == ReportType.PROGRESSIVO) return;
-
-            var rowSep = sheet.CreateRow(sheet.LastRowNum + 1);
-            rowSep.RowStyle = style;
-        }
-
-        private short GetColumn(short column)
-        {
-            return column < 0 ? (short)0 : column;
-        }
-
-        private string GetLocalPath(string extension)
-        {
-            var _pathTemp = AppSettingsConfiguration.CartellaTemp;
-            if (!Directory.Exists(_pathTemp)) Directory.CreateDirectory(_pathTemp);
-
-            var nameFile = $"{DateTime.Now.Ticks}.{extension}";
-            var FilePathComplete = Path.Combine(_pathTemp, nameFile);
-
-            return FilePathComplete;
-        }
-
-        private async Task<HttpResponseMessage> Response<T>(string path, T book)
-        {
-            var contentType = "";
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
-            {
-                var bookType = book.GetType();
-                if (typeof(XSSFWorkbook) == bookType)
-                {
-                    var t = book as IWorkbook;
-                    t?.Write(fs);
-                    contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                }
-
-                if (typeof(XWPFDocument) == bookType)
-                {
-                    var t = book as XWPFDocument;
-                    t?.Write(fs);
-                    contentType = "application/doc";
-                }
-            }
-
-            var stream = new MemoryStream();
-            using (var fileStream = new FileStream(path, FileMode.Open))
-            {
-                await fileStream.CopyToAsync(stream);
-            }
-
-            stream.Position = 0;
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StreamContent(stream)
-            };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = Path.GetFileName(path)
-            };
-            return result;
+            worksheet.Cells[row, columnIndex].Value = value;
         }
 
         private HttpResponseMessage ResponseZip(List<FileModel> pdfs)
@@ -928,20 +880,22 @@ namespace PortaleRegione.BAL
 
             outputMemoryStream.Position = 0;
             var zipByteArray = outputMemoryStream.ToArray();
-            var pathZip = Path.Combine(AppSettingsConfiguration.CartellaLavoroStampe, $"EsportazioneDASI{DateTime.Now.Ticks}.zip");
-            using (FileStream fileStream = new FileStream(pathZip, FileMode.Create))
+
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filename = $"EsportazioneDASI{DateTime.Now.Ticks}.zip";
+            var pathZip = Path.Combine(tempFolderPath, filename);
+
+            using (var fileStream = new FileStream(pathZip, FileMode.Create))
             {
                 fileStream.Write(zipByteArray, 0, zipByteArray.Length);
             }
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(zipByteArray)
-            };
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = Path.GetFileName(pathZip)
-            };
-            return result;
+
+            // Creazione della risposta con il link di download
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{filename}");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return response;
         }
 
         private void AddToZip(ZipOutputStream zipStream, FileModel internalZipFile)
@@ -956,17 +910,6 @@ namespace PortaleRegione.BAL
 
             StreamUtils.Copy(inputMemoryStream, zipStream, new byte[1024]);
             zipStream.CloseEntry();
-        }
-
-        private FileModel ResponseXLSByte(IWorkbook book)
-        {
-            using var fileStream = new MemoryStream();
-            book.Write(fileStream);
-            return new FileModel
-            {
-                Name = "Report.xlsx",
-                Content = fileStream.GetBuffer()
-            };
         }
 
         private enum ReportType

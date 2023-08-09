@@ -1,4 +1,4 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -33,8 +33,7 @@ else
 {
     foreach (var item in Model.Data.Results)
     {
-        
-        var title = $"{PortaleRegione.Common.Utility.GetText_Tipo(item.Tipo)} ";
+        var title = $"{Utility.GetText_Tipo(item.Tipo)} ";
         title += item.NAtto;
 
         <div class="col s12 m12 l12" id="atto_@item.UIDAtto" data-nome-atto="@title">
@@ -50,8 +49,8 @@ else
                     </div>
                     <div class='col s4'>
                         <div class='card-action center'>
-                            <div class="chip center white-text @Utility.GetCSS_StatoDASI(item.IDStato)" style="min-width: 180px">
-                                @PortaleRegione.Common.Utility.GetText_StatoDASI(item.IDStato)
+                            <div class="chip center white-text @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)" style="min-width: 180px">
+                                @Utility.GetText_StatoDASI(item.IDStato)
                             </div>
                         </div>
                     </div>
@@ -59,20 +58,54 @@ else
                         <div class='card-action right'>
                             @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
                             {
-                                <a class="blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
-                                    <i class="material-icons">edit</i>
+                                <a class="btn-floating white blue-text tooltipped" onclick="openMetaDatiDASI('@item.UIDAtto')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                    <i class="material-icons" style="margin-right:5px">edit</i>
                                 </a>
                             }
 
-                            <a class="black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new {id = item.UIDAtto})')" style="margin: 2px"
+                            <a class="btn-floating white black-text tooltipped" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')" style="margin: 2px"
                                data-position="left" data-tooltip="Visualizza atto">
-                                <i class="material-icons">chevron_right</i>
+                                <i class="material-icons" style="margin-right:5px">chevron_right</i>
                             </a>
                         </div>
                     </div>
                 </div>
-                <div class='card-content' style="padding: 0">
+                <div class='card-content' style="margin-top: -20px">
                     @Html.Raw(item.BodyAtto)
+                    <br/>
+                    @* FIRME *@
+                    <div class="row" id="pnlStandardFirme">
+                        <div class="col s12">
+                            @if ((item.FirmeAnte.Any()
+                                  && item.UIDPersonaProponente == Model.CurrentUser.UID_persona && item.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                 || Model.CurrentUser.IsSegreteriaAssemblea
+                                 && (item.Tipo == (int)TipoAttoEnum.IQT
+                                     || item.Tipo == (int)TipoAttoEnum.MOZ))
+                            {
+                                <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+                                    Visualizza priorita
+                                    <i class="material-icons right pink-text">low_priority</i>
+                                </a>
+                                <br/>
+                            }
+
+                            @Html.Raw(item.Firme)
+
+                            @if (!string.IsNullOrEmpty(item.DataPresentazione))
+                            {
+                                var testoDeposito = "Atto presentato";
+
+                                <label class="black-text">
+                                    <b>@testoDeposito il @Html.Raw(item.DataPresentazione)</b>
+                                </label>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.Firme_dopo_deposito))
+                            {
+                                @Html.Raw(item.Firme_dopo_deposito)
+                            }
+                        </div>
+                    </div>
                 </div>
                 @if (item.Firmabile || item.Presentabile)
                 {
@@ -82,16 +115,16 @@ else
 
                                 @if (item.Firmabile)
                                 {
-                                    <a class="btn-flat green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.FIRMA))">
-                                        <i class="material-icons right green-text">gavel</i>
+                                    <a class="btn-floating white green-text" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                                        <i class="material-icons right green-text" style="margin-right:5px">gavel</i>
                                         FIRMA
                                     </a>
                                 }
                                 @if (item.Presentabile)
                                 {
-                                    <a class="btn-flat purple-text"
-                                       onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                        <i class="material-icons right purple-text">lock</i>
+                                    <a class="btn-floating white purple-text"
+                                       onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                                        <i class="material-icons right purple-text" style="margin-right:5px">lock</i>
                                         PRESENTA
                                     </a>
                                 }

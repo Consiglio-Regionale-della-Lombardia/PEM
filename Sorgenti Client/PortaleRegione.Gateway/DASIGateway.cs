@@ -477,6 +477,13 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task CambiaPrioritaFirma(AttiFirmeDto firma)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.CambiaPrioritaFirma}";
+            var body = JsonConvert.SerializeObject(firma);
+            await Post(requestUrl, body, _token);
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

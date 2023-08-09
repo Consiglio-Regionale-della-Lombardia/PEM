@@ -16,15 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ExpressionBuilder.Generics;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Request;
 
 namespace PortaleRegione.Contracts
 {
@@ -36,6 +35,7 @@ namespace PortaleRegione.Contracts
         Task<GruppiDto> GetGruppoPersona(List<string> LGruppi, bool IsGiunta = false);
         Task<IEnumerable<KeyValueDto>> GetAllAttivi(int id_legislatura);
         Task<IEnumerable<KeyValueDto>> GetAll();
+        Task<List<View_gruppi_politici_con_giunta>> GetAllWithGiunta();
         Task<View_gruppi_politici_con_giunta> Get(int gruppoId);
         Task<View_UTENTI> GetCapoGruppo(int gruppoId);
         Task<IEnumerable<UTENTI_NoCons>> GetSegreteriaPolitica(int id, bool notifica_firma, bool notifica_deposito);

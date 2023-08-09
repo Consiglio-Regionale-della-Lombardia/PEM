@@ -146,9 +146,9 @@ namespace PortaleRegione.Persistance
 
                 case CounterEmendamentiEnum.SUB_EM:
                     if (persona.IsSegreteriaAssemblea)
-                        return await query.CountAsync(e => string.IsNullOrEmpty(e.N_EM));
-                    return await query.CountAsync(e =>
-                        string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
+                        return await query.CountAsync(e =>
+                            string.IsNullOrEmpty(e.N_EM) && !string.IsNullOrEmpty(e.N_SUBEM));
+                    return await query.CountAsync(e => !string.IsNullOrEmpty(e.N_SUBEM));
 
                 default:
                     return 0;
@@ -393,7 +393,7 @@ namespace PortaleRegione.Persistance
                 switch (ordine)
                 {
                     case OrdinamentoEnum.Presentazione:
-                        query = query.OrderBy(em => em.OrdinePresentazione);
+                        query = query.OrderBy(em => em.SubEM).ThenBy(em => em.OrdinePresentazione);
                         break;
                     case OrdinamentoEnum.Votazione:
                         query = query.OrderBy(em => em.OrdineVotazione);
@@ -405,6 +405,11 @@ namespace PortaleRegione.Persistance
             else
                 query = query.OrderBy(em => em.IDStato).ThenBy(em => em.Timestamp).ThenBy(em => em.Progressivo)
                     .ThenBy(em => em.SubProgressivo);
+
+            if (size == -1)
+                return await query
+                    .Select(em => em.UIDEM)
+                    .ToListAsync();
 
             return await query
                 .Select(em => em.UIDEM)
@@ -832,8 +837,12 @@ namespace PortaleRegione.Persistance
                 .OrderByDescending(o => o.num_em)
                 .ToListAsync();
 
-            var emendamenti_atto_by_giunta = await PRContext.EM.Where(em =>
-                em.UIDAtto == uidAtto && em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID).ToListAsync();
+            var emendamenti_atto_by_giunta = await PRContext
+                .EM
+                .Where(em => em.UIDAtto == uidAtto
+                             && em.id_gruppo >= AppSettingsConfiguration.GIUNTA_REGIONALE_ID
+                             && em.IDStato >= (int)StatiEnum.Depositato
+                             && !em.Eliminato).ToListAsync();
 
             if (emendamenti_atto_by_giunta.Any())
                 result.Add(new View_Conteggi_EM_Gruppi_Politici

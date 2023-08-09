@@ -96,18 +96,18 @@ namespace PortaleRegione.Gateway
             await Put(requestUrl, body, _token);
         }
 
-        public async Task<IEnumerable<RuoliDto>> GetRuoliAD()
+        public async Task<List<RuoliDto>> GetRuoliAD()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetRuoliAD}";
-            var lst = JsonConvert.DeserializeObject<IEnumerable<RuoliDto>>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<List<RuoliDto>>(await Get(requestUrl, _token));
 
             return lst;
         }
 
-        public async Task<IEnumerable<GruppoAD_Dto>> GetGruppiPoliticiAD()
+        public async Task<List<GruppoAD_Dto>> GetGruppiPoliticiAD()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Admin.GetGruppiPoliticiAD}";
-            var lst = JsonConvert.DeserializeObject<IEnumerable<GruppoAD_Dto>>(await Get(requestUrl, _token));
+            var lst = JsonConvert.DeserializeObject<List<GruppoAD_Dto>>(await Get(requestUrl, _token));
 
             return lst;
         }

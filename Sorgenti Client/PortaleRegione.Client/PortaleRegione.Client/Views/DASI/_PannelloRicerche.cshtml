@@ -153,43 +153,65 @@
         function() {
             /*$('#btnSearch>i').html('more_vert');*/
 
-            $('#btnExportXLS').on("click",
-                function() {
-                    waiting(true);
-                    var url = $('#btnExportXLS').data("href");
-                    var request = new XMLHttpRequest();
-                    request.responseType = "blob";
-                    request.open("GET", url);
-                    request.onload = function() {
-                        waiting(false);
-                        var url2 = window.URL.createObjectURL(this.response);
+            $('#btnExportXLS').on("click", function() {
+                var url = $('#btnExportXLS').data("href");
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    beforeSend: function() {
+                        console.log("RICHIESTA INVIATA");
+                        waiting(true, "Elaborazione in corso..");
+                    },
+                    success: function (response, status, xhr) {
+                        console.log(response)
                         var a = document.createElement("a");
+                        a.href = response;
                         document.body.appendChild(a);
-                        a.href = url2;
-                        a.download = this.response.name || "download-" + $.now()
                         a.click();
-                    }
-                    request.send();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                        waiting(false);
+                    },
+                    complete: function() {
+                        console.log("OK");
+                        waiting(false);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
                 });
+            });
             
-            $('#btnExportZip').on("click",
-                function() {
-                    waiting(true);
-                    var url = $('#btnExportZip').data("href");
-                    var request = new XMLHttpRequest();
-                    request.responseType = "blob";
-                    request.open("GET", url);
-                    request.onload = function() {
-                        waiting(false);
-                        var url2 = window.URL.createObjectURL(this.response);
+            $('#btnExportZip').on("click", function() {
+                var url = $('#btnExportZip').data("href");
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    beforeSend: function() {
+                        console.log("RICHIESTA INVIATA");
+                        waiting(true, "Elaborazione in corso..");
+                    },
+                    success: function (response, status, xhr) {
+                        console.log(response)
                         var a = document.createElement("a");
+                        a.href = response;
                         document.body.appendChild(a);
-                        a.href = url2;
-                        a.download = this.response.name || "download-" + $.now()
                         a.click();
-                    }
-                    request.send();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                        waiting(false);
+                    },
+                    complete: function() {
+                        console.log("OK");
+                        waiting(false);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
                 });
+            });
         });
 
     async function reset() {

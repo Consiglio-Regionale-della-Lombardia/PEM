@@ -128,6 +128,21 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base alla seduta in formato json
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("seduta-json")]
+        public async Task<ActionResult> RiepilogoDASI_BySedutaJSON(Guid id, int tipo = (int)TipoAttoEnum.TUTTI)
+        {
+            var apiGateway = new ApiGateway(Token);
+            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 5);
+            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto })
+                .ToList();
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
         ///     Controller per aggiungere un atto di sindacato ispettivo. Restituisce il modello dell'atto pre-compilato.
         /// </summary>
         /// <returns></returns>
@@ -183,12 +198,22 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 var atto = await apiGateway.DASI.Get(id);
                 atto.BodyAtto = await apiGateway.DASI.GetBody(id, TemplateTypeEnum.HTML, true);
+
+                var firme_ante = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO);
+                var firme_post = await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO);
+                atto.FirmeAnte = firme_ante.ToList();
+                atto.FirmePost = firme_post.ToList();
+
                 atto.Firme = await Utility.GetFirmatariDASI(
-                    await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.PRIMA_DEPOSITO),
-                    currentUser.UID_persona, FirmeTipoEnum.PRIMA_DEPOSITO, Token);
+                    atto.FirmeAnte,
+                    currentUser.UID_persona,
+                    FirmeTipoEnum.PRIMA_DEPOSITO,
+                    Token);
                 atto.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
-                    await apiGateway.DASI.GetFirmatari(id, FirmeTipoEnum.DOPO_DEPOSITO),
-                    currentUser.UID_persona, FirmeTipoEnum.DOPO_DEPOSITO, Token);
+                    atto.FirmePost,
+                    currentUser.UID_persona,
+                    FirmeTipoEnum.DOPO_DEPOSITO,
+                    Token);
 
                 if (!atto.IsChiuso)
                     atto.Destinatari =
@@ -778,7 +803,7 @@ namespace PortaleRegione.Client.Controllers
                     .Results
                     .Select(i => i.UIDAtto));
                 var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
-                return File(file.Content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.FileName);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -804,7 +829,7 @@ namespace PortaleRegione.Client.Controllers
                     .Results
                     .Select(i => i.UIDAtto));
                 var file = await apiGateway.Esporta.EsportaZipDASI(lista);
-                return File(file.Content, "application/zip", file.FileName);
+                return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -899,6 +924,22 @@ namespace PortaleRegione.Client.Controllers
                     result.ViewMode = ViewModeEnum.PREVIEW;
                     atti.BodyAtto =
                         await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+
+                    var firme_ante = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.PRIMA_DEPOSITO);
+                    var firme_post = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.DOPO_DEPOSITO);
+                    atti.FirmeAnte = firme_ante.ToList();
+                    atti.FirmePost = firme_post.ToList();
+
+                    atti.Firme = await Utility.GetFirmatariDASI(
+                        atti.FirmeAnte,
+                        result.CurrentUser.UID_persona,
+                        FirmeTipoEnum.PRIMA_DEPOSITO,
+                        Token);
+                    atti.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                        atti.FirmePost,
+                        result.CurrentUser.UID_persona,
+                        FirmeTipoEnum.DOPO_DEPOSITO,
+                        Token);
                 }
 
             Session["RiepilogoDASI"] = result;
@@ -1135,6 +1176,22 @@ namespace PortaleRegione.Client.Controllers
                 {
                     id = request.UIDAtto
                 }), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [Route("cambia-priorita-firma")]
+        public async Task<ActionResult> CambiaPrioritaFirma(AttiFirmeDto firma)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.CambiaPrioritaFirma(firma);
+                return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

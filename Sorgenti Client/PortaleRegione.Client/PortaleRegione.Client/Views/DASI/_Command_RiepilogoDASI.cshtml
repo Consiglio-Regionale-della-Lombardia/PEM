@@ -8,68 +8,71 @@
 }
 
 <div class="row valign-wrapper">
-    <div class="col s3 left">
+    <div class="col l6 s6">
         <label>
-            <input type="checkbox" id="checkAll"/>
-            <span for="checkAll">Seleziona tutti</span>
+            <input type="checkbox" id="checkAll" />
+            <span for="checkAll">
+                Seleziona tutti
+            </span>
         </label>
-    </div>
-    <div class="col s5 left">
+
         @if (!Model.CurrentUser.IsSegreteriaAssemblea)
         {
+            <br />
             <label>
-                <input type="checkbox" id="expandAll"/>
-                <span for="expandAll">Espandi tutti</span>
+                <input type="checkbox" id="expandAll" />
+                <span for="expandAll">
+                    Espandi tutti
+                </span>
             </label>
         }
 
-        @if (Model.CurrentUser.IsConsigliereRegionale)
+        @if (Model.CurrentUser.IsConsigliereRegionale && Model.ClientMode == ClientModeEnum.GRUPPI)
         {
-            <label style="margin-left: 20px;">
-                <input type="checkbox" id="checkAllMy" onchange="filtraDASI_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "")/>
+            <br />
+            <label>
+                <input type="checkbox" id="checkAllMy" onchange="filtraDASI_RichiestaFirma(this.checked)" @Html.Raw(require_my_sign ? "checked=\"checked\"" : "") />
                 <span for="checkAllMy">Visualizza tutti gli ATTI in bozza per i quali è richiesta la mia firma</span>
             </label>
         }
     </div>
-    <div class="col s6">
-        <div class="right">
-            <a class="blue-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
-                <i class="material-icons">print</i>
-            </a>
-            @{
-                var text = "";
-                var icon = "";
-                var new_view = (int)ViewModeEnum.GRID;
+    <div class="col l6 s6 right-align">
 
-                if (Model.ViewMode == ViewModeEnum.PREVIEW)
-                {
-                    text = "Visualizza Atti in griglia";
-                    icon = "developer_board";
-                }
-                else if (Model.ViewMode == ViewModeEnum.GRID)
-                {
-                    new_view = (int)ViewModeEnum.PREVIEW;
-                    text = "Visualizza Atti in preview";
-                    icon = "desktop_windows";
-                }
+        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+            <i class="material-icons">print</i>
+        </a>
+        @{
+            var text = "";
+            var icon = "";
+            var new_view = (int)ViewModeEnum.GRID;
 
-                var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
-                var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
-
-                var url = Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
-                if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
-                {
-                    var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-                    url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = uidSeduta, tipo = Model.Tipo, view = new_view });
-                }
-
+            if (Model.ViewMode == ViewModeEnum.PREVIEW)
+            {
+                text = "Visualizza Atti in griglia";
+                icon = "developer_board";
+            }
+            else if (Model.ViewMode == ViewModeEnum.GRID)
+            {
+                new_view = (int)ViewModeEnum.PREVIEW;
+                text = "Visualizza Atti in preview";
+                icon = "desktop_windows";
             }
 
-            <a class="blue-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="left">
-                <i class="icon material-icons">@icon</i>
-            </a>
+            var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
+            var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
 
-        </div>
+            var url = Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
+            if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+            {
+                var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+                url = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = uidSeduta, tipo = Model.Tipo, view = new_view });
+            }
+
+        }
+
+        <a class="btn-floating white black-text tooltipped" onclick="gotoPreviewMode()" data-tooltip="@text" data-position="left">
+            <i class="icon material-icons">@icon</i>
+        </a>
     </div>
 </div>
 

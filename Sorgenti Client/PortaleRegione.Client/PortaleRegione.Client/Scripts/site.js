@@ -12,12 +12,17 @@ document.addEventListener("DOMContentLoaded",
         var mode = getClientMode();
         if (mode == null)
             setClientMode(1);
-
-        setTimeout(function() {
-                $("body").addClass("loaded");
-            },
-            200);
+        loaderView(false);
     });
+
+function loaderView(enable) {
+    console.log("ENABLE", enable)
+    if (enable) {
+        $("body").removeClass("loaded");
+    } else {
+        $("body").addClass("loaded");
+    }
+}
 
 function waiting(enable, message) {
     var instance = M.Modal.getInstance($("#waiting"));
@@ -574,7 +579,7 @@ function RitiraFirma(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -585,6 +590,7 @@ function RitiraFirma(id) {
                 if (pos > 0) {
                     typeMessage = "success";
                 }
+                waiting(false);
                 swal({
                     title: "Esito ritiro firma",
                     text: data.message,
@@ -594,6 +600,7 @@ function RitiraFirma(id) {
                     location.reload();
                 });
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -614,7 +621,7 @@ function EliminaFirma(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -626,6 +633,7 @@ function EliminaFirma(id) {
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    waiting(false);
                     swal({
                         title: "Esito ritiro firma",
                         text: data.message,
@@ -635,9 +643,11 @@ function EliminaFirma(id) {
                         location.reload();
                     });
                 } else {
+                    waiting(false);
                     go(data);
                 }
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -657,7 +667,7 @@ function RitiraFirmaDASI(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/ritiro-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -673,16 +683,18 @@ function RitiraFirmaDASI(id) {
                     typeMessage = "info";
                     data.message = data.message.replace("INFO: ", "");
                 }
+                waiting(false);
                 swal({
                     title: "Esito ritiro firma",
                     text: data.message,
                     icon: typeMessage,
                     button: "OK"
-                }).then(() => {
+                }).then(() => {                    
                     location.reload();
                 });
             }).fail(function(err) {
                 console.log("error", err);
+                waiting(false);
                 Error(err);
             });
         });
@@ -702,7 +714,7 @@ function EliminaFirmaDASI(id) {
         .then((value) => {
             if (value == null || value == "")
                 return;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/elimina-firma?id=" + id + "&pin=" + value,
                 method: "GET"
@@ -714,6 +726,7 @@ function EliminaFirmaDASI(id) {
                     if (pos > 0) {
                         typeMessage = "success";
                     }
+                    waiting(false);
                     swal({
                         title: "Esito ritiro firma",
                         text: data.message,
@@ -723,10 +736,12 @@ function EliminaFirmaDASI(id) {
                         location.reload();
                     });
                 } else {
+                    waiting(false);
                     go(data);
                 }
             }).fail(function(err) {
                 console.log("error", err);
+                waiting(false);
                 Error(err);
             });
         });
@@ -1086,7 +1101,6 @@ function EsportaXLS() {
 
             if (value == null || value == "")
                 return;
-
             go("emendamenti/esporta-xls");
         });
 }
@@ -1137,6 +1151,7 @@ function ResetStampa(stampaUId, url) {
 }
 
 function CambioStato(uidem, stato) {
+    waiting(true);
     var obj = {};
     obj.Stato = stato;
     obj.Lista = [];
@@ -1149,6 +1164,7 @@ function CambioStato(uidem, stato) {
         contentType: "application/json; charset=utf-8",
         dataType: "json"
     }).done(function(data) {
+        waiting(false);
         if (data.message) {
             swal({
                 title: "Errore",
@@ -1192,7 +1208,7 @@ function CambioStato(uidem, stato) {
 }
 
 function CambioStatoDASI(uidatto, stato) {
-    console.log("uidatto", uidatto);
+    waiting(true);
     var obj = {};
     obj.Stato = stato;
     obj.Lista = [];
@@ -1205,6 +1221,7 @@ function CambioStatoDASI(uidatto, stato) {
         contentType: "application/json; charset=utf-8",
         dataType: "json"
     }).done(function(data) {
+        waiting(false);
         if (data.message) {
             swal({
                 title: "Errore",
@@ -1379,64 +1396,6 @@ function Ordina_EMTrattazione(attoUId) {
         console.log("error", err);
         Error(err);
     });
-}
-
-
-function OrdinamentoConcluso(attoUId) {
-swal({
-    title: "Concudi ordinamento",
-    text: "Vuoi concludere l'operazione di ordinamento?",
-    icon: "info",
-            buttons: {
-                cancel: "Annulla",
-                confirm: {
-                    className: "blue white-text",
-                    title: "Accetta",
-                    value: true
-                }
-            }
-        }).then((value) => {
-        if (value == true) {
-            waiting(true);
-
-            var emListItems = $('#tableOrdinamento>li');
-            var emList = [];
-            $.each(emListItems, function (i, item) {
-                emList.push($(item).data("uidem"));
-            });
-
-            var obj = {};
-            obj.AttoUId = attoUId;
-            obj.Azione = 6;
-            obj.Lista = emList;
-
-            $.ajax({
-                url: baseUrl + "/emendamenti/ordinamento-concluso",
-                type: "POST",
-                data: JSON.stringify(obj),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            }).done(function(data) {
-                waiting(false);
-                if (data.message) {
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                } else {
-                    swal("Ordinamento salvato!").then((val) => {
-                        location.reload();
-                    });
-                }
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        }
-    });
-    
 }
 
 function Proponenti_OnChange(tipo) {

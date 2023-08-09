@@ -98,7 +98,9 @@ namespace PortaleRegione.Domain
 
         public Guid? UIDLettera { get; set; }
 
-        [StringLength(5)] public string NLettera { get; set; }
+        [StringLength(5)]
+        public string NLettera { get; set; } =
+            string.Empty; // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/809
 
         [StringLength(5)] public string NNumero { get; set; }
 
@@ -112,7 +114,7 @@ namespace PortaleRegione.Domain
 
         public int OrdineVotazione { get; set; }
 
-        public string TestoEM_originale { get; set; }
+        public string TestoEM_originale { get; set; } = string.Empty;
 
         public string EM_Certificato { get; set; }
 
@@ -178,6 +180,10 @@ namespace PortaleRegione.Domain
         public virtual ICollection<FIRME> FIRME { get; set; }
 
         public virtual ICollection<NOTIFICHE> NOTIFICHE { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Column("SubEM", TypeName = "int")]
+        public int SubEM { get; set; }
 
         public static implicit operator EM(EmendamentiDto dto)
         {

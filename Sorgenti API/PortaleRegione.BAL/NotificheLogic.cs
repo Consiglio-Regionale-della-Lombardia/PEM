@@ -576,7 +576,7 @@ namespace PortaleRegione.BAL
             var notifica = await _unitOfWork.Notifiche.Get(id);
             notifica.Valida = true;
             notifica.Chiuso = true;
-            var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
+            var firma = await _unitOfWork.Atti_Firme.FindInCache(notifica.UIDAtto, notifica.Mittente);
             firma.Valida = true;
 
             await _unitOfWork.CompleteAsync();
@@ -586,7 +586,7 @@ namespace PortaleRegione.BAL
         {
             var notifica = await _unitOfWork.Notifiche.Get(id);
             notifica.Chiuso = true;
-            var firma = await _unitOfWork.Atti_Firme.Get(notifica.UIDAtto, notifica.Mittente);
+            var firma = await _unitOfWork.Atti_Firme.FindInCache(notifica.UIDAtto, notifica.Mittente);
             firma.Data_ritirofirma =
                 BALHelper.EncryptString(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                     AppSettingsConfiguration.masterKey);
@@ -594,8 +594,12 @@ namespace PortaleRegione.BAL
             var atto = await _logicDasi.GetAttoDto(notifica.UIDAtto);
             SEDUTE seduta = null;
             if (atto.UIDSeduta.HasValue) seduta = await _unitOfWork.Sedute.Get(atto.UIDSeduta.Value);
+            //#755 Se l'atto non ha una seduta assegnata controllo la data di proposta
+            if (!string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta) && seduta == null)
+                seduta =
+                    await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
 
-            var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, seduta);
+            var check_presentazione = await _logicDasi.ControlloFirmePresentazione(atto, true, seduta);
             if (!string.IsNullOrEmpty(check_presentazione))
             {
                 var attoInDb = await _unitOfWork.DASI.Get(notifica.UIDAtto);

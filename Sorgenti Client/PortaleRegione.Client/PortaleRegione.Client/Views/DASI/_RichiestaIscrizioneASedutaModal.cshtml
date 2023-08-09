@@ -134,14 +134,7 @@
                     icon: "error"
                 });
             } else {
-                @if (Model)
-                {
-                    @Html.Raw("go(data);")
-                }
-                else
-                {
-                    @Html.Raw("location.reload();")
-                }
+                location.reload();
             }
         }).fail(function(err) {
             waiting(false);
@@ -184,7 +177,7 @@
                             icon: "error"
                         });
                     } else {
-                        go(data);
+                        location.reload();
                     }
                 }).fail(function(err) {
                     console.log("error", err);

@@ -216,5 +216,24 @@ namespace PortaleRegione.Persistance
                 .FirstAsync(item => item.UIDEM == uidEM && item.ufficio == true);
             return firma;
         }
+
+        public async Task<List<FIRME>> GetFirmatariAtto(Guid attoUid)
+        {
+            var emendamenti = await PRContext
+                .EM
+                .Where(em => em.UIDAtto == attoUid)
+                .Select(em => em.UIDEM)
+                .ToListAsync();
+
+            var query = PRContext
+                .FIRME
+                .Where(f => emendamenti.Contains(f.UIDEM));
+            query = query.OrderBy(f => f.Timestamp);
+
+            var lst = await query
+                .ToListAsync();
+
+            return lst;
+        }
     }
 }

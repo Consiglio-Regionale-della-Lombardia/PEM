@@ -37,6 +37,8 @@ namespace PortaleRegione.Contracts
 
         Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null,
             Filter<View_UTENTI> filtro = null);
+        Task<IEnumerable<View_UTENTI>> GetAll(int page, int size, PersonaDto persona = null,
+            Filter<View_UTENTI> filtro = null, List<string> userAd = null);
 
         Task<IEnumerable<View_UTENTI>> GetAllByGiunta(int page, int size, Filter<View_UTENTI> filtro = null);
         Task<int> CountAll(PersonaDto persona = null, Filter<View_UTENTI> filtro = null);

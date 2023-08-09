@@ -146,7 +146,7 @@ namespace PortaleRegione.Gateway
                 using var httpClient = new HttpClient();
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 var result = await httpClient.GetAsync(requestUrl);
                 return await CheckResponseFile(result);
             }
@@ -175,9 +175,39 @@ namespace PortaleRegione.Gateway
                 using var httpClient = new HttpClient();
                 if (!string.IsNullOrEmpty(token))
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
                 var content = new StringContent(body, Encoding.UTF8, "application/json");
                 var result = await httpClient.PostAsync(url, content);
-                return await CheckResponseFile(result);
+                return await CheckResponseUrl(result);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                //Log.Error($"Get [{url}][{body}]", e);
+                throw e;
+            }
+            catch (Exception e)
+            {
+                //Log.Error($"Get [{url}][{body}]", e);
+                throw e;
+            }
+        }
+
+        /// <summary>
+        ///     Metodo per avere scaricare il file
+        /// </summary>
+        /// <param name="requestUrl"></param>
+        /// <param name="auth"></param>
+        /// <returns></returns>
+        protected static async Task<FileResponse> GetFileWord(string url, string token)
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                if (!string.IsNullOrEmpty(token))
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
+                var result = await httpClient.GetAsync(url);
+                return await CheckResponseUrl(result);
             }
             catch (UnauthorizedAccessException e)
             {
@@ -263,6 +293,35 @@ namespace PortaleRegione.Gateway
                         {
                             Content = await result.Content.ReadAsByteArrayAsync(),
                             FileName = result.Content.Headers.ContentDisposition.FileName
+                        };
+                    }
+                default:
+                    {
+                        throw new Exception(await result.Content.ReadAsStringAsync());
+                    }
+            }
+        }
+
+
+        /// <summary>
+        ///     Metodo che controlla la response dei file
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private static async Task<FileResponse> CheckResponseUrl(HttpResponseMessage result)
+        {
+            switch (result.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedAccessException();
+                case HttpStatusCode.NotFound:
+                    throw new KeyNotFoundException();
+                case HttpStatusCode.Created:
+                case HttpStatusCode.OK:
+                    {
+                        return new FileResponse
+                        {
+                            Url = await result.Content.ReadAsStringAsync(),
                         };
                     }
                 default:

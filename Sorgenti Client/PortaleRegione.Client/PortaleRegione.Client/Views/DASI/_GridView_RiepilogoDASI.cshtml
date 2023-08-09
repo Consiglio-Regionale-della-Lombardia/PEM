@@ -42,12 +42,14 @@ else
         var proponente = $"{item.PersonaProponente.DisplayName} ({codice_gruppo})";
 
         <li class="active badgeBody @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(item.Tipo))">
-        <div class="collapsible-header" tabindex="0">
-            <div class="col s4 valign-wrapper">
+        <div class="collapsible-header valign-wrapper" tabindex="0">
+            <div class="col l6 s8 valign-wrapper" style="display: inline-flex">
                 <p>
                     <label>
                         <input type="checkbox" id="chk_Atto_@item.UIDAtto" onclick="AbilitaComandiMassivi_DASI('@item.UIDAtto');"/>
-                        <span>@title</span>
+                        <span>
+                            <h5>@title</h5>
+                        </span>
                     </label>
                 </p>
                 @if (item.PresentatoOltreITermini)
@@ -96,42 +98,12 @@ else
                 @if (!string.IsNullOrEmpty(item.DettaglioMozioniAbbinate))
                 {
                     <i class="material-icons blue-text tooltipped"
-                       data-tooltip="@item.DettaglioMozioniAbbinate">info_outline</i>
+                       data-tooltip="@item.DettaglioMozioniAbbinate">
+                        info_outline
+                    </i>
                 }
             </div>
-
-            <div class="col s2 valign-wrapper">
-                @{
-                    var tooltipStato = "Non ancora depositato";
-                    var labelStato = Utility.GetText_StatoDASI(item.IDStato);
-                    if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
-                    {
-                        tooltipStato = $"Depositato il {item.DataPresentazione}";
-                        var motivazione = "";
-                        if (item.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO)
-                        {
-                            motivazione = "Ritirato";
-                        }
-                        else if (item.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO)
-                        {
-                            motivazione = "Decaduto";
-                        }
-
-                        if (!string.IsNullOrEmpty(motivazione))
-                        {
-                            tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
-                            labelStato += $" - {motivazione}";
-                        }
-                    }
-                }
-                @if (Model.Stato != StatiAttoEnum.BOZZA)
-                {
-                    <span class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
-                        @labelStato
-                    </span>
-                }
-            </div>
-            <div class="col s4 valign-wrapper">
+            <div class="col l6 right-align hide-on-med-and-down">
                 @if (!item.Firmato_Dal_Proponente)
                 {
                     <span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">
@@ -147,7 +119,7 @@ else
 
                 @if (item.ConteggioFirme > 1)
                 {
-                    <a class='chip tooltipped blue white-text' data-tooltip='@item.Firme' style="min-width: unset; margin-left: 10px;">
+                    <a class='chip tooltipped blue white-text' data-tooltip='@item.Firme' style="margin-left: 10px; min-width: unset;">
                         + @Html.Raw(item.ConteggioFirme - 1) <i class='icon material-icons right' style="margin-left: unset; margin-right: -5px;">group</i>
                     </a>
                 }
@@ -158,19 +130,19 @@ else
             </div>
 
             @*COMANDI*@
-            <div class="col s2 right-align" style="margin-top: 15px">
+            <div class="col l2 s4 right-align">
                 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
                 {
                     if (item.Firmabile)
                     {
-                        <a class="green-text tooltipped" data-tooltip="Firma" style="margin-right: 5px;" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
-                            <i class="icon material-icons">gavel</i>
+                        <a class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                            <i class="icon material-icons" style="margin-right: 5px">gavel</i>
                         </a>
                     }
                     if (item.Presentabile)
                     {
-                        <a class="purple-text tooltipped" data-tooltip="Deposita" style="margin-right: 5px;" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
-                            <i class="material-icons">lock</i>
+                        <a class="btn-floating white purple-text tooltipped" style="margin: 5px" data-tooltip="Deposita" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                            <i class="material-icons" style="margin-right: 5px">lock</i>
                         </a>
                     }
                 }
@@ -178,19 +150,50 @@ else
                 {
                     if (item.Firmabile)
                     {
-                        <a class="green-text tooltipped" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
-                            <i class="icon material-icons">gavel</i>
+                        <a class="btn-floating white green-text tooltipped" style="margin: 5px" data-tooltip="Firma" onclick="RevealFirmaDepositoDASI('@item.UIDAtto', @Html.Raw((int)ActionEnum.FIRMA))">
+                            <i class="icon material-icons" style="margin-right: 5px">gavel</i>
                         </a>
                     }
                 }
-                <a class="black-text tooltipped" data-tooltip="Entra" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
-                    <i class="icon material-icons">chevron_right</i>
+                <a class="btn-floating white black-text tooltipped" style="margin: 5px" data-tooltip="Entra" onclick="go('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
+                    <i class="icon material-icons" style="margin-right: 5px">chevron_right</i>
                 </a>
             </div>
         </div>
         <div class="collapsible-body" style="display: block;">
             <div class="row">
-                <div class="col s6">
+                <div class="col s12">
+                    @{
+                        var tooltipStato = "Non ancora depositato";
+                        var labelStato = Utility.GetText_StatoDASI(item.IDStato);
+                        if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        {
+                            tooltipStato = $"Depositato il {item.DataPresentazione}";
+                            var motivazione = "";
+                            if (item.IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO)
+                            {
+                                motivazione = "Ritirato";
+                            }
+                            else if (item.IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO)
+                            {
+                                motivazione = "Decaduto";
+                            }
+
+                            if (!string.IsNullOrEmpty(motivazione))
+                            {
+                                tooltipStato += $"<br>{motivazione} il {item.DataRitiro}";
+                                labelStato += $" - {motivazione}";
+                            }
+                        }
+                    }
+
+                    <label>Stato:</label>
+                    <span class="@Html.Raw(PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(item.IDStato)) tooltipped" data-tooltip="@tooltipStato" title="@tooltipStato">
+                        @labelStato
+                    </span>
+
+                    <br />
+
                     @if (item.Tipo != (int)TipoAttoEnum.MOZ && item.Tipo != (int)TipoAttoEnum.ODG)
                     {
                         <label>Tipo Risposta:</label>
@@ -198,30 +201,115 @@ else
                             @Utility.GetText_TipoRispostaDASI(item.IDTipo_Risposta)
                             @if (item.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE)
                             {
-                                <i style="position: absolute; margin-left: 5px;" class="material-icons tooltipped pink-text" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">info_outline</i>
+                                <i style="margin-left: 5px; position: absolute;" class="material-icons tooltipped pink-text" data-tooltip="@PortaleRegione.Client.Helpers.Utility.GetText_TipoRispostaCommissioneTooltipDASI(item)">info_outline</i>
                             }
                         </span>
                     }
                 </div>
-                <div class="col s6 right-align">
+                <div class="col s12">
+                    <label>Oggetto:</label>
+                    <span style="font-weight: normal !important">
+                        @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
+                        {
+                            @Html.Raw(item.Oggetto_Privacy)
+                        }
+                        else if (string.IsNullOrEmpty(item.Oggetto_Modificato))
+                        {
+                            @Html.Raw(item.Oggetto)
+                        }
+                        else
+                        {
+                            @Html.Raw(item.Oggetto_Modificato)
+                        }
+                    </span>
+
+                    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                    {
+                        if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && !item.DataIscrizioneSeduta.HasValue)
+                        {
+                            var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
+                            var tooltipSeduta = "Richiesta in attesa di elaborazione";
+
+                            <br />
+                            <label>Seduta:</label>
+                            <span>
+                                @textSeduta
+                                <a class="btn-floating white blue-text tooltipped" data-tooltip="@tooltipSeduta"><i class="material-icons">info</i></a>
+                                @if (item.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                                {
+                                    if ((item.Tipo != (int)TipoAttoEnum.ODG
+                                         && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                                        || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
+                                    {
+                                        <a class="btn-floating white red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                            <i class="material-icons">close</i>
+                                        </a>
+                                    }
+                                }
+                            </span>
+
+                        }
+                        else if (item.DataIscrizioneSeduta.HasValue)
+                        {
+                            var textSeduta = $"{item.Seduta.Data_seduta:dd/MM/yyyy}";
+                            var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
+                            <br />
+                            <label>Seduta:</label>
+                            <span class="tooltipped" data-tooltip="@tooltipSeduta">
+                                <b>@textSeduta</b>
+                            </span>
+                        }
+                        else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
+                        {
+                        }
+
+
+                        if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ))
+                        {
+                            <br />
+                            <label>Mozione iscritta il </label>
+                            <span>
+                                <b>@item.DataPresentazione_MOZ</b>
+                            </span>
+                        }else if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_URGENTE))
+                        {
+                            <br />
+                            <label>Mozione urgente iscritta il </label>
+                            <span>
+                                <b>@item.DataPresentazione_MOZ_URGENTE</b>
+                            </span>
+                        }else if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_ABBINATA))
+                        {
+                            <br />
+                            <label>Mozione abbinata iscritta il </label>
+                            <span>
+                                <b>@item.DataPresentazione_MOZ_ABBINATA</b>
+                            </span>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 right-align">
+                    <hr/>
                     @{
                         if (Model.CurrentUser.IsConsigliereRegionale
                             && !Model.CurrentUser.IsCapoGruppo
                             && item.Tipo == (int)TipoAttoEnum.MOZ)
                         {
-                            //Matteo Cattapan #481 
+                            //Matteo Cattapan #481
                             //Il consigliere non ha possibilità di eseguire azioni sulle mozioni
                         }
-                        else if (!item.DataIscrizioneSeduta.HasValue
-                                 && item.Tipo != (int)TipoAttoEnum.ITL
-                                 && item.Tipo != (int)TipoAttoEnum.ITR
-                                 && item.Tipo != (int)TipoAttoEnum.ODG
-                                 && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
-                                 && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
-                                 && Model.CurrentUser.IsCapoGruppo || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                        else if ((!item.DataIscrizioneSeduta.HasValue
+                                  && item.Tipo != (int)TipoAttoEnum.ITL
+                                  && item.Tipo != (int)TipoAttoEnum.ITR
+                                  && item.Tipo != (int)TipoAttoEnum.ODG
+                                  && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
+                                  && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
+                                  && Model.CurrentUser.IsCapoGruppo) || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
                                  || (item.Tipo == (int)TipoAttoEnum.MOZ && Model.CurrentUser.UID_persona == item.UIDPersonaProponente))
                         {
-                            <a class='dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
+                            <a class='btn-floating white black-text dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
                                 <i class="icon material-icons black-text">settings</i>
                             </a>
 
@@ -249,7 +337,7 @@ else
                                 {
                                     if ((item.Tipo is (int)TipoAttoEnum.IQT
                                          && (Model.CurrentUser.IsCapoGruppo
-                                             || item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona))
+                                             || (item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona)))
                                         || item.Tipo is (int)TipoAttoEnum.MOZ)
                                     {
                                         <li>
@@ -264,88 +352,36 @@ else
 
                         if (Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
                         {
-                            <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
+                            <a class="btn-floating white black-text tooltipped" style="margin-right: 5px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI", new { id = item.UIDAtto })"
                                data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })" onclick="StampaUOLA(this)">
                                 <i class="material-icons">print</i>
                             </a>
                         }
                         else
                         {
-                            <a class="black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
+                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" style="margin-right: 5px;" href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = item.UIDAtto })">
                                 <i class="material-icons">print</i>
                             </a>
                         }
 
                         if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                         {
-                            <a class="blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" style="margin-right: 5px;" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
+                            <a class="btn-floating white blue-text tooltipped" data-tooltip="Vai alla banca dati in internet" style="margin-right: 5px;" onclick="goToGeasi('@Utility.GetText_Tipo(item.Tipo)', @item.NAtto, @item.Legislatura)">
                                 <i class="icon material-icons">remove_red_eye</i>
                             </a>
                         }
 
                         if (item.Eliminabile)
                         {
-                            <a class="red-text tooltipped" data-tooltip="Elimina atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.ELIMINA))">
+                            <a class="btn-floating white red-text tooltipped" data-tooltip="Elimina atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.ELIMINA))">
                                 <i class="material-icons">close</i>
                             </a>
                         }
                         if (item.Ritirabile)
                         {
-                            <a class="red-text tooltipped" data-tooltip="Ritira atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.RITIRA))">
+                            <a class="btn-floating white red-text tooltipped" data-tooltip="Ritira atto" style="margin-right: 5px;" onclick="ConfirmActionDASI('@item.UIDAtto', '@Html.Raw(title)', @Html.Raw((int)ActionEnum.RITIRA))">
                                 <i class="material-icons">close</i>
                             </a>
-                        }
-                    }
-                </div>
-                <div class="col s12">
-                    <label>Oggetto:</label>
-                    <span style="font-weight: normal !important">
-                        @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
-                        {
-                            @Html.Raw(item.Oggetto_Privacy)
-                        }
-                        else if (string.IsNullOrEmpty(item.Oggetto_Modificato))
-                        {
-                            @Html.Raw(item.Oggetto)
-                        }
-                        else
-                        {
-                            @Html.Raw(item.Oggetto_Modificato)
-                        }
-                    </span>
-                </div>
-                <div class="col s12 right-align">
-                    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
-                    {
-                        if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && !item.DataIscrizioneSeduta.HasValue)
-                        {
-                            var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
-                            var tooltipSeduta = "Richiesta in attesa di elaborazione";
-
-                            <span class="tooltipped" data-tooltip="@tooltipSeduta">
-                                <i>@textSeduta</i>
-                                @if (item.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                                {
-                                    if (item.Tipo != (int)TipoAttoEnum.ODG
-                                        && Model.CurrentUser.UID_persona == item.UIDPersonaProponente
-                                        || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
-                                    {
-                                        <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">close</i>
-                                    }
-                                }
-                                
-                            </span>
-                        }
-                        else if (item.DataIscrizioneSeduta.HasValue)
-                        {
-                            var textSeduta = $"Seduta del {item.Seduta.Data_seduta:dd/MM/yyyy}";
-                            var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                            <span class="tooltipped" data-tooltip="@tooltipSeduta">
-                                <b>@textSeduta</b>
-                            </span>
-                        }
-                        else if (item.IDStato != (int)StatiAttoEnum.BOZZA)
-                        {
                         }
                     }
                 </div>

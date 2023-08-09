@@ -1,35 +1,35 @@
 ﻿@using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
-<div class="col s8 offset-s2">
-    <div class="col s2 @(Model.Tipo == TipoAttoEnum.ITL ? "counter-active" : "")">
-        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ITL)" onclick="filtraByTipo(@((int) TipoAttoEnum.ITL))">
+<div class="col s12">
+    <div class="col s12 l2 @(Model.Tipo == TipoAttoEnum.TUTTI ? "counter-active" : "")">
+        <div class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="filtraByTipo(@((int) TipoAttoEnum.TUTTI))" style="width: 100%">
+            Tutti (@Model.CountBarData.TUTTI)
+        </div>
+    </div>
+    <div class="col s12 l2 @(Model.Tipo == TipoAttoEnum.ITL ? "counter-active" : "")">
+        <div class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.ITL)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITL))" style="width: 100%">
             ITL (@Model.CountBarData.ITL)
         </div>
     </div>
-    <div class="col s2 @(Model.Tipo == TipoAttoEnum.ITR ? "counter-active" : "")">
-        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ITR)" onclick="filtraByTipo(@((int) TipoAttoEnum.ITR))">
+    <div class="col s12 l2 @(Model.Tipo == TipoAttoEnum.ITR ? "counter-active" : "")">
+        <div class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.ITR)" onclick="filtraByTipo(@((int)TipoAttoEnum.ITR))" style="width: 100%">
             ITR (@Model.CountBarData.ITR)
         </div>
     </div>
-    <div class="col s2 @(Model.Tipo == TipoAttoEnum.IQT ? "counter-active" : "")">
-        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.IQT)" onclick="filtraByTipo(@((int) TipoAttoEnum.IQT))">
+    <div class="col s12 l2 @(Model.Tipo == TipoAttoEnum.IQT ? "counter-active" : "")">
+        <div class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.IQT)" onclick="filtraByTipo(@((int)TipoAttoEnum.IQT))" style="width: 100%">
             IQT (@Model.CountBarData.IQT)
         </div>
     </div>
-    <div class="col s2 @(Model.Tipo == TipoAttoEnum.MOZ ? "counter-active" : "")">
-        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int) TipoAttoEnum.MOZ))">
+    <div class="col s12 l2 @(Model.Tipo == TipoAttoEnum.MOZ ? "counter-active" : "")">
+        <div class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.MOZ)" onclick="filtraByTipo(@((int)TipoAttoEnum.MOZ))" style="width: 100%">
             MOZ (@Model.CountBarData.MOZ)
         </div>
     </div>
-    <div class="col s2 @(Model.Tipo == TipoAttoEnum.ODG ? "counter-active" : "")">
-        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int) TipoAttoEnum.ODG))">
+    <div class="col s12 l2 @(Model.Tipo == TipoAttoEnum.ODG ? "counter-active" : "")">
+        <div class="chip chip-centered hoverable @Html.Raw(TipoAttoCSSConst.ODG)" onclick="filtraByTipo(@((int)TipoAttoEnum.ODG))" style="width: 100%">
             ODG (@Model.CountBarData.ODG)
-        </div>
-    </div>
-    <div class="col s2 @(Model.Tipo == TipoAttoEnum.TUTTI ? "counter-active" : "")">
-        <div class="chip hoverable @Html.Raw(TipoAttoCSSConst.TUTTI)" onclick="filtraByTipo(@((int) TipoAttoEnum.TUTTI))">
-            Tutti (@Model.CountBarData.TUTTI)
         </div>
     </div>
 </div>

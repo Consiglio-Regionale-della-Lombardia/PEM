@@ -66,6 +66,18 @@ namespace PortaleRegione.BAL
             set => memoryCache.Add(BALConstants.USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1));
         }
 
+        internal List<GruppiDto> Groups
+        {
+            get
+            {
+                if (memoryCache.Contains(BALConstants.GROUPS_IN_DATABASE))
+                    return memoryCache.Get(BALConstants.GROUPS_IN_DATABASE) as List<GruppiDto>;
+
+                return new List<GruppiDto>();
+            }
+            set => memoryCache.Add(BALConstants.GROUPS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(1));
+        }
+
 
         internal void GetUsersInDb()
         {
@@ -76,6 +88,17 @@ namespace PortaleRegione.BAL
             var personeInDbLight = personeInDb.Select(Mapper.Map<View_UTENTI, PersonaLightDto>).ToList();
 
             Users = personeInDbLight;
+        }
+
+        internal void GetGroupsInDb()
+        {
+            if (Groups.Any())
+                return;
+            var task_op = Task.Run(async () => await _unitOfWork.Gruppi.GetAllWithGiunta());
+            var personeInDb = task_op.Result;
+            var personeInDbLight = personeInDb.Select(Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>).ToList();
+
+            Groups = personeInDbLight;
         }
 
 
@@ -330,6 +353,20 @@ namespace PortaleRegione.BAL
 
         internal void GetBodyTemporaneo(AttoDASIDto atto, bool privacy, ref string body)
         {
+            if (atto.Tipo == (int)TipoAttoEnum.ODG)
+            {
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_START}", "");
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "");
+
+                body = body.Replace("{lblTitoloPDLEMView}", atto.ODG_Atto_PEM);
+                body = body.Replace("{lblSubTitoloPDLEMView}", atto.ODG_Atto_Oggetto_PEM);
+            }
+            else
+            {
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_START}", "<!--");
+                body = body.Replace("{ODG_RIFERIMENTO_COMMENTO_END}", "-->");
+            }
+
             if (atto.Tipo == (int)TipoAttoEnum.MOZ
                 || atto.Tipo == (int)TipoAttoEnum.ODG)
             {
@@ -536,8 +573,7 @@ namespace PortaleRegione.BAL
             if (enableQrCode)
             {
                 var qr_contentString = "data:image/png;base64,{{DATA}}";
-                var qrLink =
-                    $"{AppSettingsConfiguration.urlDASI_ViewATTO.Replace("{{UIDATTO}}", atto.UIDAtto.ToString())}";
+                var qrLink = $"{AppSettingsConfiguration.urlPEM_ViewEM}{emendamento.UID_QRCode}";
                 var qrGenerator = new QRCodeGenerator();
                 var urlPayload = new PayloadGenerator.Url(qrLink);
                 var qrData = qrGenerator.CreateQrCode(urlPayload, QRCodeGenerator.ECCLevel.Q);
@@ -715,14 +751,14 @@ namespace PortaleRegione.BAL
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
 
-                        body = $"<div class='chip white black-text'>{body}</div></br>";
+                        body = $"<label class='black-text'>{body}</label></br>";
                     }
                     else
                     {
                         if (!attiFirmeDto.ufficio)
                             body = $"{body}, {Convert.ToDateTime(attiFirmeDto.Data_firma).ToString(format)}";
                         body =
-                            $"<div style='text-decoration:line-through;'><div class='chip white black-text'>{body} ({attiFirmeDto.Data_ritirofirma})</div></div></br>";
+                            $"<label style='text-decoration:line-through!important;' class='black-text'>{body} ({attiFirmeDto.Data_ritirofirma})</label></br>";
                     }
 
                     result.Add(body);
@@ -796,7 +832,7 @@ namespace PortaleRegione.BAL
                 #endregion
 
                 body = body.Replace("{IMGLOGO}",
-                    "<img src='" + Path.Combine(AppSettingsConfiguration.urlPEM, "/images/LogoCRL120px.gif") +
+                    "<img src='" + Path.Combine(AppSettingsConfiguration.url_CLIENT, "/images/LogoCRL120px.gif") +
                     " style='120px;'/>");
 
                 body = body.Replace("{LINKPEM}",

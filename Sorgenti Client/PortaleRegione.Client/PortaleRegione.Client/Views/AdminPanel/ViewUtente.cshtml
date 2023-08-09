@@ -28,11 +28,11 @@
         </a>
     </div>
     <div class="col l11 s10">
-        <h5>
+        <h4>
             <b>
                 <span>@ViewBag.Title</span>
             </b>
-        </h5>
+        </h4>
     </div>
 </div>
 <div class="row">
@@ -40,7 +40,7 @@
         @using (Html.BeginForm("SalvaPersona", "AdminPanel", FormMethod.Post, new { id = "formPersona" }))
         {
             @Html.AntiForgeryToken()
-            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona"/>
+            <input name="Persona.id_persona" type="hidden" value="@Model.Persona.id_persona" />
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.UID_persona)
@@ -109,7 +109,7 @@
 
             <div class="form-group">
                 @Html.LabelFor(s => s.Persona.id_gruppo_politico_rif)
-                <select id="ddlRiferimentoGruppo">
+                <select id="ddlRiferimentoGruppo" @Html.Raw(Model.CurrentUser.IsGiunta ? "disabled=\"disabled\"" : "")>
                     <option value="0">--</option>
                     @foreach (var gruppo in Model.GruppiInDB)
                     {
@@ -125,63 +125,67 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <p>
-                    <label>
-                        <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
-                               @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"": "")>
-                        <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
-                    </label>
-                </p>
-            </div>
+            if (!Model.CurrentUser.IsGiunta)
+            {
+                <div class="form-group">
+                    <p>
+                        <label>
+                            <input id="No_Cons" name="No_Cons" type="checkbox" value="true" disabled="disabled"
+                                   @Html.Raw(Convert.ToBoolean(Model.Persona.No_Cons) ? "checked=\"checked\"" : "")>
+                            <span>@Html.LabelFor(s => s.Persona.No_Cons)</span>
+                        </label>
+                    </p>
+                </div>
 
-            var notifica_Firma = Model.Persona.notifica_firma.HasValue ? Model.Persona.notifica_firma.Value : false;
+                var notifica_Firma = Model.Persona.notifica_firma.HasValue ? Model.Persona.notifica_firma.Value : false;
 
-            <div class="form-group">
-                <p>
-                    <label>
-                        <input id="notifica_firma" name="notifica_firma" type="checkbox" value="true"
-                               @Html.Raw(notifica_Firma ? "checked=\"checked\"" : "")>
-                        <span>@Html.LabelFor(s => s.Persona.notifica_firma)</span>
-                    </label>
-                </p>
-            </div>
+                <div class="form-group">
+                    <p>
+                        <label>
+                            <input id="notifica_firma" name="notifica_firma" type="checkbox" value="true"
+                                   @Html.Raw(notifica_Firma ? "checked=\"checked\"" : "")>
+                            <span>@Html.LabelFor(s => s.Persona.notifica_firma)</span>
+                        </label>
+                    </p>
+                </div>
 
-            var notifica_Deposito = Model.Persona.notifica_deposito.HasValue ? Model.Persona.notifica_deposito.Value : false;
+                var notifica_Deposito = Model.Persona.notifica_deposito.HasValue ? Model.Persona.notifica_deposito.Value : false;
 
-            <div class="form-group">
-                <p>
-                    <label>
-                        <input id="notifica_deposito" name="notifica_deposito" type="checkbox" value="true"
-                               @Html.Raw(notifica_Deposito ? "checked=\"checked\"" : "")>
-                        <span>@Html.LabelFor(s => s.Persona.notifica_deposito)</span>
-                    </label>
-                </p>
-            </div>
+                <div class="form-group">
+                    <p>
+                        <label>
+                            <input id="notifica_deposito" name="notifica_deposito" type="checkbox" value="true"
+                                   @Html.Raw(notifica_Deposito ? "checked=\"checked\"" : "")>
+                            <span>@Html.LabelFor(s => s.Persona.notifica_deposito)</span>
+                        </label>
+                    </p>
+                </div>
 
-            var attivo = Model.Persona.attivo.HasValue ? Model.Persona.attivo.Value : false;
+                var attivo = Model.Persona.attivo.HasValue ? Model.Persona.attivo.Value : false;
 
-            <div class="form-group">
-                <p>
-                    <label>
-                        <input id="attivo" name="attivo" type="checkbox" value="true"
-                               @Html.Raw(attivo ? "checked=\"checked\"" : "")>
-                        <span>@Html.LabelFor(s => s.Persona.attivo)</span>
-                    </label>
-                </p>
-            </div>
+                <div class="form-group">
+                    <p>
+                        <label>
+                            <input id="attivo" name="attivo" type="checkbox" value="true"
+                                   @Html.Raw(attivo ? "checked=\"checked\"" : "")>
+                            <span>@Html.LabelFor(s => s.Persona.attivo)</span>
+                        </label>
+                    </p>
+                </div>
 
-            var eliminato = Model.Persona.deleted.HasValue ? Model.Persona.deleted.Value : false;
+                var eliminato = Model.Persona.deleted.HasValue ? Model.Persona.deleted.Value : false;
 
-            <div class="form-group">
-                <p>
-                    <label>
-                        <input id="deleted" name="deleted" type="checkbox" value="true" disabled="disabled"
-                               @Html.Raw(eliminato ? "checked=\"checked\"" : "")>
-                        <span>@Html.LabelFor(s => s.Persona.deleted)</span>
-                    </label>
-                </p>
-            </div>
+                <div class="form-group">
+                    <p>
+                        <label>
+                            <input id="deleted" name="deleted" type="checkbox" value="true" disabled="disabled"
+                                   @Html.Raw(eliminato ? "checked=\"checked\"" : "")>
+                            <span>@Html.LabelFor(s => s.Persona.deleted)</span>
+                        </label>
+                    </p>
+                </div>
+            }
+
             <div class="row">
                 @foreach (var gruppiAD in Model.GruppiAD)
                 {
@@ -192,7 +196,7 @@
                                 <p>
                                     <label>
                                         <input id="gruppiAD" name="gruppiAD" type="checkbox" value="true" data-name="@gruppiAD.GruppoAD"
-                                               @Html.Raw(gruppiAD.Membro ? "checked=\"checked\"" : "")>
+                                               @Html.Raw(gruppiAD.Membro ? "checked=\"checked\"" : "") @Html.Raw(Model.CurrentUser.IsGiunta && !gruppiAD.IsRuolo ? "disabled=\"disabled\"" : "")>
                                         <span></span>
                                     </label>
                                 </p>
@@ -203,19 +207,22 @@
                 }
             </div>
         }
-
-        <div class="row">
-            <div class="col s12">
-                @using (Html.BeginForm("EliminaPersona", "AdminPanel", FormMethod.Post, new { id = "formElimina" }
-                    ))
-                {
-                    @Html.AntiForgeryToken()
-                    <a class="btn chip hoverable red center white-text" id="btnElimina" style="width: 255px;">
-                        <i class="icon material-icons">close</i> Elimina
-                    </a>
-                }
+        @if (Model.Persona.UID_persona != Guid.Empty)
+        {
+            <div class="row">
+                <div class="col s12">
+                    @using (Html.BeginForm("EliminaPersona", "AdminPanel", FormMethod.Post, new { id = "formElimina" }
+                        ))
+                    {
+                        @Html.AntiForgeryToken()
+                        <a class="btn chip hoverable red center white-text" id="btnElimina" style="width: 255px;">
+                            <i class="icon material-icons">close</i> Elimina
+                        </a>
+                    }
+                </div>
             </div>
-        </div>
+        }
+
         @if (Model.CurrentUser.IsAmministratoreGiunta || Model.CurrentUser.IsAmministratorePEM)
         {
             <div class="fixed-action-btn">

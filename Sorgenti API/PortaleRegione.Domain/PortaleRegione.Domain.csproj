@@ -97,7 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
-      <Project>{A7ADA419-A178-40DA-85CC-63F6875E5793}</Project>
+      <Project>{a7ada419-a178-40da-85cc-63f6875e5793}</Project>
       <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
   </ItemGroup>

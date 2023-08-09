@@ -10,24 +10,25 @@
                       && AppSettingsConfiguration.EnableDASI;
     var PEMEnabled = Model.CurrentUser.CurrentRole != RuoliIntEnum.Utente
                      && AppSettingsConfiguration.EnablePEM;
+
+    var seduta = Model.Seduta;
 }
 
 <div class="row">
-    <div class="col s12">
+    <div class="col s6">
         <a class="btn-floating waves-effect waves-light grey" href="@Url.Action("Archivio")">
             <i class="material-icons">arrow_back</i>
         </a>
-        <div class="row valign-wrapper" style="margin-bottom: 0px !important">
-            <div class="col s12">
-                <h5>
-                    <span class="chip red white-text" style="min-width: unset !important;">AULA</span>
-                    <b>@ViewBag.Title</b>
-                </h5>
-            </div>
-        </div>
     </div>
-    <div class="col s11">
-        
+    <div class="col s6 right-align">
+        <span class="chip red white-text" style="min-width: unset !important;">AULA</span>
+    </div>
+</div>
+<div class="row valign-wrapper" style="margin-bottom: 0px !important">
+    <div class="col s12">
+        <h4>
+            <b>@ViewBag.Title</b>
+        </h4>
     </div>
 </div>
 
@@ -35,9 +36,9 @@
 {
     <div class="row" style="margin: 0 !important">
         <div class="col s12">
-            <h6>
+            <h5>
                 <b>Atti iscritti alla seduta</b>
-            </h6>
+            </h5>
         </div>
     </div>
     <hr/>
@@ -49,67 +50,86 @@
             {
                 titolo_atto = attoPem.Oggetto;
             }
-            <li>
-                <div class="collapsible-header">
-                    <i class="material-icons pink-text">textsms</i>
-                    @titolo_atto
-                    <div class="collapsabile-secondary-header">
-                        @if (attoPem.Emendabile)
-                        {
-                            <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
-                        }
-                        @if (attoPem.CounterODG > 0)
-                        {
-                            <div class="chip">@(attoPem.CounterODG) ODG</div>
-                        }
-
-                    </div>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons pink-text hide-on-med-and-down">textsms</i>
+                @titolo_atto
+                <div class="collapsabile-secondary-header">
+                    @if (attoPem.Emendabile)
+                    {
+                        <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
+                    }
+                    @if (attoPem.CounterODG > 0)
+                    {
+                        <div class="chip">@(attoPem.CounterODG) ODG</div>
+                    }
                 </div>
-                <div class="collapsible-body">
-                    <div class="row">
-                        <div class="col s12">
-                            <label>
-                                <b>Oggetto</b>
-                            </label>
-                            <br/>
-                            <p>@attoPem.Oggetto</p>
-                        </div>
-                        @if (attoPem.UIDAssessoreRiferimento.HasValue)
+            </div>
+            <div class="collapsible-body">
+                <div class="card">
+                    <div class="card-content">
+                        @if ((seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile) || seduta.DataScadenzaPresentazioneODG.HasValue)
                         {
-                            <div class="col s12">
-                                <label>
-                                    <b>Assessore di Riferimento</b>
-                                </label>
-                                <br/>
-                                <div class="chip" style="margin-left: 5px; min-width: unset;">
-                                    <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
-                                    @attoPem.PersonaAssessore.DisplayName
+                            <div class="row" style="margin: 0 !important">
+                                <div class="col l12 s12 right-align">
+                                    <a class="btn-flat black-text activator">
+                                        <i class="material-icons right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
+                                        SCADENZE
+                                    </a>
                                 </div>
                             </div>
                         }
-                        @if (attoPem.Relatori.Any())
-                        {
-                            <div class="col s12">
-                                <label>
-                                    <b>Relatori</b>
-                                </label>
-                                <br/>
-                                @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
+                        <div class="row">
+                            <div class="col l12 s12">
+                                <div class="card-panel grey lighten-5">
+                                    <label>
+                                        <b>Oggetto</b>
+                                    </label>
+                                    <br />
+                                    <p>@attoPem.Oggetto</p>
+
+                                    @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
+                                    {
+                                        <div class="row">
+                                            <div class="col s12 l12 right-align">
+                                                <a class="btn-flat pink-text"
+                                                   href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
+                                                    <i class="material-icons right">download</i>
+                                                    Scarica atto
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                        }
-                    </div>
-                    <div class="row">
-                        <div class="col s6">
-                            @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
-                            {
-                                <a class="btn-flat pink-text"
-                                   href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
-                                    <i class="material-icons left">download</i>
-                                    Scarica
-                                </a>
-                            }
                         </div>
-                        <div class="col s6 right-align">
+                        <div class="row">
+                            @if (attoPem.UIDAssessoreRiferimento.HasValue)
+                            {
+                                <div class="col s12">
+                                    <label>
+                                        <b>Assessore di Riferimento</b>
+                                    </label>
+                                    <br />
+                                    <div class="chip" style="margin-left: 5px; min-width: unset;">
+                                        <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                        @attoPem.PersonaAssessore.DisplayName
+                                    </div>
+                                </div>
+                            }
+                            @if (attoPem.Relatori.Any())
+                            {
+                                <div class="col s12">
+                                    <label>
+                                        <b>Relatori</b>
+                                    </label>
+                                    <br />
+                                    @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
+                                </div>
+                            }
+
+                        </div>
+                        <div class="col l6 s12 right-align">
                             @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
                             {
                                 <a class="btn-flat blue-text tooltipped"
@@ -129,8 +149,26 @@
                             }
                         </div>
                     </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Scadenze <i class="material-icons right">close</i></span>
+                        <ul class="collection">
+                            @if (seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile)
+                            {
+                                <li class="collection-item">
+                                    <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+                                </li>
+                            }
+                            @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                            {
+                                <li class="collection-item">
+                                    <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
+                                </li>
+                            }
+                        </ul>
+                    </div>
                 </div>
-            </li>
+            </div>
+        </li>
         }
     </ul>
 }
