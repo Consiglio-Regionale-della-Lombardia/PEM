@@ -989,7 +989,7 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
                     seduta = await _unitOfWork.Sedute.Get(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
 
-                var countFirme = await _unitOfWork.Atti_Firme.CountFirme(idGuid);
+                var countFirme = await _unitOfWork.Atti_Firme.CountFirmePrioritarie(idGuid);
                 var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
                 if (!string.IsNullOrEmpty(result_check))
                     switch ((TipoAttoEnum)atto.Tipo)

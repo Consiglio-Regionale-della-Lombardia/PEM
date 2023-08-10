@@ -1338,13 +1338,6 @@ namespace PortaleRegione.BAL
             em.UIDPersonaProponente = model.NuovoProponente;
             em.id_gruppo = persona.Gruppo.id_gruppo;
             await _unitOfWork.CompleteAsync();
-
-            var pin = await _logicPersona.GetPin(persona);
-            await Firma(new ComandiAzioneModel
-            {
-                Lista = new List<Guid> { em.UIDEM },
-                Azione = ActionEnum.FIRMA
-            }, persona, pin);
         }
 
         public async Task RaggruppaEmendamento(EM em, string colore)
