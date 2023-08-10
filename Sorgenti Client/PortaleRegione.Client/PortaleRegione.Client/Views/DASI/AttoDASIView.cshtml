@@ -193,7 +193,9 @@
     <div class="row" id="pnlStandardFirme">
         <div class="col s12">
             @if ((atto.FirmeAnte.Any()
-                  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona 
+                  || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo) 
+                  && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
                  || Model.CurrentUser.IsSegreteriaAssemblea
                  && (atto.Tipo == (int)TipoAttoEnum.IQT
                      || atto.Tipo == (int)TipoAttoEnum.MOZ))

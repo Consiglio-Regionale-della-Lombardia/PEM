@@ -210,6 +210,7 @@
     }
 
     $("#checkAll").click(function() {
+        console.log("sel.tutti", this.checked)
         setSelezionaTutti_DASI(this.checked);
         setListaAtti([]);
         $('input[id^="chk_Atto_"]').not(this).prop('checked', this.checked);

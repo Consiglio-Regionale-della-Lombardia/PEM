@@ -445,7 +445,7 @@ function checkSelectedEM() {
 }
 
 function checkSelectedDASI() {
-    var selezionaTutti = getSelezionaTutti();
+    var selezionaTutti = getSelezionaTutti_DASI();
     var lista = getListaAtti();
 
     $("#checkAll").prop("checked", selezionaTutti);
