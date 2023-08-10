@@ -1493,7 +1493,9 @@ namespace PortaleRegione.API.Controllers
                 {
                     var moz_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(seduta_attiva.UIDSeduta,
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
-                    var moz_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                    var moz_proposte = await _unitOfWork.DASI.GetProposteAtti(
+                            BALHelper.EncryptString(seduta_attiva.Data_seduta.ToString("dd/MM/yyyy"),
+                            AppSettingsConfiguration.masterKey),
                         TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
                     var moz_da_esaminare = new List<ATTI_DASI>();
                     moz_da_esaminare.AddRange(moz_in_seduta.Where(a => a.IDStato !=

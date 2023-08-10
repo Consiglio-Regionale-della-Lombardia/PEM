@@ -789,7 +789,10 @@ namespace PortaleRegione.Persistance
                                                      && atto.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
                                                      && atto.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO);
 
-            if (tipoMoz != TipoMOZEnum.ORDINARIA) query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
+            if (tipoMoz != TipoMOZEnum.ORDINARIA)
+            {
+                query = query.Where(atto => atto.TipoMOZ == (int)tipoMoz);
+            }
 
             return await query.ToListAsync();
         }
