@@ -637,9 +637,16 @@ namespace PortaleRegione.API.Controllers
             if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
                 dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
 
-            if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
-                dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(dto.DataRichiestaIscrizioneSeduta);
-
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
+                dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
+                dto.DataPresentazione_MOZ_URGENTE = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
+                dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
+            if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
+                dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
             return dto;
         }
 
@@ -2148,6 +2155,8 @@ namespace PortaleRegione.API.Controllers
                 var atto = await GetAttoDto(guid);
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
+                if (atto.IDStato != (int)StatiAttoEnum.PRESENTATO)
+                    throw new InvalidOperationException("ERROR: Operazione abilitata solo per mozioni già presentate");
                 if (atto.DataIscrizioneSeduta.HasValue)
                     throw new InvalidOperationException(
                         "L'atto è iscritto in seduta. Rivolgiti alla Segreteria dell'Assemblea per effettuare l'operazione.");

@@ -226,6 +226,7 @@
     </div>
     @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
          || Model.CurrentUser.IsSegreteriaAssemblea
+         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo) 
         && (atto.Tipo == (int)TipoAttoEnum.IQT
         || atto.Tipo == (int)TipoAttoEnum.MOZ))
     {
