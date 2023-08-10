@@ -120,7 +120,7 @@
     @if ((atto.Tipo == (int)TipoAttoEnum.IQT
         || atto.Tipo == (int)TipoAttoEnum.MOZ
         || atto.Tipo == (int)TipoAttoEnum.ODG)
-         && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+         && Model.CurrentUser.IsCapoGruppo)
     {
         if (string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
         {
