@@ -145,7 +145,7 @@
                 <div class="col s12 center">
                     <div class="card-panel amber lighten-4">
                         <span class="black-text">
-                            <h6>Richiesta iscrizione alla seduta del <b><u>@Model.Atto.DataRichiestaIscrizioneSeduta</u></b> in attesa di elaborazione</h6>
+                            <h6>Richiesta iscrizione alla seduta del <b><u>@Model.Atto.DataRichiestaIscrizioneSeduta</u></b></h6>
                             @if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
                             {
                                 <a class="btn-floating white" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
