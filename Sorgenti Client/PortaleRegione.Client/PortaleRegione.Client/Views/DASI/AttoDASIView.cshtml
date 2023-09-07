@@ -117,10 +117,54 @@
     </div>
 }
 <div class="card-content">
-    @if ((atto.Tipo == (int)TipoAttoEnum.IQT
-        || atto.Tipo == (int)TipoAttoEnum.MOZ
+    @if (atto.Tipo == (int)TipoAttoEnum.IQT
+         && (atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+         || (Model.CurrentUser.IsCapoGruppo
+         && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)))
+    {
+        if (string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
+        {
+            <div class="row" style="margin: 0 !important">
+                <div class="col s12 center">
+                    <div class="card-panel amber lighten-4">
+                        <span class="black-text">
+                            <a class="btn pink tooltipped"
+                               data-tooltip="Iscrizione in seduta"
+                               onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
+                                Iscrizione in seduta
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
+        {
+            <div class="row" style="margin: 0 !important">
+                <div class="col s12 center">
+                    <div class="card-panel amber lighten-4">
+                        <span class="black-text">
+                            <h6>Richiesta iscrizione alla seduta del <b><u>@Model.Atto.DataRichiestaIscrizioneSeduta</u></b></h6>
+                            @if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                            {
+                                // ignored
+                            }
+                            else
+                            {
+                                <a class="btn-floating white" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
+                                    <i class="material-icons red-text tooltipped" data-tooltip="Rimuovi richiesta">close</i>
+                                </a>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    @if ((atto.Tipo == (int)TipoAttoEnum.MOZ
         || atto.Tipo == (int)TipoAttoEnum.ODG)
-         && Model.CurrentUser.IsCapoGruppo 
+         && Model.CurrentUser.IsCapoGruppo
          && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
     {
         if (string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
@@ -146,7 +190,7 @@
                     <div class="card-panel amber lighten-4">
                         <span class="black-text">
                             <h6>Richiesta iscrizione alla seduta del <b><u>@Model.Atto.DataRichiestaIscrizioneSeduta</u></b></h6>
-                            @if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
+                            @if (Model.Atto.Tipo == (int)TipoAttoEnum.MOZ)
                             {
                                 <a class="btn-floating white" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
                                     <i class="material-icons red-text tooltipped" data-tooltip="Rimuovi richiesta">close</i>
@@ -158,13 +202,14 @@
             </div>
         }
     }
+
     @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
     <div class="row">
         <div class="col s6 left">
             @if (atto.UIDPersonaModifica.HasValue && atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
             {
                 <label style="font-size: small !important">Ultima modifica: </label>
-                <br/>
+                <br />
                 <b>[@atto.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @atto.PersonaModifica.DisplayName</b>
             }
             @if (!string.IsNullOrEmpty(atto.Note_Pubbliche))
@@ -179,7 +224,7 @@
         </div>
         <div class="col s6 right-align">
             <label style="font-size: small !important">Proponente: </label>
-            <br/>
+            <br />
             <b>@atto.PersonaProponente.DisplayName</b>
         </div>
     </div>
@@ -193,19 +238,21 @@
     @* FIRME *@
     <div class="row" id="pnlStandardFirme">
         <div class="col s12">
-            @if ((atto.FirmeAnte.Any()
-                  && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona 
-                  || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo) 
-                  && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                 || Model.CurrentUser.IsSegreteriaAssemblea
-                 && (atto.Tipo == (int)TipoAttoEnum.IQT
-                     || atto.Tipo == (int)TipoAttoEnum.MOZ))
+            @if (atto.Tipo == (int)TipoAttoEnum.IQT
+                 || atto.Tipo == (int)TipoAttoEnum.MOZ)
             {
-                <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-                    Visualizza priorita
-                    <i class="material-icons right pink-text">low_priority</i>
-                </a>
-                <br/>
+                if ((atto.FirmeAnte.Any()
+                     && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+                     || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo)
+                     && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                    || Model.CurrentUser.IsSegreteriaAssemblea)
+                {
+                    <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+                        Visualizza priorita
+                        <i class="material-icons right pink-text">low_priority</i>
+                    </a>
+                    <br />
+                }
             }
 
             @Html.Raw(atto.Firme)
@@ -225,75 +272,78 @@
             }
         </div>
     </div>
-    @if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
-         || Model.CurrentUser.IsSegreteriaAssemblea
-         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo) 
-        && (atto.Tipo == (int)TipoAttoEnum.IQT
-        || atto.Tipo == (int)TipoAttoEnum.MOZ))
+    @if (atto.Tipo == (int)TipoAttoEnum.IQT
+         || atto.Tipo == (int)TipoAttoEnum.MOZ)
     {
-                @* FIRME PRIORITA' *@
-        <div class="row" id="pnlPrioritaFirme" style="display: none;">
-            <div class="col s12">
-                <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
-                    Visualizza griglia
-                    <i class="material-icons right pink-text">grid_on</i>
-                </a>
-                <br/>
+        if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+         || Model.CurrentUser.IsSegreteriaAssemblea
+         || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
+        {
+            @* FIRME PRIORITA' *@
+            <div class="row" id="pnlPrioritaFirme" style="display: none;">
+                <div class="col s12">
+                    <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+                        Visualizza griglia
+                        <i class="material-icons right pink-text">grid_on</i>
+                    </a>
+                    <br />
 
-                <ul class="collapsible expandable">
-                    @{
-                        var firmeGroup = new List<AttiFirmeDto>();
-                        firmeGroup.AddRange(atto.FirmeAnte);
-                        firmeGroup.AddRange(atto.FirmePost);
-                    }
-                    @foreach (var firme in firmeGroup)
-                    {
-                        <li>
-                            @if (firme.Prioritario)
-                            {
-                                <div class="collapsible-header valign-wrapper">
-                                    @if (atto.UIDPersonaProponente != firme.UID_persona)
-                                    {
-                                        <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-                                           onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-                                            <i class="material-icons black-text" style="margin-left: 5px;">star</i>
-                                        </a>
-                                    }
-                                    @firme.FirmaCert
-
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="collapsible-header valign-wrapper">
-                                    @if (string.IsNullOrEmpty(firme.Data_ritirofirma))
-                                    {
-                                        <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-                                           onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-                                            <i class="material-icons" style="margin-left: 5px;">star_border</i>
-                                        </a>
+                    <ul class="collapsible expandable">
+                        @{
+                            var firmeGroup = new List<AttiFirmeDto>();
+                            firmeGroup.AddRange(atto.FirmeAnte);
+                            firmeGroup.AddRange(atto.FirmePost);
+                        }
+                        @foreach (var firme in firmeGroup)
+                        {
+                            <li>
+                                @if (firme.Prioritario)
+                                {
+                                    <div class="collapsible-header valign-wrapper">
+                                        @if (atto.UIDPersonaProponente != firme.UID_persona)
+                                        {
+                                            <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                               onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+                                                <i class="material-icons black-text" style="margin-left: 5px;">star</i>
+                                            </a>
+                                        }
                                         @firme.FirmaCert
-                                    }
-                                    else
-                                    {
-                                        <del>@firme.FirmaCert</del>
-                                    }
-                                </div>
-                            }
-                        </li>
-                    }
-                </ul>
 
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="collapsible-header valign-wrapper">
+                                        @if (string.IsNullOrEmpty(firme.Data_ritirofirma))
+                                        {
+                                            <a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+                                               onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+                                                <i class="material-icons" style="margin-left: 5px;">star_border</i>
+                                            </a>
+                                            @firme.FirmaCert
+                                        }
+                                        else
+                                        {
+                                            <del>@firme.FirmaCert</del>
+                                        }
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ul>
+
+                </div>
             </div>
-        </div>
+        }
     }
+
     @* INVITI *@
     @if (!string.IsNullOrEmpty(atto.Destinatari))
     {
         <div class="row">
             <div class="col s12">
                 <h5>Invitati</h5>
-                <hr/>
+                <hr />
                 @Html.Raw(atto.Destinatari)
             </div>
         </div>

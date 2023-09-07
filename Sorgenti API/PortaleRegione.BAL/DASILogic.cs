@@ -876,6 +876,11 @@ namespace PortaleRegione.API.Controllers
                     {
                         var sedutaRichiesta =
                             await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
+                        if (sedutaRichiesta == null)
+                        {
+                            throw new Exception("Seduta richiesta non valida!");
+                        }
+
                         var iqt_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(sedutaRichiesta.UIDSeduta,
                             TipoAttoEnum.IQT, 0);
                         var iqt_proposte = await _unitOfWork.DASI.GetProposteAtti(
@@ -1942,7 +1947,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
                 }
-                else if (model.All && model.Lista.Any())
+                else if (!model.All && model.Lista.Any())
                 {
                     var attiInDb =
                         await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
@@ -2287,13 +2292,16 @@ namespace PortaleRegione.API.Controllers
                 Connector = FilterStatementConnector.And
             };
             filtro.Add(filtroStato);
-            var filtroTipo = new FilterStatement<AttoDASIDto>
+            if (tipo != TipoAttoEnum.TUTTI)
             {
-                PropertyId = nameof(AttoDASIDto.Tipo),
-                Operation = Operation.EqualTo,
-                Value = (int)tipo
-            };
-            filtro.Add(filtroTipo);
+                var filtroTipo = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.Tipo),
+                    Operation = Operation.EqualTo,
+                    Value = (int)tipo
+                };
+                filtro.Add(filtroTipo);
+            }
 
             var queryFilter = new Filter<ATTI_DASI>();
             queryFilter.ImportStatements(filtro);
@@ -2774,8 +2782,8 @@ namespace PortaleRegione.API.Controllers
             firma_in_db.Prioritario = !priorita_originale;
 
             await _unitOfWork.CompleteAsync();
-
             var dto = await GetAttoDto(firma.UIDAtto);
+
             SEDUTE sedutaRichiesta = null;
             if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
                 sedutaRichiesta =

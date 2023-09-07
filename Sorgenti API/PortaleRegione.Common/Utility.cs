@@ -206,11 +206,9 @@ namespace PortaleRegione.Common
             switch ((TipoMOZEnum)tipoMOZ)
             {
                 case TipoMOZEnum.ORDINARIA:
-                    return "Mozione";
                 case TipoMOZEnum.URGENTE:
-                    return "Urgente";
                 case TipoMOZEnum.ABBINATA:
-                    return "Abbinata";
+                    return "Mozione";
                 case TipoMOZEnum.SFIDUCIA:
                     return "Sfiducia";
                 case TipoMOZEnum.CENSURA:
@@ -233,7 +231,7 @@ namespace PortaleRegione.Common
                         return excel ? "Presentato" : "Depositato";
                     }
                 case StatiAttoEnum.IN_TRATTAZIONE:
-                    return "In Trattazione";
+                    return "In trattazione";
                 case StatiAttoEnum.CHIUSO:
                     return "Chiuso";
                 case StatiAttoEnum.CHIUSO_RITIRATO:

@@ -230,20 +230,27 @@ else
                         var textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
                         var tooltipSeduta = "Richiesta in attesa di elaborazione";
 
-                        <br/>
+                        <br />
                         <label>Seduta:</label>
                         <span>
                             @textSeduta
                             <a class="btn-floating white blue-text tooltipped" data-tooltip="@tooltipSeduta">
                                 <i class="material-icons">info</i>
                             </a>
-                            @if ((item.Tipo != (int)TipoAttoEnum.ODG
-                                  && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
-                                 || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
+                            @if (item.IDStato >= (int)StatiAttoEnum.PRESENTATO)
                             {
-                                <a class="btn-floating white red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">
-                                    <i class="material-icons">close</i>
-                                </a>
+                                // ignored
+                            }
+                            else
+                            {
+                                if ((item.Tipo != (int)TipoAttoEnum.ODG
+                                     && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                                    || (Model.CurrentUser.IsCapoGruppo && item.id_gruppo == Model.CurrentUser.Gruppo.id_gruppo))
+                                {
+                                    <a class="btn-floating white red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@item.UIDAtto', '@Html.Raw(title)')">
+                                        <i class="material-icons">close</i>
+                                    </a>
+                                }
                             }
                         </span>
                     }
@@ -251,7 +258,7 @@ else
                     {
                         var textSeduta = $"{item.Seduta.Data_seduta:dd/MM/yyyy}";
                         var tooltipSeduta = $"Iscritto dal {item.DataIscrizioneSeduta.Value:dd/MM/yyyy HH:mm:ss}";
-                        <br/>
+                        <br />
                         <label>Seduta:</label>
                         <span class="tooltipped" data-tooltip="@tooltipSeduta">
                             <b>@textSeduta</b>
@@ -264,24 +271,24 @@ else
 
                     if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ))
                     {
-                        <br/>
-                        <label>Mozione iscritta il </label>
+                        <br />
+                        <label>Richiesta di iscrizione effettuata il </label>
                         <span>
                             <b>@item.DataPresentazione_MOZ</b>
                         </span>
                     }
                     else if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.URGENTE && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_URGENTE))
                     {
-                        <br/>
-                        <label>Mozione urgente iscritta il </label>
+                        <br />
+                        <label>Richiesta di iscrizione effettuata il </label>
                         <span>
                             <b>@item.DataPresentazione_MOZ_URGENTE</b>
                         </span>
                     }
                     else if (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ABBINATA && !string.IsNullOrEmpty(item.DataPresentazione_MOZ_ABBINATA))
                     {
-                        <br/>
-                        <label>Mozione abbinata iscritta il </label>
+                        <br />
+                        <label>Richiesta di iscrizione effettuata il </label>
                         <span>
                             <b>@item.DataPresentazione_MOZ_ABBINATA</b>
                         </span>
