@@ -1947,7 +1947,7 @@ namespace PortaleRegione.API.Controllers
                 {
                     model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
                 }
-                else if (!model.All && model.Lista.Any())
+                else if (model.All && model.Lista.Any())
                 {
                     var attiInDb =
                         await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);

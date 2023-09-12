@@ -496,6 +496,12 @@ namespace PortaleRegione.Client.Controllers
             {
                 var apiGateway = new ApiGateway(Token);
                 model.CurrentStatus = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI));
+                if (CurrentUser.IsSegreteriaAssemblea
+                    && model.CurrentStatus == StatiAttoEnum.BOZZA)
+                {
+                    model.CurrentStatus = StatiAttoEnum.PRESENTATO;
+                }
+
                 model.CurrentType = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI));
                 await apiGateway.DASI.CambioStato(model);
                 var url = Url.Action("RiepilogoDASI", new
