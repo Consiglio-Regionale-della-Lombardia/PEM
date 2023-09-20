@@ -2044,17 +2044,17 @@ namespace PortaleRegione.API.Controllers
         {
             var dataRichiesta = BALHelper.EncryptString(model.DataRichiesta.ToString("dd/MM/yyyy"),
                 AppSettingsConfiguration.masterKey);
-            var listaRichieste = new List<string>();
+
             foreach (var guid in model.Lista)
             {
                 var atto = await Get(guid);
                 if (atto == null) throw new Exception("ERROR: NON TROVATO");
                 if (atto.Tipo == (int)TipoAttoEnum.ITL)
                     throw new Exception(
-                        "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITL.");
+                        $"ERROR: Non è possibile richiesere l'iscrizione in seduta per le {Utility.GetText_Tipo(atto.Tipo)}.");
                 if (atto.Tipo == (int)TipoAttoEnum.ITR)
                     throw new Exception(
-                        "ERROR: Non è possibile richiesere l'iscrizione in seduta per le ITR.");
+                        $"ERROR: Non è possibile richiesere l'iscrizione in seduta per le {Utility.GetText_Tipo(atto.Tipo)}.");
                 if (atto.Tipo == (int)TipoAttoEnum.IQT)
                 {
                     var checkIscrizioneSeduta =
@@ -2062,7 +2062,7 @@ namespace PortaleRegione.API.Controllers
                             atto.UIDPersonaProponente.Value);
                     if (!checkIscrizioneSeduta)
                         throw new Exception(
-                            "ERROR: Hai già presentato o sottoscritto 1 IQT per la seduta richiesta.");
+                            $"ERROR: Hai già presentato o sottoscritto 1 {Utility.GetText_Tipo(atto.Tipo)} per la seduta richiesta.");
                 }
 
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
@@ -2250,7 +2250,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task ProponiMozioneAbbinata(PromuoviMozioneModel model)
+        public async Task ProponiMozioneAbbinata(PromuoviMozioneModel model, PersonaDto currentUser)
         {
             try
             {
@@ -2273,6 +2273,11 @@ namespace PortaleRegione.API.Controllers
                 atto.DataPresentazione_MOZ_ABBINATA = BALHelper.EncryptString(
                     DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                     AppSettingsConfiguration.masterKey);
+
+                // #842 MOZ Abbinate: iscrizione in seduta
+                var attoAbbinato = await Get(model.AttoUId);
+                atto.DataRichiestaIscrizioneSeduta = attoAbbinato.DataRichiestaIscrizioneSeduta;
+                atto.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
 
                 await _unitOfWork.CompleteAsync();
             }
