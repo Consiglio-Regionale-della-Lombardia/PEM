@@ -876,10 +876,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         var sedutaRichiesta =
                             await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta));
-                        if (sedutaRichiesta == null)
-                        {
-                            throw new Exception("Seduta richiesta non valida!");
-                        }
+                        if (sedutaRichiesta == null) throw new Exception("Seduta richiesta non valida!");
 
                         var iqt_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(sedutaRichiesta.UIDSeduta,
                             TipoAttoEnum.IQT, 0);
@@ -1284,13 +1281,16 @@ namespace PortaleRegione.API.Controllers
                     atti.AddRange(odg_proposte);
 
                     //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
-                    var my_atti = atti.Where(a => a.UIDPersonaPrimaFirma == persona.UID_persona
-                                                  && a.IDStato < (int)StatiAttoEnum.CHIUSO
-                                                  && a.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                    var my_atti = atti.Where(a => a.UIDPersonaProponente == persona.UID_persona
+                                                  && (a.IDStato == (int)StatiAttoEnum.CHIUSO
+                                                      || a.IDStato == (int)StatiAttoEnum.PRESENTATO
+                                                      || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
                         .ToList();
 
                     //Jolly attivo limite impostato {MassimoODG_Jolly}
+                    // #840 Funzione Jolly
                     if (attoPEM.Jolly)
+                    {
                         if (my_atti.Count + 1 >=
                             AppSettingsConfiguration.MassimoODG_Jolly)
                         {
@@ -1298,46 +1298,49 @@ namespace PortaleRegione.API.Controllers
                                 $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
                             continue;
                         }
-
-                    var dataOdierna = DateTime.Now;
-                    if (persona.IsCapoGruppo
-                        && seduta.Data_seduta.Day == dataOdierna.Day
-                        && seduta.Data_seduta.Month == dataOdierna.Month
-                        && seduta.Data_seduta.Year == dataOdierna.Year)
-                    {
-                        var atti_dopo_scadenza =
-                            my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
-                                               && a.Timestamp.Month == dataOdierna.Month
-                                               && a.Timestamp.Year == dataOdierna.Year)
-                                .ToList();
-                        if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
-                        {
-                            results.Add(idGuid,
-                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
-
-                            continue;
-                        }
-
-                        atto.CapogruppoNeiTermini = true;
                     }
                     else
                     {
-                        //Matteo Cattapan #484
-                        //Massimo ODG presentabili per provvedimento
-                        var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
-                            .OrderBy(group => group.Key)
-                            .Select(group => Tuple.Create(group.Key, group.Count()));
-                        var current_group =
-                            group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
-                        var count_odg_per_atto = 0;
-                        if (current_group != null) count_odg_per_atto = current_group.Item2;
-
-                        if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
+                        var dataOdierna = DateTime.Now;
+                        if (persona.IsCapoGruppo
+                            && seduta.Data_seduta.Day == dataOdierna.Day
+                            && seduta.Data_seduta.Month == dataOdierna.Month
+                            && seduta.Data_seduta.Year == dataOdierna.Year)
                         {
-                            results.Add(idGuid,
-                                $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+                            var atti_dopo_scadenza =
+                                my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
+                                                   && a.Timestamp.Month == dataOdierna.Month
+                                                   && a.Timestamp.Year == dataOdierna.Year)
+                                    .ToList();
+                            if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
+                            {
+                                results.Add(idGuid,
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare altri ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
 
-                            continue;
+                                continue;
+                            }
+
+                            atto.CapogruppoNeiTermini = true;
+                        }
+                        else
+                        {
+                            //Matteo Cattapan #484
+                            //Massimo ODG presentabili per provvedimento
+                            var group_odg_per_atto = my_atti.GroupBy(dasi => dasi.UID_Atto_ODG)
+                                .OrderBy(group => group.Key)
+                                .Select(group => Tuple.Create(group.Key, group.Count()));
+                            var current_group =
+                                group_odg_per_atto.FirstOrDefault(group => group.Item1 == atto.UID_Atto_ODG);
+                            var count_odg_per_atto = 0;
+                            if (current_group != null) count_odg_per_atto = current_group.Item2;
+
+                            if (count_odg_per_atto + 1 > AppSettingsConfiguration.MassimoODG)
+                            {
+                                results.Add(idGuid,
+                                    $"ERROR: {nome_atto} non depositabile. Non puoi depositare più di {AppSettingsConfiguration.MassimoODG} ordini del giorno per l'atto {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto}.");
+
+                                continue;
+                            }
                         }
                     }
                 }
