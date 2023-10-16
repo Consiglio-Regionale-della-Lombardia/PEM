@@ -715,7 +715,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.ProponiMozioneAbbinata(model);
+                await _dasiLogic.ProponiMozioneAbbinata(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)

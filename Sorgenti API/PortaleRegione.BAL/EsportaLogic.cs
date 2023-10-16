@@ -563,6 +563,8 @@ namespace PortaleRegione.BAL
 
                 sheet.Cells[2, 1].Value = "Numero massimo atti da importare:";
                 sheet.Cells[2, 2].Value = 1000;
+                sheet.Cells[2, 2].Style.Numberformat.Format = "0";
+
             }
             catch (Exception e)
             {
@@ -592,24 +594,30 @@ namespace PortaleRegione.BAL
                         var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
                         sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
                         sheet.Cells[row, 2].Value = Convert.ToInt32(atto.NAtto);
+                        sheet.Cells[row, 2].Style.Numberformat.Format = "0";
+
                         var firmacert = firma.FirmaCert;
                         var indiceParentesiApertura = firmacert.IndexOf('(');
                         firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                         sheet.Cells[row, 3].Value = firmacert;
                         sheet.Cells[row, 4].Value = atto.gruppi_politici.codice_gruppo;
-                        sheet.Cells[row, 5].Value = firma.Timestamp;
+                        sheet.Cells[row, 5].Value = new DateTime(
+                            firma.Timestamp.Year,
+                            firma.Timestamp.Month,
+                            firma.Timestamp.Day);
                         sheet.Cells[row, 5].Style.Numberformat.Format = "dd/MM/yyyy";
 
                         if (!string.IsNullOrEmpty(firma.Data_ritirofirma))
                         {
-                            sheet.Cells[row, 6].Value = Convert.ToDateTime(firma.Data_ritirofirma);
-                        }
-                        else
-                        {
-                            sheet.Cells[row, 6].Value = "";
+                            var data_ritiro = Convert.ToDateTime(firma.Data_ritirofirma);
+                            sheet.Cells[row, 6].Value = new DateTime(
+                                data_ritiro.Year,
+                                data_ritiro.Month,
+                                data_ritiro.Day);
                         }
 
                         sheet.Cells[row, 6].Style.Numberformat.Format = "dd/MM/yyyy";
+
                         sheet.Cells[row, 7].Value = firma.PrimoFirmatario ? "SI" : "NO";
                         row++;
                     }
@@ -686,10 +694,15 @@ namespace PortaleRegione.BAL
 
                     sheet.Cells[row, 2].Value = tipoMozione;
                     sheet.Cells[row, 3].Value = Convert.ToInt32(atto.NAtto);
+                    sheet.Cells[row, 3].Style.Numberformat.Format = "0";
+
                     sheet.Cells[row, 4].Value = Utility.GetText_StatoDASI(atto.IDStato, true);
                     sheet.Cells[row, 5].Value = "";
                     sheet.Cells[row, 6].Value = "";
-                    sheet.Cells[row, 7].Value = atto.Timestamp;
+                    sheet.Cells[row, 7].Value = new DateTime(
+                        atto.Timestamp.Year,
+                        atto.Timestamp.Month,
+                        atto.Timestamp.Day);
                     sheet.Cells[row, 7].Style.Numberformat.Format = "dd/MM/yyyy";
 
                     if ((TipoAttoEnum)atto.Tipo == TipoAttoEnum.IQT

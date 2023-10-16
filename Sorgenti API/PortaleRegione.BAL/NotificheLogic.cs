@@ -633,6 +633,7 @@ namespace PortaleRegione.BAL
         {
             try
             {
+                if (currentUser == null) return;
                 if (!currentUser.IsConsigliereRegionale && !currentUser.IsAssessore) return;
 
                 var result = await _unitOfWork.Notifiche.UpdateNotificaVista(currentUser, uid);

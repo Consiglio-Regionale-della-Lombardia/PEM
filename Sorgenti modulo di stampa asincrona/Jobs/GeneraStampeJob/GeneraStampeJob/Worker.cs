@@ -403,7 +403,7 @@ namespace GeneraStampeJob
             var em = listaEMendamenti.First();
             var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
             var dirSeduta = $"Seduta_{atto.SEDUTE.Data_seduta:yyyyMMdd}";
-            var dirPDL = Regex.Replace($"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}", @"[^0-9a-zA-Z]+",
+            var dirPDL = Regex.Replace($"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}", @"[^0-9a-zA-Z]+",
                 "_");
             var pathRepository = $"{_model.RootRepository}/{dirSeduta}/{dirPDL}";
 
@@ -412,13 +412,14 @@ namespace GeneraStampeJob
 
             var destinazioneDeposito = Path.Combine(pathRepository,
                 Path.GetFileName(listaPdfEmendamentiGenerati.First().Value.Path));
-            SpostaFascicolo(listaPdfEmendamentiGenerati.First().Value.Path, destinazioneDeposito);
+            File.WriteAllBytes(destinazioneDeposito, (byte[])listaPdfEmendamentiGenerati.First().Value.Content);
+            //SpostaFascicolo(listaPdfEmendamentiGenerati.First().Value.Path, destinazioneDeposito);
             _stampa.PathFile = Path.Combine($"{dirSeduta}/{dirPDL}",
                 Path.GetFileName(listaPdfEmendamentiGenerati.First().Value.Path));
             _stampa.UIDEM = em.UIDEM;
             await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
 
-            var bodyMail = await apiGateway.Emendamento.GetBody(em.UIDEM, TemplateTypeEnum.PDF, true);
+            var bodyMail = "E' stato depositato l'EM in oggetto";
 
             if (atto.SEDUTE.Data_effettiva_inizio.HasValue)
             {
@@ -436,8 +437,9 @@ namespace GeneraStampeJob
                             DA = _model.EmailFrom,
                             A = $"{ruoloSegreteriaAssempblea.ADGroup}@consiglio.regione.lombardia.it",
                             OGGETTO =
-                                    $"[TRATTAZIONE AULA] {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
-                            MESSAGGIO = bodyMail
+                                    $"[TRATTAZIONE AULA] {Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
+                            MESSAGGIO = bodyMail,
+                            pathAttachment = destinazioneDeposito
                         },
                             _auth.jwt);
                     }
@@ -495,7 +497,7 @@ namespace GeneraStampeJob
                     DA = _model.EmailFrom,
                     A = email_destinatari,
                     OGGETTO =
-                            $"{atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
+                            $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
                     MESSAGGIO = bodyMail,
                     pathAttachment = destinazioneDeposito,
                     IsDeposito = true
@@ -627,10 +629,18 @@ namespace GeneraStampeJob
 
         private void SpostaFascicolo(string _pathFascicolo, string _pathDestinazione)
         {
-            if (!Directory.Exists(Path.GetDirectoryName(_pathDestinazione)))
-                Directory.CreateDirectory(Path.GetDirectoryName(_pathDestinazione));
+            try
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(_pathDestinazione)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(_pathDestinazione));
 
-            File.Move(_pathFascicolo, _pathDestinazione);
+                File.Move(_pathFascicolo, _pathDestinazione);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
         }
 
         private void PulisciCartellaLavoroTemporanea(string _pathTemp)

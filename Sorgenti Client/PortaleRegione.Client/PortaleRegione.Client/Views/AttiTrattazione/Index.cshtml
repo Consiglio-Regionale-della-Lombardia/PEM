@@ -42,6 +42,7 @@
         </div>
     </div>
     <hr/>
+
     <ul class="collapsible" style="position: relative">
         @foreach (var attoPem in Model.PEM.First().Results)
         {
@@ -50,125 +51,97 @@
             {
                 titolo_atto = attoPem.Oggetto;
             }
-        <li>
-            <div class="collapsible-header">
-                <i class="material-icons pink-text hide-on-med-and-down">textsms</i>
-                @titolo_atto
-                <div class="collapsabile-secondary-header">
-                    @if (attoPem.Emendabile)
-                    {
-                        <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
-                    }
-                    @if (attoPem.CounterODG > 0)
-                    {
-                        <div class="chip">@(attoPem.CounterODG) ODG</div>
-                    }
-                </div>
-            </div>
-            <div class="collapsible-body">
-                <div class="card">
-                    <div class="card-content">
-                        @if ((seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile) || seduta.DataScadenzaPresentazioneODG.HasValue)
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons pink-text hide-on-med-and-down">textsms</i>
+                    @titolo_atto
+                    <div class="collapsabile-secondary-header">
+                        @if (attoPem.Emendabile)
                         {
-                            <div class="row" style="margin: 0 !important">
-                                <div class="col l12 s12 right-align">
-                                    <a class="btn-flat black-text activator">
-                                        <i class="material-icons right black-text tooltipped" data-tooltip="Scadenze">access_alarm</i>
-                                        SCADENZE
-                                    </a>
-                                </div>
-                            </div>
+                            <div class="chip">@(attoPem.Conteggio_EM + attoPem.Conteggio_SubEM) EM</div>
                         }
-                        <div class="row">
-                            <div class="col l12 s12">
-                                <div class="card-panel grey lighten-5">
-                                    <label>
-                                        <b>Oggetto</b>
-                                    </label>
-                                    <br />
-                                    <p>@attoPem.Oggetto</p>
+                        @if (attoPem.CounterODG > 0)
+                        {
+                            <div class="chip">@(attoPem.CounterODG) ODG</div>
+                        }
+                    </div>
+                </div>
+                <div class="collapsible-body">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="row">
+                                <div class="col l12 s12">
+                                    <div class="card-panel grey lighten-5">
+                                        <label>
+                                            <b>Oggetto</b>
+                                        </label>
+                                        <br/>
+                                        <p>@attoPem.Oggetto</p>
 
-                                    @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
-                                    {
-                                        <div class="row">
-                                            <div class="col s12 l12 right-align">
-                                                <a class="btn-flat pink-text"
-                                                   href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
-                                                    <i class="material-icons right">download</i>
-                                                    Scarica atto
-                                                </a>
+                                        @if (!string.IsNullOrEmpty(attoPem.Path_Testo_Atto))
+                                        {
+                                            <div class="row">
+                                                <div class="col s12 l12 right-align">
+                                                    <a class="btn-flat pink-text"
+                                                       href="@Url.Action("Download", "Atti", new { path = attoPem.Path_Testo_Atto })">
+                                                        <i class="material-icons right">download</i>
+                                                        Scarica atto
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            @if (attoPem.UIDAssessoreRiferimento.HasValue)
-                            {
-                                <div class="col s12">
-                                    <label>
-                                        <b>Assessore di Riferimento</b>
-                                    </label>
-                                    <br />
-                                    <div class="chip" style="margin-left: 5px; min-width: unset;">
-                                        <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
-                                        @attoPem.PersonaAssessore.DisplayName
+                                        }
                                     </div>
                                 </div>
-                            }
-                            @if (attoPem.Relatori.Any())
-                            {
-                                <div class="col s12">
-                                    <label>
-                                        <b>Relatori</b>
-                                    </label>
-                                    <br />
-                                    @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
-                                </div>
-                            }
+                            </div>
+                            <div class="row">
+                                @if (attoPem.UIDAssessoreRiferimento.HasValue)
+                                {
+                                    <div class="col s12">
+                                        <label>
+                                            <b>Assessore di Riferimento</b>
+                                        </label>
+                                        <br/>
+                                        <div class="chip" style="margin-left: 5px; min-width: unset;">
+                                            <img src="http://intranet.consiglio.regione.lombardia.it/GC/foto/@attoPem.PersonaAssessore.foto" alt="@attoPem.PersonaAssessore.DisplayName">
+                                            @attoPem.PersonaAssessore.DisplayName
+                                        </div>
+                                    </div>
+                                }
+                                @if (attoPem.Relatori.Any())
+                                {
+                                    <div class="col s12">
+                                        <label>
+                                            <b>Relatori</b>
+                                        </label>
+                                        <br/>
+                                        @Html.Raw(PortaleRegione.Client.Helpers.Utility.GetRelatori(attoPem.Relatori))
+                                    </div>
+                                }
 
-                        </div>
-                        <div class="col l6 s12 right-align">
-                            @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
-                            {
-                                <a class="btn-flat blue-text tooltipped"
-                                   onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = attoPem.UIDAtto })')" data-tooltip="Riepilogo emendamenti">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo EM In Seduta
-                                </a>
-                            }
+                            </div>
+                            <div class="col l6 s12 right-align">
+                                @if (attoPem.Data_apertura.HasValue && attoPem.Emendabile)
+                                {
+                                    <a class="btn-flat blue-text tooltipped"
+                                       onclick="go('@Url.Action("RiepilogoEmendamenti", "Emendamenti", new { id = attoPem.UIDAtto })')" data-tooltip="Riepilogo emendamenti">
+                                        <i class="material-icons right">chevron_right</i>
+                                        Riepilogo EM In Seduta
+                                    </a>
+                                }
 
-                            @if (attoPem.CounterODG > 0)
-                            {
-                                <a class="btn-flat blue-text tooltipped"
-                                   onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = attoPem.UIDSeduta, tipo = (int)TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto })')" data-tooltip="Riepilogo ordini del giorno">
-                                    <i class="material-icons right">chevron_right</i>
-                                    Riepilogo Ordini del giorno
-                                </a>
-                            }
+                                @if (attoPem.CounterODG > 0)
+                                {
+                                    <a class="btn-flat blue-text tooltipped"
+                                       onclick="go('@Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = attoPem.UIDSeduta, tipo = (int)TipoAttoEnum.ODG, uidAtto = attoPem.UIDAtto })')" data-tooltip="Riepilogo ordini del giorno">
+                                        <i class="material-icons right">chevron_right</i>
+                                        Riepilogo Ordini del giorno
+                                    </a>
+                                }
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-reveal">
-                        <span class="card-title grey-text text-darken-4">Scadenze <i class="material-icons right">close</i></span>
-                        <ul class="collection">
-                            @if (seduta.Scadenza_presentazione.HasValue && attoPem.Emendabile)
-                            {
-                                <li class="collection-item">
-                                    <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
-                                </li>
-                            }
-                            @if (seduta.DataScadenzaPresentazioneODG.HasValue)
-                            {
-                                <li class="collection-item">
-                                    <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
-                                </li>
-                            }
-                        </ul>
                     </div>
                 </div>
-            </div>
-        </li>
+            </li>
         }
     </ul>
 }
@@ -262,6 +235,51 @@
     }
 }
 
+<div class="row" style="margin: 0 !important">
+    <div class="col s12">
+        <h5>
+            <b>Scadenze</b>
+        </h5>
+    </div>
+</div>
+<ul class="collection">
+    @if (seduta.Scadenza_presentazione.HasValue)
+    {
+        <li class="collection-item">
+            <b>EMENDAMENTI</b> @Convert.ToDateTime(seduta.Scadenza_presentazione).ToString("dd/MM/yyyy HH:mm")
+        </li>
+    }
+    @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
+    {
+        <li class="collection-item">
+            <b>INTERROGAZIONE A RISPOSTA IMMEDIATA</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneIQT).ToString("dd/MM/yyyy HH:mm")
+        </li>
+    }
+    @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
+    {
+        <li class="collection-item">
+            <b>MOZIONI</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZ).ToString("dd/MM/yyyy HH:mm")
+        </li>
+    }
+    @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
+    {
+        <li class="collection-item">
+            <b>MOZIONI URGENTI</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZU).ToString("dd/MM/yyyy HH:mm")
+        </li>
+    }
+    @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
+    {
+        <li class="collection-item">
+            <b>MOZIONI ABBINATE</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneMOZA).ToString("dd/MM/yyyy HH:mm")
+        </li>
+    }
+    @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+    {
+        <li class="collection-item">
+            <b>ORDINI DEL GIORNO</b> @Convert.ToDateTime(seduta.DataScadenzaPresentazioneODG).ToString("dd/MM/yyyy HH:mm")
+        </li>
+    }
+</ul>
 
 <script>
     $(document).ready(function() {

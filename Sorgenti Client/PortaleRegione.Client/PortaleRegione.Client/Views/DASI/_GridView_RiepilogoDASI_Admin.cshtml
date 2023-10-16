@@ -173,9 +173,16 @@ else
             </td>
         }
         <td style="width: 18%;">
-            @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
+            
+            @if (!string.IsNullOrEmpty(item.Oggetto_Privacy)
+                 || !string.IsNullOrEmpty(item.Premesse_Modificato)
+                 || !string.IsNullOrEmpty(item.Richiesta_Modificata))
             {
                 <i class="material-icons red-text tooltipped" data-tooltip="Atto contenente dati personali">key</i>
+            }
+
+            @if (!string.IsNullOrEmpty(item.Oggetto_Privacy))
+            {
                 @Html.Raw(item.Oggetto_Privacy)
             }
             else if (string.IsNullOrEmpty(item.Oggetto_Modificato))

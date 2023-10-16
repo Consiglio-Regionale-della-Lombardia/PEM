@@ -445,7 +445,7 @@ function checkSelectedEM() {
 }
 
 function checkSelectedDASI() {
-    var selezionaTutti = getSelezionaTutti();
+    var selezionaTutti = getSelezionaTutti_DASI();
     var lista = getListaAtti();
 
     $("#checkAll").prop("checked", selezionaTutti);
@@ -1284,7 +1284,7 @@ function CambioStatoMassivo(stato, descr) {
 function CambioStatoMassivoDASI(stato, descr) {
     var text = "";
     var listaAtti = getListaAtti();
-    var selezionaTutti = getSelezionaTutti();
+    var selezionaTutti = getSelezionaTutti_DASI();
     var text_counter = "";
     if (selezionaTutti && listaAtti.length == 0) {
         text_counter = $("#hdTotaleDocumenti").val();

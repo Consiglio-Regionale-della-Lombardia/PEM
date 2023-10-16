@@ -76,18 +76,6 @@ else
                     @* FIRME *@
                     <div class="row" id="pnlStandardFirme">
                         <div class="col s12">
-                            @if ((item.FirmeAnte.Any()
-                                  && item.UIDPersonaProponente == Model.CurrentUser.UID_persona && item.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                                 || Model.CurrentUser.IsSegreteriaAssemblea
-                                 && (item.Tipo == (int)TipoAttoEnum.IQT
-                                     || item.Tipo == (int)TipoAttoEnum.MOZ))
-                            {
-                                <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-                                    Visualizza priorita
-                                    <i class="material-icons right pink-text">low_priority</i>
-                                </a>
-                                <br/>
-                            }
 
                             @Html.Raw(item.Firme)
 

@@ -1123,6 +1123,22 @@ namespace PortaleRegione.BAL
 
                     results.Add(idGuid, $"{n_em} - OK");
 
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = persona.UID_persona,
+                        CurrentRole = (int)persona.CurrentRole,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = em.UIDAtto,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        UIDEM = idGuid
+                    });
+                    await _unitOfWork.CompleteAsync();
+
                     counterDepositi++;
                 }
 
@@ -1338,13 +1354,6 @@ namespace PortaleRegione.BAL
             em.UIDPersonaProponente = model.NuovoProponente;
             em.id_gruppo = persona.Gruppo.id_gruppo;
             await _unitOfWork.CompleteAsync();
-
-            var pin = await _logicPersona.GetPin(persona);
-            await Firma(new ComandiAzioneModel
-            {
-                Lista = new List<Guid> { em.UIDEM },
-                Azione = ActionEnum.FIRMA
-            }, persona, pin);
         }
 
         public async Task RaggruppaEmendamento(EM em, string colore)

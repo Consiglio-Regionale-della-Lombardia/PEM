@@ -24,6 +24,10 @@ namespace PortaleRegione.DTO.Model
 {
     public class ModificaStatoAttoModel
     {
+        public ModificaStatoAttoModel()
+        {
+            Lista = new List<Guid>();
+        }
         public ICollection<Guid> Lista { get; set; }
         public StatiAttoEnum Stato { get; set; }
         public bool All { get; set; } = false;
