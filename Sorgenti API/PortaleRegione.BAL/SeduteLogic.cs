@@ -107,24 +107,6 @@ namespace PortaleRegione.BAL
             sedutaInDb.DataModifica = DateTime.Now;
 
             await _unitOfWork.CompleteAsync();
-
-            if (sedutaDto.Data_effettiva_fine.HasValue)
-            {
-                //Matteo Cattapan #486
-                //Quando viene chiusa la seduta, vengono 'declassate' tutte le mozioni depositate e iscritte in seduta da UOLA
-
-                var mozioni_abbinate =
-                    await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.ABBINATA);
-                var mozioni_urgenti =
-                    await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
-                var mozioni_da_declassare = new List<ATTI_DASI>();
-                mozioni_da_declassare.AddRange(mozioni_abbinate);
-                mozioni_da_declassare.AddRange(mozioni_urgenti);
-
-                mozioni_da_declassare.ForEach(moz => { moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA; });
-
-                await _unitOfWork.CompleteAsync();
-            }
         }
 
         private void CleanSeduta(SeduteFormUpdateDto sedutaDto, SEDUTE sedutaInDb)

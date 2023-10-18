@@ -226,7 +226,7 @@ namespace PortaleRegione.API.Controllers
                                 OGGETTO =
                                     $"Atto {nome_atto} modificato dal consigliere proponente",
                                 MESSAGGIO =
-                                    $"{persona.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto."
+                                    $"{persona.DisplayName_GruppoCode} ha modificato l'atto {nome_atto} con oggetto {attoInDb.Oggetto}. <br> Pertanto il sistema ha invalidato tutte le firme apposte. <br> Contatta il proponente per firmare nuovamente l’atto. {GetBodyFooterMail()}"
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
@@ -938,6 +938,27 @@ namespace PortaleRegione.API.Controllers
                         await _unitOfWork.CompleteAsync();
                     }
 
+                    if (valida && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
+                    {
+                        try
+                        {
+                            var mailModel = new MailModel
+                            {
+                                DA = AppSettingsConfiguration.EmailInvioDASI,
+                                A = AppSettingsConfiguration.EmailInvioDASI,
+                                OGGETTO =
+                                    $"Aggiunta firma all'atto {nome_atto}",
+                                MESSAGGIO =
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha firmato l'atto {nome_atto}. {GetBodyFooterMail()}"
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("Invio Mail - Firma", e);
+                        }
+                    }
+
                     results.Add(idGuid, $"{nome_atto} - {(valida ? "OK" : "?!?")}");
                     counterFirme++;
                 }
@@ -1035,13 +1056,13 @@ namespace PortaleRegione.API.Controllers
                                                 OGGETTO =
                                                     $"Non può essere trattata la mozione {nome_atto} come urgente",
                                                 MESSAGGIO =
-                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'atto {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza."
+                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'atto {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza. {GetBodyFooterMail()}"
                                             };
                                             await _logicUtil.InvioMail(mailModel);
                                         }
-                                        catch (Exception)
+                                        catch (Exception e)
                                         {
-                                            // ignored
+                                            Log.Error("Invio Mail", e);
                                         }
                                     }
 
@@ -1099,13 +1120,52 @@ namespace PortaleRegione.API.Controllers
                     //RITIRA ATTO
                     if (atto.Tipo == (int)TipoAttoEnum.MOZ && !string.IsNullOrEmpty(result_check) && countFirme > 1)
                     {
-                        if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE) atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                        if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                        {
+                            atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+
+                            // #844
+                            try
+                            {
+                                var mailModel = new MailModel
+                                {
+                                    DA = persona.email,
+                                    A = AppSettingsConfiguration.EmailInvioDASI,
+                                    OGGETTO = $"Perdita urgenza {nome_atto}",
+                                    MESSAGGIO =
+                                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la firma dall'atto {nome_atto} con oggetto \"{atto.Oggetto}\" che non potrà essere trattato con urgenza. {GetBodyFooterMail()}"
+                                };
+                                await _logicUtil.InvioMail(mailModel);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error("Invio Mail - Perdita urgenza", e);
+                            }
+                        }
                     }
                     else
                     {
                         atto.IDStato = (int)StatiAttoEnum.CHIUSO_RITIRATO;
                         atto.UIDPersonaRitiro = persona.UID_persona;
                         atto.DataRitiro = DateTime.Now;
+
+                        // #844
+                        try
+                        {
+                            var mailModel = new MailModel
+                            {
+                                DA = persona.email,
+                                A = AppSettingsConfiguration.EmailInvioDASI,
+                                OGGETTO = $"Ritiro effettuato da parte di {persona.DisplayName_GruppoCode}",
+                                MESSAGGIO =
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto} con oggetto \"{atto.Oggetto}\". {GetBodyFooterMail()}"
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("Invio Mail - Ritiro atto", e);
+                        }
                     }
                 }
 
@@ -1143,17 +1203,16 @@ namespace PortaleRegione.API.Controllers
                     var mailModel = new MailModel
                     {
                         DA = persona.email,
-                        A =
-                            AppSettingsConfiguration.EmailInvioDASI,
+                        A = AppSettingsConfiguration.EmailInvioDASI,
                         OGGETTO = $"Ritiro firma effettuato da parte di {persona.DisplayName_GruppoCode}",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". <br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.url_CLIENT}\">{AppSettingsConfiguration.NomePiattaforma}</a>."
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma da {nome_atto} con oggetto \"{atto.Oggetto}\". {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    // ignored
+                    Log.Error("Invio Mail - Ritiro firma", e);
                 }
             }
 
@@ -1416,18 +1475,17 @@ namespace PortaleRegione.API.Controllers
                             var mailModel = new MailModel
                             {
                                 DA = persona.email,
-                                A =
-                                    AppSettingsConfiguration.EmailInvioDASI,
+                                A = AppSettingsConfiguration.EmailInvioDASI,
                                 OGGETTO =
                                     "[ODG DI NON PASSAGGIO ALL'ESAME]",
                                 MESSAGGIO =
-                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato un ODG di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto} - {attoPEM.Oggetto}."
+                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha depositato l' {nome_atto} di non passaggio all'esame per il provvedimento: <br> {Utility.GetText_Tipo(attoPEM.IDTipoAtto)} {attoPEM.NAtto} - {attoPEM.Oggetto}. {GetBodyFooterMail()}"
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
                         catch (Exception)
                         {
-                            // ignored
+                            Log.Error("Invio Mail - ODG non passaggio all'esame");
                         }
 
 
@@ -1439,11 +1497,10 @@ namespace PortaleRegione.API.Controllers
                 var mailModel = new MailModel
                 {
                     DA = persona.email,
-                    A =
-                        AppSettingsConfiguration.EmailInvioDASI,
+                    A = AppSettingsConfiguration.EmailInvioDASI,
                     OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
                     MESSAGGIO =
-                        $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato<br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.url_CLIENT}\">{AppSettingsConfiguration.NomePiattaforma}</a>.",
+                        $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato. {GetBodyFooterMail()}",
                     ATTACHMENTS = attachList
                 };
                 await _logicUtil.InvioMail(mailModel);
@@ -1697,7 +1754,7 @@ namespace PortaleRegione.API.Controllers
                         OGGETTO =
                             "Avviso di eliminazione bozza atto",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza {nome_atto} <br> {atto.Oggetto}."
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha eliminato la bozza {nome_atto} <br> {atto.Oggetto}. {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
@@ -1753,7 +1810,7 @@ namespace PortaleRegione.API.Controllers
                     OGGETTO =
                         $"Atto {nome_atto} ritirato dal proponente",
                     MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto."
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto. {GetBodyFooterMail()}"
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
@@ -1772,7 +1829,7 @@ namespace PortaleRegione.API.Controllers
                     OGGETTO =
                         $"Atto {nome_atto} ritirato dal proponente",
                     MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}."
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}. {GetBodyFooterMail()}"
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
@@ -2029,7 +2086,7 @@ namespace PortaleRegione.API.Controllers
                         OGGETTO =
                             "[ISCRIZIONE ATTI]",
                         MESSAGGIO =
-                            $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}."
+                            $"La segreteria ha iscritto i seguenti atti alla seduta del {seduta.Data_seduta:dd/MM/yyyy}: <br> {gruppo.Select(item => item.Value).Aggregate((i, j) => i + "<br>" + j)}. {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
@@ -2072,9 +2129,7 @@ namespace PortaleRegione.API.Controllers
                         AppSettingsConfiguration.masterKey);
                 atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
-
-                if (atto.Tipo == (int)TipoAttoEnum.IQT)
-                    continue;
+                
                 // Matteo Cattapan #533 
                 // Avviso UOLA se atto fuori termine
                 var attoDto = await GetAttoDto(atto.UIDAtto);
@@ -2091,13 +2146,13 @@ namespace PortaleRegione.API.Controllers
                         OGGETTO =
                             $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " - FUORI TERMINE" : "")}",
                         MESSAGGIO =
-                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}."
+                            $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}. {GetBodyFooterMail()}"
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
                 catch (Exception)
                 {
-                    // ignored
+                    Log.Error("Invio Mail - Richiesta Iscrizione");
                 }
             }
         }
@@ -2126,7 +2181,7 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
-        public async Task RimuoviRichiesta(RichiestaIscrizioneDASIModel model)
+        public async Task RimuoviRichiesta(RichiestaIscrizioneDASIModel model, PersonaDto currentUser)
         {
             try
             {
@@ -2139,7 +2194,30 @@ namespace PortaleRegione.API.Controllers
                         throw new Exception(
                             "ERROR: Non è possibile rimuovere la richiesta. L'atto risulta già iscritto ad una seduta.");
 
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ) atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ)
+                    {
+                        atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+
+                        //#844
+                        var dto = await GetAttoDto(guid);
+                        try
+                        {
+                            var mailModel = new MailModel
+                            {
+                                DA = AppSettingsConfiguration.EmailInvioDASI,
+                                A = AppSettingsConfiguration.EmailInvioDASI,
+                                OGGETTO =
+                                    $"Rimossa richiesta iscrizione per l'atto {dto.Display}",
+                                MESSAGGIO =
+                                    $"Il consigliere {currentUser.DisplayName_GruppoCode} ha rimosso la richiesta di iscrizione dall'atto {dto.Display}. {GetBodyFooterMail()}"
+                            };
+                            await _logicUtil.InvioMail(mailModel);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error("Invio Mail", e);
+                        }
+                    }
 
                     atto.DataRichiestaIscrizioneSeduta = null;
                     atto.UIDPersonaRichiestaIscrizione = null;
@@ -2225,6 +2303,7 @@ namespace PortaleRegione.API.Controllers
                     Mapper.Map<SEDUTE, SeduteDto>(
                         await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta)));
                 if (IsOutdate(atto))
+                {
                     try
                     {
                         var mailModel = new MailModel
@@ -2234,14 +2313,35 @@ namespace PortaleRegione.API.Controllers
                             OGGETTO =
                                 $"{atto.Display} – FUORI TERMINE",
                             MESSAGGIO =
-                                $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione effettuata fuori termine per il provvedimento: <br> {atto.Display}."
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione effettuata fuori termine per il provvedimento: <br> {atto.Display}. {GetBodyFooterMail()}"
                         };
                         await _logicUtil.InvioMail(mailModel);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        // ignored
+                        Log.Error("Invio Mail - Urgenza Fuori Termine", e);
                     }
+                }
+                else
+                {
+                    try
+                    {
+                        var mailModel = new MailModel
+                        {
+                            DA = AppSettingsConfiguration.EmailInvioDASI,
+                            A = AppSettingsConfiguration.EmailInvioDASI,
+                            OGGETTO =
+                                $"Richiesta di trattazione urgente per la {atto.Display}",
+                            MESSAGGIO =
+                                $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto la trattazione d'urgenza per l'atto {atto.Display}. {GetBodyFooterMail()}"
+                        };
+                        await _logicUtil.InvioMail(mailModel);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Invio Mail - Urgenza", e);
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -2261,6 +2361,7 @@ namespace PortaleRegione.API.Controllers
 
                 var guid = model.Lista.First();
                 var atto = await Get(guid);
+                var dto = await GetAttoDto(guid, currentUser);
                 if (atto == null) throw new InvalidOperationException("ERROR: NON TROVATO");
                 if (atto.Tipo != (int)TipoAttoEnum.MOZ)
                     throw new InvalidOperationException("ERROR: Operazione abilitata solo per le mozioni");
@@ -2276,10 +2377,30 @@ namespace PortaleRegione.API.Controllers
 
                 // #842 MOZ Abbinate: iscrizione in seduta
                 var attoAbbinato = await Get(model.AttoUId);
+                var dtoAbbinato = await GetAttoDto(model.AttoUId);
                 atto.DataRichiestaIscrizioneSeduta = attoAbbinato.DataRichiestaIscrizioneSeduta;
                 atto.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
 
                 await _unitOfWork.CompleteAsync();
+
+                try
+                {
+                    //#844
+                    var mailModel = new MailModel
+                    {
+                        DA = AppSettingsConfiguration.EmailInvioDASI,
+                        A = AppSettingsConfiguration.EmailInvioDASI,
+                        OGGETTO =
+                            $"Proposta di abbinata {dto.Display}",
+                        MESSAGGIO =
+                            $"Il consigliere {currentUser.DisplayName_GruppoCode} ha richiesto l'abbinamento dell'atto {dto.Display} con l'atto {dtoAbbinato.Display}. {GetBodyFooterMail()}"
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Invio Mail - Abbinamento", e);
+                }
             }
             catch (Exception e)
             {

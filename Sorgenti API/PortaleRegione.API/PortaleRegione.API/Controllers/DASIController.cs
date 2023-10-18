@@ -673,7 +673,8 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                await _dasiLogic.RimuoviRichiesta(model);
+
+                await _dasiLogic.RimuoviRichiesta(model, CurrentUser);
                 return Ok();
             }
             catch (Exception e)
