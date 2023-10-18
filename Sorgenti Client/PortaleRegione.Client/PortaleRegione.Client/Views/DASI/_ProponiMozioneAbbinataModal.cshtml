@@ -25,7 +25,7 @@
         $('#txtProponiAbbinata').html("Proposta di mozione abbinata per l'atto <b>" + nomeAtto + "</b>:");
         var mozioni = await GetTipiMOZAbbinabiliDASI();
 		var select = $("#Atto_TipoMOZ_Abbinabili");
-        mozioni = [];
+        
         if (mozioni.length > 0) {
             select.empty();
 			$("#pnlAbbinabiliVuoto").hide();
