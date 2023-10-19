@@ -230,10 +230,7 @@ namespace PortaleRegione.API.Controllers
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
-                        catch (Exception)
-                        {
-                            // ignored
-                        }
+                        catch (Exception e) { Log.Error("Invio mail", e); }
 
                         await _logicAttiFirme.RimuoviFirme(attoInDb);
                         await _unitOfWork.CompleteAsync();
@@ -1758,10 +1755,7 @@ namespace PortaleRegione.API.Controllers
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
-                catch (Exception)
-                {
-                    // ignored
-                }
+                catch (Exception e) { Log.Error("Invio mail", e); }
             }
         }
 
@@ -1814,9 +1808,9 @@ namespace PortaleRegione.API.Controllers
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                Log.Error("Invio mail", e);
             }
 
             try
@@ -1833,9 +1827,9 @@ namespace PortaleRegione.API.Controllers
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                Log.Error("Invio mail", e);
             }
         }
 
@@ -2091,9 +2085,9 @@ namespace PortaleRegione.API.Controllers
                     await _logicUtil.InvioMail(mailModel);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                Log.Error("Invio mail", e);
             }
         }
 
@@ -2196,6 +2190,9 @@ namespace PortaleRegione.API.Controllers
 
                     if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                     {
+                        atto.DataPresentazione_MOZ = null;
+                        atto.DataPresentazione_MOZ_ABBINATA = null;
+                        atto.DataPresentazione_MOZ_URGENTE = null;
                         atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
 
                         //#844
@@ -2218,7 +2215,7 @@ namespace PortaleRegione.API.Controllers
                             Log.Error("Invio Mail", e);
                         }
                     }
-
+                    
                     atto.DataRichiestaIscrizioneSeduta = null;
                     atto.UIDPersonaRichiestaIscrizione = null;
                     await _unitOfWork.CompleteAsync();
@@ -2886,6 +2883,10 @@ namespace PortaleRegione.API.Controllers
                 var moz = await Get(new Guid(moz_id));
                 if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                moz.DataPresentazione_MOZ_ABBINATA = null;
+                moz.DataPresentazione_MOZ_URGENTE = null;
+                moz.DataRichiestaIscrizioneSeduta = null;
+                moz.UIDPersonaRichiestaIscrizione = null;
                 await _unitOfWork.CompleteAsync();
             }
         }

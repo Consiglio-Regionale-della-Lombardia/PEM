@@ -30,40 +30,50 @@ main { margin-bottom: 150px; }
 .btn-flat.black-text {
 	border: 1px black solid;
 	border-radius: 5px;
+	color: black !important;
 }
 
 .btn-flat.pink-text {
 	border: 1px #e91e63 solid;
 	border-radius: 5px;
+	color: black !important;
 }
 
 .btn-flat.blue-text {
 	border: 1px #2196F3 solid;
 	border-radius: 5px;
+	color: black !important;
 }
 
 .btn-flat.red-text {
 	border: 1px #F44336 solid;
 	border-radius: 5px;
+	color: black !important;
 }
 
 .btn-flat.green-text {
 	border: 1px #4CAF50 solid;
 	border-radius: 5px;
+	color: black !important;
 }
 
 .btn-flat.purple-text {
 	border: 1px #9c27b0 solid;
 	border-radius: 5px;
+	color: black !important;
+}
+
+.btn-flat.orange-text {
+	border: 1px #ff9800 solid;
+	border-radius: 5px;
+	color: black !important;
 }
 
 .btn-floating > i { color: unset; }
-.btn-floating:hover {
-	background-color: #f0f0f0 !important;
-}
-.btn-flat:hover {
-	background-color: #f0f0f0 !important;
-}
+
+.btn-floating:hover { background-color: #f0f0f0 !important; }
+
+.btn-flat:hover { background-color: #f0f0f0 !important; }
 
 .collapsible-body { padding: 1rem !important; }
 

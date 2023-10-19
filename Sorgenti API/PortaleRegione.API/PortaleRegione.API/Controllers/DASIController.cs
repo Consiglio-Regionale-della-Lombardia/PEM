@@ -972,7 +972,6 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="data">Lista di mozioni urgenti da declassare</param>
         /// <returns></returns>
-        [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]
         [Route(ApiRoutes.DASI.DeclassaMozione)]
         public async Task<IHttpActionResult> DeclassaMozione(List<string> data)
