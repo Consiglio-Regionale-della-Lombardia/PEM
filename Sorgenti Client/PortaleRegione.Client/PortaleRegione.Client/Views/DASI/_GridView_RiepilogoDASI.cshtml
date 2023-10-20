@@ -300,22 +300,15 @@ else
             <div class="col s12 right-align">
                 <hr/>
                 @{
-                    if (Model.CurrentUser.IsConsigliereRegionale
-                        && !Model.CurrentUser.IsCapoGruppo
-                        && item.Tipo == (int)TipoAttoEnum.MOZ)
-                    {
-                        //Matteo Cattapan #481
-                        //Il consigliere non ha possibilità di eseguire azioni sulle mozioni
-                    }
-                    else if (item.IDStato < (int)StatiAttoEnum.CHIUSO
+                    if (item.IDStato < (int)StatiAttoEnum.CHIUSO
                         && ((!item.DataIscrizioneSeduta.HasValue
                               && item.Tipo != (int)TipoAttoEnum.ITL
                               && item.Tipo != (int)TipoAttoEnum.ITR
                               && item.Tipo != (int)TipoAttoEnum.ODG
-                              && item.TipoMOZ != (int)TipoMOZEnum.URGENTE
-                              && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA
-                              && Model.CurrentUser.IsCapoGruppo) || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
-                             || (item.Tipo == (int)TipoAttoEnum.MOZ && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)))
+                              && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)) || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
+                             || (item.Tipo == (int)TipoAttoEnum.MOZ 
+                                 && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA 
+                                 && item.TipoMOZ != (int)TipoMOZEnum.URGENTE && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)))
                     {
                         <a class='btn-floating white black-text dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
                             <i class="icon material-icons black-text">settings</i>
@@ -326,7 +319,7 @@ else
                             @if (item.Tipo == (int)TipoAttoEnum.MOZ 
                                  && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA 
                                 && item.IDStato > (int)StatiAttoEnum.BOZZA
-                                 && Model.CurrentUser.IsCapoGruppo)
+                                 && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica))
                             {
                                 <li>
                                     <a onclick="ProponiUrgenzaDASI('@Html.Raw(item.UIDAtto)', '@Html.Raw(title)')">
@@ -347,7 +340,7 @@ else
                                  && !item.IsChiuso)
                             {
                                 if ((item.Tipo is (int)TipoAttoEnum.IQT
-                                     && (Model.CurrentUser.IsCapoGruppo
+                                     && ((Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
                                          || (item.UIDPersonaProponente.HasValue && item.UIDPersonaProponente.Value == Model.CurrentUser.UID_persona)))
                                     || (item.Tipo is (int)TipoAttoEnum.MOZ && item.IDStato > (int)StatiAttoEnum.BOZZA))
                                 {

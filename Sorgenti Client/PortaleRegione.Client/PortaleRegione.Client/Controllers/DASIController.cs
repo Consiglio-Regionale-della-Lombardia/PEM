@@ -1165,9 +1165,16 @@ namespace PortaleRegione.Client.Controllers
         [Route("declassa-mozione")]
         public async Task<ActionResult> DeclassaMozione(List<string> data)
         {
-            var apiGateway = new ApiGateway(Token);
-            await apiGateway.DASI.DeclassaMozione(data);
-            return Json("", JsonRequestBehavior.AllowGet);
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.DeclassaMozione(data);
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]

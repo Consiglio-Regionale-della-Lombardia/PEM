@@ -2116,6 +2116,23 @@ namespace PortaleRegione.API.Controllers
                             $"ERROR: Hai già presentato o sottoscritto 1 {Utility.GetText_Tipo(atto.Tipo)} per la seduta richiesta.");
                 }
 
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
+                {
+                    throw new Exception(
+                        "ERROR: La mozione è abbinata e non si può proporre un altra seduta.");
+                }
+                if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                {
+                    throw new Exception(
+                        "ERROR: La mozione è urgente e non si può proporre un altra seduta.");
+                }
+
+                if (atto.DataIscrizioneSeduta.HasValue)
+                {
+                    throw new Exception(
+                        "ERROR: L'atto è già iscritto in seduta. Contatta la segreteria dell'assemblea per cambiare la data di iscrizione.");
+                }
+
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
                     atto.DataPresentazione_MOZ = BALHelper.EncryptString(
@@ -2374,8 +2391,11 @@ namespace PortaleRegione.API.Controllers
 
                 // #842 MOZ Abbinate: iscrizione in seduta
                 var attoAbbinato = await Get(model.AttoUId);
-                var dtoAbbinato = await GetAttoDto(model.AttoUId);
-                atto.DataRichiestaIscrizioneSeduta = attoAbbinato.DataRichiestaIscrizioneSeduta;
+                var seduta = await _logicSedute.GetSeduta(attoAbbinato.UIDSeduta.Value);
+                var dataRichiesta = BALHelper.EncryptString(seduta.Data_seduta.ToString("dd/MM/yyyy"),
+                    AppSettingsConfiguration.masterKey);
+
+                atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 atto.UIDPersonaRichiestaIscrizione = currentUser.UID_persona;
 
                 await _unitOfWork.CompleteAsync();
@@ -2383,6 +2403,7 @@ namespace PortaleRegione.API.Controllers
                 try
                 {
                     //#844
+                    var dtoAbbinato = await GetAttoDto(model.AttoUId);
                     var mailModel = new MailModel
                     {
                         DA = AppSettingsConfiguration.EmailInvioDASI,
@@ -2881,8 +2902,16 @@ namespace PortaleRegione.API.Controllers
             foreach (var moz_id in data)
             {
                 var moz = await Get(new Guid(moz_id));
+
+                if (moz.DataIscrizioneSeduta.HasValue)
+                {
+                    throw new Exception(
+                        "ERROR: L'atto è iscritto in seduta. Contatta la segreteria dell'assemblea per modificare l'atto.");
+                }
+
                 if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                moz.DataPresentazione_MOZ = null;
                 moz.DataPresentazione_MOZ_ABBINATA = null;
                 moz.DataPresentazione_MOZ_URGENTE = null;
                 moz.DataRichiestaIscrizioneSeduta = null;
