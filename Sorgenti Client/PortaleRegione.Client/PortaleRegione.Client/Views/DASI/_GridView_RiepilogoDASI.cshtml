@@ -300,15 +300,17 @@ else
             <div class="col s12 right-align">
                 <hr/>
                 @{
-                    if (item.IDStato < (int)StatiAttoEnum.CHIUSO
+                    if (item.Tipo == (int)TipoAttoEnum.MOZ
+                    && (!Model.CurrentUser.IsCapoGruppo || !Model.CurrentUser.IsResponsabileSegreteriaPolitica))
+                    {
+                    }
+                    else if (item.IDStato < (int)StatiAttoEnum.CHIUSO
                         && ((!item.DataIscrizioneSeduta.HasValue
                               && item.Tipo != (int)TipoAttoEnum.ITL
                               && item.Tipo != (int)TipoAttoEnum.ITR
                               && item.Tipo != (int)TipoAttoEnum.ODG
                               && (Model.CurrentUser.IsCapoGruppo || Model.CurrentUser.IsResponsabileSegreteriaPolitica)) || (item.Tipo == (int)TipoAttoEnum.IQT && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)
-                             || (item.Tipo == (int)TipoAttoEnum.MOZ 
-                                 && item.TipoMOZ != (int)TipoMOZEnum.ABBINATA 
-                                 && item.TipoMOZ != (int)TipoMOZEnum.URGENTE && Model.CurrentUser.UID_persona == item.UIDPersonaProponente)))
+                             || (item.Tipo == (int)TipoAttoEnum.MOZ && item.TipoMOZ == (int)TipoMOZEnum.ORDINARIA)))
                     {
                         <a class='btn-floating white black-text dropdown-trigger' href='#' data-target='dropdown_@item.UIDAtto' style="margin-right: 5px;">
                             <i class="icon material-icons black-text">settings</i>
