@@ -160,9 +160,9 @@
                       || Model.CurrentUser.IsResponsabileSegreteriaPolitica)
                      && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
         {
-            <a class="btn-floating white" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
-                <i class="material-icons red-text tooltipped" data-tooltip="Rimuovi richiesta">close</i>
-            </a>
+            <div class="btn chip hoverable red center white-text" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">
+                <i class="icon material-icons">close</i> Rimuovi richiesta
+            </div>
         }
     }
 }
