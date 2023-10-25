@@ -301,7 +301,7 @@ else
                 <hr/>
                 @{
                     if (item.Tipo == (int)TipoAttoEnum.MOZ
-                    && (!Model.CurrentUser.IsCapoGruppo || !Model.CurrentUser.IsResponsabileSegreteriaPolitica))
+                    && (!Model.CurrentUser.IsCapoGruppo && !Model.CurrentUser.IsResponsabileSegreteriaPolitica))
                     {
                     }
                     else if (item.IDStato < (int)StatiAttoEnum.CHIUSO

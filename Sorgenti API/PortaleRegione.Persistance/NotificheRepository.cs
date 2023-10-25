@@ -313,7 +313,8 @@ namespace PortaleRegione.Persistance
                 .NOTIFICHE
                 .AnyAsync(item => item.UIDAtto == attoUId
                                && item.Mittente == personaUId
-                               && item.IDTipo == (int)TipoNotificaEnum.RITIRO);
+                               && item.IDTipo == (int)TipoNotificaEnum.RITIRO
+                               && !item.Chiuso);
         }
 
         public async Task<NOTIFICHE> GetBySync(Guid syncGuid)

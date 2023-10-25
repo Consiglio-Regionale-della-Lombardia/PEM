@@ -16,6 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -32,13 +39,6 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -230,7 +230,10 @@ namespace PortaleRegione.API.Controllers
                             };
                             await _logicUtil.InvioMail(mailModel);
                         }
-                        catch (Exception e) { Log.Error("Invio mail", e); }
+                        catch (Exception e)
+                        {
+                            Log.Error("Invio mail", e);
+                        }
 
                         await _logicAttiFirme.RimuoviFirme(attoInDb);
                         await _unitOfWork.CompleteAsync();
@@ -935,8 +938,8 @@ namespace PortaleRegione.API.Controllers
                         await _unitOfWork.CompleteAsync();
                     }
 
-                    if (valida && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO || atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
-                    {
+                    if (valida && (atto.IDStato == (int)StatiAttoEnum.PRESENTATO ||
+                                   atto.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
                         try
                         {
                             var mailModel = new MailModel
@@ -954,7 +957,6 @@ namespace PortaleRegione.API.Controllers
                         {
                             Log.Error("Invio Mail - Firma", e);
                         }
-                    }
 
                     results.Add(idGuid, $"{nome_atto} - {(valida ? "OK" : "?!?")}");
                     counterFirme++;
@@ -1014,98 +1016,101 @@ namespace PortaleRegione.API.Controllers
                 if (!string.IsNullOrEmpty(dto.DataRichiestaIscrizioneSeduta))
                     seduta = await _unitOfWork.Sedute.Get(Convert.ToDateTime(dto.DataRichiestaIscrizioneSeduta));
 
-                var countFirme = await _unitOfWork.Atti_Firme.CountFirmePrioritarie(idGuid);
-                var result_check = await ControlloFirmePresentazione(dto, countFirme - 1, seduta);
+                var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
+                var firmeList = firme.ToList();
+                var miaFirma = firmeList.First(f => f.UID_persona == persona.UID_persona);
+                firmeList.Remove(miaFirma); // #853 Rimuovo la mia firma dai conteggi per il controllo delle firme.
+
+                var result_check = await ControlloFirmePresentazione(dto, firmeList.Count(f => f.Prioritario), seduta);
                 if (!string.IsNullOrEmpty(result_check))
                     switch ((TipoAttoEnum)atto.Tipo)
                     {
                         case TipoAttoEnum.IQT:
                         case TipoAttoEnum.MOZ:
+                        {
+                            if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                             {
-                                if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
+                                var checkIfFirmatoDaiCapigruppo =
+                                    await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(atto.UIDAtto);
+                                if (!checkIfFirmatoDaiCapigruppo)
                                 {
-                                    var checkIfFirmatoDaiCapigruppo =
-                                        await _unitOfWork.DASI.CheckIfFirmatoDaiCapigruppo(atto.UIDAtto);
-                                    if (!checkIfFirmatoDaiCapigruppo)
+                                    // Matteo Cattapan #535 - Avviso perdita urgenza di una mozione
+                                    // Quando, a seguito del ritiro di una firma necessaria, una mozione perde l’urgenza, deve essere inviato un alert via email
+                                    // agli altri firmatari e alla segreteria dell’assemblea
+                                    var firmatari = new List<string>();
+                                    foreach (var attiFirmeDto in firme)
                                     {
-                                        // Matteo Cattapan #535 - Avviso perdita urgenza di una mozione
-                                        // Quando, a seguito del ritiro di una firma necessaria, una mozione perde l’urgenza, deve essere inviato un alert via email
-                                        // agli altri firmatari e alla segreteria dell’assemblea
-                                        var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
-                                        var firmatari = new List<string>();
-                                        foreach (var attiFirmeDto in firme)
-                                        {
-                                            if (attiFirmeDto.UID_persona == persona.UID_persona)
-                                                continue;
+                                        if (attiFirmeDto.UID_persona == persona.UID_persona)
+                                            continue;
 
-                                            var firmatario = await _logicPersona.GetPersona(attiFirmeDto.UID_persona);
-                                            firmatari.Add(firmatario.email);
-                                        }
-
-                                        firmatari.Add(AppSettingsConfiguration.EmailInvioDASI);
-
-                                        try
-                                        {
-                                            var mailModel = new MailModel
-                                            {
-                                                DA = AppSettingsConfiguration.EmailInvioDASI,
-                                                A = firmatari.Aggregate((i, j) => i + ";" + j),
-                                                OGGETTO =
-                                                    $"Non può essere trattata la mozione {nome_atto} come urgente",
-                                                MESSAGGIO =
-                                                    $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'atto {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza. {GetBodyFooterMail()}"
-                                            };
-                                            await _logicUtil.InvioMail(mailModel);
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            Log.Error("Invio Mail", e);
-                                        }
+                                        var firmatario = await _logicPersona.GetPersona(attiFirmeDto.UID_persona);
+                                        firmatari.Add(firmatario.email);
                                     }
 
-                                    break;
+                                    firmatari.Add(AppSettingsConfiguration.EmailInvioDASI);
+
+                                    try
+                                    {
+                                        var mailModel = new MailModel
+                                        {
+                                            DA = AppSettingsConfiguration.EmailInvioDASI,
+                                            A = firmatari.Aggregate((i, j) => i + ";" + j),
+                                            OGGETTO =
+                                                $"Non può essere trattata la mozione {nome_atto} come urgente",
+                                            MESSAGGIO =
+                                                $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'atto {nome_atto}. Non c’è più il numero necessario di firme per trattare la mozione con urgenza. {GetBodyFooterMail()}"
+                                        };
+                                        await _logicUtil.InvioMail(mailModel);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Log.Error("Invio Mail", e);
+                                    }
                                 }
 
-                                // #748 - Ritiro firma da parte del proponente - Se il proponente ritira la propria firma non invia il messaggio di notifica
-                                if (atto.UIDPersonaProponente == persona.UID_persona) break;
-
-                                var _guid = Guid.NewGuid();
-                                var sync_guid = Guid.NewGuid();
-
-                                var newNotifica = new NOTIFICHE
-                                {
-                                    UIDAtto = atto.UIDAtto,
-                                    Mittente = persona.UID_persona,
-                                    RuoloMittente = (int)persona.CurrentRole,
-                                    IDTipo = (int)TipoNotificaEnum.RITIRO,
-                                    Messaggio =
-                                        $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
-                                    DataCreazione = DateTime.Now,
-                                    IdGruppo = atto.id_gruppo,
-                                    SyncGUID = sync_guid,
-                                    UIDNotifica = _guid.ToString()
-                                };
-
-                                _unitOfWork.Notifiche.Add(newNotifica);
-
-                                var newDestinatario = new NOTIFICHE_DESTINATARI
-                                {
-                                    UIDNotifica = _guid.ToString(),
-                                    UIDPersona = atto.UIDPersonaProponente.Value,
-                                    IdGruppo = atto.id_gruppo,
-                                    UID = Guid.NewGuid()
-                                };
-
-                                _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
-
-                                await _unitOfWork.CompleteAsync();
-
-                                throw new InvalidOperationException(
-                                    "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
+                                break;
                             }
+
+                            // #748 - Ritiro firma da parte del proponente - Se il proponente ritira la propria firma non invia il messaggio di notifica
+                            if (atto.UIDPersonaProponente == persona.UID_persona) break;
+
+                            var _guid = Guid.NewGuid();
+                            var sync_guid = Guid.NewGuid();
+
+                            var newNotifica = new NOTIFICHE
+                            {
+                                UIDAtto = atto.UIDAtto,
+                                Mittente = persona.UID_persona,
+                                RuoloMittente = (int)persona.CurrentRole,
+                                IDTipo = (int)TipoNotificaEnum.RITIRO,
+                                Messaggio =
+                                    $"Richiesta di ritiro firma dall'atto {nome_atto}. L'atto non avrà più il numero di firme minime richieste e decadrà per mancanza di firme.",
+                                DataCreazione = DateTime.Now,
+                                IdGruppo = atto.id_gruppo,
+                                SyncGUID = sync_guid,
+                                UIDNotifica = _guid.ToString()
+                            };
+
+                            _unitOfWork.Notifiche.Add(newNotifica);
+
+                            var newDestinatario = new NOTIFICHE_DESTINATARI
+                            {
+                                UIDNotifica = _guid.ToString(),
+                                UIDPersona = atto.UIDPersonaProponente.Value,
+                                IdGruppo = atto.id_gruppo,
+                                UID = Guid.NewGuid()
+                            };
+
+                            _unitOfWork.Notifiche_Destinatari.Add(newDestinatario);
+
+                            await _unitOfWork.CompleteAsync();
+
+                            throw new InvalidOperationException(
+                                "INFO: Se ritiri la firma l'atto decadrà in quanto non ci sarà più il numero di firme necessario. La richiesta di ritiro firma è stata inviata al proponente dell'atto.");
+                        }
                     }
 
-                if (countFirme == 1
+                if (firme.Count() == 1
                     || !string.IsNullOrEmpty(result_check))
                 {
                     if (atto.Tipo == (int)TipoAttoEnum.ITL
@@ -1115,7 +1120,7 @@ namespace PortaleRegione.API.Controllers
                             "Per ritirare un atto già iscritto ad una seduta contatta la Segreteria dell’Assemblea.");
 
                     //RITIRA ATTO
-                    if (atto.Tipo == (int)TipoAttoEnum.MOZ && !string.IsNullOrEmpty(result_check) && countFirme > 1)
+                    if (atto.Tipo == (int)TipoAttoEnum.MOZ && !string.IsNullOrEmpty(result_check) && firme.Count() > 1)
                     {
                         if (atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
                         {
@@ -1187,7 +1192,6 @@ namespace PortaleRegione.API.Controllers
                 if (atto.UIDPersonaProponente == persona.UID_persona
                     && string.IsNullOrEmpty(result_check))
                 {
-                    var firme = await _logicAttiFirme.GetFirme(atto, FirmeTipoEnum.ATTIVI);
                     var firma = firme.First(f => string.IsNullOrEmpty(f.Data_ritirofirma) && f.Prioritario);
                     atto.UIDPersonaProponente = firma.UID_persona;
                     if (firma.id_gruppo != atto.id_gruppo) atto.id_gruppo = firma.id_gruppo;
@@ -1366,7 +1370,8 @@ namespace PortaleRegione.API.Controllers
                             var atti_dopo_scadenza =
                                 my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
                                                    && a.Timestamp.Month == dataOdierna.Month
-                                                   && a.Timestamp.Year == dataOdierna.Year)
+                                                   && a.Timestamp.Year == dataOdierna.Year
+                                                   && a.UID_Atto_ODG == attoPEM.UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
                                     .ToList();
                             if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
@@ -1755,7 +1760,10 @@ namespace PortaleRegione.API.Controllers
                     };
                     await _logicUtil.InvioMail(mailModel);
                 }
-                catch (Exception e) { Log.Error("Invio mail", e); }
+                catch (Exception e)
+                {
+                    Log.Error("Invio mail", e);
+                }
             }
         }
 
@@ -2117,21 +2125,15 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.ABBINATA)
-                {
                     throw new Exception(
                         "ERROR: La mozione è abbinata e non si può proporre un altra seduta.");
-                }
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.URGENTE)
-                {
                     throw new Exception(
                         "ERROR: La mozione è urgente e non si può proporre un altra seduta.");
-                }
 
                 if (atto.DataIscrizioneSeduta.HasValue)
-                {
                     throw new Exception(
                         "ERROR: L'atto è già iscritto in seduta. Contatta la segreteria dell'assemblea per cambiare la data di iscrizione.");
-                }
 
                 atto.DataRichiestaIscrizioneSeduta = dataRichiesta;
                 if (atto.Tipo == (int)TipoAttoEnum.MOZ)
@@ -2140,7 +2142,7 @@ namespace PortaleRegione.API.Controllers
                         AppSettingsConfiguration.masterKey);
                 atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
                 await _unitOfWork.CompleteAsync();
-                
+
                 // Matteo Cattapan #533 
                 // Avviso UOLA se atto fuori termine
                 var attoDto = await GetAttoDto(atto.UIDAtto);
@@ -2232,7 +2234,7 @@ namespace PortaleRegione.API.Controllers
                             Log.Error("Invio Mail", e);
                         }
                     }
-                    
+
                     atto.DataRichiestaIscrizioneSeduta = null;
                     atto.UIDPersonaRichiestaIscrizione = null;
                     await _unitOfWork.CompleteAsync();
@@ -2317,7 +2319,6 @@ namespace PortaleRegione.API.Controllers
                     Mapper.Map<SEDUTE, SeduteDto>(
                         await _unitOfWork.Sedute.Get(Convert.ToDateTime(atto.DataRichiestaIscrizioneSeduta)));
                 if (IsOutdate(atto))
-                {
                     try
                     {
                         var mailModel = new MailModel
@@ -2335,9 +2336,7 @@ namespace PortaleRegione.API.Controllers
                     {
                         Log.Error("Invio Mail - Urgenza Fuori Termine", e);
                     }
-                }
                 else
-                {
                     try
                     {
                         var mailModel = new MailModel
@@ -2355,7 +2354,6 @@ namespace PortaleRegione.API.Controllers
                     {
                         Log.Error("Invio Mail - Urgenza", e);
                     }
-                }
             }
             catch (Exception e)
             {
@@ -2456,10 +2454,10 @@ namespace PortaleRegione.API.Controllers
             var counter_dasi = await _unitOfWork.DASI.Count(queryFilter);
 
             var dasiList = await GetDASI_UID_RawChunk(new BaseRequest<AttoDASIDto>
-            {
-                page = 1,
-                size = counter_dasi
-            },
+                {
+                    page = 1,
+                    size = counter_dasi
+                },
                 queryFilter,
                 persona);
 
@@ -2737,62 +2735,62 @@ namespace PortaleRegione.API.Controllers
             switch ((TipoAttoEnum)atto.Tipo)
             {
                 case TipoAttoEnum.IQT:
-                    {
-                        if (atto.Seduta.DataScadenzaPresentazioneIQT == null)
-                            break;
-                        if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
-                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
-                                result = true;
+                {
+                    if (atto.Seduta.DataScadenzaPresentazioneIQT == null)
                         break;
-                    }
+                    if (atto.Seduta.DataScadenzaPresentazioneIQT.HasValue)
+                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneIQT)
+                            result = true;
+                    break;
+                }
                 case TipoAttoEnum.MOZ:
+                {
+                    switch ((TipoMOZEnum)atto.TipoMOZ)
                     {
-                        switch ((TipoMOZEnum)atto.TipoMOZ)
+                        case TipoMOZEnum.URGENTE:
                         {
-                            case TipoMOZEnum.URGENTE:
-                                {
-                                    if (atto.Seduta.DataScadenzaPresentazioneMOZU == null)
-                                        break;
-                                    if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
-                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
-                                            atto.Seduta.DataScadenzaPresentazioneMOZU)
-                                            result = true;
-                                    break;
-                                }
-                            case TipoMOZEnum.ABBINATA:
-                                {
-                                    if (atto.Seduta.DataScadenzaPresentazioneMOZA == null)
-                                        break;
-                                    if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
-                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
-                                            atto.Seduta.DataScadenzaPresentazioneMOZA)
-                                            result = true;
-                                    break;
-                                }
-                            case TipoMOZEnum.ORDINARIA:
-                                {
-                                    if (atto.Seduta.DataScadenzaPresentazioneMOZ == null)
-                                        break;
-                                    if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
-                                        if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
-                                            atto.Seduta.DataScadenzaPresentazioneMOZ)
-                                            result = true;
-                                    break;
-                                }
-                        }
-
-                        break;
-                    }
-                case TipoAttoEnum.ODG:
-                    {
-                        if (atto.CapogruppoNeiTermini) break;
-                        if (atto.Seduta.DataScadenzaPresentazioneODG == null)
+                            if (atto.Seduta.DataScadenzaPresentazioneMOZU == null)
+                                break;
+                            if (atto.Seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                                if (Convert.ToDateTime(atto.DataPresentazione_MOZ_URGENTE) >
+                                    atto.Seduta.DataScadenzaPresentazioneMOZU)
+                                    result = true;
                             break;
-                        if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
-                            if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
-                                result = true;
-                        break;
+                        }
+                        case TipoMOZEnum.ABBINATA:
+                        {
+                            if (atto.Seduta.DataScadenzaPresentazioneMOZA == null)
+                                break;
+                            if (atto.Seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                                if (Convert.ToDateTime(atto.DataPresentazione_MOZ_ABBINATA) >
+                                    atto.Seduta.DataScadenzaPresentazioneMOZA)
+                                    result = true;
+                            break;
+                        }
+                        case TipoMOZEnum.ORDINARIA:
+                        {
+                            if (atto.Seduta.DataScadenzaPresentazioneMOZ == null)
+                                break;
+                            if (atto.Seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                                if (Convert.ToDateTime(atto.DataPresentazione_MOZ) >
+                                    atto.Seduta.DataScadenzaPresentazioneMOZ)
+                                    result = true;
+                            break;
+                        }
                     }
+
+                    break;
+                }
+                case TipoAttoEnum.ODG:
+                {
+                    if (atto.CapogruppoNeiTermini) break;
+                    if (atto.Seduta.DataScadenzaPresentazioneODG == null)
+                        break;
+                    if (atto.Seduta.DataScadenzaPresentazioneODG.HasValue)
+                        if (atto.Timestamp > atto.Seduta.DataScadenzaPresentazioneODG)
+                            result = true;
+                    break;
+                }
             }
 
             return result;
@@ -2904,10 +2902,8 @@ namespace PortaleRegione.API.Controllers
                 var moz = await Get(new Guid(moz_id));
 
                 if (moz.DataIscrizioneSeduta.HasValue)
-                {
                     throw new Exception(
                         "ERROR: L'atto è iscritto in seduta. Contatta la segreteria dell'assemblea per modificare l'atto.");
-                }
 
                 if (moz.TipoMOZ == (int)TipoMOZEnum.ABBINATA) moz.UID_MOZ_Abbinata = null;
                 moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
