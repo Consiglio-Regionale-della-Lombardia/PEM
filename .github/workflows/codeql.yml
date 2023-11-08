@@ -23,13 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    # Runner size impacts CodeQL analysis time. To learn more, please see:
-    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
-    #   - https://gh.io/supported-runners-and-hardware-resources
-    #   - https://gh.io/using-larger-runners
-    # Consider using larger runners for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    runs-on: windows-2022
     permissions:
       actions: read
       contents: read
@@ -67,10 +61,10 @@ jobs:
         dotnet-version: 8.0.x
         dotnet-quality: preview
 
-    - name: Restore the ReaLTaiizor
+    - name: Restore the repository
       run: dotnet restore ${{ matrix.solution }} -p:Configuration=${{ matrix.configuration }} -p:UseSharedCompilation=false
 
-    - name: Build the ReaLTaiizor
+    - name: Build the repository
       run: dotnet build ${{ matrix.solution }} -c ${{ matrix.configuration }} -p:UseSharedCompilation=false --no-restore /nowarn:CS0067,CS0108,CS0109,CS0114,CS0169,CS0414,CS0618,CS0649,CS8632,CA1416,NU5104,NETSDK1138,SYSLIB0003
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
