@@ -53,7 +53,7 @@ namespace PortaleRegione.Client.Controllers
             int size = 50)
         {
             var mode = ClientModeEnum.GRUPPI;
-            var contextMode = HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var contextMode = HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
             if (contextMode != null) mode = (ClientModeEnum)Convert.ToInt16(contextMode);
 
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
@@ -99,10 +99,10 @@ namespace PortaleRegione.Client.Controllers
         [Route("seduta/{id:guid}")]
         public ActionResult RiepilogoEmendamentiInSeduta(Guid id)
         {
-            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             if (mode != (int)ClientModeEnum.TRATTAZIONE)
                 HttpContext.Cache.Insert(
-                    CacheHelper.CLIENT_MODE,
+                    GetCacheKey(CacheHelper.CLIENT_MODE),
                     (int)ClientModeEnum.TRATTAZIONE,
                     null,
                     Cache.NoAbsoluteExpiration,
@@ -155,7 +155,7 @@ namespace PortaleRegione.Client.Controllers
         private void SetCache(int page, int size, OrdinamentoEnum ordine, ViewModeEnum view)
         {
             HttpContext.Cache.Insert(
-                CacheHelper.ORDINAMENTO_PEM,
+                GetCacheKey(CacheHelper.ORDINAMENTO_PEM),
                 (int)ordine,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -165,7 +165,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.VIEW_MODE_PEM,
+                GetCacheKey(CacheHelper.VIEW_MODE_PEM),
                 view,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -175,7 +175,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.PAGE_PEM,
+                GetCacheKey(CacheHelper.PAGE_PEM),
                 page,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -185,7 +185,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.SIZE_PEM,
+                GetCacheKey(CacheHelper.SIZE_PEM),
                 size,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -492,7 +492,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 Session["RiepilogoEmendamenti"] = null;
-                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+                var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
                 var apiGateway = new ApiGateway(Token);
                 if (model.Lista == null || !model.Lista.Any())
                 {
@@ -740,8 +740,8 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> EsportaDOC(Guid id, OrdinamentoEnum ordine)
         {
             try
-            {
-                var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            {   
+                var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
                 var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);

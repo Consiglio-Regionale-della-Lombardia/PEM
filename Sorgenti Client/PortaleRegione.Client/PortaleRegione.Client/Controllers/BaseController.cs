@@ -106,11 +106,11 @@ namespace PortaleRegione.Client.Controllers
 
         internal void CheckCacheClientMode(ClientModeEnum _mode)
         {
-            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             if (mode != (int)_mode)
             {
                 HttpContext.Cache.Insert(
-                    CacheHelper.CLIENT_MODE,
+                    GetCacheKey(CacheHelper.CLIENT_MODE),
                     (int)_mode,
                     null,
                     Cache.NoAbsoluteExpiration,
@@ -119,6 +119,11 @@ namespace PortaleRegione.Client.Controllers
                     (key, value, reason) => { Console.WriteLine("Cache removed"); }
                 );
             }
+        }
+
+        internal string GetCacheKey(string key)
+        {
+            return $"{key}_{CurrentUser.UID_persona}";
         }
 
         internal async Task CheckCacheGruppiAdmin(RuoliIntEnum ruolo)
