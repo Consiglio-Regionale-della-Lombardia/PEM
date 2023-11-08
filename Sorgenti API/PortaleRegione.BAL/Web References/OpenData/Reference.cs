@@ -14,16 +14,16 @@
 #pragma warning disable 1591
 
 namespace PortaleRegione.BAL.OpenData {
-    using System;
-    using System.Web.Services;
     using System.Diagnostics;
-    using System.Web.Services.Protocols;
+    using System;
     using System.Xml.Serialization;
     using System.ComponentModel;
+    using System.Web.Services.Protocols;
+    using System.Web.Services;
     
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="UpsertOpenDataSoap", Namespace="https://intranet.consiglio.regione.lombardia.it/OpenData")]
@@ -832,25 +832,25 @@ namespace PortaleRegione.BAL.OpenData {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertGRUPPO", RequestNamespace="https://intranet.consiglio.regione.lombardia.it/OpenData", ResponseNamespace="https://intranet.consiglio.regione.lombardia.it/OpenData", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string UpsertGRUPPO(string ODGruppo, string PRIVATE_TOKEN) {
+        public string UpsertGRUPPO(string ODListaGruppo, string PRIVATE_TOKEN) {
             object[] results = this.Invoke("UpsertGRUPPO", new object[] {
-                        ODGruppo,
+                        ODListaGruppo,
                         PRIVATE_TOKEN});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void UpsertGRUPPOAsync(string ODGruppo, string PRIVATE_TOKEN) {
-            this.UpsertGRUPPOAsync(ODGruppo, PRIVATE_TOKEN, null);
+        public void UpsertGRUPPOAsync(string ODListaGruppo, string PRIVATE_TOKEN) {
+            this.UpsertGRUPPOAsync(ODListaGruppo, PRIVATE_TOKEN, null);
         }
         
         /// <remarks/>
-        public void UpsertGRUPPOAsync(string ODGruppo, string PRIVATE_TOKEN, object userState) {
+        public void UpsertGRUPPOAsync(string ODListaGruppo, string PRIVATE_TOKEN, object userState) {
             if ((this.UpsertGRUPPOOperationCompleted == null)) {
                 this.UpsertGRUPPOOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpsertGRUPPOOperationCompleted);
             }
             this.InvokeAsync("UpsertGRUPPO", new object[] {
-                        ODGruppo,
+                        ODListaGruppo,
                         PRIVATE_TOKEN}, this.UpsertGRUPPOOperationCompleted, userState);
         }
         
@@ -895,25 +895,25 @@ namespace PortaleRegione.BAL.OpenData {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://intranet.consiglio.regione.lombardia.it/OpenData/UpsertCOMPOSIZIONE_GRUPP" +
             "O", RequestNamespace="https://intranet.consiglio.regione.lombardia.it/OpenData", ResponseNamespace="https://intranet.consiglio.regione.lombardia.it/OpenData", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string UpsertCOMPOSIZIONE_GRUPPO(string ODComposizioneGruppo, string PRIVATE_TOKEN) {
+        public string UpsertCOMPOSIZIONE_GRUPPO(string ODComposizioneListaGruppo, string PRIVATE_TOKEN) {
             object[] results = this.Invoke("UpsertCOMPOSIZIONE_GRUPPO", new object[] {
-                        ODComposizioneGruppo,
+                        ODComposizioneListaGruppo,
                         PRIVATE_TOKEN});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void UpsertCOMPOSIZIONE_GRUPPOAsync(string ODComposizioneGruppo, string PRIVATE_TOKEN) {
-            this.UpsertCOMPOSIZIONE_GRUPPOAsync(ODComposizioneGruppo, PRIVATE_TOKEN, null);
+        public void UpsertCOMPOSIZIONE_GRUPPOAsync(string ODComposizioneListaGruppo, string PRIVATE_TOKEN) {
+            this.UpsertCOMPOSIZIONE_GRUPPOAsync(ODComposizioneListaGruppo, PRIVATE_TOKEN, null);
         }
         
         /// <remarks/>
-        public void UpsertCOMPOSIZIONE_GRUPPOAsync(string ODComposizioneGruppo, string PRIVATE_TOKEN, object userState) {
+        public void UpsertCOMPOSIZIONE_GRUPPOAsync(string ODComposizioneListaGruppo, string PRIVATE_TOKEN, object userState) {
             if ((this.UpsertCOMPOSIZIONE_GRUPPOOperationCompleted == null)) {
                 this.UpsertCOMPOSIZIONE_GRUPPOOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpsertCOMPOSIZIONE_GRUPPOOperationCompleted);
             }
             this.InvokeAsync("UpsertCOMPOSIZIONE_GRUPPO", new object[] {
-                        ODComposizioneGruppo,
+                        ODComposizioneListaGruppo,
                         PRIVATE_TOKEN}, this.UpsertCOMPOSIZIONE_GRUPPOOperationCompleted, userState);
         }
         
@@ -1566,11 +1566,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void ConnTestCompletedEventHandler(object sender, ConnTestCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ConnTestCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1592,11 +1592,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void CheckInfoTABCompletedEventHandler(object sender, CheckInfoTABCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CheckInfoTABCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1618,11 +1618,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertLRCompletedEventHandler(object sender, UpsertLRCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertLRCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1644,11 +1644,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteLRCompletedEventHandler(object sender, DeleteLRCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteLRCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1670,11 +1670,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertLINK_ATTICompletedEventHandler(object sender, UpsertLINK_ATTICompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertLINK_ATTICompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1696,11 +1696,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteLINK_ATTICompletedEventHandler(object sender, DeleteLINK_ATTICompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteLINK_ATTICompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1722,11 +1722,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertATTOCompletedEventHandler(object sender, UpsertATTOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertATTOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1748,11 +1748,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteATTOCompletedEventHandler(object sender, DeleteATTOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteATTOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1774,11 +1774,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectATTICompletedEventHandler(object sender, SelectATTICompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectATTICompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1800,11 +1800,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertATTO_SICompletedEventHandler(object sender, UpsertATTO_SICompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertATTO_SICompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1826,11 +1826,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteATTO_SICompletedEventHandler(object sender, DeleteATTO_SICompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteATTO_SICompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1852,11 +1852,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertCONSCompletedEventHandler(object sender, UpsertCONSCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertCONSCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1878,11 +1878,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteCONSCompletedEventHandler(object sender, DeleteCONSCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteCONSCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1904,11 +1904,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectCONSCompletedEventHandler(object sender, SelectCONSCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectCONSCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1930,11 +1930,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertCONS_LEGCompletedEventHandler(object sender, UpsertCONS_LEGCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertCONS_LEGCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1956,11 +1956,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteLINK_CONS_LEGCompletedEventHandler(object sender, DeleteLINK_CONS_LEGCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteLINK_CONS_LEGCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -1982,11 +1982,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertORGANOCompletedEventHandler(object sender, UpsertORGANOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertORGANOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2008,11 +2008,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteORGANOCompletedEventHandler(object sender, DeleteORGANOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteORGANOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2034,11 +2034,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertGRUPPOCompletedEventHandler(object sender, UpsertGRUPPOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertGRUPPOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2060,11 +2060,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteGRUPPOCompletedEventHandler(object sender, DeleteGRUPPOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteGRUPPOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2086,11 +2086,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertCOMPOSIZIONE_GRUPPOCompletedEventHandler(object sender, UpsertCOMPOSIZIONE_GRUPPOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertCOMPOSIZIONE_GRUPPOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2112,11 +2112,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteCOMPOSIZIONE_GRUPPOCompletedEventHandler(object sender, DeleteCOMPOSIZIONE_GRUPPOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteCOMPOSIZIONE_GRUPPOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2138,11 +2138,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectCOMPOSIZIONE_GRUPPOCompletedEventHandler(object sender, SelectCOMPOSIZIONE_GRUPPOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectCOMPOSIZIONE_GRUPPOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2164,11 +2164,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertCARICACompletedEventHandler(object sender, UpsertCARICACompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertCARICACompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2190,11 +2190,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteCARICACompletedEventHandler(object sender, DeleteCARICACompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteCARICACompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2216,11 +2216,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectCARICHECompletedEventHandler(object sender, SelectCARICHECompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectCARICHECompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2242,11 +2242,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertDUPCompletedEventHandler(object sender, UpsertDUPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertDUPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2268,11 +2268,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteDUPCompletedEventHandler(object sender, DeleteDUPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteDUPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2294,11 +2294,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertATTO_VALCompletedEventHandler(object sender, UpsertATTO_VALCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertATTO_VALCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2320,11 +2320,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteATTO_VALCompletedEventHandler(object sender, DeleteATTO_VALCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteATTO_VALCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2346,11 +2346,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectATTI_VALCompletedEventHandler(object sender, SelectATTI_VALCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectATTI_VALCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2372,11 +2372,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertATTO_VAL_ALLEGATOCompletedEventHandler(object sender, UpsertATTO_VAL_ALLEGATOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertATTO_VAL_ALLEGATOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2398,11 +2398,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteATTO_VAL_ALLEGATOCompletedEventHandler(object sender, DeleteATTO_VAL_ALLEGATOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteATTO_VAL_ALLEGATOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2424,11 +2424,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectATTO_VAL_ALLEGATICompletedEventHandler(object sender, SelectATTO_VAL_ALLEGATICompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectATTO_VAL_ALLEGATICompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2450,11 +2450,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertCALENDARIOCompletedEventHandler(object sender, UpsertCALENDARIOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertCALENDARIOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2476,11 +2476,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteCALENDARIOCompletedEventHandler(object sender, DeleteCALENDARIOCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteCALENDARIOCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2502,11 +2502,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertEMCompletedEventHandler(object sender, UpsertEMCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertEMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2528,11 +2528,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void DeleteEMCompletedEventHandler(object sender, DeleteEMCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteEMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2554,11 +2554,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectEMCompletedEventHandler(object sender, SelectEMCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectEMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2580,11 +2580,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void UpsertTestCompletedEventHandler(object sender, UpsertTestCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpsertTestCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2606,11 +2606,11 @@ namespace PortaleRegione.BAL.OpenData {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     public delegate void SelectGIUNTACompletedEventHandler(object sender, SelectGIUNTACompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SelectGIUNTACompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
