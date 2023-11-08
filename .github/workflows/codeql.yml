@@ -37,6 +37,12 @@ jobs:
         # Use only 'java-kotlin' to analyze code written in Java, Kotlin or both
         # Use only 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+        configuration: [
+            GitHub
+        ]
+        solution: [
+            src
+        ]
 
     steps:
     - name: Checkout repository
