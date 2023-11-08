@@ -37,12 +37,6 @@ jobs:
         # Use only 'java-kotlin' to analyze code written in Java, Kotlin or both
         # Use only 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
-        configuration: [
-            GitHub
-        ]
-        solution: [
-            src
-        ]
 
     steps:
     - name: Checkout repository
@@ -66,12 +60,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
         dotnet-quality: preview
-
-    - name: Restore the repository
-      run: dotnet restore ${{ matrix.solution }} -p:Configuration=${{ matrix.configuration }} -p:UseSharedCompilation=false
-
-    - name: Build the repository
-      run: dotnet build ${{ matrix.solution }} -c ${{ matrix.configuration }} -p:UseSharedCompilation=false --no-restore /nowarn:CS0067,CS0108,CS0109,CS0114,CS0169,CS0414,CS0618,CS0649,CS8632,CA1416,NU5104,NETSDK1138,SYSLIB0003
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
