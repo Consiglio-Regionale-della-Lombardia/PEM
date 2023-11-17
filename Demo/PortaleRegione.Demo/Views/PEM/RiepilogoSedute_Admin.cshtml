@@ -1,0 +1,259 @@
+﻿@model PortaleRegione.DTO.Response.BaseResponse<PortaleRegione.DTO.Domain.SeduteDto>
+
+@{
+    ViewBag.Title = "Riepilogo Sedute";
+    if (Model.Filters.Any())
+    {
+        ViewBag.Title += " - Ricerca";
+    }
+}
+
+<div class="row" style="margin-bottom: unset !important">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
+            <i class="material-icons">arrow_back</i>
+        </a>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                <h4>
+                    <b>@ViewBag.Title</b>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<hr/>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Paging);
+}
+
+<div id="seduteTable" class="row">
+
+    @if (!Model.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono sedute al momento
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <ul id="gridView" class="collapsible expandable">
+        @foreach (var seduta in Model.Results)
+        {
+            var css_sedutaAttiva = "green lighten-4 black-text";
+            if (seduta.Data_effettiva_fine.HasValue)
+            {
+                if (seduta.Data_effettiva_fine.Value < DateTime.Now)
+                {
+                    css_sedutaAttiva = string.Empty;
+                }
+            }
+
+            <li class="badgeBody">
+                <div class="collapsible-header" tabindex="0">
+                    <div class="col s9 valign-wrapper">
+                        <span style="padding-right: 50px">
+                            Seduta del
+                            <br class="hide-on-large-only"/>
+                            @seduta.Data_seduta.ToString("dd/MM/yyyy HH:mm")
+                        </span>
+                        @if (!seduta.Data_apertura.HasValue)
+                        {
+                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
+                        }
+                        else if (seduta.Data_apertura > DateTime.Now)
+                        {
+                            <div class="chip white grey-text hide-on-med-and-down" style="border: 1px solid grey; min-width: unset;">Chiusa</div>
+                        }
+                        else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                        {
+                            <div class="chip white green-text hide-on-med-and-down" style="border: 1px solid green; min-width: unset;">Aperta</div>
+                        }
+                        @if (!string.IsNullOrEmpty(seduta.Note))
+                        {
+                            <div class="chip chip-centered white black-text hide-on-med-and-down" style="border: 1px solid black; min-width: unset;">@seduta.Note</div>
+                        }
+                    </div>
+
+                    @*COMANDI*@
+                    <div class="col s3 right-align hide-on-med-and-down" style="margin: 5px;">
+                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            <i class="material-icons" style="margin-right:5px">edit</i>
+                        </a>
+                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <i class="material-icons" style="margin-right:5px">chevron_right</i>
+                        </a>
+                    </div>
+                    @*COMANDI MOBILE*@
+                    <div class="col s3 right-align hide-on-large-only" style="margin: 5px;">
+                        <a class="btn-floating white blue-text" onclick="go('@Url.Action("ModificaSeduta", "PEM", new { id = seduta.UIDSeduta })')" title="Modifica">
+                            <i class="material-icons" style="margin-right:5px">edit</i>
+                        </a>
+                        <a class="btn-floating white black-text" onclick="go('@Url.Action("RiepilogoAtti", "Atti", new { id = seduta.UIDSeduta })')" title="Riepilogo atti">
+                            <i class="material-icons" style="margin-right:5px">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
+                <div class="collapsible-body">
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="collection">
+                                @{
+                                    var testoStato = "Archiviata";
+                                    var colorStato = "blue-text";
+
+                                    if (!seduta.Data_apertura.HasValue)
+                                    {
+                                        testoStato = "Chiuso";
+                                        colorStato = "grey-text";
+
+                                    }
+                                    else if (seduta.Data_apertura > DateTime.Now)
+                                    {
+                                        testoStato = "Chiuso";
+                                        colorStato = "grey-text";
+
+                                    }
+                                    else if (!string.IsNullOrEmpty(css_sedutaAttiva))
+                                    {
+                                        testoStato = "Aperta";
+                                        colorStato = "green-text";
+                                    }
+                                }
+                                <li class="collection-item">
+                                    <div>
+                                        <label>Stato:</label><a href="#!" class="secondary-content @colorStato">@testoStato</a>
+                                    </div>
+                                </li>
+                                @if (!string.IsNullOrEmpty(seduta.Note))
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Note:</label><a href="#!" class="secondary-content">@seduta.Note</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.Scadenza_presentazione.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza EM:</label><a href="#!" class="secondary-content">@seduta.Scadenza_presentazione.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneIQT.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza IQT:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneIQT.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneMOZ.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza MOZ:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZ.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneMOZU.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza MOZ Urgenti:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZU.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneMOZA.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza MOZ Abbinate:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneMOZA.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                                @if (seduta.DataScadenzaPresentazioneODG.HasValue)
+                                {
+                                    <li class="collection-item">
+                                        <div>
+                                            <label>Scadenza ODG:</label><a href="#!" class="secondary-content">@seduta.DataScadenzaPresentazioneODG.Value.ToString("dd/MM/yyyy HH:mm")</a>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+
+</div>
+
+<div class="fixed-action-btn">
+    <a id="btnCreaSeduta" class="btn-floating btn-large blue darken-1">
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+
+@{
+    Html.RenderPartial("_SeduteFiltri", Model.Paging);
+}
+
+<script>
+    var instanceGridView;
+    $(window).on('load',
+        function() {
+            var elem = document.querySelector('#gridView');
+            instanceGridView = M.Collapsible.init(elem,
+                {
+                    accordion: false
+                });
+            instanceGridView.close();
+        });
+</script>
+
+<script>
+    $(document).ready(function() {
+        var filters = @Html.Raw(Convert.ToInt16(Model.Filters.Any()));
+        if (filters == 0)
+            set_Filtri_Sedute({});
+
+        Filtri_Sedute_CaricaLegislature("filter_sedute_legislature");
+        Filtri_Sedute_CaricaAnni("filter_sedute_anno");
+        Filtri_Sedute_CaricaDa("filter_sedute_da");
+        Filtri_Sedute_CaricaA("filter_sedute_a");
+
+        $('#btnCreaSeduta').attr('href', '@Url.Action("NuovaSeduta", "PEM")');
+        $('#btnSearch').on("click",
+            function() {
+                openSearch();
+            });
+    });
+
+    function filtra() {
+        setTimeout(function() {
+                $('body').removeClass('loaded');
+            },
+            200);
+        $('#formFiltraSedute').submit();
+    }
+
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function() {
+                $('body').removeClass('loaded');
+            },
+            200);
+        $('#formFiltraSedute').submit();
+    }
+
+</script>

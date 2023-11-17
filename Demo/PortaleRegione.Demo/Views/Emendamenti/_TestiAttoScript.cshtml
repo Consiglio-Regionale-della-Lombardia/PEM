@@ -1,0 +1,85 @@
+﻿@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+<script>
+
+    var template_item_testo_atto = "<div class='chip white black-text hoverable' style='min-width: unset; border: 1px solid green' onclick=\"goToEM(\'{{UIDEM}}\')\"><b>{{N_EM}}</b> - {{MODO}} - {{DisplayName}}</div>";
+
+    async function viewTestoAtto() {
+        waiting(true);
+        await CaricaTesti();
+        $('#pnlViewStandard').hide();
+        $('#pnlOrdinamento').hide();
+        $('#pnlViewTestoAtto').show();
+        waiting(false);
+    }
+
+    async function CaricaTesti() {
+        var attoUId = $('#hdUIdAtto').val();
+        var grigliaInDb = await GetGrigliaTestoEM(attoUId);
+        var table = $("#tableTesti");
+
+        table.empty();
+
+        $.each(grigliaInDb,
+            function(index, articoloModel) {
+                var testoArticolo = articoloModel.Data.TestoArticolo ? articoloModel.Data.TestoArticolo : "";
+                var emArticoli = "";
+                if (articoloModel.Emendamenti.length > 0) {
+                    $.each(articoloModel.Emendamenti,
+                        function(index, emArtItem) {
+                            var template_item_em = template_item_testo_atto.replace(/{{UIDEM}}/g, emArtItem.UID_QRCode)
+                                .replace(/{{N_EM}}/g, emArtItem.N_EM)
+                                .replace(/{{MODO}}/g, emArtItem.TIPI_EM.Tipo_EM)
+                                .replace(/{{DisplayName}}/g, emArtItem.PersonaProponente.DisplayName);
+                            emArticoli = emArticoli + template_item_em;
+                        });
+                }
+                table.append('<tr class="hoverable"><td width="10%"><b>Articolo ' + articoloModel.Data.Articolo + '</b></td><td>' + testoArticolo + emArticoli + '</td></tr>');
+                if (articoloModel.Commi.length > 0) {
+                    $.each(articoloModel.Commi,
+                        function(index, commaModel) {
+                            var testoComma = commaModel.Data.TestoComma ? commaModel.Data.TestoComma : "";
+                            var emCommi = "";
+                            if (commaModel.Emendamenti.length > 0) {
+                                $.each(commaModel.Emendamenti,
+                                    function(index, emCommaItem) {
+                                        var template_item_em = template_item_testo_atto.replace(/{{UIDEM}}/g, emCommaItem.UID_QRCode)
+                                            .replace(/{{N_EM}}/g, emCommaItem.N_EM)
+                                            .replace(/{{MODO}}/g, emCommaItem.TIPI_EM.Tipo_EM)
+                                            .replace(/{{DisplayName}}/g, emCommaItem.PersonaProponente.DisplayName);
+
+                                        emCommi = emCommi + template_item_em;
+                                    });
+                            }
+
+                            table.append('<tr class="hoverable"><td width="10%">&nbsp;&nbsp;Comma ' + commaModel.Data.Comma + '</td><td>' + testoComma + emCommi + '</td></tr>');
+                            if (commaModel.Lettere.length > 0) {
+                                $.each(commaModel.Lettere,
+                                    function(index, letteraModel) {
+                                        var testoLettera = letteraModel.Data.TestoLettera ? letteraModel.Data.TestoLettera : "";
+                                        var emLettere = "";
+                                        if (letteraModel.Emendamenti.length > 0) {
+                                            $.each(letteraModel.Emendamenti,
+                                                function(index, emLetteraItem) {
+                                                    var template_item_em = template_item_testo_atto.replace(/{{UIDEM}}/g, emLetteraItem.UID_QRCode)
+                                                        .replace(/{{N_EM}}/g, emLetteraItem.N_EM)
+                                                        .replace(/{{MODO}}/g, emLetteraItem.TIPI_EM.Tipo_EM)
+                                                        .replace(/{{DisplayName}}/g, emLetteraItem.PersonaProponente.DisplayName);
+                                                    emLettere = emLettere + template_item_em;
+                                                });
+                                        }
+
+                                        table.append('<tr class="hoverable"><td width="10%">&nbsp;&nbsp;&nbsp;&nbsp;<i>Lettera ' + letteraModel.Data.Lettera + '</i></td><td>' + testoLettera + emLettere + '</td></tr>');
+                                    });
+                            }
+                        });
+                }
+            });
+    }
+
+    function goToEM(uidem) {
+        var url = '@Url.Action("Index", "EMPublic")';
+        window.open(url + "?id=" + uidem, '_blank');
+    }
+
+</script>

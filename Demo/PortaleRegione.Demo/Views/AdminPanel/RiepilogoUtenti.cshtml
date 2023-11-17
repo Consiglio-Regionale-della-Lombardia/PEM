@@ -1,0 +1,160 @@
+﻿@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@using System.Linq
+@using System.Web.Mvc.Html
+@using Newtonsoft.Json
+@model PortaleRegione.DTO.Model.RiepilogoUtentiModel
+
+@{
+    ViewBag.Title = "Amministrazione";
+}
+
+@{
+    var q = "";
+    foreach (var key in Context.Request.QueryString.AllKeys)
+    {
+        if (Equals(key, "q"))
+        {
+            q = Context.Request.QueryString.Get("q");
+            break;
+        }
+    }
+}
+
+<div class="row">
+    <div class="col s12">
+        <h4>
+            <b>@ViewBag.Title</b>
+        </h4>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+}
+
+<div id="contentTable" class="row">
+
+    @if (!Model.Data.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono persone. Controlla i filtri di ricerca.
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    @foreach (var persona in Model.Data.Results)
+    {
+        var colorPin = "";
+        var messaggio = "";
+        switch (persona.Stato_Pin)
+        {
+            case StatoPinEnum.VALIDO:
+            {
+                messaggio = "Pin valido";
+                colorPin = "green";
+                break;
+            }
+            case StatoPinEnum.RESET:
+            {
+                messaggio = "Pin da resettare";
+                colorPin = "orange";
+                break;
+            }
+            case StatoPinEnum.NESSUNO:
+            {
+                messaggio = "Nessun pin impostato";
+                colorPin = "red";
+                break;
+            }
+        }
+        <div class="col l6 m6 s12">
+            <div class="card hoverable" title="@persona.DisplayName">
+                <div class="card-action grey lighten-4 center">
+                    <div class="row valign-wrapper" style="margin: 0 !important; padding: 0 !important">
+                        <div class="col s6 left-align">
+                            <div class="chip white-text @colorPin" style="min-width: unset">@messaggio</div>
+                        </div>
+                        <div class="col s6 right-align">
+                            @if (Model.Persona.IsAmministratorePEM || Model.Persona.IsAmministratoreGiunta)
+                            {
+                                <a class="hoverable center black-text" onclick="openResetPin('@persona.UID_persona', '@persona.DisplayName')" title="RESET pin">
+                                    <i class="material-icons">lock</i>
+                                </a>
+                                <a class="hoverable center black-text" onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')" title="RESET password">
+                                    <i class="material-icons">vpn_key</i>
+                                </a>
+                                <a class="hoverable center black-text" onclick="go('@Url.Action("ViewUtente", "AdminPanel", new { id = persona.UID_persona })')" title="Modifica @persona.UID_persona">
+                                    <i class="material-icons">chevron_right</i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="card-content" onclick="">
+                    <div class="row valign-wrapper" style="margin: unset !important">
+                        <div class="col s3 center">
+                            <img class="responsive-img circle" style="height: 80px; width: 80px;" src='http://intranet.consiglio.regione.lombardia.it/GC/foto/@persona.foto'>
+                        </div>
+                        <div class="col s9">
+                            <h5 class="card-title truncate">
+                                <span>@persona.DisplayName</span>
+                            </h5>
+                            <p>
+                                @persona.userAD
+                            </p>
+                            <p>
+                                @{
+                                    var gruppi = "--";
+                                    if (!string.IsNullOrEmpty(persona.Gruppi))
+                                    {
+                                        gruppi = persona.Gruppi;
+                                    }
+                                }
+                                <b>Gruppi A.D. PEM:</b> @gruppi
+
+                                @if (!string.IsNullOrEmpty(persona.GruppiAD))
+                                {
+                                    <i class="material-icons tiny activator">add</i>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-reveal">
+                    <span class="card-title grey-text text-darken-4">Altri Gruppi A.D.<i class="material-icons right">close</i></span>
+                    <p>
+                        @persona.GruppiAD
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<input type="hidden" id="hdPersonaUID"/>
+@{
+    Html.RenderPartial("_RiepilogoUtentiFiltri", Model.Data);
+    Html.RenderPartial("_RiepilogoUtenti_ModalResetPin");
+    Html.RenderPartial("_RiepilogoUtenti_ModalResetPassword");
+}
+
+@if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+{
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large blue darken-1 tooltipped" data-position="left" data-tooltip="Nuovo utente"
+           href="@Url.Action("NuovoUtente")">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+}
+
+
+@{
+    Html.RenderPartial("_RiepilogoUtentiScript", Model.Data.Filters);
+}

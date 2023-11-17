@@ -1,0 +1,147 @@
+﻿@model PortaleRegione.DTO.Model.RiepilogoGruppiModel
+
+@{
+    ViewBag.Title = "Amministrazione Gruppi";
+}
+
+<div class="row">
+    <div class="col s12">
+        <h4>
+            <b>@ViewBag.Title</b>
+        </h4>
+    </div>
+</div>
+
+<div id="gruppiTable" class="row">
+
+    @if (!Model.Results.Any())
+    {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel panel-warning center">
+                    <span class="center">
+                        Non ci sono gruppi.
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    @foreach (var gruppoDto in Model.Results)
+    {
+        var gruppo = gruppoDto.Gruppo;
+        var css_error = "";
+        if (gruppoDto.Error_AD)
+        {
+            css_error = "red white-text";
+        }
+
+        <div class="col l6 m6 s12">
+            <div class="card hoverable @css_error">
+                <div class="card-action right">
+                    <i class="icon material-icons white-text tooltipped" style="cursor: pointer" data-tooltip="@gruppoDto.Error_AD_Message">info</i>
+                    <i class="icon material-icons blue-text activator" style="cursor: pointer">edit</i>
+                </div>
+                <div class="card-content" onclick="">
+                    <div class="row" style="margin: unset !important">
+                        <h5>@gruppo.nome_gruppo</h5>
+                        <hr/>
+                        <b>ID Gruppo (GeCo):</b> @gruppo.id_gruppo <br>
+                        <b>UID Gruppo:</b> @gruppo.UID_Gruppo <br>
+                        <b>Sigla:</b> @gruppo.codice_gruppo <br>
+                        @if (gruppo.data_inizio != DateTime.MinValue)
+                        {
+                            <b>Data inizio:</b>
+                            @gruppo.data_inizio.ToString("dd/MM/yyyy")
+                            <br>
+                        }
+                        else
+                        {
+                            <b>Data inizio:</b>
+                            <br>
+                        }
+
+                        <b>Active Directory:</b> @gruppo.GruppoAD <br>
+                        <div style="display: flex; padding-top: 10px">
+                            <p>
+                                <label>
+                                    <input type="checkbox" disabled="disabled"
+                                           @Html.Raw(gruppo.abilita_em_privati == false ? "" : "checked=\"checked\"")/>
+                                    <span>EM Privati</span>
+                                </label>
+                            </p>
+                            <p style="padding-left: 20px">
+                                <label>
+                                    <input type="checkbox" disabled="disabled"
+                                           @Html.Raw(gruppo.giunta == false ? "" : "checked=\"checked\"")/>
+                                    <span>Giunta</span>
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-reveal">
+                    <span class="card-title grey-text text-darken-4">
+                        <i class="material-icons right">close</i>
+                    </span>
+
+                    <input id="Id_Gruppo_@gruppo.id_gruppo" type="hidden" value="@gruppo.id_gruppo"/>
+                    <input id="UID_Gruppo_@gruppo.id_gruppo" type="hidden" value="@gruppo.UID_Gruppo"/>
+
+                    <div class="form-group">
+                        <label>Active Directory:</label>
+                        <input id="GruppoAD_@gruppo.id_gruppo" value="@gruppo.GruppoAD"/>
+                    </div>
+                    <div style="display: flex; padding-top: 10px">
+                        <p>
+                            <label>
+                                <input id="abilita_em_privati_@gruppo.id_gruppo" type="checkbox" @Html.Raw(gruppo.abilita_em_privati == false ? "" : "checked=\"checked\"")/>
+                                <span>EM Privati</span>
+                            </label>
+                        </p>
+                        <p style="padding-left: 20px">
+                            <label>
+                                <input id="giunta_@gruppo.id_gruppo" type="checkbox" @Html.Raw(gruppo.giunta == false ? "" : "checked=\"checked\"")/>
+                                <span>Giunta</span>
+                            </label>
+                        </p>
+                    </div>
+                    @if (Model.Persona.IsAmministratoreGiunta || Model.Persona.IsAmministratorePEM)
+                    {
+                        <div class="row" style="margin-bottom: 0 !important; margin-top: 0 !important;">
+                            <div class="col s12 right-align">
+                                <a class="btn chip blue white-text" style="min-width: unset" onclick="SalvaGruppo(@gruppo.id_gruppo)">Salva e Aggiorna</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    
+    function SalvaGruppo(id) {
+        var obj = {
+            UID_Gruppo: $('#UID_Gruppo_' + id).val(),
+            Id_Gruppo: $('#Id_Gruppo_' + id).val(),
+            GruppoAD: $('#GruppoAD_' + id).val(),
+            abilita_em_privati: $('#abilita_em_privati_' + id).is(":checked"),
+            giunta: $('#giunta_' + id).is(":checked")
+        };
+
+        $.ajax({
+            url: '@Url.Action("SalvaGruppo")',
+            type: "POST",
+            data: obj
+        }).done(function(data) {
+            waiting(false);
+            go(data);
+        }).fail(function(err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+        });
+    }
+</script>

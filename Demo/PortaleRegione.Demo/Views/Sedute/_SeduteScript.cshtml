@@ -1,0 +1,40 @@
+﻿@model System.Collections.Generic.List<ExpressionBuilder.Generics.FilterStatement<PortaleRegione.DTO.Domain.SeduteDto>>
+
+<script>
+    $(document).ready(function () {
+        set_Filtri_EM({});
+        set_ListaArticoliEM([]);
+        set_ListaCommiEM([]);
+        set_ListaLettereEM([]);
+        var filters = @Html.Raw(Convert.ToInt16(Model.Any()));
+        if (filters == 0)
+            set_Filtri_Sedute({});
+
+        Filtri_Sedute_CaricaLegislature("filter_sedute_legislature");
+        Filtri_Sedute_CaricaAnni("filter_sedute_anno");
+        Filtri_Sedute_CaricaDa("filter_sedute_da");
+        Filtri_Sedute_CaricaA("filter_sedute_a");
+    });
+
+    function filtra() {
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formFiltraSedute').submit();
+    }
+    function filtra(page) {
+        $('#inputFilterPage').val(page);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formFiltraSedute').submit();
+    }
+
+    function filtra_Paginazione(size) {
+        $('#inputFilterSize').val(size);
+        setTimeout(function () {
+            $('body').removeClass('loaded');
+        }, 200);
+        $('#formFiltraSedute').submit();
+    }
+</script>
