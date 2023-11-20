@@ -607,6 +607,24 @@ namespace PortaleRegione.BAL
                 attoInDb.DataRitiro = DateTime.Now;
 
                 await _unitOfWork.CompleteAsync();
+
+                // #844
+                try
+                {
+                    var mailModel = new MailModel
+                    {
+                        DA = AppSettingsConfiguration.EmailInvioDASI,
+                        A = AppSettingsConfiguration.EmailInvioDASI,
+                        OGGETTO = $"L'atto {atto.Display} è decaduto",
+                        MESSAGGIO =
+                            $"L'atto {atto.Display} è decaduto perchè non ha più il numero di firme necessario. {GetBodyFooterMail()}"
+                    };
+                    await _logicUtil.InvioMail(mailModel);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Invio Mail - Decaduto", e);
+                }
             }
         }
 

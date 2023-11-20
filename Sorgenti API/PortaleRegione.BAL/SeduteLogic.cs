@@ -118,8 +118,8 @@ namespace PortaleRegione.BAL
                 var mozioni_urgenti =
                     await _unitOfWork.DASI.GetAttiBySeduta(sedutaDto.UIDSeduta, TipoAttoEnum.MOZ, TipoMOZEnum.URGENTE);
                 var mozioni_da_declassare = new List<ATTI_DASI>();
-                mozioni_da_declassare.AddRange(mozioni_abbinate);
-                mozioni_da_declassare.AddRange(mozioni_urgenti);
+                mozioni_da_declassare.AddRange(mozioni_abbinate.Where(a=>a.IDStato == (int)StatiAttoEnum.PRESENTATO || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE));
+                mozioni_da_declassare.AddRange(mozioni_urgenti.Where(a=>a.IDStato == (int)StatiAttoEnum.PRESENTATO || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE));
 
                 mozioni_da_declassare.ForEach(moz => { moz.TipoMOZ = (int)TipoMOZEnum.ORDINARIA; });
 

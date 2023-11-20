@@ -21,7 +21,7 @@
                 if (item.DataScadenzaPresentazioneMOZU) {
                     var resultDate_MOZU = GetDate(item.DataScadenzaPresentazioneMOZU);
                     if (resultDate_MOZU < Date.now()) {
-                        addtext = "<i class='material-icons red-text'>warning</i>";
+                        addtext = "<i class='material-icons red-text' title='Fuori termine'>warning</i>";
                     }
                 }
                 
@@ -104,7 +104,7 @@
                     icon: "error"
                 });
             } else {
-                go(data);
+				location.reload();
             }
         }).fail(function(err) {
             console.log("error", err);

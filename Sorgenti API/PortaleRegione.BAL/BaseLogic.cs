@@ -773,6 +773,12 @@ namespace PortaleRegione.BAL
             }
         }
 
+        public string GetBodyFooterMail()
+        {
+            return
+                $"<br><br>Collegati alla piattaforma <a href=\"{AppSettingsConfiguration.url_CLIENT}\">{AppSettingsConfiguration.NomePiattaforma}</a>";
+        }
+
         internal void GetBodyMail(EmendamentiDto emendamento, IEnumerable<FirmeDto> firme, bool isDeposito,
             ref string body)
         {
