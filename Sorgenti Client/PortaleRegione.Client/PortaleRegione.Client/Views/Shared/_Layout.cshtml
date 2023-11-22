@@ -1,4 +1,6 @@
-﻿@using PortaleRegione.Client.Helpers
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Domain
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,11 +27,35 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="~/Scripts/moment.js"></script>
     
+    @{
+        PersonaDto currentUser = null;
+
+        if (HttpContext.Current.User.Identity.IsAuthenticated)
+        {
+            var authCookie1 = Request.Cookies["PRCookies1"];
+            var authCookie2 = Request.Cookies["PRCookies2"];
+            var authCookie3 = Request.Cookies["PRCookies3"];
+            if (authCookie1 != null && authCookie2 != null && authCookie3 != null)
+            {
+                if (!string.IsNullOrEmpty(authCookie1.Value) && !string.IsNullOrEmpty(authCookie2.Value) && !string.IsNullOrEmpty(authCookie3.Value))
+                {
+                    var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
+                    var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
+                    var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
+                    var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
+
+                    currentUser = data;
+                }
+            }
+        }
+    }
+    
+
     <script>
         baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
         AggiornaPosizioneTemi(baseUrl);
         var cssTheme = "";
-        var modeFromCache = "@Html.Raw(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE))";
+        var modeFromCache = "@Html.Raw(HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"))";
         var mode = getClientMode();
         if (modeFromCache != "") {
             if (mode != modeFromCache) {

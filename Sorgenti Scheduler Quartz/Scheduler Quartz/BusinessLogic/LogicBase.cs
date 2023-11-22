@@ -1,4 +1,5 @@
-﻿using PortaleRegione.DTO.Response;
+﻿using PortaleRegione.DTO.Autenticazione;
+using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using System;
 using System.Configuration;
@@ -23,8 +24,11 @@ namespace Scheduler.BusinessLogic
                 BaseGateway.apiUrl = ConfigurationManager.AppSettings["UrlApi"];
                 var apiGateway = new ApiGateway();
                 var result = await apiGateway.Persone.Login(
-                    ConfigurationManager.AppSettings["ServiceUsername"],
-                    ConfigurationManager.AppSettings["ServicePassword"]);
+                    new LoginRequest
+                    {
+                        Username = ConfigurationManager.AppSettings["ServiceUsername"],
+                        Password = ConfigurationManager.AppSettings["ServicePassword"]
+                    });
                 currentServiceUser = result;
                 return result;
             }

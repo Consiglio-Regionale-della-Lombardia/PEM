@@ -275,7 +275,7 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(Token);
             var results = await apiGateway.Sedute.Get(model);
 
-            var mode = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var mode = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             if (mode == (int)ClientModeEnum.TRATTAZIONE)
             {
                 return View("~/Views/AttiTrattazione/Archivio.cshtml", results);

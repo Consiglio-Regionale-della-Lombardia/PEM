@@ -13,7 +13,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PortaleRegione.Client</RootNamespace>
     <AssemblyName>PortaleRegione.Client</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -25,6 +25,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <LangVersion>7.3</LangVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,20 +62,24 @@
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
@@ -326,6 +331,14 @@
     <Content Include="fonts\text-security-disc.eot" />
     <Content Include="fonts\text-security-disc.ttf" />
     <Content Include="fonts\text-security-disc.woff" />
+    <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.7.1.js" />
+    <Content Include="Scripts\jquery-3.7.1.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\moment.js" />
     <Content Include="Web.config.txt" />
     <Content Include="Content\editor\plugins\colors\ui\sass\trumbowyg.colors.scss" />
@@ -342,17 +355,9 @@
     <None Include="Properties\PublishProfiles\FolderProfile2.pubxml" />
     <None Include="Properties\PublishProfiles\IISProfile.pubxml" />
     <None Include="Properties\PublishProfiles\Pubblicazione - FileSystem.pubxml" />
-    <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\FiltriManager.js" />
-    <Content Include="Scripts\jquery-3.4.1.js" />
-    <Content Include="Scripts\jquery-3.4.1.min.js" />
-    <Content Include="Scripts\jquery-3.4.1.slim.js" />
-    <Content Include="Scripts\jquery-3.4.1.slim.min.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery-hex-picker.js" />
     <Content Include="Scripts\jquery.disableAutoFill.min.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\materialize.js" />
     <Content Include="Scripts\SessionManager.js" />
     <Content Include="Scripts\site.js" />
@@ -475,14 +480,14 @@
     <Content Include="Views\DASI\_CartaceoPanelPartial.cshtml" />
     <Content Include="Views\Emendamenti\_OrdinamentoAttoScript.cshtml" />
     <Content Include="Views\Emendamenti\_ComandiOrdinamento.cshtml" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.7.1.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

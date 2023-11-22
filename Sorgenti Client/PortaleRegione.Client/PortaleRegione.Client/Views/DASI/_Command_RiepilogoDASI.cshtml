@@ -58,8 +58,8 @@
                 icon = "desktop_windows";
             }
 
-            var statoFromCache = HttpContext.Current.Cache.Get(CacheHelper.STATO_DASI);
-            var tipoFromCache = HttpContext.Current.Cache.Get(CacheHelper.TIPO_DASI);
+            var statoFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.STATO_DASI}_{Model.CurrentUser.UID_persona.ToString()}");
+            var tipoFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.TIPO_DASI}_{Model.CurrentUser.UID_persona.ToString()}");
 
             var url = Url.Action("RiepilogoDASI", "DASI", new { view = new_view, stato = statoFromCache, tipo = tipoFromCache });
             if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)

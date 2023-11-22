@@ -965,7 +965,7 @@ namespace PortaleRegione.BAL
                                 A =
                                     $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                                 OGGETTO =
-                                    $"[RITIRATO] {n_em} del {atto.TIPI_ATTO.Tipo_Atto} {atto.NAtto}",
+                                    $"[RITIRATO] {n_em} del {Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}",
                                 MESSAGGIO =
                                     $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'ultima firma presente sull'emendamento. L'EMENDAMENTO E' QUINDI DA CONSIDERARSI RITIRATO."
                             });
@@ -994,7 +994,7 @@ namespace PortaleRegione.BAL
                                 A =
                                     $"{ruoloSegreterie.ADGroup.Replace(@"CONSIGLIO\", string.Empty)}@consiglio.regione.lombardia.it",
                                 OGGETTO =
-                                    $"[FIRMA-RITIRATA] {n_em} nel {em.ATTI.TIPI_ATTO.Tipo_Atto} {em.ATTI.NAtto}",
+                                    $"[FIRMA-RITIRATA] {n_em} nel {Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}",
                                 MESSAGGIO =
                                     $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato la propria firma dall'emendamento in oggetto"
                             });

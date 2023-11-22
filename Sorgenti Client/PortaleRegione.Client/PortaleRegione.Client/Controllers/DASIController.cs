@@ -495,19 +495,19 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                model.CurrentStatus = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI));
+                model.CurrentStatus = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI)));
                 if (CurrentUser.IsSegreteriaAssemblea
                     && model.CurrentStatus == StatiAttoEnum.BOZZA)
                 {
                     model.CurrentStatus = StatiAttoEnum.PRESENTATO;
                 }
 
-                model.CurrentType = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI));
+                model.CurrentType = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)));
                 await apiGateway.DASI.CambioStato(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -550,8 +550,8 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.IscriviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -577,8 +577,8 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.RichiediIscrizione(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -604,8 +604,8 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.RimuoviSeduta(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -631,8 +631,8 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.RimuoviRichiestaIscrizione(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -658,8 +658,8 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.ProponiMozioneUrgente(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -685,8 +685,8 @@ namespace PortaleRegione.Client.Controllers
                 await apiGateway.DASI.ProponiMozioneAbbinata(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
-                    stato = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.STATO_DASI)),
-                    tipo = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.TIPO_DASI))
+                    stato = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    tipo = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
                 });
                 return Json(url, JsonRequestBehavior.AllowGet);
             }
@@ -846,7 +846,7 @@ namespace PortaleRegione.Client.Controllers
         private void SetCache(int page, int size, int tipo, int stato, int viewModeEnum)
         {
             HttpContext.Cache.Insert(
-                CacheHelper.TIPO_DASI,
+                GetCacheKey(CacheHelper.TIPO_DASI),
                 tipo,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -856,7 +856,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.STATO_DASI,
+                GetCacheKey(CacheHelper.STATO_DASI),
                 stato,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -866,7 +866,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.PAGE_DASI,
+                GetCacheKey(CacheHelper.PAGE_DASI),
                 page,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -876,7 +876,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.SIZE_DASI,
+                GetCacheKey(CacheHelper.SIZE_DASI),
                 size,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -886,7 +886,7 @@ namespace PortaleRegione.Client.Controllers
             );
 
             HttpContext.Cache.Insert(
-                CacheHelper.VIEW_MODE_DASI,
+                GetCacheKey(CacheHelper.VIEW_MODE_DASI),
                 viewModeEnum,
                 null,
                 Cache.NoAbsoluteExpiration,
@@ -902,7 +902,7 @@ namespace PortaleRegione.Client.Controllers
         {
             Session["RiepilogoDASI"] = null;
             int.TryParse(Request.Form["reset"], out var reset_enabled);
-            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
             var view = Request.Form["view"];
 
@@ -959,7 +959,7 @@ namespace PortaleRegione.Client.Controllers
 
         private async Task<BaseRequest<AttoDASIDto>> ElaboraFiltri()
         {
-            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(CacheHelper.CLIENT_MODE));
+            var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
             int.TryParse(Request.Form["page"], out var filtro_page);
             int.TryParse(Request.Form["size"], out var filtro_size);

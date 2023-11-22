@@ -39,7 +39,7 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> Index(Guid id)
         {
             CheckCacheClientMode(ClientModeEnum.TRATTAZIONE);
-            var mode = (ClientModeEnum)HttpContext.Cache.Get(CacheHelper.CLIENT_MODE);
+            var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
             var apiGateway = new ApiGateway(Token);
             var seduta = await apiGateway.Sedute.Get(id);
             var model = new DashboardModel

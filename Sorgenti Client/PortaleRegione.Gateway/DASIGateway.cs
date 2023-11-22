@@ -129,7 +129,8 @@ namespace PortaleRegione.Gateway
             }
 
             var body = JsonConvert.SerializeObject(model);
-            var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(await Post(requestUrl, body, _token));
+            var x = await Post(requestUrl, body, _token);
+            var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(x);
             return result;
         }
 

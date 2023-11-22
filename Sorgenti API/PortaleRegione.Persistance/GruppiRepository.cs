@@ -45,8 +45,6 @@ namespace PortaleRegione.Persistance
 
         public async Task<GruppiDto> GetGruppoPersona(List<string> LGruppi, bool IsGiunta = false)
         {
-            ///TODO: Controllo se ci sono più di due gruppi rilanciare errore di sistema
-
             var query = PRContext.JOIN_GRUPPO_AD
                 .Where(p => LGruppi.Contains(p.GruppoAD) && p.GiuntaRegionale == IsGiunta)
                 .Join(PRContext.View_gruppi_politici_con_giunta,
@@ -63,7 +61,7 @@ namespace PortaleRegione.Persistance
                     });
 
             var lstGruppi = await query.OrderByDescending(g => g.id_gruppo).ToListAsync();
-
+            
             if (lstGruppi.Count == 2)
             {
                 if (!lstGruppi.Any(g => g.giunta))
@@ -73,7 +71,6 @@ namespace PortaleRegione.Persistance
             {
                 throw new Exception("Contatta SUBITO l'amministratore del sistema PEM.");
             }
-
 
             return lstGruppi.Any() ? lstGruppi[0] : null;
         }

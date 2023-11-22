@@ -11,12 +11,6 @@
     var currentRole = RuoliIntEnum.Utente;
     var carica = string.Empty;
 
-    var viewFromCache = Convert.ToInt16(HttpContext.Current.Cache.Get(CacheHelper.CLIENT_MODE));
-    if (viewFromCache == 0)
-    {
-        viewFromCache = (int)ClientModeEnum.GRUPPI;
-    }
-
     if (HttpContext.Current.User.Identity.IsAuthenticated)
     {
         var authCookie1 = Request.Cookies["PRCookies1"];
@@ -38,6 +32,12 @@
                 carica = data.IsGiunta ? data.Carica : string.Empty;
             }
         }
+    }
+
+    var viewFromCache = Convert.ToInt16(HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{persona.UID_persona.ToString()}"));
+    if (viewFromCache == 0)
+    {
+        viewFromCache = (int)ClientModeEnum.GRUPPI;
     }
 }
 
@@ -354,6 +354,15 @@
                                             type: "POST",
                                             data: request
                                         }).done(function(result2) {
+                                            if (result2.message){
+												swal({
+													title: "Errore",
+													text: result2.message,
+													icon: "error"
+												});
+												return;
+                                            }
+
                                             M.toast({ html: 'Il Pin è stato cambiato', classes: 'rounded' });
                                         }).fail(function(err) {
                                             console.log("error", err);
