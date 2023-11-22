@@ -1,0 +1,224 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.InvitoPanelModel
+
+<div id="modalEmendamentiNotificaA" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h5 id="emProponenteDisplayName"></h5>
+        @using (Html.BeginForm("EseguiAzione", "Emendamenti", FormMethod.Post, new { id = "formNotificaA" }))
+        {
+            @Html.AntiForgeryToken()
+
+            var isSegreteria = HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Politica) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale) ||
+                               HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM);
+
+            var displayPin = isSegreteria ? "none" : "block";
+
+            <div class="form-group" style="display: @displayPin">
+                <label>Pin:</label>
+                <input id="txtPinNotificheInviti" class="password" />
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <label class="black-text" style="margin-left: 20px">
+                        <input name="rdDestinatari" type="radio" checked value="@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))"/>
+                        <span>Consiglieri</span>
+                    </label>
+                    <label class="black-text" style="margin-left: 20px">
+                        <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.ASSESSORI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.ASSESSORI))"/>
+                        <span>Assessori</span>
+                    </label>
+                    @if (!isSegreteria)
+                    {
+                        <label class="black-text" style="margin-left: 20px">
+                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.GRUPPI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.GRUPPI))"/>
+                            <span>Gruppi</span>
+                        </label>
+                        <label class="black-text" style="margin-left: 20px">
+                            <input name="rdDestinatari" type="radio" value="@((int) TipoDestinatarioNotificaEnum.RELATORI))" onclick="LoadDestinatari('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.RELATORI))"/>
+                            <span>Relatori</span>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Destinatari:</label>
+                <p>
+                    <label>
+                        <input id="chkCaricaConsiglieri" type="checkbox" onchange="CaricaConsiglieriProprioGruppo()" />
+                        <span>Invita proprio gruppo</span>
+                    </label>
+                </p>
+                <div id="autocompleteInvitati" class="chips chips-autocomplete"></div>
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn modal-close grey">Annulla</button>
+        <a id="btnConfermaNotificaA" class="btn blue">Invita</a>
+    </div>
+</div>
+
+
+<script>
+    var chipInstanceNotificaA = null;
+    var elems = document.querySelector("#autocompleteInvitati");
+    
+    var autocompleteDataOptions;
+    var persone = [];
+    var data_preload = [];
+
+    async function LoadDestinatari(attoUId, tipo) {
+        console.log("DAI")
+        $('#chkCaricaConsiglieri').parent().parent().hide();
+
+        data_preload = [];
+        persone = [];
+        
+        var personeInDB = await GetPersonePerInviti(attoUId, tipo);
+        
+        for (let [key, value] of Object.entries(personeInDB)) {
+            persone.push({
+                tag: value,
+                id: key
+            });
+        }
+        
+        if (@((int) TipoDestinatarioNotificaEnum.RELATORI) == tipo) {
+            data_preload = persone;
+        }else if (@((int) TipoDestinatarioNotificaEnum.CONSIGLIERI) == tipo) {
+            $('#chkCaricaConsiglieri').parent().parent().show();
+            $('#chkCaricaConsiglieri').prop('checked', false);
+        }
+        
+        autocompleteDataOptions = {
+            data: persone,
+            limit: 10,
+            minLength: 1
+        };
+        if (chipInstanceNotificaA != null) {
+            chipInstanceNotificaA.destroy();
+        }
+        chipInstanceNotificaA = M.Chips.init(elems,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                data: data_preload
+            });
+    }
+    
+    function CaricaConsiglieriProprioGruppo() {
+
+        if ($('#chkCaricaConsiglieri').is(':checked')) {
+            var nome_utente = $('#txtDisplayNameUser').data("target-val");
+            var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
+
+            $.each(persone, function (index, item) {
+                if (item.tag.includes(nome_utente)) {
+                    //salto me stesso
+                }
+                else if (item.tag.includes("(" + codice_gruppo + ")")) {
+                    data_preload.push({ tag: item.tag, id: item.id });
+                }
+            });
+        } else {
+            data_preload = [];
+        }
+
+        if (chipInstanceNotificaA != null) {
+            chipInstanceNotificaA.destroy();
+        }
+        chipInstanceNotificaA = M.Chips.init(elems,
+            {
+                autocompleteOptions: autocompleteDataOptions,
+                data: data_preload
+            });
+    }
+
+    async function NotificaAEM(attoUId, tipo) {
+        var documentiTotali = $("#hdTotaleDocumenti").val();
+        var selezionaTutti = getSelezionaTutti();
+        var listaEM = getListaEmendamenti();
+        var totaleDoc = selezionaTutti ? documentiTotali - listaEM.length : listaEM.length;
+
+        waiting(true);
+        await LoadDestinatari(attoUId, tipo);
+        $("#modalEmendamentiNotificaA").modal("open");
+        waiting(false);
+
+        $("#btnConfermaNotificaA").on("click",
+            function() {
+                setTimeout(function() {
+                        $('body').removeClass('loaded');
+                        $("#modalEmendamentiNotificaA").modal("close");
+                    },
+                    200);
+                $("#formNotificaA").submit();
+            });
+    }
+
+    $("#formNotificaA").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+            var listaEM = getListaEmendamenti();
+            if ('@Model.UIDEM' != '@Guid.Empty') {
+                listaEM.push('@Model.UIDEM');
+            }
+            var destinatari = chipInstanceNotificaA.getData();
+            if (destinatari.length == 0) {
+                swal({
+                    title: "Errore",
+                    text: "Seleziona almeno un destinatario",
+                    icon: "error"
+                });
+                return;
+            }
+
+            var listaDestinatari = [];
+            $.each(destinatari,
+                function(index, item) {
+                    listaDestinatari.push(item.id);
+                });
+            var obj = {};
+            obj.Pin = $('#txtPinNotificheInviti').val();
+            obj.Azione = @((int)ActionEnum.INVITA);
+            obj.AttoUId = '@Model.UIDAtto';
+            obj.Lista = listaEM.length > 0 ? listaEM : [];
+            obj.ListaDestinatari = listaDestinatari;
+
+            $.ajax({
+                url: baseUrl + "/emendamenti/azioni-massive",
+                type: "POST",
+                data: JSON.stringify(obj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(data) {
+                if (data.message) {
+                    var typeMessage = "error";
+                    var str = data.message;
+                    var pos = str.indexOf('OK');
+                    if (pos > 0) {
+                        typeMessage = "success";
+                    }
+                    swal({
+                        title: "Esito Inviti",
+                        text: data.message,
+                        icon: typeMessage,
+                        button: "OK"
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    go(data);
+                }
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
+</script>

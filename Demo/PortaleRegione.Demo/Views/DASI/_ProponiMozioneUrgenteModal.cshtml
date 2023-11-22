@@ -1,0 +1,116 @@
+﻿<!-- Modal Structure -->
+<div id="modalMozioneUrgente" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="txtMozioneUrgente"></h4>
+        <ul class="collection with-header" id="lstSeduteAttiveMU">
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnMozioneUrgente_Salva">Proponi Urgenza</a>
+    </div>
+</div>
+
+<script>
+    function ProponiUrgenzaDASI(uidAtto, nomeAtto) {
+        $('#modalMozioneUrgente>div>ul').empty();
+        var checked = seduteMOZU.length == 1;
+        $.each(seduteMOZU,
+            function(i, item) {
+                var resultDate = GetFormattedDate(item.Data_seduta);
+                var addtext = "";
+                if (item.DataScadenzaPresentazioneMOZU) {
+                    var resultDate_MOZU = GetDate(item.DataScadenzaPresentazioneMOZU);
+                    if (resultDate_MOZU < Date.now()) {
+                        addtext = "<i class='material-icons red-text' title='Fuori termine'>warning</i>";
+                    }
+                }
+                
+                var text = "Seduta del " + resultDate + " " + addtext;
+                $('#modalMozioneUrgente>div>ul').append(templateSeduteAttive
+                    .replace("{TEXT}", text)
+                    .replace("{VALUE}", resultDate)
+                    .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+            });
+        $('#txtMozioneUrgente').html("Proponi urgenza <b>" + nomeAtto + "</b> in data:");
+        $("#btnMozioneUrgente_Salva").on("click",
+            function() {
+
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    swal({
+                        title: "Attenzione",
+                        text: "Seleziona una seduta disponibile",
+                        icon: "warning"
+                    }).then(function() {
+                        $("#modalMozioneUrgente").modal("open");
+                    });
+
+                    return;
+                }
+
+                if ($($('input[name="gruppoSeduteAttive"]:checked')[0]).parent().html().indexOf("warning") > 0) {
+                    swal({
+                        title: "Attenzione",
+                        text: "Richiesta di trattazione urgente effettuata fuori termine: procedere comunque?",
+                        icon: "info",
+                        buttons: {
+                            cancel: "Annulla",
+                            confirm: {
+                                className: "blue white-text",
+                                title: "Ok",
+                                value: true
+                            }
+                        }
+                    }).then(function(value) {
+                        if (!value) {
+                            console.log("ANNULLA")
+                            $("#modalMozioneUrgente").modal("open");
+                            return;
+                        } else {
+                            ProponiUrgenza(uidAtto);
+                        }
+                    });
+                } else {
+                    ProponiUrgenza(uidAtto);
+                }
+            });
+        $('#modalMozioneUrgente').modal("open");
+    }
+
+    function ProponiUrgenza(uidAtto) {
+        waiting(true);
+        var listaAtti = [];
+        var obj = {};
+
+        listaAtti.push(uidAtto);
+
+        var sedutaSelezionata = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+        obj.DataRichiesta = sedutaSelezionata;
+        obj.Lista = listaAtti;
+
+        $.ajax({
+            url: '@Url.Action("ProponiUrgenzaMozione")',
+            method: "POST",
+            data: JSON.stringify(obj),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        }).done(function(data) {
+            waiting(false);
+            $("#modalMozioneUrgente").modal("close");
+            $("#btnMozioneUrgente_Salva").off("click");
+            if (data.message) {
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+				location.reload();
+            }
+        }).fail(function(err) {
+            console.log("error", err);
+            waiting(false);
+            $("#modalMozioneUrgente").modal("close");
+            Error(err);
+        });
+    }
+</script>

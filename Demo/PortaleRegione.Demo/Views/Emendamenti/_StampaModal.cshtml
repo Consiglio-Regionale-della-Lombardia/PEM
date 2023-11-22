@@ -1,0 +1,126 @@
+﻿@model Guid
+
+<div id="modalStampa" class="modal">
+    <div class="modal-content">
+        <h5 id="emStampaDisplayName"></h5>
+        <p>Stai per generare la stampa degli emendamenti selezionati. Sei sicuro?</p>
+        @using (Html.BeginForm("NuovaStampa", "Stampe", FormMethod.Post, new { id = "formStampa" }))
+        {
+            @Html.AntiForgeryToken()
+            <input id="hdUIdAtto" name="UIDAtto" type="hidden" value="@Model"/>
+            <input id="hdOrdine" name="Ordine" type="hidden" value=""/>
+            <div id="pnlDaA">
+                <div class="form-group">
+                    <label>Dall' emendamento in posizione:</label>
+                    <input id="txtDa" name="Da" type="number" class="form-control" value="1" min="1"/>
+                </div>
+                <div class="form-group">
+                    <label>All' emendamento in posizione:</label>
+                    <input id="txtA" name="A" type="number" class="form-control"/>
+                </div>
+            </div>
+        }
+        <div class="modal-footer">
+            <button type="button" class="btn modal-close grey">Annulla</button>
+            <a id="btnConfermaStampa" class="btn blue">Genera stampa</a>
+        </div>
+    </div>
+</div>
+@{
+    var mode = HttpUtility.ParseQueryString(Request.Url.Query).Get("mode");
+    if (string.IsNullOrEmpty(mode))
+    {
+        mode = "1";
+    }
+}
+
+<script>
+    function ConfirmStampa() {
+        $("#emStampaDisplayName").empty();
+
+        var documentiTotali = $("#hdTotaleDocumenti").val();
+        var selezionaTutti = getSelezionaTutti();
+        var listaEM = getListaEmendamenti();
+        var totaleDoc = selezionaTutti || listaEM.length == 0 ? documentiTotali - listaEM.length : listaEM.length;
+
+        if (totaleDoc <= 0) {
+            swal({
+                title: "Errore",
+                text: "Seleziona almeno un emendamento da stampare",
+                icon: "error"
+            });
+            ErrorAlert("Seleziona almeno un emendamento da stampare");
+            return;
+        }
+        if (totaleDoc >= 10) {
+            $('#pnlDaA').show();
+        } else {
+            $('#pnlDaA').hide();
+        }
+        $("#txtA").val(totaleDoc);
+        $("#txtA").prop("max", totaleDoc);
+
+        $("#emStampaDisplayName").append("GENERA FASCICOLO EMENDAMENTI (TOTALE EM DA ESPORTARE: " + totaleDoc + ")");
+
+        $("#modalStampa").modal("open");
+        $("#btnConfermaStampa").on("click",
+            function() {
+                $("#formStampa").submit();
+            });
+    }
+
+    $("#formStampa").submit(function(e) {
+        e.preventDefault();
+    }).validate({
+        submitHandler: function(form) {
+
+            var data = {};
+            data.uid_atto = $("#hdUIdAtto").val();
+            data.da = $("#txtDa").val();
+            data.a = $("#txtA").val();
+            data.client_mode = @Html.Raw(mode);
+            data.ordine = $("#inputFilterOrdine").val();
+
+            var lstEM = getListaEmendamenti();
+            var filters = [];
+            if (lstEM.length > 0) {
+                var qEm = "";
+                for (var i = 0; i < lstEM.length; i++) {
+                    if (i == 0) {
+                        qEm = lstEM[0];
+                    } else {
+                        qEm = qEm + "," + lstEM[i];
+                    }
+                }
+
+                filters.push(qEm);
+            }
+
+            data.filters = filters;
+
+            waiting(true);
+            var url = baseUrl + "/stampe/nuova";
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(stampa) {
+                
+                $("#modalStampa").modal("close");
+                $("#btnConfermaStampa").off("click");
+                waiting(false);
+                M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"@Url.Action("Index", "Stampe")\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
+            }).fail(function(err) {
+                console.log("error", err);
+                Error(err);
+            });
+
+            setListaEmendamenti([]);
+            setSelezionaTutti(false);
+
+            return false; //This doesn't prevent the form from submitting.
+        }
+    });
+</script>

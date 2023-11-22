@@ -1,0 +1,248 @@
+﻿@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.Client.Models.AttiViewModel
+
+@{
+    var isNew = Model.Atto.UIDAtto == Guid.Empty;
+    ViewBag.Title = isNew ? "Nuovo atto" : "Modifica atto";
+
+    Html.RenderPartial("_AttoFormScript", Model);
+
+}
+<div class="row">
+    <div class="col s1">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@Url.Action("RiepilogoAtti", "Atti", new {id = Model.Atto.UIDSeduta})">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+    <div class="col s6">
+        <h4>
+            <b>
+                <span>@ViewBag.Title</span>
+                <input id="hfMode" type="hidden" value="edit"/>
+            </b>
+        </h4>
+    </div>
+</div>
+@if (!isNew)
+{
+    <div class="row valign-wrapper">
+        <div class="col s4">
+            <div class="form-group">
+                <label>Seduta</label>
+                <select id="selectSpostaAtto">
+                    <option selected="selected">Seleziona</option>
+                    @foreach (var seduta in Model.Sedute.Results)
+                    {
+                        <option value="@seduta.UIDSeduta">@seduta.Data_seduta.ToString("dd/MM/yyyy")</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col s8">
+            <a class="btn chip hoverable yellow center black-text" onclick="spostaAtto('@Model.Atto.UIDAtto')">
+                Sposta
+                <i class="material-icons right">call_missed_outgoing</i>
+            </a>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col s12">
+
+        @using (Html.BeginForm("SalvaAtto", "Atti", FormMethod.Post, new
+        { enctype = "multipart/form-data", id = "formAtto" }))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(s => s.Atto.UIDAtto)
+            @Html.HiddenFor(s => s.Atto.UIDSeduta)
+            @Html.HiddenFor(s => s.Atto.IDTipoAtto)
+
+            <ul id="attoFormsTabs" class="tabs tabs-fixed-width">
+                <li class="tab col s3">
+                    <a class="active" href="#generalTab">Info</a>
+                </li>
+                @if (Model.Atto.UIDAtto != Guid.Empty)
+                {
+                    <li class="tab col s3">
+                        <a href="#articoliCommiLettereTab">Articoli, Commi e Lettere</a>
+                    </li>
+                }
+                <li class="tab col s3">
+                    <a href="#assessoreRelatoriTab">Assessore e Relatori</a>
+                </li>
+                <li class="tab col s3">
+                    <a href="#commonsTab">Opzioni</a>
+                </li>
+            </ul>
+            <div id="generalTab" class="col s12">
+                <div class="form-group">
+                    <label for="Atto_Tipo">Tipo</label>
+                    <select id="Atto_Tipo">
+                    </select>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.NAtto)
+                    @Html.TextBoxFor(s => s.Atto.NAtto, new { @class = "form-control" })
+                </div>
+                <div class="input-field">
+                    @Html.LabelFor(s => s.Atto.Oggetto)
+                    @Html.TextAreaFor(model => model.Atto.Oggetto, new { @class = "materialize-textarea" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Data_apertura)
+                    <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_apertura').val(0)">close</i>
+                    @Html.TextBoxFor(s => s.Atto.Data_apertura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.Data_chiusura)
+                    <i class="icon material-icons red-text tooltipped" data-position="bottom" data-tooltip="Cancella data chiusura" onclick="$('#Atto_Data_chiusura').val(0)">close</i>
+
+                    @Html.TextBoxFor(s => s.Atto.Data_chiusura, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input id="Emendabile" name="Atto.Emendabile" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.Emendabile ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.Emendabile)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+                <div class="input-field">
+                    @Html.LabelFor(s => s.Atto.Note)
+                    @Html.TextAreaFor(model => model.Atto.Note, new { @class = "materialize-textarea" })
+                </div>
+
+                @{
+                    var placeholder_text = string.Empty;
+                    placeholder_text = !string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto) ? "Sostituisci documento" : "Inserisci documento atto";
+                }
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>SFOGLIA</span>
+                        <input type="file" name="DocAtto" accept="application/pdf">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="@placeholder_text">
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Atto.Path_Testo_Atto))
+                {
+                    <div class="form-group">
+                        <div class="chip">@Model.Atto.Path_Testo_Atto</div>
+                    </div>
+                }
+            </div>
+
+            if (Model.Atto.UIDAtto != Guid.Empty)
+            {
+                <div id="articoliCommiLettereTab" class="col s12">
+                    @{
+                        Html.RenderPartial("_Testi_Articoli_Commi_Lettere_Partial", Model);
+                    }
+                    <div class="row" id="viewGrid">
+                        <div class="col s4">
+                            <span>Articoli</span>
+                            <ul id="tableArticoli" class="collection">
+                            </ul>
+                        </div>
+                        <div class="col s4">
+                            <span>Commi</span>
+                            <ul id="tableCommi" class="collection">
+                                <li class='collection-item'>Crea da un articolo</li>
+                            </ul>
+                        </div>
+                        <div class="col s4">
+                            <span>Lettere</span>
+                            <ul id="tableLettere" class="collection">
+                                <li class='collection-item'>Crea da un comma</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div id="assessoreRelatoriTab" class="col s12">
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Atto.UIDAssessoreRiferimento)
+                    @Html.DropDownListFor(s => s.Atto.UIDAssessoreRiferimento, new SelectList(Model.Assessori, "UID_persona", "DisplayName"), "Seleziona persona", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Relatori)
+                    <div id="autocompleteRelatori" class="chips chips-autocomplete"></div>
+                </div>
+            </div>
+            <div id="commonsTab" class="col s12">
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input data-val="true" data-val-required="Il campo VIS_Mis_Prog è obbligatorio." id="Atto_VIS_Mis_Prog" name="Atto.VIS_Mis_Prog" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.VIS_Mis_Prog ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.VIS_Mis_Prog)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p>
+                            <label>
+                                <input data-val="true" data-val-required="Il campo Notifica_deposito_differita è obbligatorio." id="Notifica_deposito_differita" name="Atto.Notifica_deposito_differita" type="checkbox" value="true"
+                                       @Html.Raw(Model.Atto.Notifica_deposito_differita ? "checked=\"checked\"" : "")>
+                                <span>@Html.LabelFor(s => s.Atto.Notifica_deposito_differita)</span>
+                            </label>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fixed-action-btn">
+                <button id="btnSalvaAtto" class="btn-floating btn-large blue">
+                    <i class="large material-icons">save</i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+
+    function spostaAtto(uidAtto) {
+        var seduta = $('select[id="selectSpostaAtto"]').children("option:selected").val();
+
+        if (!seduta) {
+            return;
+        }
+
+        var url = baseUrl + '@Url.Action("SpostaInAltraSeduta", "Atti")?uidAtto=' + uidAtto + '&uidSeduta=' + seduta;
+        console.log("URL", url);
+        waiting(true);
+        $.ajax({
+            url: url,
+            type: "GET"
+        }).done(function(data) {
+            console.log(data);
+            if (data.message) {
+                waiting(false);
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                go(data);
+            }
+        }).fail(function(err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+        });
+    }
+
+</script>

@@ -1,0 +1,71 @@
+﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.DASIFormModel
+
+    @if (Model.Atto.Tipo == (int)TipoAttoEnum.ITL)
+    {
+        <div class="input-field">
+            <select id='Atto_TipoRisposta'>
+                <option value="@Html.Raw((int)TipoRispostaEnum.ORALE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.ORALE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE)</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+            </select>
+            <label for="Atto_TipoRisposta">Tipo Risposta</label>
+        </div>
+    }
+    else if (Model.Atto.Tipo == (int)TipoAttoEnum.ITR)
+    {
+        <div class="input-field">
+            <select id='Atto_TipoRisposta'>
+                <option value="@Html.Raw((int)TipoRispostaEnum.SCRITTA)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.SCRITTA ? "selected=\"selected\"" : "")>@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA)</option>
+                <option value="@Html.Raw((int)TipoRispostaEnum.COMMISSIONE)" @Html.Raw(Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "selected=\"selected\"" : "")> @Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE)</option>
+            </select>
+            <label for="Atto_TipoRisposta">Tipo Risposta</label>
+        </div>
+    }
+    else if (Model.Atto.Tipo == (int)TipoAttoEnum.IQT)
+    {
+        <div class="input-field">
+            <select id='Atto_TipoRisposta' disabled="disabled">
+                <option value="@Html.Raw((int)TipoRispostaEnum.IMMEDIATA)" selected="selected">@Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.IMMEDIATA)</option>
+            </select>
+            <label for="Atto_TipoRisposta">Tipo Risposta</label>
+        </div>
+    }
+     @{
+         var displayCommissioni = Model.Atto.IDTipo_Risposta == (int)TipoRispostaEnum.COMMISSIONE ? "display: block;" : "display: none;";
+     }
+
+<div class="input-field" style="padding-top: 10px; @displayCommissioni" id="pnlCommissioni">
+    <select id="Atto_Commissioni">
+        <option value="">Seleziona commissione</option>
+        @foreach (var commissione in Model.CommissioniAttive)
+        {
+            var commissioneSelezionata = Model.Atto.Commissioni.FirstOrDefault(item => item.id_organo == commissione.id_organo);
+            <option value="@commissione.id_organo" @Html.Raw(commissioneSelezionata == null ? "" : "selected")>@commissione.nome_organo</option>
+        }
+    </select>
+</div>
+
+<script>
+    $(document).ready(function() {
+
+        var stato = @Html.Raw(Model.Atto.IDStato);
+
+        if (stato >= @Html.Raw((int)StatiAttoEnum.PRESENTATO)) {
+            console.log("STATO", stato);
+            $('select[id="Atto_TipoRisposta"]').prop('disabled', 'disabled');
+            $('select[id="Atto_TipoRisposta"]').formSelect();
+        }
+
+        $('#Atto_TipoRisposta').on("change",
+            function() {
+                var selected_option_value = $(this).find(":selected").val();
+                if (selected_option_value == @Html.Raw((int)TipoRispostaEnum.COMMISSIONE)) {
+                    $("#pnlCommissioni").show();
+                } else {
+                    $("#pnlCommissioni").hide();
+                }
+            });
+    });
+</script>

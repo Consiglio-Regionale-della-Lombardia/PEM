@@ -1,0 +1,275 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Model.EmendamentiFormModel
+@{
+    var _disabled = false;
+
+    if (Model.Emendamento.Rif_UIDEM.HasValue && Model.Emendamento.Rif_UIDEM != Guid.Empty)
+    {
+        _disabled = true;
+    }
+}
+<div class="form-group">
+    @Html.LabelFor(s => s.Emendamento.IDParte)
+    <div class="row">
+        <div class="col s12">
+            @foreach (var partiTestoDto in Model.ListaPartiEmendabili)
+            {
+                if (partiTestoDto.IDParte == PartiEMEnum.Missione)
+                {
+                    if (!Model.Emendamento.ATTI.VIS_Mis_Prog)
+                    {
+                        continue;
+                    }
+                }
+                <label class="black-text" style="margin-left: 20px">
+                    <input type="radio" onchange="PartiTestoEmendamento_OnChange(@((int)partiTestoDto.IDParte))" value="@((int)partiTestoDto.IDParte)" @Html.Raw(Model.Emendamento.IDParte == (int)partiTestoDto.IDParte ? "checked='checked'" : "") name="Emendamento.IDParte" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                    <span>@partiTestoDto.Parte</span>
+                </label>
+            }
+        </div>
+    </div>
+    @{
+        var detailPanelVisible = Model.Emendamento.IDParte == (int)PartiEMEnum.Titolo_PDL ? "none" : "block";
+    }
+    <div class="row" id="detailsPanel" style="display: @detailPanelVisible">
+        <div class="col s12">
+            <div class="card">
+
+                <div class="card-content">
+                    @{
+                        var pnlTitoloVisible = string.IsNullOrEmpty(Model.Emendamento.NTitolo) ? "none" : "block";
+                    }
+                    <div id="pnlTitolo" style="display: @pnlTitoloVisible">
+                        @Html.LabelFor(m => m.Emendamento.NTitolo)
+                        <input type="text" name="Emendamento.NTitolo" value="@Model.Emendamento.NTitolo" onkeyup="NTitolo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+
+                    </div>
+                    @{
+                        var pnlCapoVisible = string.IsNullOrEmpty(Model.Emendamento.NCapo) ? "none" : "block";
+                    }
+                    <div id="pnlCapo" style="display: @pnlCapoVisible">
+                        @Html.LabelFor(m => m.Emendamento.NCapo)
+                        <input type="text" name="Emendamento.NCapo" value="@Model.Emendamento.NCapo" onkeyup="NCapo_OnChange(this)" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                    </div>
+                    @{
+                        var pnlArticoliVisible = Model.Emendamento.UIDArticolo.HasValue ? "block" : "none";
+                        if (pnlArticoliVisible == "block")
+                        {
+                            if (Model.Emendamento.UIDComma.HasValue)
+                            {
+                                if (Model.Emendamento.UIDLettera.HasValue)
+                                {
+                                    <script>
+                                        Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', '@Model.Emendamento.UIDComma.Value', '@Model.Emendamento.UIDLettera.Value')
+                                    </script>
+                                }
+                                else
+                                {
+                                    <script>
+                                        Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', '@Model.Emendamento.UIDComma', null)
+                                    </script>
+                                }
+                            }
+                            else
+                            {
+                                <script>
+                                    Articoli_OnChange('@Model.Emendamento.UIDArticolo.Value', null, null)
+                                </script>
+                            }
+                        }
+                    }
+                    <div id="pnlArticoli" style="display: @pnlArticoliVisible">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.UIDArticolo)
+                            @if (_disabled)
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.UIDArticolo, new SelectList(Model.ListaArticoli, "UIDArticolo", "Articolo"), "Seleziona articolo", new { @class = "form-control", onchange = "Articoli_OnChange(this.value, null, null)", id = "ArticoliList", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.UIDArticolo, new SelectList(Model.ListaArticoli, "UIDArticolo", "Articolo"), "Seleziona articolo", new { @class = "form-control", onchange = "Articoli_OnChange(this.value, null, null)", id = "ArticoliList" })
+                            }
+
+                        </div>
+
+                        <div id="pnlCommi" style="display: none">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Emendamento.UIDComma)
+                                @if (_disabled)
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList", disabled = true })
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDComma, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona comma", new { @class = "form-control", onchange = "Commi_OnChange(this.value)", id = "CommiList" })
+                                }
+
+                            </div>
+                        </div>
+                        <div id="pnlLettere" style="display: none">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Emendamento.UIDLettera)
+                                @if (_disabled)
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDLettera, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona lettera", new { @class = "form-control", id = "LettereList", disabled = true })
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.Emendamento.UIDLettera, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleziona lettera", new { @class = "form-control", id = "LettereList" })
+                                }
+
+                            </div>
+                        </div>
+                        @{
+                            var pnlLettereOLDVisible = string.IsNullOrEmpty(Model.Emendamento.NLettera) ? "none" : "block";
+                        }
+                        <div id="pnlLettereOLD" style="display: @pnlLettereOLDVisible">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Emendamento.NLettera)
+                                @if (_disabled)
+                                {
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD", disabled = true })
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(m => m.Emendamento.NLettera, new { id = "txtLetteraOLD" })
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pnlMissioni" style="display: none">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.NMissione)
+                            @if (_disabled)
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NMissione, new SelectList(Model.ListaMissioni, "NMissione", "Display"), "Seleziona elemento", new { @class = "form-control", id = "MissioniList", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NMissione, new SelectList(Model.ListaMissioni, "NMissione", "Display"), "Seleziona elemento", new { @class = "form-control", id = "MissioniList" })
+                            }
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.NProgramma)
+                            <input type="number" name="Emendamento.NProgramma" min="0" value="@Model.Emendamento.NProgramma" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Emendamento.NTitoloB)
+                            @if (_disabled)
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.Emendamento.NTitoloB, new SelectList(Model.ListaTitoli_Missioni, "NTitoloB", "Descrizione"), "Seleziona elemento", new { @class = "form-control", id = "TitoliMissioniList" })
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(s => s.Emendamento.IDTipo_EM)
+    <div class="row">
+        <div class="col s12">
+            @foreach (var tipoDto in Model.ListaTipiEmendamento)
+            {
+                var tooltip_text = "";
+                switch ((TipiEMEnum)tipoDto.IDTipo_EM)
+                {
+                    case TipiEMEnum.SOPPRESSIVO:
+                        tooltip_text = "Utilizzare 'soppressivo' quando si intende sopprimere un intero articolo o comma o lettera";
+                        break;
+                    case TipiEMEnum.MODIFICATIVO:
+                        tooltip_text = "Utilizzare 'modificativo' quando si intende modificare una o più parole della parte selezionata";
+                        break;
+                    case TipiEMEnum.AGGIUNTIVO:
+                        tooltip_text = "Utilizzare 'aggiuntivo' quando si intende aggiungere un nuovo articolo o comma o lettera";
+                        break;
+                    case TipiEMEnum.SOSTITUTIVO:
+                        tooltip_text = "Utilizzare 'sostitutivo' quando si intende sostituire un intero articolo o comma o lettera";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                <label class="black-text tooltipped" data-position="bottom" data-tooltip="@tooltip_text" style="margin-left: 20px">
+                    <input type="radio" onchange="TipoEmendamento_OnChange(this)" value="@tipoDto.IDTipo_EM" @Html.Raw(Model.Emendamento.IDTipo_EM == tipoDto.IDTipo_EM ? "checked='checked'" : "") name="Emendamento.IDTipo_EM" @Html.Raw(_disabled ? "disabled=\"disabled\"" : "") />
+                    <span>@tipoDto.Tipo_EM</span>
+                </label>
+            }
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdParteId" />
+<input type="hidden" id="hdTipoId" />
+<script>
+    function PartiTestoEmendamento_OnChange(item) {
+
+        $('#hdParteId').val(item);
+        $("#pnlTitolo").hide();
+        $("#pnlCapo").hide();
+        $("#pnlArticoli").hide();
+        $("#pnlMissioni").hide();
+
+        var viewPanel = true;
+        if (item == @((int) PartiEMEnum.Titolo))
+            $("#pnlTitolo").show();
+        else if (item == @((int) PartiEMEnum.Capo))
+            $("#pnlCapo").show();
+        else if (item == @((int) PartiEMEnum.Articolo))
+            $("#pnlArticoli").show();
+        else if (item == @((int) PartiEMEnum.Missione))
+            $("#pnlMissioni").show();
+        else
+            viewPanel = false;
+
+        if (viewPanel == true)
+            $("#detailsPanel").show();
+        else
+            $("#detailsPanel").hide();
+    }
+
+    function TipoEmendamento_OnChange(item) {
+        TestoEmendamento_TipoEM(item.value);
+    }
+
+    function TestoEmendamento_TipoEM(tipo) {
+        $('#hdTipoId').val(tipo);
+    }
+
+    function ClearMetaDati() {
+        $("#pnlTitolo").hide();
+        $("#pnlCapo").hide();
+        $("#pnlMissioni").hide();
+        $("#pnlArticoli").hide();
+        $("#pnlCommi").hide();
+        $("#pnlLettere").hide();
+        $("#pnlLettereOLD").hide();
+
+        $("input[name='Emendamento.NLettera']").val("");
+        $("input[name='Emendamento.NCapo']").val("");
+        $("input[name='Emendamento.NTitolo']").val("");
+        $("input[name='Emendamento.NProgramma']").val("");
+
+        $("#ArticoliList").prop("selectedIndex", 0);
+        var elemsArticoli = document.querySelectorAll("#ArticoliList");
+        M.FormSelect.init(elemsArticoli, null);
+        $("#CommiList").prop("selectedIndex", 0);
+        var elemsCommi = document.querySelectorAll("#CommiList");
+        M.FormSelect.init(elemsCommi, null);
+        $("#LettereList").prop("selectedIndex", 0);
+        var elemsLettere = document.querySelectorAll("#LettereList");
+        M.FormSelect.init(elemsLettere, null);
+
+        $("#MissioniList").prop("selectedIndex", 0);
+        var elemsMissioni = document.querySelectorAll("#MissioniList");
+        M.FormSelect.init(elemsMissioni, null);
+        $("#TitoliMissioniList").prop("selectedIndex", 0);
+        var elemsTitiliMissioni = document.querySelectorAll("#TitoliMissioniList");
+        M.FormSelect.init(elemsTitiliMissioni, null);
+    }
+</script>

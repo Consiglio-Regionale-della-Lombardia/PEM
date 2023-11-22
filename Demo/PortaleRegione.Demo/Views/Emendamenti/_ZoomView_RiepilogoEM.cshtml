@@ -1,0 +1,140 @@
+﻿@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+@if (!Model.Data.Results.Any())
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel panel-warning center">
+                <span class="center">
+                    Non ci sono emendamenti al momento
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+
+    var attoChiuso = false;
+    if (Model.Atto.Data_chiusura.HasValue)
+    {
+        var dtChiusuraAtto = Convert.ToDateTime(Model.Atto.Data_chiusura.Value);
+        if (dtChiusuraAtto < DateTime.Now)
+        {
+            attoChiuso = true;
+        }
+    }
+
+
+    foreach (var itemEM in Model.Data.Results)
+    {
+        var abilitaInvitoConsigliere = false;
+        var abilitaInvitoSegreteria = false;
+        var abilitaFirma = false;
+        var abilitaDeposito = false;
+
+        if ((HttpContext.Current.User.IsInRole(RuoliExt.Consigliere_Regionale)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Assessore_Sottosegretario_Giunta)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Presidente_Regione))
+            && itemEM.UIDPersonaProponente == Model.CurrentUser.UID_persona
+            && itemEM.Firmato_Dal_Proponente
+            && itemEM.Depositabile
+            && !attoChiuso)
+        {
+            abilitaInvitoConsigliere = true;
+        }
+
+        if ((HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Politica)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Politica)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Responsabile_Segreteria_Giunta)
+             || HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Giunta_Regionale))
+            && itemEM.STATI_EM.IDStato <= (int) StatiEnum.Bozza
+            && attoChiuso)
+        {
+            abilitaInvitoSegreteria = true;
+        }
+
+        <div class="col s12 m12 l12">
+            <div class="card hoverable">
+                <div class='row'>
+                    <div class='col s4'>
+                        <div class='card-action left'>
+                            <label>
+                                <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');"/>
+                                <span></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class='col s4'>
+                        <div class='card-action center'>
+                            <div class="chip center @itemEM.STATI_EM.CssClass" style="min-width: 180px">
+                                @itemEM.STATI_EM.Stato
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col s4'>
+                        <div class='card-action right'>
+                            @if (HttpContext.Current.User.IsInRole(RuoliExt.Segreteria_Assemblea) || HttpContext.Current.User.IsInRole(RuoliExt.Amministratore_PEM))
+                            {
+                                @Html.Partial("_MetaDatiFormPartial", itemEM)
+
+                                <a class="blue-text tooltipped" onclick="openMetaDati('@itemEM.UIDEM')" style="margin: 2px" data-position="left" data-tooltip="Modifica meta-dati">
+                                    <i class="material-icons">edit</i>
+                                </a>
+                            }
+
+                            @if (abilitaInvitoConsigliere || abilitaInvitoSegreteria)
+                            {
+                                <a class='amber-text' style='margin: 5px' onclick="Invita('@itemEM.UIDEM')">
+                                    <i class="icon material-icons tooltipped" data-position="left" data-tooltip="Invita">send</i>
+                                </a>
+                            }
+                            
+                            <a class="green-text tooltipped" onclick="go('@Url.Action("ViewEmendamento", new {id = itemEM.UIDEM})')" style="margin: 2px"
+                               data-position="left" data-tooltip="Visualizza emendamento">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class='card-content' style="margin-top: -20px">
+                    @Html.Raw(itemEM.BodyEM)
+                </div>
+                @if (itemEM.Firmabile || itemEM.Depositabile)
+                {
+                    <div class='row'>
+                        <div class='col s12'>
+                            <div class='card-action right'>
+                                @{
+                                    if (itemEM.IDStato <= (int)StatiEnum.Depositato)
+                                    {
+                                        if (itemEM.Firmabile)
+                                        {
+                                            <a class="btn-flat green-text" onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
+                                                <i class="material-icons right green-text">gavel</i>
+                                                FIRMA
+                                            </a>
+                                        }
+                                    }
+                                    if (itemEM.IDStato <= (int)StatiEnum.Bozza)
+                                    {
+                                        if (itemEM.Depositabile)
+                                        {
+                                            <a class="btn-flat purple-text"
+                                               onclick="RevealFirmaDeposito('@itemEM.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
+                                                <i class="material-icons right purple-text">lock</i>
+                                                DEPOSITA
+                                            </a>
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    }
+}

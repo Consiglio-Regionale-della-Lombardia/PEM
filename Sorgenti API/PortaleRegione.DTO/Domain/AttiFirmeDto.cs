@@ -47,7 +47,6 @@ namespace PortaleRegione.DTO.Domain
 
         public bool Prioritario { get; set; } = true;
 
-
         public virtual PersonaDto UTENTI_NoCons { get; set; }
 
         public static implicit operator AttiFirmeDto(FirmeDto firma)

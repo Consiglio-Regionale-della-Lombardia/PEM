@@ -52,13 +52,14 @@ namespace PortaleRegione.BAL
     public class EsportaLogic : BaseLogic
     {
         public EsportaLogic(IUnitOfWork unitOfWork, EmendamentiLogic logicEm, DASILogic logicDASI,
-            FirmeLogic logicFirme, AttiLogic logicAtti)
+            FirmeLogic logicFirme, AttiLogic logicAtti, PersoneLogic logicPersona)
         {
             _unitOfWork = unitOfWork;
             _logicEm = logicEm;
             _logicDasi = logicDASI;
             _logicFirme = logicFirme;
             _logicAtti = logicAtti;
+            _logicPersona = logicPersona;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
@@ -591,6 +592,8 @@ namespace PortaleRegione.BAL
                 {
                     try
                     {
+                        var gruppo_firmatario = await _logicPersona.GetGruppo(firma.id_gruppo);
+
                         var atto = await _logicDasi.GetAttoDto(firma.UIDAtto);
                         sheet.Cells[row, 1].Value = Utility.GetText_Tipo(atto);
                         sheet.Cells[row, 2].Value = Convert.ToInt32(atto.NAtto);
@@ -600,7 +603,7 @@ namespace PortaleRegione.BAL
                         var indiceParentesiApertura = firmacert.IndexOf('(');
                         firmacert = firmacert.Remove(indiceParentesiApertura - 1);
                         sheet.Cells[row, 3].Value = firmacert;
-                        sheet.Cells[row, 4].Value = atto.gruppi_politici.codice_gruppo;
+                        sheet.Cells[row, 4].Value = gruppo_firmatario.codice_gruppo; // #862 fix: codice gruppo per firmatario
                         sheet.Cells[row, 5].Value = new DateTime(
                             firma.Timestamp.Year,
                             firma.Timestamp.Month,

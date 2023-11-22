@@ -1,0 +1,100 @@
+﻿@model PortaleRegione.DTO.Model.RiepilogoNotificheModel
+@{
+    ViewBag.Title = "Riepilogo notifiche";
+}
+
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').hide();
+    });
+</script>
+
+<div class="row" style="margin-bottom: unset !important">
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="javascript:history.go(-1)">
+            <i class="material-icons">arrow_back</i>
+        </a>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                <h4>
+                    <b>@ViewBag.Title</b>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<hr/>
+
+@{
+    var inviateReq = HttpUtility.ParseQueryString(Request.Url.Query).Get("is_inviate");
+    var is_inviate = false;
+    if (!string.IsNullOrEmpty(inviateReq))
+    {
+        is_inviate = Convert.ToBoolean(inviateReq);
+    }
+}
+
+<ul id="RiepilogoNotificheTabs" class="tabs tabs-fixed-width">
+    <li class="tab col s3">
+        <a class="@(!is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = false, archivio = false})')">
+            <i class="icon material-icons">move_to_inbox</i> Ricevute
+        </a>
+    </li>
+    <li class="tab col s3">
+        <a class="@(is_inviate ? "active" : "")" onclick="go('@Url.Action("RiepilogoNotifiche", "Notifiche", new {is_inviate = true, archivio = false})')">
+            <i class="icon material-icons">send</i> Inviate
+        </a>
+    </li>
+</ul>
+
+
+@{
+    Html.RenderPartial("_PaginationBar", Model.Data.Paging);
+}
+
+@if (!is_inviate)
+{
+    @Html.Partial("RiepilogoNotificheRicevute", Model)
+}
+else if (is_inviate)
+{
+    @Html.Partial("RiepilogoNotificheInviate", Model)
+}
+
+<script>
+
+    function ArchiviaNotifica(ctrl, id_notifica){
+        swal("Sei sicuro di voler archiviare la notifica?",
+            {
+                buttons: {
+                    cancel: "Annulla",
+                    confirm: {
+                        className: "red white-text",
+                        title: "Archivia",
+                        value: true
+                    }
+                }
+            }).then((value) => {
+            if (value == true) {
+                var url = '@Url.Action("ArchiviaNotifica", "Notifiche")';
+                var notifiche = [];
+                notifiche.push(id_notifica);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: JSON.stringify(notifiche),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(result) {
+
+                    location.reload();
+
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
+    }
+
+</script>

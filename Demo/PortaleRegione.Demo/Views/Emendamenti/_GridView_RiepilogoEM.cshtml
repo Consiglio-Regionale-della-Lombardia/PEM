@@ -1,0 +1,222 @@
+﻿@using Newtonsoft.Json
+@using PortaleRegione.Common
+@using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@model PortaleRegione.DTO.Response.EmendamentiViewModel
+
+@if (!Model.Data.Results.Any())
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel panel-warning center">
+                <span class="center">
+                    @{
+                        var require_my_sign = Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign"));
+                        if (require_my_sign)
+                        {
+                            <p>Non ci sono emendamenti dove è richiesta la tua firma</p>
+                        }
+                        else
+                        {
+                            <p>Non ci sono emendamenti al momento</p>
+                        }
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    var countRow = 0;
+    var lastRow = 0;
+    foreach (var itemEM in Model.Data.Results)
+    {
+        <div class="col l12 m12 s12">
+            <div class="card sticky-action hoverable" style="min-height: 300px">
+                <div class="card-content">
+                    <div class="card-title">
+                        <div class="row" style="margin: unset !important;">
+                            <div class="col l1 s12" style="margin-top: 10px">
+                                <label>
+                                    <input type="checkbox" id="chk_EM_@itemEM.UIDEM" onclick="AbilitaComandiMassivi('@itemEM.UIDEM');" />
+                                    <span></span>
+                                </label>
+                            </div>
+                            <div class="col l11 s12 center">
+                                <div id="iconEMDepositabile_@itemEM.UIDEM" class="chip @itemEM.STATI_EM.CssClass" style="width: 100%">
+                                    @if (itemEM.Depositabile)
+                                    {
+                                        <i class="icon material-icons left tooltipped" data-tooltip="Depositabile" style="margin-top: -2px">gavel</i>
+                                    }
+                                    @itemEM.STATI_EM.Stato
+                                    @if (itemEM.PresentatoOltreITermini)
+                                    {
+                                        //presentato oltre i termini
+                                        <i class="icon material-icons red-text right tooltipped" data-position="bottom" data-tooltip="Presentato oltre i termini" style="margin-top: -3px">warning</i>
+                                    }
+                                    @if (!string.IsNullOrEmpty(itemEM.NOTE_Griglia))
+                                    {
+                                        <i class="icon material-icons right tooltipped" data-tooltip="@Html.Raw(itemEM.NOTE_Griglia)" style="margin-top: -2px">chat</i>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col l12 s12 center">
+                                <h4 style="margin-top: 7px">
+                                    <b>@Html.Raw(itemEM.EffettiFinanziari == 1 ? "&euro;" : "") @itemEM.N_EM</b>
+                                </h4>
+                                <h6>@Html.Raw(Utility.MetaDatiEM_LabelHtml(itemEM)))</h6>
+                                @if (itemEM.IDStato <= (int)StatiEnum.Bozza)
+                                {
+                                    <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
+                                        Bozza predisposta da:
+                                        <span id="lblCreatore_@itemEM.UIDEM">
+                                            @itemEM.PersonaCreazione.DisplayName
+                                        </span>
+                                    </h6>
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(itemEM.DataDeposito))
+                                    {
+                                        <h6 style="font-size: small; font-weight: bold; padding-top: 10px">
+                                            Depositato da
+                                            <span id="lblPersonaDeposito_@itemEM.UIDEM">
+                                                @itemEM.PersonaDeposito.DisplayName
+                                            </span>
+                                            il @itemEM.DataDeposito
+
+                                        </h6>
+                                    }
+                                }
+
+                                @if (itemEM.IDStato >= (int)StatiEnum.Depositato)
+                                {
+                                    <div class="chip deep-purple lighten-5 center activator" onclick="RevealFirmatari('@itemEM.UIDEM')" style="margin-bottom: 0; margin-top: 10px; min-width: unset;">
+                                        @if (itemEM.Firma_da_ufficio)
+                                        {
+                                            <b>@itemEM.Firma_ufficio.FirmaCert</b>
+                                        }
+                                        else
+                                        {
+                                            <span class="hide-on-med-and-down">Firmato dal proponente:</span>
+                                            <span class="hide-on-large-only">Proponente:</span>
+                                            if (itemEM.Firmato_Dal_Proponente)
+                                            {
+                                                @itemEM.PersonaProponente.DisplayName
+                                            }
+                                            else
+                                            {
+                                                <span style="color: grey; text-decoration: line-through;">
+                                                    @itemEM.PersonaProponente.DisplayName
+                                                </span>
+                                            }
+
+                                            if (itemEM.Proponente_Relatore)
+                                            {
+                                                <b>(RELATORE)</b>
+                                            }
+                                        }
+
+                                        @if (itemEM.ConteggioFirme > 1)
+                                        {
+                                            <span class="chip hoverable grey darken-1 white-text activator" style="font-size: small; margin-right: -12px; min-width: unset">
+                                                + @(itemEM.ConteggioFirme - 1)
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        @if (itemEM.IDStato < (int)StatiEnum.Depositato && !string.IsNullOrEmpty(itemEM.Firmatari))
+                        {
+                            <div class="row">
+                                <div class="col l12 s12">
+                                    <div id="pnlAzioniEM_@itemEM.UIDEM">
+                                        <h6>
+                                            <b>Firmatari</b>
+                                        </h6>
+                                        <hr />
+                                        @Html.Raw(itemEM.Firmatari)
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (itemEM.IDStato < (int)StatiEnum.Depositato)
+                        {
+                            if (!string.IsNullOrEmpty(itemEM.Destinatari))
+                            {
+                                <div class="row">
+                                    <div class="col l12 s12">
+                                        <h6>
+                                            <b>Invitati</b>
+                                        </h6>
+                                        <hr />
+                                        @Html.Raw(itemEM.Destinatari)
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="card-action grey lighten-4">
+                    <div class="row" style="margin: 0 !important">
+                        <div class="col s6 left">
+                            <label class="hide-on-med-and-down" style="font-size: small !important">Proponente: </label>
+                            <h6 id="lblProponente_@itemEM.UIDEM">
+                                <b>@itemEM.PersonaProponente.DisplayName @Html.Raw(Model.Mode == ClientModeEnum.TRATTAZIONE ? string.Format("({0})", itemEM.gruppi_politici.codice_gruppo) : "")</b>
+                            </h6>
+                        </div>
+                        <div class="col s6 right-align">
+                            <a class="btn-floating white black-text tooltipped activator" data-tooltip="Visualizza tags"onclick="RevealTags('@itemEM.UIDEM')">
+                                <i class="material-icons">filter_frames</i>
+                            </a>
+                            <a class="btn-floating white black-text tooltipped" data-tooltip="Stampa" target="_blank" href="@Url.Action("Download", "Emendamenti", new { id = itemEM.UIDEM })">
+                                <i class="material-icons">print</i>
+                            </a>
+                            <a class="btn-floating white black-text tooltipped" data-tooltip="Visualizza EM" onclick="go('@Url.Action("ViewEmendamento", new { id = itemEM.UIDEM })')">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-reveal" id="reveal_@itemEM.UIDEM" style="padding-bottom: 65px">
+                    <span class="card-title grey-text text-darken-4 center">
+                        <span id="titleReveal_@itemEM.UIDEM">Firmatari</span> <i class="material-icons right">close</i>
+                    </span>
+                    <div id="panelRevealFirmatari_@itemEM.UIDEM" style="display: none;">
+
+                        <div id="dataItems" class="collection" style="height: 100%; overflow: auto;">
+                            <div class="progress">
+                                <div class="indeterminate"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="panelRevealTags_@itemEM.UIDEM" style="display: none;">
+                        @*TAGS*@
+
+                        @{
+                            var tags = new List<TagDto>();
+
+                            if (!string.IsNullOrEmpty(itemEM.Tags))
+                            {
+                                tags = JsonConvert.DeserializeObject<List<TagDto>>(itemEM.Tags);
+                            }
+                        }
+                        @if (tags.Any())
+                        {
+                            <ul>
+                                @foreach (var t in tags)
+                                {
+                                    <li>#@t.tag</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

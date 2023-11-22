@@ -1,0 +1,189 @@
+﻿@using PortaleRegione.DTO.Enum
+@model bool
+<!-- Modal Structure -->
+<div id="modalIscriviSeduta" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4 id="txtIscriviSeduta"></h4>
+        <ul class="collection with-header" id="lstSeduteAttive">
+        </ul>
+        <input id="dtRichiestaIscrizione" class="form-control" type="datetime-local" style="display: none" />
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="btnIscriviSeduta_Salva">Proponi</a>
+    </div>
+</div>
+
+<script>
+    function ProponiSedutaDASI() {
+        $('#btnProponiSedutaDASI').hide();
+        $('#dtRichiestaIscrizione').show();
+
+        $('#btnIscriviSeduta_Salva').text("Proponi seduta desiderata");
+    }
+
+    function RichiediIscrizioneSedutaDASI(uidAtto, nomeAtto, tipoAtto, tipoMOZAtto) {
+        $('#modalIscriviSeduta>div>ul').empty();
+        var checked = sedute.length == 1;
+        $.each(sedute,
+            function(i, item) {
+                var resultDate = GetFormattedDate(item.Data_seduta);
+                var addtext = "";
+                if (tipoAtto == @((int)TipoAttoEnum.MOZ)) {
+                    if (tipoMOZAtto == @((int)TipoMOZEnum.ORDINARIA)) {
+                        if (item.DataScadenzaPresentazioneMOZ) {
+                            var resultDate_MOZ = GetDate(item.DataScadenzaPresentazioneMOZ);
+                            if (resultDate_MOZ < Date.now()) {
+                                addtext = "<i class='material-icons red-text'>warning</i>";
+                            }
+                        }
+                    } else if (tipoMOZAtto == @((int)TipoMOZEnum.URGENTE)) {
+                        if (item.DataScadenzaPresentazioneMOZU) {
+                            var resultDate_MOZU = GetDate(item.DataScadenzaPresentazioneMOZU);
+                            if (resultDate_MOZU < Date.now()) {
+                                addtext = "<i class='material-icons red-text'>warning</i>";
+                            }
+                        }
+                    } else if (tipoMOZAtto == @((int)TipoMOZEnum.ABBINATA)) {
+                        if (item.DataScadenzaPresentazioneMOZA) {
+                            var resultDate_MOZA = GetDate(item.DataScadenzaPresentazioneMOZA);
+                            if (resultDate_MOZA < Date.now()) {
+                                addtext = "<i class='material-icons red-text'>warning</i>";
+                            }
+                        }
+                    }
+                }
+
+                var text = "Seduta del " + resultDate + " " + addtext;
+                $('#modalIscriviSeduta>div>ul').append(templateSeduteAttive
+                    .replace("{TEXT}", text)
+                    .replace("{VALUE}", resultDate)
+                    .replace("{CHECKED}", checked ? "checked='checked'" : ""));
+            });
+
+        $('#btnProponiSedutaDASI').show();
+        $('#dtRichiestaIscrizione').hide();
+        $('#txtIscriviSeduta').html("Proponi iscrizione dell'atto <b>" + nomeAtto + "</b> in data:");
+        $('#dtRichiestaIscrizione').val("");
+        $("#btnIscriviSeduta_Salva").on("click",
+            function() {
+                if ($('input[name="gruppoSeduteAttive"]:checked').length == 0) {
+                    swal({
+                        title: "Attenzione",
+                        text: "Seleziona una seduta disponibile",
+                        icon: "warning"
+                    }).then(function() {
+                        $("#modalIscriviSeduta").modal("open");
+                    });
+
+                    return;
+                }
+
+                if ($($('input[name="gruppoSeduteAttive"]:checked')[0]).parent().html().indexOf("warning") > 0) {
+                    swal({
+                        title: "Attenzione",
+                        text: "Richiesta di iscrizione effettuata fuori termine: procedere comunque?",
+                        icon: "info",
+                        buttons: {
+                            cancel: "Annulla",
+                            confirm: {
+                                className: "blue white-text",
+                                title: "Ok",
+                                value: true
+                            }
+                        }
+                    }).then(function(value) {
+                        if (!value) {
+                            console.log("ANNULLA")
+                            $("#modalIscriviSeduta").modal("open");
+                            return;
+                        } else {
+                            Iscrivi(uidAtto);
+                        }
+                    });
+                } else {
+                    Iscrivi(uidAtto);
+                }
+            });
+        $('#modalIscriviSeduta').modal("open");
+    }
+
+    function Iscrivi(uidAtto) {
+        waiting(true);
+        var listaAtti = [];
+        var obj = {};
+
+        listaAtti.push(uidAtto);
+        var sedutaSelezionata = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
+        obj.DataRichiesta = sedutaSelezionata;
+        obj.Lista = listaAtti;
+
+        $.ajax({
+            url: '@Url.Action("RichiediIscrizione")',
+            method: "POST",
+            data: JSON.stringify(obj),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        }).done(function(data) {
+            waiting(false);
+            $("#modalIscriviSeduta").modal("close");
+            $("#btnIscriviSeduta_Salva").off("click");
+            if (data.message) {
+                swal({
+                    title: "Errore",
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                location.reload();
+            }
+        }).fail(function(err) {
+            waiting(false);
+            console.log("error", err);
+            Error(err);
+        });
+    }
+
+    function RimuoviRichiestaIscrizioneDASI(uidAtto, nomeAtto) {
+
+        swal({
+            title: "Rimozione proposta",
+            text: "Sei sicuro di voler rimuovere la proposta per l'atto " + nomeAtto + "?",
+            icon: "warning",
+            buttons: ["Annulla", "Rimuovi"],
+            dangerMode: true
+        }).then((willDelete) => {
+            if (willDelete) {
+                var listaAtti = [];
+
+                listaAtti.push(uidAtto);
+
+                var obj = {};
+                obj.Lista = listaAtti;
+
+                $.ajax({
+                    url: '@Url.Action("RimuoviRichiestaIscrizione")',
+                    method: "POST",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(data) {
+                    $("#modalRimuoviSeduta").modal("close");
+                    $("#btnRimuoviSeduta_Salva").off("click");
+                    console.log(data.message);
+                    if (data.message) {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    } else {
+                        location.reload();
+                    }
+                }).fail(function(err) {
+                    console.log("error", err);
+                    Error(err);
+                });
+            }
+        });
+    }
+</script>

@@ -1,0 +1,459 @@
+﻿@using Newtonsoft.Json
+@using PortaleRegione.DTO.Enum
+
+<div class="form-group">
+    <label>Indica l'elemento</label>
+    <div class="row">
+        <div class="col s12" id="pnlParte">
+
+        </div>
+    </div>
+    <div class="row" id="detailsPanel" style="display: none">
+        <div class="col s12">
+            <div class="row" style="margin: unset !important">
+
+                <div class="col s12">
+                    <div id="pnlParte_Titolo" style="display: none">
+                        <label>Titolo</label>
+                        <input type="text" id="NTitolo" onkeyup="NTitolo_OnChange(this)"/>
+                    </div>
+                    <div id="pnlParte_Capo" style="display: none">
+                        <label>Capo</label>
+                        <input type="text" id="NCapo" onkeyup="NCapo_OnChange(this)"/>
+                    </div>
+                    <div id="pnlParte_Articoli" style="display: none">
+                        <div class="form-group">
+                            <label>Articolo</label>
+                            <select id="Articoli" class="browser-default"></select>
+                        </div>
+
+                        <div id="pnlParte_Articoli_Commi" style="display: none">
+                            <div class="form-group">
+                                <label>Comma</label>
+                                <select id="Commi" class="browser-default"></select>
+                            </div>
+                        </div>
+                        <div id="pnlParte_Articoli_Lettere" style="display: none">
+                            <div class="form-group">
+                                <label>Lettera</label>
+                                <select id="Lettere" class="browser-default"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pnlParte_Missioni" style="display: none">
+                        <div class="form-group">
+                            <label>Missione</label>
+                            <select id="Missioni" class="browser-default"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Programma</label>
+                            <input type="number" id="NProgramma" min="0" />
+                        </div>
+                        <div class="form-group" id="pnlListaTitoli_Missioni">
+                            <label>Titolo</label>
+                            <select id="TitoliMissioni" class="browser-default"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <label>Indica il modo</label>
+    <div class="row">
+        <div class="col s12" id="pnlTipo">
+
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdParteId"/>
+<input type="hidden" id="hdTipoId"/>
+
+<script>
+    var ListaEM = [];
+
+    async function LoadMetaDatiEM(em) {
+        var cacheEM = ListaEM.filter(e => e.UIDEM == em.UIDEM);
+        if (cacheEM.length <= 0) {
+            ListaEM.push(em); // aggiungo em alla lista per gestire il reset delle modifiche
+        }
+
+        await SetupMetaDati(em);
+
+        var container_testo = $('#EditorTesto').parent();
+        var editor_testo = $(container_testo).find(".trumbowyg-editor");
+
+        $("#btnSposta_MetaDatiPartial").on("click",
+            function() {
+                $('#modalMetaDati').modal("close");
+                Sposta_EMTrattazione(em.UIDEM);
+            });
+
+        $("input[type=radio][name='Parte']").change(async function() {
+            em.IDParte = this.value;
+            em.UIDArticolo = null;
+            em.UIDComma = null;
+            em.UIDLettera = null;
+            em.NMissione = null;
+            em.NTitoloB = null;
+            em.NTitolo = "";
+            em.NCapo = "";
+            await LoadMetaDati_Parte(em);
+        });
+
+        $('#NTitolo').keyup(function() {
+            em.NTitolo = this.value;
+        });
+        $('#NCapo').keyup(function() {
+            em.NCapo = this.value;
+        });
+        $('#NProgramma').change(function() {
+            em.NProgramma = this.value;
+        });
+        //EVENTI TESTO
+        var carica_testo = true;
+        $('#EditorTesto').parent().keyup(function() {
+            if (carica_testo) {
+                if ($("input[type=radio][name='Testo']:checked").val() == 0) {
+                    carica_testo = false;
+                    $("input[type=radio][name='Testo']:not(:checked)").click();
+                }
+            }
+        });
+        $("input[type=radio][name='Testo']").change(function() {
+            if (carica_testo) {
+                if (this.value == 0) {
+                    editor_testo.html(em.TestoEM_originale);
+                    $('#testoEMTab> .form-group > p').hide();
+                } else if (this.value == 1) {
+                    if (em.TestoEM_Modificabile == null || em.TestoEM_Modificabile == "")
+                        editor_testo.html(em.TestoEM_originale);
+                    else
+                        editor_testo.html(em.TestoEM_Modificabile);
+                    $('#testoEMTab> .form-group > p').show();
+                }
+            } else {
+                if (this.value == 0) {
+                    $('#testoEMTab> .form-group > p').hide();
+                    editor_testo.html(em.TestoEM_originale);
+                    carica_testo = true;
+                } else {
+                    $('#testoEMTab> .form-group > p').show();
+                }
+            }
+        });
+        $('#NotePubbliche').keyup(function() {
+            em.NOTE_Griglia = this.value;
+        });
+        $('#NotePrivate').keyup(function() {
+            em.NOTE_EM = this.value;
+        });
+
+        $('#btnSalvaMetaDatiPartial').click(function() {
+            $('#modalMetaDati').modal("close");
+            waiting(true);
+            
+            var testo_modificabile = $("input[type=radio][name='Testo']:checked")[0];
+            if ($(testo_modificabile).val() == 1) {
+                em.TestoEM_Modificabile = editor_testo.html();
+            } else {
+                em.TestoEM_Modificabile = "";
+            }
+            $.ajax({
+                url: '@Url.Action("SalvaMetaDatiEM")',
+                type: "POST",
+                data: JSON.stringify(em),
+                contentType: "application/json",
+                dataType: "json"
+            }).done(function(result) {
+                location.reload();
+            }).fail(function(err) {
+                waiting(false);
+                $('#modalMetaDati').modal("open");
+                console.log("error", err);
+                Error(err);
+            });
+        });
+    }
+
+    async function SetupMetaDati(em) {
+        waiting(true);
+        $('#N_EM').text(em.N_EM);
+
+        await LoadMetaDati_Parte(em);
+        await LoadMetaDati_Tipo(em);
+        LoadMetaDati_Testo(em);
+        LoadMetaDati_Note(em);
+        LoadMetaDati_AreaPolitica(em);
+
+        waiting(false);
+    }
+
+    function LoadMetaDati_Testo(em) {
+        if (em.TestoEM_Modificabile != null && em.TestoEM_Modificabile !== "") {
+            $("input[type=radio][name='Testo'][value=1]").prop("checked", true);
+        } else {
+            $("input[type=radio][name='Testo'][value=0]").prop("checked", true);
+        }
+
+        var container_testo = $('#EditorTesto').parent();
+        var editor_testo = $(container_testo).find(".trumbowyg-editor");
+        var testo_checked = $("input[type=radio][name='Testo']:checked");
+        if ($(testo_checked).val() == 0) {
+            editor_testo.html(em.TestoEM_originale);
+            $('#testoEMTab' + '> .form-group > p').hide();
+        } else if ($(testo_checked).val() == 1) {
+            editor_testo.html(em.TestoEM_Modificabile);
+            $('#testoEMTab' + '> .form-group > p').show();
+        }
+    }
+
+    function LoadMetaDati_Note(em) {
+        $('#NotePubbliche').val(em.NOTE_Griglia);
+        $('#NotePrivate').val(em.NOTE_EM);
+    }
+
+    function LoadMetaDati_AreaPolitica(em) {
+        console.log("Area Politica", em.AreaPolitica)
+        $("#ddlAreaPolitica").children('[value="' + em.AreaPolitica + '"]').prop('selected', true);
+        $('#ddlAreaPolitica').formSelect();
+
+        $("#ddlAreaPolitica").on("change", function() {
+            em.AreaPolitica = this.value;
+        });
+    }
+
+    async function LoadMetaDati_Parte(em) {
+        var parti = await GetPartiEM();
+        var ctrlSelect = "#pnlParte";
+        var select = $(ctrlSelect);
+        var template = '<label class="black-text" style="margin-left: 20px"></label>';
+        var templateInput = '<input type="radio" name="Parte"/>';
+        var templateSpan = '<span></span>';
+
+        select.empty();
+
+        if (em.IDParte > @((int)PartiEMEnum.Titolo_PDL)) {
+            $('#detailsPanel').show();
+        } else {
+            $('#detailsPanel').hide();
+        }
+
+        $('#pnlParte_Articoli').hide();
+        $('#pnlParte_Articoli_Commi').hide();
+        $('#pnlParte_Articoli_Lettere').hide();
+        $('#pnlParte_Missioni').hide();
+        $('#pnlParte_Titolo').hide();
+        $('#pnlParte_Capo').hide();
+
+        $.each(parti,
+            function(index, item) {
+                var templateTemp = template;
+                templateTemp = $(templateTemp).append($(templateInput).val(item.IDParte).prop("checked", em.IDParte == item.IDParte));
+                templateTemp = $(templateTemp).append($(templateSpan).html(item.Parte));
+                select.append(templateTemp);
+
+                if (item.IDParte == em.IDParte) {
+                    if (em.IDParte == @((int)PartiEMEnum.Articolo)) {
+                        $('#pnlParte_Articoli').show();
+                    } else if (em.IDParte == @((int)PartiEMEnum.Missione)) {
+                        $('#pnlParte_Missioni').show();
+                    } else if (em.IDParte == @((int)PartiEMEnum.Titolo)) {
+                        $('#NTitolo').val(em.NTitolo);
+                        $('#pnlParte_Titolo').show();
+                    } else if (em.IDParte == @((int)PartiEMEnum.Capo)) {
+                        $('#NCapo').val(em.NCapo);
+                        $('#pnlParte_Capo').show();
+                    }
+                }
+            });
+
+        await LoadMetaDati_Parte_Articolo(em);
+        await LoadMetaDati_Parte_Missione(em);
+    }
+
+    async function LoadMetaDati_Parte_Articolo(em) {
+        var parti_articoli = await GetArticoli(em.UIDAtto);
+        if (parti_articoli.length > 0) {
+            var select = $("#Articoli");
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_articoli,
+                function(index, item) {
+                    var template = "";
+                    if (item.UIDArticolo == em.UIDArticolo) {
+                        template = "<option selected='selected'></option>";
+
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.UIDArticolo).html(item.Articolo));
+                });
+
+            $(select).formSelect();
+            await LoadMetaDati_Parte_Comma(em);
+
+            $(select).unbind();
+            $(select).change(async function() {
+                em.UIDArticolo = this.value;
+                em.UIDComma = null;
+                em.UIDLettera = null;
+                await LoadMetaDati_Parte(em);
+            });
+
+        } else {
+            $('#pnlParte_Articoli').hide();
+        }
+    }
+
+    async function LoadMetaDati_Parte_Comma(em) {
+        if (em.UIDArticolo == null) {
+            $('#pnlParte_Articoli_Commi').hide();
+            return;
+        }
+        var parti_commi = await GetCommi(em.UIDArticolo, false);
+        if (parti_commi.length > 0) {
+            $('#pnlParte_Articoli_Commi').show();
+            var select = $("#Commi");
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_commi,
+                function(index, item) {
+                    var template = "";
+                    if (item.UIDComma == em.UIDComma) {
+                        template = "<option selected='selected'></option>";
+
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.UIDComma).html(item.Comma));
+                });
+
+            $(select).formSelect();
+            await LoadMetaDati_Parte_Lettere(em);
+
+            $(select).unbind();
+            $(select).change(async function() {
+                em.UIDComma = this.value;
+                em.UIDLettera = null;
+                await LoadMetaDati_Parte(em);
+            });
+        } else {
+            $('#pnlParte_Articoli_Commi').hide();
+        }
+    }
+
+    async function LoadMetaDati_Parte_Lettere(em) {
+        if (em.UIDComma == null) {
+            $('#pnlParte_Articoli_Lettere').hide();
+            return;
+        }
+
+        var parti_lettere = await GetLettere(em.UIDComma);
+        if (parti_lettere.length > 0) {
+            $('#pnlParte_Articoli_Lettere').show();
+            var select = $("#Lettere");
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_lettere,
+                function(index, item) {
+                    var template = "";
+                    if (item.UIDLettera == em.UIDLettera) {
+                        template = "<option selected='selected'></option>";
+
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.UIDLettera).html(item.Lettera));
+                });
+
+            $(select).formSelect();
+
+            $(select).unbind();
+            $(select).change(function() {
+                em.UIDLettera = this.value;
+            });
+        } else {
+            $('#pnlParte_Articoli_Lettere').hide();
+        }
+    }
+
+    async function LoadMetaDati_Parte_Missione(em) {
+        var parti_missioni = await GetMissioni();
+        if (parti_missioni.length > 0) {
+            var select = $("#Missioni");
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_missioni,
+                function(index, item) {
+                    var template = "";
+                    if (item.NMissione == em.NMissione) {
+                        template = "<option selected='selected'></option>";
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.NMissione).html(item.Display));
+                });
+
+            $(select).formSelect();
+            $('#NProgramma').val(em.NProgramma);
+            await LoadMetaDati_Parte_TitoliMissione(em);
+
+            $(select).change(function() {
+                em.NMissione = this.value;
+            });
+        } else {
+            $('#pnlParte_Missioni').hide();
+        }
+    }
+
+    async function LoadMetaDati_Parte_TitoliMissione(em) {
+        var parti_titoli_missioni = await GetTitoliMissioni();
+
+        if (parti_titoli_missioni.length > 0) {
+            var select = $("#TitoliMissioni");
+            select.empty();
+            select.append('<option value="">Seleziona</option>');
+
+            $.each(parti_titoli_missioni,
+                function(index, item) {
+                    var template = "";
+                    if (item.NTitoloB == em.NTitoloB) {
+                        template = "<option selected='selected'></option>";
+                    } else
+                        template = "<option></option>";
+                    select.append($(template).val(item.NTitoloB).html(item.Display));
+                });
+
+            $(select).formSelect();
+
+            $(select).change(function() {
+                em.NTitoloB = this.value;
+            });
+        }
+    }
+
+    async function LoadMetaDati_Tipo(em) {
+        var tipi = await GetTipiEM();
+        var ctrlSelect = "#pnlTipo";
+        var select = $(ctrlSelect);
+        var template = '<label class="black-text" style="margin-left: 20px"></label>';
+        var templateInput = '<input type="radio" name="Tipo' + '"/>';
+        var templateSpan = '<span></span>';
+
+        select.empty();
+
+        $.each(tipi,
+            function(index, item) {
+                var templateTemp = template;
+                templateTemp = $(templateTemp).append($(templateInput).val(item.IDTipo_EM).prop("checked", em.IDTipo_EM == item.IDTipo_EM));
+                templateTemp = $(templateTemp).append($(templateSpan).html(item.Tipo_EM));
+                select.append(templateTemp);
+            });
+
+        $("input[type=radio][name='Tipo']").change(function() {
+            em.IDTipo_EM = this.value;
+        });
+    }
+</script>
