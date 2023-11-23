@@ -202,14 +202,39 @@ namespace PortaleRegione.BAL
             if (sonoPersone)
             {
                 foreach (var destinatario in model.ListaDestinatari)
-                    listaDestinatari.Add(await _logicPersona.GetPersona(new Guid(destinatario), false));
+                {
+                    var dest = await _logicPersona.GetPersona(new Guid(destinatario), false);
+                    listaDestinatari.Add(dest);
+
+                    //#864 Notifiche per responsabili di segreteria
+                    var responsabili = await _logicPersona.GetSegreteriaPolitica(dest.Gruppo.id_gruppo, true, false);
+                    foreach (var resp in responsabili)
+                    {
+                        if (listaDestinatari.FirstOrDefault(i => i.UID_persona == resp.UID_persona) == null)
+                        {
+                            listaDestinatari.Add(resp);
+                        }
+                    }
+                }
             }
             else
             {
                 var sonoGruppi = int.TryParse(model.ListaDestinatari.First(), out var _);
                 if (sonoGruppi)
                     foreach (var gruppoId in model.ListaDestinatari.Select(g => Convert.ToInt32(g)))
+                    {
                         listaDestinatari.AddRange(await _logicPersona.GetConsiglieriGruppo(gruppoId));
+
+                        //#864 Notifiche per responsabili di segreteria
+                        var responsabili = await _logicPersona.GetSegreteriaPolitica(gruppoId, true, false);
+                        foreach (var resp in responsabili)
+                        {
+                            if (listaDestinatari.FirstOrDefault(i => i.UID_persona == resp.UID_persona) == null)
+                            {
+                                listaDestinatari.Add(resp);
+                            }
+                        }
+                    }
             }
 
             if (!listaDestinatari.Any())

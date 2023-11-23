@@ -44,9 +44,12 @@ namespace PortaleRegione.API.Controllers
 {
     public class DASILogic : BaseLogic
     {
+        internal AdminLogic _logicAdmin;
+
         public DASILogic(IUnitOfWork unitOfWork, PersoneLogic logicPersona, AttiFirmeLogic logicAttiFirme,
-            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil)
+            SeduteLogic logicSedute, AttiLogic logicAtti, UtilsLogic logicUtil, AdminLogic logicAdmin)
         {
+            _logicAdmin = logicAdmin;
             _unitOfWork = unitOfWork;
             _logicPersona = logicPersona;
             _logicAttiFirme = logicAttiFirme;
@@ -1272,6 +1275,8 @@ namespace PortaleRegione.API.Controllers
             var legislaturaId = await _unitOfWork.Legislature.Legislatura_Attiva();
             var legislatura = await _unitOfWork.Legislature.Get(legislaturaId);
 
+            var id_gruppo = 0;
+
             ManagerLogic.BloccaPresentazione = true;
 
             var attachList = new List<AllegatoMail>();
@@ -1286,6 +1291,9 @@ namespace PortaleRegione.API.Controllers
                     results.Add(idGuid, "ERROR: NON TROVATO");
                     continue;
                 }
+
+                if(id_gruppo== 0)
+                    id_gruppo = atto.id_gruppo;
 
                 var attoDto = await GetAttoDto(idGuid, persona);
                 var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
@@ -1496,10 +1504,18 @@ namespace PortaleRegione.API.Controllers
 
             if (attachList.Any())
             {
+                //#864 Notifiche per responsabili di segreteria
+                var responsabili = await _logicPersona.GetSegreteriaPolitica(id_gruppo, false, true);
+                var destinatari = AppSettingsConfiguration.EmailInvioDASI;
+                if (!responsabili.Any())
+                {
+                    destinatari += ";" + responsabili.Select(p => p.email).Aggregate((i, j) => i + ";" + j);
+                }
+
                 var mailModel = new MailModel
                 {
                     DA = persona.email,
-                    A = AppSettingsConfiguration.EmailInvioDASI,
+                    A = destinatari,
                     OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
                     MESSAGGIO =
                         $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato. {GetBodyFooterMail()}",
