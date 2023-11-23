@@ -1,0 +1,32 @@
+﻿.user-view {
+    background-color: #469b49 !important;
+}
+
+.nav-wrapper {
+    background-color: #469b49 !important;
+}
+
+.page-footer {
+    background-color: #469b49 !important;
+}
+
+.tabs .tab a:hover, .tabs .tab a.active {
+    color:black !important;
+    background-color: #a5d6a7 !important;
+}
+
+.tabs .tab a {
+    color: black !important;
+    background-color: white !important;
+    border: solid 1px #469b49;
+}
+
+.tabs .indicator {
+    background-color: #469b49 !important;
+}
+
+.sidenav li.active {
+    background-color: #fcfefc;
+    border-bottom: solid #469b49;
+    border-width: .05em;
+}
