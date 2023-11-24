@@ -1299,6 +1299,15 @@ namespace PortaleRegione.API.Controllers
                 var nome_atto = $"{Utility.GetText_Tipo(attoDto.Tipo)} {attoDto.NAtto}";
                 if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO) continue;
 
+                if (!attoDto.Presentabile)
+                {
+                    results.Add(idGuid,
+                        !attoDto.Firmato_Dal_Proponente
+                            ? $"ERROR: {nome_atto} non depositabile. Deposito dell’atto consentito solo al proponente o al capogruppo, dopo la firma del proponente"
+                            : $"ERROR: {nome_atto} non depositabile");
+                    continue;
+                }
+
                 if (atto.Tipo == (int)TipoAttoEnum.IQT
                     && string.IsNullOrEmpty(atto.DataRichiestaIscrizioneSeduta))
                 {
@@ -1412,15 +1421,6 @@ namespace PortaleRegione.API.Controllers
                             }
                         }
                     }
-                }
-
-                if (!attoDto.Presentabile)
-                {
-                    results.Add(idGuid,
-                        !attoDto.Firmato_Dal_Proponente
-                            ? $"ERROR: {nome_atto} non depositabile. Deposito dell’atto consentito solo al proponente o al capogruppo, dopo la firma del proponente"
-                            : $"ERROR: {nome_atto} non depositabile");
-                    continue;
                 }
 
                 //controllo max firme
