@@ -1349,7 +1349,7 @@ namespace PortaleRegione.API.Controllers
                     atti.AddRange(odg_proposte);
 
                     //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
-                    var my_atti = atti.Where(a => a.UIDPersonaProponente == persona.UID_persona
+                    var my_atti = atti.Where(a => a.UIDPersonaProponente == attoDto.UIDPersonaProponente
                                                   && (a.IDStato == (int)StatiAttoEnum.CHIUSO
                                                       || a.IDStato == (int)StatiAttoEnum.PRESENTATO
                                                       || a.IDStato == (int)StatiAttoEnum.IN_TRATTAZIONE))
