@@ -1,10 +1,13 @@
 ﻿@using PortaleRegione.Common
+@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @model PortaleRegione.DTO.Domain.AttoDASIDto
 
 <div id="modalDASINotificaA" class="modal bottom-sheet">
     <div class="modal-content">
-        <h4 id="attoProponenteDisplayName"><b>@Utility.GetText_Tipo(Model.Tipo) @Model.NAtto</b></h4>
+        <h4 id="attoProponenteDisplayName">
+            <b>@Utility.GetText_Tipo(Model.Tipo) @Model.NAtto</b>
+        </h4>
         <hr/>
         @using (Html.BeginForm("EseguiAzione", "DASI", FormMethod.Post, new { id = "formNotificaA" }))
         {
@@ -20,7 +23,7 @@
 
             <div class="form-group" style="display: @displayPin">
                 <label>Pin:</label>
-                <input id="txtPinNotificheInviti" class="password" />
+                <input id="txtPinNotificheInviti" class="password"/>
             </div>
             <div class="form-group">
                 <label>Destinatari:</label>
@@ -54,6 +57,7 @@
         data_preload = [];
         persone = [];
         var personeInDB = await GetPersonePerInvitiDASI(tipo);
+        console.log(personeInDB)
 
         for (let [key, value] of Object.entries(personeInDB)) {
             persone.push({
@@ -80,17 +84,23 @@
     function CaricaConsiglieriProprioGruppo(){
         
         if ($('#chkCaricaConsiglieri').is(':checked')){
-            var nome_utente = $('#txtDisplayNameUser').data("target-val");
-            var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
-
-            $.each(persone, function (index, item) {
-                if (item.tag.includes(nome_utente)) {
-                    //salto me stesso
-                }
-                else if (item.tag.includes("(" + codice_gruppo + ")")) {
-                    data_preload.push({ tag: item.tag, id: item.id });
-                }
-            });
+            
+            if (persone[0].tag.includes("(")) {      
+				var nome_utente = $('#txtDisplayNameUser').data("target-val");
+				var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
+                $.each(persone, function (index, item) {
+                    if (item.tag.includes(nome_utente)) {
+                        //salto me stesso
+                    }
+                    else if (item.tag.includes("(" + codice_gruppo + ")")) {
+                        data_preload.push({ tag: item.tag, id: item.id });
+                    }
+                });
+			}else {
+				$.each(persone, function (index, item) {
+					data_preload.push({ tag: item.tag, id: item.id });
+				});
+            }
         }else{
             data_preload = [];
         }             
@@ -130,7 +140,7 @@
             var listaAtti = getListaAtti();
             @{
                 var type = Model.GetType();
-                if (type == typeof(PortaleRegione.DTO.Domain.AttoDASIDto))
+                if (type == typeof(AttoDASIDto))
                 {
                     @Html.Raw($"listaAtti.push('{Model.UIDAtto}');")
                 }
