@@ -1379,7 +1379,7 @@ namespace PortaleRegione.API.Controllers
                     else
                     {
                         var dataOdierna = DateTime.Now;
-                        if (persona.IsCapoGruppo
+                        if ((persona.IsCapoGruppo || (persona.IsResponsabileSegreteriaPolitica && persona.Gruppo.id_gruppo == atto.id_gruppo))
                             && seduta.Data_seduta.Day == dataOdierna.Day
                             && seduta.Data_seduta.Month == dataOdierna.Month
                             && seduta.Data_seduta.Year == dataOdierna.Year)
