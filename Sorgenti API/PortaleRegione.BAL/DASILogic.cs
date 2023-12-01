@@ -1292,7 +1292,7 @@ namespace PortaleRegione.API.Controllers
                     continue;
                 }
 
-                if(id_gruppo== 0)
+                if (id_gruppo == 0)
                     id_gruppo = atto.id_gruppo;
 
                 var attoDto = await GetAttoDto(idGuid, persona);
@@ -1379,7 +1379,8 @@ namespace PortaleRegione.API.Controllers
                     else
                     {
                         var dataOdierna = DateTime.Now;
-                        if ((persona.IsCapoGruppo || (persona.IsResponsabileSegreteriaPolitica && persona.Gruppo.id_gruppo == atto.id_gruppo))
+                        if ((persona.IsCapoGruppo || (persona.IsResponsabileSegreteriaPolitica &&
+                                                      persona.Gruppo.id_gruppo == atto.id_gruppo))
                             && seduta.Data_seduta.Day == dataOdierna.Day
                             && seduta.Data_seduta.Month == dataOdierna.Month
                             && seduta.Data_seduta.Year == dataOdierna.Year)
@@ -1388,7 +1389,9 @@ namespace PortaleRegione.API.Controllers
                                 my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
                                                    && a.Timestamp.Month == dataOdierna.Month
                                                    && a.Timestamp.Year == dataOdierna.Year
-                                                   && a.UID_Atto_ODG == attoPEM.UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
+                                                   && a.UID_Atto_ODG ==
+                                                   attoPEM
+                                                       .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
                                     .ToList();
                             if (atti_dopo_scadenza.Count + 1 > AppSettingsConfiguration.MassimoODG_DuranteSeduta)
                             {
@@ -2124,10 +2127,8 @@ namespace PortaleRegione.API.Controllers
             {
                 var atto = await Get(guid);
                 if (atto == null) throw new Exception("ERROR: NON TROVATO");
-                if (atto.Tipo == (int)TipoAttoEnum.ITL)
-                    throw new Exception(
-                        $"ERROR: Non è possibile richiesere l'iscrizione in seduta per le {Utility.GetText_Tipo(atto.Tipo)}.");
-                if (atto.Tipo == (int)TipoAttoEnum.ITR)
+                if (atto.Tipo == (int)TipoAttoEnum.ITL
+                    || atto.Tipo == (int)TipoAttoEnum.ITR)
                     throw new Exception(
                         $"ERROR: Non è possibile richiesere l'iscrizione in seduta per le {Utility.GetText_Tipo(atto.Tipo)}.");
                 if (atto.Tipo == (int)TipoAttoEnum.IQT)
@@ -2161,6 +2162,8 @@ namespace PortaleRegione.API.Controllers
 
                 // Matteo Cattapan #533 
                 // Avviso UOLA se atto fuori termine
+                if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                    return;
                 var attoDto = await GetAttoDto(atto.UIDAtto);
                 attoDto.Seduta =
                     Mapper.Map<SEDUTE, SeduteDto>(
@@ -2173,7 +2176,7 @@ namespace PortaleRegione.API.Controllers
                         DA = persona.email,
                         A = AppSettingsConfiguration.EmailInvioDASI,
                         OGGETTO =
-                            $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " - FUORI TERMINE" : "")}",
+                            $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " FUORI TERMINE" : "")}",
                         MESSAGGIO =
                             $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}. {GetBodyFooterMail()}"
                     };
@@ -2229,8 +2232,14 @@ namespace PortaleRegione.API.Controllers
                         atto.DataPresentazione_MOZ_ABBINATA = null;
                         atto.DataPresentazione_MOZ_URGENTE = null;
                         atto.TipoMOZ = (int)TipoMOZEnum.ORDINARIA;
+                        atto.DataRichiestaIscrizioneSeduta = null;
+                        atto.UIDPersonaRichiestaIscrizione = null;
+                        await _unitOfWork.CompleteAsync();
 
                         //#844
+                        if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                            return;
+
                         var dto = await GetAttoDto(guid);
                         try
                         {
@@ -2250,10 +2259,6 @@ namespace PortaleRegione.API.Controllers
                             Log.Error("Invio Mail", e);
                         }
                     }
-
-                    atto.DataRichiestaIscrizioneSeduta = null;
-                    atto.UIDPersonaRichiestaIscrizione = null;
-                    await _unitOfWork.CompleteAsync();
                 }
             }
             catch (Exception e)
@@ -2330,6 +2335,8 @@ namespace PortaleRegione.API.Controllers
 
                 // Matteo Cattapan #533
                 // Invio mail a UOLA per avviso proposta urgenza fuori termine stabilito
+                if (attoInDb.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                    return;
                 atto = await GetAttoDto(guid);
                 atto.Seduta =
                     Mapper.Map<SEDUTE, SeduteDto>(
@@ -2417,6 +2424,8 @@ namespace PortaleRegione.API.Controllers
                 try
                 {
                     //#844
+                    if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+                        return;
                     var dtoAbbinato = await GetAttoDto(model.AttoUId);
                     var mailModel = new MailModel
                     {
