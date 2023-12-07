@@ -262,7 +262,7 @@ namespace PortaleRegione.Persistance
         }
 
         public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
-            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro = null, List<int> soggetti = null, List<Guid> atti_da_firmare = null)
+            ClientModeEnum clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti, List<Guid> proponenti, List<Guid> atti_da_firmare)
         {
             try
             {
@@ -338,6 +338,11 @@ namespace PortaleRegione.Persistance
                         query = query
                             .Where(item => list.Contains(item.UIDAtto));
                     }
+
+                if (proponenti.Any())
+                {
+                    query = query.Where(i => proponenti.Contains(i.UIDPersonaProponente.Value));
+                }
 
                 if (atti_da_firmare == null)
                     return await query
