@@ -74,33 +74,39 @@
             });
     }
     
-    function CaricaConsiglieriProprioGruppo() {
+	function CaricaConsiglieriProprioGruppo() {
 
-        if ($('#chkCaricaConsiglieri').is(':checked')) {
-            var nome_utente = $('#txtDisplayNameUser').data("target-val");
-            var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
+		if ($('#chkCaricaConsiglieri').is(':checked')) {
 
-            $.each(persone, function (index, item) {
-                if (item.tag.includes(nome_utente)) {
-                    //salto me stesso
-                }
-                else if (item.tag.includes("(" + codice_gruppo + ")")) {
-                    data_preload.push({ tag: item.tag, id: item.id });
-                }
-            });
-        } else {
-            data_preload = [];
-        }
+			if (persone[0].tag.includes("(")) {
+				var nome_utente = $('#txtDisplayNameUser').data("target-val");
+				var codice_gruppo = $('a[data-target="ddlCambioGruppo"]').data("target-val");
+				$.each(persone, function (index, item) {
+					if (item.tag.includes(nome_utente)) {
+						//salto me stesso
+					}
+					else if (item.tag.includes("(" + codice_gruppo + ")")) {
+						data_preload.push({ tag: item.tag, id: item.id });
+					}
+				});
+			} else {
+				$.each(persone, function (index, item) {
+					data_preload.push({ tag: item.tag, id: item.id });
+				});
+			}
+		} else {
+			data_preload = [];
+		}
 
-        if (chipInstanceNotificaADASI != null) {
-            chipInstanceNotificaADASI.destroy();
-        }
-        chipInstanceNotificaADASI = M.Chips.init(elems,
-            {
-                autocompleteOptions: autocompleteDataOptions,
-                data: data_preload
-            });
-    }
+		if (chipInstanceNotificaADASI != null) {
+			chipInstanceNotificaADASI.destroy();
+		}
+		chipInstanceNotificaADASI = M.Chips.init(elems,
+			{
+				autocompleteOptions: autocompleteDataOptions,
+				data: data_preload
+			});
+	}
 
     async function NotificaADASI() {
         waiting(true);
