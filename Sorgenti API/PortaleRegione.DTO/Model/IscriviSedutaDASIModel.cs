@@ -25,5 +25,6 @@ namespace PortaleRegione.DTO.Model
     {
         public Guid UidSeduta { get; set; }
         public List<Guid> Lista { get; set; }
+        public bool Tutti  { get; set; }
     }
 }

@@ -113,6 +113,7 @@
                 var obj = {};
                 obj.UidSeduta = $('input[name="gruppoSeduteAttive"]:checked')[0].value;
                 obj.Lista = listaAtti;
+				obj.Tutti = selezionaTutti;
 
                 $.ajax({
                     url: '@Url.Action("IscriviSeduta")',

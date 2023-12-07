@@ -148,6 +148,7 @@
                 obj.Pin = value;
                 obj.Azione = action;
                 obj.Lista = lista.length > 0 ? lista : [];
+				obj.Tutti = selezionaTutti;
 
                 $.ajax({
                     url: baseUrl + "/dasi/azioni-massive",

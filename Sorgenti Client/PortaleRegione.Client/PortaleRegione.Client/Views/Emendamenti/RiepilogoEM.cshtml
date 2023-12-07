@@ -324,6 +324,7 @@
                     obj.Pin = value;
                     obj.Azione = action;
                     obj.Lista = listaEM.length > 0 ? listaEM : [];
+                    obj.Tutti = selezionaTutti;
                     obj.AttoUId = '@Model.Atto.UIDAtto';
                     obj.Mode = @((int)Model.Mode);
                     obj.Richiesta_Firma = @Convert.ToInt16(Convert.ToBoolean(HttpUtility.ParseQueryString(Request.Url.Query).Get("require_my_sign")));

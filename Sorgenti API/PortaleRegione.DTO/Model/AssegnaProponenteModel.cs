@@ -26,5 +26,6 @@ namespace PortaleRegione.DTO.Model
         public ICollection<Guid> Lista { get; set; }
         public Guid NuovoProponente { get; set; }
         public bool IsAssessore { get; set; }
+        public bool Tutti { get; set; }
     }
 }
