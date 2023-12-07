@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -1044,11 +1045,85 @@ namespace PortaleRegione.Client.Controllers
         [Route("filtra")]
         public async Task<ActionResult> Filtri_Riepilogo()
         {
+            var apiGateway = new ApiGateway(Token);
+            var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+
+            var view = Request.Form["view"];
+
+            if (Convert.ToInt16(view) == (int)ViewModeEnum.PREVIEW)
+            {
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = modelInCache.Data.Paging.Page,
+                    size = modelInCache.Data.Paging.Limit,
+                    filtro = modelInCache.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                };
+                var resultPreview = await apiGateway.DASI.Get(request);
+                resultPreview.CurrentUser = CurrentUser;
+                resultPreview.ClientMode = modelInCache.ClientMode;
+
+                Session["RiepilogoDASI"] = resultPreview;
+
+                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo, (int)resultPreview.Stato,
+                    Convert.ToInt16(view));
+
+                foreach (var atti in resultPreview.Data.Results)
+                {
+                    resultPreview.ViewMode = ViewModeEnum.PREVIEW;
+                    atti.BodyAtto =
+                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+
+                    var firme_ante = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.PRIMA_DEPOSITO);
+                    var firme_post = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.DOPO_DEPOSITO);
+                    atti.FirmeAnte = firme_ante.ToList();
+                    atti.FirmePost = firme_post.ToList();
+
+                    atti.Firme = await Utility.GetFirmatariDASI(
+                        atti.FirmeAnte,
+                        resultPreview.CurrentUser.UID_persona,
+                        FirmeTipoEnum.PRIMA_DEPOSITO,
+                        Token);
+                    atti.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
+                        atti.FirmePost,
+                        resultPreview.CurrentUser.UID_persona,
+                        FirmeTipoEnum.DOPO_DEPOSITO,
+                        Token);
+                }
+
+                if (CanAccess(new List<RuoliIntEnum>
+                        { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    return View("RiepilogoDASI_Admin", resultPreview);
+
+                return View("RiepilogoDASI", resultPreview);
+            }else if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
+            {
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = modelInCache.Data.Paging.Page,
+                    size = modelInCache.Data.Paging.Limit,
+                    filtro = modelInCache.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                };
+                var resultGrid = await apiGateway.DASI.Get(request);
+                resultGrid.CurrentUser = CurrentUser;
+                resultGrid.ClientMode = modelInCache.ClientMode;
+                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
+                    Convert.ToInt16(view));
+
+                Session["RiepilogoDASI"] = resultGrid;
+
+                if (CanAccess(new List<RuoliIntEnum>
+                        { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                    return View("RiepilogoDASI_Admin", resultGrid);
+
+                return View("RiepilogoDASI", resultGrid);
+            }
+
             Session["RiepilogoDASI"] = null;
             int.TryParse(Request.Form["reset"], out var reset_enabled);
             var modeCache = Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE)));
             var mode = modeCache != 0 ? (ClientModeEnum)modeCache : ClientModeEnum.GRUPPI;
-            var view = Request.Form["view"];
 
             if (reset_enabled == 1)
             {
@@ -1061,36 +1136,12 @@ namespace PortaleRegione.Client.Controllers
                     new { id = filtro_seduta, tipo = filtro_tipo_trattazione });
             }
 
-            var apiGateway = new ApiGateway(Token);
             var model = await ElaboraFiltri();
             var result = await apiGateway.DASI.Get(model);
             result.CurrentUser = CurrentUser;
             result.ClientMode = mode;
             SetCache(result.Data.Paging.Page, result.Data.Paging.Limit, (int)result.Tipo, (int)result.Stato,
                 Convert.ToInt16(view));
-            if (Convert.ToInt16(view) == (int)ViewModeEnum.PREVIEW)
-                foreach (var atti in result.Data.Results)
-                {
-                    result.ViewMode = ViewModeEnum.PREVIEW;
-                    atti.BodyAtto =
-                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
-
-                    var firme_ante = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.PRIMA_DEPOSITO);
-                    var firme_post = await apiGateway.DASI.GetFirmatari(atti.UIDAtto, FirmeTipoEnum.DOPO_DEPOSITO);
-                    atti.FirmeAnte = firme_ante.ToList();
-                    atti.FirmePost = firme_post.ToList();
-
-                    atti.Firme = await Utility.GetFirmatariDASI(
-                        atti.FirmeAnte,
-                        result.CurrentUser.UID_persona,
-                        FirmeTipoEnum.PRIMA_DEPOSITO,
-                        Token);
-                    atti.Firme_dopo_deposito = await Utility.GetFirmatariDASI(
-                        atti.FirmePost,
-                        result.CurrentUser.UID_persona,
-                        FirmeTipoEnum.DOPO_DEPOSITO,
-                        Token);
-                }
 
             Session["RiepilogoDASI"] = result;
 

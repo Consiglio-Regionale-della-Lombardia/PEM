@@ -478,7 +478,7 @@ namespace PortaleRegione.API.Controllers
                 dto.Firmato_Dal_Proponente =
                     await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
 
-                dto.PersonaCreazione = Users.First(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
+                dto.PersonaCreazione = Users.FirstOrDefault(p => p.UID_persona == attoInDb.UIDPersonaCreazione);
                 dto.PersonaProponente = attoInDb.UIDPersonaProponente != null
                     ? Users.First(p => p.UID_persona == attoInDb.UIDPersonaProponente)
                     : dto.PersonaCreazione;
