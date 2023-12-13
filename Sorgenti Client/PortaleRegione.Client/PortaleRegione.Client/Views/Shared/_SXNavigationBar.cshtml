@@ -145,12 +145,7 @@
                             {
                                 testoGruppo = "Giunta";
                             }
-                            
-                            if(persona.IsResponsabileSegreteriaPolitica 
-                               || persona.IsSegreteriaPolitica)
-                            {
-                                testoGruppo = string.Empty;
-                            }
+
                             var triggerClassGruppi = "";
                             var iconClassSwapGruppi = "";
                             var gruppiCache = HttpContext.Current.Cache.Get(CacheHelper.GRUPPI_ATTIVI)?.ToString();
@@ -178,7 +173,8 @@
 
                             if (currentRole != RuoliIntEnum.Segreteria_Assemblea)
                             {
-                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;" href='#' data-target='ddlCambioGruppo' data-target-val="@testoGruppo">
+                                <a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;@Html.Raw((persona.IsResponsabileSegreteriaPolitica 
+                               || persona.IsSegreteriaPolitica)?"display:none;":"")" href='#' data-target='ddlCambioGruppo' data-target-val="@testoGruppo">
                                     @testoGruppo @Html.Raw(iconClassSwapGruppi)
                                 </a>
                             }
