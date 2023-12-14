@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Caching;
+using System.Web.Mvc;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -23,12 +29,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Caching;
-using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -499,25 +499,26 @@ namespace PortaleRegione.Client.Controllers
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
+                        id = modelInCache.Atto.UIDAtto,
                         page = 1,
                         size = limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
-                    listaView = await apiGateway.Emendamento.Get(request);
+                    if (model.Richiesta_Firma) // #879 
+                        listaView = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
+                            modelInCache.Mode, modelInCache.Ordinamento, 1, limit);
+                    else
+                        listaView = await apiGateway.Emendamento.Get(request);
                     var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
 
                     if (model.Lista != null)
-                    {
                         foreach (var guid in model.Lista)
-                        {
                             list.Remove(guid);
-                        }
-                    }
 
                     model.Lista = list;
                 }
-                
+
                 switch (model.Azione)
                 {
                     case ActionEnum.FIRMA:
@@ -750,7 +751,7 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> EsportaDOC(Guid id, OrdinamentoEnum ordine)
         {
             try
-            {   
+            {
                 var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
                 var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
@@ -791,15 +792,12 @@ namespace PortaleRegione.Client.Controllers
                     var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
 
                     if (model.Lista != null)
-                    {
                         foreach (var guid in model.Lista)
-                        {
                             list.Remove(guid);
-                        }
-                    }
 
                     model.Lista = list;
                 }
+
                 await apiGateway.Emendamento.CambioStato(model);
                 Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
@@ -839,12 +837,8 @@ namespace PortaleRegione.Client.Controllers
                     var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
 
                     if (model.Lista != null)
-                    {
                         foreach (var guid in model.Lista)
-                        {
                             list.Remove(guid);
-                        }
-                    }
 
                     model.Lista = list;
                 }
@@ -905,15 +899,12 @@ namespace PortaleRegione.Client.Controllers
                     var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
 
                     if (model.Lista != null)
-                    {
                         foreach (var guid in model.Lista)
-                        {
                             list.Remove(guid);
-                        }
-                    }
 
                     model.Lista = list;
                 }
+
                 var resultNuovoProponente = await apiGateway.Emendamento.AssegnaNuovoPorponente(model);
                 var listaErroriNuovoProponente = new List<string>();
                 foreach (var item in resultNuovoProponente)
