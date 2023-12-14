@@ -19,8 +19,17 @@
      && !User.IsInRole(((int)RuoliIntEnum.Utente).ToString()))
 {
     <li class="menuItem_DASI bold">
-        <a class="waves-effect" href="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
+        <a class="waves-effect" onclick="goToDASI(this)" data-url="@Url.Action("RiepilogoDASI", "DASI")"><i class="material-icons">event</i>DASI</a>
     </li>
+
+    <script>
+    function goToDASI(ctrl){
+        var url = $(ctrl).data("url");
+        console.log(url)
+		set_Filtri_DASI({});
+        go(url);
+    }
+    </script>
 }
 
 <li class="menuItem_Notifiche bold">

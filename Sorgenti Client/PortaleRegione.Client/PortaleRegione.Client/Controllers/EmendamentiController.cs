@@ -505,7 +505,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
-                    if (model.Richiesta_Firma) // #879 
+                    if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
                         listaView = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
                             modelInCache.Mode, modelInCache.Ordinamento, 1, limit);
                     else

@@ -140,26 +140,28 @@
                     </div>
                     <div class="col s12" style="margin-top: -15px">
                         @{
-                            var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
-                            if (persona.IsGiunta)
-                            {
-                                testoGruppo = "Giunta";
-                            }
+                                        var testoGruppo = gruppo == null ? "Sconosciuto" : gruppo.codice_gruppo;
+                                        if (persona.IsGiunta)
+                                        {
+                                            testoGruppo = "Giunta";
+                                        }
 
-                            var triggerClassGruppi = "";
-                            var iconClassSwapGruppi = "";
-                            var gruppiCache = HttpContext.Current.Cache.Get(CacheHelper.GRUPPI_ATTIVI)?.ToString();
+                                        var triggerClassGruppi = "";
+                                        var iconClassSwapGruppi = "";
+                                        var gruppiCache = HttpContext.Current.Cache.Get($"{CacheHelper.GRUPPI_ATTIVI}_{persona.UID_persona.ToString()}")?.ToString();
+
+
                             if (gruppiCache != null && User.IsInRole(RuoliExt.Amministratore_PEM))
-                            {
-                                var gruppiJson = JsonConvert.DeserializeObject<List<KeyValueDto>>(gruppiCache);
+                                        {
+                                            var gruppiJson = JsonConvert.DeserializeObject<List<KeyValueDto>>(gruppiCache);
 
-                                if (gruppiJson.Any())
-                                {
-                                    triggerClassGruppi = "dropdown-trigger";
-                                    iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
+                                            if (gruppiJson.Any())
+                                            {
+                                                triggerClassGruppi = "dropdown-trigger";
+                                                iconClassSwapGruppi = "<i class='material-icons tiny'>swap_horiz</i>";
                                     <ul id='ddlCambioGruppo' class='dropdown-content'>
                                         @foreach (var gruppiDto in gruppiJson)
-                                        {
+                                    {
                                             <li>
                                                 <a class="truncate" style="height: unset !important; padding: 0 20px 0 20px !important;"
                                                    href="@Url.Action("CambioGruppo", "Autenticazione", new { gruppo = gruppiDto.id, returnUrl = Request.Url })">
