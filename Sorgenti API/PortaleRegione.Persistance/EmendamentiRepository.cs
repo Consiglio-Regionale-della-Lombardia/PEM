@@ -630,8 +630,7 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext.EM
                 .Where(em => em.UIDAtto == attoUId
-                             && em.id_gruppo == gruppo
-                             && em.Eliminato == false);
+                             && em.id_gruppo == gruppo);
             if (sub)
                 query = query.OrderByDescending(em => em.SubProgressivo)
                     .Take(1);
