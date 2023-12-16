@@ -130,13 +130,13 @@ namespace PortaleRegione.Client.Controllers
         {
             if (ruolo == RuoliIntEnum.Amministratore_PEM)
             {
-                var currentGroups = HttpContext.Cache.Get(CacheHelper.GRUPPI_ATTIVI);
+                var currentGroups = HttpContext.Cache.Get(GetCacheKey(CacheHelper.GRUPPI_ATTIVI));
                 if (currentGroups == null)
                 {
                     var apiGateway = new ApiGateway(Token);
                     var gruppi = await apiGateway.Persone.GetGruppiAttivi();
                     HttpContext.Cache.Insert(
-                        CacheHelper.GRUPPI_ATTIVI,
+                        GetCacheKey(CacheHelper.GRUPPI_ATTIVI),
                         JsonConvert.SerializeObject(gruppi),
                         null,
                         Cache.NoAbsoluteExpiration,
