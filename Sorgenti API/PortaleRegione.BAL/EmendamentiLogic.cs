@@ -37,6 +37,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office.Word;
 
 namespace PortaleRegione.BAL
 {
@@ -1105,8 +1106,8 @@ namespace PortaleRegione.BAL
                     }
 
                     em.UIDPersonaDeposito = persona.UID_persona;
-                    em.OrdinePresentazione = em.OrdineVotazione =
-                        await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
+                    var ordine = await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
+                    em.OrdinePresentazione = em.OrdineVotazione = ordine;
                     em.Timestamp = DateTime.Now;
                     em.DataDeposito = BALHelper.EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
@@ -1140,6 +1141,8 @@ namespace PortaleRegione.BAL
                     await _unitOfWork.CompleteAsync();
 
                     counterDepositi++;
+
+                    await Task.Delay(1000); // #884. no sleep di 1 secondo può migliorare la gestione delle risorse e prevenire possibili problemi di sovraccarico del database
                 }
 
                 return results;
