@@ -31,6 +31,7 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         [Required(ErrorMessage = "E' obbligatorio indicare il modo")]
         public int IDTipo_EM { get; set; }
+
         public virtual Tipi_EmendamentiDto TIPI_EM { get; set; }
 
         public int IDStato { get; set; }
@@ -38,11 +39,9 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [Required(ErrorMessage = "E' obbligatorio indicare l'elemento da emendare")]
         public int IDParte { get; set; }
 
-        [StringLength(5)]
-        public string NTitolo { get; set; }
+        [StringLength(5)] public string NTitolo { get; set; }
 
-        [StringLength(5)]
-        public string NCapo { get; set; }
+        [StringLength(5)] public string NCapo { get; set; }
 
         public Guid? UIDArticolo { get; set; }
 
@@ -51,10 +50,10 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public Guid? UIDLettera { get; set; }
 
         [StringLength(5)]
-        public string NLettera { get; set; }
+        public string NLettera { get; set; } =
+            string.Empty; //https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/885
 
-        [StringLength(5)]
-        public string NNumero { get; set; }
+        [StringLength(5)] public string NNumero { get; set; }
 
         public int? NMissione { get; set; }
 
@@ -62,11 +61,9 @@ namespace PortaleRegione.DTO.Domain.Essentials
 
         public int? NTitoloB { get; set; }
 
-        [AllowHtml]
-        public string TestoEM_originale { get; set; }
+        [AllowHtml] public string TestoEM_originale { get; set; }
 
-        [AllowHtml]
-        public string TestoREL_originale { get; set; }
+        [AllowHtml] public string TestoREL_originale { get; set; }
 
         public string PATH_AllegatoGenerico { get; set; }
 
