@@ -1383,9 +1383,16 @@ namespace PortaleRegione.API.Controllers
                     }
                     else
                     {
+                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
+                        var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(atto.id_gruppo);
+                        var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
+                        if (capogruppo != null)
+                            if (capogruppo.id_persona == proponente.id_persona)
+                            {
+                                proponente.IsCapoGruppo = true;
+                            }
                         var dataOdierna = DateTime.Now;
-                        if ((persona.IsCapoGruppo || (persona.IsResponsabileSegreteriaPolitica &&
-                                                      persona.Gruppo.id_gruppo == atto.id_gruppo))
+                        if (proponente.IsCapoGruppo
                             && seduta.Data_seduta.Day == dataOdierna.Day
                             && seduta.Data_seduta.Month == dataOdierna.Month
                             && seduta.Data_seduta.Year == dataOdierna.Year)
