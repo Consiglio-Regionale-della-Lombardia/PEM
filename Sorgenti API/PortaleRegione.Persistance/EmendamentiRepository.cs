@@ -428,8 +428,8 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .EM
                 .SqlQuery(model.Query)
-                .Skip((model.page - 1) * 100)
-                .Take(100);
+                .Skip((model.page - 1) * model.size)
+                .Take(model.size);
 
             return query.ToList();
         }

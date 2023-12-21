@@ -202,7 +202,7 @@
                             }
                             else
                             {
-                                <div class="chip center grey white-text" style="min-width: unset">
+                                <div class="chip center grey white-text tooltipped" style="min-width: unset" data-position="bottom" data-tooltip="@stampa.Info">
                                     In attesa
                                 </div>
                             }
@@ -299,8 +299,7 @@
 
             if (parseInt(seconds) - 1 == 0) {
                 clearInterval(interval);
-                var redirectUrl = url + "?page=" + currentPage + "&size=" + currentSize;
-                go(redirectUrl);
+				location.reload()
             }
         }, 1000);
     }

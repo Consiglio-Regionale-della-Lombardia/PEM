@@ -1,6 +1,7 @@
 ﻿@using Newtonsoft.Json
 @using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,12 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Portale @Html.Raw(AppSettingsConfiguration.Title)</title>
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-
+    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
@@ -51,11 +47,20 @@
     }
     
 
-    <script>
+<script>
         baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
         AggiornaPosizioneTemi(baseUrl);
         var cssTheme = "";
-        var modeFromCache = "@Html.Raw(HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"))";
+        @{
+            if (currentUser == null)
+            {
+                @Html.Raw("var modeFromCache = " + (int)ClientModeEnum.GRUPPI)
+            }
+            else
+            {
+                @Html.Raw("var modeFromCache = " + HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"))
+            }
+        }
         var mode = getClientMode();
         if (modeFromCache != "") {
             if (mode != modeFromCache) {
@@ -82,7 +87,7 @@
             link.media = 'all';
             head.appendChild(link);
         }
-    </script>
+</script>
 </head>
 <body>
 <div id="loader-wrapper">

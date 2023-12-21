@@ -324,21 +324,26 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                Session["RiepilogoEmendamenti"] = null;
+                var uidEm = model.UIDEM;
                 if (model.UIDEM == Guid.Empty)
                 {
-                    await apiGateway.Emendamento.Salva(model);
-                    Session["RiepilogoEmendamenti"] = null;
-                    return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
-                    {
-                        id = model.UIDAtto
-                    }), JsonRequestBehavior.AllowGet);
+                    var newEm = await apiGateway.Emendamento.Salva(model);
+                    uidEm = newEm.UIDEM;
+                    //return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
+                    //{
+                    //    id = model.UIDAtto
+                    //}), JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    await apiGateway.Emendamento.Modifica(model);
                 }
 
-                await apiGateway.Emendamento.Modifica(model);
-                Session["RiepilogoEmendamenti"] = null;
+                
                 return Json(Url.Action("ViewEmendamento", "Emendamenti", new
                 {
-                    id = model.UIDEM
+                    id = uidEm
                 }), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

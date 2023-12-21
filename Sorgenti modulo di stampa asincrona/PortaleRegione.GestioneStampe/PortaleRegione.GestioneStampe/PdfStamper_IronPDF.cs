@@ -1,10 +1,11 @@
-﻿using IronPdf;
-using PortaleRegione.Logger;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using IronPdf;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.GestioneStampe
 {
@@ -22,23 +23,59 @@ namespace PortaleRegione.GestioneStampe
                 var Renderer = SetupRender();
                 if (!string.IsNullOrEmpty(nome_documento))
                     Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
-                var pdf = await Renderer.RenderHtmlAsPdfAsync(body);
-                if (attachments != null)
-                    if (attachments.Any())
-                        foreach (var attachment in attachments)
-                        {
-                            if (!File.Exists(attachment))
-                                continue;
-
-                            if (Path.GetExtension(attachment)
-                                .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
+                using (var pdf = await Renderer.RenderHtmlAsPdfAsync(body))
+                {
+                    if (attachments != null)
+                        if (attachments.Any())
+                            foreach (var attachment in attachments)
                             {
-                                var attach = PdfDocument.FromFile(attachment);
-                                pdf.AppendPdf(attach);
-                            }
-                        }
+                                if (!File.Exists(attachment))
+                                    continue;
 
-                return pdf.Stream.ToArray();
+                                if (Path.GetExtension(attachment)
+                                    .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    var attach = PdfDocument.FromFile(attachment);
+                                    pdf.AppendPdf(attach);
+                                }
+                            }
+
+                    return pdf.Stream.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CreaPDFInMemory Error-->", ex);
+                throw ex;
+            }
+        }
+
+        public async Task CreaPDF(string path, string body, string nome_documento, List<string> attachments = null)
+        {
+            try
+            {
+                var Renderer = SetupRender();
+                if (!string.IsNullOrEmpty(nome_documento))
+                    Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
+                using (var pdf = await Renderer.RenderHtmlAsPdfAsync(body))
+                {
+                    if (attachments != null)
+                        if (attachments.Any())
+                            foreach (var attachment in attachments)
+                            {
+                                if (!File.Exists(attachment))
+                                    continue;
+
+                                if (Path.GetExtension(attachment)
+                                    .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    var attach = PdfDocument.FromFile(attachment);
+                                    pdf.AppendPdf(attach);
+                                }
+                            }
+
+                    pdf.SaveAs(path);
+                }
             }
             catch (Exception ex)
             {
@@ -56,27 +93,32 @@ namespace PortaleRegione.GestioneStampe
         {
             var Renderer = SetupRender();
             Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-            var pdf = Renderer.RenderHtmlAsPdf(txtHTML);
-            pdf.SaveAs(path);
+            using (var pdf = Renderer.RenderHtmlAsPdf(txtHTML))
+            {
+                pdf.SaveAs(path);
+            }
         }
 
-        public async Task<object> CreaPDFObject(string txtHTML, bool abilitaPaginazione = true, List<string> attachments = null)
+        public async Task<object> CreaPDFObject(string txtHTML, bool abilitaPaginazione = true,
+            List<string> attachments = null)
         {
             var Renderer = SetupRender();
             if (abilitaPaginazione)
                 Renderer.PrintOptions.Footer.RightText = "Pagina {page} di {total-pages}";
-            var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML);
-            if (attachments == null) return pdf;
-            if (!attachments.Any()) return pdf;
+            using (var pdf = await Renderer.RenderHtmlAsPdfAsync(txtHTML))
+            {
+                if (attachments == null) return pdf;
+                if (!attachments.Any()) return pdf;
 
-            foreach (var attach in from attachment in attachments
-                                   where File.Exists(attachment)
-                                   where Path.GetExtension(attachment)
-                                       .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase)
-                                   select PdfDocument.FromFile(attachment))
-                pdf.AppendPdf(attach);
+                foreach (var attach in from attachment in attachments
+                         where File.Exists(attachment)
+                         where Path.GetExtension(attachment)
+                             .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase)
+                         select PdfDocument.FromFile(attachment))
+                    pdf.AppendPdf(attach);
 
-            return pdf;
+                return pdf;
+            }
         }
 
         private HtmlToPdf SetupRender()
@@ -93,14 +135,108 @@ namespace PortaleRegione.GestioneStampe
 
         public void MergedPDF(string path, List<object> docs)
         {
-            var listPdf = docs.Select(i => (PdfDocument)i);
-            PdfDocument.Merge(listPdf).SaveAs(path);
+            var batchSize = 100;
+            for (var i = 0; i < docs.Count; i += batchSize)
+            {
+                var batch = docs.Skip(i).Take(batchSize).ToList();
+                var listPdf = batch.Select(doc => (PdfDocument)doc);
+                PdfDocument.Merge(listPdf).SaveAs(path);
+            }
+        }
+
+        public void MergedPDF(string path, List<string> docs)
+        {
+            var batchSize = 100;
+
+            for (var i = 0; i < docs.Count; i += batchSize)
+            {
+                try
+                {
+                    var fascicolo = new PdfDocument(path);
+                    var batch = docs.Skip(i).Take(batchSize).ToList();
+                    var listPdf = batch.Select(p => new PdfDocument(p)).ToList();
+                    listPdf.Insert(0, fascicolo);
+                    PdfDocument.Merge(listPdf).SaveAs(path);
+                    foreach (var doc in listPdf) doc.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+        }
+
+        public void MergedPDFWithRetry(string path, List<string> docs)
+        {
+            var batchSize = 100;
+            var maxRetryAttempts = 3;
+
+            for (var i = 0; i < docs.Count; i += batchSize)
+            {
+                int retryCount = 0;
+                while (retryCount < maxRetryAttempts)
+                {
+                    try
+                    {
+                        var fascicolo = new PdfDocument(path);
+                        var batch = docs.Skip(i).Take(batchSize).ToList();
+                        var listPdf = batch.Select(p => new PdfDocument(p)).ToList();
+                        listPdf.Insert(0, fascicolo);
+                        PdfDocument.Merge(listPdf).SaveAs(path);
+                        foreach (var doc in listPdf) doc.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error occurred: {e.Message}");
+
+                        // Increment the retry count
+                        retryCount++;
+
+                        // Introduce a delay between retries to avoid rapid retries
+                        Thread.Sleep(1000);
+                    }
+                }
+
+                if (retryCount == maxRetryAttempts)
+                {
+                    // If we've reached the maximum number of retry attempts, rethrow the exception
+                    throw new Exception("Max retry attempts reached. Unable to process the batch.");
+                }
+            }
         }
 
         public void MergedPDF(string path, List<byte[]> docs)
         {
-            var listPdf = docs.Select(i => new PdfDocument(i));
-            PdfDocument.Merge(listPdf).SaveAs(path);
+            var batchSize = 100;
+            for (var i = 0; i < docs.Count; i += batchSize)
+            {
+                var batch = docs.Skip(i).Take(batchSize).ToList();
+                var listPdf = batch.Select(doc => new PdfDocument(doc)).ToList();
+                if (File.Exists(path)) listPdf.Insert(0, new PdfDocument(path));
+
+                PdfDocument.Merge(listPdf).SaveAs(path);
+            }
+        }
+
+        public void MergedPDF(string pathFascicolo, byte[] fileToAppend, ref PdfDocument fascicolo)
+        {
+            var listPdf = new List<PdfDocument>();
+            if (File.Exists(pathFascicolo)) listPdf.Insert(0, fascicolo);
+
+            listPdf.Add(new PdfDocument(fileToAppend));
+
+            fascicolo = PdfDocument.Merge(listPdf).SaveAs(pathFascicolo);
+        }
+
+        public void MergedPDF(string pathFascicolo, byte[] fileToAppend)
+        {
+            var listPdf = new List<PdfDocument>();
+            if (File.Exists(pathFascicolo)) listPdf.Insert(0, new PdfDocument(pathFascicolo));
+
+            listPdf.Add(new PdfDocument(fileToAppend));
+
+            PdfDocument.Merge(listPdf).SaveAs(pathFascicolo);
         }
 
         public byte[] MergedPDFInMemory(string path, List<object> docs)
