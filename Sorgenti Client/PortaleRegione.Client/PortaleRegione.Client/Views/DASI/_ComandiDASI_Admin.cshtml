@@ -73,9 +73,9 @@
     }
 
     function AbilitaComandiMassivi_DASI(uidAtto) {
+        var selezionaTutti = getSelezionaTutti_DASI();
         if (uidAtto) {
             var chk = $("#chk_Atto_" + uidAtto);
-            var selezionaTutti = getSelezionaTutti_DASI();
             if (chk[0].checked) {
                 if (selezionaTutti) {
                     removeAtto(uidAtto); //listaEsclusiva
@@ -93,8 +93,9 @@
 
         var lchk = getListaAtti();
 
-        if (lchk.length > 0 || $("#checkAll")[0].checked) {
+        if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
             $("#btnComandiMassivi").show();
+			$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
             $("#pnlNuovoCartaceoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();

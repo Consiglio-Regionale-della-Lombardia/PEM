@@ -399,9 +399,10 @@ function DeselectALLDASI() {
 }
 
 function AbilitaComandiMassivi(uidEM) {
+    var selezionaTutti = getSelezionaTutti();
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
-        var selezionaTutti = getSelezionaTutti();
+        
         if (chk[0].checked) {
             if (selezionaTutti) {
                 removeEM(uidEM); //listaEsclusiva
@@ -419,9 +420,10 @@ function AbilitaComandiMassivi(uidEM) {
 
     var lchk = getListaEmendamenti();
 
-    if (lchk.length > 0 || $("#checkAll")[0].checked) {
+    if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
         $("#btnComandiMassiviAdmin").show();
         $("#btnComandiMassivi").show();
+        $('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
         $("#btnNuovoEM").hide();
     } else {
         $("#btnComandiMassiviAdmin").hide();
