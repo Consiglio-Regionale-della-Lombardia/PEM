@@ -1352,15 +1352,8 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                     //Ricava tutti gli ODG iscritti in seduta
-                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                    var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
                         TipoAttoEnum.ODG, 0);
-                    //Ricava tutti gli ODG proposti in seduta
-                    var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
-                        TipoAttoEnum.ODG, 0);
-
-                    var atti = new List<ATTI_DASI>();
-                    atti.AddRange(odg_in_seduta);
-                    atti.AddRange(odg_proposte);
 
                     //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
                     var my_atti = atti.Where(a => a.UIDPersonaProponente == attoDto.UIDPersonaProponente
