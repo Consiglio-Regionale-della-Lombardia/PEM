@@ -168,8 +168,7 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per aggiungere dei log info alla stampa
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="message"></param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         [Route(ApiRoutes.Stampe.AddInfo)]

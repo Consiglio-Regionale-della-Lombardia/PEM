@@ -504,19 +504,19 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
                         listaView = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
-                            modelInCache.Mode, modelInCache.Ordinamento, 1, limit);
+                            modelInCache.Mode, modelInCache.Ordinamento, modelInCache.Data.Paging.Page, modelInCache.Data.Paging.Limit);
                     else
                         listaView = await apiGateway.Emendamento.Get(request);
                     var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
@@ -791,14 +791,14 @@ namespace PortaleRegione.Client.Controllers
                 if (model.All)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     listaView = await apiGateway.Emendamento.Get(request);
@@ -836,14 +836,14 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     listaView = await apiGateway.Emendamento.Get(request);
@@ -899,14 +899,14 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     listaView = await apiGateway.Emendamento.Get(request);

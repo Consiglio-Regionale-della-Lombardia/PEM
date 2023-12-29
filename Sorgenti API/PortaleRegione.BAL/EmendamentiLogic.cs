@@ -1192,29 +1192,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model,
-            PersonaDto personaDto)
+        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
         {
             var results = new Dictionary<Guid, string>();
-
-            model.Lista ??= new List<Guid>();
-            switch (model.All)
-            {
-                case true when !model.Lista.Any():
-                    model.Lista =
-                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
-                        .Select(em => em.UIDEM).ToList();
-                    break;
-                case true when model.Lista.Any():
-                    {
-                        var emendamentiInDb =
-                            (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
-                            .Select(em => em.UIDEM).ToList();
-                        emendamentiInDb.RemoveAll(em => model.Lista.Contains(em));
-                        model.Lista = emendamentiInDb;
-                        break;
-                    }
-            }
 
             var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First());
             var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);

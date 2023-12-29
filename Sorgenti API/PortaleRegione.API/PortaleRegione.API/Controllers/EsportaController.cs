@@ -67,7 +67,7 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per esportare la griglia emendamenti in formato zip
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [Route(ApiRoutes.Esporta.EsportaGrigliaZip)]
@@ -88,7 +88,7 @@ namespace PortaleRegione.API.Controllers
         /// <summary>
         ///     Endpoint per esportare la griglia emendamenti in formato excel
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [Route(ApiRoutes.Esporta.EsportaGrigliaExcelDasi)]
