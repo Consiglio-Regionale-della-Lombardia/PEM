@@ -1874,24 +1874,17 @@ namespace PortaleRegione.BAL
                 foreach (var guid in em_in_db)
                     try
                     {
-                        var em = await GetEM(guid);
+                        var em = await GetEM_DTO(guid);
                         EM subem = null;
                         if (em.Rif_UIDEM.HasValue)
                         {
-                            subem = await GetEM(em.Rif_UIDEM.Value);
+                            subem = await GetEM_DTO(em.Rif_UIDEM.Value);
                         }
 
-                        var dto = Mapper.Map<EM, EmendamentiDto>(em);
-                        dto.N_EM = GetNomeEM(dto,
-                            em.Rif_UIDEM.HasValue
-                                ? Mapper.Map<EM, EmendamentiDto>(subem)
-                                : null);
-                        if (!string.IsNullOrEmpty(dto.DataDeposito))
-                            dto.DataDeposito = BALHelper.Decrypt(dto.DataDeposito);
-                        dto.PersonaProponente =
+                        em.PersonaProponente =
                             Users.First(p => p.UID_persona == em.UIDPersonaProponente);
-                        dto.gruppi_politici = Groups.First(i => i.id_gruppo == em.id_gruppo);
-                        result.Add(dto);
+                        em.gruppi_politici = Groups.First(i => i.id_gruppo == em.id_gruppo);
+                        result.Add(em);
                     }
                     catch (Exception e)
                     {
