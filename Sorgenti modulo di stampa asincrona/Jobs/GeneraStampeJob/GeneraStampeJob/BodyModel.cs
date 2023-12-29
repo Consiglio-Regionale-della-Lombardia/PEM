@@ -1,4 +1,5 @@
-﻿using PortaleRegione.DTO.Domain;
+﻿using System.Collections.Generic;
+using PortaleRegione.DTO.Domain;
 
 namespace GeneraStampeJob
 {
@@ -9,5 +10,6 @@ namespace GeneraStampeJob
         public EmendamentiDto EM { get; set; }
         public AttoDASIDto Atto { get; set; }
         public object Content { get; set; }
+        public List<string> Attachments { get; set; }
     }
 }

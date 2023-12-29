@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using IronPdf;
-using PortaleRegione.Logger;
 
 namespace PortaleRegione.GestioneStampe
 {
@@ -45,12 +43,12 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDFInMemory Error-->", ex);
+                //Log.Error("CreaPDFInMemory Error-->", ex);
                 throw ex;
             }
         }
 
-        public async Task CreaPDF(string path, string body, string nome_documento, List<string> attachments = null)
+        public async Task CreaPDFAsync(string path, string body, string nome_documento, List<string> attachments = null)
         {
             try
             {
@@ -68,10 +66,10 @@ namespace PortaleRegione.GestioneStampe
 
                                 if (Path.GetExtension(attachment)
                                     .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    var attach = PdfDocument.FromFile(attachment);
-                                    pdf.AppendPdf(attach);
-                                }
+                                    using (var attach = PdfDocument.FromFile(attachment))
+                                    {
+                                        pdf.AppendPdf(attach);
+                                    }
                             }
 
                     pdf.SaveAs(path);
@@ -79,7 +77,41 @@ namespace PortaleRegione.GestioneStampe
             }
             catch (Exception ex)
             {
-                Log.Error("CreaPDFInMemory Error-->", ex);
+                //Log.Error("CreaPDFInMemory Error-->", ex);
+                throw ex;
+            }
+        }
+
+        public void CreaPDF(string path, string body, string nome_documento, List<string> attachments = null)
+        {
+            try
+            {
+                var Renderer = SetupRender();
+                if (!string.IsNullOrEmpty(nome_documento))
+                    Renderer.PrintOptions.Footer.RightText = $"{nome_documento}" + " Pagina {page} di {total-pages}";
+                using (var pdf = Renderer.RenderHtmlAsPdf(body))
+                {
+                    if (attachments != null)
+                        if (attachments.Any())
+                            foreach (var attachment in attachments)
+                            {
+                                if (!File.Exists(attachment))
+                                    continue;
+
+                                if (Path.GetExtension(attachment)
+                                    .Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))
+                                    using (var attach = PdfDocument.FromFile(attachment))
+                                    {
+                                        pdf.AppendPdf(attach);
+                                    }
+                            }
+
+                    pdf.SaveAs(path);
+                }
+            }
+            catch (Exception ex)
+            {
+                //Log.Error("CreaPDFInMemory Error-->", ex);
                 throw ex;
             }
         }
@@ -149,7 +181,6 @@ namespace PortaleRegione.GestioneStampe
             var batchSize = 100;
 
             for (var i = 0; i < docs.Count; i += batchSize)
-            {
                 try
                 {
                     var fascicolo = new PdfDocument(path);
@@ -164,45 +195,45 @@ namespace PortaleRegione.GestioneStampe
                     Console.WriteLine(e);
                     throw;
                 }
-            }
         }
 
         public void MergedPDFWithRetry(string path, List<string> docs)
         {
-            var batchSize = 100;
+            var batchSize = 1000;
             var maxRetryAttempts = 3;
+            var mergedBatchList = new List<PdfDocument> { new PdfDocument(path) };
 
             for (var i = 0; i < docs.Count; i += batchSize)
             {
-                int retryCount = 0;
-                while (retryCount < maxRetryAttempts)
-                {
+                var retryCount = 0;
+                var success = false;
+                while (retryCount < maxRetryAttempts && success == false)
                     try
                     {
-                        var fascicolo = new PdfDocument(path);
                         var batch = docs.Skip(i).Take(batchSize).ToList();
                         var listPdf = batch.Select(p => new PdfDocument(p)).ToList();
-                        listPdf.Insert(0, fascicolo);
-                        PdfDocument.Merge(listPdf).SaveAs(path);
+                        mergedBatchList.Add(PdfDocument.Merge(listPdf));
                         foreach (var doc in listPdf) doc.Dispose();
+
+                        success = true;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine($"Error occurred: {e.Message}");
-
-                        // Increment the retry count
                         retryCount++;
-
-                        // Introduce a delay between retries to avoid rapid retries
-                        Thread.Sleep(1000);
                     }
-                }
 
-                if (retryCount == maxRetryAttempts)
-                {
-                    // If we've reached the maximum number of retry attempts, rethrow the exception
-                    throw new Exception("Max retry attempts reached. Unable to process the batch.");
-                }
+                if (!success) throw new Exception("Max retry attempts reached. Unable to process the batch.");
+            }
+
+            try
+            {
+                PdfDocument.Merge(mergedBatchList).SaveAs(path);
+                foreach (var doc in mergedBatchList) doc.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
 

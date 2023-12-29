@@ -315,6 +315,8 @@ namespace GeneraStampeJob
                 if (_stampa.Da > 0 && _stampa.A > 0)
                     listaEMendamenti = listaEMendamenti.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
 
+                var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                var FilePathTarget = Path.Combine(path, nameFileTarget);
                 var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
                 {
                     Atto = atto,
@@ -324,12 +326,10 @@ namespace GeneraStampeJob
                         : OrdinamentoEnum.Presentazione
                 });
 
-                var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                var FilePathTarget = Path.Combine(path, nameFileTarget);
-
                 var cover = await _stamper.CreaPDFInMemory(bodyCopertina);
                 _stamper.MergedPDF(FilePathTarget, cover);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
+
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
 
@@ -602,17 +602,17 @@ namespace GeneraStampeJob
                         try
                         {
                             counter++;
-                            var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
-                            var nameFilePDF =
-                                $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                            var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
-
                             var dettagliCreaPDF = new BodyModel
                             {
-                                Path = FilePathComplete,
-                                Body = bodyPDF,
                                 EM = item
                             };
+
+                            var FilePathComplete = string.Empty;
+                            var nameFilePDF =
+                                $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                            FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
+                            dettagliCreaPDF.Body = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
+                            dettagliCreaPDF.Path = FilePathComplete;
                             var listAttachments = new List<string>();
                             if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
                             {
@@ -630,8 +630,11 @@ namespace GeneraStampeJob
                                 listAttachments.Add(complete_path);
                             }
 
-                            await _stamper.CreaPDF(dettagliCreaPDF.Path, dettagliCreaPDF.Body, item.N_EM,
+                            dettagliCreaPDF.Attachments = listAttachments;
+
+                            await _stamper.CreaPDFAsync(dettagliCreaPDF.Path, dettagliCreaPDF.Body, item.N_EM,
                                 listAttachments);
+
                             listaPercorsi[item.UIDEM] = dettagliCreaPDF;
 
                             await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
