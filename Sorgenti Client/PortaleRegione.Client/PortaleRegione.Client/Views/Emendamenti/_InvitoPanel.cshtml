@@ -143,11 +143,6 @@
 	}
 
     async function NotificaAEM(attoUId, tipo) {
-        var documentiTotali = $("#hdTotaleDocumenti").val();
-        var selezionaTutti = getSelezionaTutti();
-        var listaEM = getListaEmendamenti();
-        var totaleDoc = selezionaTutti ? documentiTotali - listaEM.length : listaEM.length;
-
         waiting(true);
         await LoadDestinatari(attoUId, tipo);
         $("#modalEmendamentiNotificaA").modal("open");

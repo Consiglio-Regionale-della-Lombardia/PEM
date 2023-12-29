@@ -1244,18 +1244,36 @@ function CambioStatoDASI(uidatto, stato) {
     });
 }
 
+function GetCounterAlert(listaEM, selezionaTutti) {
+    var text_counter = "";
+    var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
+    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+
+    if (selezionaTutti && listaEM.length == 0) {
+        if (total_entities < size) {
+            text_counter = total_entities;
+        } else {
+            text_counter = size;
+        }
+    } else if (selezionaTutti && listaEM.length > 0) {
+        if (total_entities < size) {
+            text_counter = total_entities;
+        } else {
+            text_counter = size;
+        }
+        text_counter = text_counter - listaEM.length;
+    } else {
+        text_counter = listaEM.length;
+    }
+
+    return text_counter;
+}
+
 function CambioStatoMassivo(stato, descr) {
     var text = "";
     var listaEM = getListaEmendamenti();
     var selezionaTutti = getSelezionaTutti();
-    var text_counter = "";
-    if (selezionaTutti && listaEM.length == 0) {
-        text_counter = $("#hdTotaleDocumenti").val();
-    } else if (selezionaTutti && listaEM.length > 0) {
-        text_counter = $("#hdTotaleDocumenti").val() - listaEM.length;
-    } else {
-        text_counter = listaEM.length;
-    }
+    var text_counter = GetCounterAlert(listaEM, selezionaTutti);
     text = "Cambia stato di " + text_counter + " emendamenti in " + descr;
 
     swal(text,
@@ -1299,14 +1317,7 @@ function CambioStatoMassivoDASI(stato, descr) {
     var text = "";
     var listaAtti = getListaAtti();
     var selezionaTutti = getSelezionaTutti_DASI();
-    var text_counter = "";
-    if (selezionaTutti && listaAtti.length == 0) {
-        text_counter = $("#hdTotaleDocumenti").val();
-    } else if (selezionaTutti && listaAtti.length > 0) {
-        text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
-    } else {
-        text_counter = listaAtti.length;
-    }
+    var text_counter = GetCounterAlert(listaAtti, selezionaTutti);
     text = "Cambia stato di " + text_counter + " atti in " + descr;
 
     swal(text,

@@ -9,22 +9,22 @@
     </a>
     <ul>
         <li>
-            <a class="btn-floating tooltipped btn-firma" data-position="left" data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
+            <a class="btn-floating btn-large tooltipped btn-firma" data-position="left" data-tooltip="Firma" onclick="FirmaMassivo_DASI()">
                 <i class="material-icons">gavel</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating tooltipped btn-presenta" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
+            <a class="btn-floating btn-large tooltipped btn-presenta" data-position="left" data-tooltip="Deposita" onclick="PresentaMassivo_DASI()">
                 <i class="material-icons">lock</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating tooltipped btn-invita" data-position="left" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
+            <a class="btn-floating btn-large tooltipped btn-invita" data-position="left" data-tooltip="Invita" onclick="InvitoMassivo_DASI()">
                 <i class="material-icons">send</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <a class="btn-floating btn-large grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </a>
         </li>
@@ -62,31 +62,31 @@
         @if (AppSettingsConfiguration.EnableITL)
         {
             <li>
-                <a class="btn-floating @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableITR)
         {
             <li>
-                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableIQT)
         {
             <li>
-                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableMOZ)
         {
             <li>
-                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableODG)
         {
             <li>
-                <a class="btn-floating  @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</a>
             </li>
         }
     </ul>
@@ -95,15 +95,19 @@
 @Html.Partial("_InvitoPanelMassivo")
 
 <script>
-
+	$(document).ready(function () {
+		$('.fixed-action-btn').floatingActionButton({
+			hoverEnabled: false
+		});
+	});
+	
     async function MassivoDASI(action) {
         var text = "";
         var button = "";
-
-        var documentiTotali = $("#hdTotaleDocumenti").val();
+        
         var selezionaTutti = getSelezionaTutti_DASI();
         var lista = getListaAtti();
-        var totaleDoc = selezionaTutti ? documentiTotali - lista.length : lista.length;
+		var totaleDoc = GetCounterAlert(lista, selezionaTutti);
 
         if (totaleDoc <= 0) {
             swal({
@@ -218,11 +222,6 @@
         }
         if (lchk.length > 0 || check_all || selezionaTutti) {
             $("#btnComandiMassivi").show();
-            $('.fixed-action-btn').floatingActionButton({
-                hoverEnabled: false
-              });
-
-			//$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
             $("#pnlNuovoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
@@ -251,4 +250,5 @@
         setListaAtti([]);
         AbilitaComandiMassivi_DASI(null);
     }
+
 </script>

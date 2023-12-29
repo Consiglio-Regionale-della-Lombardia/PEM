@@ -5,28 +5,28 @@
     </a>
     <ul>
         <li>
-            <a class="btn-floating approvato tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
+            <a class="btn-floating btn-large approvato tooltipped" onclick="IscriviASedutaMassivoDASI()" data-position="left" data-tooltip="Iscrivi alla seduta">
                 <i class="material-icons">assignment_turned_in</i> Assegna a seduta
             </a>
         </li>
         
         <li>
-            <a class="btn-floating tooltipped depositato" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@StatiAttoEnum.PRESENTATO')">
+            <a class="btn-floating btn-large tooltipped depositato" data-position="left" data-tooltip="Depositato" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.PRESENTATO), '@StatiAttoEnum.PRESENTATO')">
                 <i class="material-icons">lock</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating tooltipped trattazione" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@StatiAttoEnum.IN_TRATTAZIONE')">
+            <a class="btn-floating btn-large tooltipped trattazione" data-position="left" data-tooltip="In Trattazione" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.IN_TRATTAZIONE), '@StatiAttoEnum.IN_TRATTAZIONE')">
                 <i class="material-icons">settings_input_antenna</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating tooltipped chiuso" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.CHIUSO), '@StatiAttoEnum.CHIUSO')">
+            <a class="btn-floating btn-large tooltipped chiuso" data-position="left" data-tooltip="Chiuso" onclick="CambioStatoMassivoDASI(@((int) StatiAttoEnum.CHIUSO), '@StatiAttoEnum.CHIUSO')">
                 <i class="material-icons">storage</i>
             </a>
         </li>
         <li>
-            <a class="btn-floating grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
+            <a class="btn-floating btn-large grey tooltipped" onclick="resetGridSelection()" data-position="left" data-tooltip="Annulla">
                 <i class="material-icons">undo</i>
             </a>
         </li>
@@ -67,6 +67,11 @@
 </div>
 
 <script>
+	$(document).ready(function () {
+		$('.fixed-action-btn').floatingActionButton({
+			hoverEnabled: false
+		});
+	});
 
     function ModificaMetaDASI(tipo) {
         openFormDASI(tipo, true);
@@ -95,10 +100,6 @@
 
         if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
             $("#btnComandiMassivi").show();
-			$('.fixed-action-btn').floatingActionButton({
-				hoverEnabled: false
-			});
-			//$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
             $("#pnlNuovoCartaceoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();

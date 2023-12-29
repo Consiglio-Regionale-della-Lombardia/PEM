@@ -361,11 +361,10 @@
 
     function UgualiA() {
         $("#emUgualiDisplayName").empty();
-
-        var documentiTotali = $("#hdTotaleDocumenti").val();
+        
         var selezionaTutti = getSelezionaTutti();
         var listaEM = getListaEmendamenti();
-        var totaleDoc = selezionaTutti ? documentiTotali - listaEM.length : listaEM.length;
+		var totaleDoc = GetCounterAlert(listaEM, selezionaTutti);
 
         $("#txtColore").hexColorPicker();
 

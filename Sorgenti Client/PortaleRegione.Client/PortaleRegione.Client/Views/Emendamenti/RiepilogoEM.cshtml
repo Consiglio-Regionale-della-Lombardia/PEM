@@ -277,11 +277,10 @@
         async function RevealMassivo(action) {
             var text = "";
             var button = "";
-
-            var documentiTotali = $("#hdTotaleDocumenti").val();
+            
             var selezionaTutti = getSelezionaTutti();
             var listaEM = getListaEmendamenti();
-            var totaleDoc = selezionaTutti ? documentiTotali - listaEM.length : listaEM.length;
+            var totaleDoc = GetCounterAlert(listaEM, selezionaTutti);
 
             if (totaleDoc <= 0) {
                 swal({
