@@ -1,5 +1,4 @@
-﻿@using System.Configuration
-@using Newtonsoft.Json
+﻿@using Newtonsoft.Json
 @using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
@@ -219,7 +218,11 @@
         }
         if (lchk.length > 0 || check_all || selezionaTutti) {
             $("#btnComandiMassivi").show();
-			$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
+            $('.fixed-action-btn').floatingActionButton({
+                hoverEnabled: false
+              });
+
+			//$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
             $("#pnlNuovoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();

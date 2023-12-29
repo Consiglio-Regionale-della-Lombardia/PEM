@@ -421,9 +421,14 @@ function AbilitaComandiMassivi(uidEM) {
     var lchk = getListaEmendamenti();
 
     if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
+        //btnComandiMassiviAdmin_Button
+               
         $("#btnComandiMassiviAdmin").show();
         $("#btnComandiMassivi").show();
-        $('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
+        $('.fixed-action-btn').floatingActionButton({
+            hoverEnabled: false
+          });
+        //$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
         $("#btnNuovoEM").hide();
     } else {
         $("#btnComandiMassiviAdmin").hide();
@@ -1266,7 +1271,7 @@ function CambioStatoMassivo(stato, descr) {
             obj.Lista = listaEM;
             obj.All = selezionaTutti;
             obj.AttoUId = $("#hdUIdAtto").val();
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/emendamenti/modifica-stato",
                 type: "POST",
@@ -1274,9 +1279,16 @@ function CambioStatoMassivo(stato, descr) {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+                waiting(false);
+                if (data.message) {
+                    console.log("error", data.message);
+                    ErrorAlert(data.message);
+                    return;
+                }
                 DeselectALLEM();
                 location.reload();
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -1309,7 +1321,7 @@ function CambioStatoMassivoDASI(stato, descr) {
             obj.Stato = stato;
             obj.Lista = listaAtti;
             obj.All = selezionaTutti;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/modifica-stato",
                 type: "POST",
@@ -1317,9 +1329,11 @@ function CambioStatoMassivoDASI(stato, descr) {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+                waiting(false);
                 DeselectALLEM();
                 location.reload();
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -1917,6 +1931,15 @@ function SuccessAlert(message, url) {
         if (value == null || value == "")
             return;
         go(url);
+    });
+}
+
+function ErrorAlert(message) {
+    swal({
+        title: "Errore",
+        text: message,
+        icon: "error",
+        button: "Ok"
     });
 }
 

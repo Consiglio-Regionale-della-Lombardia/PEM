@@ -95,7 +95,10 @@
 
         if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
             $("#btnComandiMassivi").show();
-			$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
+			$('.fixed-action-btn').floatingActionButton({
+				hoverEnabled: false
+			});
+			//$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
             $("#pnlNuovoCartaceoDASI").hide();
         } else {
             $("#btnComandiMassivi").hide();
