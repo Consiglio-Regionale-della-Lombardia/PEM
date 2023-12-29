@@ -133,8 +133,8 @@
                             }
                             @if (Model.Ritirabile)
                             {
-                                <div class="btn chip hoverable brown lighten-3 center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.RITIRA))">
-                                    <i class="icon material-icons">settings_backup_restore</i> Ritira
+                                <div class="btn chip hoverable red white-text center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.RITIRA))">
+                                    <i class="icon material-icons">settings_backup_restore</i> Ritira EM/SUBEM
                                 </div>
                             }
                         </div>
