@@ -198,6 +198,7 @@ namespace PortaleRegione.BAL
         {
             var results = new Dictionary<Guid, string>();
             var listaDestinatari = new List<PersonaDto>();
+            var listaResponsabili = new List<PersonaDto>();
             var sonoPersone = Guid.TryParse(model.ListaDestinatari.First(), out var _);
             if (sonoPersone)
             {
@@ -210,9 +211,9 @@ namespace PortaleRegione.BAL
                     var responsabili = await _logicPersona.GetSegreteriaPolitica(dest.Gruppo.id_gruppo, true, false);
                     foreach (var resp in responsabili)
                     {
-                        if (listaDestinatari.FirstOrDefault(i => i.UID_persona == resp.UID_persona) == null)
+                        if (listaResponsabili.FirstOrDefault(i => i.UID_persona == resp.UID_persona) == null)
                         {
-                            listaDestinatari.Add(resp);
+                            listaResponsabili.Add(resp);
                         }
                     }
                 }
@@ -229,9 +230,9 @@ namespace PortaleRegione.BAL
                         var responsabili = await _logicPersona.GetSegreteriaPolitica(gruppoId, true, false);
                         foreach (var resp in responsabili)
                         {
-                            if (listaDestinatari.FirstOrDefault(i => i.UID_persona == resp.UID_persona) == null)
+                            if (listaResponsabili.FirstOrDefault(i => i.UID_persona == resp.UID_persona) == null)
                             {
-                                listaDestinatari.Add(resp);
+                                listaResponsabili.Add(resp);
                             }
                         }
                     }
@@ -325,7 +326,7 @@ namespace PortaleRegione.BAL
                     {
                         OGGETTO = "Invito a firmare i seguenti atti",
                         DA = currentUser.email,
-                        A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
+                        A = $"{string.Join(";", listaDestinatari.Select(p => p.email))};{string.Join(";", listaResponsabili.Select(r => r.email))}",
                         MESSAGGIO = "E' richiesta la firma per gli atti in allegato",
                         ATTACHMENTS = attachMail
                     });
@@ -423,7 +424,7 @@ namespace PortaleRegione.BAL
                     {
                         OGGETTO = "Invito a firmare i seguenti emendamenti",
                         DA = currentUser.email,
-                        A = listaDestinatari.Select(p => p.email).Aggregate((m1, m2) => $"{m1};{m2}"),
+                        A = $"{string.Join(";", listaDestinatari.Select(p => p.email))};{string.Join(";", listaResponsabili.Select(r => r.email))}",
                         MESSAGGIO = bodyMail
                     });
 

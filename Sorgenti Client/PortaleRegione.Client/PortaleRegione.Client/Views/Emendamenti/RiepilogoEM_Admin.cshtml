@@ -393,6 +393,7 @@
             var obj = {};
             obj.Colore = $("#txtColore").val();
             obj.Lista = listaEM;
+			obj.Tutti = getSelezionaTutti();
 
             //submit via ajax
             $.ajax({
@@ -491,6 +492,7 @@
             obj.NuovoProponente = proponenti[0].id;
             obj.IsAssessore = $("#chkAssegnaComeAssessore").checked;
             obj.Lista = listaEM;
+			obj.Tutti = getSelezionaTutti();
 
             //submit via ajax
             $.ajax({
@@ -586,6 +588,7 @@
             obj.Azione = 5;
             obj.Lista = listaEM;
             obj.ListaDestinatari = destinatari;
+			obj.Tutti = getSelezionaTutti();
 
             $.ajax({
                 url: baseUrl + "/emendamenti/azioni-massive",

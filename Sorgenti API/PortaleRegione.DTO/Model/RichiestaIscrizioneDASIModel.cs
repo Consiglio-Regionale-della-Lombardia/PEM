@@ -25,5 +25,6 @@ namespace PortaleRegione.DTO.Model
     {
         public DateTime DataRichiesta { get; set; }
         public List<Guid> Lista { get; set; }
+        public bool Tutti { get; set; }
     }
 }

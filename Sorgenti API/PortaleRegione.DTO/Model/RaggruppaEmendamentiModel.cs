@@ -23,6 +23,7 @@ namespace PortaleRegione.DTO.Model
 {
     public class RaggruppaEmendamentiModel
     {
+        public bool Tutti { get; set; }
         public ICollection<Guid> Lista { get; set; }
         public string Colore { get; set; }
     }

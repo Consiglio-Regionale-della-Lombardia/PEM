@@ -1,9 +1,10 @@
-﻿@using PortaleRegione.DTO.Model
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Model
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
     ViewBag.Title = string.Format("Meta Dati {0}", Model.Emendamento.N_EM);
-    var ordineFromCache = HttpContext.Current.Cache.Get("OrdinamentoEM");
+    var ordineFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.ORDINAMENTO_PEM}_{Model.CurrentUser.UID_persona.ToString()}");
     object objParams = null;
     if (ordineFromCache != null)
     {

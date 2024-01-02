@@ -58,7 +58,14 @@
         backUrl = Url.Action("RiepilogoDASI", objParams);
         if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
         {
-            backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo });
+            if (atto.IsODG())
+            {
+                backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo, uidAtto = atto.UID_Atto_ODG, view = (int)viewFromCache });
+            }
+            else
+            {
+                backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo, view = (int)viewFromCache });
+            }
         }
     }
 }

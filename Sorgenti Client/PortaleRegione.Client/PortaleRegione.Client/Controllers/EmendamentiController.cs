@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Caching;
+using System.Web.Mvc;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -23,12 +29,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Caching;
-using System.Web.Mvc;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -491,21 +491,32 @@ namespace PortaleRegione.Client.Controllers
         {
             try
             {
-                Session["RiepilogoEmendamenti"] = null;
-                var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
                 var apiGateway = new ApiGateway(Token);
-                if (model.Lista == null || !model.Lista.Any())
+                if (model.Tutti)
                 {
-                    var listaEM = new EmendamentiViewModel();
+                    var listaView = new EmendamentiViewModel();
                     var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
-                    if (model.Richiesta_Firma)
-                        listaEM = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(model.AttoUId,
-                            mode,
-                            OrdinamentoEnum.Default, 1, limit);
+                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+                    var request = new BaseRequest<EmendamentiDto>
+                    {
+                        id = modelInCache.Atto.UIDAtto,
+                        page = 1,
+                        size = limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
+                    };
+                    if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
+                        listaView = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
+                            modelInCache.Mode, modelInCache.Ordinamento, 1, limit);
                     else
-                        listaEM = await apiGateway.Emendamento.Get(model.AttoUId, mode,
-                            OrdinamentoEnum.Default, 1, limit);
-                    model.Lista = listaEM.Data.Results.Select(em => em.UIDEM).ToList();
+                        listaView = await apiGateway.Emendamento.Get(request);
+                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+
+                    if (model.Lista != null)
+                        foreach (var guid in model.Lista)
+                            list.Remove(guid);
+
+                    model.Lista = list;
                 }
 
                 switch (model.Azione)
@@ -740,7 +751,7 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> EsportaDOC(Guid id, OrdinamentoEnum ordine)
         {
             try
-            {   
+            {
                 var mode = (ClientModeEnum)HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE));
                 var apiGateway = new ApiGateway(Token);
                 var file = await apiGateway.Esporta.EsportaWORD(id, ordine, mode);
@@ -765,6 +776,28 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                if (model.All)
+                {
+                    var listaView = new EmendamentiViewModel();
+                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
+                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+                    var request = new BaseRequest<EmendamentiDto>
+                    {
+                        page = 1,
+                        size = limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
+                    };
+                    listaView = await apiGateway.Emendamento.Get(request);
+                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+
+                    if (model.Lista != null)
+                        foreach (var guid in model.Lista)
+                            list.Remove(guid);
+
+                    model.Lista = list;
+                }
+
                 await apiGateway.Emendamento.CambioStato(model);
                 Session["RiepilogoEmendamenti"] = null;
                 return Json(Request.UrlReferrer.ToString(), JsonRequestBehavior.AllowGet);
@@ -788,6 +821,28 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                if (model.Tutti)
+                {
+                    var listaView = new EmendamentiViewModel();
+                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
+                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+                    var request = new BaseRequest<EmendamentiDto>
+                    {
+                        page = 1,
+                        size = limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
+                    };
+                    listaView = await apiGateway.Emendamento.Get(request);
+                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+
+                    if (model.Lista != null)
+                        foreach (var guid in model.Lista)
+                            list.Remove(guid);
+
+                    model.Lista = list;
+                }
+
                 var resultRaggruppamento = await apiGateway.Emendamento.Raggruppa(model);
                 var listaErroriRaggruppamento = new List<string>();
                 foreach (var item in resultRaggruppamento)
@@ -828,6 +883,28 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                if (model.Tutti)
+                {
+                    var listaView = new EmendamentiViewModel();
+                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
+                    var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
+                    var request = new BaseRequest<EmendamentiDto>
+                    {
+                        page = 1,
+                        size = limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
+                    };
+                    listaView = await apiGateway.Emendamento.Get(request);
+                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+
+                    if (model.Lista != null)
+                        foreach (var guid in model.Lista)
+                            list.Remove(guid);
+
+                    model.Lista = list;
+                }
+
                 var resultNuovoProponente = await apiGateway.Emendamento.AssegnaNuovoPorponente(model);
                 var listaErroriNuovoProponente = new List<string>();
                 foreach (var item in resultNuovoProponente)
