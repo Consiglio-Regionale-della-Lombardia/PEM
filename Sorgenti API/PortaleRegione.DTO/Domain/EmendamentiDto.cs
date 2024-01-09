@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
-using PortaleRegione.DTO.Domain.Essentials;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.DTO.Domain
 {
@@ -99,7 +99,8 @@ namespace PortaleRegione.DTO.Domain
 
         [Display(Name = "Lettera")]
         [StringLength(5)]
-        public string NLettera { get; set; }
+        public string NLettera { get; set; } =
+            string.Empty; //https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/885
 
         [StringLength(5)] public string NNumero { get; set; }
 
@@ -177,6 +178,16 @@ namespace PortaleRegione.DTO.Domain
 
         public string Tags { get; set; } = "[]";
 
+        public EmendamentoExtraLightDto toLight()
+        {
+            return new EmendamentoExtraLightDto
+            {
+                UIDEM = UIDEM,
+                N_EM = N_EM,
+                OrdineVotazione = OrdineVotazione
+            };
+        }
+
         #region Campi consumabili lato client
 
         public bool Depositabile { get; set; } = false;
@@ -203,15 +214,5 @@ namespace PortaleRegione.DTO.Domain
         public FirmeDto Firma_ufficio { get; set; }
 
         #endregion
-
-        public EmendamentoExtraLightDto toLight()
-        {
-            return new EmendamentoExtraLightDto
-            {
-                UIDEM = UIDEM,
-                N_EM = N_EM,
-                OrdineVotazione = OrdineVotazione
-            };
-        }
     }
 }

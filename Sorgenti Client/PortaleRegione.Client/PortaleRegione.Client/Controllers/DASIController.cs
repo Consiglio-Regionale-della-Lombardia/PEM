@@ -308,12 +308,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -514,12 +513,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.All)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -563,12 +561,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -612,12 +609,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -661,12 +657,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -710,12 +705,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -759,12 +753,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -808,12 +801,11 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };

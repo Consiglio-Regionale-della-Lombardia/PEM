@@ -37,6 +37,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office.Word;
 
 namespace PortaleRegione.BAL
 {
@@ -1105,8 +1106,8 @@ namespace PortaleRegione.BAL
                     }
 
                     em.UIDPersonaDeposito = persona.UID_persona;
-                    em.OrdinePresentazione = em.OrdineVotazione =
-                        await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
+                    var ordine = await _unitOfWork.Emendamenti.GetOrdinePresentazione(emDto.UIDAtto) + 1;
+                    em.OrdinePresentazione = em.OrdineVotazione = ordine;
                     em.Timestamp = DateTime.Now;
                     em.DataDeposito = BALHelper.EncryptString(em.Timestamp.Value.ToString("dd/MM/yyyy HH:mm:ss"),
                         AppSettingsConfiguration.masterKey);
@@ -1140,6 +1141,8 @@ namespace PortaleRegione.BAL
                     await _unitOfWork.CompleteAsync();
 
                     counterDepositi++;
+
+                    await Task.Delay(1000); // #884. no sleep di 1 secondo può migliorare la gestione delle risorse e prevenire possibili problemi di sovraccarico del database
                 }
 
                 return results;
@@ -1189,29 +1192,9 @@ namespace PortaleRegione.BAL
             }
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model,
-            PersonaDto personaDto)
+        public async Task<Dictionary<Guid, string>> ModificaStatoEmendamento(ModificaStatoModel model)
         {
             var results = new Dictionary<Guid, string>();
-
-            model.Lista ??= new List<Guid>();
-            switch (model.All)
-            {
-                case true when !model.Lista.Any():
-                    model.Lista =
-                        (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
-                        .Select(em => em.UIDEM).ToList();
-                    break;
-                case true when model.Lista.Any():
-                    {
-                        var emendamentiInDb =
-                            (await ScaricaEmendamenti(model.AttoUId, model.Ordine, model.Mode, personaDto))
-                            .Select(em => em.UIDEM).ToList();
-                        emendamentiInDb.RemoveAll(em => model.Lista.Contains(em));
-                        model.Lista = emendamentiInDb;
-                        break;
-                    }
-            }
 
             var firstEM = await _unitOfWork.Emendamenti.Get(model.Lista.First());
             var atto = await _unitOfWork.Atti.Get(firstEM.UIDAtto);
@@ -1891,24 +1874,17 @@ namespace PortaleRegione.BAL
                 foreach (var guid in em_in_db)
                     try
                     {
-                        var em = await GetEM(guid);
+                        var em = await GetEM_DTO(guid);
                         EM subem = null;
                         if (em.Rif_UIDEM.HasValue)
                         {
-                            subem = await GetEM(em.Rif_UIDEM.Value);
+                            subem = await GetEM_DTO(em.Rif_UIDEM.Value);
                         }
 
-                        var dto = Mapper.Map<EM, EmendamentiDto>(em);
-                        dto.N_EM = GetNomeEM(dto,
-                            em.Rif_UIDEM.HasValue
-                                ? Mapper.Map<EM, EmendamentiDto>(subem)
-                                : null);
-                        if (!string.IsNullOrEmpty(dto.DataDeposito))
-                            dto.DataDeposito = BALHelper.Decrypt(dto.DataDeposito);
-                        dto.PersonaProponente =
+                        em.PersonaProponente =
                             Users.First(p => p.UID_persona == em.UIDPersonaProponente);
-                        dto.gruppi_politici = Groups.First(i => i.id_gruppo == em.id_gruppo);
-                        result.Add(dto);
+                        em.gruppi_politici = Groups.First(i => i.id_gruppo == em.id_gruppo);
+                        result.Add(em);
                     }
                     catch (Exception e)
                     {

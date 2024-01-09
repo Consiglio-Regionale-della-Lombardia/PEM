@@ -1352,15 +1352,8 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                     //Ricava tutti gli ODG iscritti in seduta
-                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                    var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
                         TipoAttoEnum.ODG, 0);
-                    //Ricava tutti gli ODG proposti in seduta
-                    var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
-                        TipoAttoEnum.ODG, 0);
-
-                    var atti = new List<ATTI_DASI>();
-                    atti.AddRange(odg_in_seduta);
-                    atti.AddRange(odg_proposte);
 
                     //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
                     var my_atti = atti.Where(a => a.UIDPersonaProponente == attoDto.UIDPersonaProponente
@@ -1383,9 +1376,16 @@ namespace PortaleRegione.API.Controllers
                     }
                     else
                     {
+                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/886
+                        var capogruppo = await _unitOfWork.Gruppi.GetCapoGruppo(atto.id_gruppo);
+                        var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
+                        if (capogruppo != null)
+                            if (capogruppo.id_persona == proponente.id_persona)
+                            {
+                                proponente.IsCapoGruppo = true;
+                            }
                         var dataOdierna = DateTime.Now;
-                        if ((persona.IsCapoGruppo || (persona.IsResponsabileSegreteriaPolitica &&
-                                                      persona.Gruppo.id_gruppo == atto.id_gruppo))
+                        if (proponente.IsCapoGruppo
                             && seduta.Data_seduta.Day == dataOdierna.Day
                             && seduta.Data_seduta.Month == dataOdierna.Month
                             && seduta.Data_seduta.Year == dataOdierna.Year)

@@ -188,7 +188,7 @@ namespace PortaleRegione.API.Controllers
                 return Ok(
                     new BaseResponse<EmendamentiDto>(
                         model.page,
-                        100,
+                        model.size,
                         await _emendamentiLogic.GetEmendamenti(model),
                         null,
                         countEM)

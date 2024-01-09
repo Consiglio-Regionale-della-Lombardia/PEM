@@ -60,6 +60,7 @@ namespace PortaleRegione.Contracts
 
         Task<bool> CheckProgressivo(Guid attoUId, string encrypt_progressivo,
             CounterEmendamentiEnum counter_emendamenti);
+        Task<bool> CheckOrdinePresentazione(Guid attoUId, int ordine);
 
         Task ORDINA_EM_TRATTAZIONE(Guid attoUId);
         Task UP_EM_TRATTAZIONE(Guid emendamentoUId);

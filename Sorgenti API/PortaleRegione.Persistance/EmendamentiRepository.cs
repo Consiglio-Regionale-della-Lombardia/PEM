@@ -428,8 +428,8 @@ namespace PortaleRegione.Persistance
             var query = PRContext
                 .EM
                 .SqlQuery(model.Query)
-                .Skip((model.page - 1) * 100)
-                .Take(100);
+                .Skip((model.page - 1) * model.size)
+                .Take(model.size);
 
             return query.ToList();
         }
@@ -931,6 +931,14 @@ namespace PortaleRegione.Persistance
                 default:
                     throw new ArgumentOutOfRangeException(nameof(counter_emendamenti), counter_emendamenti, null);
             }
+        }
+
+        public async Task<bool> CheckOrdinePresentazione(Guid attoUId, int ordine)
+        {
+            var res = await PRContext
+                .EM
+                .AnyAsync(e => e.UIDAtto == attoUId && e.OrdinePresentazione == ordine);
+            return !res;
         }
 
         public async Task ORDINA_EM_TRATTAZIONE(Guid attoUId)

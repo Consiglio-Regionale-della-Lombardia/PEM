@@ -179,7 +179,8 @@ namespace PortaleRegione.Gateway
             var body = JsonConvert.SerializeObject(new ByQueryModel
             {
                 Query = queryEm,
-                page = page
+                page = page,
+                size = size
             });
             var lst = JsonConvert.DeserializeObject<BaseResponse<EmendamentiDto>>(await Post(requestUrl, body, _token));
             return lst;

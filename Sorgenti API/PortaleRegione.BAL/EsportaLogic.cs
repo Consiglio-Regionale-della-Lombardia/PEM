@@ -282,19 +282,17 @@ namespace PortaleRegione.BAL
                 using (var package = new ExcelPackage())
                 {
                     var emList = await _logicEm.ScaricaEmendamenti(model, persona);
+                    var emGroup = emList.Where(em => !em.Rif_UIDEM.HasValue).OrderBy(em=>em.OrdinePresentazione);
+                    var subemGroup = emList.Where(em => em.Rif_UIDEM.HasValue).OrderBy(em=>em.OrdinePresentazione);
+                    var groupProgressivo = new List<EmendamentiDto>();
+                    groupProgressivo.AddRange(emGroup);
+                    groupProgressivo.AddRange(subemGroup);
 
                     await NewSheet(package, nameof(ReportType.UOLA), model.Atto.UIDAtto, ReportType.UOLA, emList
-                        .OrderBy(em => em.OrdineVotazione)
-                        .ThenBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.IDStato));
+                        .OrderBy(em => em.OrdineVotazione));
                     await NewSheet(package, nameof(ReportType.PCR), model.Atto.UIDAtto, ReportType.PCR, emList
-                        .OrderBy(em => em.OrdineVotazione)
-                        .ThenBy(em => em.Rif_UIDEM)
-                        .ThenBy(em => em.IDStato));
-                    await NewSheet(package, nameof(ReportType.PROGRESSIVO), model.Atto.UIDAtto, ReportType.PROGRESSIVO,
-                        emList
-                            .OrderBy(em => em.Rif_UIDEM)
-                            .ThenBy(em => em.OrdinePresentazione));
+                        .OrderBy(em => em.OrdineVotazione));
+                    await NewSheet(package, nameof(ReportType.PROGRESSIVO), model.Atto.UIDAtto, ReportType.PROGRESSIVO, groupProgressivo);
 
                     // Imposta il percorso della cartella temporanea sul server
                     var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");

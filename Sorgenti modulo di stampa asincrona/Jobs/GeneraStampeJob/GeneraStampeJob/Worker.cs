@@ -1,16 +1,17 @@
-﻿using PortaleRegione.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using PortaleRegione.Common;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.Gateway;
 using PortaleRegione.GestioneStampe;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace GeneraStampeJob
 {
@@ -21,6 +22,8 @@ namespace GeneraStampeJob
         private readonly PdfStamper_IronPDF _stamper;
         private readonly ApiGateway apiGateway;
         private StampaDto _stampa;
+
+        private int counter;
 
         public Worker(LoginResponse auth, ref ThreadWorkerModel model)
         {
@@ -60,13 +63,13 @@ namespace GeneraStampeJob
                     try
                     {
                         await BaseGateway.SendMail(new MailModel
-                        {
-                            DA = _model.EmailFrom,
-                            A = utenteRichiedente.email,
-                            OGGETTO = "Errore generazione stampa",
-                            MESSAGGIO =
+                            {
+                                DA = _model.EmailFrom,
+                                A = utenteRichiedente.email,
+                                OGGETTO = "Errore generazione stampa",
+                                MESSAGGIO =
                                     $"ID stampa: [{_stampa.UIDStampa}], per l'atto: [{_stampa.UIDAtto}]. Motivo: [{_stampa.MessaggioErrore}]"
-                        },
+                            },
                             _auth.jwt);
                     }
                     catch (Exception e)
@@ -97,12 +100,12 @@ namespace GeneraStampeJob
                     try
                     {
                         await BaseGateway.SendMail(new MailModel
-                        {
-                            DA = _model.EmailFrom,
-                            A = utenteRichiedente.email,
-                            OGGETTO = "Errore generazione fascicolo",
-                            MESSAGGIO = ex.Message
-                        },
+                            {
+                                DA = _model.EmailFrom,
+                                A = utenteRichiedente.email,
+                                OGGETTO = "Errore generazione fascicolo",
+                                MESSAGGIO = ex.Message
+                            },
                             _auth.jwt);
                     }
                     catch (Exception exMail)
@@ -166,12 +169,12 @@ namespace GeneraStampeJob
             var bodyMail =
                 $"Gentile {persona.DisplayName},<br>la stampa richiesta sulla piattaforma è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
             var resultInvio = await BaseGateway.SendMail(new MailModel
-            {
-                DA = _model.EmailFrom,
-                A = persona.email,
-                OGGETTO = "Link download fascicolo",
-                MESSAGGIO = bodyMail
-            },
+                {
+                    DA = _model.EmailFrom,
+                    A = persona.email,
+                    OGGETTO = "Link download fascicolo",
+                    MESSAGGIO = bodyMail
+                },
                 _auth.jwt);
             if (resultInvio)
                 await apiGateway.Stampe.JobSetInvioStampa(_stampa);
@@ -308,11 +311,12 @@ namespace GeneraStampeJob
         {
             try
             {
-                var docs = new List<byte[]>();
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
                 if (_stampa.Da > 0 && _stampa.A > 0)
                     listaEMendamenti = listaEMendamenti.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
 
+                var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                var FilePathTarget = Path.Combine(path, nameFileTarget);
                 var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
                 {
                     Atto = atto,
@@ -323,22 +327,14 @@ namespace GeneraStampeJob
                 });
 
                 var cover = await _stamper.CreaPDFInMemory(bodyCopertina);
-                docs.Add(cover);
-
+                _stamper.MergedPDF(FilePathTarget, cover);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "Copertina generata");
+
                 var listaPdfEmendamentiGenerati =
                     await GeneraPDFEmendamenti(listaEMendamenti, path);
 
-                docs.AddRange(listaPdfEmendamentiGenerati.Where(item => item.Value.Content != null)
-                    .Select(i => (byte[])i.Value.Content));
+                _stamper.MergedPDFWithRetry(FilePathTarget, listaPdfEmendamentiGenerati.Select(p => p.Value.Path).ToList());
 
-                var countNonGenerati = listaPdfEmendamentiGenerati.Count(item => item.Value.Content == null);
-                await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"PDF NON GENERATI [{countNonGenerati}]");
-
-                //Funzione che fascicola i PDF creati prima
-                var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                var FilePathTarget = Path.Combine(path, nameFileTarget);
-                _stamper.MergedPDF(FilePathTarget, docs);
                 await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, "FASCICOLAZIONE COMPLETATA");
                 var _pathStampe = Path.Combine(_model.CartellaLavoroStampe, nameFileTarget);
                 //Log.Debug($"[{_stampa.UIDStampa}] Percorso stampe {_pathStampe}");
@@ -354,12 +350,12 @@ namespace GeneraStampeJob
                         var bodyMail =
                             $"Gentile {utenteRichiedente.DisplayName},<br>la stampa richiesta sulla piattaforma PEM è disponibile al seguente link:<br><a href='{URLDownload}' target='_blank'>{URLDownload}</a>";
                         var resultInvio = await BaseGateway.SendMail(new MailModel
-                        {
-                            DA = _model.EmailFrom,
-                            A = utenteRichiedente.email,
-                            OGGETTO = "Link download fascicolo",
-                            MESSAGGIO = bodyMail
-                        },
+                            {
+                                DA = _model.EmailFrom,
+                                A = utenteRichiedente.email,
+                                OGGETTO = "Link download fascicolo",
+                                MESSAGGIO = bodyMail
+                            },
                             _auth.jwt);
                         if (resultInvio)
                             await apiGateway.Stampe.JobSetInvioStampa(_stampa);
@@ -380,6 +376,14 @@ namespace GeneraStampeJob
                             atto.LinkFascicoloVotazione = URLDownload;
                         await apiGateway.Atti.ModificaFiles(atto);
                     }
+                }
+
+                try
+                {
+                    if (Directory.Exists(path)) Directory.Delete(path, true);
+                }
+                catch
+                {
                 }
             }
             catch (Exception e)
@@ -412,7 +416,15 @@ namespace GeneraStampeJob
 
             var destinazioneDeposito = Path.Combine(pathRepository,
                 Path.GetFileName(listaPdfEmendamentiGenerati.First().Value.Path));
-            File.WriteAllBytes(destinazioneDeposito, (byte[])listaPdfEmendamentiGenerati.First().Value.Content);
+            if (listaPdfEmendamentiGenerati.First().Value.Content == null)
+            {
+                File.Copy(listaPdfEmendamentiGenerati.First().Value.Path, destinazioneDeposito, true);
+            }
+            else
+            {
+                File.WriteAllBytes(destinazioneDeposito, (byte[])listaPdfEmendamentiGenerati.First().Value.Content);
+            }
+
             //SpostaFascicolo(listaPdfEmendamentiGenerati.First().Value.Path, destinazioneDeposito);
             _stampa.PathFile = Path.Combine($"{dirSeduta}/{dirPDL}",
                 Path.GetFileName(listaPdfEmendamentiGenerati.First().Value.Path));
@@ -420,7 +432,7 @@ namespace GeneraStampeJob
             await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
 
             var bodyMail = "E' stato depositato l'EM in oggetto";
-
+            
             if (atto.SEDUTE.Data_effettiva_inizio.HasValue)
             {
                 var ruoloSegreteriaAssempblea =
@@ -433,14 +445,14 @@ namespace GeneraStampeJob
                     try
                     {
                         await BaseGateway.SendMail(new MailModel
-                        {
-                            DA = _model.EmailFrom,
-                            A = $"{ruoloSegreteriaAssempblea.ADGroup}@consiglio.regione.lombardia.it",
-                            OGGETTO =
+                            {
+                                DA = _model.EmailFrom,
+                                A = $"{ruoloSegreteriaAssempblea.ADGroup}@consiglio.regione.lombardia.it",
+                                OGGETTO =
                                     $"[TRATTAZIONE AULA] {Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
-                            MESSAGGIO = bodyMail,
-                            pathAttachment = destinazioneDeposito
-                        },
+                                MESSAGGIO = bodyMail,
+                                pathAttachment = destinazioneDeposito
+                            },
                             _auth.jwt);
                     }
                     catch (Exception e)
@@ -493,15 +505,15 @@ namespace GeneraStampeJob
             try
             {
                 var resultInvio = await BaseGateway.SendMail(new MailModel
-                {
-                    DA = _model.EmailFrom,
-                    A = email_destinatari,
-                    OGGETTO =
+                    {
+                        DA = _model.EmailFrom,
+                        A = email_destinatari,
+                        OGGETTO =
                             $"{Utility.GetText_Tipo(atto.IDTipoAtto)} {atto.NAtto}: Depositato {listaEMendamenti.First().N_EM}",
-                    MESSAGGIO = bodyMail,
-                    pathAttachment = destinazioneDeposito,
-                    IsDeposito = true
-                },
+                        MESSAGGIO = bodyMail,
+                        pathAttachment = destinazioneDeposito,
+                        IsDeposito = true
+                    },
                     _auth.jwt);
 
                 if (resultInvio)
@@ -528,7 +540,7 @@ namespace GeneraStampeJob
                 };
             }
 
-            var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, 1);
+            var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, 1, 1000);
             var currentPaging = resultEmendamenti.Paging;
             await Scarica_Log(currentPaging);
             var has_next = currentPaging.Has_Next;
@@ -536,7 +548,7 @@ namespace GeneraStampeJob
             while (has_next)
             {
                 resultEmendamenti =
-                    await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, resultEmendamenti.Paging.Page + 1);
+                    await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, resultEmendamenti.Paging.Page + 1, 1000);
                 await Scarica_Log(currentPaging, resultEmendamenti.Paging);
                 foreach (var item in resultEmendamenti.Results)
                 {
@@ -577,46 +589,63 @@ namespace GeneraStampeJob
         private async Task<Dictionary<Guid, BodyModel>> GeneraPDFEmendamenti(ICollection<EmendamentiDto> lista,
             string _pathTemp)
         {
-            var counter = 1;
             var listaPercorsi = new Dictionary<Guid, BodyModel>();
             try
             {
                 listaPercorsi = lista.ToDictionary(em => em.UIDEM, em => new BodyModel());
-                foreach (var item in lista)
+                var batchSize = 500;
+                for (var i = 0; i < lista.Count; i += batchSize)
                 {
-                    var bodyPDF = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
-                    var nameFilePDF =
-                        $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
-                    var FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
+                    var batch = lista.Skip(i).Take(batchSize).ToList();
+                    foreach (var item in batch)
+                    {
+                        try
+                        {
+                            counter++;
+                            var dettagliCreaPDF = new BodyModel
+                            {
+                                EM = item
+                            };
 
-                    var dettagliCreaPDF = new BodyModel
-                    {
-                        Path = FilePathComplete,
-                        Body = bodyPDF,
-                        EM = item
-                    };
-                    var listAttachments = new List<string>();
-                    if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
-                    {
-                        var complete_path = Path.Combine(
-                            _model.PercorsoCompatibilitaDocumenti,
-                            Path.GetFileName(item.PATH_AllegatoGenerico));
-                        listAttachments.Add(complete_path);
+                            var FilePathComplete = string.Empty;
+                            var nameFilePDF =
+                                $"{item.N_EM.Replace(" ", "_").Replace("all'", "")}_{item.UIDEM}_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
+                            FilePathComplete = Path.Combine(_pathTemp, nameFilePDF);
+                            dettagliCreaPDF.Body = await apiGateway.Emendamento.GetBody(item.UIDEM, TemplateTypeEnum.PDF);
+                            dettagliCreaPDF.Path = FilePathComplete;
+                            var listAttachments = new List<string>();
+                            if (!string.IsNullOrEmpty(item.PATH_AllegatoGenerico))
+                            {
+                                var complete_path = Path.Combine(
+                                    _model.PercorsoCompatibilitaDocumenti,
+                                    Path.GetFileName(item.PATH_AllegatoGenerico));
+                                listAttachments.Add(complete_path);
+                            }
+
+                            if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
+                            {
+                                var complete_path = Path.Combine(
+                                    _model.PercorsoCompatibilitaDocumenti,
+                                    Path.GetFileName(item.PATH_AllegatoTecnico));
+                                listAttachments.Add(complete_path);
+                            }
+
+                            dettagliCreaPDF.Attachments = listAttachments;
+
+                            await _stamper.CreaPDFAsync(dettagliCreaPDF.Path, dettagliCreaPDF.Body, item.N_EM,
+                                listAttachments);
+
+                            listaPercorsi[item.UIDEM] = dettagliCreaPDF;
+
+                            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa,
+                                $"Progresso {counter}/{lista.Count}");
+                        }
+                        catch (Exception e)
+                        {
+                            await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Errore: {item.N_EM}");
+                            throw;
+                        }
                     }
-
-                    if (!string.IsNullOrEmpty(item.PATH_AllegatoTecnico))
-                    {
-                        var complete_path = Path.Combine(
-                            _model.PercorsoCompatibilitaDocumenti,
-                            Path.GetFileName(item.PATH_AllegatoTecnico));
-                        listAttachments.Add(complete_path);
-                    }
-
-                    var pdf = await _stamper.CreaPDFInMemory(dettagliCreaPDF.Body, item.N_EM, listAttachments);
-                    dettagliCreaPDF.Content = pdf;
-                    listaPercorsi[item.UIDEM] = dettagliCreaPDF;
-                    await apiGateway.Stampe.AddInfo(_stampa.UIDStampa, $"Progresso {counter}/{lista.Count}");
-                    counter++;
                 }
             }
             catch (Exception ex)

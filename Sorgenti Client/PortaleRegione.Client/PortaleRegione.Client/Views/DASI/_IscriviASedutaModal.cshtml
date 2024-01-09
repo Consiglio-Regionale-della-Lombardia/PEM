@@ -80,14 +80,7 @@
         var text = "";
         var listaAtti = getListaAtti();
         var selezionaTutti = getSelezionaTutti_DASI();
-        var text_counter = "";
-        if (selezionaTutti && listaAtti.length == 0) {
-            text_counter = $("#hdTotaleDocumenti").val();
-        } else if (selezionaTutti && listaAtti.length > 0) {
-            text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
-        } else {
-            text_counter = listaAtti.length;
-        }
+		var text_counter = GetCounterAlert(listaAtti, selezionaTutti);
         text = "Iscrizione di " + text_counter + " atti in una delle seguenti sedute:";
 
         $('#txtIscriviSeduta').html(text);

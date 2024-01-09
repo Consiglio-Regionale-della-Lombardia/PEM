@@ -43,6 +43,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Controller per visualizzare i dati degli emendamenti contenuti in un atto
         /// </summary>
         /// <param name="id">Guid atto</param>
+        /// <param name="ordine"></param>
+        /// <param name="view"></param>
         /// <param name="page">Pagina corrente</param>
         /// <param name="size">Paginazione</param>
         /// <returns></returns>
@@ -324,21 +326,26 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
+                Session["RiepilogoEmendamenti"] = null;
+                var uidEm = model.UIDEM;
                 if (model.UIDEM == Guid.Empty)
                 {
-                    await apiGateway.Emendamento.Salva(model);
-                    Session["RiepilogoEmendamenti"] = null;
-                    return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
-                    {
-                        id = model.UIDAtto
-                    }), JsonRequestBehavior.AllowGet);
+                    var newEm = await apiGateway.Emendamento.Salva(model);
+                    uidEm = newEm.UIDEM;
+                    //return Json(Url.Action("RiepilogoEmendamenti", "Emendamenti", new
+                    //{
+                    //    id = model.UIDAtto
+                    //}), JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    await apiGateway.Emendamento.Modifica(model);
                 }
 
-                await apiGateway.Emendamento.Modifica(model);
-                Session["RiepilogoEmendamenti"] = null;
+
                 return Json(Url.Action("ViewEmendamento", "Emendamenti", new
                 {
-                    id = model.UIDEM
+                    id = uidEm
                 }), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -419,6 +426,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Esegui azione su emendamento selezionato
         /// </summary>
         /// <param name="id">Guid emendamento</param>
+        /// <param name="azione"></param>
+        /// <param name="pin"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("azioni")]
@@ -481,9 +490,9 @@ namespace PortaleRegione.Client.Controllers
         }
 
         /// <summary>
-        ///     Esegui azione su emendamento selezionato
+        ///     Esegui azioni massive
         /// </summary>
-        /// <param name="id">Guid emendamento</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("azioni-massive")]
@@ -495,19 +504,19 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
-                        page = 1,
-                        size = limit,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
                         listaView = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
-                            modelInCache.Mode, modelInCache.Ordinamento, 1, limit);
+                            modelInCache.Mode, modelInCache.Ordinamento, modelInCache.Data.Paging.Page, modelInCache.Data.Paging.Limit);
                     else
                         listaView = await apiGateway.Emendamento.Get(request);
                     var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
@@ -666,6 +675,8 @@ namespace PortaleRegione.Client.Controllers
         ///     Restituisce i dati dei firmatari per un emendamento
         /// </summary>
         /// <param name="id">Guid emendamento</param>
+        /// <param name="tipo"></param>
+        /// <param name="tag"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("firmatari")]
@@ -682,6 +693,7 @@ namespace PortaleRegione.Client.Controllers
         ///     Restituisce i dati degli inviti per un emendamento
         /// </summary>
         /// <param name="id">Guid emendamento</param>
+        /// <param name="type"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("preview")]
@@ -779,13 +791,14 @@ namespace PortaleRegione.Client.Controllers
                 if (model.All)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
-                        page = 1,
-                        size = limit,
+                        id = modelInCache.Atto.UIDAtto,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     listaView = await apiGateway.Emendamento.Get(request);
@@ -804,7 +817,6 @@ namespace PortaleRegione.Client.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
@@ -824,13 +836,14 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
-                        page = 1,
-                        size = limit,
+                        id = modelInCache.Atto.UIDAtto,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     listaView = await apiGateway.Emendamento.Get(request);
@@ -886,13 +899,14 @@ namespace PortaleRegione.Client.Controllers
                 if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
-                    var limit = Convert.ToInt32(AppSettingsConfiguration.LimiteDocumentiDaProcessare);
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
-                        page = 1,
-                        size = limit,
+                        id = modelInCache.Atto.UIDAtto,
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
+                        ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
                     listaView = await apiGateway.Emendamento.Get(request);
@@ -950,7 +964,7 @@ namespace PortaleRegione.Client.Controllers
         /// <summary>
         ///     Controller per comunicare l'effettiva conclusione dell'operazione di ordinamento emendamenti nell'atto
         /// </summary>
-        /// <param name="id">Guid atto</param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [Authorize(Roles = RuoliExt.Amministratore_PEM + "," + RuoliExt.Segreteria_Assemblea)]
         [HttpPost]

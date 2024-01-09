@@ -104,7 +104,7 @@ namespace PortaleRegione.Gateway
 
         public async Task<RuoliDto> GetRuolo(RuoliIntEnum ruolo)
         {
-            var requestUrl = $"{apiUrl}/{ApiRoutes.Ruoli.GetRuolo.Replace("{id}", ruolo.ToString())}";
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Ruoli.GetRuolo.Replace("{id}", ((int)ruolo).ToString())}"; // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/888
             var lst = JsonConvert.DeserializeObject<RuoliDto>(await Get(requestUrl, _token));
             return lst;
         }

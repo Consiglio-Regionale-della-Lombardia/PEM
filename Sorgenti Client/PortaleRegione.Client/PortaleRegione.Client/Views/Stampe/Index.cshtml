@@ -252,8 +252,7 @@
 
                 if (parseInt(seconds) - 1 == 0) {
                     clearInterval(interval);
-                    var redirectUrl = url + "?page=" + currentPage + "&size=" + currentSize;
-                    go(redirectUrl);
+                    location.reload()
                 }
             },
             1000);

@@ -399,9 +399,10 @@ function DeselectALLDASI() {
 }
 
 function AbilitaComandiMassivi(uidEM) {
+    var selezionaTutti = getSelezionaTutti();
     if (uidEM) {
         var chk = $("#chk_EM_" + uidEM);
-        var selezionaTutti = getSelezionaTutti();
+        
         if (chk[0].checked) {
             if (selezionaTutti) {
                 removeEM(uidEM); //listaEsclusiva
@@ -419,9 +420,15 @@ function AbilitaComandiMassivi(uidEM) {
 
     var lchk = getListaEmendamenti();
 
-    if (lchk.length > 0 || $("#checkAll")[0].checked) {
+    if (lchk.length > 0 || $("#checkAll")[0].checked || selezionaTutti) {
+        //btnComandiMassiviAdmin_Button
+               
         $("#btnComandiMassiviAdmin").show();
         $("#btnComandiMassivi").show();
+        $('.fixed-action-btn').floatingActionButton({
+            hoverEnabled: false
+          });
+        //$('.fixed-action-btn').floatingActionButton(); // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/887
         $("#btnNuovoEM").hide();
     } else {
         $("#btnComandiMassiviAdmin").hide();
@@ -1237,18 +1244,36 @@ function CambioStatoDASI(uidatto, stato) {
     });
 }
 
+function GetCounterAlert(listaEM, selezionaTutti) {
+    var text_counter = "";
+    var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
+    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+
+    if (selezionaTutti && listaEM.length == 0) {
+        if (total_entities < size) {
+            text_counter = total_entities;
+        } else {
+            text_counter = size;
+        }
+    } else if (selezionaTutti && listaEM.length > 0) {
+        if (total_entities < size) {
+            text_counter = total_entities;
+        } else {
+            text_counter = size;
+        }
+        text_counter = text_counter - listaEM.length;
+    } else {
+        text_counter = listaEM.length;
+    }
+
+    return text_counter;
+}
+
 function CambioStatoMassivo(stato, descr) {
     var text = "";
     var listaEM = getListaEmendamenti();
     var selezionaTutti = getSelezionaTutti();
-    var text_counter = "";
-    if (selezionaTutti && listaEM.length == 0) {
-        text_counter = $("#hdTotaleDocumenti").val();
-    } else if (selezionaTutti && listaEM.length > 0) {
-        text_counter = $("#hdTotaleDocumenti").val() - listaEM.length;
-    } else {
-        text_counter = listaEM.length;
-    }
+    var text_counter = GetCounterAlert(listaEM, selezionaTutti);
     text = "Cambia stato di " + text_counter + " emendamenti in " + descr;
 
     swal(text,
@@ -1264,7 +1289,7 @@ function CambioStatoMassivo(stato, descr) {
             obj.Lista = listaEM;
             obj.All = selezionaTutti;
             obj.AttoUId = $("#hdUIdAtto").val();
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/emendamenti/modifica-stato",
                 type: "POST",
@@ -1272,9 +1297,16 @@ function CambioStatoMassivo(stato, descr) {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+                waiting(false);
+                if (data.message) {
+                    console.log("error", data.message);
+                    ErrorAlert(data.message);
+                    return;
+                }
                 DeselectALLEM();
                 location.reload();
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -1285,14 +1317,7 @@ function CambioStatoMassivoDASI(stato, descr) {
     var text = "";
     var listaAtti = getListaAtti();
     var selezionaTutti = getSelezionaTutti_DASI();
-    var text_counter = "";
-    if (selezionaTutti && listaAtti.length == 0) {
-        text_counter = $("#hdTotaleDocumenti").val();
-    } else if (selezionaTutti && listaAtti.length > 0) {
-        text_counter = $("#hdTotaleDocumenti").val() - listaAtti.length;
-    } else {
-        text_counter = listaAtti.length;
-    }
+    var text_counter = GetCounterAlert(listaAtti, selezionaTutti);
     text = "Cambia stato di " + text_counter + " atti in " + descr;
 
     swal(text,
@@ -1307,7 +1332,7 @@ function CambioStatoMassivoDASI(stato, descr) {
             obj.Stato = stato;
             obj.Lista = listaAtti;
             obj.All = selezionaTutti;
-
+            waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/modifica-stato",
                 type: "POST",
@@ -1315,9 +1340,11 @@ function CambioStatoMassivoDASI(stato, descr) {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function(data) {
+                waiting(false);
                 DeselectALLEM();
                 location.reload();
             }).fail(function(err) {
+                waiting(false);
                 console.log("error", err);
                 Error(err);
             });
@@ -1915,6 +1942,15 @@ function SuccessAlert(message, url) {
         if (value == null || value == "")
             return;
         go(url);
+    });
+}
+
+function ErrorAlert(message) {
+    swal({
+        title: "Errore",
+        text: message,
+        icon: "error",
+        button: "Ok"
     });
 }
 

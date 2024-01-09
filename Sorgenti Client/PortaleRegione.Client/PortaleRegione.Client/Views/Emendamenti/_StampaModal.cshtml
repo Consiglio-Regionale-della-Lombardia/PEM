@@ -37,11 +37,10 @@
 <script>
     function ConfirmStampa() {
         $("#emStampaDisplayName").empty();
-
-        var documentiTotali = $("#hdTotaleDocumenti").val();
+        
         var selezionaTutti = getSelezionaTutti();
         var listaEM = getListaEmendamenti();
-        var totaleDoc = selezionaTutti || listaEM.length == 0 ? documentiTotali - listaEM.length : listaEM.length;
+		var totaleDoc = GetCounterAlert(listaEM, selezionaTutti);
 
         if (totaleDoc <= 0) {
             swal({
