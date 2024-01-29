@@ -137,7 +137,7 @@ namespace PortaleRegione.Client.Controllers
         public async Task<ActionResult> RiepilogoDASI_BySedutaJSON(Guid id, int tipo = (int)TipoAttoEnum.TUTTI)
         {
             var apiGateway = new ApiGateway(Token);
-            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 5);
+            var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 100);
             var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto })
                 .ToList();
             return Json(items, JsonRequestBehavior.AllowGet);

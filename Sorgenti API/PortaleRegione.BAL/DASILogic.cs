@@ -2181,7 +2181,7 @@ namespace PortaleRegione.API.Controllers
                         DA = persona.email,
                         A = AppSettingsConfiguration.EmailInvioDASI,
                         OGGETTO =
-                            $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " FUORI TERMINE" : "")}",
+                            $"[RICHIESTA ISCRIZIONE] - {attoDto.Display} - {(out_of_date ? " FUORI TERMINE" : "")}",
                         MESSAGGIO =
                             $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}. {GetBodyFooterMail()}"
                     };
