@@ -22,8 +22,12 @@
     <script>
         $(document).ready(async function() {
             var atti = await GetAttiSeduteAttive();
-            console.log(atti)
             if (atti.length > 0) {
+                
+				var nuovoOggetto = { valore: "", testo_esempio: "Selezionare argomento di riferimento" };
+				// Aggiungi l'oggetto alla posizione 0 della lista
+				atti.unshift(nuovoOggetto);
+
                 var select = $("#Atto_ODG");
                 select.empty();
                 $('#pnlODGVuoto').hide();
@@ -47,12 +51,17 @@
 								template = "<option></option>";
 							}
                         }
-                        // #665 - matcat - Selezione PDL da abbinare all'odg con oggetto
-                        var body = item.NAtto + " - " + item.Oggetto;
-                        if (item.BloccoODG) {
-							body = "[BLOCCO ODG ATTIVO] " + body;
-                        }
-                        select.append($(template).val(item.UIDAtto).html(body));
+                        
+						if (item.testo_esempio){
+							select.append($(template).val(item.valore).html(item.testo_esempio));
+                        }else{
+							// #665 - matcat - Selezione PDL da abbinare all'odg con oggetto
+							var body = item.NAtto + " - " + item.Oggetto;
+							if (item.BloccoODG) {
+								body = "[BLOCCO ODG ATTIVO] " + body;
+							}
+							select.append($(template).val(item.UIDAtto).html(body));
+                        }                        
                     });
 
                 var elems = document.querySelectorAll("#Atto_ODG");

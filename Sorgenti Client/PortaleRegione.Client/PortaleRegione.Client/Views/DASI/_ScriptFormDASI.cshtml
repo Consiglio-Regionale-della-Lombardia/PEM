@@ -96,6 +96,10 @@
         form_data.append("Richiesta", editor_richiesta.html());
         form_data.append("Tipo", $("#Atto_Tipo").val());
         if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
+			if ($('select[id="Atto_ODG"]').children("option:selected").val() == ""){
+				swal("Seleziona l'argomento di riferimento dell'ODG");
+                return;
+            }
             form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
             form_data.append("Non_Passaggio_In_Esame", $('#Atto_Non_Passaggio_In_Esame').is(":checked"));
         }
@@ -185,6 +189,10 @@
             form_data.append("Richiesta", editor_richiesta.html());
             form_data.append("Tipo", $("#Atto_Tipo").val());
             if ($("#Atto_Tipo").val() == @Html.Raw((int)TipoAttoEnum.ODG)) {
+				if ($('select[id="Atto_ODG"]').children("option:selected").val() == "") {
+					swal("Seleziona l'argomento di riferimento dell'ODG");
+					return;
+				}
                 form_data.append("UID_Atto_ODG", $('select[id="Atto_ODG"]').children("option:selected").val());
                 form_data.append("Non_Passaggio_In_Esame", $('#Atto_Non_Passaggio_In_Esame').is(":checked"));
             }
