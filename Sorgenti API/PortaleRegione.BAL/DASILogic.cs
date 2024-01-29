@@ -1389,9 +1389,7 @@ namespace PortaleRegione.API.Controllers
                             && seduta.Data_seduta <= dataOdierna)
                         {
                             var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
-                                                   && a.Timestamp.Month == dataOdierna.Month
-                                                   && a.Timestamp.Year == dataOdierna.Year
+                                my_atti.Where(a => a.Timestamp >= seduta.Data_seduta
                                                    && a.UID_Atto_ODG ==
                                                    attoPEM
                                                        .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
