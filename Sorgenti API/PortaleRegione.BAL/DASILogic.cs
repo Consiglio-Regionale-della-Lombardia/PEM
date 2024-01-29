@@ -1506,6 +1506,30 @@ namespace PortaleRegione.API.Controllers
 
 
                 counterPresentazioni++;
+
+                try
+                {
+                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/906
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = persona.UID_persona,
+                        CurrentRole = (int)persona.CurrentRole,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = idGuid,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        DASI = true
+                    });
+                    await _unitOfWork.CompleteAsync();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
 
             if (attachList.Any())
