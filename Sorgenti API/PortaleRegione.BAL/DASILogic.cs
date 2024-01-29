@@ -1386,9 +1386,7 @@ namespace PortaleRegione.API.Controllers
                             }
                         var dataOdierna = DateTime.Now;
                         if (proponente.IsCapoGruppo
-                            && seduta.Data_seduta.Day == dataOdierna.Day
-                            && seduta.Data_seduta.Month == dataOdierna.Month
-                            && seduta.Data_seduta.Year == dataOdierna.Year)
+                            && seduta.Data_seduta <= dataOdierna)
                         {
                             var atti_dopo_scadenza =
                                 my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
