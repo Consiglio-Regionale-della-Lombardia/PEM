@@ -9,13 +9,13 @@ namespace PortaleRegione.JobStampeTest
     public class Tests : BaseTest
     {
         [Test]
-        [TestCase("matteo.c", "")]
+        [TestCase("matteo.c", "Opencast88!")]
         public async Task Stampa(string username, string password)
         {
             await Init(username, password);
             try
             {
-                var stampa = await apiGateway.Stampe.Get(new Guid("0a56c761-ecf3-4581-91e8-2875d0a049e1"));
+                var stampa = await apiGateway.Stampe.Get(new Guid("d12543a3-17c8-45e6-86ca-52eb936e2310"));
                 var model = new ThreadWorkerModel
                 {
                     CartellaLavoroStampe = @"D:\Regione Lombardia\Stampe",
@@ -28,7 +28,7 @@ namespace PortaleRegione.JobStampeTest
                     RootRepository = @"D:\Regione Lombardia\Emendamenti",
                     UrlAPI = "http://localhost:52415",
                     UrlCLIENT = "http://localhost:58019",
-                    PDF_LICENSE = ""
+                    PDF_LICENSE = "IRONPDF.DEVTEAM.IRO231017.6714.98141B-AABBF41E63-CUID3XETD2IFM3N-LNILMOQXMDRE-RBQPZQXCIWXT-AUOEGNSNGNJU-SA2YPICMLHAF-CUD4Y4-LFT3WEY5OLGNUA-IRONPDF.DOTNET.LITE.SUB-XOOCEJ.RENEW.SUPPORT.16.OCT.2024"
                 };
 
                 var auth = await apiGateway.Persone.Login(new LoginRequest

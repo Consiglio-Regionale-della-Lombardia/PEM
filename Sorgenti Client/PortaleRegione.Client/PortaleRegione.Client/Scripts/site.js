@@ -1244,26 +1244,26 @@ function CambioStatoDASI(uidatto, stato) {
     });
 }
 
-function GetCounterAlert(listaEM, selezionaTutti) {
+function GetCounterAlert(lista, selezionaTutti) {
     var text_counter = "";
     var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
     var total_entities = parseInt($("#hdTotaleDocumenti").val());
 
-    if (selezionaTutti && listaEM.length == 0) {
+    if (selezionaTutti && lista.length == 0) {
         if (total_entities < size) {
             text_counter = total_entities;
         } else {
             text_counter = size;
         }
-    } else if (selezionaTutti && listaEM.length > 0) {
+    } else if (selezionaTutti && lista.length > 0) {
         if (total_entities < size) {
             text_counter = total_entities;
         } else {
             text_counter = size;
         }
-        text_counter = text_counter - listaEM.length;
+        text_counter = text_counter - lista.length;
     } else {
-        text_counter = listaEM.length;
+        text_counter = lista.length;
     }
 
     return text_counter;

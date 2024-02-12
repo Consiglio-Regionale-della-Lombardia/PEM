@@ -34,13 +34,10 @@
 <script>
     function ConfirmStampa() {
         $("#attiStampaDisplayName").empty();
+        var selezionaTutti = getSelezionaTutti_DASI();
+		var lista = getListaAtti();
 
-        var documentiTotali = $("#hdTotaleDocumenti").val();
-        var selezionaTutti = getSelezionaTutti();
-
-        var lista = getListaAtti();
-
-        var totaleDoc = selezionaTutti || lista.length == 0 ? documentiTotali - lista.length : lista.length;
+		var totaleDoc = GetCounterAlert(lista, selezionaTutti);
         if (totaleDoc <= 0) {
             swal({
                 title: "Errore",

@@ -705,12 +705,14 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
+                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti, proponenti,
+                        atti_da_firmare),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
+                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti, proponenti,
+                        atti_da_firmare),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
@@ -1352,8 +1354,18 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                     //Ricava tutti gli ODG iscritti in seduta
-                    var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
                         TipoAttoEnum.ODG, 0);
+                    //Ricava tutti gli ODG proposti in seduta
+                    var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                        TipoAttoEnum.ODG, 0);
+
+                    var atti = new List<ATTI_DASI>();
+                    atti.AddRange(odg_in_seduta.Where(a => a.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                           && a.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO));
+                    atti.AddRange(odg_proposte);
+
+                    //Ricava tutti gli ODG iscritti in seduta
 
                     //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
                     var my_atti = atti.Where(a => a.UIDPersonaProponente == attoDto.UIDPersonaProponente
@@ -1381,9 +1393,7 @@ namespace PortaleRegione.API.Controllers
                         var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
                         if (capogruppo != null)
                             if (capogruppo.id_persona == proponente.id_persona)
-                            {
                                 proponente.IsCapoGruppo = true;
-                            }
                         var dataOdierna = DateTime.Now;
                         if (proponente.IsCapoGruppo
                             && seduta.Data_seduta <= dataOdierna)
@@ -1536,9 +1546,7 @@ namespace PortaleRegione.API.Controllers
                 var responsabili = await _logicPersona.GetSegreteriaPolitica(id_gruppo, false, true);
                 var destinatari = AppSettingsConfiguration.EmailInvioDASI;
                 if (!responsabili.Any())
-                {
                     destinatari += ";" + responsabili.Select(p => p.email).Aggregate((i, j) => i + ";" + j);
-                }
 
                 var mailModel = new MailModel
                 {

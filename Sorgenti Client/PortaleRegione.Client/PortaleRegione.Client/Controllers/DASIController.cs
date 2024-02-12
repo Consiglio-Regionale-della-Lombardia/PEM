@@ -316,6 +316,10 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
+
+                    if (model.Richiesta_Firma) // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/916
+                        request.param.Add("RequireMySign","true");
+
                     listaAtti = await apiGateway.DASI.Get(request);
                     var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
 

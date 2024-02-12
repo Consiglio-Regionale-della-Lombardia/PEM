@@ -243,7 +243,7 @@ namespace GeneraStampeJob
                 Directory.CreateDirectory(pathRepository);
 
             var destinazioneDeposito = Path.Combine(pathRepository, Path.GetFileName(pdfAtti.First().Value.Path));
-            SpostaFascicolo(pdfAtti.First().Value.Path, destinazioneDeposito);
+            File.WriteAllBytes(destinazioneDeposito, (byte[])pdfAtti.First().Value.Content);
             _stampa.PathFile = Path.Combine($"{dir}", Path.GetFileName(pdfAtti.First().Value.Path));
             _stampa.UIDAtto = dasiDto.UIDAtto;
             await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
