@@ -152,6 +152,7 @@
                 obj.Azione = action;
                 obj.Lista = lista.length > 0 ? lista : [];
 				obj.Tutti = selezionaTutti;
+				obj.Richiesta_Firma = $('#checkAllMy').is(':checked');
 
                 $.ajax({
                     url: baseUrl + "/dasi/azioni-massive",
