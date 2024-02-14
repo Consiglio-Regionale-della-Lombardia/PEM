@@ -299,7 +299,7 @@ else
                                 <i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi">close</i>
                             </span>
                         }
-                        else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int)StatiAttoEnum.PRESENTATO)
+                        else if (!string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta))
                         {
                             textSeduta = $"Seduta del {item.DataRichiestaIscrizioneSeduta}";
                             tooltipSeduta = "Richiesta in attesa di elaborazione";
@@ -309,7 +309,7 @@ else
                                 <i class="material-icons tiny green-text tooltipped" data-tooltip="Iscrivi">check</i>
                             </span>
                         }
-                        else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta) && item.IDStato == (int)StatiAttoEnum.PRESENTATO)
+                        else if (string.IsNullOrEmpty(item.DataRichiestaIscrizioneSeduta))
                         {
                             <div class="chip hoverable badgeSedutaSenzaRichiesta" onclick="IscriviSedutaDASI('@item.UIDAtto', '@Html.Raw(title)')">
                                 Iscrivi

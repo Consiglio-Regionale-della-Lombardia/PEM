@@ -1386,14 +1386,10 @@ namespace PortaleRegione.API.Controllers
                             }
                         var dataOdierna = DateTime.Now;
                         if (proponente.IsCapoGruppo
-                            && seduta.Data_seduta.Day == dataOdierna.Day
-                            && seduta.Data_seduta.Month == dataOdierna.Month
-                            && seduta.Data_seduta.Year == dataOdierna.Year)
+                            && seduta.Data_seduta <= dataOdierna)
                         {
                             var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp.Day == dataOdierna.Day
-                                                   && a.Timestamp.Month == dataOdierna.Month
-                                                   && a.Timestamp.Year == dataOdierna.Year
+                                my_atti.Where(a => a.Timestamp >= seduta.Data_seduta
                                                    && a.UID_Atto_ODG ==
                                                    attoPEM
                                                        .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
@@ -1508,6 +1504,30 @@ namespace PortaleRegione.API.Controllers
 
 
                 counterPresentazioni++;
+
+                try
+                {
+                    // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/906
+                    _unitOfWork.Stampe.Add(new STAMPE
+                    {
+                        UIDStampa = Guid.NewGuid(),
+                        UIDUtenteRichiesta = persona.UID_persona,
+                        CurrentRole = (int)persona.CurrentRole,
+                        DataRichiesta = DateTime.Now,
+                        UIDAtto = idGuid,
+                        Da = 1,
+                        A = 1,
+                        Ordine = 1,
+                        Notifica = true,
+                        Scadenza = DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink)),
+                        DASI = true
+                    });
+                    await _unitOfWork.CompleteAsync();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
 
             if (attachList.Any())
@@ -2181,7 +2201,7 @@ namespace PortaleRegione.API.Controllers
                         DA = persona.email,
                         A = AppSettingsConfiguration.EmailInvioDASI,
                         OGGETTO =
-                            $"[RICHIESTA ISCRIZIONE]{(out_of_date ? " FUORI TERMINE" : "")}",
+                            $"[RICHIESTA ISCRIZIONE] - {attoDto.Display} - {(out_of_date ? " FUORI TERMINE" : "")}",
                         MESSAGGIO =
                             $"Il consigliere {persona.DisplayName_GruppoCode} ha richiesto l'iscrizione dell' atto: <br> {attoDto.Display} <br> per la seduta del {model.DataRichiesta:dd/MM/yyyy}. {GetBodyFooterMail()}"
                     };
