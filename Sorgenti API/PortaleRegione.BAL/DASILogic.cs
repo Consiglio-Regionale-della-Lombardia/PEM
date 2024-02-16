@@ -1395,11 +1395,17 @@ namespace PortaleRegione.API.Controllers
                             if (capogruppo.id_persona == proponente.id_persona)
                                 proponente.IsCapoGruppo = true;
                         var dataOdierna = DateTime.Now;
+                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
+                        var dataSedutaPerODG = new DateTime(
+                            seduta.Data_seduta.Year, 
+                            seduta.Data_seduta.Month,
+                            seduta.Data_seduta.Day);
+
                         if (proponente.IsCapoGruppo
-                            && seduta.Data_seduta <= dataOdierna)
+                            && dataSedutaPerODG <= dataOdierna)
                         {
                             var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp >= seduta.Data_seduta
+                                my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
                                                    && a.UID_Atto_ODG ==
                                                    attoPEM
                                                        .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
@@ -2051,24 +2057,11 @@ namespace PortaleRegione.API.Controllers
                 .ToList();
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model,
-            PersonaDto personaDto)
+        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model)
         {
             try
             {
                 var results = new Dictionary<Guid, string>();
-                if (model.All && !model.Lista.Any())
-                {
-                    model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
-                }
-                else if (model.All && model.Lista.Any())
-                {
-                    var attiInDb =
-                        await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
-                    attiInDb.RemoveAll(guid => model.Lista.Contains(guid));
-                    model.Lista = attiInDb;
-                }
-
                 foreach (var idGuid in model.Lista)
                 {
                     var atto = await Get(idGuid);
@@ -2604,6 +2597,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var list = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
+                return list.Count;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Count DASI By JsonQuery", e);
+            }
+            try
+            {
                 return await _unitOfWork.DASI.CountByQuery(model);
             }
             catch (Exception e)
@@ -2617,9 +2619,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atti = _unitOfWork
-                    .DASI
-                    .GetByQuery(model);
+                var atti = new List<Guid>();
+                
+                try
+                {
+                    atti = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
+                }
+                catch (Exception)
+                {
+                    atti = _unitOfWork
+                        .DASI
+                        .GetByQuery(model);
+                }
+
                 var result = new List<AttoDASIDto>();
                 foreach (var idAtto in atti)
                 {
