@@ -16,12 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Request;
-using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Request;
+using PortaleRegione.DTO.Response;
 
 namespace PortaleRegione.Gateway
 {
@@ -37,6 +38,7 @@ namespace PortaleRegione.Gateway
         Task<FileResponse> Stampa(string uid);
         Task<StampaDto> InserisciStampa(BaseRequest<EmendamentiDto, StampaDto> model);
         Task<StampaDto> InserisciStampa(BaseRequest<AttoDASIDto, StampaDto> model);
+        Task<StampaDto> InserisciStampa(NuovaStampaRequest request);
         Task JobErrorStampa(Guid stampaUId, string errorMessage);
         Task<BaseResponse<EmendamentiDto>> JobGetEmendamenti(string query, int page, int size = 20);
         Task<BaseResponse<AttoDASIDto>> JobGetDASI(string query, int page, int size = 20);

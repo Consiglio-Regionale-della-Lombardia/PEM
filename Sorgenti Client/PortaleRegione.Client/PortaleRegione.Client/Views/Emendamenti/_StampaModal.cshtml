@@ -62,6 +62,7 @@
         $("#emStampaDisplayName").append("GENERA FASCICOLO EMENDAMENTI (TOTALE EM DA ESPORTARE: " + totaleDoc + ")");
 
         $("#modalStampa").modal("open");
+		$("#btnConfermaStampa").off("click");
         $("#btnConfermaStampa").on("click",
             function() {
                 $("#formStampa").submit();
@@ -77,26 +78,9 @@
             data.uid_atto = $("#hdUIdAtto").val();
             data.da = $("#txtDa").val();
             data.a = $("#txtA").val();
-            data.client_mode = @Html.Raw(mode);
-            data.ordine = $("#inputFilterOrdine").val();
-
-            var lstEM = getListaEmendamenti();
-            var filters = [];
-            if (lstEM.length > 0) {
-                var qEm = "";
-                for (var i = 0; i < lstEM.length; i++) {
-                    if (i == 0) {
-                        qEm = lstEM[0];
-                    } else {
-                        qEm = qEm + "," + lstEM[i];
-                    }
-                }
-
-                filters.push(qEm);
-            }
-
-            data.filters = filters;
-
+			data.Tutti = getSelezionaTutti();
+			data.Lista = getListaEmendamenti();
+            
             waiting(true);
             var url = baseUrl + "/stampe/nuova";
             $.ajax({
@@ -112,6 +96,7 @@
                 waiting(false);
                 M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"@Url.Action("Index", "Stampe")\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
             }).fail(function(err) {
+				waiting(false);
                 console.log("error", err);
                 Error(err);
             });

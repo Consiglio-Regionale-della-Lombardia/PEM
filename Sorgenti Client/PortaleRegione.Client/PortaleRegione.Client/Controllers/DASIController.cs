@@ -312,7 +312,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -505,23 +505,16 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                model.CurrentStatus =
-                    (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI)));
-                if (CurrentUser.IsSegreteriaAssemblea
-                    && model.CurrentStatus == StatiAttoEnum.BOZZA)
-                    model.CurrentStatus = StatiAttoEnum.PRESENTATO;
-
-                model.CurrentType =
-                    (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)));
-                await apiGateway.DASI.CambioStato(model);
-                if (model.All)
+                var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                model.CurrentStatus = modelInCache.Stato;
+                model.CurrentType = modelInCache.Tipo;
+                if (model.Tutti)
                 {
                     var listaAtti = new RiepilogoDASIModel();
-                    var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -535,6 +528,7 @@ namespace PortaleRegione.Client.Controllers
                     model.Lista = list;
                 }
 
+                await apiGateway.DASI.CambioStato(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
                     stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
@@ -569,7 +563,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -617,7 +611,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -665,7 +659,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -713,7 +707,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -761,7 +755,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
@@ -809,7 +803,7 @@ namespace PortaleRegione.Client.Controllers
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };

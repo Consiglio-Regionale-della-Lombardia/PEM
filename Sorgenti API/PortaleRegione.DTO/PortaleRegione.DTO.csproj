@@ -77,6 +77,7 @@
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
+    <Compile Include="Enum\ModuloStampaEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\NuovaStampaRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />

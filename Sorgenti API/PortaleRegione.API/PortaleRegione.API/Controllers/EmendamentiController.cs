@@ -1236,6 +1236,27 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per accodare una stampa massiva
+        /// </summary>
+        /// <param name="model">Modello specifico per richiesta stampa</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.PEM.InserisciStampaMassiva)]
+        public async Task<IHttpActionResult> InserisciStampaMassiva(NuovaStampaRequest request)
+        {
+            try
+            {
+                var result = await _stampeLogic.InserisciStampa(request, CurrentUser);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Inserisci stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Costruttore
         /// </summary>
         /// <param name="unitOfWork"></param>

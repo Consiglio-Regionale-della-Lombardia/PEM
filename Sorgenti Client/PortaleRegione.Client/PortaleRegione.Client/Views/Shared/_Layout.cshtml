@@ -50,7 +50,7 @@
 <script>
         baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
         AggiornaPosizioneTemi(baseUrl);
-        var cssTheme = "";
+	    var cssTheme = gruppi_theme;
         @{
             if (currentUser == null)
             {
@@ -61,19 +61,13 @@
                 @Html.Raw("var modeFromCache = " + HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"))
             }
         }
-        var mode = getClientMode();
-        if (modeFromCache != "") {
-            if (mode != modeFromCache) {
-                setClientMode(modeFromCache);
-                mode = modeFromCache;
-            }
-            if (mode == 2) {
-                cssTheme = trattazione_theme;
-            } else {
-                cssTheme = gruppi_theme;
-            }
+	    
+        setClientMode(modeFromCache);
+	    var mode = modeFromCache;
+        if (mode == 2) {
+            cssTheme = trattazione_theme;
         } else {
-            go('@Url.Action("Index", "Home")');
+            cssTheme = gruppi_theme;
         }
 
         var cssId = 'client-mode-theme'; // you could encode the css path itself to generate id..

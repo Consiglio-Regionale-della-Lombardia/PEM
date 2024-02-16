@@ -1246,22 +1246,12 @@ function CambioStatoDASI(uidatto, stato) {
 
 function GetCounterAlert(lista, selezionaTutti) {
     var text_counter = "";
-    var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
     var total_entities = parseInt($("#hdTotaleDocumenti").val());
 
     if (selezionaTutti && lista.length == 0) {
-        if (total_entities < size) {
-            text_counter = total_entities;
-        } else {
-            text_counter = size;
-        }
+        text_counter = total_entities;
     } else if (selezionaTutti && lista.length > 0) {
-        if (total_entities < size) {
-            text_counter = total_entities;
-        } else {
-            text_counter = size;
-        }
-        text_counter = text_counter - lista.length;
+        text_counter = total_entities - lista.length;
     } else {
         text_counter = lista.length;
     }
@@ -1287,7 +1277,7 @@ function CambioStatoMassivo(stato, descr) {
             var obj = {};
             obj.Stato = stato;
             obj.Lista = listaEM;
-            obj.All = selezionaTutti;
+            obj.Tutti = selezionaTutti;
             obj.AttoUId = $("#hdUIdAtto").val();
             waiting(true);
             $.ajax({
@@ -1331,7 +1321,7 @@ function CambioStatoMassivoDASI(stato, descr) {
             var obj = {};
             obj.Stato = stato;
             obj.Lista = listaAtti;
-            obj.All = selezionaTutti;
+            obj.Tutti = selezionaTutti;
             waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/modifica-stato",

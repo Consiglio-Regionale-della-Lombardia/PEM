@@ -57,6 +57,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string GetAllDestinatari = Base + "/destinatari/{atto}/{tipo}";
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
+            public const string InserisciStampaMassiva = Base + "/inserisci-stampa-massiva";
 
             public static class Sedute
             {
@@ -186,6 +187,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAllDestinatari = Base + "/destinatari/{tipo}";
 
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
+            public const string InserisciStampaMassiva = Base + "/inserisci-stampa-massiva";
 
             public const string GetNuovoModello = Base + "/create/model/{tipo}";
             public const string GetModificaModello = Base + "/edit/model/{id}";

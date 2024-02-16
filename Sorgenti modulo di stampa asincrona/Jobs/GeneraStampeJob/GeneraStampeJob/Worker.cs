@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using PortaleRegione.Common;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -261,6 +262,23 @@ namespace GeneraStampeJob
                 {
                     item
                 };
+            }
+
+            try
+            {
+                var resFromJson = new List<AttoDASIDto>();
+                var listaAttiFromJson = JsonConvert.DeserializeObject<List<Guid>>(_stampa.Query);
+                foreach (var guid in listaAttiFromJson)
+                {
+                    var item = await apiGateway.DASI.Get(guid);
+                    resFromJson.Add(item);
+                }
+
+                return resFromJson;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
             var result = await apiGateway.Stampe.JobGetDASI(_stampa.Query, 1);
@@ -538,6 +556,23 @@ namespace GeneraStampeJob
                 {
                     em
                 };
+            }
+
+            try
+            {
+                var resFromJson = new List<EmendamentiDto>();
+                var listaEMFromJson = JsonConvert.DeserializeObject<List<Guid>>(_stampa.Query);
+                foreach (var guid in listaEMFromJson)
+                {
+                    var item = await apiGateway.Emendamento.Get(guid);
+                    resFromJson.Add(item);
+                }
+
+                return resFromJson;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
             var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, 1, 1000);

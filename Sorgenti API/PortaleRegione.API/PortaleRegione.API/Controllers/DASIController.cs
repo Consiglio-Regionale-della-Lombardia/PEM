@@ -586,7 +586,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.ModificaStato(model, CurrentUser));
+                return Ok(await _dasiLogic.ModificaStato(model));
             }
             catch (Exception e)
             {
@@ -1003,7 +1003,28 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Download", e);
+                Log.Error("Inserisci stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per accodare una stampa DASI massiva
+        /// </summary>
+        /// <param name="model">Modello specifico per richiesta stampa</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.InserisciStampaMassiva)]
+        public async Task<IHttpActionResult> InserisciStampaMassivaDASI(NuovaStampaRequest request)
+        {
+            try
+            {
+                var result = await _stampeLogic.InserisciStampa(request, CurrentUser);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Inserisci stampa", e);
                 return ErrorHandler(e);
             }
         }

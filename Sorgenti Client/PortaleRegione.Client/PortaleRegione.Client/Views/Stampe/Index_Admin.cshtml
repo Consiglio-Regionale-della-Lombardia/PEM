@@ -54,8 +54,7 @@
                     <th>Utente</th>
                     <th>Atto</th>
                     <th>Data stampa</th>
-                    <th>Da</th>
-                    <th>A</th>
+                    <th>Tipo stampa</th>
                     <th>Stato</th>
                     <th>Stato Invio</th>
                     <th width="100">Scarica</th>
@@ -106,7 +105,7 @@
                         </td>
                         if (stampa.UIDEM.HasValue)
                         {
-                            <td colspan="2">
+                            <td>
                                 <div class="chip center purple lighten-5" style="min-width: unset">
                                     Stampa singola
                                 </div>
@@ -114,7 +113,7 @@
                         }
                         else if (stampa.Da == 0 && stampa.A == 0)
                         {
-                            <td colspan="2">
+                            <td>
                                 @switch ((OrdinamentoEnum)stampa.Ordine.Value)
                                 {
                                     case OrdinamentoEnum.Presentazione:
@@ -137,10 +136,9 @@
                         else
                         {
                             <td>
-                                @stampa.Da
-                            </td>
-                            <td>
-                                @stampa.A
+                                <div class="chip center purple lighten-5" style="min-width: unset">
+                                    Fascicolo
+                                </div>
                             </td>
                         }
                     }
@@ -154,7 +152,7 @@
                         </td>
                         if (stampa.UIDAtto.HasValue)
                         {
-                            <td colspan="2">
+                            <td>
                                 <div class="chip center purple lighten-5" style="min-width: unset">
                                     Stampa singola
                                 </div>
@@ -163,10 +161,9 @@
                         else
                         {
                             <td>
-                                @stampa.Da
-                            </td>
-                            <td>
-                                @stampa.A
+                                <div class="chip center purple lighten-5" style="min-width: unset">
+                                    Fascicolo
+                                </div>
                             </td>
                         }
                     }

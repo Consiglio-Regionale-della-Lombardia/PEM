@@ -509,7 +509,7 @@ namespace PortaleRegione.Client.Controllers
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
@@ -788,7 +788,7 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                if (model.All)
+                if (model.Tutti)
                 {
                     var listaView = new EmendamentiViewModel();
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
@@ -796,7 +796,7 @@ namespace PortaleRegione.Client.Controllers
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
@@ -841,7 +841,7 @@ namespace PortaleRegione.Client.Controllers
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
@@ -904,7 +904,7 @@ namespace PortaleRegione.Client.Controllers
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Limit,
+                        size = modelInCache.Data.Paging.Total,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }

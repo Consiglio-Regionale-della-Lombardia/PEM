@@ -16,19 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.DTO.Enum;
-using System;
-using System.Collections.Generic;
-
-namespace PortaleRegione.DTO.Model
+namespace PortaleRegione.DTO.Enum
 {
-    public class ModificaStatoModel
+    public enum ModuloStampaEnum
     {
-        public ICollection<Guid> Lista { get; set; }
-        public StatiEnum Stato { get; set; }
-        public bool Tutti { get; set; } = false;
-        public Guid AttoUId { get; set; }
-        public OrdinamentoEnum Ordine { get; set; }
-        public ClientModeEnum Mode { get; set; }
+        PEM = 1,
+        DASI = 2
     }
 }
