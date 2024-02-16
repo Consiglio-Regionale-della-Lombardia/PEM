@@ -449,6 +449,100 @@ namespace PortaleRegione.API.Controllers
 
             return responseModel;
         }
+        
+        public async Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
+        {
+            model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+            model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
+            var filtro_seduta =
+                model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
+            var sedutaId = Guid.Empty;
+            if (filtro_seduta != null) sedutaId = new Guid(filtro_seduta.Value.ToString());
+            var soggetti = new List<int>();
+            var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
+            {
+                soggetti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == "SoggettiDestinatari"));
+                soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                foreach (var s in soggetti_request) model.filtro.Remove(s);
+            }
+
+            var proponenti = new List<Guid>();
+            var proponenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                proponenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
+                proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
+            }
+
+            var provvedimenti = new List<Guid>();
+            var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                provvedimenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
+                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
+                    new Guid(provvedimento.Value.ToString())));
+                foreach (var provvedimentoStatement in provvedimenti_request)
+                    model.filtro.Remove(provvedimentoStatement);
+            }
+
+            var stati = new List<int>();
+            var stati_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
+            {
+                stati_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.IDStato)));
+                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+            }
+
+            var atti_da_firmare = new List<Guid>();
+            if (Convert.ToBoolean(RequireMySign))
+            {
+                var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(persona.UID_persona);
+                foreach (var notifica_destinatario in notificheDestinatari)
+                {
+                    var notifica = await _unitOfWork.Notifiche.Get(notifica_destinatario.UIDNotifica);
+                    if (notifica == null)
+                        continue;
+                    if (notifica.Chiuso)
+                        continue; // Notifica chiusa
+                    if (notifica.UIDEM.HasValue)
+                        continue; // notifica PEM
+                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                        continue; // UidAtto già presente
+
+                    atti_da_firmare.Add(notifica.UIDAtto);
+                }
+
+                var my_atti_proponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
+                if (my_atti_proponente.Any())
+                    atti_da_firmare.AddRange(my_atti_proponente);
+            }
+
+            var queryFilter = new Filter<ATTI_DASI>();
+            queryFilter.ImportStatements(model.filtro);
+            return await _unitOfWork
+                .DASI
+                .GetAll(persona,
+                    model.page,
+                    model.size,
+                    (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    queryFilter,
+                    soggetti,
+                    proponenti,
+                    provvedimenti,
+                    stati,
+                    atti_da_firmare);
+        }
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
         {

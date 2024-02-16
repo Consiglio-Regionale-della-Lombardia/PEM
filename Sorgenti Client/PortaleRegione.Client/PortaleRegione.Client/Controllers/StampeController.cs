@@ -69,7 +69,6 @@ namespace PortaleRegione.Client.Controllers
 
             if (model.Tutti)
             {
-                var listaView = new EmendamentiViewModel();
                 var request = new BaseRequest<EmendamentiDto>
                 {
                     id = modelInCache.Atto.UIDAtto,
@@ -79,8 +78,7 @@ namespace PortaleRegione.Client.Controllers
                     param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } },
                     ordine = modelInCache.Ordinamento
                 };
-                listaView = await apiGateway.Emendamento.Get(request);
-                var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+                var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                 if (model.Lista != null)
                     foreach (var guid in model.Lista)
@@ -117,7 +115,6 @@ namespace PortaleRegione.Client.Controllers
 
             if (model.Tutti)
             {
-                var listaAtti = new RiepilogoDASIModel();
                 var requestAtti = new BaseRequest<AttoDASIDto>
                 {
                     page = modelInCache.Data.Paging.Page,
@@ -125,8 +122,7 @@ namespace PortaleRegione.Client.Controllers
                     filtro = modelInCache.Data.Filters,
                     param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                 };
-                listaAtti = await apiGateway.DASI.Get(requestAtti);
-                var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                var list = await apiGateway.DASI.GetSoloIds(requestAtti);
 
                 if (model.Lista != null)
                     foreach (var guid in model.Lista)

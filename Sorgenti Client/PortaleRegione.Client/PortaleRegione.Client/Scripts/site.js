@@ -1246,6 +1246,31 @@ function CambioStatoDASI(uidatto, stato) {
 
 function GetCounterAlert(lista, selezionaTutti) {
     var text_counter = "";
+    var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
+    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+
+    if (selezionaTutti && lista.length == 0) {
+        if (total_entities < size) {
+            text_counter = total_entities;
+        } else {
+            text_counter = size;
+        }
+    } else if (selezionaTutti && lista.length > 0) {
+        if (total_entities < size) {
+            text_counter = total_entities;
+        } else {
+            text_counter = size;
+        }
+        text_counter = text_counter - lista.length;
+    } else {
+        text_counter = lista.length;
+    }
+
+    return text_counter;
+}
+
+function GetCounterAlertStampa(lista, selezionaTutti) {
+    var text_counter = "";
     var total_entities = parseInt($("#hdTotaleDocumenti").val());
 
     if (selezionaTutti && lista.length == 0) {

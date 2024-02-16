@@ -503,23 +503,29 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaView = new EmendamentiViewModel();
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Total,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
+
+                    var list = new List<Guid>();
                     if (model.Richiesta_Firma) // #879 (fix) Azione massiva: Visualizza solo gli EM/SUBEM per i quali è richiesta la mia firma + Seleziona tutti + Firma massiva
-                        listaView = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
-                            modelInCache.Mode, modelInCache.Ordinamento, modelInCache.Data.Paging.Page, modelInCache.Data.Paging.Limit);
+                    {
+                        var lista_propria_firma = await apiGateway.Emendamento.Get_RichiestaPropriaFirma(request.id,
+                            modelInCache.Mode, modelInCache.Ordinamento, modelInCache.Data.Paging.Page,
+                            modelInCache.Data.Paging.Limit);
+                        list = lista_propria_firma.Data.Results.Select(i => i.UIDEM).ToList();
+                    }
                     else
-                        listaView = await apiGateway.Emendamento.Get(request);
-                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+                    {
+                        list = await apiGateway.Emendamento.GetSoloIds(request);
+                    }
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -790,19 +796,17 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaView = new EmendamentiViewModel();
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Total,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
-                    listaView = await apiGateway.Emendamento.Get(request);
-                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+                    var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -835,19 +839,17 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaView = new EmendamentiViewModel();
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Total,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
                     };
-                    listaView = await apiGateway.Emendamento.Get(request);
-                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+                    var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -898,19 +900,17 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaView = new EmendamentiViewModel();
                     var modelInCache = Session["RiepilogoEmendamenti"] as EmendamentiViewModel;
                     var request = new BaseRequest<EmendamentiDto>
                     {
                         id = modelInCache.Atto.UIDAtto,
                         page = modelInCache.Data.Paging.Page,
-                        size = modelInCache.Data.Paging.Total,
+                        size = modelInCache.Data.Paging.Limit,
                         filtro = modelInCache.Data.Filters,
                         ordine = modelInCache.Ordinamento,
-                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } }
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.Mode } },
                     };
-                    listaView = await apiGateway.Emendamento.Get(request);
-                    var list = listaView.Data.Results.Select(a => a.UIDEM).ToList();
+                    var list = await apiGateway.Emendamento.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)

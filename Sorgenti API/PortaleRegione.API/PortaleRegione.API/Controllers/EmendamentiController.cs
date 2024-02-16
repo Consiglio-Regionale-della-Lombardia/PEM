@@ -102,6 +102,37 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per avere tutti gli emendamenti appartenenti ad un atto
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.PEM.Emendamenti.GetAllSoloIds)]
+        public async Task<IHttpActionResult> GetEmendamentiSoloIds(BaseRequest<EmendamentiDto> model)
+        {
+            try
+            {
+                var atto = await _attiLogic.GetAtto(model.id);
+
+                if (atto == null)
+                {
+                    return NotFound();
+                }
+
+                model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+                var user = CurrentUser;
+                var results =
+                    await _emendamentiLogic.GetEmendamentiSoloIds(model, user, Convert.ToInt16(CLIENT_MODE));
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetEmendamenti", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Endpoint per avere solo gli emendamenti appartenenti ad un atto dove è richiesta la firma dell'utente corrente
         /// </summary>
         /// <param name="model"></param>
