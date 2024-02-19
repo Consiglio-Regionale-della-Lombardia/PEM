@@ -134,9 +134,6 @@ namespace GeneraStampeJob
         private async Task StampaDASI(List<AttoDASIDto> lista, string path, PersonaDto persona)
         {
             var docs = new List<byte[]>();
-            if (_stampa.Da > 0 && _stampa.A > 0)
-                lista = lista.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
-
             var bodyCopertina = await apiGateway.DASI.GetCopertina(new ByQueryModel
             {
                 Query = _stampa.Query
@@ -330,9 +327,6 @@ namespace GeneraStampeJob
             try
             {
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
-                if (_stampa.Da > 0 && _stampa.A > 0)
-                    listaEMendamenti = listaEMendamenti.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
-
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
                 var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel

@@ -91,7 +91,7 @@ namespace PortaleRegione.Client.Controllers
             if (model.da > 0 && model.a > 0)
                 if (model.da >= 1 && model.a <= res.Count)
                 {
-                    var range = res.GetRange(model.da - 1, model.a - model.da);
+                    var range = res.GetRange(model.da - 1, model.a - (model.da - 1));
                     res = range.ToList();
                 }
 
@@ -135,7 +135,7 @@ namespace PortaleRegione.Client.Controllers
             if (model.da > 0 && model.a > 0)
                 if (model.da >= 1 && model.a <= res.Count)
                 {
-                    var range = res.GetRange(model.da - 1, model.a - model.da + 1);
+                    var range = res.GetRange(model.da - 1, model.a - (model.da - 1));
                     res = range.ToList();
                 }
 
