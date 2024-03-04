@@ -263,6 +263,14 @@ namespace PortaleRegione.Common
                     {
                         return "Immediata";
                     }
+                case TipoRispostaEnum.ITER_IN_ASSEMBLEA:
+                    {
+                        return "Iter in assemblea";
+                    }
+                case TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE:
+                    {
+                        return "Iter in assemblea + commissione";
+                    }
                 default:
                     return "";
             }

@@ -23,6 +23,8 @@ namespace PortaleRegione.DTO.Enum
         ORALE = 1,
         SCRITTA = 2,
         COMMISSIONE = 3,
-        IMMEDIATA = 4
+        IMMEDIATA = 4,
+        ITER_IN_ASSEMBLEA = 5,
+        ITER_IN_ASSEMBLEA_COMMISSIONE = 6
     }
 }

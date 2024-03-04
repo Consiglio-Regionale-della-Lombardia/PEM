@@ -220,11 +220,18 @@ namespace PortaleRegione.Client.Controllers
                     atto.Destinatari =
                         await Utility.GetDestinatariNotifica(await apiGateway.DASI.GetInvitati(id), Token);
 
-                return View("AttoDASIView", new DASIFormModel
+                var result = new DASIFormModel
                 {
                     CurrentUser = currentUser,
                     Atto = atto
-                });
+                };
+
+                if (currentUser.IsSegreteriaAssemblea)
+                {
+                    return View("AttoDASIView_Admin", result);
+                }
+
+                return View("AttoDASIView", result);
             }
             catch (Exception e)
             {

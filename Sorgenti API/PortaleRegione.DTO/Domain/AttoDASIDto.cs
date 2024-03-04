@@ -47,13 +47,16 @@ namespace PortaleRegione.DTO.Domain
 
         [AllowHtml]
         public string Premesse { get; set; }
+
         [AllowHtml]
         public string Premesse_Modificato { get; set; }
 
         [AllowHtml]
         public string Richiesta { get; set; }
+
         [AllowHtml]
         public string Richiesta_Modificata { get; set; }
+
 
         public int Tipo { get; set; }
         public int TipoMOZ { get; set; } = 0;
@@ -84,6 +87,7 @@ namespace PortaleRegione.DTO.Domain
 
         [DisplayName("Allegato")]
         public string PATH_AllegatoGenerico { get; set; }
+
 
         public string Note_Pubbliche { get; set; }
         public string Note_Private { get; set; }
@@ -147,49 +151,74 @@ namespace PortaleRegione.DTO.Domain
         {
             return Tipo == (int)TipoAttoEnum.MOZ;
         }
+
         public bool IsMOZOrdinaria()
         {
             return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ORDINARIA;
         }
+
         public bool IsMOZUrgente()
         {
             return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.URGENTE;
         }
+
         public bool IsMOZAbbinata()
         {
             return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.ABBINATA;
         }
+
         public bool IsMOZSfiducia()
         {
             return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.SFIDUCIA;
         }
+
         public bool IsMOZCensura()
         {
             return Tipo == (int)TipoAttoEnum.MOZ && TipoMOZ == (int)TipoMOZEnum.CENSURA;
         }
+
         public bool IsIQT()
         {
             return Tipo == (int)TipoAttoEnum.IQT;
         }
+
         public bool IsITL()
         {
             return Tipo == (int)TipoAttoEnum.ITL;
         }
+
         public bool IsITR()
         {
             return Tipo == (int)TipoAttoEnum.ITR;
         }
+
         public bool IsODG()
         {
             return Tipo == (int)TipoAttoEnum.ODG;
         }
 
         // #558
+
         public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
 
+
         public List<AttiFirmeDto> FirmeAnte { get; set; }
         public List<AttiFirmeDto> FirmePost { get; set; }
+        public string Oggetto_Presentato { get; set; }
+        public DateTime? DataAnnunzio { get; set; }
+        public string CodiceMateria { get; set; }
+        public string Protocollo{ get; set; }
+        public int? IDTipo_Risposta_Effettiva{ get; set; }
+        public bool Pubblicato { get; set; }
+        public bool Sollecito { get; set; }
+        public int? TipoChiusuraIter { get; set; }
+        public DateTime? DataChiusuraIter { get; set; }
+        public string NoteChiusuraIter { get; set; }
+        public bool Emendato { get; set; }
+        public int? TipoVotazioneIter { get; set; }
+        public string AreaTematica { get; set; }
+        public string AltriSoggetti { get; set; }
     }
 }

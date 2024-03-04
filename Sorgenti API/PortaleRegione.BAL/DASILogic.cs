@@ -496,11 +496,20 @@ namespace PortaleRegione.API.Controllers
 
                 if (dto.ConteggioFirme > 1)
                 {
-                    var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                    dto.Firme = firme
-                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                        .Select(f => f.FirmaCert)
-                        .Aggregate((i, j) => i + "<br>" + j);
+                    try
+                    {
+                        var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                        dto.Firme = firme
+                            .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
+                            .Select(f => f.FirmaCert)
+                            .Aggregate((i, j) => i + "<br>" + j);
+                    }
+                    catch (Exception e)
+                    {
+                        var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                        Console.WriteLine(e);
+                        throw;
+                    }
                 }
 
                 dto.gruppi_politici =
