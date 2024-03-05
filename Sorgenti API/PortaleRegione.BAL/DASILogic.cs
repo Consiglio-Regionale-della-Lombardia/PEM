@@ -452,15 +452,15 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
         {
+            var attoInDb = await _unitOfWork.DASI.Get(attoUid);
+
+            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+
+            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+            dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
+
             try
             {
-                var attoInDb = await _unitOfWork.DASI.Get(attoUid);
-
-                var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
-
-                dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
-                dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
-
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
                     dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
                 if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
@@ -496,20 +496,11 @@ namespace PortaleRegione.API.Controllers
 
                 if (dto.ConteggioFirme > 1)
                 {
-                    try
-                    {
-                        var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                        dto.Firme = firme
-                            .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                            .Select(f => f.FirmaCert)
-                            .Aggregate((i, j) => i + "<br>" + j);
-                    }
-                    catch (Exception e)
-                    {
-                        var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
-                        Console.WriteLine(e);
-                        throw;
-                    }
+                    var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+                    dto.Firme = firme
+                        .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
+                        .Select(f => f.FirmaCert)
+                        .Aggregate((i, j) => i + "<br>" + j);
                 }
 
                 dto.gruppi_politici =

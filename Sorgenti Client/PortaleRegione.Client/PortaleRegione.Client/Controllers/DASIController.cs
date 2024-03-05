@@ -1095,28 +1095,33 @@ namespace PortaleRegione.Client.Controllers
                     return View("RiepilogoDASI_Admin", resultPreview);
 
                 return View("RiepilogoDASI", resultPreview);
-            }else if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
+            }
+
+            if (modelInCache != null)
             {
-                var request = new BaseRequest<AttoDASIDto>
+                if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
                 {
-                    page = modelInCache.Data.Paging.Page,
-                    size = modelInCache.Data.Paging.Limit,
-                    filtro = modelInCache.Data.Filters,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
-                };
-                var resultGrid = await apiGateway.DASI.Get(request);
-                resultGrid.CurrentUser = CurrentUser;
-                resultGrid.ClientMode = modelInCache.ClientMode;
-                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
-                    Convert.ToInt16(view));
+                    var request = new BaseRequest<AttoDASIDto>
+                    {
+                        page = modelInCache.Data.Paging.Page,
+                        size = modelInCache.Data.Paging.Limit,
+                        filtro = modelInCache.Data.Filters,
+                        param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
+                    };
+                    var resultGrid = await apiGateway.DASI.Get(request);
+                    resultGrid.CurrentUser = CurrentUser;
+                    resultGrid.ClientMode = modelInCache.ClientMode;
+                    SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
+                        Convert.ToInt16(view));
 
-                Session["RiepilogoDASI"] = resultGrid;
+                    Session["RiepilogoDASI"] = resultGrid;
 
-                if (CanAccess(new List<RuoliIntEnum>
-                        { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
-                    return View("RiepilogoDASI_Admin", resultGrid);
+                    if (CanAccess(new List<RuoliIntEnum>
+                            { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                        return View("RiepilogoDASI_Admin", resultGrid);
 
-                return View("RiepilogoDASI", resultGrid);
+                    return View("RiepilogoDASI", resultGrid);
+                }
             }
 
             Session["RiepilogoDASI"] = null;
