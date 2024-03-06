@@ -243,7 +243,7 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.BOZZA_CARTACEA:
                     return "Cartaceo";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
+                    return "Stato non valido";
             }
         }
 

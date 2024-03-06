@@ -226,11 +226,6 @@ namespace PortaleRegione.Client.Controllers
                     Atto = atto
                 };
 
-                if (currentUser.IsSegreteriaAssemblea)
-                {
-                    return View("AttoDASIView_Admin", result);
-                }
-
                 return View("AttoDASIView", result);
             }
             catch (Exception e)
