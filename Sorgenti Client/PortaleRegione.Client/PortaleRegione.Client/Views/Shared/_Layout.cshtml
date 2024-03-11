@@ -117,27 +117,6 @@
     @RenderBody()
 </main>
 
-<div id="modalAction" class="modal" style="height: unset !important">
-    <div class="modal-content">
-        <h5 id="emActionDisplayName"></h5>
-        <p id="emActionMessage"></p>
-        <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaAction" class="btn red" href="#">Elimina</a>
-        </div>
-    </div>
-</div>
-<div id="modalActionDASI" class="modal" style="height: unset !important">
-    <div class="modal-content">
-        <h5 id="attoActionDisplayName"></h5>
-        <p id="attoActionMessage"></p>
-        <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
-        </div>
-    </div>
-</div>
-
 @if (AppSettingsConfiguration.IsDebugMode)
 {
     <div id="pnlAccount" class="sidenav" style="overflow: auto !important">

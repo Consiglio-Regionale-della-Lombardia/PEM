@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 <script>
     var sedute = [];
     var templateSeduteAttive = "<li class='collection-item'><div><p><label><input name='gruppoSeduteAttive' type='radio' value='{VALUE}' {CHECKED}/><span>{TEXT}</span></label></p></div></li>";
@@ -29,11 +30,15 @@
                     }
                 }).then((value) => {
                     if (value == true) {
-                        $('#formDASI').submit();
+						$('#formDASI').submit();
+
+						window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                     }
                 });
             } else {
-                $('#formDASI').submit();
+				$('#formDASI').submit();
+
+				window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
             }
         });
     $("#btnSaveCartaceo").on("click",
@@ -66,7 +71,8 @@
                         }
                     }).then((value) => {
                         if (value) {
-                            SalvaAttoCartaceo(true);
+							SalvaAttoCartaceo(true);
+							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                         }
                     });
                     break;
@@ -74,7 +80,8 @@
 
                 case "salva_bozza_cartacea":
                 {
-                    SalvaAttoCartaceo(false);
+							SalvaAttoCartaceo(false);
+							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                     break;
                 }
                 }
@@ -294,4 +301,30 @@
             return prefix + " ODG";
         }
     }
+    
+    $('.trumbowyg').trumbowyg({
+        lang: 'it',
+        btns: [
+            ['viewHTML'],
+            ['formatting'],
+            ['strong', 'em', 'del'],
+            ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+            ['unorderedList', 'orderedList'],
+            ['indent', 'outdent'],
+            ['table'],
+            ['link'],
+            ['fontfamily'],
+            ['fontsize'],
+            ['removeformat'],
+            ['fullscreen']
+        ],
+        plugins: {
+            fontfamily: {
+                fontList: [
+                    { name: 'Arial', family: 'Arial, Helvetica, sans-serif' },
+                    { name: 'Open Sans', family: '\'Open Sans\', sans-serif' }
+                ]
+            }
+        }
+    });
 </script>

@@ -40,6 +40,7 @@ namespace PortaleRegione.DTO.Domain
         public Guid? UIDSeduta { get; set; }
         public Guid? UID_MOZ_Abbinata { get; set; }
         public Guid? UID_Atto_ODG { get; set; }
+        public string Etichetta { get; set; }
 
         public string Oggetto { get; set; }
         public string Oggetto_Modificato { get; set; }
@@ -188,6 +189,9 @@ namespace PortaleRegione.DTO.Domain
         public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+        public bool IsBozza => IDStato == (int)StatiAttoEnum.BOZZA
+                                || IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
+                                || IDStato == (int)StatiAttoEnum.BOZZA_RISERVATA;
 
         public List<AttiFirmeDto> FirmeAnte { get; set; }
         public List<AttiFirmeDto> FirmePost { get; set; }
@@ -200,6 +204,18 @@ namespace PortaleRegione.DTO.Domain
             if (!string.IsNullOrEmpty(Oggetto_Modificato))
                 return Oggetto_Modificato;
             return Oggetto;
+        }
+
+        public string GetLegislatura()
+        {
+            if (!string.IsNullOrEmpty(Etichetta))
+            {
+                var parti = Etichetta.Split('_');
+                if (parti.Length > 0)
+                    return parti[parti.Length - 1];
+            }
+
+            return string.Empty;
         }
     }
 }

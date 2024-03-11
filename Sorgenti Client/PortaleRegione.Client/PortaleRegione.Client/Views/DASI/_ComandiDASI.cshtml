@@ -62,31 +62,31 @@
         @if (AppSettingsConfiguration.EnableITL)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITL + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITL })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITL)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableITR)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ITR + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ITR })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ITR)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableIQT)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.IQT + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.IQT })')">@Utility.GetText_Tipo((int)TipoAttoEnum.IQT)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableMOZ)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.MOZ + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.MOZ })')">@Utility.GetText_Tipo((int)TipoAttoEnum.MOZ)</a>
             </li>
         }
         @if (AppSettingsConfiguration.EnableODG)
         {
             <li>
-                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" href="@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</a>
+                <a class="btn-floating btn-large @Html.Raw(TipoAttoCSSConst.ODG + "_ico")" onclick="goIntoOtherTab('@Url.Action("Nuovo", new { tipo = (int)TipoAttoEnum.ODG })')">@Utility.GetText_Tipo((int)TipoAttoEnum.ODG)</a>
             </li>
         }
     </ul>

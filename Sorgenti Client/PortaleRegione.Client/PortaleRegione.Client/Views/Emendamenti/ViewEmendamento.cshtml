@@ -1,5 +1,4 @@
 ﻿@using Newtonsoft.Json
-@using PortaleRegione.Client.Controllers
 @using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
@@ -7,52 +6,8 @@
 @model PortaleRegione.DTO.Domain.EmendamentiDto
 
 @{
-    var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.ATTI.IDTipoAtto)} {Model.ATTI.NAtto}";
-    ViewBag.Title = $"{displayAtto}";
-    PersonaDto currentUser = null;
-
-    if (HttpContext.Current.User.Identity.IsAuthenticated)
-    {
-        var authCookie1 = Request.Cookies["PRCookies1"];
-        var authCookie2 = Request.Cookies["PRCookies2"];
-        var authCookie3 = Request.Cookies["PRCookies3"];
-        if (authCookie1 != null && authCookie2 != null && authCookie3 != null)
-        {
-            if (!string.IsNullOrEmpty(authCookie1.Value) && !string.IsNullOrEmpty(authCookie2.Value) && !string.IsNullOrEmpty(authCookie3.Value))
-            {
-                var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
-                var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
-                var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
-                var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
-
-                currentUser = data;
-            }
-        }
-    }
-
-    var ordineFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.ORDINAMENTO_PEM}_{currentUser.UID_persona.ToString()}");
-    var viewFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.VIEW_MODE_PEM}_{currentUser.UID_persona.ToString()}");
-    var pageFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.PAGE_PEM}_{currentUser.UID_persona.ToString()}");
-    var sizeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.SIZE_PEM}_{currentUser.UID_persona.ToString()}");
-    object objParams = null;
-    objParams = new
-    {
-        id = Model.UIDAtto,
-        page= pageFromCache,
-        size = sizeFromCache,
-        ordine = ordineFromCache,
-        view = viewFromCache
-    };
-    string previousPageUrl = HttpContext.Current.Request.Headers["Referer"];
-    var backUrl = string.Empty;
-    if (previousPageUrl.Contains(Url.Action("RiepilogoNotifiche", "Notifiche")))
-    {
-        backUrl = HttpContext.Current.Request.Headers["Referer"];
-    }
-    else
-    {
-        backUrl = Url.Action("RiepilogoEmendamenti", objParams);
-    }
+    Layout = null;
+    ViewBag.Title = $"{Model.N_EM}";
 
     var gruppoText = "";
     if (Model.id_gruppo >= 10000)
@@ -65,228 +20,243 @@
     }
 }
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    @Styles.Render("~/Content/css")
+    @*Import Trumbowyg plugins style...*@
+    <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @Scripts.Render("~/bundles/lib")
+    @Scripts.Render("~/bundles/logic")
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+</head>
+<body>
 <script>
-    $(document).ready(function() {
-        $('#btnSearch').hide();
-    });
-</script>
+		$(document).ready(function () {
+			$('#btnSearch').hide();
+		});
+	</script>
 
 <div class="row">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
-            <i class="material-icons">arrow_back</i>
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+            <i class="material-icons">close</i>
         </a>
-    </div>
-    <div class="col l11 s10">
-        <h4>
-            <b>
-                <span>@ViewBag.Title</span>
-            </b>
-        </h4>
     </div>
 </div>
 <div class="row">
-    <div class="col s12">
-        <div class="card">
-            <div class="card-action grey lighten-4 center">
-                <div class="chip @Model.STATI_EM.CssClass" style="position: absolute;right: 10px;top: -18px;min-width: unset">@Model.STATI_EM.Stato</div>
-                <h6>
-                    <b>
-                        <span>@Html.Raw(gruppoText)</span>
-                    </b>
-                </h6>
+<div class="col s12">
+<div class="card">
+    <div class="card-action grey lighten-4 center">
+        <div class="chip @Model.STATI_EM.CssClass" style="min-width: unset; position: absolute; right: 10px; top: -18px;">@Model.STATI_EM.Stato</div>
+        <h6>
+            <b>
+                <span>@Html.Raw(gruppoText)</span>
+            </b>
+        </h6>
+    </div>
+    @if (Model.Firmabile || Model.Depositabile || Model.Eliminabile || Model.Ritirabile || Model.Modificabile)
+    {
+        <div class="card-action grey lighten-4 center" style="border-top: unset">
+            <div class="row" style="margin: 0 !important">
+                <div class="col s12" style="margin-top: 5px">
+                    @if (Model.Firmabile)
+                    {
+                        <div class="btn chip hoverable green center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.FIRMA))">
+                            <i class="icon material-icons">gavel</i> Firma
+                        </div>
+                    }
+                    @if (Model.Depositabile)
+                    {
+                        <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int)ActionEnum.DEPOSITA))">
+                            <i class="icon material-icons">lock</i> Presenta
+                        </div>
+                    }
+                    @if (Model.Modificabile)
+                    {
+                        <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("ModificaEmendamento", new { id = Model.UIDEM })')">
+                            <i class="icon material-icons">edit</i> Modifica
+                        </div>
+                    }
+                    @if (Model.Invito_Abilitato)
+                    {
+                        <div class="btn chip hoverable amber center" onclick="NotificaAEM('@Model.UIDAtto', @((int)TipoDestinatarioNotificaEnum.CONSIGLIERI))">
+                            <i class="icon material-icons">share</i> Invita
+                        </div>
+                    }
+                    @if (Model.Eliminabile)
+                    {
+                        <div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.ELIMINA))">
+                            <i class="icon material-icons">delete</i> Elimina
+                        </div>
+                    }
+                    @if (Model.Ritirabile)
+                    {
+                        <div class="btn chip hoverable red white-text center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int)ActionEnum.RITIRA))">
+                            <i class="icon material-icons">settings_backup_restore</i> Ritira EM/SUBEM
+                        </div>
+                    }
+                </div>
             </div>
-            @if (Model.Firmabile || Model.Depositabile || Model.Eliminabile || Model.Ritirabile || Model.Modificabile)
-            {
-                <div class="card-action grey lighten-4 center" style="border-top: unset">
-                    <div class="row" style="margin: 0 !important">
-                        <div class="col s12" style="margin-top: 5px">
-                            @if (Model.Firmabile)
-                            {
-                                <div class="btn chip hoverable green center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int) ActionEnum.FIRMA))">
-                                    <i class="icon material-icons">gavel</i> Firma
-                                </div>
-                            }
-                            @if (Model.Depositabile)
-                            {
-                                <div class="btn chip hoverable purple center white-text" onclick="RevealFirmaDeposito('@Model.UIDEM', @Html.Raw((int) ActionEnum.DEPOSITA))">
-                                    <i class="icon material-icons">lock</i> Presenta
-                                </div>
-                            }
-                            @if (Model.Modificabile)
-                            {
-                                <div class="btn chip hoverable blue center white-text" onclick="go('@Url.Action("ModificaEmendamento", new {id = Model.UIDEM})')">
-                                    <i class="icon material-icons">edit</i> Modifica
-                                </div>
-                            }
-                            @if (Model.Invito_Abilitato)
-                            {
-                                <div class="btn chip hoverable amber center" onclick="NotificaAEM('@Model.UIDAtto', @((int) TipoDestinatarioNotificaEnum.CONSIGLIERI))">
-                                    <i class="icon material-icons">share</i> Invita
-                                </div>
-                            }
-                            @if (Model.Eliminabile)
-                            {
-                                <div class="btn chip hoverable red center white-text" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.ELIMINA))">
-                                    <i class="icon material-icons">delete</i> Elimina
-                                </div>
-                            }
-                            @if (Model.Ritirabile)
-                            {
-                                <div class="btn chip hoverable red white-text center" onclick="ConfirmAction('@Model.UIDEM', '@Model.N_EM.Replace(" all\'", " -")', @Html.Raw((int) ActionEnum.RITIRA))">
-                                    <i class="icon material-icons">settings_backup_restore</i> Ritira EM/SUBEM
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-            <div class="card-content">
-                @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
-                <div class="row">
-                    <div class="col s6 left">
-                        @if (Model.UIDPersonaModifica.HasValue && Model.IDStato < (int)StatiEnum.Depositato)
-                        {
-                            <label style="font-size: small !important">Ultima modifica: </label>
-                            <br/>
-                            <b>[@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @Model.PersonaModifica.DisplayName</b>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.NOTE_Griglia))
-                        {
-                            <div class="green-text">
-                                <p style="padding-top: 10px">
-                                    <b>Nota ufficio dei lavori assembleari: </b>
-                                    @Html.Raw(Model.NOTE_Griglia)
-                                </p>
-                            </div>
-                        }
-                    </div>
-                    <div class="col s6 right-align">
-                        <label style="font-size: small !important">Proponente: </label>
-                        <br/>
-                        <b>@Model.PersonaProponente.DisplayName</b>
-                    </div>
-                </div>
-                @if (!string.IsNullOrEmpty(Model.EM_Certificato))
+        </div>
+    }
+    <div class="card-content">
+        @* NOTA PUBBLICA + GRUPPO + PROPONENTE *@
+        <div class="row">
+            <div class="col s6 left">
+                @if (Model.UIDPersonaModifica.HasValue && Model.IDStato < (int)StatiEnum.Depositato)
                 {
-                    @* TITOLO *@
-                    <div class="row">
-                        <div class="col s12 center">
-                            <h4>
-                                <b>
-                                    <span>@Html.Raw(Model.N_EM)</span>
-                                </b>
-                            </h4>
-                        </div>
+                    <label style="font-size: small !important">Ultima modifica: </label>
+                    <br/>
+                    <b>[@Model.DataModifica.Value.ToString("dd/MM/yyyy HH:mm")] @Model.PersonaModifica.DisplayName</b>
+                }
+                @if (!string.IsNullOrEmpty(Model.NOTE_Griglia))
+                {
+                    <div class="green-text">
+                        <p style="padding-top: 10px">
+                            <b>Nota ufficio dei lavori assembleari: </b>
+                            @Html.Raw(Model.NOTE_Griglia)
+                        </p>
                     </div>
                 }
-                @* BODY *@
-                <div class="row">
-                    <div class="col s12 center bodyEMClass">
-                        @Html.Raw(Model.BodyEM)
-                    </div>
+            </div>
+            <div class="col s6 right-align">
+                <label style="font-size: small !important">Proponente: </label>
+                <br/>
+                <b>@Model.PersonaProponente.DisplayName</b>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.EM_Certificato))
+        {
+						@* TITOLO *@
+            <div class="row">
+                <div class="col s12 center">
+                    <h4>
+                        <b>
+                            <span>@Html.Raw(Model.N_EM)</span>
+                        </b>
+                    </h4>
                 </div>
-                @* FIRME *@
-                <div class="row">
-                    <div class="col s12">
-                        @Html.Raw(Model.Firme)
+            </div>
+        }
+        @* BODY *@
+        <div class="row">
+            <div class="col s12 center bodyEMClass">
+                @Html.Raw(Model.BodyEM)
+            </div>
+        </div>
+        @* FIRME *@
+        <div class="row">
+            <div class="col s12">
+                @Html.Raw(Model.Firme)
 
-                        @if (!string.IsNullOrEmpty(Model.DataDeposito))
-                        {
-                            var testoDeposito = "Emendamento depositato";
-                            if (Model.Firma_da_ufficio)
-                            {
-                                testoDeposito += " d'ufficio";
-                            }
-
-                            <label class="black-text"><b>@testoDeposito il @Html.Raw(Model.DataDeposito)</b></label>
-                        }
-
-                        @if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))
-                        {
-                            @Html.Raw(Model.Firme_dopo_deposito)
-                        }
-                    </div>
-                </div>
-                @if (!string.IsNullOrEmpty(Model.TestoEM_Modificabile))
+                @if (!string.IsNullOrEmpty(Model.DataDeposito))
                 {
-                    <div class="row">
-                        <div class="col s12 l12">
-                            <h5>Durante la discussione in aula il testo è stato così modificato:</h5>
-                            <hr />
-                            @Html.Raw(Model.TestoEM_Modificabile)
-                        </div>
-                    </div>
-                }
-                @if (Model.UIDPersonaProponenteOLD.HasValue)
-                {
-                    <div class="row">
-                        <div class="col s12 l12">
-                            <div class="card amber">
-                                <div class="card-content">
-                                    <span class="black-text">
-                                        L'emendamento ritirato è stato fatto proprio da @Model.PersonaProponente.DisplayName
-                                    </span>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                @* INVITI *@
-                @if (Model.IDStato < (int)StatiEnum.Depositato)
-                {
-                    if (!string.IsNullOrEmpty(Model.Destinatari) && !User.IsInRole(RuoliExt.Segreteria_Assemblea))
+                    var testoDeposito = "Emendamento depositato";
+                    if (Model.Firma_da_ufficio)
                     {
-                        <div class="row">
-                            <div class="col s12">
-                                <h5>Invitati</h5>
-                                <hr/>
-                                @Html.Raw(Model.Destinatari)
-                            </div>
-                        </div>
+                        testoDeposito += " d'ufficio";
                     }
+
+                    <label class="black-text">
+                        <b>@testoDeposito il @Html.Raw(Model.DataDeposito)</b>
+                    </label>
                 }
-                
 
-                @* CREA SUB EM *@
-                @Html.Partial("_CommandSUBEM", Model)
-
-                @* NOTE RISERVATE *@
-                @if (!string.IsNullOrEmpty(Model.NOTE_EM) && 
-                     (User.IsInRole(RuoliExt.Amministratore_PEM)
-                      || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
+                @if (!string.IsNullOrEmpty(Model.Firme_dopo_deposito))
                 {
-                    <div class="row">
-                        <div class="col s12 red-text">
-                            <p>
-                                <b>Nota riservata:</b>
-                                @Html.Raw(Model.NOTE_EM)
-                            </p>
-                        </div>
-                    </div>
-                }
-                
-                @*TAGS*@
-                                        
-                @{
-                    var tags = new List<TagDto>();
-
-                    if (!string.IsNullOrEmpty(Model.Tags) && Model.IDStato < (int)StatiEnum.Depositato)
-                    {
-                        tags = JsonConvert.DeserializeObject<List<TagDto>>(Model.Tags);
-                    }
-                }
-                                        
-                @foreach (var t in tags)
-                {
-                    <label>#@t.tag</label>
+                    @Html.Raw(Model.Firme_dopo_deposito)
                 }
             </div>
         </div>
+        @if (!string.IsNullOrEmpty(Model.TestoEM_Modificabile))
+        {
+            <div class="row">
+                <div class="col s12 l12">
+                    <h5>Durante la discussione in aula il testo è stato così modificato:</h5>
+                    <hr/>
+                    @Html.Raw(Model.TestoEM_Modificabile)
+                </div>
+            </div>
+        }
+        @if (Model.UIDPersonaProponenteOLD.HasValue)
+        {
+            <div class="row">
+                <div class="col s12 l12">
+                    <div class="card amber">
+                        <div class="card-content">
+                            <span class="black-text">
+                                L'emendamento ritirato è stato fatto proprio da @Model.PersonaProponente.DisplayName
+                            </span>
+                        </div>
 
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* INVITI *@
+        @if (Model.IDStato < (int)StatiEnum.Depositato)
+        {
+            if (!string.IsNullOrEmpty(Model.Destinatari) && !User.IsInRole(RuoliExt.Segreteria_Assemblea))
+            {
+                <div class="row">
+                    <div class="col s12">
+                        <h5>Invitati</h5>
+                        <hr/>
+                        @Html.Raw(Model.Destinatari)
+                    </div>
+                </div>
+            }
+        }
+
+
+        @* CREA SUB EM *@
+        @Html.Partial("_CommandSUBEM", Model)
+
+        @* NOTE RISERVATE *@
+        @if (!string.IsNullOrEmpty(Model.NOTE_EM) &&
+             (User.IsInRole(RuoliExt.Amministratore_PEM)
+              || User.IsInRole(RuoliExt.Segreteria_Assemblea)))
+        {
+            <div class="row">
+                <div class="col s12 red-text">
+                    <p>
+                        <b>Nota riservata:</b>
+                        @Html.Raw(Model.NOTE_EM)
+                    </p>
+                </div>
+            </div>
+        }
+
+        @*TAGS*@
+
+        @{
+            var tags = new List<TagDto>();
+
+            if (!string.IsNullOrEmpty(Model.Tags) && Model.IDStato < (int)StatiEnum.Depositato)
+            {
+                tags = JsonConvert.DeserializeObject<List<TagDto>>(Model.Tags);
+            }
+        }
+
+        @foreach (var t in tags)
+        {
+            <label>#@t.tag</label>
+        }
     </div>
+</div>
+
+</div>
 </div>
 
 <div class="fixed-action-btn">
@@ -301,10 +271,202 @@
     UIDEM = Model.UIDEM
 })
 
-@section scripts
-{
-    <script>
-        setListaEmendamenti([]);
-        setSelezionaTutti(false);
-    </script>
-}
+
+<script>
+	setListaEmendamenti([]);
+	setSelezionaTutti(false);
+</script>
+<script>
+	function ConfirmAction(id, name, action) {
+		$("#emActionDisplayName").empty();
+		$("#emActionDisplayName").append(name);
+		$("#emActionMessage").empty();
+
+		if (action == 1) {
+			$("#btnConfermaAction").text("ELIMINA");
+			$("#emActionMessage").append("Stai per eliminare l'emendamento selezionato. Sei sicuro?");
+		} else if (action == 2) {
+			$("#btnConfermaAction").text("RITIRA");
+			$("#emActionMessage").append("Stai per ritirare l'emendamento selezionato. Sei sicuro?");
+		}
+		$("#btnConfermaAction").on("click",
+			function () {
+				$.ajax({
+					url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action,
+					method: "GET"
+				}).done(function (data) {
+					$("#modalAction").modal("close");
+					$("#btnConfermaAction").off("click");
+					console.log(data.message);
+					if (data.message) {
+						swal({
+							title: "Errore",
+							text: data.message,
+							icon: "error"
+						});
+					} else {
+						window.close();
+					}
+				}).fail(function (err) {
+					console.log("error", err);
+					Error(err);
+				});
+			});
+		$("#modalAction").modal("open");
+	}
+
+	function RitiraFirma(id) {
+
+		swal("Inserisci il pin per ritirare la firma",
+			{
+				content: {
+					element: "input",
+					attributes: { placeholder: "******", className: "password" }
+				},
+				icon: "warning",
+				buttons: { cancel: "Annulla", confirm: "Ritira" }
+			})
+			.then((value) => {
+				if (value == null || value == "")
+					return;
+				$.ajax({
+					url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
+					method: "GET"
+				}).done(function (data) {
+					var typeMessage = "error";
+					var str = data.message;
+					var pos = str.indexOf("OK");
+					if (pos > 0) {
+						typeMessage = "success";
+					}
+					swal({
+						title: "Esito ritiro firma",
+						text: data.message,
+						icon: typeMessage,
+						button: "OK"
+					}).then(() => {
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+						location.reload();
+					});
+				}).fail(function (err) {
+					console.log("error", err);
+					Error(err);
+				});
+			});
+	}
+
+	function EliminaFirma(id) {
+
+		swal("Inserisci il pin per eliminare la firma",
+			{
+				content: {
+					element: "input",
+					attributes: { placeholder: "******", className: "password" }
+				},
+				icon: "warning",
+				buttons: { cancel: "Annulla", confirm: "Elimina" }
+			})
+			.then((value) => {
+				if (value == null || value == "")
+					return;
+				$.ajax({
+					url: baseUrl + "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
+					method: "GET"
+				}).done(function (data) {
+					if (data.message) {
+						var typeMessage = "error";
+						var str = data.message;
+						var pos = str.indexOf("OK");
+						if (pos > 0) {
+							typeMessage = "success";
+						}
+						swal({
+							title: "Esito ritiro firma",
+							text: data.message,
+							icon: typeMessage,
+							button: "OK"
+						}).then(() => {
+                            window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+							location.reload();
+						});
+					} else {
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+						location.reload();
+					}
+				}).fail(function (err) {
+					console.log("error", err);
+					Error(err);
+				});
+			});
+	}
+
+	function RevealFirmaDeposito(id, action) {
+		var text = "";
+		var button = "";
+		if (action == 3) {
+			text = "Inserisci il PIN per firmare";
+			button = "Firma";
+		} else if (action == 4) {
+			text = "Inserisci il PIN per presentare";
+			button = "Presenta";
+		}
+
+		swal(text,
+			{
+				content: {
+					element: "input",
+					attributes: { placeholder: "******", className: "password" }
+				},
+				icon: "info",
+				buttons: { cancel: "Annulla", confirm: button }
+			})
+			.then((value) => {
+				if (value == null || value == "")
+					return;
+
+				$.ajax({
+					url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+					method: "GET"
+				}).done(function (data) {
+					if (data.message) {
+						var typeMessage = "error";
+						var str = data.message;
+						var pos = str.indexOf("OK");
+						if (pos > 0) {
+							typeMessage = "success";
+						}
+						swal({
+							title: "Esito " + button,
+							text: data.message,
+							icon: typeMessage,
+							button: "OK"
+						}).then(() => {
+							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                            location.reload();
+						});
+					} else {
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+						location.reload();
+					}
+				}).fail(function (err) {
+					console.log("error", err);
+					Error(err);
+				});
+			});
+	}
+</script>
+
+
+<div id="modalAction" class="modal" style="height: unset !important">
+    <div class="modal-content">
+        <h5 id="emActionDisplayName"></h5>
+        <p id="emActionMessage"></p>
+        <div class="modal-footer" style="position: unset !important;">
+            <button type="button" class="btn modal-close grey">Annulla</button>
+            <a id="btnConfermaAction" class="btn red" href="#">Elimina</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

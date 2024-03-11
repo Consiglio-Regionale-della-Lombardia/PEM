@@ -1,4 +1,5 @@
-﻿@using PortaleRegione.DTO.Enum
+﻿@using PortaleRegione.Client.Helpers
+@using PortaleRegione.DTO.Enum
 <script>
     $(document).ready(async function() {
         $('#btnSearch').hide();
@@ -14,7 +15,7 @@
             $('#pnlFormEM').show();
         }
     }
-    
+
     async function CaricaTesti() {
         var attoUId = $('#Emendamento_UIDAtto').val();
         var grigliaInDb = await GetGrigliaTesto(attoUId);
@@ -205,13 +206,18 @@
             }).done(function(data) {
                 console.log(data)
                 if (data.message)
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
+                    {
+                        swal({
+                            title: "Errore",
+                            text: data.message,
+                            icon: "error"
+                        });
+                    }
                 else
-                    go(data);
+                    {
+                        window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                        location.reload();
+                    }
             }).fail(function(err) {
                 console.log("error", err);
                 Error(err);
@@ -220,5 +226,31 @@
             return false; //This doesn't prevent the form from submitting.
         }
     });
+
+	$('.trumbowyg').trumbowyg({
+		lang: 'it',
+		btns: [
+			['viewHTML'],
+			['formatting'],
+			['strong', 'em', 'del'],
+			['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+			['unorderedList', 'orderedList'],
+			['indent', 'outdent'],
+			['table'],
+			['link'],
+			['fontfamily'],
+			['fontsize'],
+			['removeformat'],
+			['fullscreen']
+		],
+		plugins: {
+			fontfamily: {
+				fontList: [
+					{ name: 'Arial', family: 'Arial, Helvetica, sans-serif' },
+					{ name: 'Open Sans', family: '\'Open Sans\', sans-serif' }
+				]
+			}
+		}
+	});
 
 </script>

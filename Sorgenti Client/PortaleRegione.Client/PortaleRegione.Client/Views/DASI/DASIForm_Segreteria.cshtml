@@ -3,278 +3,299 @@
 @model PortaleRegione.DTO.Model.DASIFormModel
 
 @{
+    Layout = null;
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
-    var urlView = Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA ?
-        Url.Action("RiepilogoDASI") :
-        Url.Action("ViewAtto", new { id = Model.Atto.UIDAtto });
-
-    var backUrl = isNew ? Url.Action("RiepilogoDASI", new { tipo = Model.Atto.Tipo }) : urlView;
 }
-<script>
-    $(document).ready(function() {
-        $('#btnSearch').hide();
-    });
-</script>
 
-<div class="row">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
-            <i class="material-icons">arrow_back</i>
-        </a>
-    </div>
-    <div class="col l11 s10">
-        <h4>
-            <b>
-                <span>@ViewBag.Title</span>
-                <input id="hfIsNew" type="hidden" value="@isNew"/>
-            </b>
-        </h4>
-    </div>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-<div class="card">
-    <div class="card-content">
-        <div class="row">
-            <div class="col s12 center">
-                <h5>
-                    <b>
-                        <span>@PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
-                    </b>
-                </h5>
-            </div>
-        </div>
-        <div class="row">
-			<div class="col s12">
-				@using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
-				{
-					@Html.AntiForgeryToken()
+    @Styles.Render("~/Content/css")
+    @*Import Trumbowyg plugins style...*@
+    <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
 
-					@Html.HiddenFor(m => m.Atto.UIDAtto)
-					@Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
-					@Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
-					@Html.HiddenFor(m => m.Atto.idRuoloCreazione)
-					@Html.HiddenFor(m => m.Atto.Progressivo)
-					@Html.HiddenFor(m => m.Atto.IDStato)
-					@Html.HiddenFor(m => m.Atto.id_gruppo)
-					@Html.HiddenFor(m => m.Atto.DataCreazione)
-					@Html.HiddenFor(m => m.Atto.DataModifica)
-					@Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
-					@Html.HiddenFor(m => m.Atto.UID_QRCode)
-					@Html.HiddenFor(m => m.Atto.Tipo)
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @Scripts.Render("~/bundles/lib")
+    @Scripts.Render("~/bundles/logic")
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+</head>
+<body>
+	<script>
+		$(document).ready(function () {
+			$('#btnSearch').hide();
+		});
+	</script>
 
-					<div class="row">
-						<div class="col s12 form-group">
-							<label>Proponente: </label>
-							@Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
-						</div>
-					</div>
+	<div class="row">
+		<div class="col l1 s2">
+			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+				<i class="material-icons">close</i>
+			</a>
+		</div>
+		<div class="col l11 s10">
+			<h4>
+				<b>
+					<span>@ViewBag.Title</span>
+					<input id="hfIsNew" type="hidden" value="@isNew" />
+				</b>
+			</h4>
+		</div>
+	</div>
 
-					@Html.Partial("_TipoMOZPartial", Model)
-					@Html.Partial("_TipoODGPartial", Model)
-
-					@Html.Partial("_TipoRispostaPartial", Model)
-
-					<div class="form-group" style="padding-top: 10px">
-						@Html.LabelFor(s => s.Atto.Oggetto)
-						@Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
-					</div>
-					<div class="form-group" style="padding-top: 10px">
-						@Html.LabelFor(s => s.Atto.Premesse)
-						@Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
-					</div>
-
-					if (isNew)
-					{
-						if (Model.Atto.Tipo == (int)TipoAttoEnum.IQT)
-						{
-							<div class="row">
-								<div class="col s12">
-									<label class="black-text" style="margin-left: 20px">
-										<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)" />
-										<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)</span>
-									</label>
-								</div>
-							</div>
-						}
-						else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-					   && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
-						{
-							<div class="row">
-								<div class="col s12">
-									<label class="black-text" style="margin-left: 20px">
-										<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)" />
-										<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
-									</label>
-									<label class="black-text" style="margin-left: 20px">
-										<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)" />
-										<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
-									</label>
-									<label class="black-text" style="margin-left: 20px">
-										<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)" />
-										<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
-									</label>
-								</div>
-							</div>
-						}
-
-						<div class="input-field">
-							<p>
-								<label>
-									<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)" />
-									<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)</span>
-								</label>
-							</p>
-							<p>
-								<label>
-									<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)" />
-									<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)</span>
-								</label>
-							</p>
-							<p>
-								<label>
-									<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)" />
-									<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)</span>
-								</label>
-							</p>
-							<p>
-								<label>
-									<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)" />
-									<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)</span>
-								</label>
-							</p>
-						</div>
-					}
-
-					<div class="form-group" style="padding-top: 10px">
-						@Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
-					</div>
-
-					@Html.Partial("_DocsPanel", Model)
-
-					if (Model.Atto.Tipo == (int)TipoAttoEnum.ODG)
-					{
-						<div class="form-group">
-							<p>
-								<label>
-									<input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
-										   @Html.Raw((Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : ""))>
-									<span>ODG di NON passaggio in esame</span>
-								</label>
-							</p>
-						</div>
-					}
-
-					if (Model.CurrentUser.IsSegreteriaAssemblea)
-					{
-						if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
-							&& Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-							&& Model.Atto.Tipo != (int)TipoAttoEnum.ITR
-							&& Model.Atto.Tipo != (int)TipoAttoEnum.ODG
-							&& string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta)
-							&& Model.Atto.UIDPersonaProponente.HasValue)
-						{
-							<div class="row">
-								<div class="col s12 center">
-									<div class="card-panel grey lighten-4">
-										<span class="black-text">
-											<a class="btn pink tooltipped"
-											   data-tooltip="Iscrizione in seduta"
-											   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
-												Iscrizione in seduta
-											</a>
-										</span>
-									</div>
-								</div>
-							</div>
-						}
-						else if (!string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
-						{
-							<div class="row">
-								<div class="col s12 center">
-									<div class="card-panel green lighten-4">
-										<span class="black-text">
-											@{
-												var textSeduta = $"Seduta del {Model.Atto.DataRichiestaIscrizioneSeduta}";
-												var tooltipSeduta = "Richiesta in attesa di elaborazione";
-											}
-
-											<span class="tooltipped" data-tooltip="@tooltipSeduta">
-												<i>@textSeduta</i>
-												@if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
-												{
-													<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">close</i>
-												}
-											</span>
-										</span>
-									</div>
-								</div>
-							</div>
-						}
-
-						@Html.Partial("_FirmatariUfficioPanel", Model)
-					}
-				}
-
-				@if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
-				{
-					<div class="fixed-action-btn">
-						<button id="btnSaveCartaceo"
-								class="btn-floating btn-large blue tooltipped"
-								type="button"
-								data-tooltip="Salva atto cartaceo"
-								data-position="left">
-							<i class="large material-icons">save</i>
-						</button>
-					</div>
-				}
-				else
-				{
-					<div class="fixed-action-btn">
-						<button id="btnSave"
-								class="btn-floating btn-large blue tooltipped"
-								type="button"
-								data-tooltip="Salva atto"
-								data-position="left">
-							<i class="large material-icons">save</i>
-						</button>
-					</div>
-				}
+	<div class="card">
+		<div class="card-content">
+			<div class="row">
+				<div class="col s12 center">
+					<h5>
+						<b>
+							<span>@PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.Tipo) @Html.Raw(Model.Atto.NAtto)</span>
+						</b>
+					</h5>
+				</div>
 			</div>
-        </div>
-    </div>
-</div>
+			<div class="row">
+				<div class="col s12">
+					@using (Html.BeginForm("SalvaAtto", "DASI", FormMethod.Post, new { id = "formDASI" }))
+					{
+						@Html.AntiForgeryToken()
 
-@if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
-{
-    Html.RenderPartial("_RichiestaIscrizioneASedutaModal", false);
-}
+						@Html.HiddenFor(m => m.Atto.UIDAtto)
+						@Html.HiddenFor(m => m.Atto.UIDPersonaProponente)
+						@Html.HiddenFor(m => m.Atto.UIDPersonaCreazione)
+						@Html.HiddenFor(m => m.Atto.idRuoloCreazione)
+						@Html.HiddenFor(m => m.Atto.Progressivo)
+						@Html.HiddenFor(m => m.Atto.IDStato)
+						@Html.HiddenFor(m => m.Atto.id_gruppo)
+						@Html.HiddenFor(m => m.Atto.DataCreazione)
+						@Html.HiddenFor(m => m.Atto.DataModifica)
+						@Html.HiddenFor(m => m.Atto.UIDPersonaModifica)
+						@Html.HiddenFor(m => m.Atto.UID_QRCode)
+						@Html.HiddenFor(m => m.Atto.Tipo)
 
-@Html.Partial("_ScriptFormDASI")
+						<div class="row">
+							<div class="col s12 form-group">
+								<label>Proponente: </label>
+								@Html.DropDownListFor(m => m.Atto.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
+							</div>
+						</div>
 
-<script>
+						@Html.Partial("_TipoMOZPartial", Model)
+						@Html.Partial("_TipoODGPartial", Model)
 
-    function TipoRichiesta_OnChange(ctrl) {
-        var container_testo_richiesta = $("#Atto_Richiesta").parent();
-        var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+						@Html.Partial("_TipoRispostaPartial", Model)
 
-        var tipo_richiesta = $(ctrl).val();
-        var testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta + "</strong> ";
-        editor_testo_richiesta.html(testo);
-    }
+						<div class="form-group" style="padding-top: 10px">
+							@Html.LabelFor(s => s.Atto.Oggetto)
+							@Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+						</div>
+						<div class="form-group" style="padding-top: 10px">
+							@Html.LabelFor(s => s.Atto.Premesse)
+							@Html.TextAreaFor(model => model.Atto.Premesse, new { @class = "form-control trumbowyg" })
+						</div>
 
-    function TipoRichiestaDest_OnChange(ctrl) {
-        var container_testo_richiesta = $("#Atto_Richiesta").parent();
-        var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+						if (isNew)
+						{
+							if (Model.Atto.Tipo == (int)TipoAttoEnum.IQT)
+							{
+								<div class="row">
+									<div class="col s12">
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)</span>
+										</label>
+									</div>
+								</div>
+							}
+							else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
+						   && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+							{
+								<div class="row">
+									<div class="col s12">
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
+										</label>
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
+										</label>
+										<label class="black-text" style="margin-left: 20px">
+											<input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)" />
+											<span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
+										</label>
+									</div>
+								</div>
+							}
 
-        var tipo_richiesta_dest = $(ctrl).val();
-        var testo = "";
-        if (editor_testo_richiesta.html().indexOf(tipo_richiesta_dest) > -1) {
-            testo = editor_testo_richiesta.html().replace("<strong>" + tipo_richiesta_dest + "</strong>", "");
-        } else {
-            testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta_dest + "</strong> ";
-        }
+							<div class="input-field">
+								<p>
+									<label>
+										<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)</span>
+									</label>
+								</p>
+								<p>
+									<label>
+										<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)</span>
+									</label>
+								</p>
+								<p>
+									<label>
+										<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)</span>
+									</label>
+								</p>
+								<p>
+									<label>
+										<input type="checkbox" value="@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)" />
+										<span>@PortaleRegione.Common.Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)</span>
+									</label>
+								</p>
+							</div>
+						}
 
-        editor_testo_richiesta.html(testo);
-    }
-</script>
+						<div class="form-group" style="padding-top: 10px">
+							@Html.TextAreaFor(model => model.Atto.Richiesta, new { @class = "form-control trumbowyg" })
+						</div>
+
+						@Html.Partial("_DocsPanel", Model)
+
+						if (Model.Atto.Tipo == (int)TipoAttoEnum.ODG)
+						{
+							<div class="form-group">
+								<p>
+									<label>
+										<input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
+											   @Html.Raw((Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : ""))>
+										<span>ODG di NON passaggio in esame</span>
+									</label>
+								</p>
+							</div>
+						}
+
+						if (Model.CurrentUser.IsSegreteriaAssemblea)
+						{
+							if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA
+								&& Model.Atto.Tipo != (int)TipoAttoEnum.ITL
+								&& Model.Atto.Tipo != (int)TipoAttoEnum.ITR
+								&& Model.Atto.Tipo != (int)TipoAttoEnum.ODG
+								&& string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta)
+								&& Model.Atto.UIDPersonaProponente.HasValue)
+							{
+								<div class="row">
+									<div class="col s12 center">
+										<div class="card-panel grey lighten-4">
+											<span class="black-text">
+												<a class="btn pink tooltipped"
+												   data-tooltip="Iscrizione in seduta"
+												   onclick="RichiediIscrizioneSedutaDASI('@Html.Raw(Model.Atto.UIDAtto)', '@Html.Raw(Model.Atto.Display)', @Html.Raw(Model.Atto.Tipo), @Html.Raw(Model.Atto.TipoMOZ))">
+													Iscrizione in seduta
+												</a>
+											</span>
+										</div>
+									</div>
+								</div>
+							}
+							else if (!string.IsNullOrEmpty(Model.Atto.DataRichiestaIscrizioneSeduta))
+							{
+								<div class="row">
+									<div class="col s12 center">
+										<div class="card-panel green lighten-4">
+											<span class="black-text">
+												@{
+													var textSeduta = $"Seduta del {Model.Atto.DataRichiestaIscrizioneSeduta}";
+													var tooltipSeduta = "Richiesta in attesa di elaborazione";
+												}
+
+												<span class="tooltipped" data-tooltip="@tooltipSeduta">
+													<i>@textSeduta</i>
+													@if (Model.Atto.Tipo != (int)TipoAttoEnum.ODG)
+													{
+														<i class="material-icons tiny red-text tooltipped" data-tooltip="Rimuovi richiesta" onclick="RimuoviRichiestaIscrizioneDASI('@Model.Atto.UIDAtto', '@Html.Raw(Model.Atto.Display)')">close</i>
+													}
+												</span>
+											</span>
+										</div>
+									</div>
+								</div>
+							}
+
+							@Html.Partial("_FirmatariUfficioPanel", Model)
+						}
+					}
+
+					@if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
+					{
+						<div class="fixed-action-btn">
+							<button id="btnSaveCartaceo"
+									class="btn-floating btn-large blue tooltipped"
+									type="button"
+									data-tooltip="Salva atto cartaceo"
+									data-position="left">
+								<i class="large material-icons">save</i>
+							</button>
+						</div>
+					}
+					else
+					{
+						<div class="fixed-action-btn">
+							<button id="btnSave"
+									class="btn-floating btn-large blue tooltipped"
+									type="button"
+									data-tooltip="Salva atto"
+									data-position="left">
+								<i class="large material-icons">save</i>
+							</button>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (Model.Atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA)
+	{
+		Html.RenderPartial("_RichiestaIscrizioneASedutaModal", false);
+	}
+
+	@Html.Partial("_ScriptFormDASI")
+
+	<script>
+
+		function TipoRichiesta_OnChange(ctrl) {
+			var container_testo_richiesta = $("#Atto_Richiesta").parent();
+			var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+
+			var tipo_richiesta = $(ctrl).val();
+			var testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta + "</strong> ";
+			editor_testo_richiesta.html(testo);
+		}
+
+		function TipoRichiestaDest_OnChange(ctrl) {
+			var container_testo_richiesta = $("#Atto_Richiesta").parent();
+			var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+
+			var tipo_richiesta_dest = $(ctrl).val();
+			var testo = "";
+			if (editor_testo_richiesta.html().indexOf(tipo_richiesta_dest) > -1) {
+				testo = editor_testo_richiesta.html().replace("<strong>" + tipo_richiesta_dest + "</strong>", "");
+			} else {
+				testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta_dest + "</strong> ";
+			}
+
+			editor_testo_richiesta.html(testo);
+		}
+	</script>
+</body>
+</html>
+
+
