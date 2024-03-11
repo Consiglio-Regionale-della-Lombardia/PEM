@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -317,7 +316,7 @@ namespace PortaleRegione.Client.Controllers
                     };
 
                     if (model.Richiesta_Firma) // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/916
-                        request.param.Add("RequireMySign","true");
+                        request.param.Add("RequireMySign", "true");
 
                     var list = await apiGateway.DASI.GetSoloIds(request);
 
@@ -921,13 +920,17 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                var lista = new List<Guid>();
                 var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-                lista.AddRange(model
-                    .Data
-                    .Results
-                    .Select(i => i.UIDAtto));
-                var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = model.Data.Paging.Page,
+                    size = model.Data.Paging.Total,
+                    filtro = model.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)model.ClientMode } }
+                };
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSDASI(soloIds);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1039,7 +1042,8 @@ namespace PortaleRegione.Client.Controllers
 
                 Session["RiepilogoDASI"] = resultPreview;
 
-                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo, (int)resultPreview.Stato,
+                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo,
+                    (int)resultPreview.Stato,
                     Convert.ToInt16(view));
 
                 foreach (var atti in resultPreview.Data.Results)
@@ -1070,7 +1074,9 @@ namespace PortaleRegione.Client.Controllers
                     return View("RiepilogoDASI_Admin", resultPreview);
 
                 return View("RiepilogoDASI", resultPreview);
-            }else if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
+            }
+
+            if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
             {
                 var request = new BaseRequest<AttoDASIDto>
                 {
@@ -1082,7 +1088,8 @@ namespace PortaleRegione.Client.Controllers
                 var resultGrid = await apiGateway.DASI.Get(request);
                 resultGrid.CurrentUser = CurrentUser;
                 resultGrid.ClientMode = modelInCache.ClientMode;
-                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
+                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
+                    (int)resultGrid.Stato,
                     Convert.ToInt16(view));
 
                 Session["RiepilogoDASI"] = resultGrid;
