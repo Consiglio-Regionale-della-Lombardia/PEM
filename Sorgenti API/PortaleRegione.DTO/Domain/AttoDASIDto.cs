@@ -191,5 +191,15 @@ namespace PortaleRegione.DTO.Domain
 
         public List<AttiFirmeDto> FirmeAnte { get; set; }
         public List<AttiFirmeDto> FirmePost { get; set; }
+
+
+        public string OggettoView()
+        {
+            if (!string.IsNullOrEmpty(Oggetto_Privacy))
+                return Oggetto_Privacy;
+            if (!string.IsNullOrEmpty(Oggetto_Modificato))
+                return Oggetto_Modificato;
+            return Oggetto;
+        }
     }
 }

@@ -138,7 +138,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 100);
-            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto })
+            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.OggettoView() })
                 .ToList();
             return Json(items, JsonRequestBehavior.AllowGet);
         }
