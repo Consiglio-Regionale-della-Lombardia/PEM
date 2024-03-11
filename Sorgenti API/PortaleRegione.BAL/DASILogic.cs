@@ -414,10 +414,13 @@ namespace PortaleRegione.API.Controllers
             var totaleAtti = await _unitOfWork
                 .DASI
                 .Count(persona,
+                    requestTipo,
+                    requestStato,
+                    null,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
                     soggetti,
-                    stati,
+                    proponenti,
                     atti_da_firmare);
 
             queryFilter.ImportStatements(model.filtro);
