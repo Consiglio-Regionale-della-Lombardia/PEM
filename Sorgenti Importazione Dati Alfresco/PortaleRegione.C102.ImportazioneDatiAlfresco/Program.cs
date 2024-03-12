@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OfficeOpenXml;
@@ -52,16 +53,16 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                 var cellsRisposteGiunta = worksheetRisposteGiunta.Cells;
                 var rowCountRG = worksheetRisposteGiunta.Dimension.Rows;
 
+                var sb = new StringBuilder();
+                var elaborationTicks = DateTime.Now.Ticks;
+                // Costruisci il percorso della cartella "errore"
+                var errorFolderPath =
+                    Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
+                // Crea la cartella "errori" se non esiste già
+                Directory.CreateDirectory(errorFolderPath);
+
                 foreach (var foglio in foglioAtti)
                 {
-                    var elaborationTicks = DateTime.Now.Ticks;
-                    // Costruisci il percorso della cartella "errore"
-                    var errorFolderPath =
-                        Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
-
-                    // Crea la cartella "errori" se non esiste già
-                    Directory.CreateDirectory(errorFolderPath);
-
                     using (var connection = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
                     {
                         connection.Open();
@@ -69,8 +70,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         var cellsAtti = worksheetAtti.Cells;
 
                         var rowCount = worksheetAtti.Dimension.Rows;
+                        sb.Clear();
 
                         for (var row = 2; row <= rowCount; row++)
+                        {
+                            var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
+                            var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
+                            var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
+
                             try
                             {
                                 var uidAtto = Guid.NewGuid();
@@ -81,13 +88,18 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var nodeIdFromAlfresco = Convert.ToString(cellsAtti[row, 2].Value);
 
                                 //legislatura
-                                var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
                                 if (string.IsNullOrEmpty(legislaturaFromAlfresco))
                                     throw new Exception("Legislatura non valida");
 
                                 var legislatura =
-                                    legislatureFromApi.First(i =>
+                                    legislatureFromApi.FirstOrDefault(i =>
                                         i.id_legislatura.Equals(Convert.ToInt16(legislaturaFromAlfresco)));
+
+                                if (legislatura == null)
+                                {
+                                    throw new Exception(
+                                        $"Legislatura {legislaturaFromAlfresco} non trovata nel database.");
+                                }
 
                                 #region FIRME
 
@@ -231,22 +243,27 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         {
                                             dataTrasmissioneRispostaAssociata = null;
                                         }
+
                                         var dataTrattazioneRispostaAssociata = cellsRisposteAssociate[rowRA, 14].Value;
                                         if (Convert.ToString(dataTrattazioneRispostaAssociata).Equals("NULL"))
                                         {
                                             dataTrattazioneRispostaAssociata = null;
                                         }
+
                                         var idCommissioneRispostaAssociata = cellsRisposteAssociate[rowRA, 16].Value;
 
                                         if (Convert.ToString(idCommissioneRispostaAssociata).Equals("NULL"))
                                         {
-                                            var nodeIdRisposta = Convert.ToString(cellsRisposteAssociate[rowRA, 7].Value);
+                                            var nodeIdRisposta =
+                                                Convert.ToString(cellsRisposteAssociate[rowRA, 7].Value);
                                             for (var rowRG = 2; rowRG <= rowCountRG; rowRG++)
                                             {
                                                 var valoreCellaRiferimento = cellsRisposteGiunta[rowRG, 2].Value;
-                                                if (valoreCellaRiferimento != null && valoreCellaRiferimento.ToString() == nodeIdRisposta)
+                                                if (valoreCellaRiferimento != null &&
+                                                    valoreCellaRiferimento.ToString() == nodeIdRisposta)
                                                 {
-                                                    idCommissioneRispostaAssociata = cellsRisposteGiunta[rowRG, 6].Value;
+                                                    idCommissioneRispostaAssociata =
+                                                        cellsRisposteGiunta[rowRG, 6].Value;
                                                     tipoOrgano = (int)TipoOrganoEnum.GIUNTA;
                                                     sub_query =
                                                         @"(SELECT TOP (1) dbo.cariche.nome_carica
@@ -258,36 +275,39 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             }
                                         }
 
-                                        var queryInsertRispostaAssociata = @"INSERT INTO ATTI_RISPOSTE (UIDAtto, Tipo, TipoOrgano, Data, DataTrasmissione, DataTrattazione, IdOrgano, DescrizioneOrgano)
+                                        var queryInsertRispostaAssociata =
+                                            @"INSERT INTO ATTI_RISPOSTE (UIDAtto, Tipo, TipoOrgano, Data, DataTrasmissione, DataTrattazione, IdOrgano, DescrizioneOrgano)
                                          VALUES"
-                                        + $"(@UIDAtto, @Tipo, @TipoOrgano, @Data, @DataTrasmissione, @DataTrattazione, @IdOrgano, {sub_query})";
+                                            + $"(@UIDAtto, @Tipo, @TipoOrgano, @Data, @DataTrasmissione, @DataTrattazione, @IdOrgano, {sub_query})";
 
-                                        var commandRispostaAssociata = new SqlCommand(queryInsertRispostaAssociata, connection);
+                                        var commandRispostaAssociata =
+                                            new SqlCommand(queryInsertRispostaAssociata, connection);
                                         commandRispostaAssociata.Parameters.AddWithValue("@UIDAtto", uidAtto);
-                                        commandRispostaAssociata.Parameters.AddWithValue("@Tipo", ConvertToIntTipoRisposta(tipoRispostaAssociata.ToString().Replace("risposta_", "").Replace("_", " ")));
+                                        commandRispostaAssociata.Parameters.AddWithValue("@Tipo",
+                                            ConvertToIntTipoRisposta(tipoRispostaAssociata.ToString()
+                                                .Replace("risposta_", "").Replace("_", " ")));
                                         commandRispostaAssociata.Parameters.AddWithValue("@TipoOrgano", tipoOrgano);
-                                        commandRispostaAssociata.Parameters.Add("@Data", SqlDbType.DateTime).Value = (object)dataRispostaAssociata ?? DBNull.Value;
-                                        commandRispostaAssociata.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime).Value = (object)dataTrasmissioneRispostaAssociata ?? DBNull.Value;
-                                        commandRispostaAssociata.Parameters.Add("@DataTrattazione", SqlDbType.DateTime).Value = (object)dataTrattazioneRispostaAssociata ?? DBNull.Value;
-                                        commandRispostaAssociata.Parameters.AddWithValue("@IdOrgano", Convert.ToInt16(idCommissioneRispostaAssociata));
+                                        commandRispostaAssociata.Parameters.Add("@Data", SqlDbType.DateTime).Value =
+                                            (object)dataRispostaAssociata ?? DBNull.Value;
+                                        commandRispostaAssociata.Parameters.Add("@DataTrasmissione", SqlDbType.DateTime)
+                                            .Value = (object)dataTrasmissioneRispostaAssociata ?? DBNull.Value;
+                                        commandRispostaAssociata.Parameters.Add("@DataTrattazione", SqlDbType.DateTime)
+                                            .Value = (object)dataTrattazioneRispostaAssociata ?? DBNull.Value;
+                                        commandRispostaAssociata.Parameters.AddWithValue("@IdOrgano",
+                                            Convert.ToInt16(idCommissioneRispostaAssociata));
 
                                         commandRispostaAssociata.ExecuteNonQuery();
                                     }
                                 }
 
                                 #endregion
-
-                                //tipo
-                                var tipoAttoFromAlfresco = Convert.ToString(cellsAtti[row, 4].Value);
+                                
                                 var tipoAttoEnum = ConvertToEnumTipoAtto(tipoAttoFromAlfresco);
 
                                 //tipo mozione
                                 var tipoMozioneAttoFromAlfresco = Convert.ToString(cellsAtti[row, 22].Value);
                                 var tipoMozione = ParseDescr2Enum_TipoMozione(tipoMozioneAttoFromAlfresco);
-
-                                //numero
-                                var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
-
+                                
                                 //etichette
                                 var etichettaAtto = $"{tipoAttoEnum}_{numeroAtto}_{legislatura.num_legislatura}";
                                 var etichettaAtto_Cifrata =
@@ -519,18 +539,23 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             catch (Exception e)
                             {
                                 Console.WriteLine("Errore durante l'elaborazione della riga. Dettagli dell'errore:");
-
-                                // Costruisci il nome del file usando il timestamp e il numero di riga
-                                var fileName = $"{foglio}_{row}.txt";
-
-                                // Costruisci il percorso completo del file all'interno della cartella "errori"
-                                var filePath = Path.Combine(errorFolderPath, fileName);
-
-                                // Scrivi il messaggio dell'eccezione nel file
-                                File.WriteAllText(filePath, e.ToString());
-
-                                Console.WriteLine($"Dettagli dell'errore salvati in {filePath}");
+                                sb.AppendLine($"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
                             }
+                        }
+
+                        // Costruisci il nome del file usando il timestamp e il numero di riga
+                        var fileName = $"dati_report.txt";
+
+                        // Costruisci il percorso completo del file all'interno della cartella "errori"
+                        var filePath = Path.Combine(errorFolderPath, fileName);
+
+                        // Scrivi il messaggio dell'eccezione nel file
+                        using (StreamWriter sw = File.AppendText(filePath))
+                        {
+                            sw.WriteLine(sb.ToString());
+                        }
+
+                        Console.WriteLine($"Dettagli dell'errore salvati in {filePath}");
 
                         Console.WriteLine("Complete!");
                     }

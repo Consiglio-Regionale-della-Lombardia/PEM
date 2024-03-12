@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
 using log4net.Config;
@@ -27,9 +28,10 @@ namespace PortaleRegione.C102.ImportazioneDocumentiAlfresco
 
                 // Trova tutti i file che corrispondono al pattern *_Testo_atto.*
                 var files = Directory.GetFiles(basePath, "*_Testo_atto.*", SearchOption.AllDirectories);
-
+                var sb = new StringBuilder();
                 foreach (var filePath in files)
                 {
+                    var fileName = Path.GetFileName(filePath);
                     // Estrarre informazioni dal nome del file utilizzando espressioni regolari
                     var match = Regex.Match(filePath, @"Atto_(\w+)_Id_Leg_Rif_(\d+)_Num_(\d+)_");
 
@@ -44,7 +46,6 @@ namespace PortaleRegione.C102.ImportazioneDocumentiAlfresco
                         Debug(
                             $"Tipo Documento: {tipoDocumento}, Legislatura: {legislatura}, Numero Atto: {numeroAtto}");
 
-                        var fileName = Path.GetFileName(filePath);
                         var newPath = Path.Combine(destinationPath, fileName);
 
                         // Copia il file nella nuova posizione
@@ -70,12 +71,31 @@ namespace PortaleRegione.C102.ImportazioneDocumentiAlfresco
                             Debug($"Righe modificate: {rowsAffected}");
 
                             connection.Close();
+
+                            sb.AppendLine(
+                                $"{fileName},{tipoDocumento},{numeroAtto},{legislatura},{(rowsAffected > 0 ? "OK" : "KO")}");
                         }
 
                         // Stampa il percorso del nuovo file
                         Debug($"Percorso del nuovo file: {newPath}");
                     }
+                    else
+                    {
+                        sb.AppendLine($"{fileName},anomalia");
+                    }
                 }
+
+                // Costruisci il nome del file usando il timestamp e il numero di riga
+                var reportName = "docs_report.txt";
+                var elaborationTicks = DateTime.Now.Ticks;
+                var errorFolderPath =
+                    Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
+                Directory.CreateDirectory(errorFolderPath);
+                // Costruisci il percorso completo del file all'interno della cartella "errori"
+                var reportPath = Path.Combine(errorFolderPath, reportName);
+
+                // Scrivi il messaggio dell'eccezione nel file
+                File.WriteAllText(reportPath, sb.ToString());
             }
             catch (Exception e)
             {
