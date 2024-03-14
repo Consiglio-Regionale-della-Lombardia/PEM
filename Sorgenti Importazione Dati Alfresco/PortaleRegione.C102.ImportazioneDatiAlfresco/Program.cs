@@ -87,6 +87,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 // nodeid alfresco 
                                 var nodeIdFromAlfresco = Convert.ToString(cellsAtti[row, 2].Value);
 
+                                var stato = Convert.ToString(cellsAtti[row, 10].Value);
+                                var statoId = ParseDescr2Enum_Stato(stato);
+
+                                if (statoId == (int)StatiAttoEnum.PRESENTATO)
+                                {
+                                    throw new Exception("Atto scartato perchè in stato presentato.");
+                                }
+
                                 //legislatura
                                 if (string.IsNullOrEmpty(legislaturaFromAlfresco))
                                     throw new Exception("Legislatura non valida");
@@ -210,11 +218,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 if (chkf == 0) throw new Exception("Nessuna firma trovata per l'atto.");
 
                                 if (chkf > 0 && id_gruppo == 0) throw new Exception("Nessun proponente trovato.");
-
-                                if (id_gruppo == 0)
-                                {
-                                }
-
+                                
                                 #endregion
 
                                 #region RISPOSTE ASSOCIATE
@@ -319,6 +323,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 //oggetto presentato
                                 var oggettoPresentato = Convert.ToString(cellsAtti[row, 21].Value);
 
+                                if (!string.IsNullOrEmpty(oggettoPresentato) ||
+                                    !oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase)
+                                    && string.IsNullOrEmpty(oggetto) ||
+                                           oggetto.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    oggetto = oggettoPresentato;
+                                }
+
                                 //premesse
                                 var premesse = "Atto importato da Alfresco";
 
@@ -344,8 +356,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var pubblicato = cellsAtti[row, 8].Value.Equals("1");
                                 var sollecito = cellsAtti[row, 9].Value.Equals("1");
-
-                                var stato = Convert.ToString(cellsAtti[row, 10].Value);
 
                                 var tipoChiusuraIter = Convert.ToString(cellsAtti[row, 28].Value);
                                 var dataChiusuraIter = Convert.ToString(cellsAtti[row, 30].Value);
@@ -448,7 +458,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 command.Parameters.AddWithValue("@Premesse", premesse);
                                 command.Parameters.AddWithValue("@IDTipo_Risposta", tipoRispostaRichiestaAttoInt);
                                 command.Parameters.AddWithValue("@DataPresentazione", dataPresentazione_Cifrata);
-                                command.Parameters.AddWithValue("@IDStato", ParseDescr2Enum_Stato(stato));
+                                command.Parameters.AddWithValue("@IDStato", statoId);
                                 command.Parameters.AddWithValue("@Legislatura", legislatura.id_legislatura);
                                 command.Parameters.AddWithValue("@Timestamp", dataPresentazione);
                                 command.Parameters.AddWithValue("@OrdineVisualizzazione", numeroAtto);

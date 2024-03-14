@@ -56,24 +56,49 @@ namespace PortaleRegione.C102.ImportazioneDocumentiAlfresco
                         {
                             connection.Open();
 
-                            // Esegui l'inserimento
-                            var sql =
-                                "UPDATE ATTI_DASI SET PATH_AllegatoGenerico = @PercorsoFile WHERE NAtto_Search = @NumeroAtto AND Legislatura = @Legislatura AND Tipo = @TipoDocumento";
+                            var sql = @"
+    DECLARE @Stato NVARCHAR(100);
+
+    SET @Stato = 
+        CASE
+            WHEN EXISTS (SELECT 1 FROM [ATTI_DASI] 
+                         WHERE PATH_AllegatoGenerico IS NOT NULL
+                         AND NAtto_Search = @NumeroAtto 
+                         AND Legislatura = @Legislatura 
+                         AND Tipo = @TipoDocumento)
+                THEN 'Non importato perché l''atto ha già un documento.'
+            WHEN NOT EXISTS (SELECT 1 FROM [ATTI_DASI] 
+                             WHERE NAtto_Search = @NumeroAtto 
+                             AND Legislatura = @Legislatura 
+                             AND Tipo = @TipoDocumento)
+                THEN 'Non importato perché l''atto non è presente nel database.'
+            ELSE 'OK'
+        END;
+
+    IF @Stato = 'OK'
+    BEGIN
+        UPDATE ATTI_DASI 
+        SET PATH_AllegatoGenerico = @PercorsoFile 
+        WHERE NAtto_Search = @NumeroAtto 
+        AND Legislatura = @Legislatura 
+        AND Tipo = @TipoDocumento
+    END
+
+    SELECT @Stato AS Stato";
                             var command = new SqlCommand(sql, connection);
                             command.Parameters.AddWithValue("@PercorsoFile",
                                 $"~/DocumentiPEM/{Path.GetFileName(newPath)}"); // Utilizza la tilde nel percorso
                             command.Parameters.AddWithValue("@NumeroAtto", numeroAtto);
                             command.Parameters.AddWithValue("@Legislatura", legislatura);
                             command.Parameters.AddWithValue("@TipoDocumento", ParseTipoDocumento(tipoDocumento));
-
-                            var rowsAffected = command.ExecuteNonQuery();
-
-                            Debug($"Righe modificate: {rowsAffected}");
+                            
+                            var stato = (string)command.ExecuteScalar();
+                            Debug($"Stato: {stato}");
 
                             connection.Close();
 
                             sb.AppendLine(
-                                $"{fileName},{tipoDocumento},{numeroAtto},{legislatura},{(rowsAffected > 0 ? "OK" : "KO")}");
+                                $"{fileName},{tipoDocumento},{numeroAtto},{legislatura},{(stato != "OK" ? stato : "OK")}");
                         }
 
                         // Stampa il percorso del nuovo file
