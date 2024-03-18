@@ -16,7 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json.Serialization;
 using System.Web.Http;
+using Newtonsoft.Json;
+using PortaleRegione.Api.Public.Business_Layer;
+using Unity;
+using Unity.Lifetime;
+using PortaleRegione.Contracts.Public;
+using PortaleRegione.Persistance.Public;
 
 namespace PortaleRegione.Api.Public
 {
@@ -25,8 +32,17 @@ namespace PortaleRegione.Api.Public
         public static void Register(HttpConfiguration config)
         {
             // Servizi e configurazione dell'API Web
+            var settings = config.Formatters.JsonFormatter.SerializerSettings;
+            settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            settings.Formatting = Formatting.Indented;
 
             // Route dell'API Web
+            // DI
+            var container = new UnityContainer();
+            //aqui
+            container.RegisterType<IUnitOfWork, UnitOfWork>(new HierarchicalLifetimeManager());
+            container.RegisterType<MainLogic>(new HierarchicalLifetimeManager());
+            config.DependencyResolver = new UnityResolver(container);
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

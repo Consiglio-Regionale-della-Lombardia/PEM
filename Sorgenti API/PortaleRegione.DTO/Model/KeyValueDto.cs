@@ -16,14 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
+
 namespace PortaleRegione.DTO.Model
 {
     public class KeyValueDto
     {
         public int id { get; set; }
+        
         public string uid { get; set; }
+        
         public string descr { get; set; } = string.Empty;
+        
         public string descr_con_legislatura { get; set; } = string.Empty;
+
         public string sigla { get; set; } = string.Empty;
+    }
+    
+    public class KeyValueLightDto
+    {
+        public int id { get; set; }
+        
+        public string descr { get; set; } = string.Empty;
     }
 }

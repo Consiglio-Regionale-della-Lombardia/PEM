@@ -1,0 +1,136 @@
+﻿/*
+ * Copyright (C) 2019 Consiglio Regionale della Lombardia
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.Caching;
+using System.Threading.Tasks;
+using PortaleRegione.Common;
+using PortaleRegione.Contracts.Public;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+
+namespace PortaleRegione.Api.Public.Business_Layer
+{
+    public class MainLogic
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly MemoryCache memoryCache = MemoryCache.Default;
+
+        private List<Tipi_AttoDto> TipiAtto
+        {
+            get
+            {
+                if (memoryCache.Contains(Constants.TIPI_ATTO))
+                    return memoryCache.Get(Constants.TIPI_ATTO) as List<Tipi_AttoDto>;
+
+                return new List<Tipi_AttoDto>();
+            }
+            set => memoryCache.Add(Constants.TIPI_ATTO, value, DateTimeOffset.UtcNow.AddHours(8));
+        }
+
+        public MainLogic(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public List<KeyValueLightDto> GetTipi()
+        {
+            var result = new List<KeyValueLightDto>();
+            var tipi = Enum.GetValues(typeof(TipoAttoEnum));
+            foreach (var tipo in tipi)
+            {
+                if (Utility.tipiNonVisibili.Contains((TipoAttoEnum)tipo))
+                {
+                    continue;
+                }
+
+                result.Add(new KeyValueLightDto
+                {
+                    id = (int)tipo,
+                    descr = Utility.GetText_Tipo((int)tipo)
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<List<KeyValueLightDto>> GetLegislature()
+        {
+            var legislature = await _unitOfWork.Legislature.GetLegislature();
+
+            var result = new List<KeyValueLightDto>();
+            foreach (var legislatura in legislature)
+            {
+                result.Add(new KeyValueLightDto
+                {
+                    id = legislatura.id_legislatura,
+                    descr = legislatura.num_legislatura
+                });
+            }
+
+            return result;
+        }
+
+        public List<KeyValueLightDto> GetTipiRisposta()
+        {
+            var result = new List<KeyValueLightDto>
+            {
+                new KeyValueLightDto
+                {
+                    id = (int)TipoRispostaEnum.SCRITTA,
+                    descr = "Scritta"
+                },
+                new KeyValueLightDto
+                {
+                    id = (int)TipoRispostaEnum.ORALE,
+                    descr = "Orale"
+                },
+                new KeyValueLightDto
+                {
+                    id = (int)TipoRispostaEnum.COMMISSIONE,
+                    descr = "In commissione"
+                }
+            };
+
+            return result;
+        }
+
+        public List<KeyValueLightDto> GetStati()
+        {
+            var result = new List<KeyValueLightDto>();
+            var stati = Enum.GetValues(typeof(StatiAttoEnum));
+            foreach (var stato in stati)
+            {
+                if (Utility.statiNonVisibili_Segreteria.Contains((int)stato))
+                {
+                    continue;
+                }
+
+                result.Add(new KeyValueLightDto
+                {
+                    id = (int)stato,
+                    descr = Utility.GetText_StatoDASI((int)stato)
+                });
+            }
+
+            return result;
+        }
+    }
+}

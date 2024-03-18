@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using AutoMapper;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Api.Public
 {
@@ -27,6 +29,7 @@ namespace PortaleRegione.Api.Public
     {
         protected void Application_Start()
         {
+            Log.Initialize();
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

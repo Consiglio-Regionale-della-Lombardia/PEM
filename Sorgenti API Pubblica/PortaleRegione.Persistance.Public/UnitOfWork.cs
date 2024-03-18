@@ -16,23 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Web.Mvc;
-using System.Web.Routing;
+using PortaleRegione.Contracts.Public;
+using PortaleRegione.DataBase;
 
-namespace PortaleRegione.Api.Public
+namespace PortaleRegione.Persistance.Public
 {
-    public class RouteConfig
+    public class UnitOfWork : IUnitOfWork
     {
-        public static void RegisterRoutes(RouteCollection routes)
+        private readonly PortaleRegioneDbContext _context;
+
+        public void Dispose()
         {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            routes.LowercaseUrls = true;
-            routes.MapMvcAttributeRoutes();
-            routes.MapRoute(
-                "Default",
-                "{controller}/{action}/{id}",
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-            );
+            _context.Dispose();
         }
+
+        public UnitOfWork(PortaleRegioneDbContext context)
+        {
+            _context = context;
+            Legislature = new LegislatureRepository(_context);
+        }
+
+
+        public ILegislatureRepository Legislature { get; }
     }
 }

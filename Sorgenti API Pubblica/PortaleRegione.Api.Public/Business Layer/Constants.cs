@@ -16,23 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Web.Mvc;
-using System.Web.Routing;
-
-namespace PortaleRegione.Api.Public
+namespace PortaleRegione.Api.Public.Business_Layer
 {
-    public class RouteConfig
+    public class Constants
     {
-        public static void RegisterRoutes(RouteCollection routes)
-        {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            routes.LowercaseUrls = true;
-            routes.MapMvcAttributeRoutes();
-            routes.MapRoute(
-                "Default",
-                "{controller}/{action}/{id}",
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-            );
-        }
+        internal const string TIPI_ATTO = "TIPI_ATTO";
+
     }
 }

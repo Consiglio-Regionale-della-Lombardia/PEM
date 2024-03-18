@@ -16,23 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Web.Mvc;
-using System.Web.Routing;
+using System;
 
-namespace PortaleRegione.Api.Public
+namespace PortaleRegione.Contracts.Public
 {
-    public class RouteConfig
+    public interface IUnitOfWork : IDisposable
     {
-        public static void RegisterRoutes(RouteCollection routes)
-        {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            routes.LowercaseUrls = true;
-            routes.MapMvcAttributeRoutes();
-            routes.MapRoute(
-                "Default",
-                "{controller}/{action}/{id}",
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-            );
-        }
+        ILegislatureRepository Legislature { get; }
     }
 }
