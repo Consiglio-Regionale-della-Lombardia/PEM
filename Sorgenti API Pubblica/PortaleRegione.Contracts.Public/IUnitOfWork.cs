@@ -23,5 +23,6 @@ namespace PortaleRegione.Contracts.Public
     public interface IUnitOfWork : IDisposable
     {
         ILegislatureRepository Legislature { get; }
+        IGruppiRepository Gruppi { get; }
     }
 }

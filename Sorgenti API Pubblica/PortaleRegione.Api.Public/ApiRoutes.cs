@@ -27,7 +27,7 @@ namespace PortaleRegione.Api.Public
         public const string GetTipi = Root + "/tipi";
         public const string GetTipiRisposte = Root + "/tipi/risposte";
         public const string GetStati = Root + "/stati";
-        public const string GetGruppi = Root + "/{legislatura}/gruppi";
+        public const string GetGruppi = Root + "/gruppi";
         public const string GetFirmatari = Root + "/{legislatura}/firmatari";
         public const string GetCaricheGiunta = Root + "/{legislatura}/cariche";
         public const string GetCommissioni = Root + "/{legislatura}/commissioni";

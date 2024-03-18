@@ -24,19 +24,16 @@ namespace PortaleRegione.DTO.Model
     {
         public int id { get; set; }
         
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string uid { get; set; }
         
-        public string descr { get; set; } = string.Empty;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string descr { get; set; }
         
-        public string descr_con_legislatura { get; set; } = string.Empty;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string descr_con_legislatura { get; set; }
 
-        public string sigla { get; set; } = string.Empty;
-    }
-    
-    public class KeyValueLightDto
-    {
-        public int id { get; set; }
-        
-        public string descr { get; set; } = string.Empty;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string sigla { get; set; }
     }
 }

@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IGruppiRepository.cs" />
     <Compile Include="ILegislatureRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -49,6 +50,10 @@
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.Domain\PortaleRegione.Domain.csproj">
       <Project>{5CA1CEF4-77D6-4F1D-9795-E857E10206F4}</Project>
       <Name>PortaleRegione.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
+      <Project>{A7ADA419-A178-40DA-85CC-63F6875E5793}</Project>
+      <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using AutoMapper;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;

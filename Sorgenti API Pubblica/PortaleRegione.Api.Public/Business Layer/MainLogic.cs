@@ -50,9 +50,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
             _unitOfWork = unitOfWork;
         }
 
-        public List<KeyValueLightDto> GetTipi()
+        public List<KeyValueDto> GetTipi()
         {
-            var result = new List<KeyValueLightDto>();
+            var result = new List<KeyValueDto>();
             var tipi = Enum.GetValues(typeof(TipoAttoEnum));
             foreach (var tipo in tipi)
             {
@@ -61,7 +61,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     continue;
                 }
 
-                result.Add(new KeyValueLightDto
+                result.Add(new KeyValueDto
                 {
                     id = (int)tipo,
                     descr = Utility.GetText_Tipo((int)tipo)
@@ -71,14 +71,14 @@ namespace PortaleRegione.Api.Public.Business_Layer
             return result;
         }
 
-        public async Task<List<KeyValueLightDto>> GetLegislature()
+        public async Task<List<KeyValueDto>> GetLegislature()
         {
             var legislature = await _unitOfWork.Legislature.GetLegislature();
 
-            var result = new List<KeyValueLightDto>();
+            var result = new List<KeyValueDto>();
             foreach (var legislatura in legislature)
             {
-                result.Add(new KeyValueLightDto
+                result.Add(new KeyValueDto
                 {
                     id = legislatura.id_legislatura,
                     descr = legislatura.num_legislatura
@@ -88,21 +88,21 @@ namespace PortaleRegione.Api.Public.Business_Layer
             return result;
         }
 
-        public List<KeyValueLightDto> GetTipiRisposta()
+        public List<KeyValueDto> GetTipiRisposta()
         {
-            var result = new List<KeyValueLightDto>
+            var result = new List<KeyValueDto>
             {
-                new KeyValueLightDto
+                new KeyValueDto
                 {
                     id = (int)TipoRispostaEnum.SCRITTA,
                     descr = "Scritta"
                 },
-                new KeyValueLightDto
+                new KeyValueDto
                 {
                     id = (int)TipoRispostaEnum.ORALE,
                     descr = "Orale"
                 },
-                new KeyValueLightDto
+                new KeyValueDto
                 {
                     id = (int)TipoRispostaEnum.COMMISSIONE,
                     descr = "In commissione"
@@ -112,9 +112,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
             return result;
         }
 
-        public List<KeyValueLightDto> GetStati()
+        public List<KeyValueDto> GetStati()
         {
-            var result = new List<KeyValueLightDto>();
+            var result = new List<KeyValueDto>();
             var stati = Enum.GetValues(typeof(StatiAttoEnum));
             foreach (var stato in stati)
             {
@@ -123,7 +123,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     continue;
                 }
 
-                result.Add(new KeyValueLightDto
+                result.Add(new KeyValueDto
                 {
                     id = (int)stato,
                     descr = Utility.GetText_StatoDASI((int)stato)
@@ -131,6 +131,12 @@ namespace PortaleRegione.Api.Public.Business_Layer
             }
 
             return result;
+        }
+
+        public async Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura)
+        {
+            var gruppi = await _unitOfWork.Gruppi.GetByLegislatura(idLegislatura);
+            return gruppi;
         }
     }
 }

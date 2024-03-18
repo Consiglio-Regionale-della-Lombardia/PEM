@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web.Http;
 using PortaleRegione.Api.Public.Business_Layer;
+using PortaleRegione.Api.Public.Models.Request;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.Api.Public.Controllers
@@ -122,9 +123,20 @@ namespace PortaleRegione.Api.Public.Controllers
         /// </summary>
         /// <returns></returns>
         [Route(ApiRoutes.GetGruppi)]
-        public async Task<IHttpActionResult> GetGruppi(int legislatura)
+        [HttpPost]
+        public async Task<IHttpActionResult> GetGruppi(GruppiRequest request)
         {
-            return Ok(new List<object>());
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+
+            try
+            {
+                return Ok(await _logic.GetGruppiByLegislatura(request.id_legislatura));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return ErrorHandler(e);
+            }
         }
 
         /// <summary>

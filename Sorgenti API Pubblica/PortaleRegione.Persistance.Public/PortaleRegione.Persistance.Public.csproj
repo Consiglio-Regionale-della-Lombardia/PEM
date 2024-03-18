@@ -80,6 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GruppiRepository.cs" />
     <Compile Include="LegislatureRepository.cs" />
     <Compile Include="UnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -92,6 +93,10 @@
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.Domain\PortaleRegione.Domain.csproj">
       <Project>{5CA1CEF4-77D6-4F1D-9795-E857E10206F4}</Project>
       <Name>PortaleRegione.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj">
+      <Project>{A7ADA419-A178-40DA-85CC-63F6875E5793}</Project>
+      <Name>PortaleRegione.DTO</Name>
     </ProjectReference>
     <ProjectReference Include="..\PortaleRegione.Contracts.Public\PortaleRegione.Contracts.Public.csproj">
       <Project>{23d5e30d-8a4f-4150-b7d3-4dde3fd19b36}</Project>

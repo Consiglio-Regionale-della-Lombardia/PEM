@@ -32,12 +32,12 @@ namespace PortaleRegione.Persistance.Public
     {
         protected readonly DbContext Context;
 
+        public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
+
         public LegislatureRepository(DbContext context)
         {
             Context = context;
         }
-
-        public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         public async Task<List<legislature>> GetLegislature()
         {
