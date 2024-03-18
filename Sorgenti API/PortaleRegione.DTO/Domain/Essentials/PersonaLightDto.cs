@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
 using System;
 
 namespace PortaleRegione.DTO.Domain.Essentials
@@ -62,5 +63,20 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string foto { get; set; }
         public int id_persona { get; set; }
         public string codice_gruppo { get; set; }
+    }
+    
+    public class PersonaPublicDto
+    {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string DisplayName { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string cognome { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string nome { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int id { get; set; }
     }
 }

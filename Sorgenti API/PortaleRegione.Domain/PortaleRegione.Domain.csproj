@@ -92,6 +92,7 @@
     <Compile Include="View_CONSIGLIERE_GRUPPO.cs" />
     <Compile Include="View_consiglieri_in_carica.cs" />
     <Compile Include="View_CONSIGLIERI_PEM.cs" />
+    <Compile Include="View_consiglieri_per_legislatura.cs" />
     <Compile Include="View_Conteggi_EM_Area_Politica.cs" />
     <Compile Include="View_Conteggi_EM_Gruppi_Politici.cs" />
     <Compile Include="View_gruppi_politici_con_giunta.cs" />

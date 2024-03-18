@@ -1,0 +1,17 @@
+[18/03/2024] - [17:33:50] - [6] ERROR PortaleRegione.Logger.Log - MoveNext
+System.NullReferenceException: Riferimento a un oggetto non impostato su un'istanza di oggetto.
+   in PortaleRegione.Persistance.Public.PersoneRepository.<>c.<GetFirmatariByLegislatura>b__7_0(View_consiglieri_per_legislatura p) in C:\Git\PEM\Sorgenti API Pubblica\PortaleRegione.Persistance.Public\PersoneRepository.cs:riga 87
+   in System.Linq.Enumerable.WhereSelectListIterator`2.MoveNext()
+   in System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   in System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   in PortaleRegione.Persistance.Public.PersoneRepository.<GetFirmatariByLegislatura>d__7.MoveNext() in C:\Git\PEM\Sorgenti API Pubblica\PortaleRegione.Persistance.Public\PersoneRepository.cs:riga 87
+--- Fine traccia dello stack da posizione precedente dove è stata generata l'eccezione ---
+   in System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   in System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   in System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   in PortaleRegione.Api.Public.Business_Layer.MainLogic.<GetFirmatariByLegislatura>d__13.MoveNext() in C:\Git\PEM\Sorgenti API Pubblica\PortaleRegione.Api.Public\Business Layer\MainLogic.cs:riga 157
+--- Fine traccia dello stack da posizione precedente dove è stata generata l'eccezione ---
+   in System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   in System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   in System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   in PortaleRegione.Api.Public.Controllers.MainController.<GetFirmatari>d__9.MoveNext() in C:\Git\PEM\Sorgenti API Pubblica\PortaleRegione.Api.Public\Controllers\MainController.cs:riga 196

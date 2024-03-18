@@ -180,6 +180,27 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere i firmatari disponibili per legislatura
+        /// </summary>
+        /// <returns></returns>
+        [Route(ApiRoutes.GetFirmatari)]
+        [HttpPost]
+        public async Task<IHttpActionResult> GetFirmatari(FirmatariRequest request)
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+
+            try
+            {
+                return Ok(await _logic.GetFirmatariByLegislatura(request.id_legislatura));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Handler per catturare i messaggi di errore

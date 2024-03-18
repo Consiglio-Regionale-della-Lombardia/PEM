@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Model;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -69,6 +72,23 @@ namespace PortaleRegione.Persistance.Public
                 })
                 .ToListAsync();
             return lstGruppi;
+        }
+
+        public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
+        {
+            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
+            var consiglieri = await PRContext
+                .View_consiglieri_per_legislatura
+                .Where(p => p.id_legislatura == idLegislatura && p.id_persona > 0)
+                .Select(p => new PersonaPublicDto
+                {
+                    id = p.id_persona,
+                    DisplayName = p.DisplayName
+                })
+                .ToListAsync();
+            return consiglieri;
         }
     }
 }

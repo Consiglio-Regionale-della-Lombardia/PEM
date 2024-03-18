@@ -165,6 +165,7 @@
     </Compile>
     <Compile Include="Models\Request\CaricheRequest.cs" />
     <Compile Include="Models\Request\CommissioniRequest.cs" />
+    <Compile Include="Models\Request\FirmatariRequest.cs" />
     <Compile Include="Models\Request\GruppiRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

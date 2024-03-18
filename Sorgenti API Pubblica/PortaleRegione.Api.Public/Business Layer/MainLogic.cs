@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 
@@ -149,6 +150,12 @@ namespace PortaleRegione.Api.Public.Business_Layer
         {
             var commissioni = await _unitOfWork.Persone.GetCommissioni(idLegislatura);
             return commissioni;
+        }
+
+        public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
+        {
+            var firmatari = await _unitOfWork.Persone.GetFirmatariByLegislatura(idLegislatura);
+            return firmatari;
         }
     }
 }
