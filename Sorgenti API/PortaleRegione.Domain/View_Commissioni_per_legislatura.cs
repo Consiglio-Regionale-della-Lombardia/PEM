@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using System.ComponentModel.DataAnnotations;
 
-using System;
-
-namespace PortaleRegione.Contracts.Public
+namespace PortaleRegione.Domain
 {
-    public interface IUnitOfWork : IDisposable
+    public class View_Commissioni_per_legislatura
     {
-        ILegislatureRepository Legislature { get; }
-        IPersoneRepository Persone { get; }
+        [Key]
+        public int id_organo { get; set; }
+        public string nome_organo { get; set; }
+        public int id_legislatura { get; set; }
+        public int ordinamento { get; set; }
     }
 }

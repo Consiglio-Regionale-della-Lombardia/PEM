@@ -16,13 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel.DataAnnotations;
 using System;
 
-namespace PortaleRegione.Contracts.Public
+namespace PortaleRegione.Domain
 {
-    public interface IUnitOfWork : IDisposable
+    public class View_cariche_assessori_per_legislatura
     {
-        ILegislatureRepository Legislature { get; }
-        IPersoneRepository Persone { get; }
+        [Key] 
+        public Guid UID_persona { get; set; }
+        
+        public string DisplayName { get; set; }
+        public int id_carica { get; set; }
+        public string nome_carica { get; set; }
+        public int ordine { get; set; }
+
+        public int id_legislatura { get; set; }
     }
 }

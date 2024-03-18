@@ -85,8 +85,10 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; } // DASI - Firme
         public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; } // DASI - Contatori per tipo atto e tipo risposta
         public virtual DbSet<View_cariche_assessori_in_carica> View_cariche_assessori_in_carica { get; set; } // DASI - Soggetti interrogati
+        public virtual DbSet<View_cariche_assessori_per_legislatura> View_cariche_assessori_per_legislatura { get; set; } // DASI - Soggetti interrogati per legislatura
         public virtual DbSet<ATTI_SOGGETTI_INTERROGATI> ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
         public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
+        public virtual DbSet<View_Commissioni_per_legislatura> View_Commissioni_per_legislatura { get; set; } // DASI - Commissioni per legislatura
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
 

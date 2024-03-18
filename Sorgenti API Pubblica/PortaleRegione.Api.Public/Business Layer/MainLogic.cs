@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 using PortaleRegione.Common;
@@ -135,8 +136,19 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
         public async Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura)
         {
-            var gruppi = await _unitOfWork.Gruppi.GetByLegislatura(idLegislatura);
+            var gruppi = await _unitOfWork.Persone.GetGruppiByLegislatura(idLegislatura);
             return gruppi;
+        }
+        public async Task<List<KeyValueDto>> GetCaricheByLegislatura(int idLegislatura)
+        {
+            var cariche = await _unitOfWork.Persone.GetCariche(idLegislatura);
+            return cariche;
+        }
+        
+        public async Task<List<KeyValueDto>> GetCommissioniByLegislatura(int idLegislatura)
+        {
+            var commissioni = await _unitOfWork.Persone.GetCommissioni(idLegislatura);
+            return commissioni;
         }
     }
 }

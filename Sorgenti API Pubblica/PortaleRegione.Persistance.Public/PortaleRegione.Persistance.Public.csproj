@@ -80,8 +80,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GruppiRepository.cs" />
     <Compile Include="LegislatureRepository.cs" />
+    <Compile Include="PersoneRepository.cs" />
     <Compile Include="UnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

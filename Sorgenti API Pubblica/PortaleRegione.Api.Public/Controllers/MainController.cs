@@ -138,6 +138,48 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Endpoint per avere le cariche disponibili per legislatura
+        /// </summary>
+        /// <returns></returns>
+        [Route(ApiRoutes.GetCaricheGiunta)]
+        [HttpPost]
+        public async Task<IHttpActionResult> GetCaricheGiunta(CaricheRequest request)
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+
+            try
+            {
+                return Ok(await _logic.GetCaricheByLegislatura(request.id_legislatura));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere le commissioni disponibili per legislatura
+        /// </summary>
+        /// <returns></returns>
+        [Route(ApiRoutes.GetCommissioni)]
+        [HttpPost]
+        public async Task<IHttpActionResult> GetCommissioni(CommissioniRequest request)
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+
+            try
+            {
+                return Ok(await _logic.GetCommissioniByLegislatura(request.id_legislatura));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Handler per catturare i messaggi di errore

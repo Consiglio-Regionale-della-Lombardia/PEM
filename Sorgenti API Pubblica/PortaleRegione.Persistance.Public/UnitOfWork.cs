@@ -34,11 +34,11 @@ namespace PortaleRegione.Persistance.Public
         {
             _context = context;
             Legislature = new LegislatureRepository(_context);
-            Gruppi = new GruppiRepository(_context);
+            Persone = new PersoneRepository(_context);
         }
 
 
         public ILegislatureRepository Legislature { get; }
-        public IGruppiRepository Gruppi { get; }
+        public IPersoneRepository Persone { get; }
     }
 }
