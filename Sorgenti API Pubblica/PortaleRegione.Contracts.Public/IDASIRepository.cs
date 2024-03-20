@@ -16,14 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using PortaleRegione.Domain;
+using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using ExpressionBuilder.Generics;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts.Public
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IDASIRepository    
     {
-        ILegislatureRepository Legislature { get; }
-        IPersoneRepository Persone { get; }
-        IDASIRepository DASI { get; }
+        Task<ATTI_DASI> Get(Guid attoUId);
+
+        Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null);
+        Task<int> Count(Filter<ATTI_DASI> filtro = null);
     }
 }

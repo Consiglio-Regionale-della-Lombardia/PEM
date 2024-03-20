@@ -41,12 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IDASIRepository.cs" />
     <Compile Include="ILegislatureRepository.cs" />
     <Compile Include="IPersoneRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj">
+      <Project>{70BF550D-5943-4162-8FAB-0BBA743A3D93}</Project>
+      <Name>ExpressionBuilder</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.Domain\PortaleRegione.Domain.csproj">
       <Project>{5CA1CEF4-77D6-4F1D-9795-E857E10206F4}</Project>
       <Name>PortaleRegione.Domain</Name>

@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.Api.Public.Models.Request
+namespace PortaleRegione.DTO.Request.Public
 {
-    public class CommissioniRequest
+    public class FirmatariRequest
     {
         public int id_legislatura { get; set; }
     }

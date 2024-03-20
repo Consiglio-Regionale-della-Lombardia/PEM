@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web.Http;
 using PortaleRegione.Api.Public.Business_Layer;
-using PortaleRegione.Api.Public.Models.Request;
+using PortaleRegione.DTO.Request.Public;
 using PortaleRegione.Logger;
 
 namespace PortaleRegione.Api.Public.Controllers
@@ -194,6 +194,27 @@ namespace PortaleRegione.Api.Public.Controllers
             try
             {
                 return Ok(await _logic.GetFirmatariByLegislatura(request.id_legislatura));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per cercare gli atti pubblici
+        /// </summary>
+        /// <returns></returns>
+        [Route(ApiRoutes.GetSearch)]
+        [HttpPost]
+        public async Task<IHttpActionResult> GetSearch(CercaRequest request)
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+
+            try
+            {
+                return Ok(await _logic.Cerca(request));
             }
             catch (Exception e)
             {

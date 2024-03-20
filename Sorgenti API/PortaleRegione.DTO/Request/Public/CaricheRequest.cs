@@ -16,14 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-namespace PortaleRegione.Contracts.Public
+namespace PortaleRegione.DTO.Request.Public
 {
-    public interface IUnitOfWork : IDisposable
+    public class CaricheRequest
     {
-        ILegislatureRepository Legislature { get; }
-        IPersoneRepository Persone { get; }
-        IDASIRepository DASI { get; }
+        public int id_legislatura { get; set; }
     }
 }

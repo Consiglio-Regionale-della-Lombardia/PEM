@@ -80,12 +80,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DASIRepository.cs" />
     <Compile Include="LegislatureRepository.cs" />
     <Compile Include="PersoneRepository.cs" />
     <Compile Include="UnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj">
+      <Project>{70BF550D-5943-4162-8FAB-0BBA743A3D93}</Project>
+      <Name>ExpressionBuilder</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sorgenti API\PortaleRegione.DataBase\PortaleRegione.DataBase.csproj">
       <Project>{0F0074AB-D94E-49F3-A702-6BA24D51EA97}</Project>
       <Name>PortaleRegione.DataBase</Name>

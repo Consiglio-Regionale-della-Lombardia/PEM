@@ -232,7 +232,6 @@
     <Folder Include="App_Data\" />
     <Folder Include="DocumentiPEM\" />
     <Folder Include="esportazioni\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

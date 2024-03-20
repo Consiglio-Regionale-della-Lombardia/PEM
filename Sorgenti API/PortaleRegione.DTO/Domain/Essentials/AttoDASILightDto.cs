@@ -16,10 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.Api.Public.Models.Request
+using System;
+
+namespace PortaleRegione.DTO.Domain.Essentials
 {
-    public class GruppiRequest
+    public class AttoDASILightDto
     {
-        public int id_legislatura { get; set; }
+        public Guid uidAtto { get; set; }
+        public string oggetto { get; set; }
+        public string display { get; set; }
     }
 }
