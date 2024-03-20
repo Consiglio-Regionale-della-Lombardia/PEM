@@ -16,17 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Domain;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
+using PortaleRegione.Domain;
 
 namespace PortaleRegione.Contracts.Public
 {
-    public interface IDASIRepository    
+    public interface IDASIRepository
     {
         Task<ATTI_DASI> Get(Guid attoUId);
 

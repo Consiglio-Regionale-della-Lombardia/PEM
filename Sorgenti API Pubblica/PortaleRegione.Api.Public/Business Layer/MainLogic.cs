@@ -281,13 +281,29 @@ namespace PortaleRegione.Api.Public.Business_Layer
             
             if (!string.IsNullOrEmpty(request.n_atto))
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                if (request.n_atto.Contains("-"))
                 {
-                    PropertyId = nameof(ATTI_DASI.NAtto_search),
-                    Value = int.Parse(request.n_atto),
-                    Operation = Operation.EqualTo,
-                    Connector = FilterStatementConnector.And
-                });
+                    var n_attoSplit = request.n_atto.Split('-');
+
+                    res.Add(new FilterStatement<AttoDASILightDto>
+                    {
+                        PropertyId = nameof(ATTI_DASI.NAtto_search),
+                        Value = int.Parse(n_attoSplit[0]),
+                        Value2 = int.Parse(n_attoSplit[1]),
+                        Operation = Operation.Between,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+                else
+                {
+                    res.Add(new FilterStatement<AttoDASILightDto>
+                    {
+                        PropertyId = nameof(ATTI_DASI.NAtto_search),
+                        Value = int.Parse(request.n_atto),
+                        Operation = Operation.EqualTo,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
             }
             
             if (request.data_presentazione_da.HasValue)
