@@ -214,6 +214,13 @@ namespace PortaleRegione.Api.Public.Controllers
 
             try
             {
+                if (request.page <= 0)
+                    throw new InvalidOperationException("Impostare una pagina valida >= 1");
+                if (request.size <= 0)
+                    throw new InvalidOperationException("Inserire una paginazione valida >=1");
+                if (request.size > 500)
+                    throw new InvalidOperationException("Massimo risultati per pagina = 500");
+
                 return Ok(await _logic.Cerca(request));
             }
             catch (Exception e)

@@ -323,10 +323,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 //oggetto presentato
                                 var oggettoPresentato = Convert.ToString(cellsAtti[row, 21].Value);
 
-                                if (!string.IsNullOrEmpty(oggettoPresentato) ||
-                                    !oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase)
-                                    && string.IsNullOrEmpty(oggetto) ||
-                                           oggetto.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (!string.IsNullOrEmpty(oggettoPresentato) 
+                                    && !oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase)
+                                    && (string.IsNullOrEmpty(oggetto) || oggetto.Equals("NULL", StringComparison.OrdinalIgnoreCase)))
                                 {
                                     oggetto = oggettoPresentato;
                                 }
@@ -354,8 +353,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var codiceMateria = Convert.ToString(cellsAtti[row, 18].Value);
                                 var protocollo = Convert.ToString(cellsAtti[row, 14].Value);
 
-                                var pubblicato = cellsAtti[row, 8].Value.Equals("1");
-                                var sollecito = cellsAtti[row, 9].Value.Equals("1");
+                                var pubblicato = cellsAtti[row, 8].Value.ToString().Equals("1");
+                                var sollecito = cellsAtti[row, 9].Value.ToString().Equals("1");
 
                                 var tipoChiusuraIter = Convert.ToString(cellsAtti[row, 28].Value);
                                 var dataChiusuraIter = Convert.ToString(cellsAtti[row, 30].Value);
