@@ -18,6 +18,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
@@ -790,6 +792,15 @@ namespace PortaleRegione.Common
             text = RegexPatterSubstitute(text, "<a>", WORD_OPEN_A);
 
             return text;
+        }
+
+        public static string GetDisplayName(Type objectType, string propertyName)
+        {
+            var prop = objectType.GetProperty(propertyName);
+            var displayNameAttribute = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                .FirstOrDefault() as DisplayNameAttribute;
+
+            return displayNameAttribute?.DisplayName ?? propertyName;
         }
 
         public static List<List<T>> Split<T>(IList<T> source)

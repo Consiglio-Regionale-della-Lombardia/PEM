@@ -36,6 +36,11 @@ namespace ExpressionBuilder.Generics
     public class FilterStatement<TPropertyType> : IFilterStatement
     {
         /// <summary>
+        /// The description of propriety. optional 
+        /// </summary>
+        public string Label { get; set; }
+
+        /// <summary>
 		/// Establishes how this filter statement will connect to the next one. 
 		/// </summary>
         public FilterStatementConnector Connector { get; set; }

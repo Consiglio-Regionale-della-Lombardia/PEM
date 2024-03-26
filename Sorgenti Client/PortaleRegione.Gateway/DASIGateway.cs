@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using PortaleRegione.Common;
 
 namespace PortaleRegione.Gateway
 {
@@ -113,7 +114,8 @@ namespace PortaleRegione.Gateway
                 PropertyId = nameof(AttoDASIDto.IDStato),
                 Operation = operationStato,
                 Value = (int)stato,
-                Connector = FilterStatementConnector.And
+                Connector = FilterStatementConnector.And,
+                Label = Utility.GetDisplayName(typeof(AttoDASIDto),nameof(AttoDASIDto.IDStato))
             };
             model.filtro.Add(filtroStato);
             if (tipo != TipoAttoEnum.TUTTI)
@@ -123,10 +125,80 @@ namespace PortaleRegione.Gateway
                     PropertyId = nameof(AttoDASIDto.Tipo),
                     Operation = Operation.EqualTo,
                     Value = (int)tipo,
-                    Connector = FilterStatementConnector.And
+                    Connector = FilterStatementConnector.And,
+                    Label = Utility.GetDisplayName(typeof(AttoDASIDto),nameof(AttoDASIDto.Tipo))
                 };
                 model.filtro.Add(filtroTipo);
             }
+
+            var body = JsonConvert.SerializeObject(model);
+            var x = await Post(requestUrl, body, _token);
+            var result = JsonConvert.DeserializeObject<RiepilogoDASIModel>(x);
+            return result;
+        }
+
+        public async Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo, int legislatura,
+            bool propria_firma = false)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll}";
+            var model = new BaseRequest<AttoDASIDto>
+            {
+                page = page,
+                size = size,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI }, { "RequireMySign", propria_firma } }
+            };
+            var operationStato = Operation.EqualTo;
+            if ((int)stato > (int)StatiAttoEnum.BOZZA)
+            {
+                if (ruolo != RuoliIntEnum.Segreteria_Assemblea
+                    && ruolo != RuoliIntEnum.Amministratore_PEM)
+                {
+                    //cosi il consigliere può visualizzare tutti i suoi atti dallo stato presentato in poi
+                    operationStato = Operation.GreaterThanOrEqualTo;
+                }
+            }
+            else if ((int)stato <= (int)StatiAttoEnum.BOZZA)
+            {
+                if (ruolo == RuoliIntEnum.Segreteria_Assemblea
+                    || ruolo == RuoliIntEnum.Amministratore_PEM)
+                {
+                    //Imposto stato di default per le segreteria e amministratori
+                    operationStato = Operation.EqualTo;
+                    stato = StatiAttoEnum.PRESENTATO;
+                }
+            }
+
+            var filtroStato = new FilterStatement<AttoDASIDto>
+            {
+                PropertyId = nameof(AttoDASIDto.IDStato),
+                Operation = operationStato,
+                Value = (int)stato,
+                Connector = FilterStatementConnector.And,
+                Label = Utility.GetDisplayName(typeof(AttoDASIDto),nameof(AttoDASIDto.IDStato))
+            };
+            model.filtro.Add(filtroStato);
+            if (tipo != TipoAttoEnum.TUTTI)
+            {
+                var filtroTipo = new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = nameof(AttoDASIDto.Tipo),
+                    Operation = Operation.EqualTo,
+                    Value = (int)tipo,
+                    Connector = FilterStatementConnector.And,
+                    Label = Utility.GetDisplayName(typeof(AttoDASIDto),nameof(AttoDASIDto.Tipo))
+                };
+                model.filtro.Add(filtroTipo);
+            }
+
+            var filtroLegislatura = new FilterStatement<AttoDASIDto>
+            {
+                PropertyId = nameof(AttoDASIDto.Legislatura),
+                Operation = Operation.EqualTo,
+                Value = legislatura,
+                Connector = FilterStatementConnector.And,
+                Label = Utility.GetDisplayName(typeof(AttoDASIDto),nameof(AttoDASIDto.Legislatura))
+            };
+            model.filtro.Add(filtroLegislatura);
 
             var body = JsonConvert.SerializeObject(model);
             var x = await Post(requestUrl, body, _token);
