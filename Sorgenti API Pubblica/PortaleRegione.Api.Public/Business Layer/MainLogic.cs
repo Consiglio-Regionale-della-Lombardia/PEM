@@ -17,9 +17,9 @@
  */
 
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -34,6 +34,7 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request.Public;
 using PortaleRegione.DTO.Response;
+using PortaleRegione.Logger;
 
 namespace PortaleRegione.Api.Public.Business_Layer
 {
@@ -51,6 +52,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
         public MainLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            GetUsersInDb();
         }
 
         /// <summary>
@@ -199,6 +201,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
         public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto)
         {
             var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
+            if (attoInDb == null)
+                throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
             var attoDto = new AttoDasiPublicDto
             {
                 uidAtto = attoInDb.UIDAtto,
@@ -206,12 +210,69 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 display = GetDisplayFromEtichetta(attoInDb.Etichetta),
                 stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
                 tipo = Utility.GetText_Tipo(attoInDb.Tipo),
-                data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione, AppSettingsConfigurationHelper.masterKey),
+                data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
+                    AppSettingsConfigurationHelper.masterKey),
                 premesse = attoInDb.Premesse,
                 richiesta = attoInDb.Richiesta,
-                tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta)
+                tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
+                area_politica = "",
+                data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy")
             };
+
+            var firmeAnte = await GetFirme(attoInDb, FirmeTipoEnum.PRIMA_DEPOSITO);
+            var firmePost = await GetFirme(attoInDb, FirmeTipoEnum.DOPO_DEPOSITO);
+            attoDto.firme = firmeAnte;
+            attoDto.firme_dopo_deposito = firmePost;
+
             return attoDto;
+        }
+
+        private async Task<List<AttiFirmeDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
+        {
+            try
+            {
+                var firmeInDb = await _unitOfWork
+                    .DASI
+                    .GetFirme(atto, tipo);
+
+                var firme = firmeInDb.ToList();
+
+                if (!firme.Any()) return new List<AttiFirmeDto>();
+
+                var result = new List<AttiFirmeDto>();
+                foreach (var firma in firme)
+                {
+                    var dto = new AttiFirmeDto
+                    {
+                        UIDAtto = firma.UIDAtto,
+                        UID_persona = firma.UID_persona,
+                        id_persona = Users.First(u => u.UID_persona == firma.UID_persona).id_persona,
+                        FirmaCert = CryptoHelper.DecryptString(firma.FirmaCert,
+                            AppSettingsConfigurationHelper.masterKey),
+                        PrimoFirmatario = firma.PrimoFirmatario,
+                        id_gruppo = firma.id_gruppo,
+                        ufficio = firma.ufficio,
+                        Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
+                            ? null
+                            : CryptoHelper.DecryptString(firma.Data_ritirofirma,
+                                AppSettingsConfigurationHelper.masterKey),
+                        Timestamp = firma.Timestamp,
+                        Capogruppo = firma.Capogruppo,
+                        id_AreaPolitica = firma.id_AreaPolitica,
+                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy"),
+                        Prioritario = firma.Prioritario
+                    };
+
+                    result.Add(dto);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetFirme - DASI", e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -277,7 +338,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (request.id_tipo_risposta.HasValue && request.id_tipo_risposta > 0)
             {
                 res.Add(new FilterStatement<AttoDASILightDto>
@@ -288,7 +349,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (request.id_gruppo.HasValue && request.id_gruppo > 0)
             {
                 res.Add(new FilterStatement<AttoDASILightDto>
@@ -299,7 +360,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (!string.IsNullOrEmpty(request.n_atto))
             {
                 if (request.n_atto.Contains("-"))
@@ -326,7 +387,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     });
                 }
             }
-            
+
             if (request.data_presentazione_da.HasValue)
             {
                 res.Add(new FilterStatement<AttoDASILightDto>
@@ -337,7 +398,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     Connector = FilterStatementConnector.And
                 });
             }
-            
+
             if (request.data_presentazione_a.HasValue)
             {
                 res.Add(new FilterStatement<AttoDASILightDto>
@@ -356,6 +417,39 @@ namespace PortaleRegione.Api.Public.Business_Layer
         {
             var split = etichetta.Split('_');
             return $"{split[0]} {split[1]}";
+        }
+
+        private readonly MemoryCache memoryCache = MemoryCache.Default;
+        internal const string USERS_IN_DATABASE = "USERS_IN_DATABASE";
+
+        internal List<PersonaLightDto> Users
+        {
+            get
+            {
+                if (memoryCache.Contains(USERS_IN_DATABASE))
+                    return memoryCache.Get(USERS_IN_DATABASE) as List<PersonaLightDto>;
+
+                return new List<PersonaLightDto>();
+            }
+            set => memoryCache.Add(USERS_IN_DATABASE, value, DateTimeOffset.UtcNow.AddHours(8));
+        }
+
+        internal void GetUsersInDb()
+        {
+            if (Users.Any())
+                return;
+            var task_op = Task.Run(async () => await _unitOfWork.Persone.GetAll());
+            var personeInDb = task_op.Result;
+            var personeInDbLight = personeInDb.Select(p => new PersonaLightDto
+            {
+                id_persona = p.id_persona,
+                UID_persona = p.UID_persona.Value,
+                cognome = p.cognome,
+                nome = p.nome,
+                foto = p.foto
+            }).ToList();
+
+            Users = personeInDbLight;
         }
     }
 }

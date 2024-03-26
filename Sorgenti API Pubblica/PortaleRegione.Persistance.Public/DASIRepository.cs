@@ -7,6 +7,8 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -55,6 +57,52 @@ namespace PortaleRegione.Persistance.Public
 
             filtro?.BuildExpression(ref query);
             return await query.CountAsync();
+        }
+
+        public async Task<List<ATTI_FIRME>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
+        {
+            if (atto.IDStato < (int)StatiAttoEnum.PRESENTATO && tipo == FirmeTipoEnum.DOPO_DEPOSITO)
+                return new List<ATTI_FIRME>();
+
+            var firmaProponente = await PRContext
+                .ATTI_FIRME
+                .SingleOrDefaultAsync(f =>
+                    f.UIDAtto == atto.UIDAtto
+                    && f.UID_persona == atto.UIDPersonaProponente
+                    && f.Valida);
+
+            var query = PRContext
+                .ATTI_FIRME
+                .Where(f => f.UIDAtto == atto.UIDAtto
+                            && f.UID_persona != atto.UIDPersonaProponente
+                            && f.Valida);
+            switch (tipo)
+            {
+                case FirmeTipoEnum.TUTTE:
+                    break;
+                case FirmeTipoEnum.PRIMA_DEPOSITO:
+                    if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        query = query.Where(f => f.Timestamp <= atto.Timestamp);
+                    break;
+                case FirmeTipoEnum.DOPO_DEPOSITO:
+                    if (atto.IDStato >= (int)StatiAttoEnum.PRESENTATO)
+                        query = query.Where(f => f.Timestamp > atto.Timestamp);
+                    break;
+                case FirmeTipoEnum.ATTIVI:
+                    query = query.Where(f => string.IsNullOrEmpty(f.Data_ritirofirma));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipo), tipo, null);
+            }
+
+            query = query.OrderBy(f => f.Timestamp);
+
+            var lst = await query
+                .ToListAsync();
+
+            if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
+
+            return lst;
         }
     }
 }

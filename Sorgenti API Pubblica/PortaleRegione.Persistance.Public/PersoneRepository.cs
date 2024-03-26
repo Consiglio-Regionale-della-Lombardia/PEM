@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
+using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Model;
 using Z.EntityFramework.Plus;
@@ -89,6 +90,21 @@ namespace PortaleRegione.Persistance.Public
                 })
                 .ToListAsync();
             return consiglieri;
+        }
+
+        public async Task<List<View_UTENTI>> GetAll()
+        {
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
+            var query = PRContext
+                .View_UTENTI
+                .Where(u => u.UID_persona != Guid.Empty)
+                .OrderByDescending(u => u.id_persona)
+                .ThenBy(u => u.cognome)
+                .ThenBy(u => u.nome);
+
+            return await query
+                .ToListAsync();
         }
     }
 }

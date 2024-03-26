@@ -42,17 +42,17 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string stato { get; set; }
         public string area_politica { get; set; }
         public string data_ritiro { get; set; }
-        public List<PersonaPublicDto> firme { get; set; } = new List<PersonaPublicDto>();
-        public List<PersonaPublicDto> firme_dopo_deposito { get; set; } = new List<PersonaPublicDto>();
+        public List<AttiFirmeDto> firme { get; set; } = new List<AttiFirmeDto>();
+        public List<AttiFirmeDto> firme_dopo_deposito { get; set; } = new List<AttiFirmeDto>();
         public KeyValueDto gruppo { get; set; } = new KeyValueDto();
         public string data_iscrizione { get; set; }
         public string display { get; set; }
         public List<object> allegati { get; set; } = new List<object>();
-        public string atto_odg { get; set; }
+        public object atto_odg { get; set; } = null;
         public bool non_passaggio_in_esame { get; set; }
         public string tipo_mozione { get; set; }
-        public string abbinata { get; set; }
+        public object abbinata { get; set; } = null;
         public List<KeyValueDto> commissioni { get; set; } = new List<KeyValueDto>();
-        public string risposte { get; set; }
+        public List<object> risposte { get; set; } = new List<object>();
     }
 }

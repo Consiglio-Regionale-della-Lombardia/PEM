@@ -12,5 +12,6 @@ namespace PortaleRegione.Contracts.Public
         Task<List<KeyValueDto>> GetCommissioni(int idLegislatura);
         Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura);
         Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura);
+        Task<List<View_UTENTI>> GetAll();
     }
 }

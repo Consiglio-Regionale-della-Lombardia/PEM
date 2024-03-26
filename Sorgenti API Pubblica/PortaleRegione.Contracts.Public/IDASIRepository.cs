@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ExpressionBuilder.Generics;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts.Public
 {
@@ -30,5 +31,7 @@ namespace PortaleRegione.Contracts.Public
 
         Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null);
         Task<int> Count(Filter<ATTI_DASI> filtro = null);
+
+        Task<List<ATTI_FIRME>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo);
     }
 }
