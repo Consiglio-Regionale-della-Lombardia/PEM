@@ -154,6 +154,7 @@
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
+    <Compile Include="Request\Public\AttoRequest.cs" />
     <Compile Include="Request\Public\CaricheRequest.cs" />
     <Compile Include="Request\Public\CercaRequest.cs" />
     <Compile Include="Request\Public\CommissioniRequest.cs" />

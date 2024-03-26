@@ -21,9 +21,14 @@ namespace PortaleRegione.Persistance.Public
             Context = context;
         }
 
-        public Task<ATTI_DASI> Get(Guid attoUId)
+        public async Task<ATTI_DASI> Get(Guid attoUId)
         {
-            throw new NotImplementedException();
+            var atto = await PRContext
+                .DASI
+                .FirstOrDefaultAsync(item => !item.Eliminato 
+                               && item.Pubblicato
+                               && item.UIDAtto == attoUId);
+            return atto;
         }
 
         public async Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null)

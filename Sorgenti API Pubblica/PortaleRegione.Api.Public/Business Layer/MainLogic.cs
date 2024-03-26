@@ -23,9 +23,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using PortaleRegione.Api.Public.Helpers;
 using PortaleRegione.Common;
 using PortaleRegione.Contracts.Public;
+using PortaleRegione.Crypto;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
@@ -191,6 +194,24 @@ namespace PortaleRegione.Api.Public.Business_Layer
         {
             var firmatari = await _unitOfWork.Persone.GetFirmatariByLegislatura(idLegislatura);
             return firmatari;
+        }
+
+        public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
+            var attoDto = new AttoDasiPublicDto
+            {
+                uidAtto = attoInDb.UIDAtto,
+                oggetto = attoInDb.Oggetto,
+                display = GetDisplayFromEtichetta(attoInDb.Etichetta),
+                stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
+                tipo = Utility.GetText_Tipo(attoInDb.Tipo),
+                data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione, AppSettingsConfigurationHelper.masterKey),
+                premesse = attoInDb.Premesse,
+                richiesta = attoInDb.Richiesta,
+                tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta)
+            };
+            return attoDto;
         }
 
         /// <summary>

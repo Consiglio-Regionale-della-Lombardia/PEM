@@ -231,6 +231,31 @@ namespace PortaleRegione.Api.Public.Controllers
         }
 
         /// <summary>
+        ///     Endpoint per cercare gli atti pubblici
+        /// </summary>
+        /// <returns></returns>
+        [Route(ApiRoutes.GetAtto)]
+        [HttpPost]
+        public async Task<IHttpActionResult> GetAtto(AttoRequest request)
+        {
+            var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
+
+            try
+            {
+                var parseguid = Guid.TryParse(request.uidAtto, out var guid);
+                if (!parseguid)
+                    throw new InvalidOperationException("L'identificativo dell'atto non è valido.");
+
+                return Ok(await _logic.GetAtto(guid));
+            }
+            catch (Exception e)
+            {
+                Log.Error(currentMethod, e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
         ///     Handler per catturare i messaggi di errore
         /// </summary>
         /// <param name="e"></param>

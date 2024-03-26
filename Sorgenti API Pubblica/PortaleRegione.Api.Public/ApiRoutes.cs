@@ -31,7 +31,7 @@ namespace PortaleRegione.Api.Public
         public const string GetFirmatari = Root + "/firmatari";
         public const string GetCaricheGiunta = Root + "/cariche";
         public const string GetCommissioni = Root + "/commissioni";
-        public const string GetAtto = Root + "/atto/{id}";
+        public const string GetAtto = Root + "/atto";
         public const string GetSearch = Root + "/cerca";
     }
 }

@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Logger", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionBuilder", "..\..\Sorgenti API\ExpressionBuilder\ExpressionBuilder.csproj", "{70BF550D-5943-4162-8FAB-0BBA743A3D93}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Crypto", "..\..\Sorgenti API\PortaleRegione.Crypto\PortaleRegione.Crypto.csproj", "{CE1501B2-58D4-47AC-8D15-E2AA307E401B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{70BF550D-5943-4162-8FAB-0BBA743A3D93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70BF550D-5943-4162-8FAB-0BBA743A3D93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70BF550D-5943-4162-8FAB-0BBA743A3D93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE1501B2-58D4-47AC-8D15-E2AA307E401B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
