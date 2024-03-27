@@ -129,7 +129,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<View_gruppi_politici_con_giunta> Get(int gruppoId)
         {
-            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
 
             return await PRContext
                 .View_gruppi_politici_con_giunta
@@ -138,7 +138,7 @@ namespace PortaleRegione.Persistance
 
         public async Task<List<View_gruppi_politici_con_giunta>> GetAllWithGiunta()
         {
-            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
 
             return await PRContext
                 .View_gruppi_politici_con_giunta
