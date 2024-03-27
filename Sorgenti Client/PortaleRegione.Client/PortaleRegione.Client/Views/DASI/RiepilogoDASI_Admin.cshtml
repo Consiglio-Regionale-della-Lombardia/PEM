@@ -63,23 +63,60 @@
 <hr />
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
 {
-	Html.RenderPartial("_FiltriRapidiDASIPanel");
+	Html.RenderPartial("_FiltriRapidiDASIPanel", Model);
 }
 
-<div id="contentTable" class="row">
-    <div class="col s12">
-		@{
-			if (Model.ViewMode == ViewModeEnum.GRID)
+<div class="card">
+    <div class="card-content">
+        <div id="contentTable" class="row">
+            <div class="col s12">
+                @{
+                    if (Model.ViewMode == ViewModeEnum.GRID)
+                    {
+                        Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
+                    }
+                    else
+                    {
+                        Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-reveal">
+        <span class="card-title grey-text text-darken-4">Conteggi <i class="material-icons right">close</i></span>
+        <ul class="collection with-header">
+            <li class="collection-header"><h4>Tipi atto</h4></li>
+            <li class="collection-item">
+                <div>TOTALE <span class="secondary-content">@Model.CountBarData.TUTTI</span></div></li>
+            <li class="collection-item">
+                <div>ITL <span class="secondary-content">@Model.CountBarData.ITL</span></div></li>
+            <li class="collection-item">
+                <div>ITR <span class="secondary-content">@Model.CountBarData.ITR</span></div></li>
+            <li class="collection-item">
+                <div>IQT <span class="secondary-content">@Model.CountBarData.IQT</span></div></li>
+            <li class="collection-item">
+                <div>MOZ <span class="secondary-content">@Model.CountBarData.MOZ</span></div></li>
+            <li class="collection-item">
+                <div>ODG <span class="secondary-content">@Model.CountBarData.ODG</span></div></li>
+        </ul>
+        <ul class="collection with-header">
+            <li class="collection-header"><h4>Stati atto</h4></li>
+			@if (!Model.CurrentUser.IsSegreteriaAssemblea)
 			{
-				Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
+			    <li class="collection-item">
+                    <div>BOZZE <span class="secondary-content">@Model.CountBarData.BOZZE</span></div></li>
 			}
-			else
-			{
-				Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
-			}
-		}
-	</div>
+            <li class="collection-item">
+				<div>PRESENTATI <span class="secondary-content">@Model.CountBarData.PRESENTATI</span></div></li>
+            <li class="collection-item">
+				<div>IN TRATTAZIONE <span class="secondary-content">@Model.CountBarData.IN_TRATTAZIONE</span></div></li>
+            <li class="collection-item">
+				<div>CHIUSO <span class="secondary-content">@Model.CountBarData.CHIUSO</span></div></li>
+        </ul>
+    </div>
 </div>
+
 
 @{
 	Html.RenderPartial("_IscriviASedutaModal");

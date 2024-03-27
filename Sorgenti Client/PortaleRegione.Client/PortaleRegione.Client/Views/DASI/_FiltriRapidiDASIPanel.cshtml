@@ -1,34 +1,33 @@
 ﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Domain
+@model PortaleRegione.DTO.Model.RiepilogoDASIModel
+
 <div class="row">
-    <div class="input-field col s12">
-        <i class="material-icons prefix">textsms</i>
-        <input type="text" id="autocomplete-input" class="autocomplete">
-        <label for="autocomplete-input">Ricerca filtri disponibili</label>
-    </div>
+	<div class="input-field col s12">
+		<i class="material-icons prefix">textsms</i>
+		<input type="text" id="autocomplete-input" class="autocomplete">
+		<label for="autocomplete-input">Ricerca filtri disponibili</label>
+	</div>
 </div>
 <div class="row">
-    <div class="col l8 m7 s12 left-align">
-        <div id="chips-container">
-        </div>
-    </div>
-    <div class="col l4 m5 s12 center">
-        <a id="esportaReportButton" class="btn-flat green-text">Esporta Report</a>
-    </div>
+	<div class="col l12 m12 s12 left-align">
+		<div id="chips-container">
+		</div>
+	</div>
 </div>
 
 <!-- Modal Structure -->
 <div id="infoModal" class="modal">
-    <div class="modal-content">
-        <h4>Dettaglio ricerca</h4>
-        <h5 id="modal-content"></h5>
-        <input id="modal-filter-id-hidden" type="hidden"/>
-        <div id="dynamic-select-container"></div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-        <a id="addFiltersButton" class="btn blue">Aggiungi</a>
-    </div>
+	<div class="modal-content">
+		<h4>Dettaglio ricerca</h4>
+		<h5 id="modal-content"></h5>
+		<input id="modal-filter-id-hidden" type="hidden" />
+		<div id="dynamic-select-container"></div>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+		<a id="addFiltersButton" class="btn blue">Aggiungi</a>
+	</div>
 </div>
 
 <script>

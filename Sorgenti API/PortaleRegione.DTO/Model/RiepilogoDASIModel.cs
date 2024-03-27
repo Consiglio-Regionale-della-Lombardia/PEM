@@ -27,19 +27,15 @@ namespace PortaleRegione.DTO.Model
 {
     public class RiepilogoDASIModel
     {
-        public RiepilogoDASIModel()
-        {
-            CountBarData = new CountBarData();
-        }
-        public BaseResponse<AttoDASIDto> Data { get; set; }
+        public BaseResponse<AttoDASIDto> Data { get; set; } = new BaseResponse<AttoDASIDto>();
         public StatiAttoEnum Stato { get; set; }
         public TipoAttoEnum Tipo { get; set; }
-        public CountBarData CountBarData { get; set; }
+        public CountBarData CountBarData { get; set; } = new CountBarData();
         public ClientModeEnum ClientMode { get; set; } = ClientModeEnum.GRUPPI;
         public ViewModeEnum ViewMode { get; set; } = ViewModeEnum.GRID;
-        public CommandRiepilogoModel CommandRiepilogo { get; set; }
+        public CommandRiepilogoModel CommandRiepilogo { get; set; } = new CommandRiepilogoModel();
 
-        public PersonaDto CurrentUser { get; set; }
-        public List<CommissioneDto> CommissioniAttive { get; set; }
+        public PersonaDto CurrentUser { get; set; } = new PersonaDto();
+        public List<CommissioneDto> CommissioniAttive { get; set; } = new List<CommissioneDto>();
     }
 }
