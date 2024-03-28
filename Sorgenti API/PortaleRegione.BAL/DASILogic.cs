@@ -285,6 +285,8 @@ namespace PortaleRegione.API.Controllers
 
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
             model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
+            if (RequireMySign == null)
+                RequireMySign = false;
             var filtro_seduta =
                 model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
             var sedutaId = Guid.Empty;
@@ -458,6 +460,8 @@ namespace PortaleRegione.API.Controllers
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
             dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
+            dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
+            dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
 
             try
             {
@@ -499,7 +503,7 @@ namespace PortaleRegione.API.Controllers
                     var firme = await _logicAttiFirme.GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
                     dto.Firme = firme
                         .Where(f => f.UID_persona != attoInDb.UIDPersonaProponente)
-                        .Select(f => f.FirmaCert)
+                        .Select(f => Utility.ConvertiCaratteriSpeciali(f.FirmaCert))
                         .Aggregate((i, j) => i + "<br>" + j);
                 }
 

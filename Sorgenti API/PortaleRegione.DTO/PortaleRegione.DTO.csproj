@@ -101,6 +101,7 @@
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\CommiModel.cs" />
+    <Compile Include="Model\FilterItem.cs" />
     <Compile Include="Model\InfoModel.cs" />
     <Compile Include="Model\JollyODGModel.cs" />
     <Compile Include="Model\LettereModel.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\FilterRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
     <Compile Include="Request\Public\AttoRequest.cs" />

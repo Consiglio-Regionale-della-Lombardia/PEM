@@ -70,16 +70,49 @@
     <div class="card-content">
         <div id="contentTable" class="row">
             <div class="col s12">
-                @{
-                    if (Model.ViewMode == ViewModeEnum.GRID)
-                    {
-                        Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
-                    }
-                    else
-                    {
-                        Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
-                    }
-                }
+                <div class="row valign-wrapper">
+                    <div class="col l6 s6">
+                        <label>
+                            <input type="checkbox" id="checkAll"/>
+                            <span for="checkAll">
+                                Seleziona tutti
+                            </span>
+                        </label>
+                    </div>
+                    <div class="col l6 s6 right-align">
+
+                        <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi" data-position="left">
+                            <i class="material-icons">insert_chart</i>
+                        </a>
+                        <a class="btn-floating white black-text tooltipped" data-tooltip="Esporta report" data-position="left">
+                            <i class="material-icons">import_export</i>
+                        </a>
+                        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
+                            <i class="material-icons">print</i>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <div id="paginazione-container" class="pagination-container">
+     
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <div id="loadingSpinner" class="progress">
+                            <div class="indeterminate"></div>
+                        </div>
+                        <div id="tableResults">
+                            <div class="card-panel blue lighten-5 center">
+                                <span class="center">
+                                    <p>Esegui una ricerca per poter visualizzare gli atti</p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

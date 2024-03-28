@@ -17,28 +17,272 @@
 </div>
 
 <!-- Modal Structure -->
-<div id="infoModal" class="modal">
-	<div class="modal-content">
-		<h4>Dettaglio ricerca</h4>
-		<h5 id="modal-content"></h5>
-		<input id="modal-filter-id-hidden" type="hidden" />
-		<div id="dynamic-select-container"></div>
-	</div>
-	<div class="modal-footer">
-		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-		<a id="addFiltersButton" class="btn blue">Aggiungi</a>
-	</div>
-</div>
-
 <script>
 var availableFilterArray = [
-        {tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "1"},
-        {tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))", id: "2"},
-        {tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "3"}
-    ];
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"}
+];
+
+    async function inviaDatiChips(page, size) {
+		if (!page){
+		    page = 1;
+		}
+		if (!size){
+		    size = 20;
+		}
+		document.getElementById('tableResults').innerHTML = "";
+		document.getElementById('paginazione-container').innerHTML = "";
+		document.getElementById('loadingSpinner').style.display = 'block';
+
+	    var request = {};
+		var chipsData = [];
+		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+			// Supponendo che il testo della chip sia l'identificativo desiderato
+			// Nota: potresti dover adattare questa logica a seconda della struttura delle tue chips
+			chipsData.push({
+				property: $(chip).data("filterby"),
+				value: $(chip).data("val")
+			});
+		});
+
+		try {
+			request.filters = chipsData;
+			request.page = page;
+			request.size = size;
+
+			// Invia la richiesta al server
+			const response = await fetch('@Url.Action("Riepilogo")', {
+				method: 'POST', // o 'GET', a seconda del tuo caso d'uso
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(request), // Invia i dati nel formato desiderato
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const responseData = await response.json();
+			console.log(responseData); // Gestisci la risposta del server come necessario
+
+			if (responseData.message){
+				ErrorAlert(responseData.message);
+				return;
+			}
+
+			if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
+				CreaTabella(responseData);
+			} else {
+				if (chipsData.length == 0){
+					document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
+    <span class="center">
+        <p>Esegui una ricerca per poter visualizzare gli atti</p>
+    </span>
+</div>`;
+				}else{
+					// Se non ci sono risultati, mostra il messaggio
+					document.getElementById('tableResults').innerHTML = `<div class="card-panel panel-warning center">
+    <span class="center">
+         <p>Nessun atto trovato</p>
+    </span>
+</div>`;
+				}
+			}
+			creaPaginazione(responseData);
+			AggiornaContatori(responseData);
+			document.getElementById('loadingSpinner').style.display = 'none';
+		} catch (error) {
+			document.getElementById('loadingSpinner').style.display = 'none';
+			console.error('Errore durante l\'invio dei dati delle chips:', error);
+		}
+	}
+
+	function CreaTabella(responseData) {
+		// Pulisci i risultati precedenti
+		const tableResults = document.getElementById('tableResults');
+		tableResults.innerHTML = '';
+
+		// Crea la struttura della tabella
+		const table = document.createElement('table');
+		table.className = 'highlight';
+
+		// Crea l'intestazione della tabella
+		const thead = document.createElement('thead');
+		thead.innerHTML = `
+            <tr>
+                <th></th>
+			    <th>Atto</th>
+                <th>Tipo</th>
+                <th>Oggetto</th>
+                <th>Firmatari</th>
+                <th>Stato</th>
+            </tr>
+        `;
+		table.appendChild(thead);
+
+		// Crea il corpo della tabella e popolalo con i dati
+		const tbody = document.createElement('tbody');
+		responseData.Data.Results.forEach(result => {
+			var htmlFirme = ``;
+			if (result.Firmato_Dal_Proponente) {
+				htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
+			} else {
+				htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
+			}
+
+			if (result.ConteggioFirme > 1) {
+				htmlFirme += `<br/><a class='chip tooltipped blue white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
+    + ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
+</a>`
+			}
+
+			const row = document.createElement('tr');
+			row.innerHTML = `
+                <td style="width: 1%;">
+				    <p>
+                        <label>
+                            <input type="checkbox" id="chk_Atto_${result.UIDAtto}" onclick="AbilitaComandiMassivi_DASI('${result.UIDAtto}');"/>
+                            <span></span>
+                        </label>
+                    </p>
+                </td>
+			    <td style="width: 7%;">${result.Display}</td>
+                <td style="width: 8%;">${result.DisplayTipoRispostaRichiesta}</td>
+                <td>${result.Oggetto}</td>
+                <td>${htmlFirme}</td>
+                <td>${result.DisplayStato}</td>
+            `;
+			tbody.appendChild(row);
+		});
+		table.appendChild(tbody);
+
+		// Aggiungi la tabella al container dei risultati
+		tableResults.appendChild(table);
+
+		//reset tooltips
+		var elems = document.querySelectorAll('.tooltipped');
+		var instances = M.Tooltip.init(elems, {});
+	}
+
+	function creaPaginazione(data) {
+		if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
+			document.getElementById('paginazione-container').innerHTML = "";
+			return;
+		}
+		// Dati della paginazione ottenuti dalla risposta JSON
+		var totalePagine = data.Data.Paging.Last_Page;
+		var paginaCorrente = data.Data.Paging.Page;
+		var totaleRisultati = data.Data.Paging.Total;
+		var risultatiPerPagina = data.Data.Paging.Limit; // Aggiunto per gestire i tagli di paginazione
+
+		// Elemento HTML per la paginazione
+		var paginationHTML = `<ul class="pagination">`;
+		// Aggiungi controlli di navigazione se necessario
+		if (data.Data.Paging.Has_Prev) {
+			paginationHTML += `
+    <li class="waves-effect" style="margin-top: -4px;">
+        <a onclick="filterByPage(1)">
+            <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
+                first_page
+            </i>
+        </a>
+    </li>
+    <li class="waves-effect" style="margin-top: -4px;">
+        <a onclick="filterByPage(${paginaCorrente - 1})">
+            <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">
+                chevron_left
+            </i>
+        </a>
+    </li>`;
+		}
+
+		// Aggiungi informazioni sulla pagina corrente e il totale delle pagine
+		paginationHTML += `
+        <li class="waves-effect">
+            <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
+                Pagina ${paginaCorrente} di ${totalePagine}
+            </span>
+            <br>
+            <span class="hide-on-large-only" style="margin-top: -5px; margin-left: 20px; font-size: 12px; position: absolute;">
+                ${totaleRisultati} risultati
+            </span>
+        </li>`;
+
+		// Aggiungi controlli di navigazione se necessario
+		if (data.Data.Paging.Has_Next) {
+			paginationHTML += `
+            <li class="waves-effect" style="margin-top: -4px;">
+                <a onclick="filterByPage(${paginaCorrente + 1})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">
+                        chevron_right
+                    </i>
+                </a>
+            </li>
+            <li class="waves-effect" style="margin-top: -4px;">
+                <a onclick="filterByPage(${totalePagine})">
+                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
+                        last_page
+                    </i>
+                </a>
+            </li>`;
+		}
+
+		paginationHTML += `</ul>`;
+
+		// Costruzione del selettore per i tagli di paginazione
+		var tagliPaginazione = [20, 50, 100, 250]; // Definisci i tagli di paginazione disponibili
+		var dropdownHTML = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+            Paginazione
+            <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+            <ul id="ddlPaginazione" class="dropdown-content" style="width: 100px !important">`;
+
+		tagliPaginazione.forEach(function (limite) {
+			dropdownHTML += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+		});
+
+		dropdownHTML += `</ul></div>`;
+
+		var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/><input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>`;
+
+		// Inserisci l'HTML nel DOM
+		document.getElementById('paginazione-container').innerHTML = paginationHTML + dropdownHTML + hiddenHTML;
+
+		// Inizializza il dropdown con Materialize
+		var elems = document.querySelectorAll('.dropdown-trigger');
+		var instances = M.Dropdown.init(elems, { constrainWidth: false });
+	}
+
+	function AggiornaContatori(responseData) {
+		aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);
+		aggiornaConteggi('li.collection-item div', "ITL", responseData.CountBarData.ITL);
+		aggiornaConteggi('li.collection-item div', "ITR", responseData.CountBarData.ITR);
+		aggiornaConteggi('li.collection-item div', "IQT", responseData.CountBarData.IQT);
+		aggiornaConteggi('li.collection-item div', "MOZ", responseData.CountBarData.MOZ);
+		aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
+
+		if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
+			aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);
+		}
+		aggiornaConteggi('li.collection-item div', "PRESENTATI", responseData.CountBarData.PRESENTATI);
+		aggiornaConteggi('li.collection-item div', "IN TRATTAZIONE", responseData.CountBarData.IN_TRATTAZIONE);
+		aggiornaConteggi('li.collection-item div', "CHIUSO", responseData.CountBarData.CHIUSO);
+	}
+
+	function aggiornaConteggi(selector, testo, valore) {
+		document.querySelectorAll(selector).forEach(function (element) {
+			if (element.textContent.includes(testo)) {
+				element.querySelector('span').textContent = valore;
+			}
+		});
+	}
 
 document.addEventListener('DOMContentLoaded', function() {
     var chipsKeys = {};
+	document.getElementById('loadingSpinner').style.display = 'none';
+
+	ripristinaFiltri();
 
 	var collection = document.getElementById('data-collection');
 	availableFilterArray.forEach(function (item) {
@@ -65,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	    var text = selectedOption.options[selectedOption.selectedIndex].text;
 	    var chipText = document.getElementById('modal-content').textContent + ": " + text;
 
-	    addChipIfNotExists(document.getElementById('modal-filter-id-hidden').value, document.getElementById('modal-content').textContent, val, text, chipText);
+	    addChipIfNotExists(document.getElementById('modal-filter-id-hidden').value, document.getElementById('modal-content').textContent, val, text, chipText, true);
 
 	    // Chiudi la modal
 	    $('#infoModal').modal("close");
@@ -99,14 +343,33 @@ document.addEventListener('DOMContentLoaded', function() {
 	    document.getElementById('modal-filter-id-hidden').value = key;
 	    var selectHTML = '';
 	    switch (key) {
-		    case '1':
-			    selectHTML = '<select><option value="soldi">Soldi</option><option value="fama">Fama</option><option value="ricchezza">Ricchezza</option></select>';
+		    case '@nameof(AttoDASIDto.Legislatura)':
+				var legislature = GetLegislature();
+				selectHTML = '<select id="legislature-select">';
+				legislature.forEach(function (item) {
+					selectHTML += `<option value="${item.id_legislatura}">${item.num_legislatura}</option>`;
+				});
+				selectHTML += '</select>';
 			    break;
-		    case '2':
-			    selectHTML = '<select><option value="presente">Presente</option><option value="passato">Passato</option><option value="futuro">Futuro</option></select>';
+		    case '@nameof(AttoDASIDto.IDStato)':
+				var stati = GetStatiDASI();
+				selectHTML = '<select id="stati-select">';
+				stati.forEach(function (item) {
+					if (item.IDStato != 0) {
+						selectHTML += `<option value="${item.IDStato}">${item.Stato}</option>`;
+					}
+				});
+				selectHTML += '</select>';
 			    break;
-		    case '3':
-			    selectHTML = '<select><option value="ferro">Ferro</option><option value="bronzo">Bronzo</option><option value="acciaio">Acciaio</option></select>';
+		    case '@nameof(AttoDASIDto.Tipo)':
+				var tipi = GetTipiDASI();
+				selectHTML = '<select id="tipi-select">';
+				tipi.forEach(function (item) {
+					if (item.IDTipoAtto != 0) {
+						selectHTML += `<option value="${item.IDTipoAtto}">${item.Tipo_Atto}</option>`;
+					}
+				});
+				selectHTML += '</select>';
 			    break;
 		    default:
 			    console.log("Filtro non riconosciuto!");
@@ -119,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	    $('#infoModal').modal("open");
     }
 
-    function addChipIfNotExists(key, keyLabel, val, label, chipText) {
+    function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
 	    // Verifica se la chiave è già stata utilizzata
 	    if (!chipsKeys[key]) {
 		    // La chiave non esiste, quindi aggiungi la chip
@@ -152,6 +415,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		    closeIcon.onclick = function () {
 			    delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
 			    newChip.remove();
+				salvaFiltri();
+				inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
 		    };
 		    newChip.appendChild(closeIcon);
 
@@ -159,11 +424,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		    // Aggiorna l'elenco delle chiavi tracciate
 		    chipsKeys[key] = true;
+			salvaFiltri();
+
+			if (refresh)
+			    {
+				    inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+				}
 	    } else {
 		    // La chiave esiste già, quindi non aggiungere una nuova chip
 			swal("Info", "Filtro già presente.", "info");
 	    }
     }
+
+	function salvaFiltri() {
+		const filtri = [];
+		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+			filtri.push({
+				key: $(chip).data("filterby"),
+				keyLabel: $(chip).data("filterby-label"),
+				val: $(chip).data("val"),
+				label: $(chip).data("label"),
+				chipText: chip.textContent.replace("edit", "").replace("close", "")
+			});
+		});
+		localStorage.setItem('filtriDasi', JSON.stringify(filtri));
+	}
+
+	function ripristinaFiltri(){
+		const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+		if (filtri) {
+			filtri.forEach(function (filtro) {
+				addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
+			});
+			inviaDatiChips(1, 20);
+		}
+    }
 });
 
+function filterByPage(page){
+	inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
+}
+	function filterBySize(page, size){
+	inviaDatiChips(page, size);
+}
 </script>
+
+<div id="infoModal" class="modal">
+	<div class="modal-content">
+		<h4>Dettaglio ricerca</h4>
+		<h5 id="modal-content"></h5>
+		<input id="modal-filter-id-hidden" type="hidden" />
+		<div id="dynamic-select-container"></div>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+		<a id="addFiltersButton" class="btn blue">Aggiungi</a>
+	</div>
+</div>

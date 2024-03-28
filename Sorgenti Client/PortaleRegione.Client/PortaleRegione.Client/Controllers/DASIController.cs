@@ -23,8 +23,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using Newtonsoft.Json;
 using PortaleRegione.Client.Helpers;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -42,6 +44,62 @@ namespace PortaleRegione.Client.Controllers
     [RoutePrefix("dasi")]
     public class DASIController : BaseController
     {
+        [HttpPost]
+        [Route("riepilogo")]
+        public async Task<ActionResult> Riepilogo(FilterRequest model)
+        {
+            try
+            {
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = 1,
+                    size = 20,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+                };
+
+                if (model == null)
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+                
+                if (!model.filters.Any())
+                {
+                    var resEmpty = new RiepilogoDASIModel
+                    {
+                        CurrentUser = CurrentUser
+                    };
+                    return Json(resEmpty);
+                }
+
+                request.page = model.page;
+                request.size = model.size;
+
+                foreach (var modelFilter in model.filters)
+                {
+                    request.filtro.Add(new FilterStatement<AttoDASIDto>
+                    {
+                        PropertyId = modelFilter.property,
+                        Operation = Operation.EqualTo,
+                        Value = modelFilter.value,
+                        Connector = FilterStatementConnector.And
+                    });
+                }
+
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.Get(request);
+                res.CurrentUser = CurrentUser;
+                return Json(res);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /// <summary>
         ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
         /// </summary>

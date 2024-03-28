@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
@@ -810,6 +811,38 @@ namespace PortaleRegione.Common
                 .GroupBy(x => x.Index / 100)
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
+        }
+
+        public static string ConvertiCaratteriSpeciali(string input)
+        {
+            StringBuilder sb = new StringBuilder(input);
+        
+            sb.Replace("À", "&Agrave;");
+            sb.Replace("à", "&agrave;");
+            sb.Replace("È", "&Egrave;");
+            sb.Replace("è", "&egrave;");
+            sb.Replace("Ì", "&Igrave;");
+            sb.Replace("ì", "&igrave;");
+            sb.Replace("Ò", "&Ograve;");
+            sb.Replace("ò", "&ograve;");
+            sb.Replace("Ù", "&Ugrave;");
+            sb.Replace("ù", "&ugrave;");
+        
+            sb.Replace("Á", "&Aacute;");
+            sb.Replace("á", "&aacute;");
+            sb.Replace("É", "&Eacute;");
+            sb.Replace("é", "&eacute;");
+            sb.Replace("Í", "&Iacute;");
+            sb.Replace("í", "&iacute;");
+            sb.Replace("Ó", "&Oacute;");
+            sb.Replace("ó", "&oacute;");
+            sb.Replace("Ú", "&Uacute;");
+            sb.Replace("ú", "&uacute;");
+            
+            sb.Replace("\"", "&quot;");
+            sb.Replace("'", "&#39;");
+
+            return sb.ToString();
         }
     }
 }

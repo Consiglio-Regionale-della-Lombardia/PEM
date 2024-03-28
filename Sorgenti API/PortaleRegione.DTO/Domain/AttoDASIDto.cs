@@ -240,5 +240,7 @@ namespace PortaleRegione.DTO.Domain
         public int? TipoVotazioneIter { get; set; }
         public string AreaTematica { get; set; }
         public string AltriSoggetti { get; set; }
+        public string DisplayTipoRispostaRichiesta { get; set; }
+        public string DisplayStato { get; set; }
     }
 }
