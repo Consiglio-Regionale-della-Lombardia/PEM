@@ -68,11 +68,12 @@
 								</li>
 								@if (persona.IsGiunta)
 								{
-									<li>
-										<a onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')">
-											<i class="material-icons">key</i>Reset Password
-										</a>
-									</li>
+								    <li>
+                                        <input type="hidden" id="hdPersonaUID"/>
+                                        <a onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')">
+                                            <i class="material-icons">key</i>Reset Password
+                                        </a>
+                                    </li>
 								}
 								<li>
 									<a href="@Url.Action("Index", "VideoTutorial")">
