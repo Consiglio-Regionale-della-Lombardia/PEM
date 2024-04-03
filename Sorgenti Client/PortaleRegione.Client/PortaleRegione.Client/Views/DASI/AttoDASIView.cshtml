@@ -728,7 +728,10 @@ else if (atto.Tipo == (int)TipoAttoEnum.MOZ && atto.TipoMOZ == (int)TipoMOZEnum.
 						});
 					} else {
                         window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
-						window.close();
+                        if (action == 1)
+						    {
+                                window.close();
+                            }
 					}
 				}).fail(function (err) {
 					console.log("error", err);

@@ -1938,6 +1938,26 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
 
+            var dto = await GetAttoDto(atto.UIDAtto);
+            try
+            {
+                //#754
+                var mailModel = new MailModel
+                {
+                    DA = AppSettingsConfiguration.EmailInvioDASI,
+                    A = AppSettingsConfiguration.EmailInvioDASI,
+                    OGGETTO =
+                        $"Atto {dto.Display} ritirato dal proponente",
+                    MESSAGGIO =
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {dto.Display}. {GetBodyFooterMail()}"
+                };
+                await _logicUtil.InvioMail(mailModel);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Invio mail", e);
+            }
+
             // Matteo Cattapan #530 - Avviso ritiro atto
             // Quando viene ritirato un Atto sottoscritto da più firmatari, il sistema deve inviare ai firmatari rimasti (che non hanno già ritirato la propria firma)
             // un messaggio email che notifica il ritiro dell’atto
@@ -1955,9 +1975,6 @@ namespace PortaleRegione.API.Controllers
 
             if (firmatari.Count <= 0) return;
 
-            var dto = await GetAttoDto(atto.UIDAtto);
-            var nome_atto = dto.Display;
-
             try
             {
                 var mailModel = new MailModel
@@ -1965,28 +1982,9 @@ namespace PortaleRegione.API.Controllers
                     DA = AppSettingsConfiguration.EmailInvioDASI,
                     A = firmatari.Aggregate((i, j) => i + ";" + j),
                     OGGETTO =
-                        $"Atto {nome_atto} ritirato dal proponente",
+                        $"Atto {dto.Display} ritirato dal proponente",
                     MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto. {GetBodyFooterMail()}"
-                };
-                await _logicUtil.InvioMail(mailModel);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Invio mail", e);
-            }
-
-            try
-            {
-                //#754
-                var mailModel = new MailModel
-                {
-                    DA = AppSettingsConfiguration.EmailInvioDASI,
-                    A = AppSettingsConfiguration.EmailInvioDASI,
-                    OGGETTO =
-                        $"Atto {nome_atto} ritirato dal proponente",
-                    MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}. {GetBodyFooterMail()}"
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {dto.Display} che anche lei aveva sottoscritto. {GetBodyFooterMail()}"
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
