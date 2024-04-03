@@ -21,13 +21,33 @@ using System.Web.Routing;
 
 namespace PortaleRegione.Api.Public
 {
+    /// <summary>
+    ///     Configura le regole di routing per l'applicazione. Il routing determina come le URL vengono
+    ///     mappate alle azioni dei controller.
+    /// </summary>
     public class RouteConfig
     {
+        /// <summary>
+        ///     Registra le rotte nell'applicazione, definendo come le richieste URL vengono mappate
+        ///     alle azioni dei controller.
+        /// </summary>
+        /// <param name="routes">La collezione di rotte dell'applicazione.</param>
         public static void RegisterRoutes(RouteCollection routes)
         {
+            // Ignora le richieste per i file di risorse .axd, come i tracciati delle richieste ASP.NET.
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            // Imposta le URL generate dall'applicazione per essere in minuscolo, migliorando la consistenza
+            // e potenzialmente evitando problemi di differenziazione maiuscole/minuscole su alcuni server.
             routes.LowercaseUrls = true;
+
+            // Abilita il routing basato sugli attributi, permettendo di definire le rotte direttamente
+            // negli attributi delle azioni dei controller.
             routes.MapMvcAttributeRoutes();
+
+            // Definisce una rotta predefinita che mappa la struttura URL più comune: /{controller}/{action}/{id}
+            // Dove `id` è opzionale. Questa rotta di default fa sì che, se non specificato diversamente,
+            // le richieste siano dirette al controller "Home" e all'azione "Index".
             routes.MapRoute(
                 "Default",
                 "{controller}/{action}/{id}",

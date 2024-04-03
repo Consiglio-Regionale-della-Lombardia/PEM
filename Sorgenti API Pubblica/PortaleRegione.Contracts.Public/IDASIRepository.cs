@@ -25,13 +25,41 @@ using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Contracts.Public
 {
+    /// <summary>
+    ///     Definisce le operazioni di repository per la gestione degli ATTI_DASI,
+    ///     consentendo l'accesso e la manipolazione dei dati degli atti.
+    /// </summary>
     public interface IDASIRepository
     {
+        /// <summary>
+        ///     Recupera un singolo atto DASI utilizzando il suo identificativo unico.
+        /// </summary>
+        /// <param name="attoUId">L'identificativo unico dell'atto da recuperare.</param>
+        /// <returns>L'atto DASI corrispondente all'identificativo fornito.</returns>
         Task<ATTI_DASI> Get(Guid attoUId);
 
+        /// <summary>
+        ///     Ottiene un elenco paginato di ATTI_DASI in base ai filtri applicati.
+        /// </summary>
+        /// <param name="page">La pagina di risultati da recuperare.</param>
+        /// <param name="size">Il numero di elementi per pagina.</param>
+        /// <param name="filtro">Un filtro opzionale per restringere i risultati.</param>
+        /// <returns>Un elenco paginato di ATTI_DASI che soddisfano i criteri di filtro.</returns>
         Task<List<ATTI_DASI>> GetAll(int page, int size, Filter<ATTI_DASI> filtro = null);
+
+        /// <summary>
+        ///     Conta il numero di ATTI_DASI che soddisfano un determinato filtro.
+        /// </summary>
+        /// <param name="filtro">Un filtro opzionale per restringere i risultati.</param>
+        /// <returns>Il conteggio degli ATTI_DASI che soddisfano i criteri di filtro.</returns>
         Task<int> Count(Filter<ATTI_DASI> filtro = null);
 
+        /// <summary>
+        ///     Recupera le firme associate a un specifico atto DASI.
+        /// </summary>
+        /// <param name="atto">L'atto DASI per il quale recuperare le firme.</param>
+        /// <param name="tipo">Il tipo di firme da recuperare.</param>
+        /// <returns>Un elenco di ATTI_FIRME associate all'atto specificato.</returns>
         Task<List<ATTI_FIRME>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo);
     }
 }

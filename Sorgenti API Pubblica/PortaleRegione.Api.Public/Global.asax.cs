@@ -24,14 +24,36 @@ using PortaleRegione.Logger;
 
 namespace PortaleRegione.Api.Public
 {
+    /// <summary>
+    ///     Classe di avvio per l'applicazione Web API.
+    ///     Configura i componenti globali necessari per il funzionamento dell'applicazione al suo avvio.
+    /// </summary>
     public class WebApiApplication : HttpApplication
     {
+        /// <summary>
+        ///     Metodo eseguito all'avvio dell'applicazione.
+        ///     Inizializza e configura vari aspetti dell'applicazione come il logging, le aree,
+        ///     le configurazioni API, i filtri globali e le rotte.
+        /// </summary>
         protected void Application_Start()
         {
+            // Inizializza il sistema di logging.
             Log.Initialize();
+
+            // Registra tutte le aree definite nell'applicazione. Le aree permettono di organizzare
+            // grandi applicazioni Web in segmenti più piccoli.
             AreaRegistration.RegisterAllAreas();
+
+            // Configura le impostazioni API specifiche dell'applicazione, come i formattatori di risposta,
+            // le convenzioni di routing, ecc.
             GlobalConfiguration.Configure(WebApiConfig.Register);
+
+            // Registra i filtri globali. I filtri possono essere usati per gestire eccezioni, autorizzazione,
+            // azioni di logging e altro a livello globale.
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+
+            // Configura le rotte globali dell'applicazione. Il routing determina come le richieste URL vengono 
+            // mappate alle azioni dei controller.
             RouteConfig.RegisterRoutes(RouteTable.Routes);
         }
     }

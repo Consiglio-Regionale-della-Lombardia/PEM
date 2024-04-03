@@ -20,10 +20,26 @@ using System;
 
 namespace PortaleRegione.Contracts.Public
 {
+    /// <summary>
+    ///     Fornisce un'interfaccia per un'unità di lavoro che raggruppa l'accesso a diverse repository.
+    ///     Questo pattern è utilizzato per garantire che le operazioni su più repository siano gestite in modo coerente,
+    ///     e che le modifiche siano commitate o rollbackate come un'unità atomica.
+    /// </summary>
     public interface IUnitOfWork : IDisposable
     {
+        /// <summary>
+        ///     Ottiene l'accesso alla repository delle legislature.
+        /// </summary>
         ILegislatureRepository Legislature { get; }
+
+        /// <summary>
+        ///     Ottiene l'accesso alla repository delle persone, inclusi ruoli, commissioni e gruppi.
+        /// </summary>
         IPersoneRepository Persone { get; }
+
+        /// <summary>
+        ///     Ottiene l'accesso alla repository per la gestione degli ATTI_DASI.
+        /// </summary>
         IDASIRepository DASI { get; }
     }
 }

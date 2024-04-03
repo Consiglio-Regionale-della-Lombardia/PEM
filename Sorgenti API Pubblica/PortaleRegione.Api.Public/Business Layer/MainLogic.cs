@@ -39,16 +39,17 @@ using PortaleRegione.Logger;
 namespace PortaleRegione.Api.Public.Business_Layer
 {
     /// <summary>
-    ///     Logica per gestire l'elaborazione delle richieste
+    ///     Gestisce la logica di business per le richieste API, incapsulando la manipolazione dei dati e l'accesso al
+    ///     database.
     /// </summary>
     public class MainLogic
     {
         private readonly IUnitOfWork _unitOfWork;
 
         /// <summary>
-        ///     Costruttore
+        ///     Inizializza una nuova istanza di MainLogic con le dipendenze necessarie.
         /// </summary>
-        /// <param name="unitOfWork"></param>
+        /// <param name="unitOfWork">Fornisce l'accesso ai repository e ai metodi di commit.</param>
         public MainLogic(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -56,9 +57,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna i tipi di atto disponibili per il modulo DASI
+        ///     Ottiene un elenco dei tipi di atto disponibili, escludendo quelli non visibili.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Una lista di KeyValueDto che rappresenta i tipi di atto.</returns>
         public List<KeyValueDto> GetTipi()
         {
             var result = new List<KeyValueDto>();
@@ -81,9 +82,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista delle legislature disponibili
+        ///     Recupera un elenco di legislature disponibili dal database.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Una task che, al suo completamento, restituisce una lista di KeyValueDto con le legislature.</returns>
         public async Task<List<KeyValueDto>> GetLegislature()
         {
             var legislature = await _unitOfWork.Legislature.GetLegislature();
@@ -102,9 +103,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista di risposte disponibili
+        ///     Ottiene un elenco di tipi di risposta disponibili.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Una lista di KeyValueDto con i tipi di risposta.</returns>
         public List<KeyValueDto> GetTipiRisposta()
         {
             var result = new List<KeyValueDto>
@@ -130,9 +131,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista di stati disponibili
+        ///     Recupera un elenco di stati possibili per gli atti, escludendo quelli non visibili.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Una lista di KeyValueDto che rappresenta gli stati degli atti.</returns>
         public List<KeyValueDto> GetStati()
         {
             var result = new List<KeyValueDto>();
@@ -155,10 +156,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista dei gruppi per legislatura
+        ///     Ottiene un elenco di gruppi per una data legislatura.
         /// </summary>
-        /// <param name="idLegislatura"></param>
-        /// <returns></returns>
+        /// <param name="idLegislatura">L'identificativo della legislatura di interesse.</param>
+        /// <returns>Una task che, al suo completamento, restituisce una lista di KeyValueDto con i gruppi.</returns>
         public async Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura)
         {
             var gruppi = await _unitOfWork.Persone.GetGruppiByLegislatura(idLegislatura);
@@ -166,10 +167,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista delle cariche per legislatura
+        ///     Recupera un elenco di cariche per una specifica legislatura.
         /// </summary>
-        /// <param name="idLegislatura"></param>
-        /// <returns></returns>
+        /// <param name="idLegislatura">L'identificativo della legislatura di interesse.</param>
+        /// <returns>Una task che, al suo completamento, restituisce una lista di KeyValueDto con le cariche.</returns>
         public async Task<List<KeyValueDto>> GetCaricheByLegislatura(int idLegislatura)
         {
             var cariche = await _unitOfWork.Persone.GetCariche(idLegislatura);
@@ -177,10 +178,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista di commissioni per legislatura
+        ///     Ottiene un elenco di commissioni per una determinata legislatura.
         /// </summary>
-        /// <param name="idLegislatura"></param>
-        /// <returns></returns>
+        /// <param name="idLegislatura">L'identificativo della legislatura di interesse.</param>
+        /// <returns>Una task che, al suo completamento, restituisce una lista di KeyValueDto con le commissioni.</returns>
         public async Task<List<KeyValueDto>> GetCommissioniByLegislatura(int idLegislatura)
         {
             var commissioni = await _unitOfWork.Persone.GetCommissioni(idLegislatura);
@@ -188,16 +189,21 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista di firmatari per legislatura
+        ///     Ottiene un elenco di firmatari per una specifica legislatura.
         /// </summary>
-        /// <param name="idLegislatura"></param>
-        /// <returns></returns>
+        /// <param name="idLegislatura">L'identificativo della legislatura di interesse.</param>
+        /// <returns>Una task che, al suo completamento, restituisce una lista di PersonaPublicDto con i firmatari.</returns>
         public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
         {
             var firmatari = await _unitOfWork.Persone.GetFirmatariByLegislatura(idLegislatura);
             return firmatari;
         }
 
+        /// <summary>
+        ///     Recupera i dettagli di un atto specifico utilizzando il suo identificativo unico.
+        /// </summary>
+        /// <param name="uidAtto">L'identificativo unico dell'atto.</param>
+        /// <returns>Una task che, al suo completamento, restituisce un AttoDasiPublicDto con i dettagli dell'atto.</returns>
         public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto)
         {
             var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
@@ -276,10 +282,10 @@ namespace PortaleRegione.Api.Public.Business_Layer
         }
 
         /// <summary>
-        ///     Ritorna la lista di atti in base a dei parametri di ricerca
+        ///     Effettua una ricerca di atti basata su vari criteri di filtro.
         /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
+        /// <param name="request">L'oggetto richiesta contenente i criteri di ricerca.</param>
+        /// <returns>Una task che, al suo completamento, restituisce un oggetto BaseResponse con i risultati della ricerca.</returns>
         public async Task<BaseResponse<AttoDASILightDto>> Cerca(CercaRequest request)
         {
             var filtroFromRequest = GetFiltroCercaFromRequest(request);

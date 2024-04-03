@@ -28,10 +28,19 @@ using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance.Public
 {
+    /// <summary>
+    ///     Repository per la gestione delle legislature.
+    /// </summary>
     public class LegislatureRepository : ILegislatureRepository
     {
+        /// <summary>
+        ///     Contesto del database utilizzato per l'accesso ai dati.
+        /// </summary>
         protected readonly DbContext Context;
 
+        /// <summary>
+        ///     Proprietà di utilità per accedere al contesto del database specifico di PortaleRegione come tipizzato DbContext.
+        /// </summary>
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
 
         public LegislatureRepository(DbContext context)

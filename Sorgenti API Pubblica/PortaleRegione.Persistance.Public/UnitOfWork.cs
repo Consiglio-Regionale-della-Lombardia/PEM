@@ -21,6 +21,9 @@ using PortaleRegione.DataBase;
 
 namespace PortaleRegione.Persistance.Public
 {
+    /// <summary>
+    ///     Repository per la gestione delle interazioni con il database
+    /// </summary>
     public class UnitOfWork : IUnitOfWork
     {
         private readonly PortaleRegioneDbContext _context;

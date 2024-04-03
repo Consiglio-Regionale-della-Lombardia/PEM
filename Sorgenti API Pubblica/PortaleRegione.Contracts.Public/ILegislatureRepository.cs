@@ -22,8 +22,19 @@ using PortaleRegione.Domain;
 
 namespace PortaleRegione.Contracts.Public
 {
+    /// <summary>
+    ///     Fornisce un'astrazione per le operazioni di repository legate alla gestione delle legislature.
+    ///     Questo permette di accedere e manipolare i dati relativi alle legislature in modo indipendente dalla fonte dei
+    ///     dati.
+    /// </summary>
     public interface ILegislatureRepository
     {
+        /// <summary>
+        ///     Ottiene l'elenco completo delle legislature.
+        ///     Questo metodo è tipicamente utilizzato per recuperare tutte le legislature disponibili nell'applicazione,
+        ///     per esempio, per popolare elenchi o dropdown in interfacce utente.
+        /// </summary>
+        /// <returns>Una task che, una volta completata, restituirà un elenco di oggetti legislature.</returns>
         Task<List<legislature>> GetLegislature();
     }
 }

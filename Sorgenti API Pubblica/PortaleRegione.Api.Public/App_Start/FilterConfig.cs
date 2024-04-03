@@ -20,10 +20,22 @@ using System.Web.Mvc;
 
 namespace PortaleRegione.Api.Public
 {
+    /// <summary>
+    ///     Configura i filtri globali dell'applicazione. I filtri globali sono applicati a tutte le richieste
+    ///     gestite dall'applicazione, permettendo di implementare logica comune come la gestione delle eccezioni
+    ///     o la sicurezza a livello applicativo.
+    /// </summary>
     public class FilterConfig
     {
+        /// <summary>
+        ///     Registra i filtri globali da applicare a tutte le azioni in tutti i controller.
+        /// </summary>
+        /// <param name="filters">La collezione di filtri globali a cui aggiungere i filtri.</param>
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
+            // Aggiunge un filtro per la gestione centralizzata delle eccezioni non gestite.
+            // Questo permette di restituire risposte coerenti in caso di errore, mantenendo separata
+            // la logica di gestione degli errori dalla logica di business dei controller.
             filters.Add(new HandleErrorAttribute());
         }
     }

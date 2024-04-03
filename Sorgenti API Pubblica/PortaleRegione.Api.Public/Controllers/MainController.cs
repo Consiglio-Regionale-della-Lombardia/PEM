@@ -17,7 +17,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -29,23 +28,26 @@ using PortaleRegione.Logger;
 namespace PortaleRegione.Api.Public.Controllers
 {
     /// <summary>
-    ///     Controller pubblico per la consultazione degli atti di indirizzo e sindacato ispettivo
+    ///     Controller responsabile della gestione delle richieste relative agli atti di indirizzo e sindacato ispettivo.
+    ///     Offre operazioni di lettura su legislature, tipi di atto, stati, gruppi, cariche, commissioni, firmatari e atti.
     /// </summary>
     public class MainController : ApiController
     {
         private readonly MainLogic _logic;
 
         /// <summary>
-        /// Costruttore
+        ///     Inizializza una nuova istanza del MainController.
         /// </summary>
+        /// <param name="logic">L'istanza della logica di business da utilizzare per elaborare le richieste.</param>
         public MainController(MainLogic logic)
         {
             _logic = logic;
         }
+
         /// <summary>
-        ///     Endpoint per avere la lista delle legislature disponibili
+        ///     Recupera un elenco di legislature disponibili.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Un'azione risultato che rappresenta l'elenco delle legislature.</returns>
         [Route(ApiRoutes.GetLegislature)]
         public async Task<IHttpActionResult> GetLegislasture()
         {
@@ -62,66 +64,67 @@ namespace PortaleRegione.Api.Public.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per avere i tipi di atto disponibili
+        ///     Fornisce un elenco di tipi di atto disponibili.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Un'azione risultato con i tipi di atto.</returns>
         [Route(ApiRoutes.GetTipi)]
-        public async Task<IHttpActionResult> GetTipi()
+        public Task<IHttpActionResult> GetTipi()
         {
             var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
             try
             {
-                return Ok(_logic.GetTipi());
+                return Task.FromResult<IHttpActionResult>(Ok(_logic.GetTipi()));
             }
             catch (Exception e)
             {
                 Log.Error(currentMethod, e);
-                return ErrorHandler(e);
+                return Task.FromResult(ErrorHandler(e));
             }
         }
 
         /// <summary>
-        ///     Endpoint per avere i tipi di risposte disponibili
+        ///     Ottiene un elenco di tipi di risposta possibili.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Un'azione risultato con i tipi di risposta.</returns>
         [Route(ApiRoutes.GetTipiRisposte)]
-        public async Task<IHttpActionResult> GetTipiRisposte()
+        public Task<IHttpActionResult> GetTipiRisposte()
         {
             var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
             try
             {
-                return Ok(_logic.GetTipiRisposta());
+                return Task.FromResult<IHttpActionResult>(Ok(_logic.GetTipiRisposta()));
             }
             catch (Exception e)
             {
                 Log.Error(currentMethod, e);
-                return ErrorHandler(e);
+                return Task.FromResult(ErrorHandler(e));
             }
         }
 
         /// <summary>
-        ///     Endpoint per avere gli stati disponibili
+        ///     Restituisce un elenco degli stati disponibili per gli atti.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Un'azione risultato con gli stati degli atti.</returns>
         [Route(ApiRoutes.GetStati)]
-        public async Task<IHttpActionResult> GetStati()
+        public Task<IHttpActionResult> GetStati()
         {
             var currentMethod = new StackTrace().GetFrame(0).GetMethod().Name;
             try
             {
-                return Ok(_logic.GetStati());
+                return Task.FromResult<IHttpActionResult>(Ok(_logic.GetStati()));
             }
             catch (Exception e)
             {
                 Log.Error(currentMethod, e);
-                return ErrorHandler(e);
+                return Task.FromResult(ErrorHandler(e));
             }
         }
 
         /// <summary>
-        ///     Endpoint per avere i gruppi disponibili per legislatura
+        ///     Recupera l'elenco dei gruppi disponibili per una data legislatura.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="request">L'oggetto richiesta contenente l'ID della legislatura di interesse.</param>
+        /// <returns>Un'azione risultato con i gruppi per la legislatura specificata.</returns>
         [Route(ApiRoutes.GetGruppi)]
         [HttpPost]
         public async Task<IHttpActionResult> GetGruppi(GruppiRequest request)
@@ -138,11 +141,12 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
-        ///     Endpoint per avere le cariche disponibili per legislatura
+        ///     Fornisce un elenco delle cariche disponibili per una specifica legislatura.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="request">La richiesta contenente l'ID della legislatura.</param>
+        /// <returns>Un'azione risultato con le cariche per la legislatura specificata.</returns>
         [Route(ApiRoutes.GetCaricheGiunta)]
         [HttpPost]
         public async Task<IHttpActionResult> GetCaricheGiunta(CaricheRequest request)
@@ -159,11 +163,12 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
-        ///     Endpoint per avere le commissioni disponibili per legislatura
+        ///     Ottiene un elenco delle commissioni disponibili per una determinata legislatura.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="request">La richiesta contenente l'ID della legislatura.</param>
+        /// <returns>Un'azione risultato con le commissioni per la legislatura specificata.</returns>
         [Route(ApiRoutes.GetCommissioni)]
         [HttpPost]
         public async Task<IHttpActionResult> GetCommissioni(CommissioniRequest request)
@@ -180,11 +185,12 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
-        ///     Endpoint per avere i firmatari disponibili per legislatura
+        ///     Recupera un elenco di firmatari disponibili per una specifica legislatura.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="request">La richiesta contenente l'ID della legislatura.</param>
+        /// <returns>Un'azione risultato con i firmatari per la legislatura specificata.</returns>
         [Route(ApiRoutes.GetFirmatari)]
         [HttpPost]
         public async Task<IHttpActionResult> GetFirmatari(FirmatariRequest request)
@@ -203,9 +209,10 @@ namespace PortaleRegione.Api.Public.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per cercare gli atti pubblici
+        ///     Cerca gli atti pubblici basati sui criteri specificati nella richiesta.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="request">L'oggetto richiesta contenente i criteri di ricerca.</param>
+        /// <returns>Un'azione risultato con gli atti che corrispondono ai criteri di ricerca.</returns>
         [Route(ApiRoutes.GetSearch)]
         [HttpPost]
         public async Task<IHttpActionResult> GetSearch(CercaRequest request)
@@ -231,9 +238,10 @@ namespace PortaleRegione.Api.Public.Controllers
         }
 
         /// <summary>
-        ///     Endpoint per cercare gli atti pubblici
+        ///     Restituisce i dettagli di un atto specifico, identificato dall'UID fornito nella richiesta.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="request">L'oggetto richiesta contenente l'UID dell'atto.</param>
+        /// <returns>Un'azione risultato con i dettagli dell'atto specificato.</returns>
         [Route(ApiRoutes.GetAtto)]
         [HttpPost]
         public async Task<IHttpActionResult> GetAtto(AttoRequest request)
@@ -256,10 +264,10 @@ namespace PortaleRegione.Api.Public.Controllers
         }
 
         /// <summary>
-        ///     Handler per catturare i messaggi di errore
+        ///     Gestisce e formatta le eccezioni catturate nei metodi del controller.
         /// </summary>
-        /// <param name="e"></param>
-        /// <returns></returns>
+        /// <param name="e">L'eccezione catturata.</param>
+        /// <returns>Un'azione risultato che rappresenta l'errore.</returns>
         protected IHttpActionResult ErrorHandler(Exception e)
         {
             var message = e.Message;
