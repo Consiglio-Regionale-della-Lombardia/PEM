@@ -1657,7 +1657,7 @@ namespace PortaleRegione.API.Controllers
                     A = destinatari,
                     OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
                     MESSAGGIO =
-                        $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato. {GetBodyFooterMail()}",
+                        $"E' stato effettuato il deposito da {persona.DisplayName_GruppoCode} degli atti in allegato. {GetBodyFooterMail()}",
                     ATTACHMENTS = attachList
                 };
                 await _logicUtil.InvioMail(mailModel);
