@@ -2805,7 +2805,7 @@ namespace PortaleRegione.API.Controllers
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
-                    .Replace("{Oggetto}", dasiDto.Oggetto)
+                    .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
                     .Replace("{DataDeposito}",
