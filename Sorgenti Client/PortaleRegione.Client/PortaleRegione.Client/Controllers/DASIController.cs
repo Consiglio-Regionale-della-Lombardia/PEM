@@ -1095,8 +1095,7 @@ namespace PortaleRegione.Client.Controllers
 
                 Session["RiepilogoDASI"] = resultPreview;
 
-                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo,
-                    (int)resultPreview.Stato,
+                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo, (int)resultPreview.Stato,
                     Convert.ToInt16(view));
 
                 foreach (var atti in resultPreview.Data.Results)
@@ -1128,20 +1127,11 @@ namespace PortaleRegione.Client.Controllers
 
                 return View("RiepilogoDASI", resultPreview);
             }
-            
+
+            if (modelInCache != null)
+            {
                 if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
                 {
-                    page = modelInCache.Data.Paging.Page,
-                    size = modelInCache.Data.Paging.Limit,
-                    filtro = modelInCache.Data.Filters,
-                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
-                };
-                var resultGrid = await apiGateway.DASI.Get(request);
-                resultGrid.CurrentUser = CurrentUser;
-                resultGrid.ClientMode = modelInCache.ClientMode;
-                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
-                    (int)resultGrid.Stato,
-                    Convert.ToInt16(view));
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
@@ -1154,6 +1144,7 @@ namespace PortaleRegione.Client.Controllers
                     resultGrid.ClientMode = modelInCache.ClientMode;
                     SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
                         Convert.ToInt16(view));
+
                     Session["RiepilogoDASI"] = resultGrid;
 
                     if (CanAccess(new List<RuoliIntEnum>
@@ -1162,7 +1153,7 @@ namespace PortaleRegione.Client.Controllers
 
                     return View("RiepilogoDASI", resultGrid);
                 }
-         
+            }
 
             Session["RiepilogoDASI"] = null;
             int.TryParse(Request.Form["reset"], out var reset_enabled);

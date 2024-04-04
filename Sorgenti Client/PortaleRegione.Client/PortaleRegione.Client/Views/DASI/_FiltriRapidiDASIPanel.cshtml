@@ -25,7 +25,8 @@
 var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Legislatura))", id: "@nameof(AttoDASIDto.Legislatura)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)"},
-	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"}
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)"},
 ];
 
     async function inviaDatiChips(page, size) {
@@ -367,6 +368,16 @@ document.addEventListener('DOMContentLoaded', function() {
 			    break;
 		    case '@nameof(AttoDASIDto.Tipo)':
 				var tipi = GetTipiDASI();
+				selectHTML = '<select id="tipi-select">';
+				tipi.forEach(function (item) {
+					if (item.IDTipoAtto != 0) {
+						selectHTML += `<option value="${item.IDTipoAtto}">${item.Tipo_Atto}</option>`;
+					}
+				});
+				selectHTML += '</select>';
+			    break;
+			case '@nameof(AttoDASIDto.IDTipo_Risposta)':
+				var tipi = gett();
 				selectHTML = '<select id="tipi-select">';
 				tipi.forEach(function (item) {
 					if (item.IDTipoAtto != 0) {
