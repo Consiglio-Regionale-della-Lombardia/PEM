@@ -4,162 +4,127 @@
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 @{
-	ViewBag.Title = "DASI";
+    ViewBag.Title = "DASI";
 
-	var classTabPresentati = "";
-	var classTabInTrattazione = "";
-	var classTabChiuso = "";
-	switch (Model.Stato)
-	{
-		case StatiAttoEnum.PRESENTATO:
-			classTabPresentati = "active";
-			break;
-		case StatiAttoEnum.IN_TRATTAZIONE:
-			classTabInTrattazione = "active";
-			break;
-		case StatiAttoEnum.CHIUSO:
-			classTabChiuso = "active";
-			break;
-	}
-	var url = Url.Action("Index", "Home");
+    var classTabPresentati = "";
+    var classTabInTrattazione = "";
+    var classTabChiuso = "";
+    switch (Model.Stato)
+    {
+        case StatiAttoEnum.PRESENTATO:
+            classTabPresentati = "active";
+            break;
+        case StatiAttoEnum.IN_TRATTAZIONE:
+            classTabInTrattazione = "active";
+            break;
+        case StatiAttoEnum.CHIUSO:
+            classTabChiuso = "active";
+            break;
+    }
+    var url = Url.Action("Index", "Home");
 
-	if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
-	{
-		var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
-		url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
-	}
+    if (Model.ClientMode == ClientModeEnum.TRATTAZIONE)
+    {
+        var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
+        url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
+    }
 
-	var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
-	var textTitoloRicerca = filtri_attivi ? " - Ricerca" : string.Empty;
+    var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
+    var textTitoloRicerca = filtri_attivi? " - Ricerca": string.Empty;
 }
 
 <div class="row" style="margin-bottom: unset!important">
-	<div class="col s12">
-		<a class="btn-floating waves-effect waves-light grey header-back" href="@url">
-			<i class="material-icons">arrow_back</i>
-		</a>
-		<div class="row valign-wrapper">
-			<div class="col s12">
-				@if (Model.ClientMode == ClientModeEnum.GRUPPI)
-				{
-					<h4>
-						<b>Riepilogo atti di indirizzo e di sindacato ispettivo @textTitoloRicerca</b>
-					</h4>
-				}
-				else
-				{
-					var tipo = Convert.ToInt16(Model.Tipo);
-					<h4>
-						<div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
-							@PortaleRegione.Common.Utility.GetText_Tipo(tipo)
-						</div>
-						<b> - Riepilogo atti di indirizzo e di sindacato ispettivo  @textTitoloRicerca</b>
-					</h4>
-				}
-			</div>
-		</div>
-	</div>
+    <div class="col s12">
+        <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
+            <i class="material-icons">arrow_back</i>
+        </a>
+        <div class="row valign-wrapper">
+            <div class="col s12">
+                @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+                {
+                    <h4>
+                        <b>Riepilogo atti di indirizzo e di sindacato ispettivo @textTitoloRicerca</b>
+                    </h4>
+                }
+                else
+                {
+                    var tipo = Convert.ToInt16(Model.Tipo);
+                    <h4>
+                        <div class="chip @Utility.GetCSS_TipoDASI(tipo)" style="min-width: unset !important;">
+                            @PortaleRegione.Common.Utility.GetText_Tipo(tipo)
+                        </div>
+                        <b> - Riepilogo atti di indirizzo e di sindacato ispettivo  @textTitoloRicerca</b>
+                    </h4>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 <hr />
 @if (Model.ClientMode == ClientModeEnum.GRUPPI)
 {
-	Html.RenderPartial("_FiltriRapidiDASIPanel", Model);
+    <div class="row center">
+        @{
+            Html.RenderPartial("_CounterBar_RiepilogoDASI", Model);
+        }
+    </div>
 }
 
-<div class="card">
-    <div class="card-content">
-        <div id="contentTable" class="row">
-            <div class="col s12">
-                <div class="row valign-wrapper">
-                    <div class="col l6 s6">
-                        <label>
-                            <input type="checkbox" id="checkAll"/>
-                            <span for="checkAll">
-                                Seleziona tutti
-                            </span>
-                        </label>
-                    </div>
-                    <div class="col l6 s6 right-align">
+<div id="contentTable" class="row">
+    @if (Model.ClientMode == ClientModeEnum.GRUPPI)
+    {
+        if (string.IsNullOrEmpty(classTabPresentati)
+        && string.IsNullOrEmpty(classTabInTrattazione)
+        && string.IsNullOrEmpty(classTabChiuso))
+        {
 
-                        <a class="btn-floating white black-text tooltipped activator" data-tooltip="Conteggi" data-position="left">
-                            <i class="material-icons">insert_chart</i>
+        }
+        else
+        {
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col l4 s12">
+                        <a class="@classTabPresentati" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.PRESENTATO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                            Depositati (@Model.CountBarData.PRESENTATI)
                         </a>
-                        <a class="btn-floating white black-text tooltipped" data-tooltip="Esporta report" data-position="left">
-                            <i class="material-icons">import_export</i>
+                    </li>
+                    <li class="tab col l4 s12">
+                        <a class="@classTabInTrattazione" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.IN_TRATTAZIONE));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                            In Trattazione (@Model.CountBarData.IN_TRATTAZIONE)
                         </a>
-                        <a class="btn-floating white black-text tooltipped" onclick="ConfirmStampa()" data-tooltip="Stampa" data-position="left">
-                            <i class="material-icons">print</i>
+                    </li>
+                    <li class="tab col l4 s12">
+                        <a class="@classTabChiuso" onclick="resetGridSelection();$('#qStato').val(@((int)StatiAttoEnum.CHIUSO));$('#qStato').formSelect();filter_dasi_stato_OnChange();filtra();">
+                            Chiusi (@Model.CountBarData.CHIUSO)
                         </a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col s12">
-                        <div id="paginazione-container" class="pagination-container">
-     
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col s12">
-                        <div id="loadingSpinner" class="progress">
-                            <div class="indeterminate"></div>
-                        </div>
-                        <div id="tableResults">
-                            <div class="card-panel blue lighten-5 center">
-                                <span class="center">
-                                    <p>Esegui una ricerca per poter visualizzare gli atti</p>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    </li>
+                </ul>
             </div>
-        </div>
-    </div>
-    <div class="card-reveal">
-        <span class="card-title grey-text text-darken-4">Conteggi <i class="material-icons right">close</i></span>
-        <ul class="collection with-header">
-            <li class="collection-header"><h4>Tipi atto</h4></li>
-            <li class="collection-item">
-                <div>TOTALE <span class="secondary-content">@Model.CountBarData.TUTTI</span></div></li>
-            <li class="collection-item">
-                <div>ITL <span class="secondary-content">@Model.CountBarData.ITL</span></div></li>
-            <li class="collection-item">
-                <div>ITR <span class="secondary-content">@Model.CountBarData.ITR</span></div></li>
-            <li class="collection-item">
-                <div>IQT <span class="secondary-content">@Model.CountBarData.IQT</span></div></li>
-            <li class="collection-item">
-                <div>MOZ <span class="secondary-content">@Model.CountBarData.MOZ</span></div></li>
-            <li class="collection-item">
-                <div>ODG <span class="secondary-content">@Model.CountBarData.ODG</span></div></li>
-        </ul>
-        <ul class="collection with-header">
-            <li class="collection-header"><h4>Stati atto</h4></li>
-			@if (!Model.CurrentUser.IsSegreteriaAssemblea)
-			{
-			    <li class="collection-item">
-                    <div>BOZZE <span class="secondary-content">@Model.CountBarData.BOZZE</span></div></li>
-			}
-            <li class="collection-item">
-				<div>PRESENTATI <span class="secondary-content">@Model.CountBarData.PRESENTATI</span></div></li>
-            <li class="collection-item">
-				<div>IN TRATTAZIONE <span class="secondary-content">@Model.CountBarData.IN_TRATTAZIONE</span></div></li>
-            <li class="collection-item">
-				<div>CHIUSO <span class="secondary-content">@Model.CountBarData.CHIUSO</span></div></li>
-        </ul>
+        }
+    }
+    
+    <div class="col s12">
+        @{
+            if (Model.ViewMode == ViewModeEnum.GRID)
+            {
+                Html.RenderPartial("_GridView_RiepilogoDASI_Admin", Model);
+            }else
+            {
+                Html.RenderPartial("_ZoomView_RiepilogoDASI", Model);
+            }
+        }
     </div>
 </div>
 
-
 @{
-	Html.RenderPartial("_IscriviASedutaModal");
-	Html.RenderPartial("_PannelloRicerche", Model);
-	Html.RenderPartial("_ComandiDASI_Admin");
-	Html.RenderPartial("_MetaDatiPanelPartial", Model);
-	Html.RenderPartial("_GeasiViewPartial");
-	Html.RenderPartial("_StampaModal");
-	Html.RenderPartial("_CartaceoPanelPartial", Model);
+    Html.RenderPartial("_IscriviASedutaModal");
+    Html.RenderPartial("_PannelloRicerche", Model);
+    Html.RenderPartial("_ComandiDASI_Admin");
+    Html.RenderPartial("_MetaDatiPanelPartial", Model);
+    Html.RenderPartial("_GeasiViewPartial");
+    Html.RenderPartial("_StampaModal");
+    Html.RenderPartial("_CartaceoPanelPartial", Model);
 
-	Html.RenderPartial("_ScriptRiepilogoDASI", Model);
+    Html.RenderPartial("_ScriptRiepilogoDASI", Model);
 }
 

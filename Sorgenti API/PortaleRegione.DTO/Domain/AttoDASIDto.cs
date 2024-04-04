@@ -251,21 +251,7 @@ namespace PortaleRegione.DTO.Domain
 
             return string.Empty;
         }
-      
-        public string Oggetto_Presentato { get; set; }
-        public DateTime? DataAnnunzio { get; set; }
-        public string CodiceMateria { get; set; }
-        public string Protocollo{ get; set; }
-        public int? IDTipo_Risposta_Effettiva{ get; set; }
-        public bool Pubblicato { get; set; }
-        public bool Sollecito { get; set; }
-        public int? TipoChiusuraIter { get; set; }
-        public DateTime? DataChiusuraIter { get; set; }
-        public string NoteChiusuraIter { get; set; }
-        public bool Emendato { get; set; }
-        public int? TipoVotazioneIter { get; set; }
-        public string AreaTematica { get; set; }
-        public string AltriSoggetti { get; set; }
+        
         public string DisplayTipoRispostaRichiesta { get; set; }
         public string DisplayStato { get; set; }
     }
