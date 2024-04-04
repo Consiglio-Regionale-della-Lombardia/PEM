@@ -31,13 +31,11 @@
                 }).then((value) => {
                     if (value == true) {
 						$('#formDASI').submit();
-
 						window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                     }
                 });
             } else {
 				$('#formDASI').submit();
-
 				window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
             }
         });
@@ -243,7 +241,7 @@
                         text: "Atto inserito correttamente a sistema.",
                         icon: "success"
                     }).then((value) => {
-                        go(data);
+						go(data);
                     });
                 }
             }).fail(function(err) {
@@ -301,7 +299,7 @@
             return prefix + " ODG";
         }
     }
-    
+
     $('.trumbowyg').trumbowyg({
         lang: 'it',
         btns: [

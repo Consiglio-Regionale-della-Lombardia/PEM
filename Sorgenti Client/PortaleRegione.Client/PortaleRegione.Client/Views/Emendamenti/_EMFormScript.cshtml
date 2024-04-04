@@ -216,7 +216,11 @@
                 else
                     {
                         window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
-                        location.reload();
+                        if($('input[name="Emendamento.UIDEM"]').val() == "00000000-0000-0000-0000-000000000000"){
+							window.close();
+						}else{
+							go(data)
+						}
                     }
             }).fail(function(err) {
                 console.log("error", err);

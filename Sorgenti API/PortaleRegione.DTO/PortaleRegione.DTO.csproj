@@ -113,6 +113,7 @@
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AllegatoMail.cs" />
     <Compile Include="Model\ArticoliModel.cs" />
+    <Compile Include="Model\AutenticazioneModel.cs" />
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\CommiModel.cs" />

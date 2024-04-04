@@ -16,13 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
-using PortaleRegione.Client.Helpers;
-using PortaleRegione.DTO.Autenticazione;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.DTO.Response;
-using PortaleRegione.Gateway;
 using System;
 using System.Collections;
 using System.Linq;
@@ -31,6 +24,14 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Security;
+using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
+using PortaleRegione.DTO.Autenticazione;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
+using PortaleRegione.DTO.Response;
+using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -44,28 +45,39 @@ namespace PortaleRegione.Client.Controllers
         [Route("login")]
         public ActionResult FormAutenticazione()
         {
-            return View(new LoginRequest());
+            return View(new AutenticazioneModel(GetVersion()));
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult> Login(LoginRequest model, string returnUrl)
+        public async Task<ActionResult> Login(AutenticazioneModel model, string returnUrl)
         {
-            if (!ModelState.IsValid) return View("FormAutenticazione", model);
+            model.versione = GetVersion();
+            if (!ModelState.IsValid)
+                return View("FormAutenticazione", model);
             LoginResponse response;
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                response = await apiGateway.Persone.Login(model);
+                response = await apiGateway.Persone.Login(model.LoginRequest);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                model.MessaggioErrore = e.Message;
+                try
+                {
+                    var erroreJson = JsonConvert.DeserializeObject<ErrorResponse>(e.Message);
+                    model.LoginRequest.MessaggioErrore = erroreJson != null ? erroreJson.message : e.Message;
+                }
+                catch (Exception)
+                {
+                    model.LoginRequest.MessaggioErrore = e.Message;
+                }
+
                 return View("FormAutenticazione", model);
             }
 
-            await SalvaDatiInCookies(response.persona, response.jwt, model.Username);
+            await SalvaDatiInCookies(response.persona, response.jwt, model.LoginRequest.Username);
 
             if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
 
@@ -148,15 +160,15 @@ namespace PortaleRegione.Client.Controllers
 
             var enTicket1 = FormsAuthentication.Encrypt(authTicket1);
             var faCookie1 = new HttpCookie("PRCookies1", enTicket1)
-            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+                { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie1);
             var enTicket2 = FormsAuthentication.Encrypt(authTicket2);
             var faCookie2 = new HttpCookie("PRCookies2", enTicket2)
-            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+                { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie2);
             var enTicket3 = FormsAuthentication.Encrypt(authTicket3);
             var faCookie3 = new HttpCookie("PRCookies3", enTicket3)
-            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+                { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(faCookie3);
 
             #endregion
@@ -181,15 +193,15 @@ namespace PortaleRegione.Client.Controllers
 
             var sTicket1 = FormsAuthentication.Encrypt(securetyTicket1);
             var sCookie1 = new HttpCookie("SCookies1", sTicket1)
-            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+                { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie1);
             var sTicket2 = FormsAuthentication.Encrypt(securetyTicket2);
             var sCookie2 = new HttpCookie("SCookies2", sTicket2)
-            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+                { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie2);
             var sTicket3 = FormsAuthentication.Encrypt(securetyTicket3);
             var sCookie3 = new HttpCookie("SCookies3", sTicket3)
-            { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
+                { Expires = DateTime.Now.AddHours(AppSettingsConfiguration.COOKIE_EXPIRE_IN) };
             Response.Cookies.Add(sCookie3);
 
             #endregion
@@ -280,10 +292,13 @@ namespace PortaleRegione.Client.Controllers
         [Route("login-debug")]
         public ActionResult FormAutenticazioneDEBUG(string username, string password)
         {
-            return View("FormAutenticazione", new LoginRequest
+            return View("FormAutenticazione", new AutenticazioneModel(GetVersion())
             {
-                Username = username,
-                Password = password
+                LoginRequest = new LoginRequest
+                {
+                    Username = username,
+                    Password = password
+                }
             });
         }
 #endif

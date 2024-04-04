@@ -1024,6 +1024,15 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+            if (modelInCache == null)
+            {
+                modelInCache = new RiepilogoDASIModel
+                {
+                    ClientMode = (ClientModeEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE))),
+                    Stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    Tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
+                };
+            }
 
             var view = Request.Form["view"];
 
