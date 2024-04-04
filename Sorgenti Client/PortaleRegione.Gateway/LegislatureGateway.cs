@@ -42,6 +42,14 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task<int> GetLegislaturaAttuale()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Legislature.GetAttuale}";
+
+            var lst = JsonConvert.DeserializeObject<int>(await Get(requestUrl, _token));
+            return lst;
+        }
+
         public async Task<IEnumerable<LegislaturaDto>> GetLegislature()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.Legislature.GetAll}";

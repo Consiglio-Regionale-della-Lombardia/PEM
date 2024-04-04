@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace ExpressionBuilder.Generics
 {
@@ -34,6 +35,11 @@ namespace ExpressionBuilder.Generics
     [Serializable]
     public class FilterStatement<TPropertyType> : IFilterStatement
     {
+        /// <summary>
+        /// The description of propriety. optional 
+        /// </summary>
+        public string Label { get; set; }
+
         /// <summary>
 		/// Establishes how this filter statement will connect to the next one. 
 		/// </summary>
@@ -53,6 +59,7 @@ namespace ExpressionBuilder.Generics
         /// <summary>
         /// Constant value that will interact with the property defined in this filter statement when the operation demands a second value to compare to.
         /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Value2 { get; set; }
         
         /// <summary>

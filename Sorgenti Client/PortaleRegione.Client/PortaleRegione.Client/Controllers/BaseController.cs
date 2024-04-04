@@ -132,6 +132,8 @@ namespace PortaleRegione.Client.Controllers
 
         internal string GetCacheKey(string key)
         {
+            if (CurrentUser == null)
+                return "";
             return $"{key}_{CurrentUser.UID_persona}";
         }
 

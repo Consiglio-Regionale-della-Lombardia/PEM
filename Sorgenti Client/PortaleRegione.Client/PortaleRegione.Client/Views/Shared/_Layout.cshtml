@@ -50,15 +50,20 @@
 <script>
         baseUrl = '@Html.Raw(AppSettingsConfiguration.URL_CLIENT)';
         AggiornaPosizioneTemi(baseUrl);
-	    var cssTheme = gruppi_theme;
+        var cssTheme = "";
+		var modeFromCache = 1;
         @{
             if (currentUser == null)
             {
-                @Html.Raw("var modeFromCache = " + (int)ClientModeEnum.GRUPPI)
+
             }
             else
             {
-                @Html.Raw("var modeFromCache = " + HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}"))
+                var clientFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}");
+                if (clientFromCache != null)
+                {
+                    @Html.Raw($"modeFromCache = {clientFromCache};")
+                }
             }
         }
 	    

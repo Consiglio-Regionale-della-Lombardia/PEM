@@ -16,16 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace PortaleRegione.Common
 {
@@ -102,24 +105,24 @@ namespace PortaleRegione.Common
                 case PartiEMEnum.Capo:
                     return $"Capo: {em.NCapo}";
                 case PartiEMEnum.Articolo:
+                {
+                    var strArticolo = string.Empty;
+                    if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
+
+                    if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
+                        strArticolo += $", Comma: {em.COMMI.Comma}";
+
+                    if (!string.IsNullOrEmpty(em.NLettera))
                     {
-                        var strArticolo = string.Empty;
-                        if (em.UIDArticolo.HasValue) strArticolo += $"Articolo: {em.ARTICOLI.Articolo}";
-
-                        if (em.UIDComma.HasValue && em.UIDComma.GetValueOrDefault() != Guid.Empty)
-                            strArticolo += $", Comma: {em.COMMI.Comma}";
-
-                        if (!string.IsNullOrEmpty(em.NLettera))
-                        {
-                            strArticolo += $", Lettera: {em.NLettera}";
-                        }
-                        else
-                        {
-                            if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
-                        }
-
-                        return strArticolo;
+                        strArticolo += $", Lettera: {em.NLettera}";
                     }
+                    else
+                    {
+                        if (em.UIDLettera.HasValue) strArticolo += $", Lettera: {em.LETTERE.Lettera}";
+                    }
+
+                    return strArticolo;
+                }
                 case PartiEMEnum.Missione:
                     return $"Missione: {em.NMissione} Programma: {em.NProgramma} titolo: {em.NTitoloB}";
                 case PartiEMEnum.Allegato_Tabella:
@@ -139,17 +142,17 @@ namespace PortaleRegione.Common
             switch (effetti_finanziari)
             {
                 case 0:
-                    {
-                        return "NO";
-                    }
+                {
+                    return "NO";
+                }
                 case 1:
-                    {
-                        return "SI";
-                    }
+                {
+                    return "SI";
+                }
                 default:
-                    {
-                        return "NON SPECIFICATO";
-                    }
+                {
+                    return "NON SPECIFICATO";
+                }
             }
         }
 
@@ -218,7 +221,7 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_StatoDASI(int stato, bool excel = false)
+        public static string GetText_StatoDASI(int stato, bool excel = true)
         {
             switch ((StatiAttoEnum)stato)
             {
@@ -227,9 +230,9 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.BOZZA:
                     return "Bozza";
                 case StatiAttoEnum.PRESENTATO:
-                    {
-                        return excel ? "Presentato" : "Depositato";
-                    }
+                {
+                    return excel ? "Presentato" : "Depositato";
+                }
                 case StatiAttoEnum.IN_TRATTAZIONE:
                     return "In trattazione";
                 case StatiAttoEnum.CHIUSO:
@@ -241,9 +244,21 @@ namespace PortaleRegione.Common
                 case StatiAttoEnum.TUTTI:
                     return "Tutti";
                 case StatiAttoEnum.BOZZA_CARTACEA:
-                    return "Cartaceo";
+                    return "Bozza cartacea";
+                case StatiAttoEnum.COMUNICAZIONE_ASSEMBLEA:
+                    return "Comunicazione assemblea";
+
+                case StatiAttoEnum.CHIUSO_DECADENZA_PER_FINE_LEGISLATURA:
+                    return "Chiuso decaduto per fine legislatura";
+
+                case StatiAttoEnum.CHIUSO_INAMMISSIBILE:
+                    return "Chiuso inammissibile";
+
+                case StatiAttoEnum.TRATTAZIONE_IN_ASSEMBLEA:
+                    return "Trattazione in assemblea";
+
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(stato), stato, null);
+                    return "Stato non valido";
             }
         }
 
@@ -256,13 +271,21 @@ namespace PortaleRegione.Common
                 case TipoRispostaEnum.SCRITTA:
                     return "Scritta";
                 case TipoRispostaEnum.COMMISSIONE:
-                    {
-                        return excel ? "In commissione" : "In Commissione";
-                    }
+                {
+                    return excel ? "In commissione" : "In Commissione";
+                }
                 case TipoRispostaEnum.IMMEDIATA:
-                    {
-                        return "Immediata";
-                    }
+                {
+                    return "Immediata";
+                }
+                case TipoRispostaEnum.ITER_IN_ASSEMBLEA:
+                {
+                    return "Iter in assemblea";
+                }
+                case TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE:
+                {
+                    return "Iter in assemblea + commissione";
+                }
                 default:
                     return "";
             }
@@ -341,11 +364,11 @@ namespace PortaleRegione.Common
         public static List<KeyValueDto> GetEnumList<T>()
         {
             return (from object e in Enum.GetValues(typeof(T))
-                    select new KeyValueDto
-                    {
-                        id = (int)e,
-                        descr = e.ToString().Replace("_", " ")
-                    }).ToList();
+                select new KeyValueDto
+                {
+                    id = (int)e,
+                    descr = e.ToString().Replace("_", " ")
+                }).ToList();
         }
 
         /// <summary>
@@ -772,6 +795,15 @@ namespace PortaleRegione.Common
             return text;
         }
 
+        public static string GetDisplayName(Type objectType, string propertyName)
+        {
+            var prop = objectType.GetProperty(propertyName);
+            var displayNameAttribute = prop.GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                .FirstOrDefault() as DisplayNameAttribute;
+
+            return displayNameAttribute?.DisplayName ?? propertyName;
+        }
+
         public static List<List<T>> Split<T>(IList<T> source)
         {
             return source
@@ -779,6 +811,38 @@ namespace PortaleRegione.Common
                 .GroupBy(x => x.Index / 100)
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
+        }
+
+        public static string ConvertiCaratteriSpeciali(string input)
+        {
+            StringBuilder sb = new StringBuilder(input);
+        
+            sb.Replace("À", "&Agrave;");
+            sb.Replace("à", "&agrave;");
+            sb.Replace("È", "&Egrave;");
+            sb.Replace("è", "&egrave;");
+            sb.Replace("Ì", "&Igrave;");
+            sb.Replace("ì", "&igrave;");
+            sb.Replace("Ò", "&Ograve;");
+            sb.Replace("ò", "&ograve;");
+            sb.Replace("Ù", "&Ugrave;");
+            sb.Replace("ù", "&ugrave;");
+        
+            sb.Replace("Á", "&Aacute;");
+            sb.Replace("á", "&aacute;");
+            sb.Replace("É", "&Eacute;");
+            sb.Replace("é", "&eacute;");
+            sb.Replace("Í", "&Iacute;");
+            sb.Replace("í", "&iacute;");
+            sb.Replace("Ó", "&Oacute;");
+            sb.Replace("ó", "&oacute;");
+            sb.Replace("Ú", "&Uacute;");
+            sb.Replace("ú", "&uacute;");
+            
+            sb.Replace("\"", "&quot;");
+            sb.Replace("'", "&#39;");
+
+            return sb.ToString();
         }
     }
 }

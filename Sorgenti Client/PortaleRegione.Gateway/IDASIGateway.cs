@@ -32,6 +32,7 @@ namespace PortaleRegione.Gateway
         Task<AttoDASIDto> Salva(AttoDASIDto request);
         Task<AttoDASIDto> Get(Guid id);
         Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo, bool propria_firma = false);
+        Task<RiepilogoDASIModel> Get(int page, int size, StatiAttoEnum stato, TipoAttoEnum tipo, RuoliIntEnum ruolo, int legislatura, bool propria_firma = false);
         Task<RiepilogoDASIModel> Get(BaseRequest<AttoDASIDto> model);
         Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model);
         Task<List<AttoDASIDto>> GetMOZAbbinabili();

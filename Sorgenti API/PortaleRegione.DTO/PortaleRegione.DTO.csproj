@@ -73,6 +73,7 @@
     <Compile Include="Domain\AttoDASIDto.cs" />
     <Compile Include="Domain\CommissioneDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
+    <Compile Include="Domain\Essentials\AttoDASILightDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />
     <Compile Include="Domain\Essentials\PersonaLightDto.cs" />
@@ -107,8 +108,10 @@
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
     <Compile Include="Enum\TipoMOZEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
+    <Compile Include="Enum\TipoOrganoEnum.cs" />
     <Compile Include="Enum\TipoRichiestaEnum.cs" />
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
+    <Compile Include="Enum\TipoVotazioneIterEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AllegatoMail.cs" />
@@ -117,6 +120,7 @@
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\CommiModel.cs" />
+    <Compile Include="Model\FilterItem.cs" />
     <Compile Include="Model\InfoModel.cs" />
     <Compile Include="Model\JollyODGModel.cs" />
     <Compile Include="Model\LettereModel.cs" />
@@ -169,8 +173,15 @@
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\NuovaStampaRequest.cs" />
+    <Compile Include="Request\FilterRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
+    <Compile Include="Request\Public\AttoRequest.cs" />
+    <Compile Include="Request\Public\CaricheRequest.cs" />
+    <Compile Include="Request\Public\CercaRequest.cs" />
+    <Compile Include="Request\Public\CommissioniRequest.cs" />
+    <Compile Include="Request\Public\FirmatariRequest.cs" />
+    <Compile Include="Request\Public\GruppiRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />

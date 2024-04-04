@@ -101,8 +101,25 @@ namespace PortaleRegione.Domain
         public string FirmeCartacee { get; set; }
 
         // #558
+
         public bool IsChiuso => IDStato == (int)StatiAttoEnum.CHIUSO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_RITIRATO
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
+
+        
+        public string Oggetto_Presentato { get; set; }
+        public DateTime? DataAnnunzio { get; set; }
+        public string CodiceMateria { get; set; }
+        public string Protocollo{ get; set; }
+        public int? IDTipo_Risposta_Effettiva{ get; set; }
+        public bool Pubblicato { get; set; }
+        public bool Sollecito { get; set; }
+        public int? TipoChiusuraIter { get; set; }
+        public DateTime? DataChiusuraIter { get; set; }
+        public string NoteChiusuraIter { get; set; }
+        public bool Emendato { get; set; }
+        public int? TipoVotazioneIter { get; set; }
+        public string AreaTematica { get; set; }
+        public string AltriSoggetti { get; set; }
     }
 }

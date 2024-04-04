@@ -81,5 +81,16 @@ namespace PortaleRegione.API.Controllers
         {
             return Ok(await _legislatureLogic.GetLegislatura(id));
         }
+        
+        /// <summary>
+        ///     Endpoint per avere la legislatura attuale
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Legislature.GetAttuale)]
+        public async Task<IHttpActionResult> GetLegislaturaAttuale()
+        {
+            return Ok(await _legislatureLogic.GetLegislaturaAttuale());
+        }
     }
 }

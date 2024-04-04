@@ -276,6 +276,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string GetAll = Base + "/all";
             public const string Get = Base + "/{id}";
+            public const string GetAttuale = Base + "/attuale";
         }
 
         public static class Esporta

@@ -286,7 +286,7 @@ div.sidenav {
 
 .sidenav-search {
 	top: 0 !important;
-	width: 60% !important;
+	width: 30% !important;
 }
 
 /*.sidenav.sidenav-fixed { z-index: 998 !important; }*/
@@ -872,4 +872,18 @@ span.highlight { background-color: yellow; }
 .empty-room {
 	background-color: yellow;
 	height: 44px;
+}
+
+.pagination-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.pagination-container .pagination {
+	margin: 0; /* Rimuove margini predefiniti per allineare meglio gli elementi */
+}
+
+.pagination-container .chip {
+	margin: 0; /* Opzionale: Rimuove margini predefiniti dal chip se necessario */
 }

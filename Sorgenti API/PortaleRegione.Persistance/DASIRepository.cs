@@ -80,7 +80,6 @@ namespace PortaleRegione.Persistance
                     filtro2._statements.Add(f);
             }
 
-
             filtro2.BuildExpression(ref query);
 
             if (mode == ClientModeEnum.GRUPPI)
