@@ -5,139 +5,157 @@
 @model  PortaleRegione.DTO.Model.EmendamentiFormModel
 
 @{
+    Layout = null;
     var displayAtto = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
     var isNew = Model.Emendamento.UIDEM == Guid.Empty;
     var tipo_descrizione = Model.Emendamento.Rif_UIDEM.HasValue ? "sub-emendamento" : "emendamento";
     ViewBag.Title = isNew ? string.Format("{0} - Nuovo {1}", displayAtto, tipo_descrizione) : string.Format("{0} - Modifica {1}", displayAtto, tipo_descrizione);
-
-    var backUrl = isNew ? Url.Action("RiepilogoEmendamenti", new { id = Model.Atto.UIDAtto }) : Url.Action("ViewEmendamento", new { id = Model.Emendamento.UIDEM });
 }
 
-<div class="row">
-    <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
-            <i class="material-icons">arrow_back</i>
-        </a>
-    </div>
-    <div class="col l11 s10">
-        <h4>
-            <b>
-                <span>@ViewBag.Title</span>
-                <input id="hfIsNew" type="hidden" value="@isNew" />
-            </b>
-        </h4>
-    </div>
-</div>
-@if (isNew)
-{
-    <div class="row">
-        <div class="col l6 right-align">
-            <label class="black-text" style="margin-left: 20px">
-                <input id="viewWizard" type="radio" name="switchView" onchange="SwitchView(1)" value="1" checked="checked" />
-                <span>
-                    Inserimento guidato
-                </span>
-            </label>
-        </div>
-        <div class="col l6 left-align">
-            <label class="black-text" style="margin-left: 20px">
-                <input id="viewManual" type="radio" name="switchView" onchange="SwitchView(0)" value="0" />
-                <span>
-                    Inserimento manuale
-                </span>
-            </label>
-        </div>
-    </div>
-}
-<div id="pnlTestiAtto" class="card" style="display: @Html.Raw(isNew?"block": "none")">
-    <div class="card-content">
-        <table id="tableTesti" class="tableTesti">
-            <tr>
-                <td colspan="2" style="text-align: center; font-weight: bold;">
-                    @Utility.GetText_Tipo(Model.Atto.IDTipoAtto)
-                    @Model.Atto.NAtto
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="text-align: center">
-                    @Model.Atto.Oggetto
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
+    @Styles.Render("~/Content/css")
+    @*Import Trumbowyg plugins style...*@
+    <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
 
-<div id="pnlFormEM" class="card" style="display: @Html.Raw(isNew?"none": "block");">
-    <div class="card-content">
-        <div class="row">
-            <div class="col s12 center">
-                <h5>
-                    <b>
-                        <span>@Html.Raw(Model.Emendamento.N_EM)</span>
-                    </b>
-                </h5>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                @using (Html.BeginForm("SalvaEmendamento", "Emendamenti", FormMethod.Post, new { id = "formEmendamento" }))
-                {
-                    @Html.AntiForgeryToken()
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @Scripts.Render("~/bundles/lib")
+    @Scripts.Render("~/bundles/logic")
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+</head>
+<body>
+	<div class="row">
+		<div class="col l1 s2">
+			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+				<i class="material-icons">close</i>
+			</a>
+		</div>
+		<div class="col l11 s10">
+			<h4>
+				<b>
+					<span>@ViewBag.Title</span>
+					<input id="hfIsNew" type="hidden" value="@isNew" />
+				</b>
+			</h4>
+		</div>
+	</div>
+	@if (isNew)
+	{
+		<div class="row">
+			<div class="col l6 right-align">
+				<label class="black-text" style="margin-left: 20px">
+					<input id="viewWizard" type="radio" name="switchView" onchange="SwitchView(1)" value="1" checked="checked" />
+					<span>
+						Inserimento guidato
+					</span>
+				</label>
+			</div>
+			<div class="col l6 left-align">
+				<label class="black-text" style="margin-left: 20px">
+					<input id="viewManual" type="radio" name="switchView" onchange="SwitchView(0)" value="0" />
+					<span>
+						Inserimento manuale
+					</span>
+				</label>
+			</div>
+		</div>
+	}
+	<div id="pnlTestiAtto" class="card" style="display: @Html.Raw(isNew?"block": "none")">
+		<div class="card-content">
+			<table id="tableTesti" class="tableTesti">
+				<tr>
+					<td colspan="2" style="text-align: center; font-weight: bold;">
+						@Utility.GetText_Tipo(Model.Atto.IDTipoAtto)
+						@Model.Atto.NAtto
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" style="text-align: center">
+						@Model.Atto.Oggetto
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 
-                    @Html.HiddenFor(m => m.Emendamento.UIDAtto)
-                    @Html.HiddenFor(m => m.Emendamento.UIDEM)
-                    @Html.HiddenFor(m => m.Emendamento.UIDPersonaCreazione)
-                    @Html.HiddenFor(m => m.Emendamento.idRuoloCreazione)
-                    @Html.HiddenFor(m => m.Emendamento.Progressivo)
-                    @Html.HiddenFor(m => m.Emendamento.SubProgressivo)
-                    @Html.HiddenFor(m => m.Emendamento.Rif_UIDEM)
-                    @Html.HiddenFor(m => m.Emendamento.IDStato)
-                    @Html.HiddenFor(m => m.Emendamento.id_gruppo)
-                    @Html.HiddenFor(m => m.Emendamento.DataCreazione)
-                    @Html.HiddenFor(m => m.Emendamento.DataModifica)
-                    @Html.HiddenFor(m => m.Emendamento.UIDPersonaModifica)
-                    @Html.HiddenFor(m => m.Emendamento.UID_QRCode)
+	<div id="pnlFormEM" class="card" style="display: @Html.Raw(isNew?"none": "block");">
+		<div class="card-content">
+			<div class="row">
+				<div class="col s12 center">
+					<h5>
+						<b>
+							<span>@Html.Raw(Model.Emendamento.N_EM)</span>
+						</b>
+					</h5>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col s12">
+					@using (Html.BeginForm("SalvaEmendamento", "Emendamenti", FormMethod.Post, new { id = "formEmendamento" }))
+					{
+						@Html.AntiForgeryToken()
 
-                    <div class="row">
-                        <div class="col s12 form-group">
-                            <label>Proponente: </label>
-                            @Html.DropDownListFor(m => m.Emendamento.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
-                        </div>
-                    </div>
-                    @Html.Partial("_MetaDatiPanel", Model)
-                    <div class="form-group">
-                        @Html.LabelFor(s => s.Emendamento.TestoEM_originale)
-                        @Html.TextAreaFor(model => model.Emendamento.TestoEM_originale, new { @class = "form-control trumbowyg" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(s => s.Emendamento.TestoREL_originale)
-                        @Html.TextAreaFor(model => model.Emendamento.TestoREL_originale, new { @class = "form-control trumbowyg" })
-                    </div>
-                    @Html.Partial("_DocsPanel", Model)
-                    @Html.Partial("_TagsPanel", Model)
-                }
-                <div class="fixed-action-btn">
-                    <button class="btn-floating btn-large blue" id="btnSave">
-                        <i class="large material-icons">save</i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+						@Html.HiddenFor(m => m.Emendamento.UIDAtto)
+						@Html.HiddenFor(m => m.Emendamento.UIDEM)
+						@Html.HiddenFor(m => m.Emendamento.UIDPersonaCreazione)
+						@Html.HiddenFor(m => m.Emendamento.idRuoloCreazione)
+						@Html.HiddenFor(m => m.Emendamento.Progressivo)
+						@Html.HiddenFor(m => m.Emendamento.SubProgressivo)
+						@Html.HiddenFor(m => m.Emendamento.Rif_UIDEM)
+						@Html.HiddenFor(m => m.Emendamento.IDStato)
+						@Html.HiddenFor(m => m.Emendamento.id_gruppo)
+						@Html.HiddenFor(m => m.Emendamento.DataCreazione)
+						@Html.HiddenFor(m => m.Emendamento.DataModifica)
+						@Html.HiddenFor(m => m.Emendamento.UIDPersonaModifica)
+						@Html.HiddenFor(m => m.Emendamento.UID_QRCode)
 
-@{
-    var effetti_finanziari_visible = "0";
-    if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoTecnico))
-    {
-        effetti_finanziari_visible = "1";
-    }
-}
+						<div class="row">
+							<div class="col s12 form-group">
+								<label>Proponente: </label>
+								@Html.DropDownListFor(m => m.Emendamento.UIDPersonaProponente, new SelectList(Model.ListaGruppo, "UID_persona", "DisplayName"), "Seleziona proponente", new { @class = "form-control" })
+							</div>
+						</div>
+						@Html.Partial("_MetaDatiPanel", Model)
+						<div class="form-group">
+							@Html.LabelFor(s => s.Emendamento.TestoEM_originale)
+							@Html.TextAreaFor(model => model.Emendamento.TestoEM_originale, new { @class = "form-control trumbowyg" })
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(s => s.Emendamento.TestoREL_originale)
+							@Html.TextAreaFor(model => model.Emendamento.TestoREL_originale, new { @class = "form-control trumbowyg" })
+						</div>
+						@Html.Partial("_DocsPanel", Model)
+						@Html.Partial("_TagsPanel", Model)
+					}
+					<div class="fixed-action-btn">
+						<button class="btn-floating btn-large blue" id="btnSave">
+							<i class="large material-icons">save</i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-@Html.Partial("_EMFormScript")
+	@{
+		var effetti_finanziari_visible = "0";
+		if (!string.IsNullOrEmpty(Model.Emendamento.PATH_AllegatoTecnico))
+		{
+			effetti_finanziari_visible = "1";
+		}
+	}
 
-<script>
+	@Html.Partial("_EMFormScript")
+
+	<script>
     $(document).ready(function() {
         EffettiFinanziari_OnChange(@effetti_finanziari_visible);
         PartiTestoEmendamento_OnChange(@Model.Emendamento.IDParte);
@@ -146,4 +164,6 @@
 
 
     });
-</script>
+	</script>
+</body>
+</html>

@@ -33,10 +33,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PortaleRegione.Domain">
       <HintPath>..\PortaleRegione.API\PortaleRegione.API\Bin\PortaleRegione.Domain.dll</HintPath>
@@ -46,22 +46,22 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti API\PortaleRegione.Api\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +95,7 @@
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
+    <Compile Include="Enum\ModuloStampaEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AllegatoMail.cs" />
     <Compile Include="Model\ArticoliModel.cs" />
+    <Compile Include="Model\AutenticazioneModel.cs" />
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\CommiModel.cs" />
@@ -170,6 +172,7 @@
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\NuovaStampaRequest.cs" />
     <Compile Include="Request\FilterRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />

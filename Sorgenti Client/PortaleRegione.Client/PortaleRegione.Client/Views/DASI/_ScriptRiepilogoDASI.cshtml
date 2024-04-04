@@ -1,4 +1,5 @@
 ﻿@using Newtonsoft.Json
+@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 <script>
@@ -107,4 +108,15 @@
             }
         });
     }
+
+    window.addEventListener("message", (event) => {
+	    // Controlla l'origine del messaggio per motivi di sicurezza
+	    if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+		    return;
+	    }
+
+	    if (event.data === "aggiornaPadre") {
+		    location.reload(); // Ricarica la pagina padre
+	    }
+    }, false);
 </script>

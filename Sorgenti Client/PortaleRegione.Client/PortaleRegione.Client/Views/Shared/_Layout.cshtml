@@ -66,19 +66,13 @@
                 }
             }
         }
-        var mode = getClientMode();
-        if (modeFromCache != "") {
-            if (mode != modeFromCache) {
-                setClientMode(modeFromCache);
-                mode = modeFromCache;
-            }
-            if (mode == 2) {
-                cssTheme = trattazione_theme;
-            } else {
-                cssTheme = gruppi_theme;
-            }
+	    
+        setClientMode(modeFromCache);
+	    var mode = modeFromCache;
+        if (mode == 2) {
+            cssTheme = trattazione_theme;
         } else {
-            go('@Url.Action("Index", "Home")');
+            cssTheme = gruppi_theme;
         }
 
         var cssId = 'client-mode-theme'; // you could encode the css path itself to generate id..
@@ -127,27 +121,6 @@
     @Html.Partial("_SXNavigationBar")
     @RenderBody()
 </main>
-
-<div id="modalAction" class="modal" style="height: unset !important">
-    <div class="modal-content">
-        <h5 id="emActionDisplayName"></h5>
-        <p id="emActionMessage"></p>
-        <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaAction" class="btn red" href="#">Elimina</a>
-        </div>
-    </div>
-</div>
-<div id="modalActionDASI" class="modal" style="height: unset !important">
-    <div class="modal-content">
-        <h5 id="attoActionDisplayName"></h5>
-        <p id="attoActionMessage"></p>
-        <div class="modal-footer" style="position: unset !important;">
-            <button type="button" class="btn modal-close grey">Annulla</button>
-            <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
-        </div>
-    </div>
-</div>
 
 @if (AppSettingsConfiguration.IsDebugMode)
 {

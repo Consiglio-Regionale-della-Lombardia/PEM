@@ -1,4 +1,5 @@
-﻿@model PortaleRegione.DTO.Model.RiepilogoNotificheModel
+﻿@using PortaleRegione.Client.Helpers
+@model PortaleRegione.DTO.Model.RiepilogoNotificheModel
 @{
     ViewBag.Title = "Riepilogo notifiche";
 }
@@ -96,5 +97,120 @@ else if (is_inviate)
             }
         });
     }
+
+    function RevealFirmaDeposito(id, action) {
+	var text = "";
+	var button = "";
+	if (action == 3) {
+		text = "Inserisci il PIN per firmare";
+		button = "Firma";
+	} else if (action == 4) {
+		text = "Inserisci il PIN per presentare";
+		button = "Presenta";
+	}
+
+	swal(text,
+		{
+			content: {
+				element: "input",
+				attributes: { placeholder: "******", className: "password" }
+			},
+			icon: "info",
+			buttons: { cancel: "Annulla", confirm: button }
+		})
+		.then((value) => {
+			if (value == null || value == "")
+				return;
+
+			$.ajax({
+				url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+				method: "GET"
+			}).done(function (data) {
+				if (data.message) {
+					var typeMessage = "error";
+					var str = data.message;
+					var pos = str.indexOf("OK");
+					if (pos > 0) {
+						typeMessage = "success";
+					}
+					swal({
+						title: "Esito " + button,
+						text: data.message,
+						icon: typeMessage,
+						button: "OK"
+					}).then(() => {
+                        location.reload();
+					});
+				} else {
+					location.reload();
+				}
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+}
+
+	function RevealFirmaDepositoDASI(id, action) {
+
+		var text = "";
+		var button = "";
+		if (action == 3) {
+			text = "Inserisci il PIN per firmare";
+			button = "Firma";
+		} else if (action == 4) {
+			text = "Inserisci il PIN per presentare";
+			button = "Presenta";
+		}
+
+		swal(text,
+			{
+				content: {
+					element: "input",
+					attributes: { placeholder: "******", className: "password" }
+				},
+				icon: "info",
+				buttons: { cancel: "Annulla", confirm: button }
+			})
+			.then((value) => {
+				if (value == null || value == "")
+					return;
+
+				$.ajax({
+					url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+					method: "GET"
+				}).done(function (data) {
+					console.log('esito', data.message)
+					if (data.message) {
+						var typeMessage = "error";
+						var message = data.message;
+						var str = data.message;
+						var pos = str.indexOf("OK");
+						if (pos > 0) {
+							typeMessage = "success";
+						}
+						pos = str.indexOf("?!?");
+						if (pos > 0) {
+							typeMessage = "info";
+							message = "Proposta di firma inviata al proponente";
+						}
+
+						swal({
+							title: "Esito " + button,
+							text: message,
+							icon: typeMessage,
+							button: "OK"
+						}).then(() => {
+							if (data.message.includes("OK") || data.message.includes("?!?")) {
+								location.reload();
+							}
+						});
+					}
+				}).fail(function (err) {
+					console.log("error", err);
+					Error(err);
+				});
+			});
+	}
 
 </script>

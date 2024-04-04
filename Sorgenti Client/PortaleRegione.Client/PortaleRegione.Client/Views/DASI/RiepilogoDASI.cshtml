@@ -1,6 +1,7 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 @{
@@ -31,7 +32,7 @@
         var uidSeduta = Model.Data.Filters.First(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta)).Value;
         url = Url.Action("Index", "AttiTrattazione", new { id = uidSeduta });
 
-        data_seduta = @Model.Data.Results.First().Seduta.Data_seduta.ToString("dd/MM/yyyy");
+        data_seduta = Model.Data.Results.First().Seduta.Data_seduta.ToString("dd/MM/yyyy");
     }
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
@@ -48,7 +49,7 @@
     });
 </script>
 
-<div class="row" style="margin-bottom: unset!important">
+<div class="row" style="margin-bottom: unset !important">
     <div class="col s12">
         <a class="btn-floating waves-effect waves-light grey header-back" href="@url">
             <i class="material-icons">arrow_back</i>
@@ -65,7 +66,7 @@
                 {
                     var tipo = Convert.ToInt16(Model.Tipo);
                     <h4>
-                        <b>@PortaleRegione.Common.Utility.GetText_Tipo(tipo) iscritte alla seduta del @data_seduta @textTitoloRicerca</b>
+                        <b>@Utility.GetText_Tipo(tipo) iscritte alla seduta del @data_seduta @textTitoloRicerca</b>
                     </h4>
                 }
             </div>
@@ -91,7 +92,6 @@
             && string.IsNullOrEmpty(classTabTrattazione)
             && string.IsNullOrEmpty(classTabChiusi))
         {
-
         }
         else
         {
@@ -148,3 +148,130 @@
 
     Html.RenderPartial("_StampaModal");
 }
+
+
+<script>
+	window.addEventListener("message", (event) => {
+		// Controlla l'origine del messaggio per motivi di sicurezza
+		if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+			return;
+		}
+
+		if (event.data === "aggiornaPadre") {
+			location.reload(); // Ricarica la pagina padre
+		}
+	}, false);
+
+    function RevealFirmaDepositoDASI(id, action) {
+
+	var text = "";
+	var button = "";
+	if (action == 3) {
+		text = "Inserisci il PIN per firmare";
+		button = "Firma";
+	} else if (action == 4) {
+		text = "Inserisci il PIN per presentare";
+		button = "Presenta";
+	}
+
+	swal(text,
+		{
+			content: {
+				element: "input",
+				attributes: { placeholder: "******", className: "password" }
+			},
+			icon: "info",
+			buttons: { cancel: "Annulla", confirm: button }
+		})
+		.then((value) => {
+			if (value == null || value == "")
+				return;
+
+			$.ajax({
+				url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+				method: "GET"
+			}).done(function (data) {
+				console.log('esito', data.message)
+				if (data.message) {
+					var typeMessage = "error";
+					var message = data.message;
+					var str = data.message;
+					var pos = str.indexOf("OK");
+					if (pos > 0) {
+						typeMessage = "success";
+					}
+					pos = str.indexOf("?!?");
+					if (pos > 0) {
+						typeMessage = "info";
+						message = "Proposta di firma inviata al proponente";
+					}
+
+					swal({
+						title: "Esito " + button,
+						text: message,
+						icon: typeMessage,
+						button: "OK"
+					}).then(() => {
+						if (data.message.includes("OK") || data.message.includes("?!?")) {
+							location.reload();
+						}
+					});
+				}
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+}
+
+function ConfirmActionDASI(id, name, action) {
+
+	$("#attoActionDisplayName").empty();
+	$("#attoActionDisplayName").append(name);
+	$("#attoActionMessage").empty();
+
+	if (action == 1) {
+		$("#btnConfermaActionDASI").text("ELIMINA");
+		$("#attoActionMessage").append("Stai per eliminare l'atto selezionato. Sei sicuro?");
+	} else if (action == 2) {
+		$("#btnConfermaActionDASI").text("RITIRA");
+		$("#attoActionMessage").append("Stai per ritirare l'atto selezionato. Sei sicuro?");
+	}
+	$("#btnConfermaActionDASI").on("click",
+		function () {
+			$.ajax({
+				url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action,
+				method: "GET"
+			}).done(function (data) {
+
+				$("#modalActionDASI").modal("close");
+				$("#btnConfermaActionDASI").off("click");
+
+				if (data.message) {
+					swal({
+						title: "Errore",
+						text: data.message,
+						icon: "error"
+					});
+				} else {
+					location.reload();
+				}
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+	$("#modalActionDASI").modal("open");
+}
+</script>
+
+<div id="modalActionDASI" class="modal" style="height: unset !important">
+    <div class="modal-content">
+        <h5 id="attoActionDisplayName"></h5>
+        <p id="attoActionMessage"></p>
+        <div class="modal-footer" style="position: unset !important;">
+            <button type="button" class="btn modal-close grey">Annulla</button>
+            <a id="btnConfermaActionDASI" class="btn red" href="#">Elimina</a>
+        </div>
+    </div>
+</div>

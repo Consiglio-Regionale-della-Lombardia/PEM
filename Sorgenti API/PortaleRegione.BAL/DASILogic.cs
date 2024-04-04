@@ -416,10 +416,13 @@ namespace PortaleRegione.API.Controllers
             var totaleAtti = await _unitOfWork
                 .DASI
                 .Count(persona,
+                    requestTipo,
+                    requestStato,
+                    null,
                     (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
                     queryFilter,
                     soggetti,
-                    stati,
+                    proponenti,
                     atti_da_firmare);
 
             queryFilter.ImportStatements(model.filtro);
@@ -450,6 +453,100 @@ namespace PortaleRegione.API.Controllers
                 model.filtro.AddRange(stati_request);
 
             return responseModel;
+        }
+        
+        public async Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
+        {
+            model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
+            model.param.TryGetValue("RequireMySign", out var RequireMySign); // #539
+            var filtro_seduta =
+                model.filtro.FirstOrDefault(item => item.PropertyId == nameof(AttoDASIDto.UIDSeduta));
+            var sedutaId = Guid.Empty;
+            if (filtro_seduta != null) sedutaId = new Guid(filtro_seduta.Value.ToString());
+            var soggetti = new List<int>();
+            var soggetti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == "SoggettiDestinatari"))
+            {
+                soggetti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == "SoggettiDestinatari"));
+                soggetti.AddRange(soggetti_request.Select(i => Convert.ToInt32(i.Value)));
+                foreach (var s in soggetti_request) model.filtro.Remove(s);
+            }
+
+            var proponenti = new List<Guid>();
+            var proponenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                proponenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)));
+                proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
+            }
+
+            var provvedimenti = new List<Guid>();
+            var provvedimenti_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.UIDPersonaProponente)))
+            {
+                provvedimenti_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.UID_Atto_ODG)));
+                provvedimenti.AddRange(provvedimenti_request.Select(provvedimento =>
+                    new Guid(provvedimento.Value.ToString())));
+                foreach (var provvedimentoStatement in provvedimenti_request)
+                    model.filtro.Remove(provvedimentoStatement);
+            }
+
+            var stati = new List<int>();
+            var stati_request = new List<FilterStatement<AttoDASIDto>>();
+            if (model.filtro.Any(statement => statement.PropertyId == nameof(AttoDASIDto.IDStato)))
+            {
+                stati_request =
+                    new List<FilterStatement<AttoDASIDto>>(model.filtro.Where(statement =>
+                        statement.PropertyId == nameof(AttoDASIDto.IDStato)));
+                stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+            }
+
+            var atti_da_firmare = new List<Guid>();
+            if (Convert.ToBoolean(RequireMySign))
+            {
+                var notificheDestinatari = await _unitOfWork.Notifiche_Destinatari.Get(persona.UID_persona);
+                foreach (var notifica_destinatario in notificheDestinatari)
+                {
+                    var notifica = await _unitOfWork.Notifiche.Get(notifica_destinatario.UIDNotifica);
+                    if (notifica == null)
+                        continue;
+                    if (notifica.Chiuso)
+                        continue; // Notifica chiusa
+                    if (notifica.UIDEM.HasValue)
+                        continue; // notifica PEM
+                    if (atti_da_firmare.Contains(notifica.UIDAtto))
+                        continue; // UidAtto già presente
+
+                    atti_da_firmare.Add(notifica.UIDAtto);
+                }
+
+                var my_atti_proponente = await _unitOfWork.DASI.GetAttiProponente(persona.UID_persona);
+                if (my_atti_proponente.Any())
+                    atti_da_firmare.AddRange(my_atti_proponente);
+            }
+
+            var queryFilter = new Filter<ATTI_DASI>();
+            queryFilter.ImportStatements(model.filtro);
+            return await _unitOfWork
+                .DASI
+                .GetAll(persona,
+                    model.page,
+                    model.size,
+                    (ClientModeEnum)Convert.ToInt16(CLIENT_MODE),
+                    queryFilter,
+                    soggetti,
+                    proponenti,
+                    provvedimenti,
+                    stati,
+                    atti_da_firmare);
         }
 
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
@@ -709,12 +806,14 @@ namespace PortaleRegione.API.Controllers
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
+                        , StatiAttoEnum.PRESENTATO, sedutaId, clientMode, filtro, soggetti, proponenti,
+                        atti_da_firmare),
                 IN_TRATTAZIONE = await _unitOfWork
                     .DASI
                     .Count(persona,
                         tipo
-                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti, proponenti, atti_da_firmare),
+                        , StatiAttoEnum.IN_TRATTAZIONE, sedutaId, clientMode, filtro, soggetti, proponenti,
+                        atti_da_firmare),
                 CHIUSO = await _unitOfWork
                     .DASI
                     .Count(persona,
@@ -1356,8 +1455,18 @@ namespace PortaleRegione.API.Controllers
                     atto.UIDPersonaRichiestaIscrizione = persona.UID_persona;
 
                     //Ricava tutti gli ODG iscritti in seduta
-                    var atti = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
+                    var odg_in_seduta = await _unitOfWork.DASI.GetAttiBySeduta(atto.UIDSeduta.Value,
                         TipoAttoEnum.ODG, 0);
+                    //Ricava tutti gli ODG proposti in seduta
+                    var odg_proposte = await _unitOfWork.DASI.GetProposteAtti(atto.DataRichiestaIscrizioneSeduta,
+                        TipoAttoEnum.ODG, 0);
+
+                    var atti = new List<ATTI_DASI>();
+                    atti.AddRange(odg_in_seduta.Where(a => a.IDStato != (int)StatiAttoEnum.CHIUSO_RITIRATO
+                                                           && a.IDStato != (int)StatiAttoEnum.CHIUSO_DECADUTO));
+                    atti.AddRange(odg_proposte);
+
+                    //Ricava tutti gli ODG iscritti in seduta
 
                     //Atti filtrati per consigliere primo firmatario tra gli atti presentati in seduta
                     var my_atti = atti.Where(a => a.UIDPersonaProponente == attoDto.UIDPersonaProponente
@@ -1385,15 +1494,19 @@ namespace PortaleRegione.API.Controllers
                         var proponente = await _logicPersona.GetPersona(atto.UIDPersonaProponente.Value);
                         if (capogruppo != null)
                             if (capogruppo.id_persona == proponente.id_persona)
-                            {
                                 proponente.IsCapoGruppo = true;
-                            }
                         var dataOdierna = DateTime.Now;
+                        // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
+                        var dataSedutaPerODG = new DateTime(
+                            seduta.Data_seduta.Year, 
+                            seduta.Data_seduta.Month,
+                            seduta.Data_seduta.Day);
+
                         if (proponente.IsCapoGruppo
-                            && seduta.Data_seduta <= dataOdierna)
+                            && dataSedutaPerODG <= dataOdierna)
                         {
                             var atti_dopo_scadenza =
-                                my_atti.Where(a => a.Timestamp >= seduta.Data_seduta
+                                my_atti.Where(a => a.Timestamp >= dataSedutaPerODG
                                                    && a.UID_Atto_ODG ==
                                                    attoPEM
                                                        .UIDAtto) // #852 - aggiunto UID_Atto_ODG per avere il conteggio solo del provvedimento selezionato
@@ -1540,9 +1653,7 @@ namespace PortaleRegione.API.Controllers
                 var responsabili = await _logicPersona.GetSegreteriaPolitica(id_gruppo, false, true);
                 var destinatari = AppSettingsConfiguration.EmailInvioDASI;
                 if (!responsabili.Any())
-                {
                     destinatari += ";" + responsabili.Select(p => p.email).Aggregate((i, j) => i + ";" + j);
-                }
 
                 var mailModel = new MailModel
                 {
@@ -1550,7 +1661,7 @@ namespace PortaleRegione.API.Controllers
                     A = destinatari,
                     OGGETTO = $"Deposito effettuato da parte di {persona.DisplayName_GruppoCode}",
                     MESSAGGIO =
-                        $"E' stato effettuato il deposito a prima firma di {persona.DisplayName_GruppoCode} degli atti in allegato. {GetBodyFooterMail()}",
+                        $"E' stato effettuato il deposito da {persona.DisplayName_GruppoCode} degli atti in allegato. {GetBodyFooterMail()}",
                     ATTACHMENTS = attachList
                 };
                 await _logicUtil.InvioMail(mailModel);
@@ -1831,6 +1942,26 @@ namespace PortaleRegione.API.Controllers
 
             await _unitOfWork.CompleteAsync();
 
+            var dto = await GetAttoDto(atto.UIDAtto);
+            try
+            {
+                //#754
+                var mailModel = new MailModel
+                {
+                    DA = AppSettingsConfiguration.EmailInvioDASI,
+                    A = AppSettingsConfiguration.EmailInvioDASI,
+                    OGGETTO =
+                        $"Atto {dto.Display} ritirato dal proponente",
+                    MESSAGGIO =
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {dto.Display}. {GetBodyFooterMail()}"
+                };
+                await _logicUtil.InvioMail(mailModel);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Invio mail", e);
+            }
+
             // Matteo Cattapan #530 - Avviso ritiro atto
             // Quando viene ritirato un Atto sottoscritto da più firmatari, il sistema deve inviare ai firmatari rimasti (che non hanno già ritirato la propria firma)
             // un messaggio email che notifica il ritiro dell’atto
@@ -1848,9 +1979,6 @@ namespace PortaleRegione.API.Controllers
 
             if (firmatari.Count <= 0) return;
 
-            var dto = await GetAttoDto(atto.UIDAtto);
-            var nome_atto = dto.Display;
-
             try
             {
                 var mailModel = new MailModel
@@ -1858,28 +1986,9 @@ namespace PortaleRegione.API.Controllers
                     DA = AppSettingsConfiguration.EmailInvioDASI,
                     A = firmatari.Aggregate((i, j) => i + ";" + j),
                     OGGETTO =
-                        $"Atto {nome_atto} ritirato dal proponente",
+                        $"Atto {dto.Display} ritirato dal proponente",
                     MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {nome_atto} che anche lei aveva sottoscritto. {GetBodyFooterMail()}"
-                };
-                await _logicUtil.InvioMail(mailModel);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Invio mail", e);
-            }
-
-            try
-            {
-                //#754
-                var mailModel = new MailModel
-                {
-                    DA = AppSettingsConfiguration.EmailInvioDASI,
-                    A = AppSettingsConfiguration.EmailInvioDASI,
-                    OGGETTO =
-                        $"Atto {nome_atto} ritirato dal proponente",
-                    MESSAGGIO =
-                        $"Il consigliere {persona.DisplayName_GruppoCode} ha ritirato l'atto {nome_atto}. {GetBodyFooterMail()}"
+                        $"Il consigliere {persona.DisplayName_GruppoCode} ha appena ritirato l'atto {dto.Display} che anche lei aveva sottoscritto. {GetBodyFooterMail()}"
                 };
                 await _logicUtil.InvioMail(mailModel);
             }
@@ -2047,24 +2156,11 @@ namespace PortaleRegione.API.Controllers
                 .ToList();
         }
 
-        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model,
-            PersonaDto personaDto)
+        public async Task<Dictionary<Guid, string>> ModificaStato(ModificaStatoAttoModel model)
         {
             try
             {
                 var results = new Dictionary<Guid, string>();
-                if (model.All && !model.Lista.Any())
-                {
-                    model.Lista = await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
-                }
-                else if (model.All && model.Lista.Any())
-                {
-                    var attiInDb =
-                        await ScaricaAtti_UID(model.CurrentStatus, model.CurrentType, personaDto);
-                    attiInDb.RemoveAll(guid => model.Lista.Contains(guid));
-                    model.Lista = attiInDb;
-                }
-
                 foreach (var idGuid in model.Lista)
                 {
                     var atto = await Get(idGuid);
@@ -2600,6 +2696,15 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
+                var list = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
+                return list.Count;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - Count DASI By JsonQuery", e);
+            }
+            try
+            {
                 return await _unitOfWork.DASI.CountByQuery(model);
             }
             catch (Exception e)
@@ -2613,9 +2718,19 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var atti = _unitOfWork
-                    .DASI
-                    .GetByQuery(model);
+                var atti = new List<Guid>();
+                
+                try
+                {
+                    atti = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
+                }
+                catch (Exception)
+                {
+                    atti = _unitOfWork
+                        .DASI
+                        .GetByQuery(model);
+                }
+
                 var result = new List<AttoDASIDto>();
                 foreach (var idAtto in atti)
                 {
@@ -2651,7 +2766,7 @@ namespace PortaleRegione.API.Controllers
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
-                    .Replace("{Oggetto}", dasiDto.Oggetto)
+                    .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName} ({dasiDto.gruppi_politici.codice_gruppo}){(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
                     .Replace("{DataDeposito}",
@@ -2692,7 +2807,7 @@ namespace PortaleRegione.API.Controllers
                 bodyIndice.Append(templateItemIndice
                     .Replace("{TipoAtto}", Utility.GetText_Tipo(dasiDto.Tipo))
                     .Replace("{NAtto}", dasiDto.NAtto)
-                    .Replace("{Oggetto}", dasiDto.Oggetto)
+                    .Replace("{Oggetto}", dasiDto.OggettoView())
                     .Replace("{Firmatari}",
                         $"{dasiDto.PersonaProponente.DisplayName}{(!string.IsNullOrEmpty(dasiDto.Firme) ? ", " + dasiDto.Firme.Replace("<br>", ", ") : "")}")
                     .Replace("{DataDeposito}",

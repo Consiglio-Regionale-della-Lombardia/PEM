@@ -57,6 +57,7 @@ namespace PortaleRegione.DTO.Routes
 
             public const string GetAllDestinatari = Base + "/destinatari/{atto}/{tipo}";
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
+            public const string InserisciStampaMassiva = Base + "/inserisci-stampa-massiva";
 
             public static class Sedute
             {
@@ -143,6 +144,7 @@ namespace PortaleRegione.DTO.Routes
                 public const string AggiornaMetaDati = Base + "/edit/model/meta";
                 public const string Edit = Base + "/edit";
                 public const string GetAll = Base + "/all";
+                public const string GetAllSoloIds = Base + "/all/solo-ids";
                 public const string GetAllRichiestaPropriaFirma = Base + "/all/richiesta-firma";
                 public const string DownloadDoc = Base + "/scarica-documento";
 
@@ -186,6 +188,7 @@ namespace PortaleRegione.DTO.Routes
             public const string GetAllDestinatari = Base + "/destinatari/{tipo}";
 
             public const string InserisciStampaDifferita = Base + "/inserisci-stampa-differita";
+            public const string InserisciStampaMassiva = Base + "/inserisci-stampa-massiva";
 
             public const string GetNuovoModello = Base + "/create/model/{tipo}";
             public const string GetModificaModello = Base + "/edit/model/{id}";
@@ -193,6 +196,7 @@ namespace PortaleRegione.DTO.Routes
             public const string Save = Base + "/save";
             public const string Get = Base + "/{id}";
             public const string GetAll = Base + "/all";
+            public const string GetAll_SoloIds = Base + "/all/solo-ids";
             public const string GetAllCartacei = Base + "/all/cartacei";
 
             public const string Firma = Base + "/commands/firma";

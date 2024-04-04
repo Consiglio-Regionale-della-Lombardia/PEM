@@ -1,9 +1,10 @@
 ﻿@using PortaleRegione.DTO.Enum
-
 <div id="modalDASINotificaA" class="modal bottom-sheet">
     <div class="modal-content">
-        <h5 id="attoProponenteDisplayName"><b>Invito Massivo</b></h5>
-        <hr />
+        <h5 id="attoProponenteDisplayName">
+            <b>Invito Massivo</b>
+        </h5>
+        <hr/>
         @using (Html.BeginForm("EseguiAzione", "DASI", FormMethod.Post, new { id = "formNotificaA" }))
         {
             @Html.AntiForgeryToken()
@@ -18,13 +19,13 @@
 
             <div class="form-group" style="display: @displayPin">
                 <label>Pin:</label>
-                <input id="txtPinNotificheInviti" class="password" />
+                <input id="txtPinNotificheInviti" class="password"/>
             </div>
             <div class="form-group">
                 <label>Destinatari:</label>
                 <p>
                     <label>
-                        <input id="chkCaricaConsiglieri" type="checkbox" onchange="CaricaConsiglieriProprioGruppo()" />
+                        <input id="chkCaricaConsiglieri" type="checkbox" onchange="CaricaConsiglieriProprioGruppo()"/>
                         <span>Invita proprio gruppo</span>
                     </label>
                 </p>
@@ -109,19 +110,14 @@
 	}
 
     async function NotificaADASI() {
-        waiting(true);
-        await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
+                await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
-        waiting(false);
+        
 
         $("#btnConfermaNotificaA").on("click",
             function() {
-                setTimeout(function() {
-                        $('body').removeClass('loaded');
-                        $("#modalDASINotificaA").modal("close");
-                    },
-                    200);
                 $("#formNotificaA").submit();
+				$("#modalDASINotificaA").modal("close");
             });
     }
 
@@ -176,7 +172,7 @@
                         location.reload();
                     });
                 } else {
-                    go(data);
+					location.reload();
                 }
             }).fail(function(err) {
                 console.log("error", err);
@@ -187,4 +183,3 @@
         }
     });
 </script>
-

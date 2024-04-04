@@ -68,11 +68,12 @@
 								</li>
 								@if (persona.IsGiunta)
 								{
-									<li>
-										<a onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')">
-											<i class="material-icons">key</i>Reset Password
-										</a>
-									</li>
+								    <li>
+                                        <input type="hidden" id="hdPersonaUID"/>
+                                        <a onclick="openResetPassword('@persona.UID_persona', '@persona.DisplayName')">
+                                            <i class="material-icons">key</i>Reset Password
+                                        </a>
+                                    </li>
 								}
 								<li>
 									<a href="@Url.Action("Index", "VideoTutorial")">
@@ -178,7 +179,7 @@
 								if (currentRole != RuoliIntEnum.Segreteria_Assemblea)
 								{
 									<a class='@triggerClassGruppi chip truncate black-text' style="background-color: unset; min-width: unset;@Html.Raw((persona.IsResponsabileSegreteriaPolitica
-                               || persona.IsSegreteriaPolitica)?"display:none;":"")" href='#' data-target='ddlCambioGruppo' data-target-val="@testoGruppo">
+                                                                                                                                                        || persona.IsSegreteriaPolitica)?"display:none;":"")" href='#' data-target='ddlCambioGruppo' data-target-val="@testoGruppo">
 										@testoGruppo @Html.Raw(iconClassSwapGruppi)
 									</a>
 								}
@@ -207,8 +208,10 @@
 			{
 				Html.RenderPartial("_MenuTrattazione");
 			}
-		</ul>
+        </ul>
+		
 	</div>
+
 }
 
 @using (Html.BeginForm("Logout", "Autenticazione", FormMethod.Post, new { id = "formLogout" }))

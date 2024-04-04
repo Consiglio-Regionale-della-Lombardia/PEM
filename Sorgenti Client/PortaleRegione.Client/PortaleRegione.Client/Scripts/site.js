@@ -364,6 +364,10 @@ function go(link, switchMode) {
     document.location = link;
 }
 
+function goIntoOtherTab(link) {
+    window.open(link, '_blank').focus();
+}
+
 async function AbilitaTrattazione(mode) {
     if (mode == 2) {
         setClientMode(2);
@@ -491,269 +495,6 @@ function removeAtto(uidAtto) {
     setListaAtti(lista);
 }
 
-function ConfirmAction(id, name, action) {
-    $("#emActionDisplayName").empty();
-    $("#emActionDisplayName").append(name);
-    $("#emActionMessage").empty();
-
-    if (action == 1) {
-        $("#btnConfermaAction").text("ELIMINA");
-        $("#emActionMessage").append("Stai per eliminare l'emendamento selezionato. Sei sicuro?");
-    } else if (action == 2) {
-        $("#btnConfermaAction").text("RITIRA");
-        $("#emActionMessage").append("Stai per ritirare l'emendamento selezionato. Sei sicuro?");
-    }
-    $("#btnConfermaAction").on("click",
-        function() {
-            $.ajax({
-                url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action,
-                method: "GET"
-            }).done(function(data) {
-                $("#modalAction").modal("close");
-                $("#btnConfermaAction").off("click");
-                console.log(data.message);
-                if (data.message) {
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                } else {
-                    go(data);
-                }
-            }).fail(function(err) {
-                console.log("error", err);
-                Error(err);
-            });
-        });
-    $("#modalAction").modal("open");
-}
-
-function ConfirmActionDASI(id, name, action) {
-    
-    $("#attoActionDisplayName").empty();
-    $("#attoActionDisplayName").append(name);
-    $("#attoActionMessage").empty();
-
-    if (action == 1) {
-        $("#btnConfermaActionDASI").text("ELIMINA");
-        $("#attoActionMessage").append("Stai per eliminare l'atto selezionato. Sei sicuro?");
-    } else if (action == 2) {
-        $("#btnConfermaActionDASI").text("RITIRA");
-        $("#attoActionMessage").append("Stai per ritirare l'atto selezionato. Sei sicuro?");
-    }
-    $("#btnConfermaActionDASI").on("click",
-        function() {
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action,
-                method: "GET"
-            }).done(function(data) {
-                
-                $("#modalActionDASI").modal("close");
-                $("#btnConfermaActionDASI").off("click");
-               
-                if (data.message) {
-                    waiting(false);
-                    swal({
-                        title: "Errore",
-                        text: data.message,
-                        icon: "error"
-                    });
-                } else {            
-                    location.reload();
-                }
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        });
-    $("#modalActionDASI").modal("open");
-}
-
-function RitiraFirma(id) {
-
-    swal("Inserisci il pin per ritirare la firma",
-            {
-                content: {
-                    element: "input",
-                    attributes: { placeholder: "******", className: "password" }
-                },
-                icon: "warning",
-                buttons: { cancel: "Annulla", confirm: "Ritira" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/emendamenti/ritiro-firma?id=" + id + "&pin=" + value,
-                method: "GET"
-            }).done(function(data) {
-                var typeMessage = "error";
-                var str = data.message;
-                var pos = str.indexOf("OK");
-                if (pos > 0) {
-                    typeMessage = "success";
-                }
-                waiting(false);
-                swal({
-                    title: "Esito ritiro firma",
-                    text: data.message,
-                    icon: typeMessage,
-                    button: "OK"
-                }).then(() => {
-                    location.reload();
-                });
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        });
-}
-
-function EliminaFirma(id) {
-
-    swal("Inserisci il pin per eliminare la firma",
-            {
-                content: {
-                    element: "input",
-                    attributes: { placeholder: "******", className: "password" }
-                },
-                icon: "warning",
-                buttons: { cancel: "Annulla", confirm: "Elimina" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/emendamenti/elimina-firma?id=" + id + "&pin=" + value,
-                method: "GET"
-            }).done(function(data) {
-                if (data.message) {
-                    var typeMessage = "error";
-                    var str = data.message;
-                    var pos = str.indexOf("OK");
-                    if (pos > 0) {
-                        typeMessage = "success";
-                    }
-                    waiting(false);
-                    swal({
-                        title: "Esito ritiro firma",
-                        text: data.message,
-                        icon: typeMessage,
-                        button: "OK"
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    waiting(false);
-                    go(data);
-                }
-            }).fail(function(err) {
-                waiting(false);
-                console.log("error", err);
-                Error(err);
-            });
-        });
-}
-
-function RitiraFirmaDASI(id) {
-    swal("Inserisci il pin per ritirare la firma",
-            {
-                content: {
-                    element: "input",
-                    attributes: { placeholder: "******", className: "password" }
-                },
-                icon: "warning",
-                buttons: { cancel: "Annulla", confirm: "Ritira" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/dasi/ritiro-firma?id=" + id + "&pin=" + value,
-                method: "GET"
-            }).done(function(data) {
-                var typeMessage = "error";
-                var str = data.message;
-                var pos = str.indexOf("OK");
-                if (pos > 0) {
-                    typeMessage = "success";
-                }
-                pos = str.indexOf("INFO");
-                if (pos > 0) {
-                    typeMessage = "info";
-                    data.message = data.message.replace("INFO: ", "");
-                }
-                waiting(false);
-                swal({
-                    title: "Esito ritiro firma",
-                    text: data.message,
-                    icon: typeMessage,
-                    button: "OK"
-                }).then(() => {                    
-                    location.reload();
-                });
-            }).fail(function(err) {
-                console.log("error", err);
-                waiting(false);
-                Error(err);
-            });
-        });
-}
-
-function EliminaFirmaDASI(id) {
-
-    swal("Inserisci il pin per eliminare la firma",
-            {
-                content: {
-                    element: "input",
-                    attributes: { placeholder: "******", className: "password" }
-                },
-                icon: "warning",
-                buttons: { cancel: "Annulla", confirm: "Elimina" }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/dasi/elimina-firma?id=" + id + "&pin=" + value,
-                method: "GET"
-            }).done(function(data) {
-                if (data.message) {
-                    var typeMessage = "error";
-                    var str = data.message;
-                    var pos = str.indexOf("OK");
-                    if (pos > 0) {
-                        typeMessage = "success";
-                    }
-                    waiting(false);
-                    swal({
-                        title: "Esito ritiro firma",
-                        text: data.message,
-                        icon: typeMessage,
-                        button: "OK"
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    waiting(false);
-                    go(data);
-                }
-            }).fail(function(err) {
-                console.log("error", err);
-                waiting(false);
-                Error(err);
-            });
-        });
-}
-
 function RevealFirmatari(uidem) {
     var panel = $("#panelRevealFirmatari_" + uidem);
     panel.show();
@@ -787,59 +528,6 @@ function RevealTags(uidem) {
     var panelTag = $("#panelRevealTags_" + uidem);
     panelTag.show();
     $("#titleReveal_" + uidem).text("Tags");
-}
-
-function RevealFirmaDeposito(id, action) {
-    var text = "";
-    var button = "";
-    if (action == 3) {
-        text = "Inserisci il PIN per firmare";
-        button = "Firma";
-    } else if (action == 4) {
-        text = "Inserisci il PIN per presentare";
-        button = "Presenta";
-    }
-
-    swal(text,
-            {
-                content: {
-                    element: "input",
-                    attributes: { placeholder: "******", className: "password" }
-                },
-                icon: "info",
-                buttons: { cancel: "Annulla", confirm: button }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-
-            $.ajax({
-                url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
-                method: "GET"
-            }).done(function(data) {
-                if (data.message) {
-                    var typeMessage = "error";
-                    var str = data.message;
-                    var pos = str.indexOf("OK");
-                    if (pos > 0) {
-                        typeMessage = "success";
-                    }
-                    swal({
-                        title: "Esito " + button,
-                        text: data.message,
-                        icon: typeMessage,
-                        button: "OK"
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    go(data);
-                }
-            }).fail(function(err) {
-                console.log("error", err);
-                Error(err);
-            });
-        });
 }
 
 function AccettaPropostaFirmaAttoDASI(idNotifica) {
@@ -902,69 +590,6 @@ function AccettaRitiroFirmaAttoDASI(idNotifica) {
         }
     });
 
-}
-
-function RevealFirmaDepositoDASI(id, action) {
-    var text = "";
-    var button = "";
-    if (action == 3) {
-        text = "Inserisci il PIN per firmare";
-        button = "Firma";
-    } else if (action == 4) {
-        text = "Inserisci il PIN per presentare";
-        button = "Presenta";
-    }
-
-    swal(text,
-            {
-                content: {
-                    element: "input",
-                    attributes: { placeholder: "******", className: "password" }
-                },
-                icon: "info",
-                buttons: { cancel: "Annulla", confirm: button }
-            })
-        .then((value) => {
-            if (value == null || value == "")
-                return;
-            waiting(true);
-            $.ajax({
-                url: baseUrl + "/dasi/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
-                method: "GET"
-            }).done(function (data) {
-                waiting(false);
-                console.log('esito', data.message)
-                if (data.message) {
-                    var typeMessage = "error";
-                    var message = data.message;
-                    var str = data.message;
-                    var pos = str.indexOf("OK");
-                    if (pos > 0) {
-                        typeMessage = "success";
-                    }
-                    pos = str.indexOf("?!?");
-                    if (pos > 0) {
-                        typeMessage = "info";
-                        message = "Proposta di firma inviata al proponente";
-                    }
-                    
-                    swal({
-                        title: "Esito " + button,
-                        text: message,
-                        icon: typeMessage,
-                        button: "OK"
-                    }).then(() => {
-                        if (data.message.includes("OK") || data.message.includes("?!?")) {
-                            location.reload();
-                        }
-                    });          
-                }
-            }).fail(function(err) {
-                console.log("error", err);
-                waiting(false);
-                Error(err);
-            });
-        });
 }
 
 function NTitolo_OnChange(item) {
@@ -1244,26 +869,41 @@ function CambioStatoDASI(uidatto, stato) {
     });
 }
 
-function GetCounterAlert(listaEM, selezionaTutti) {
+function GetCounterAlert(lista, selezionaTutti) {
     var text_counter = "";
     var size = parseInt($("#hdLimitePaginazioneDocumenti").val());
     var total_entities = parseInt($("#hdTotaleDocumenti").val());
 
-    if (selezionaTutti && listaEM.length == 0) {
+    if (selezionaTutti && lista.length == 0) {
         if (total_entities < size) {
             text_counter = total_entities;
         } else {
             text_counter = size;
         }
-    } else if (selezionaTutti && listaEM.length > 0) {
+    } else if (selezionaTutti && lista.length > 0) {
         if (total_entities < size) {
             text_counter = total_entities;
         } else {
             text_counter = size;
         }
-        text_counter = text_counter - listaEM.length;
+        text_counter = text_counter - lista.length;
     } else {
-        text_counter = listaEM.length;
+        text_counter = lista.length;
+    }
+
+    return text_counter;
+}
+
+function GetCounterAlertStampa(lista, selezionaTutti) {
+    var text_counter = "";
+    var total_entities = parseInt($("#hdTotaleDocumenti").val());
+
+    if (selezionaTutti && lista.length == 0) {
+        text_counter = total_entities;
+    } else if (selezionaTutti && lista.length > 0) {
+        text_counter = total_entities - lista.length;
+    } else {
+        text_counter = lista.length;
     }
 
     return text_counter;
@@ -1287,7 +927,7 @@ function CambioStatoMassivo(stato, descr) {
             var obj = {};
             obj.Stato = stato;
             obj.Lista = listaEM;
-            obj.All = selezionaTutti;
+            obj.Tutti = selezionaTutti;
             obj.AttoUId = $("#hdUIdAtto").val();
             waiting(true);
             $.ajax({
@@ -1331,7 +971,7 @@ function CambioStatoMassivoDASI(stato, descr) {
             var obj = {};
             obj.Stato = stato;
             obj.Lista = listaAtti;
-            obj.All = selezionaTutti;
+            obj.Tutti = selezionaTutti;
             waiting(true);
             $.ajax({
                 url: baseUrl + "/dasi/modifica-stato",

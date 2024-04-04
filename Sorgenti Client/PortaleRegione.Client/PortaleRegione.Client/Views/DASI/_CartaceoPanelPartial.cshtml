@@ -27,7 +27,7 @@
         $.each(atti_cartacei, function(index, item) {
             var text = item.Display;
             var url = item.UIDAtto + "/edit";
-            table.append('<li id="row_' + item.UIDAtto +'" class="collection-item"><div>' + text + '<a class="secondary-content" onclick="go(\''+url+'\')"><i class="material-icons blue-text">edit</i></a></div></li>');
+            table.append('<li id="row_' + item.UIDAtto +'" class="collection-item"><div>' + text + '<a class="secondary-content" href="'+url+'" target="_blank"><i class="material-icons blue-text">edit</i></a></div></li>');
         });
     });
 

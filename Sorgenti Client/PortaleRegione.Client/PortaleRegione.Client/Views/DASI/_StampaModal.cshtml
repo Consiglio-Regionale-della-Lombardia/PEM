@@ -34,13 +34,10 @@
 <script>
     function ConfirmStampa() {
         $("#attiStampaDisplayName").empty();
+        var selezionaTutti = getSelezionaTutti_DASI();
+		var lista = getListaAtti();
 
-        var documentiTotali = $("#hdTotaleDocumenti").val();
-        var selezionaTutti = getSelezionaTutti();
-
-        var lista = getListaAtti();
-
-        var totaleDoc = selezionaTutti || lista.length == 0 ? documentiTotali - lista.length : lista.length;
+		var totaleDoc = GetCounterAlertStampa(lista, selezionaTutti);
         if (totaleDoc <= 0) {
             swal({
                 title: "Errore",
@@ -60,6 +57,8 @@
         $("#attiStampaDisplayName").append("GENERA FASCICOLO (TOTALE ATTI DA ESPORTARE: " + totaleDoc + ")");
 
         $("#modalStampa").modal("open");
+
+		$("#btnConfermaStampa").off("click");
         $("#btnConfermaStampa").on("click",
             function() {
                 $("#formStampa").submit();
@@ -73,24 +72,8 @@
             var data = {};
             data.da = $("#txtDa").val();
             data.a = $("#txtA").val();
-            data.client_mode = @Html.Raw(mode);
-
-            var filters = [];
-            var ls = getListaAtti();
-            if (ls.length > 0) {
-                var qDasi = "";
-                for (var i = 0; i < ls.length; i++) {
-                    if (i == 0) {
-                        qDasi = ls[0];
-                    } else {
-                        qDasi = qDasi + "," + ls[i];
-                    }
-                }
-
-                filters.push(qDasi);
-            }
-
-            data.filters = filters;
+			data.Tutti = getSelezionaTutti_DASI();
+			data.Lista = getListaAtti();
 
             waiting(true);
             var url = baseUrl + "/stampe/nuova-dasi";
@@ -106,6 +89,7 @@
                 waiting(false);
                 M.toast({ html: "<span>Vai alle stampe</span><button onclick='go(\"@Url.Action("Index", "Stampe")\")' class='btn-flat toast-action'>Vai</button>", classes: 'rounded', displayLength: 10000 });
             }).fail(function(err) {
+				waiting(false);
                 console.log("error", err);
                 Error(err);
             });

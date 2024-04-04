@@ -25,7 +25,19 @@ main { margin-bottom: 150px; }
 
 .sidenav li > a { padding: 0 16px !important; }
 
-.btn-flat { font-weight: bold !important; }
+.patreon-ad {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 299px;
+	background-color: #fff;
+	z-index: 1000;
+	border-top: 1px solid rgba(0,0,0,0.14);
+}
+
+.btn-flat {
+	font-weight: bold !important;
+}
 
 .btn-flat.black-text {
 	border: 1px black solid;

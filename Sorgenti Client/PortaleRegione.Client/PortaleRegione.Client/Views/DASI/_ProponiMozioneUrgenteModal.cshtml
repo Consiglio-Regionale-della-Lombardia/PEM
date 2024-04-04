@@ -77,7 +77,6 @@
     }
 
     function ProponiUrgenza(uidAtto) {
-        waiting(true);
         var listaAtti = [];
         var obj = {};
 
@@ -94,7 +93,6 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json"
         }).done(function(data) {
-            waiting(false);
             $("#modalMozioneUrgente").modal("close");
             $("#btnMozioneUrgente_Salva").off("click");
             if (data.message) {
@@ -108,7 +106,6 @@
             }
         }).fail(function(err) {
             console.log("error", err);
-            waiting(false);
             $("#modalMozioneUrgente").modal("close");
             Error(err);
         });

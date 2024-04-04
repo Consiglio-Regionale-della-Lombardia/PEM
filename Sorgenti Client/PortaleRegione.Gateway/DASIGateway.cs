@@ -63,6 +63,14 @@ namespace PortaleRegione.Gateway
             return result;
         }
 
+        public async Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetAll_SoloIds}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<List<Guid>>(await Post(requestUrl, body, _token));
+            return lst;
+        }
+
         public async Task<List<AttoDASIDto>> GetMOZAbbinabili()
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetMOZAbbinabili}";
