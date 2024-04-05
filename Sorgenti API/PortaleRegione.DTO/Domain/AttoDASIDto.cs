@@ -251,7 +251,7 @@ namespace PortaleRegione.DTO.Domain
 
             return string.Empty;
         }
-        
+
         public string DisplayTipoRispostaRichiesta { get; set; }
         public string DisplayStato { get; set; }
     }

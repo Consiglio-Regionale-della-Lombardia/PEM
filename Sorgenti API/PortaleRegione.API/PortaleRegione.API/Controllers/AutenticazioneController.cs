@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ApiRoutes = PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -57,9 +57,11 @@ namespace PortaleRegione.API.Controllers
         public AutenticazioneController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
-            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
+            StampeLogic stampeLogic,
             UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
-            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
+            notificheLogic,
             esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
         }
