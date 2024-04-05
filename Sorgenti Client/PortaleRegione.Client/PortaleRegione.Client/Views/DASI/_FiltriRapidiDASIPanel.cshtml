@@ -1,5 +1,7 @@
 ﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Domain
+@using PortaleRegione.DTO.Enum
+@using Microsoft.Ajax.Utilities
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 <div class="card">
@@ -46,8 +48,8 @@ var availableFilterArray = [
 			// Supponendo che il testo della chip sia l'identificativo desiderato
 			// Nota: potresti dover adattare questa logica a seconda della struttura delle tue chips
 			chipsData.push({
-				property: $(chip).data("filterby"),
-				value: $(chip).data("val")
+				property: chip.getAttribute('data-filterby'),
+				value: chip.getAttribute('data-val')
 			});
 		});
 
@@ -301,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		addIcon.textContent = 'add_circle';
 		addIcon.onclick = function (event) {
 			event.stopPropagation();
-			openModalWithContent(item.id, item.tag, false);
+			openModalWithContent(item.id, item.tag, false, 0);
 		};
 
 		li.appendChild(addIcon);
@@ -325,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: availableFilterArray,
 	    onAutocomplete: function (txt, key) {
 		    // Mostra i dettagli dell'elemento selezionato nella modal
-		    openModalWithContent(key, txt, false);
+		    openModalWithContent(key, txt, false, 0);
 	    }
     });
 
@@ -342,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	    }
     });
 
-    function openModalWithContent(key, txt, isEditing){
+    function openModalWithContent(key, txt, isEditing, currentValue){
 	    document.getElementById('autocomplete-input').value = "";
 	    document.getElementById('modal-content').textContent = txt;
 	    document.getElementById('modal-filter-id-hidden').value = key;
@@ -352,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				var legislature = GetLegislature();
 				selectHTML = '<select id="legislature-select">';
 				legislature.forEach(function (item) {
-					selectHTML += `<option value="${item.id_legislatura}">${item.num_legislatura}</option>`;
+					var selected = isEditing && currentValue > 0 && item.id_legislatura == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.id_legislatura}" ${selected}>${item.num_legislatura}</option>`;
 				});
 				selectHTML += '</select>';
 			    break;
@@ -361,7 +364,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				selectHTML = '<select id="stati-select">';
 				stati.forEach(function (item) {
 					if (item.IDStato != 0) {
-						selectHTML += `<option value="${item.IDStato}">${item.Stato}</option>`;
+						var selected = isEditing && currentValue > 0 && item.IDStato == currentValue ? 'selected' : '';
+						selectHTML += `<option value="${item.IDStato}" ${selected}>${item.Stato}</option>`;
 					}
 				});
 				selectHTML += '</select>';
@@ -371,17 +375,24 @@ document.addEventListener('DOMContentLoaded', function() {
 				selectHTML = '<select id="tipi-select">';
 				tipi.forEach(function (item) {
 					if (item.IDTipoAtto != 0) {
-						selectHTML += `<option value="${item.IDTipoAtto}">${item.Tipo_Atto}</option>`;
+						var selected = isEditing && currentValue > 0 && item.IDTipoAtto == currentValue ? 'selected' : '';
+						selectHTML += `<option value="${item.IDTipoAtto}" ${selected}>${item.Tipo_Atto}</option>`;
 					}
 				});
 				selectHTML += '</select>';
 			    break;
 			case '@nameof(AttoDASIDto.IDTipo_Risposta)':
-				var tipi = gett();
-				selectHTML = '<select id="tipi-select">';
-				tipi.forEach(function (item) {
-					if (item.IDTipoAtto != 0) {
-						selectHTML += `<option value="${item.IDTipoAtto}">${item.Tipo_Atto}</option>`;
+				var tipiRisposta = [
+				    { id: @((int)TipoRispostaEnum.ORALE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE))'},
+				    { id: @((int)TipoRispostaEnum.SCRITTA), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA))'},
+				    { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE))'},
+				];
+
+				selectHTML = '<select id="tipi-risposta-select">';
+				tipiRisposta.forEach(function (item) {
+					if (item.id != 0) {
+						var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+						selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
 					}
 				});
 				selectHTML += '</select>';
@@ -398,8 +409,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
-	    // Verifica se la chiave è già stata utilizzata
-	    if (!chipsKeys[key]) {
+
+		var existingChip = document.querySelector(`.chip[data-filterby="${key}"]`);
+
+		if (!existingChip) {
 		    // La chiave non esiste, quindi aggiungi la chip
 		    var chipsContainer = document.getElementById('chips-container');
 		    var newChip = document.createElement('div');
@@ -410,56 +423,73 @@ document.addEventListener('DOMContentLoaded', function() {
 		    newChip.classList.add('chip');
 		    newChip.textContent = chipText;
 
-		    // Aggiungi un'icona per modificare la chip, se desiderato
-		    var editIcon = document.createElement('i');
-		    editIcon.classList.add('material-icons', 'tiny');
-		    editIcon.style.setProperty('margin-left', '10px');
-		    editIcon.style.setProperty('top', '2px');
-		    editIcon.textContent = 'edit';
-		    editIcon.onclick = function (event) {
-			    event.stopPropagation();
-			    openModalWithContent(key, keyLabel, true);
-		    };
-		    newChip.appendChild(editIcon);
-
-		    // Aggiungi un'icona per rimuovere la chip, se desiderato
-		    var closeIcon = document.createElement('i');
-		    closeIcon.style.setProperty('top', 'unset', 'important');
-		    closeIcon.classList.add('close', 'material-icons');
-		    closeIcon.textContent = 'close';
-		    closeIcon.onclick = function () {
-			    delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
-			    newChip.remove();
-				salvaFiltri();
-				inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
-		    };
-		    newChip.appendChild(closeIcon);
-
+			addIconsToChip(newChip, key, keyLabel, val);
 		    chipsContainer.appendChild(newChip);
 
 		    // Aggiorna l'elenco delle chiavi tracciate
 		    chipsKeys[key] = true;
-			salvaFiltri();
-
-			if (refresh)
-			    {
-				    inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
-				}
 	    } else {
-		    // La chiave esiste già, quindi non aggiungere una nuova chip
-			swal("Info", "Filtro già presente.", "info");
+			existingChip.setAttribute('data-val', val);
+			existingChip.setAttribute('data-label', label);
+			existingChip.setAttribute('data-filterby', key);
+			existingChip.setAttribute('data-filterby-label', keyLabel);
+			existingChip.textContent = chipText;
+			addIconsToChip(existingChip, key, keyLabel, val);
 	    }
+		console.log("salva")
+		salvaFiltri();
+
+		if (refresh) {
+			inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+		}
     }
+
+	function addIconsToChip(chip, key, keyLabel, val) {
+		// Aggiungi un'icona per modificare la chip, se desiderato
+		var editIcon = document.createElement('i');
+		editIcon.classList.add('material-icons', 'tiny');
+		editIcon.style.setProperty('margin-left', '10px');
+		editIcon.style.setProperty('top', '2px');
+		editIcon.textContent = 'edit';
+		editIcon.onclick = function (event) {
+			event.stopPropagation();
+			openModalWithContent(key, keyLabel, true, val);
+		};
+		chip.appendChild(editIcon);
+
+		// Aggiungi un'icona per rimuovere la chip
+		var closeIcon = document.createElement('i');
+		closeIcon.classList.add('close', 'material-icons');
+		closeIcon.style.setProperty('top', 'unset', 'important');
+		closeIcon.textContent = 'close';
+		closeIcon.onclick = function () {
+			delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
+			chip.remove();
+			salvaFiltri();
+			inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+		};
+		chip.appendChild(closeIcon);
+	}
 
 	function salvaFiltri() {
 		const filtri = [];
 		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+			const key = chip.getAttribute('data-filterby');
+			const keyLabel = chip.getAttribute('data-filterby-label');
+			const val = chip.getAttribute('data-val');
+			const label = chip.getAttribute('data-label');
+			// Rimuovi gli elementi icona dal testo della chip prima di salvarlo
+			const chipTextContent = chip.cloneNode(true); // Clona il nodo della chip
+			chipTextContent.querySelectorAll('.material-icons').forEach(icon => icon.remove()); // Rimuovi le icone
+			const chipText = chipTextContent.textContent.trim(); // Ottieni il testo pulito
+
+			console.log(key, keyLabel, val, label, chipText);
 			filtri.push({
-				key: $(chip).data("filterby"),
-				keyLabel: $(chip).data("filterby-label"),
-				val: $(chip).data("val"),
-				label: $(chip).data("label"),
-				chipText: chip.textContent.replace("edit", "").replace("close", "")
+				key: key,
+				keyLabel: keyLabel,
+				val: val,
+				label: label,
+				chipText: chipText
 			});
 		});
 		localStorage.setItem('filtriDasi', JSON.stringify(filtri));
