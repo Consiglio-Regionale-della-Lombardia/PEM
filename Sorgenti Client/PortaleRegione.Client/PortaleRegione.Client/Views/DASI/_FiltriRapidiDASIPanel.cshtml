@@ -29,6 +29,8 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDStato))", id: "@nameof(AttoDASIDto.IDStato)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.NAtto))", id: "@nameof(AttoDASIDto.NAtto)"},
+	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
     async function inviaDatiChips(page, size) {
@@ -311,12 +313,26 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 
     document.getElementById('addFiltersButton').addEventListener('click', function () {
-	    var selectedOption = document.querySelector('#dynamic-select-container select');
-	    var val = selectedOption.options[selectedOption.selectedIndex].value;
-	    var text = selectedOption.options[selectedOption.selectedIndex].text;
-	    var chipText = document.getElementById('modal-content').textContent + ": " + text;
+		var key = document.getElementById('modal-filter-id-hidden').value;
+		var keyLabel = document.getElementById('modal-content').textContent;
+		var val, text, chipText;
+		if (key === "@nameof(AttoDASIDto.NAtto)") {
+            val = document.getElementById('n_atto').value;
+            text = val;
+            chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.Oggetto)") {
+            val = document.getElementById('oggetto').value;
+            text = val;
+            chipText = keyLabel + ": " + val;
+        } else {
+            // Per altri filtri che usano una select
+            var selectedOption = document.querySelector('#dynamic-select-container select');
+            val = selectedOption.options[selectedOption.selectedIndex].value;
+            text = selectedOption.options[selectedOption.selectedIndex].text;
+            chipText = keyLabel + ": " + text;
+        }
 
-	    addChipIfNotExists(document.getElementById('modal-filter-id-hidden').value, document.getElementById('modal-content').textContent, val, text, chipText, true);
+	    addChipIfNotExists(key, keyLabel, val, text, chipText, true);
 
 	    // Chiudi la modal
 	    $('#infoModal').modal("close");
@@ -397,6 +413,29 @@ document.addEventListener('DOMContentLoaded', function() {
 				});
 				selectHTML += '</select>';
 			    break;
+			case '@nameof(AttoDASIDto.NAtto)':
+                var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+                selectHTML = `<div class="input-field col s12">
+                    <input id="n_atto" type="text" ${currentValueFormatted} placeholder="Es. 100, 150-200">
+                    <div class="card blue lighten-5">
+                        <div class="card-content black-text">
+                            <span class="card-title">Informazioni</span>
+                            <p>È possibile filtrare nei seguenti modi:
+                            <ul style="padding-left:40px">
+                                <li style="list-style-type: disc;">Singolo numero: 100</li>
+                                <li style="list-style-type: disc;">Intervallo: 150-200</li>
+                            </ul>
+                            </p>
+                        </div>
+                    </div>
+                </div>`;
+                break;
+			case '@nameof(AttoDASIDto.Oggetto)':
+                var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+                selectHTML = `<div class="input-field col s12">
+                    <input id="oggetto" type="text" ${currentValueFormatted}/>
+                </div>`;
+                break;
 		    default:
 			    console.log("Filtro non riconosciuto!");
 			    break;

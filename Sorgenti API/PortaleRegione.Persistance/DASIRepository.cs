@@ -76,6 +76,47 @@ namespace PortaleRegione.Persistance
                                                 || item.Premesse_Modificato.Contains(f.Value.ToString())
                                                 || item.Richiesta.Contains(f.Value.ToString()));
                 }
+                else if (f.PropertyId == nameof(ATTI_DASI.NAtto))
+                {
+                    var nAttoFilters = f.Value.ToString().Split(',');
+                    List<int> singleNumbers = new List<int>();
+                    Expression<Func<ATTI_DASI, bool>> combinedRangePredicate = null;
+
+                    foreach (var nAttoFilter in nAttoFilters)
+                    {
+                        if (string.IsNullOrEmpty(nAttoFilter))
+                            continue;
+
+                        if (nAttoFilter.Contains('-'))
+                        {
+                            var parts = nAttoFilter.Split('-').Select(int.Parse).ToArray();
+                            int start = parts[0];
+                            int end = parts[1];
+
+                            // Crea un'espressione per l'intervallo
+                            Expression<Func<ATTI_DASI, bool>> rangePredicate = item => item.NAtto_search >= start && item.NAtto_search <= end;
+
+                            // Combina l'espressione corrente con le espressioni precedenti
+                            if (combinedRangePredicate == null)
+                                combinedRangePredicate = rangePredicate;
+                            else
+                                combinedRangePredicate = ExpressionExtensions.CombineExpressions(combinedRangePredicate, rangePredicate);
+                        }
+                        else
+                        {
+                            singleNumbers.Add(int.Parse(nAttoFilter));
+                        }
+                    }
+
+                    if (singleNumbers.Any())
+                    {
+                        Expression<Func<ATTI_DASI, bool>> singleNumbersPredicate = item => singleNumbers.Contains(item.NAtto_search);
+                        combinedRangePredicate = combinedRangePredicate == null ? singleNumbersPredicate : ExpressionExtensions.CombineExpressions(combinedRangePredicate, singleNumbersPredicate);
+                    }
+
+                    if (combinedRangePredicate != null)
+                        query = query.Where(combinedRangePredicate);
+                }
                 else
                     filtro2._statements.Add(f);
             }
