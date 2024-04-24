@@ -17,6 +17,7 @@
  */
 
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;
@@ -43,6 +44,11 @@ namespace PortaleRegione.BAL
         {
             var legislatura = await _unitOfWork.Legislature.Get(id);
             return Mapper.Map<legislature, LegislaturaDto>(legislatura);
+        }
+
+        public async Task<int> GetLegislaturaAttuale()
+        {
+            return await _unitOfWork.Legislature.Legislatura_Attiva();
         }
     }
 }

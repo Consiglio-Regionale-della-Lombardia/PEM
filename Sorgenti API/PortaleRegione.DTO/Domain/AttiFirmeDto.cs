@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,6 +27,7 @@ namespace PortaleRegione.DTO.Domain
         public Guid UIDAtto { get; set; }
 
         public Guid UID_persona { get; set; }
+        public int id_persona { get; set; }
 
         public string FirmaCert { get; set; }
 
@@ -47,6 +49,7 @@ namespace PortaleRegione.DTO.Domain
 
         public bool Prioritario { get; set; } = true;
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public virtual PersonaDto UTENTI_NoCons { get; set; }
 
         public static implicit operator AttiFirmeDto(FirmeDto firma)

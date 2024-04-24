@@ -16,18 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Newtonsoft.Json;
-using PortaleRegione.Client.Helpers;
-using PortaleRegione.DTO.Domain;
-using PortaleRegione.DTO.Enum;
-using PortaleRegione.Gateway;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
+using Newtonsoft.Json;
+using PortaleRegione.Client.Helpers;
+using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Enum;
+using PortaleRegione.Gateway;
 
 namespace PortaleRegione.Client.Controllers
 {
@@ -36,9 +38,16 @@ namespace PortaleRegione.Client.Controllers
     /// </summary>
     public class BaseController : Controller
     {
+        internal string GetVersion()
+        {
+            var assemblyPath = Assembly.GetExecutingAssembly().Location;
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(assemblyPath);
+            return fileVersionInfo.FileVersion;
+        }
+
         internal bool CanAccess(List<RuoliIntEnum> ruoli)
         {
-            for (int i = 0; i < ruoli.Count; i++)
+            for (var i = 0; i < ruoli.Count; i++)
             {
                 var check = User.IsInRole(((int)ruoli[i]).ToString());
                 if (check)
@@ -123,6 +132,8 @@ namespace PortaleRegione.Client.Controllers
 
         internal string GetCacheKey(string key)
         {
+            if (CurrentUser == null)
+                return "";
             return $"{key}_{CurrentUser.UID_persona}";
         }
 

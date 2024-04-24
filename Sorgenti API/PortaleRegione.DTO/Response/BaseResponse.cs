@@ -74,8 +74,8 @@ namespace PortaleRegione.DTO.Response
             Paging.First_Url = new Uri(path + $"?page=1&size={page_size}");
         }
 
-        public Paging Paging { get; set; }
-        public IEnumerable<T> Results { get; set; }
-        public List<FilterStatement<T>> Filters { get; set; }
+        public Paging Paging { get; set; } = new Paging();
+        public IEnumerable<T> Results { get; set; } = new List<T>();
+        public List<FilterStatement<T>> Filters { get; set; } = new List<FilterStatement<T>>();
     }
 }

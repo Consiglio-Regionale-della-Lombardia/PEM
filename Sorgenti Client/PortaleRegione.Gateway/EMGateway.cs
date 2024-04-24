@@ -93,6 +93,14 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task<List<Guid>> GetSoloIds(BaseRequest<EmendamentiDto> model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.GetAllSoloIds}";
+            var body = JsonConvert.SerializeObject(model);
+            var lst = JsonConvert.DeserializeObject<List<Guid>>(await Post(requestUrl, body, _token));
+            return lst;
+        }
+
         public async Task<EmendamentiDto> Get(Guid id)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.PEM.Emendamenti.Get.Replace("{id}", id.ToString())}";

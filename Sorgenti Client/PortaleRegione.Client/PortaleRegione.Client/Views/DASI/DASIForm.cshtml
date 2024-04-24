@@ -3,32 +3,51 @@
 @model PortaleRegione.DTO.Model.DASIFormModel
 
 @{
+    Layout = null;
+
     var isNew = Model.Atto.UIDAtto == Guid.Empty;
     ViewBag.Title = (isNew ? "Nuovo " : "Modifica ") + "Atto Sindacato Ispettivo";
-
-    var backUrl = isNew ? Url.Action("RiepilogoDASI", new {tipo = Model.Atto.Tipo}) : Url.Action("ViewAtto", new {id = Model.Atto.UIDAtto});
-
-    bool _disabled = Model.Atto.IDStato == (int) StatiAttoEnum.PRESENTATO;
+    var _disabled = Model.Atto.IDStato == (int)StatiAttoEnum.PRESENTATO;
 }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    @Styles.Render("~/Content/css")
+    @*Import Trumbowyg plugins style...*@
+    <link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet"/>
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @Scripts.Render("~/bundles/lib")
+    @Scripts.Render("~/bundles/logic")
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+</head>
+<body>
 <script>
-    $(document).ready(function() {
-        $('#btnSearch').hide();
-    });
-</script>
+		$(document).ready(function () {
+			$('#btnSearch').hide();
+		});
+	</script>
 <style>
     .trumbowyg-editor > p > ul {
+        list-style-type: disc !important;
         padding-left: 30px !important;
-        list-style-type: disc !important;
     }
-    .trumbowyg-editor > p > ul > li {
-        list-style-type: disc !important;
-    }
+
+    .trumbowyg-editor > p > ul > li { list-style-type: disc !important; }
 </style>
 
 <div class="row">
     <div class="col l1 s2">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
-            <i class="material-icons">arrow_back</i>
+        <a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+            <i class="material-icons">close</i>
         </a>
     </div>
     <div class="col l11 s10">
@@ -105,27 +124,27 @@
                             <div class="row">
                                 <div class="col s12">
                                     <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)" onchange="TipoRichiesta_OnChange(this)"/>
                                         <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INTERROGA)</span>
                                     </label>
                                 </div>
                             </div>
                         }
                         else if (Model.Atto.Tipo != (int)TipoAttoEnum.ITL
-                       && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
+                                 && Model.Atto.Tipo != (int)TipoAttoEnum.ITR)
                         {
                             <div class="row">
                                 <div class="col s12">
                                     <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)" onchange="TipoRichiesta_OnChange(this)"/>
                                         <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.CHIEDE)</span>
                                     </label>
                                     <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)" onchange="TipoRichiesta_OnChange(this)"/>
                                         <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.INVITA)</span>
                                     </label>
                                     <label class="black-text" style="margin-left: 20px">
-                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)" />
+                                        <input type="radio" name="Atto.TipoRichiesta" value="@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)" onchange="TipoRichiesta_OnChange(this)"/>
                                         <span>@Utility.GetText_TipoRichiestaDASI((int)TipoRichiestaEnum.IMPEGNA)</span>
                                     </label>
                                 </div>
@@ -135,25 +154,25 @@
                         <div class="input-field">
                             <p>
                                 <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)" onchange="TipoRichiestaDest_OnChange(this)"/>
                                     <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.PRES_REG)</span>
                                 </label>
                             </p>
                             <p>
                                 <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)" onchange="TipoRichiestaDest_OnChange(this)"/>
                                     <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C)</span>
                                 </label>
                             </p>
                             <p>
                                 <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)" onchange="TipoRichiestaDest_OnChange(this)"/>
                                     <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.ASS_C_N)</span>
                                 </label>
                             </p>
                             <p>
                                 <label>
-                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)" />
+                                    <input type="checkbox" value="@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)" onchange="TipoRichiestaDest_OnChange(this)"/>
                                     <span>@Utility.GetText_TipoRichiestaDestDASI((int)TipoRichiestaDestEnum.G)</span>
                                 </label>
                             </p>
@@ -180,7 +199,7 @@
                             <p>
                                 <label>
                                     <input id="Atto_Non_Passaggio_In_Esame" type="checkbox" value="true"
-                                           @Html.Raw((Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : ""))>
+                                           @Html.Raw(Model.Atto.Non_Passaggio_In_Esame ? "checked=\"checked\"" : "")>
                                     <span>ODG di NON passaggio in esame</span>
                                 </label>
                             </p>
@@ -201,28 +220,31 @@
 @Html.Partial("_ScriptFormDASI")
 
 <script>
-    
-    function TipoRichiesta_OnChange(ctrl) {
-        var container_testo_richiesta = $("#Atto_Richiesta").parent();
-        var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
 
-        var tipo_richiesta = $(ctrl).val();
-        var testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta + "</strong> ";
-        editor_testo_richiesta.html(testo);
-    }
+		function TipoRichiesta_OnChange(ctrl) {
+			var container_testo_richiesta = $("#Atto_Richiesta").parent();
+			var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
 
-    function TipoRichiestaDest_OnChange(ctrl) {
-        var container_testo_richiesta = $("#Atto_Richiesta").parent();
-        var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
-        
-        var tipo_richiesta_dest = $(ctrl).val();
-        var testo = "";
-        if (editor_testo_richiesta.html().indexOf(tipo_richiesta_dest) > -1) {
-            testo = editor_testo_richiesta.html().replace("<strong>" + tipo_richiesta_dest + "</strong>", "");
-        } else {
-            testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta_dest + "</strong> ";
-        }
+			var tipo_richiesta = $(ctrl).val();
+			var testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta + "</strong> ";
+			editor_testo_richiesta.html(testo);
+		}
 
-        editor_testo_richiesta.html(testo);
-    }
-</script>
+		function TipoRichiestaDest_OnChange(ctrl) {
+			var container_testo_richiesta = $("#Atto_Richiesta").parent();
+			var editor_testo_richiesta = $(container_testo_richiesta).find(".trumbowyg-editor");
+
+			var tipo_richiesta_dest = $(ctrl).val();
+			var testo = "";
+			if (editor_testo_richiesta.html().indexOf(tipo_richiesta_dest) > -1) {
+				testo = editor_testo_richiesta.html().replace("<strong>" + tipo_richiesta_dest + "</strong>", "");
+			} else {
+				testo = editor_testo_richiesta.html() + " <strong>" + tipo_richiesta_dest + "</strong> ";
+			}
+
+			editor_testo_richiesta.html(testo);
+		}
+	</script>
+
+</body>
+</html>

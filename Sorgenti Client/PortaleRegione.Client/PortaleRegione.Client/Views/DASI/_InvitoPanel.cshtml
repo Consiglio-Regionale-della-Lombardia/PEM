@@ -116,19 +116,13 @@
     }
 
     async function NotificaADASI(attoUId, tipo) {
-        waiting(true);
         await LoadDestinatari(@((int)TipoDestinatarioNotificaEnum.CONSIGLIERI));
         $("#modalDASINotificaA").modal("open");
-        waiting(false);
 
         $("#btnConfermaNotificaA").on("click",
             function() {
-                setTimeout(function() {
-                        $('body').removeClass('loaded');
-                        $("#modalDASINotificaA").modal("close");
-                    },
-                    200);
                 $("#formNotificaA").submit();
+				$("#modalDASINotificaA").modal("close");
             });
     }
 
@@ -167,9 +161,7 @@
             obj.Azione = @((int)ActionEnum.INVITA);
             obj.Lista = listaAtti.length > 0 ? listaAtti : [];
             obj.ListaDestinatari = listaDestinatari;
-
-            waiting(true);
-
+            
             $.ajax({
                 url: baseUrl + "/dasi/azioni-massive",
                 type: "POST",
@@ -184,7 +176,6 @@
                     if (pos > 0) {
                         typeMessage = "success";
                     }
-                    waiting(false);
                     swal({
                         title: "Esito Inviti",
                         text: data.message,

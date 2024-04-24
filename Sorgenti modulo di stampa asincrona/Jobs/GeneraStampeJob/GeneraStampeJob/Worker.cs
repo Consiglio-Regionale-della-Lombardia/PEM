@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using PortaleRegione.Common;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
@@ -133,9 +134,6 @@ namespace GeneraStampeJob
         private async Task StampaDASI(List<AttoDASIDto> lista, string path, PersonaDto persona)
         {
             var docs = new List<byte[]>();
-            if (_stampa.Da > 0 && _stampa.A > 0)
-                lista = lista.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
-
             var bodyCopertina = await apiGateway.DASI.GetCopertina(new ByQueryModel
             {
                 Query = _stampa.Query
@@ -243,7 +241,7 @@ namespace GeneraStampeJob
                 Directory.CreateDirectory(pathRepository);
 
             var destinazioneDeposito = Path.Combine(pathRepository, Path.GetFileName(pdfAtti.First().Value.Path));
-            SpostaFascicolo(pdfAtti.First().Value.Path, destinazioneDeposito);
+            File.WriteAllBytes(destinazioneDeposito, (byte[])pdfAtti.First().Value.Content);
             _stampa.PathFile = Path.Combine($"{dir}", Path.GetFileName(pdfAtti.First().Value.Path));
             _stampa.UIDAtto = dasiDto.UIDAtto;
             await apiGateway.Stampe.JobUpdateFileStampa(_stampa);
@@ -261,6 +259,23 @@ namespace GeneraStampeJob
                 {
                     item
                 };
+            }
+
+            try
+            {
+                var resFromJson = new List<AttoDASIDto>();
+                var listaAttiFromJson = JsonConvert.DeserializeObject<List<Guid>>(_stampa.Query);
+                foreach (var guid in listaAttiFromJson)
+                {
+                    var item = await apiGateway.DASI.Get(guid);
+                    resFromJson.Add(item);
+                }
+
+                return resFromJson;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
             var result = await apiGateway.Stampe.JobGetDASI(_stampa.Query, 1);
@@ -312,9 +327,6 @@ namespace GeneraStampeJob
             try
             {
                 var atto = await apiGateway.Atti.Get(_stampa.UIDAtto.Value);
-                if (_stampa.Da > 0 && _stampa.A > 0)
-                    listaEMendamenti = listaEMendamenti.GetRange(_stampa.Da - 1, _stampa.A - (_stampa.Da - 1));
-
                 var nameFileTarget = $"Fascicolo_{DateTime.Now:ddMMyyyy_hhmmss}.pdf";
                 var FilePathTarget = Path.Combine(path, nameFileTarget);
                 var bodyCopertina = await apiGateway.Emendamento.GetCopertina(new CopertinaModel
@@ -538,6 +550,23 @@ namespace GeneraStampeJob
                 {
                     em
                 };
+            }
+
+            try
+            {
+                var resFromJson = new List<EmendamentiDto>();
+                var listaEMFromJson = JsonConvert.DeserializeObject<List<Guid>>(_stampa.Query);
+                foreach (var guid in listaEMFromJson)
+                {
+                    var item = await apiGateway.Emendamento.Get(guid);
+                    resFromJson.Add(item);
+                }
+
+                return resFromJson;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
             var resultEmendamenti = await apiGateway.Stampe.JobGetEmendamenti(_stampa.Query, 1, 1000);

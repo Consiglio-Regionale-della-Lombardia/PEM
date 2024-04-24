@@ -1787,6 +1787,94 @@ namespace PortaleRegione.BAL
                 throw e;
             }
         }
+        public async Task<List<Guid>> GetEmendamentiSoloIds(BaseRequest<EmendamentiDto> model,
+            PersonaDto persona, int CLIENT_MODE)
+        {
+            try
+            {
+                var queryFilter = new Filter<EM>();
+                foreach (var filterStatement in model.filtro.Where(filterStatement =>
+                             filterStatement.PropertyId == nameof(EmendamentiDto.N_EM)))
+                    filterStatement.Value =
+                        BALHelper.EncryptString(filterStatement.Value.ToString(), AppSettingsConfiguration.masterKey);
+
+                var tags = new List<TagDto>();
+                var tags_request = new FilterStatement<EmendamentiDto>();
+                if (model.filtro.Any(statement => statement.PropertyId == "Tags"))
+                {
+                    tags_request = model.filtro.First(statement => statement.PropertyId == "Tags");
+                    tags = JsonConvert.DeserializeObject<List<TagDto>>(tags_request.Value.ToString());
+                    model.filtro.Remove(tags_request);
+                }
+
+                var firmatari = new List<Guid>();
+                var firmatari_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == "Firmatario"))
+                {
+                    firmatari_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == "Firmatario"));
+                    firmatari.AddRange(firmatari_request.Select(firmatario => new Guid(firmatario.Value.ToString())));
+                    foreach (var firmatarioStatement in firmatari_request) model.filtro.Remove(firmatarioStatement);
+                }
+
+                var proponenti = new List<Guid>();
+                var proponenti_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)))
+                {
+                    proponenti_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.UIDPersonaProponente)));
+                    proponenti.AddRange(proponenti_request.Select(proponente => new Guid(proponente.Value.ToString())));
+                    foreach (var proponenteStatement in proponenti_request) model.filtro.Remove(proponenteStatement);
+                }
+
+                var gruppi = new List<int>();
+                var gruppi_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.id_gruppo)))
+                {
+                    gruppi_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.id_gruppo)));
+                    gruppi.AddRange(gruppi_request.Select(proponente => Convert.ToInt32(proponente.Value.ToString())));
+                    foreach (var gruppiStatement in gruppi_request) model.filtro.Remove(gruppiStatement);
+                }
+
+                var stati = new List<int>();
+                var stati_request = new List<FilterStatement<EmendamentiDto>>();
+                if (model.filtro.Any(statement => statement.PropertyId == nameof(EmendamentiDto.IDStato)))
+                {
+                    stati_request =
+                        new List<FilterStatement<EmendamentiDto>>(model.filtro.Where(statement =>
+                            statement.PropertyId == nameof(EmendamentiDto.IDStato)));
+                    stati.AddRange(stati_request.Select(stato => Convert.ToInt32(stato.Value.ToString())));
+                    foreach (var statiStatement in stati_request) model.filtro.Remove(statiStatement);
+                }
+
+                queryFilter.ImportStatements(model.filtro);
+
+                var em_in_db = await _unitOfWork
+                    .Emendamenti
+                    .GetAll(persona,
+                        model.ordine,
+                        model.page,
+                        model.size,
+                        CLIENT_MODE,
+                        queryFilter,
+                        firmatari,
+                        proponenti,
+                        gruppi,
+                        stati,
+                        tags);
+
+                return em_in_db.ToList();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Logic - GetEmendamenti", e);
+                throw e;
+            }
+        }
 
         public async Task<EmendamentiViewModel> GetEmendamenti_RawChunk(BaseRequest<EmendamentiDto> model,
             PersonaDto persona, int CLIENT_MODE, Uri uri,

@@ -353,7 +353,7 @@
                             descr = "Nessun oggetto";
                         }
 
-                        var template = '<div class="chip tooltipped" data-tooltip="' + descr + '">' + sigla + '</div>';
+						var template = `<div class='chip tooltipped' data-tooltip='${descr}'>${sigla}</div>`;
 
                         $(panel).append(template);
                     }.bind(this));

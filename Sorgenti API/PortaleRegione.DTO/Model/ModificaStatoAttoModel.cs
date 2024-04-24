@@ -30,7 +30,7 @@ namespace PortaleRegione.DTO.Model
         }
         public ICollection<Guid> Lista { get; set; }
         public StatiAttoEnum Stato { get; set; }
-        public bool All { get; set; } = false;
+        public bool Tutti { get; set; } = false;
 
         public StatiAttoEnum CurrentStatus { get; set; }
         public TipoAttoEnum CurrentType { get; set; }

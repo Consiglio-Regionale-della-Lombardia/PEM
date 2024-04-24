@@ -61,7 +61,7 @@ namespace PortaleRegione.Client.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                RedirectToAction("FormAutenticazione", "Autenticazione");
+                RedirectToAction("FormAutenticazione", "Autenticazione", new AutenticazioneModel(GetVersion()));
                 throw;
             }
         }

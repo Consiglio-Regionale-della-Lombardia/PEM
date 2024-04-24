@@ -1,22 +1,17 @@
-﻿@using System.Configuration
-@using ExpressionBuilder.Common
-@using PortaleRegione.Client.Helpers
+﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 <style>
-    tr {
-        border: unset;
-    }
+    tr { border: unset; }
 
-    td {
-        text-align: center;
-    }
+    td { text-align: center; }
 </style>
 
 @{
-    ViewBag.Title = $"{PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
+    ViewBag.Title = $"{Utility.GetText_Tipo(Model.Atto.IDTipoAtto)} {Model.Atto.NAtto}";
 
     var filtri_attivi = Request.Url.AbsolutePath.Contains("filtra");
 
@@ -110,8 +105,8 @@
             <div class="col l12">
                 <table id="tableTesti" class="tableTesti">
                     <tr>
-                        <td colspan="2" style="text-align: center; font-weight: bold;">
-                            @PortaleRegione.Common.Utility.GetText_Tipo(Model.Atto.IDTipoAtto)
+                        <td colspan="2" style="font-weight: bold; text-align: center;">
+                            @Utility.GetText_Tipo(Model.Atto.IDTipoAtto)
                             @Model.Atto.NAtto
                         </td>
                     </tr>
@@ -140,7 +135,7 @@
 
 @section scripts
 {
-    <script>
+	<script>
         $(window).on('load',
             async function() {
                 $('#btnSearch').on("click",
@@ -179,7 +174,7 @@
             $('#pnlViewTestoAtto').hide();
             $('#pnlOrdinamento').hide();
         }
-        
+
         function filtra() {
             setTimeout(function() {
                     $('body').removeClass('loaded');
@@ -272,12 +267,12 @@
             }
         }
 
-        $('#btnCreaEM').attr('href', '@Url.Action("NuovoEmendamento", new { id = Model.Atto.UIDAtto })');
+		$('#btnCreaEM').attr('onclick', 'goIntoOtherTab("@Url.Action("NuovoEmendamento", new { id = Model.Atto.UIDAtto })")');
 
         async function RevealMassivo(action) {
             var text = "";
             var button = "";
-            
+
             var selezionaTutti = getSelezionaTutti();
             var listaEM = getListaEmendamenti();
             var totaleDoc = GetCounterAlert(listaEM, selezionaTutti);
@@ -357,5 +352,71 @@
                 });
         }
 
-    </script>
+        window.addEventListener("message", (event) => {
+	        // Controlla l'origine del messaggio per motivi di sicurezza
+	        if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+		        return;
+	        }
+
+	        if (event.data === "aggiornaPadre") {
+		        location.reload(); // Ricarica la pagina padre
+	        }
+        }, false);
+
+        function RevealFirmaDeposito(id, action) {
+	var text = "";
+	var button = "";
+	if (action == 3) {
+		text = "Inserisci il PIN per firmare";
+		button = "Firma";
+	} else if (action == 4) {
+		text = "Inserisci il PIN per presentare";
+		button = "Presenta";
+	}
+
+	swal(text,
+		{
+			content: {
+				element: "input",
+				attributes: { placeholder: "******", className: "password" }
+			},
+			icon: "info",
+			buttons: { cancel: "Annulla", confirm: button }
+		})
+		.then((value) => {
+			if (value == null || value == "")
+				return;
+
+			$.ajax({
+				url: baseUrl + "/emendamenti/azioni?id=" + id + "&azione=" + action + "&pin=" + value,
+				method: "GET"
+			}).done(function (data) {
+				if (data.message) {
+					var typeMessage = "error";
+					var str = data.message;
+					var pos = str.indexOf("OK");
+					if (pos > 0) {
+						typeMessage = "success";
+					}
+					swal({
+						title: "Esito " + button,
+						text: data.message,
+						icon: typeMessage,
+						button: "OK"
+					}).then(() => {
+						window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+                        location.reload();
+					});
+				} else {
+                    window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
+					location.reload();
+				}
+			}).fail(function (err) {
+				console.log("error", err);
+				Error(err);
+			});
+		});
+}
+
+	</script>
 }

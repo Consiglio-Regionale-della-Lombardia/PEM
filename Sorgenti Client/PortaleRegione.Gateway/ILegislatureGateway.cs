@@ -25,6 +25,7 @@ namespace PortaleRegione.Gateway
     public interface ILegislatureGateway
     {
         Task<LegislaturaDto> GetLegislatura(int idLegislatura);
+        Task<int> GetLegislaturaAttuale();
         Task<IEnumerable<LegislaturaDto>> GetLegislature();
     }
 }

@@ -17,6 +17,7 @@
  */
 
 using System;
+using Newtonsoft.Json;
 
 namespace PortaleRegione.DTO.Response
 {
@@ -28,10 +29,18 @@ namespace PortaleRegione.DTO.Response
         public int Entities { get; set; }
         public bool Has_Next { get; set; }
         public bool Has_Prev { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Uri Next_Url { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Uri Prev_Url { get; set; }
         public int Last_Page { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Uri Last_Url { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Uri First_Url { get; set; }
     }
 }

@@ -1,6 +1,7 @@
-﻿@using PortaleRegione.Common
+﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Enum
 @using PortaleRegione.DTO.Model
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Response.EmendamentiViewModel
 
 @{
@@ -257,7 +258,7 @@
             checkSelectedEM();
             waiting(false);
         });
-        
+
 	function viewStandard() {
 		$('#btnSearch').show();
 		$('#pnlViewStandard').show();
@@ -357,11 +358,11 @@
         }
     }
 
-    $('#btnCreaEM').attr('href', '@Url.Action("NuovoEmendamento", new { id = Model.Atto.UIDAtto })');
+    $('#btnCreaEM').attr('onclick', 'goIntoOtherTab("@Url.Action("NuovoEmendamento", new { id = Model.Atto.UIDAtto })")');
 
     function UgualiA() {
         $("#emUgualiDisplayName").empty();
-        
+
         var selezionaTutti = getSelezionaTutti();
         var listaEM = getListaEmendamenti();
 		var totaleDoc = GetCounterAlert(listaEM, selezionaTutti);
@@ -627,4 +628,15 @@
             return false; //This doesn't prevent the form from submitting.
         }
     });
+
+    window.addEventListener("message", (event) => {
+	    // Controlla l'origine del messaggio per motivi di sicurezza
+	    if (event.origin !== "@AppSettingsConfiguration.URL_CLIENT") { // sostituisci con il tuo dominio
+		    return;
+	    }
+
+	    if (event.data === "aggiornaPadre") {
+		    location.reload(); // Ricarica la pagina padre
+	    }
+    }, false);
 </script>

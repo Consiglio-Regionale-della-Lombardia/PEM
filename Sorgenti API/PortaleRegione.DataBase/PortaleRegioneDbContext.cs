@@ -16,21 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using PortaleRegione.Domain;
 using System.Data.Entity;
+using PortaleRegione.Domain;
 
 namespace PortaleRegione.DataBase
 {
     /// <summary>
-    ///     Configurazione del contesto di accesso al Database
+    ///     Configurazione del contesto di accesso al database per il Portale Regione.
+    ///     Questa classe facilita l'interazione con il database, permettendo operazioni CRUD sui set di dati.
     /// </summary>
     public class PortaleRegioneDbContext : DbContext
     {
+        /// <summary>
+        ///     Inizializza una nuova istanza del contesto del database con la stringa di connessione specificata.
+        ///     Il lazy loading è disabilitato per migliorare le performance e prevenire il caricamento involontario di entità
+        ///     correlate.
+        /// </summary>
         public PortaleRegioneDbContext()
             : base("name=PortaleRegioneDbContext")
         {
             Configuration.LazyLoadingEnabled = false;
         }
+
+        // Di seguito, vengono definiti i set di dati per ogni tabella del database.
+        // Ogni DbSet rappresenta una collezione di entità che mappa una specifica tabella nel database.
 
         public virtual DbSet<ARTICOLI> ARTICOLI { get; set; }
         public virtual DbSet<ATTI> ATTI { get; set; }
@@ -80,16 +89,40 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_Conteggi_EM_Gruppi_Politici> View_Conteggi_EM_Gruppi_Politici { get; set; }
         public virtual DbSet<View_Conteggi_EM_Area_Politica> View_Conteggi_EM_Area_Politica { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }
+        public virtual DbSet<View_consiglieri_per_legislatura> View_consiglieri_per_legislatura { get; set; }
         public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
         public virtual DbSet<ATTI_DASI> DASI { get; set; } // DASI - Atti
         public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; } // DASI - Firme
-        public virtual DbSet<ATTI_DASI_CONTATORI> DASI_CONTATORI { get; set; } // DASI - Contatori per tipo atto e tipo risposta
-        public virtual DbSet<View_cariche_assessori_in_carica> View_cariche_assessori_in_carica { get; set; } // DASI - Soggetti interrogati
-        public virtual DbSet<ATTI_SOGGETTI_INTERROGATI> ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
+
+        public virtual DbSet<ATTI_DASI_CONTATORI>
+            DASI_CONTATORI { get; set; } // DASI - Contatori per tipo atto e tipo risposta
+
+        public virtual DbSet<View_cariche_assessori_in_carica>
+            View_cariche_assessori_in_carica { get; set; } // DASI - Soggetti interrogati
+
+        public virtual DbSet<View_cariche_assessori_per_legislatura> View_cariche_assessori_per_legislatura
+        {
+            get;
+            set;
+        } // DASI - Soggetti interrogati per legislatura
+
+        public virtual DbSet<ATTI_SOGGETTI_INTERROGATI>
+            ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
+
         public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
+
+        public virtual DbSet<View_Commissioni_per_legislatura>
+            View_Commissioni_per_legislatura { get; set; } // DASI - Commissioni per legislatura
+
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
 
+        /// <summary>
+        ///     Override del metodo OnModelCreating per configurare i modelli di entità quando il modello per questo contesto viene
+        ///     creato.
+        ///     Qui possono essere configurate le mappature delle tabelle, le relazioni e le convenzioni.
+        /// </summary>
+        /// <param name="modelBuilder">Il costruttore del modello per il contesto di database.</param>
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ARTICOLI>()

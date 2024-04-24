@@ -32,19 +32,33 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\Sorgenti Client\PortaleRegione.Client\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="PortaleRegione.Domain">
-      <HintPath>..\PortaleRegione.API\PortaleRegione.API\Bin\PortaleRegione.Domain.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\PortaleRegione.API\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +70,7 @@
     <Compile Include="Domain\AttoDASIDto.cs" />
     <Compile Include="Domain\CommissioneDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />
+    <Compile Include="Domain\Essentials\AttoDASILightDto.cs" />
     <Compile Include="Domain\Essentials\EmendamentoLightDto.cs" />
     <Compile Include="Domain\Essentials\MetaDatiEMDto.cs" />
     <Compile Include="Domain\Essentials\PersonaLightDto.cs" />
@@ -77,6 +92,7 @@
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
+    <Compile Include="Enum\ModuloStampaEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />
     <Compile Include="Enum\ReportTypeEnum.cs" />
     <Compile Include="Enum\StatiAttoCSSConst.cs" />
@@ -89,15 +105,19 @@
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
     <Compile Include="Enum\TipoMOZEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />
+    <Compile Include="Enum\TipoOrganoEnum.cs" />
     <Compile Include="Enum\TipoRichiestaEnum.cs" />
     <Compile Include="Enum\TipoRichiestaDestEnum.cs" />
+    <Compile Include="Enum\TipoVotazioneIterEnum.cs" />
     <Compile Include="Model\AdminGruppiModel.cs" />
     <Compile Include="Model\AD_ObjectModel.cs" />
     <Compile Include="Model\AllegatoMail.cs" />
     <Compile Include="Model\ArticoliModel.cs" />
+    <Compile Include="Model\AutenticazioneModel.cs" />
     <Compile Include="Model\BloccoODGModel.cs" />
     <Compile Include="Model\CardInvitoModel.cs" />
     <Compile Include="Model\CommiModel.cs" />
+    <Compile Include="Model\FilterItem.cs" />
     <Compile Include="Model\InfoModel.cs" />
     <Compile Include="Model\JollyODGModel.cs" />
     <Compile Include="Model\LettereModel.cs" />
@@ -149,8 +169,16 @@
     <Compile Include="Domain\TagDto.cs" />
     <Compile Include="Model\TestoAttoModel.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\NuovaStampaRequest.cs" />
+    <Compile Include="Request\FilterRequest.cs" />
     <Compile Include="Request\NuovoEmendamentoRequest.cs" />
     <Compile Include="Request\PersonaUpdateRequest.cs" />
+    <Compile Include="Request\Public\AttoRequest.cs" />
+    <Compile Include="Request\Public\CaricheRequest.cs" />
+    <Compile Include="Request\Public\CercaRequest.cs" />
+    <Compile Include="Request\Public\CommissioniRequest.cs" />
+    <Compile Include="Request\Public\FirmatariRequest.cs" />
+    <Compile Include="Request\Public\GruppiRequest.cs" />
     <Compile Include="Request\ResetRequest.cs" />
     <Compile Include="Request\SalvaGruppoRequest.cs" />
     <Compile Include="Request\StampaRequest.cs" />
@@ -168,14 +196,13 @@
     <Compile Include="Routes\ApiRoutes.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ExpressionBuilder\ExpressionBuilder.csproj">
       <Project>{70bf550d-5943-4162-8fab-0bba743a3d93}</Project>
       <Name>ExpressionBuilder</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

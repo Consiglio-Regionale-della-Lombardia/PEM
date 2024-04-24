@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -138,7 +137,7 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.GetBySeduta_Trattazione(id, (TipoAttoEnum)tipo, "", 1, 100);
-            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.Oggetto })
+            var items = model.Data.Results.Select(i => new KeyValueDto { sigla = i.Display, descr = i.OggettoView() })
                 .ToList();
             return Json(items, JsonRequestBehavior.AllowGet);
         }
@@ -307,7 +306,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -316,8 +314,11 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+
+                    if (model.Richiesta_Firma) // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/916
+                        request.param.Add("RequireMySign", "true");
+
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -501,19 +502,11 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                model.CurrentStatus =
-                    (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI)));
-                if (CurrentUser.IsSegreteriaAssemblea
-                    && model.CurrentStatus == StatiAttoEnum.BOZZA)
-                    model.CurrentStatus = StatiAttoEnum.PRESENTATO;
-
-                model.CurrentType =
-                    (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)));
-                await apiGateway.DASI.CambioStato(model);
-                if (model.All)
+                var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+                model.CurrentStatus = modelInCache.Stato;
+                model.CurrentType = modelInCache.Tipo;
+                if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
-                    var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
                         page = modelInCache.Data.Paging.Page,
@@ -521,8 +514,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -531,6 +523,7 @@ namespace PortaleRegione.Client.Controllers
                     model.Lista = list;
                 }
 
+                await apiGateway.DASI.CambioStato(model);
                 var url = Url.Action("RiepilogoDASI", new
                 {
                     stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
@@ -560,7 +553,6 @@ namespace PortaleRegione.Client.Controllers
 
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -569,8 +561,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -608,7 +599,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -617,8 +607,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -656,7 +645,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -665,8 +653,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -704,7 +691,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -713,8 +699,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -752,7 +737,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -761,8 +745,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -800,7 +783,6 @@ namespace PortaleRegione.Client.Controllers
                 var apiGateway = new ApiGateway(Token);
                 if (model.Tutti)
                 {
-                    var listaAtti = new RiepilogoDASIModel();
                     var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
                     var request = new BaseRequest<AttoDASIDto>
                     {
@@ -809,8 +791,7 @@ namespace PortaleRegione.Client.Controllers
                         filtro = modelInCache.Data.Filters,
                         param = new Dictionary<string, object> { { "CLIENT_MODE", (int)modelInCache.ClientMode } }
                     };
-                    listaAtti = await apiGateway.DASI.Get(request);
-                    var list = listaAtti.Data.Results.Select(a => a.UIDAtto).ToList();
+                    var list = await apiGateway.DASI.GetSoloIds(request);
 
                     if (model.Lista != null)
                         foreach (var guid in model.Lista)
@@ -939,13 +920,17 @@ namespace PortaleRegione.Client.Controllers
             try
             {
                 var apiGateway = new ApiGateway(Token);
-                var lista = new List<Guid>();
                 var model = Session["RiepilogoDASI"] as RiepilogoDASIModel;
-                lista.AddRange(model
-                    .Data
-                    .Results
-                    .Select(i => i.UIDAtto));
-                var file = await apiGateway.Esporta.EsportaXLSDASI(lista);
+
+                var request = new BaseRequest<AttoDASIDto>
+                {
+                    page = model.Data.Paging.Page,
+                    size = model.Data.Paging.Total,
+                    filtro = model.Data.Filters,
+                    param = new Dictionary<string, object> { { "CLIENT_MODE", (int)model.ClientMode } }
+                };
+                var soloIds = await apiGateway.DASI.GetSoloIds(request);
+                var file = await apiGateway.Esporta.EsportaXLSDASI(soloIds);
                 return Json(file.Url, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -1039,6 +1024,15 @@ namespace PortaleRegione.Client.Controllers
         {
             var apiGateway = new ApiGateway(Token);
             var modelInCache = Session["RiepilogoDASI"] as RiepilogoDASIModel;
+            if (modelInCache == null)
+            {
+                modelInCache = new RiepilogoDASIModel
+                {
+                    ClientMode = (ClientModeEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.CLIENT_MODE))),
+                    Stato = (StatiAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.STATO_DASI))),
+                    Tipo = (TipoAttoEnum)Convert.ToInt16(HttpContext.Cache.Get(GetCacheKey(CacheHelper.TIPO_DASI)))
+                };
+            }
 
             var view = Request.Form["view"];
 
@@ -1057,7 +1051,8 @@ namespace PortaleRegione.Client.Controllers
 
                 Session["RiepilogoDASI"] = resultPreview;
 
-                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo, (int)resultPreview.Stato,
+                SetCache(resultPreview.Data.Paging.Page, resultPreview.Data.Paging.Limit, (int)resultPreview.Tipo,
+                    (int)resultPreview.Stato,
                     Convert.ToInt16(view));
 
                 foreach (var atti in resultPreview.Data.Results)
@@ -1088,7 +1083,9 @@ namespace PortaleRegione.Client.Controllers
                     return View("RiepilogoDASI_Admin", resultPreview);
 
                 return View("RiepilogoDASI", resultPreview);
-            }else if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
+            }
+
+            if (Convert.ToInt16(view) == (int)ViewModeEnum.GRID && modelInCache.ViewMode == ViewModeEnum.PREVIEW)
             {
                 var request = new BaseRequest<AttoDASIDto>
                 {
@@ -1100,7 +1097,8 @@ namespace PortaleRegione.Client.Controllers
                 var resultGrid = await apiGateway.DASI.Get(request);
                 resultGrid.CurrentUser = CurrentUser;
                 resultGrid.ClientMode = modelInCache.ClientMode;
-                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo, (int)resultGrid.Stato,
+                SetCache(resultGrid.Data.Paging.Page, resultGrid.Data.Paging.Limit, (int)resultGrid.Tipo,
+                    (int)resultGrid.Stato,
                     Convert.ToInt16(view));
 
                 Session["RiepilogoDASI"] = resultGrid;

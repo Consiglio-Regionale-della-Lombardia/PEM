@@ -147,7 +147,7 @@ namespace PortaleRegione.BAL
             }
             catch (Exception e)
             {
-                throw e;
+                throw e;    
             }
         }
 

@@ -80,7 +80,6 @@ namespace PortaleRegione.Persistance
                     filtro2._statements.Add(f);
             }
 
-
             filtro2.BuildExpression(ref query);
 
             if (mode == ClientModeEnum.GRUPPI)
@@ -261,7 +260,7 @@ namespace PortaleRegione.Persistance
                 .CountAsync();
         }
 
-        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid sedutaId,
+        public async Task<int> Count(PersonaDto persona, TipoAttoEnum tipo, StatiAttoEnum stato, Guid? sedutaId,
             ClientModeEnum clientMode, Filter<ATTI_DASI> filtro, List<int> soggetti, List<Guid> proponenti, List<Guid> atti_da_firmare)
         {
             try
@@ -321,7 +320,10 @@ namespace PortaleRegione.Persistance
                 }
                 else
                 {
-                    query = query.Where(item => item.UIDSeduta == sedutaId && item.DataIscrizioneSeduta.HasValue);
+                    if (sedutaId.HasValue)
+                    {
+                        query = query.Where(item => item.UIDSeduta == sedutaId && item.DataIscrizioneSeduta.HasValue);
+                    }
                     if (stato != StatiAttoEnum.TUTTI) query = query.Where(item => item.IDStato == (int)stato);
                     if (tipo != TipoAttoEnum.TUTTI) query = query.Where(item => item.Tipo == (int)tipo);
                 }

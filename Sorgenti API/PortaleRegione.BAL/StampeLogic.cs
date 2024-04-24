@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace PortaleRegione.BAL
 {
@@ -197,6 +198,46 @@ namespace PortaleRegione.BAL
             }
 
             stampa.DASI = true;
+            var stampa_In_Db = stampa;
+            _unitOfWork.Stampe.Add(stampa_In_Db);
+
+            await _unitOfWork.CompleteAsync();
+
+            return stampa;
+        }
+
+        public async Task<StampaDto> InserisciStampa(NuovaStampaRequest request, PersonaDto persona)
+        {
+            var stampa = new StampaDto
+            {
+                DataRichiesta = DateTime.Now,
+                CurrentRole = (int)persona.CurrentRole,
+                UIDStampa = Guid.NewGuid(),
+                UIDUtenteRichiesta = persona.UID_persona,
+                Lock = false,
+                Tentativi = 0,
+                Query = JsonConvert.SerializeObject(request.Lista),
+                Da = request.Da,
+                A = request.A,
+                DASI = request.Modulo == ModuloStampaEnum.DASI,
+                Ordine = (int)request.Ordinamento
+            };
+
+            if (request.UIDAtto != Guid.Empty)
+            {
+                stampa.UIDAtto = request.UIDAtto;
+            }
+
+            if (stampa.A == 0 && stampa.Da == 0 && !stampa.UIDAtto.HasValue)
+            {
+                stampa.Scadenza = null;
+            }
+            else
+            {
+                stampa.Scadenza =
+                    DateTime.Now.AddDays(Convert.ToDouble(AppSettingsConfiguration.GiorniValiditaLink));
+            }
+
             var stampa_In_Db = stampa;
             _unitOfWork.Stampe.Add(stampa_In_Db);
 

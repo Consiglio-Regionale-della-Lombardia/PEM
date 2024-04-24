@@ -25,6 +25,7 @@ using PortaleRegione.DTO.Routes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Enum;
 
 namespace PortaleRegione.Gateway
 {
@@ -54,6 +55,18 @@ namespace PortaleRegione.Gateway
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.InserisciStampaDifferita}";
             var body = JsonConvert.SerializeObject(model);
+            return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
+        }
+        
+        public async Task<StampaDto> InserisciStampa(NuovaStampaRequest request)
+        {
+            var requestUrl = $"{apiUrl}/";
+            if (request.Modulo == ModuloStampaEnum.PEM)
+                requestUrl += $"{ApiRoutes.PEM.InserisciStampaMassiva}";
+            else if (request.Modulo == ModuloStampaEnum.DASI)
+                requestUrl += $"{ApiRoutes.DASI.InserisciStampaMassiva}";
+
+            var body = JsonConvert.SerializeObject(request);
             return JsonConvert.DeserializeObject<StampaDto>(await Post(requestUrl, body, _token));
         }
 

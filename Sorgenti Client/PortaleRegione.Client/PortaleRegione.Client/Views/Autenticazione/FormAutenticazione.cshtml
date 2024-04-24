@@ -1,6 +1,7 @@
 ﻿@using System.Configuration
+@using System.Reflection
 @using PortaleRegione.Client.Helpers
-@model PortaleRegione.DTO.Autenticazione.LoginRequest
+@model PortaleRegione.DTO.Model.AutenticazioneModel
 
 @{
     Layout = null;
@@ -49,7 +50,7 @@
                     </h4>
                 </div>
                 <div class="col s12">
-                    <h6>Presentazione Emendamenti</h6>
+                    <h6>@Html.Raw(AppSettingsConfiguration.NomePiattaforma)</h6>
                 </div>
             </div>
         </div>
@@ -58,14 +59,14 @@
             @Html.AntiForgeryToken()
             <div class="card-content">
                 <div class="form-group">
-                    @Html.LabelFor(s => s.Username)
-                    @Html.TextBoxFor(s => s.Username, new {@class = "form-control", maxlength = 50 })
-                    @Html.ValidationMessageFor(s => s.Username)
+                    @Html.LabelFor(s => s.LoginRequest.Username)
+                    @Html.TextBoxFor(s => s.LoginRequest.Username, new {@class = "form-control", maxlength = 50 })
+                    @Html.ValidationMessageFor(s => s.LoginRequest.Username)
                 </div>
                 <div class="form-group">
-                    @Html.LabelFor(s => s.Password)
-                    @Html.TextBoxFor(s => s.Password, new {@class = "form-control", type = "password", maxlength = 50 })
-                    @Html.ValidationMessageFor(s => s.Password)
+                    @Html.LabelFor(s => s.LoginRequest.Password)
+                    @Html.TextBoxFor(s => s.LoginRequest.Password, new {@class = "form-control", type = "password", maxlength = 50 })
+                    @Html.ValidationMessageFor(s => s.LoginRequest.Password)
                 </div>
             </div>
             <div class="card-action right-align">
@@ -74,17 +75,28 @@
                 </div>
 
                 @{
-                    if (!string.IsNullOrEmpty(Model.MessaggioErrore))
+                    if (!string.IsNullOrEmpty(Model.LoginRequest.MessaggioErrore))
                     {
                         <div class="center" style="padding-top: 20px">
                             <span class="field-validation-error">
-                                @Model.MessaggioErrore
+                                @Model.LoginRequest.MessaggioErrore
                             </span>
                         </div>
                     }
                 }
             </div>
         }
+    </div>
+</div>
+
+<div class="row" style="max-width: 500px">
+    <div class="col s12 center">
+        <div class="card">
+            <div class="card-content">
+				<b>versione @Model.versione</b>
+            </div>
+        </div>
+        
     </div>
 </div>
 

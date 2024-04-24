@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Http;
 using AutoMapper;
 using PortaleRegione.API.Helpers;
 using PortaleRegione.BAL;
@@ -27,10 +31,6 @@ using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -62,9 +62,11 @@ namespace PortaleRegione.API.Controllers
         public DASIController(IUnitOfWork unitOfWork, AuthLogic authLogic, PersoneLogic personeLogic,
             LegislatureLogic legislatureLogic, SeduteLogic seduteLogic, AttiLogic attiLogic, DASILogic dasiLogic,
             FirmeLogic firmeLogic, AttiFirmeLogic attiFirmeLogic, EmendamentiLogic emendamentiLogic,
-            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic, StampeLogic stampeLogic,
+            EMPublicLogic publicLogic, NotificheLogic notificheLogic, EsportaLogic esportaLogic,
+            StampeLogic stampeLogic,
             UtilsLogic utilsLogic, AdminLogic adminLogic) : base(unitOfWork, authLogic, personeLogic, legislatureLogic,
-            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic, notificheLogic,
+            seduteLogic, attiLogic, dasiLogic, firmeLogic, attiFirmeLogic, emendamentiLogic, publicLogic,
+            notificheLogic,
             esportaLogic, stampeLogic, utilsLogic, adminLogic)
         {
         }
@@ -103,9 +105,7 @@ namespace PortaleRegione.API.Controllers
                 if (atto == null) return NotFound();
                 var currentUser = CurrentUser;
                 if (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea)
-                {
                     return NotFound();
-                }
 
                 var countFirme = await _attiFirmeLogic.CountFirme(id);
                 if (countFirme > 1)
@@ -164,7 +164,7 @@ namespace PortaleRegione.API.Controllers
         }
 
         /// <summary>
-        ///  Endpoint per cambiare la priorità di una firma
+        ///     Endpoint per cambiare la priorità di una firma
         /// </summary>
         /// <param name="firma"></param>
         /// <returns></returns>
@@ -221,9 +221,27 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var response = await _dasiLogic.Get(request, CurrentUser, Request.RequestUri);
+                return Ok(await _dasiLogic.Get(request, CurrentUser, Request.RequestUri));
+            }
+            catch (Exception e)
+            {
+                Log.Error("Riepilogo Atti DASI", e);
+                return ErrorHandler(e);
+            }
+        }
 
-                return Ok(response);
+        /// <summary>
+        ///     Endpoint per avere il riepilogo filtrato di atti
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.GetAll_SoloIds)]
+        public async Task<IHttpActionResult> RiepilogoSoloGuids(BaseRequest<AttoDASIDto> request)
+        {
+            try
+            {
+                return Ok(await _dasiLogic.GetSoloIds(request, CurrentUser, Request.RequestUri));
             }
             catch (Exception e)
             {
@@ -586,7 +604,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                return Ok(await _dasiLogic.ModificaStato(model, CurrentUser));
+                return Ok(await _dasiLogic.ModificaStato(model));
             }
             catch (Exception e)
             {
@@ -673,7 +691,6 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-
                 await _dasiLogic.RimuoviRichiesta(model, CurrentUser);
                 return Ok();
             }
@@ -1003,7 +1020,28 @@ namespace PortaleRegione.API.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Download", e);
+                Log.Error("Inserisci stampa", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per accodare una stampa DASI massiva
+        /// </summary>
+        /// <param name="model">Modello specifico per richiesta stampa</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.InserisciStampaMassiva)]
+        public async Task<IHttpActionResult> InserisciStampaMassivaDASI(NuovaStampaRequest request)
+        {
+            try
+            {
+                var result = await _stampeLogic.InserisciStampa(request, CurrentUser);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Inserisci stampa", e);
                 return ErrorHandler(e);
             }
         }
