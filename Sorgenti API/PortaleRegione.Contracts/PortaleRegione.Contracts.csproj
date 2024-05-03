@@ -42,6 +42,7 @@
     <Compile Include="ICommiRepository.cs" />
     <Compile Include="IDASIRepository.cs" />
     <Compile Include="IEmendamentiRepository.cs" />
+    <Compile Include="IFiltriRepository.cs" />
     <Compile Include="IFirmeRepository.cs" />
     <Compile Include="IGruppiRepository.cs" />
     <Compile Include="ILegislatureRepository.cs" />

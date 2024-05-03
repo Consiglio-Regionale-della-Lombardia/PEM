@@ -454,7 +454,7 @@ namespace PortaleRegione.API.Controllers
 
             return responseModel;
         }
-        
+
         public async Task<List<Guid>> GetSoloIds(BaseRequest<AttoDASIDto> model, PersonaDto persona, Uri uri)
         {
             model.param.TryGetValue("CLIENT_MODE", out var CLIENT_MODE); // per trattazione aula
@@ -1498,7 +1498,7 @@ namespace PortaleRegione.API.Controllers
                         var dataOdierna = DateTime.Now;
                         // https://github.com/Consiglio-Regionale-della-Lombardia/PEM/issues/919
                         var dataSedutaPerODG = new DateTime(
-                            seduta.Data_seduta.Year, 
+                            seduta.Data_seduta.Year,
                             seduta.Data_seduta.Month,
                             seduta.Data_seduta.Day);
 
@@ -2703,6 +2703,7 @@ namespace PortaleRegione.API.Controllers
             {
                 Log.Error("Logic - Count DASI By JsonQuery", e);
             }
+
             try
             {
                 return await _unitOfWork.DASI.CountByQuery(model);
@@ -2719,7 +2720,7 @@ namespace PortaleRegione.API.Controllers
             try
             {
                 var atti = new List<Guid>();
-                
+
                 try
                 {
                     atti = JsonConvert.DeserializeObject<List<Guid>>(model.Query);
@@ -3246,6 +3247,42 @@ namespace PortaleRegione.API.Controllers
                 if (listaErroriFirma.Count > 0)
                     throw new Exception($"{listaErroriFirma.Aggregate((i, j) => i + ", " + j)}");
             }
+        }
+
+        public async Task SalvaGruppoFiltri(FiltroPreferitoDto request, PersonaDto currentUser)
+        {
+            if (string.IsNullOrEmpty(request.name))
+            {
+                throw new Exception("E' necessario dare un nome al filtro che si vuole salvare.");
+            }
+
+            var filtro = new FILTRI
+            {
+                UId_persona = currentUser.UID_persona,
+                Filtri = request.filters,
+                Nome = request.name,
+                Preferito = request.favourite
+            };
+
+            _unitOfWork.Filtri.Add(filtro);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri(PersonaDto currentUser)
+        {
+            var listFromDb = await _unitOfWork.Filtri.GetByUser(currentUser.UID_persona);
+            var res = new List<FiltroPreferitoDto>();
+            foreach (var f in listFromDb)
+            {
+                res.Add(new FiltroPreferitoDto
+                {
+                    name = f.Nome,
+                    favourite = f.Preferito,
+                    filters = f.Filtri
+                });
+            }
+
+            return res;
         }
     }
 }

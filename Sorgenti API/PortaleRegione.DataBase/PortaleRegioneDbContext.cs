@@ -116,6 +116,7 @@ namespace PortaleRegione.DataBase
 
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
+        public virtual DbSet<FILTRI> FILTRI { get; set; } // Elenco tags per emendamenti
 
         /// <summary>
         ///     Override del metodo OnModelCreating per configurare i modelli di entità quando il modello per questo contesto viene

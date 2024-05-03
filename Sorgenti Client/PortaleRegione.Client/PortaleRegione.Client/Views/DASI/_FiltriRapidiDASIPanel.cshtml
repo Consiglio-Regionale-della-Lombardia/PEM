@@ -1,24 +1,116 @@
 ﻿@using PortaleRegione.Common
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
-@using Microsoft.Ajax.Utilities
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
-<div class="card">
-    <div class="card-content">
+<div class="row">
+    <div class="input-field col s12">
+        <i class="material-icons prefix">search</i>
+        <input type="text" id="autocomplete-input" class="autocomplete">
+        <label for="autocomplete-input">Ricerca filtri disponibili</label>
+    </div>
+</div>
+<div class="row">
+    <div class="col l8 m12 s12 left-align">
+        <div id="chips-container"></div>
+        <br/>
+        <div id="chips-container-groups"></div>
+    </div>
+    <div class="col l4 m12 s12 right-align">
+        <a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
+        <a class="btn-flat pink-text">Configura report</a>
+    </div>
+</div>
+
+<div id="modalReportConfig" class="modal">
+    <div class="modal-content">
+        <h4>Report</h4>
+        <p>Configuratore report</p>
+
         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix">textsms</i>
-                <input type="text" id="autocomplete-input" class="autocomplete">
-                <label for="autocomplete-input">Ricerca filtri disponibili</label>
+                <input placeholder="Placeholder" id="first_name" type="text" class="validate">
+                <label for="first_name">Nome report</label>
             </div>
         </div>
         <div class="row">
-            <div class="col l12 m12 s12 left-align">
-                <div id="chips-container">
-                </div>
+            <div class="input-field col s12">
+                <select>
+                    <option value="" disabled selected>Scegli la copertina</option>
+                    <option value="1">Copertina 1</option>
+                    <option value="2">Copertina 2</option>
+                    <option value="3">Copertina 3</option>
+                </select>
+                <label>Copertina</label>
             </div>
         </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <select>
+                    <option value="" disabled selected>Scegli visualizzazione</option>
+                    <option value="1">Griglia</option>
+                    <option value="2">Card</option>
+                </select>
+                <label>Visualizzazione dati</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <select multiple>
+                    <option value="" disabled selected>Scegli colonne</option>
+                    <option value="1">Colonna 1</option>
+                    <option value="2">Colonna 2</option>
+                    <option value="3">Colonna 3</option>
+                </select>
+                <label>Colonne da visualizzare</label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="btn blue waves-effect waves-green btn-flat">Salva</a>
+        <a href="#!" class="btn pink modal-close waves-effect waves-green btn-flat">Genera report</a>
+    </div>
+</div>
+<div id="modalFiltroConfig" class="modal">
+    <div class="modal-content">
+        <h4>Filtro</h4>
+        <div id="chips-container-config">
+
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <input placeholder="Placeholder" id="filter_name" type="text" class="validate">
+                <label for="first_name">Nome filtro</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <p>
+                    <label>
+                        <input id="filter_favourite" type="checkbox"/>
+                        <span>Preferito</span>
+                    </label>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a id="btnSalvaConfig" class="blue-text waves-effect waves-green btn-flat">Salva</a>
+    </div>
+</div>
+
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <h4>Dettaglio ricerca</h4>
+        <h5 id="modal-content"></h5>
+        <input id="modal-filter-id-hidden" type="hidden"/>
+        <div id="dynamic-select-container"></div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
+        <a id="addFiltersButton" class="btn blue">Aggiungi</a>
     </div>
 </div>
 
@@ -47,8 +139,6 @@ var availableFilterArray = [
 	    var request = {};
 		var chipsData = [];
 		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
-			// Supponendo che il testo della chip sia l'identificativo desiderato
-			// Nota: potresti dover adattare questa logica a seconda della struttura delle tue chips
 			chipsData.push({
 				property: chip.getAttribute('data-filterby'),
 				value: chip.getAttribute('data-val')
@@ -62,11 +152,11 @@ var availableFilterArray = [
 
 			// Invia la richiesta al server
 			const response = await fetch('@Url.Action("Riepilogo")', {
-				method: 'POST', // o 'GET', a seconda del tuo caso d'uso
+				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(request), // Invia i dati nel formato desiderato
+				body: JSON.stringify(request),
 			});
 
 			if (!response.ok) {
@@ -74,8 +164,6 @@ var availableFilterArray = [
 			}
 
 			const responseData = await response.json();
-			console.log(responseData); // Gestisci la risposta del server come necessario
-
 			if (responseData.message){
 				ErrorAlert(responseData.message);
 				return;
@@ -287,30 +375,15 @@ var availableFilterArray = [
 		});
 	}
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+	
+	var filtriPreferitiArray = [];
     var chipsKeys = {};
 	document.getElementById('loadingSpinner').style.display = 'none';
 
 	ripristinaFiltri();
-
-	var collection = document.getElementById('data-collection');
-	availableFilterArray.forEach(function (item) {
-		var li = document.createElement('li');
-		li.className = 'collection-item';
-		li.textContent = item.tag;
-
-		// Crea il secondary-content con un'icona per aggiungere la chip
-		var addIcon = document.createElement('i');
-		addIcon.className = 'material-icons secondary-content';
-		addIcon.textContent = 'add_circle';
-		addIcon.onclick = function (event) {
-			event.stopPropagation();
-			openModalWithContent(item.id, item.tag, false, 0);
-		};
-
-		li.appendChild(addIcon);
-		collection.appendChild(li);
-	});
+	await ripristinaPreferiti();
+	creaPannelloFiltriLaterale();
 
     document.getElementById('addFiltersButton').addEventListener('click', function () {
 		var key = document.getElementById('modal-filter-id-hidden').value;
@@ -333,9 +406,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 	    addChipIfNotExists(key, keyLabel, val, text, chipText, true);
-
+		resetSelezionePreferiti();
 	    // Chiudi la modal
 	    $('#infoModal').modal("close");
+    });
+	document.getElementById('btnFiltroConfig').addEventListener('click', function () {
+	    openModalWithContent_Preferiti("", localStorage.getItem('filtriDasi'));
+    });
+
+    document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
+        var request = {};
+	    var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        request.filters = JSON.stringify(filtri);
+        request.name = document.getElementById('filter_name').value;
+        request.favourite = document.getElementById('filter_favourite').checked;
+
+        // Invia la richiesta al server
+        const response = await fetch('@Url.Action("SalvaGruppoFiltri")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+	    const data = await response.json();
+	    if(data.message){
+	        ErrorAlert(data.message);
+		    return;
+	    }
+
+	    addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
+
+        $('#modalFiltroConfig').modal("close");
     });
 
     var elems = document.querySelectorAll('#autocomplete-input');
@@ -359,6 +466,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		    }
 	    }
     });
+
+	function openModalWithContent_Preferiti(name, filters){
+		$('#filter_name').val(name);
+		$('#chips-container-config').empty();
+		const filtri = JSON.parse(filters);
+		if (filtri) {
+			filtri.forEach(function (filtro) {
+				addChipConfig(filtro.chipText);
+			});
+		}
+		$('#modalFiltroConfig').modal("open");
+	}
 
     function openModalWithContent(key, txt, isEditing, currentValue){
 	    document.getElementById('autocomplete-input').value = "";
@@ -447,6 +566,59 @@ document.addEventListener('DOMContentLoaded', function() {
 	    $('#infoModal').modal("open");
     }
 
+	function addChipConfig(chipText) {
+		var chipsContainer = document.getElementById('chips-container-config');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'yellow', 'black-text');
+		newChip.textContent = chipText;
+
+		chipsContainer.appendChild(newChip);
+	}
+
+	function addChipIfNotExists_Preferiti(name, filters, favourite) {
+
+		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
+
+		if (existingChip) {
+		    return;
+        }
+		var item = {};
+		item.name = name;
+		item.favourite = favourite;
+		item.filters = filters;
+		filtriPreferitiArray.push(item);
+
+		creaPannelloFiltriLaterale();
+
+		if (favourite == false){
+		    return;
+		}
+		var chipsContainer = document.getElementById('chips-container-groups');
+		var newChip = document.createElement('div');
+		newChip.classList.add('chip', 'white', 'black-text');
+		newChip.setAttribute('data-nome-gruppo-filtri', name);
+		newChip.textContent = name;
+		
+		var starIcon = document.createElement('i');
+        starIcon.classList.add('material-icons', 'tiny');
+        starIcon.style.setProperty('margin-left', '10px');
+        starIcon.style.setProperty('top', '2px');
+        starIcon.textContent = 'star';
+        newChip.appendChild(starIcon);
+				
+		newChip.onclick = function (event) {
+	        event.stopPropagation();
+	        resetSelezionePreferiti();
+	        newChip.classList.replace("white", "yellow");
+	        localStorage.setItem('filtriDasi', filters);
+	        chipsKeys = [];
+	        $('#chips-container').empty();
+	        ripristinaFiltri();
+        };
+
+		chipsContainer.appendChild(newChip);
+	}
+
     function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
 
 		var existingChip = document.querySelector(`.chip[data-filterby="${key}"]`);
@@ -475,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			existingChip.textContent = chipText;
 			addIconsToChip(existingChip, key, keyLabel, val);
 	    }
-		console.log("salva")
+
 		salvaFiltri();
 
 		if (refresh) {
@@ -504,6 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		closeIcon.onclick = function () {
 			delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
 			chip.remove();
+			resetSelezionePreferiti();
 			salvaFiltri();
 			inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
 		};
@@ -522,7 +695,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			chipTextContent.querySelectorAll('.material-icons').forEach(icon => icon.remove()); // Rimuovi le icone
 			const chipText = chipTextContent.textContent.trim(); // Ottieni il testo pulito
 
-			console.log(key, keyLabel, val, label, chipText);
 			filtri.push({
 				key: key,
 				keyLabel: keyLabel,
@@ -543,25 +715,88 @@ document.addEventListener('DOMContentLoaded', function() {
 			inviaDatiChips(1, 20);
 		}
     }
+
+	async function ripristinaPreferiti(){
+	    var filtri = await GetFiltriPreferitiDASI();
+		filtriPreferitiArray = [];
+		$.each(filtri, function(index, item){
+		    addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
+		});		
+	}
+
+	function resetSelezionePreferiti(){
+		var chipsContainer = document.getElementById('chips-container-groups');
+		var chips = chipsContainer.getElementsByClassName('chip');
+		$.each(chips, function (index, chip) {
+			chip.className = 'chip white black-text';
+		});
+	}
+
+    function filterByPage(page){
+	    inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
+    }
+
+    function filterBySize(page, size){
+	    inviaDatiChips(page, size);
+    }
+	
+	function creaPannelloFiltriLaterale() {
+	    var collection = document.getElementById('data-collection');
+	    $('#data-collection').empty();
+	    filtriPreferitiArray.forEach(function (item) {
+		    var li = document.createElement('li');
+		    li.className = 'collection-item badgeCollectionFilter';
+		    li.textContent = item.name;
+
+		    
+			var deleteIcon = document.createElement('i');
+            deleteIcon.className = 'material-icons secondary-content';
+			if (item.favourite == true) {
+			    deleteIcon.textContent = 'trash';
+			    deleteIcon.classList.add('red-text');
+		    } else {
+			    
+		    }
+			
+			li.appendChild(deleteIcon);
+
+		    var addIcon = document.createElement('i');
+			addIcon.className = 'material-icons secondary-content';
+		    
+		    if (item.favourite == true) {
+			    addIcon.textContent = 'star';
+			    addIcon.classList.add('yellow-text');
+		    } else {
+			    addIcon.textContent = 'add_circle';
+		    }
+			
+			addIcon.onclick = function (event) {
+                event.stopPropagation();
+
+            };
+
+            li.appendChild(addIcon);
+			
+		    collection.appendChild(li);
+	    });
+
+	    availableFilterArray.forEach(function (item) {
+		    var li = document.createElement('li');
+		    li.className = 'collection-item';
+		    li.textContent = item.tag;
+
+		    // Crea il secondary-content con un'icona per aggiungere la chip
+		    var addIcon = document.createElement('i');
+		    addIcon.className = 'material-icons secondary-content';
+		    addIcon.textContent = 'add_circle';
+		    addIcon.onclick = function (event) {
+			    event.stopPropagation();
+			    openModalWithContent(item.id, item.tag, false, 0);
+		    };
+
+		    li.appendChild(addIcon);
+		    collection.appendChild(li);
+	    });
+    }
 });
-
-function filterByPage(page){
-	inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
-}
-	function filterBySize(page, size){
-	inviaDatiChips(page, size);
-}
 </script>
-
-<div id="infoModal" class="modal">
-	<div class="modal-content">
-		<h4>Dettaglio ricerca</h4>
-		<h5 id="modal-content"></h5>
-		<input id="modal-filter-id-hidden" type="hidden" />
-		<div id="dynamic-select-container"></div>
-	</div>
-	<div class="modal-footer">
-		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-		<a id="addFiltersButton" class="btn blue">Aggiungi</a>
-	</div>
-</div>

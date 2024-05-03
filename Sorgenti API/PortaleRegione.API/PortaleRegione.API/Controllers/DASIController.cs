@@ -1045,5 +1045,49 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per salvare un gruppo di filtri
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SalvaFiltriPreferiti)]
+        public async Task<IHttpActionResult> SalvaGruppoFiltri(FiltroPreferitoDto request)
+        {
+            try
+            {
+                await _dasiLogic.SalvaGruppoFiltri(request, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva gruppo di filtri", e);
+                return ErrorHandler(e);
+            }
+        }
+        
+        /// <summary>
+        ///     Endpoint per avere il proprio gruppo di filtri preferito
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetFiltriPreferiti)]
+        public async Task<IHttpActionResult> GetGruppoFiltri()
+        {
+            try
+            {
+                List<FiltroPreferitoDto> res = await _dasiLogic.GetGruppoFiltri(CurrentUser);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get filtri preferiti", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

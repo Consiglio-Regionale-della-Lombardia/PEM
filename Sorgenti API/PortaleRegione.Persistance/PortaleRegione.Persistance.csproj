@@ -93,6 +93,7 @@
     <Compile Include="DASIRepository.cs" />
     <Compile Include="EmendamentiRepository.cs" />
     <Compile Include="ExpressionExtensions.cs" />
+    <Compile Include="FiltriRepository.cs" />
     <Compile Include="FirmeRepository.cs" />
     <Compile Include="GruppiRepository.cs" />
     <Compile Include="CommiRepository.cs" />

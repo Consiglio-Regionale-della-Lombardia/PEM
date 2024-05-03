@@ -565,6 +565,20 @@ namespace PortaleRegione.Gateway
             await Post(requestUrl, body, _token);
         }
 
+        public async Task SalvaGruppoFiltri(FiltroPreferitoDto model)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SalvaFiltriPreferiti}";
+            var body = JsonConvert.SerializeObject(model);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task<List<FiltroPreferitoDto>> GetGruppoFiltri()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetFiltriPreferiti}";
+            var lst = JsonConvert.DeserializeObject<List<FiltroPreferitoDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

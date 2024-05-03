@@ -48,6 +48,7 @@
     <Compile Include="cariche.cs" />
     <Compile Include="COMMI.cs" />
     <Compile Include="EM.cs" />
+    <Compile Include="FILTRI.cs" />
     <Compile Include="FIRME.cs" />
     <Compile Include="gruppi_politici.cs" />
     <Compile Include="join_gruppi_politici_legislature.cs" />
