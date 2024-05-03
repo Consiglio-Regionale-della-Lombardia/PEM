@@ -74,7 +74,7 @@ else
                 var onclick_event = "";
                 if (item.IDStato != (int)StatiAttoEnum.BOZZA_CARTACEA)
                 {
-                    onclick_event = $"onclick=\"goIntoOtherTab('{urlViewAtto}')\"";
+                    onclick_event = $"onclick=\"goIntoOtherTabWithName('{urlViewAtto}', \"{Model.CurrentUser.DisplayName}\", \"{Model.CurrentUser.Gruppo.codice_gruppo}\")\"";
                 }
             }
 

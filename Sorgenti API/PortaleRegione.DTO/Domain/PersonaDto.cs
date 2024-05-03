@@ -25,6 +25,11 @@ namespace PortaleRegione.DTO.Domain
 {
     public class PersonaDto
     {
+        public PersonaDto()
+        {
+            Gruppo = new GruppiDto();
+        }
+
         //Parametro valorizzato solo da pannello amministrativo
         public string GruppiAD;
 
