@@ -61,9 +61,8 @@
 	</div>
 </div>
 <hr />
-@if (Model.ClientMode == ClientModeEnum.GRUPPI)
-{
-	Html.RenderPartial("_FiltriRapidiDASIPanel", Model);
+@{
+    Html.RenderPartial("Filtri/_FiltriRapidiDASIPanel", Model);
 }
 
 <div class="card">

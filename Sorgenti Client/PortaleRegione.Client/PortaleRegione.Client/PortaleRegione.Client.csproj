@@ -484,7 +484,10 @@
     <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.7.1.min.map" />
     <Content Include="Views\DASI\AttoDASIView_Admin.cshtml" />
-    <Content Include="Views\DASI\_FiltriRapidiDASIPanel.cshtml" />
+    <Content Include="Views\DASI\Filtri\_FiltriRapidiDASIPanel.cshtml" />
+    <Content Include="Views\DASI\Filtri\_ReportConfigModal.cshtml" />
+    <Content Include="Views\DASI\Filtri\_FiltroConfiModal.cshtml" />
+    <Content Include="Views\DASI\Filtri\_DettaglioFiltroModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

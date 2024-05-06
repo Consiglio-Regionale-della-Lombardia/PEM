@@ -4,114 +4,22 @@
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 <div class="row">
-    <div class="input-field col s12">
-        <i class="material-icons prefix">search</i>
-        <input type="text" id="autocomplete-input" class="autocomplete">
-        <label for="autocomplete-input">Ricerca filtri disponibili</label>
-    </div>
+	<div class="input-field col s12">
+		<i class="material-icons prefix">search</i>
+		<input type="text" id="autocomplete-input" class="autocomplete">
+		<label for="autocomplete-input">Ricerca filtri disponibili</label>
+	</div>
 </div>
 <div class="row">
-    <div class="col l8 m12 s12 left-align">
-        <div id="chips-container"></div>
-        <br/>
-        <div id="chips-container-groups"></div>
-    </div>
-    <div class="col l4 m12 s12 right-align">
-        <a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
-        <a class="btn-flat pink-text">Configura report</a>
-    </div>
-</div>
-
-<div id="modalReportConfig" class="modal">
-    <div class="modal-content">
-        <h4>Report</h4>
-        <p>Configuratore report</p>
-
-        <div class="row">
-            <div class="input-field col s12">
-                <input placeholder="Placeholder" id="first_name" type="text" class="validate">
-                <label for="first_name">Nome report</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <select>
-                    <option value="" disabled selected>Scegli la copertina</option>
-                    <option value="1">Copertina 1</option>
-                    <option value="2">Copertina 2</option>
-                    <option value="3">Copertina 3</option>
-                </select>
-                <label>Copertina</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <select>
-                    <option value="" disabled selected>Scegli visualizzazione</option>
-                    <option value="1">Griglia</option>
-                    <option value="2">Card</option>
-                </select>
-                <label>Visualizzazione dati</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <select multiple>
-                    <option value="" disabled selected>Scegli colonne</option>
-                    <option value="1">Colonna 1</option>
-                    <option value="2">Colonna 2</option>
-                    <option value="3">Colonna 3</option>
-                </select>
-                <label>Colonne da visualizzare</label>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="btn blue waves-effect waves-green btn-flat">Salva</a>
-        <a href="#!" class="btn pink modal-close waves-effect waves-green btn-flat">Genera report</a>
-    </div>
-</div>
-<div id="modalFiltroConfig" class="modal">
-    <div class="modal-content">
-        <h4>Filtro</h4>
-        <div id="chips-container-config">
-
-        </div>
-
-        <div class="row">
-            <div class="input-field col s12">
-                <input placeholder="Placeholder" id="filter_name" type="text" class="validate">
-                <label for="first_name">Nome filtro</label>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="input-field col s12">
-                <p>
-                    <label>
-                        <input id="filter_favourite" type="checkbox"/>
-                        <span>Preferito</span>
-                    </label>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a id="btnSalvaConfig" class="blue-text waves-effect waves-green btn-flat">Salva</a>
-    </div>
-</div>
-
-<div id="infoModal" class="modal">
-    <div class="modal-content">
-        <h4>Dettaglio ricerca</h4>
-        <h5 id="modal-content"></h5>
-        <input id="modal-filter-id-hidden" type="hidden"/>
-        <div id="dynamic-select-container"></div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Chiudi</a>
-        <a id="addFiltersButton" class="btn blue">Aggiungi</a>
-    </div>
+	<div class="col l8 m12 s12 left-align">
+		<div id="chips-container"></div>
+		<br />
+		<div id="chips-container-groups"></div>
+	</div>
+	<div class="col l4 m12 s12 right-align">
+		<a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
+		<a class="btn-flat pink-text">Configura report</a>
+	</div>
 </div>
 
 <!-- Modal Structure -->
@@ -413,7 +321,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 	document.getElementById('btnFiltroConfig').addEventListener('click', function () {
 	    openModalWithContent_Preferiti("", localStorage.getItem('filtriDasi'));
     });
-
     document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
         var request = {};
 	    var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
@@ -470,6 +377,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
 	function openModalWithContent_Preferiti(name, filters){
+		$('#filter_favourite').prop("checked", false);
 		$('#filter_name').val(name);
 		$('#chips-container-config').empty();
 		const filtri = JSON.parse(filters);
@@ -591,10 +499,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 		filtriPreferitiArray.push(item);
 
 		creaPannelloFiltriLaterale();
-
-		if (favourite == false){
-		    return;
+		
+		if (!favourite) {
+			return;
 		}
+
 		var chipsContainer = document.getElementById('chips-container-groups');
 		var newChip = document.createElement('div');
 		newChip.classList.add('chip', 'white', 'black-text');
@@ -747,7 +656,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 	    $('#data-collection').empty();
 	    filtriPreferitiArray.forEach(function (item) {
 		    var li = document.createElement('li');
-		    li.className = 'collection-item badgeCollectionFilter';
+			if (item.favourite){
+				li.className = 'collection-item badgeStarCollectionFilter';
+			}else {
+				li.className = 'collection-item badgeCollectionFilter';
+			}
+		    
 		    li.textContent = item.name;
 
 		    var addIcon = document.createElement('i');
@@ -755,8 +669,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 			addIcon.textContent = 'add_circle';
 
 			addIcon.onclick = function (event) {
-                event.stopPropagation();
-				$(`[data-nome-gruppo-filtri="${item.name}"]`).click();
+                event.stopPropagation();	
+				
+				if (item.favourite){
+					$(`[data-nome-gruppo-filtri="${item.name}"]`).click();
+				}else {
+					resetSelezionePreferiti();
+					localStorage.setItem('filtriDasi', item.filters);
+					chipsKeys = [];
+					$('#chips-container').empty();
+					ripristinaFiltri();
+				}
             };
 
             li.appendChild(addIcon);
@@ -794,8 +717,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 							M.toast({
 								html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
 
-							await ripristinaPreferiti();
-							creaPannelloFiltriLaterale();
+							li.remove();
+							var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
+							
+							if (indexToRemove !== -1) {
+								filtriPreferitiArray.splice(indexToRemove, 1);
+							}
+							$(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
 						} catch (error) {
 							console.error('Errore di fetch:', error);
 							ErrorAlert(error.message);
@@ -827,3 +755,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 </script>
+
+
+@{
+	Html.RenderPartial("Filtri/_DettaglioFiltroModal", Model);
+	Html.RenderPartial("Filtri/_FiltroConfiModal", Model);
+	Html.RenderPartial("Filtri/_ReportConfigModal", Model);
+}

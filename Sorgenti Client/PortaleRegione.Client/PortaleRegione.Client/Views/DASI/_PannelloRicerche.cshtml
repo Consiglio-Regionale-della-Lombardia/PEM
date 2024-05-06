@@ -19,29 +19,41 @@
         font-weight: bold;
         min-width: unset !important;
     }
+    
+    .badgeStarCollectionFilter {
+        background-color: black;
+        border-left: 1em solid yellow;
+        color: black;
+        font-weight: bold;
+        min-width: unset !important;
+    }
 
 </style>
 <div id="slide-dasi-DX" class="sidenav sidenav-search" style="overflow: auto !important">
     
     <div class="row">
         <div class="col s12">
-            <h4>
-                <b>Filtri disponibili</b>
-            </h4>
-            <hr/>
-        </div>
-    </div>
-    <div class="row">
-        <div class="input-field col s12">
-            <i class="material-icons prefix">search</i>
-            <input id="search-input" type="text" placeholder="Cerca...">
-        </div>
-        <div class="col s12">
-            <ul id="data-collection" class="collection">
-                <!-- Gli elementi della lista saranno aggiunti dinamicamente qui -->
+            <ul class="tabs">
+                <li class="tab col s6"><a class="active" href="#test1">Filtri</a></li>
+                <li class="tab col s6"><a href="#test2">Report</a></li>
             </ul>
         </div>
+        <div id="test1" class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">search</i>
+                    <input id="search-input" type="text" placeholder="Cerca...">
+                </div>
+                <div class="col s12">
+                    <ul id="data-collection" class="collection">
+                        <!-- Gli elementi della lista saranno aggiunti dinamicamente qui -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="test2" class="col s12">Test 2</div>
     </div>
+
 </div>
 
 <script>

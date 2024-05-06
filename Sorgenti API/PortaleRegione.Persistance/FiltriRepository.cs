@@ -21,7 +21,7 @@ namespace PortaleRegione.Persistance
         {
             var res = await PRContext.FILTRI
                 .Where(f => f.UId_persona.Equals(uidPersona))
-                .OrderBy(f => f.Preferito)
+                .OrderByDescending(f => f.Preferito)
                 .ThenBy(f => f.Nome)
                 .ToListAsync();
             return res;
