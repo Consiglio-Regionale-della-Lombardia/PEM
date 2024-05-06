@@ -3284,5 +3284,12 @@ namespace PortaleRegione.API.Controllers
 
             return res;
         }
+
+        public async Task EliminaGruppoFiltri(string nomeFiltro, PersonaDto currentUser)
+        {
+            var filtro = await _unitOfWork.Filtri.Get(nomeFiltro, currentUser.UID_persona);
+            _unitOfWork.Filtri.Remove(filtro);
+            await _unitOfWork.CompleteAsync();
+        }
     }
 }

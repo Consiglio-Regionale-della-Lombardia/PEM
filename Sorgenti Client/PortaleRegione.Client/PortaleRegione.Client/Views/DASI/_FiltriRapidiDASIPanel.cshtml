@@ -376,7 +376,7 @@ var availableFilterArray = [
 	}
 
 document.addEventListener('DOMContentLoaded', async function() {
-	
+
 	var filtriPreferitiArray = [];
     var chipsKeys = {};
 	document.getElementById('loadingSpinner').style.display = 'none';
@@ -441,6 +441,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 	    }
 
 	    addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
+		M.toast({
+			html: `<span><b class="yellow-text">${request.name}</b> aggiunto con successo</span>`, classes: 'rounded', displayLength: 5000 });
 
         $('#modalFiltroConfig').modal("close");
     });
@@ -598,14 +600,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 		newChip.classList.add('chip', 'white', 'black-text');
 		newChip.setAttribute('data-nome-gruppo-filtri', name);
 		newChip.textContent = name;
-		
+
 		var starIcon = document.createElement('i');
         starIcon.classList.add('material-icons', 'tiny');
         starIcon.style.setProperty('margin-left', '10px');
         starIcon.style.setProperty('top', '2px');
         starIcon.textContent = 'star';
         newChip.appendChild(starIcon);
-				
+
 		newChip.onclick = function (event) {
 	        event.stopPropagation();
 	        resetSelezionePreferiti();
@@ -721,7 +723,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 		filtriPreferitiArray = [];
 		$.each(filtri, function(index, item){
 		    addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
-		});		
+		});
 	}
 
 	function resetSelezionePreferiti(){
@@ -739,7 +741,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     function filterBySize(page, size){
 	    inviaDatiChips(page, size);
     }
-	
+
 	function creaPannelloFiltriLaterale() {
 	    var collection = document.getElementById('data-collection');
 	    $('#data-collection').empty();
@@ -748,35 +750,60 @@ document.addEventListener('DOMContentLoaded', async function() {
 		    li.className = 'collection-item badgeCollectionFilter';
 		    li.textContent = item.name;
 
-		    
-			var deleteIcon = document.createElement('i');
-            deleteIcon.className = 'material-icons secondary-content';
-			if (item.favourite == true) {
-			    deleteIcon.textContent = 'trash';
-			    deleteIcon.classList.add('red-text');
-		    } else {
-			    
-		    }
-			
-			li.appendChild(deleteIcon);
-
 		    var addIcon = document.createElement('i');
 			addIcon.className = 'material-icons secondary-content';
-		    
-		    if (item.favourite == true) {
-			    addIcon.textContent = 'star';
-			    addIcon.classList.add('yellow-text');
-		    } else {
-			    addIcon.textContent = 'add_circle';
-		    }
-			
+			addIcon.textContent = 'add_circle';
+
 			addIcon.onclick = function (event) {
                 event.stopPropagation();
-
+				$(`[data-nome-gruppo-filtri="${item.name}"]`).click();
             };
 
             li.appendChild(addIcon);
-			
+
+			var deleteIcon = document.createElement('i');
+			deleteIcon.className = 'material-icons secondary-content';
+			deleteIcon.style.marginRight = '10px';
+			deleteIcon.textContent = 'delete';
+			deleteIcon.classList.add('red-text');
+			deleteIcon.onclick = async function (event) {
+				event.stopPropagation();
+				swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.name}"?`, {
+					buttons: ["No", "Si"],
+				}).then(async (value) => {
+					if (value == true){
+						try {
+							var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
+							deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+							let response = await fetch(deleteUrl, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                }
+                            });
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+
+                            let data = await response.json();
+                            if(data.message){
+                                ErrorAlert(data.message);
+                                return;
+                            }
+
+							M.toast({
+								html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+
+							await ripristinaPreferiti();
+							creaPannelloFiltriLaterale();
+						} catch (error) {
+							console.error('Errore di fetch:', error);
+							ErrorAlert(error.message);
+						}
+					}
+				});
+			};
+			li.appendChild(deleteIcon);
 		    collection.appendChild(li);
 	    });
 

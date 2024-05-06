@@ -239,6 +239,7 @@ namespace PortaleRegione.DTO.Routes
             public const string CambiaPrioritaFirma = Base + "/change-signature-priority";
             public const string SalvaFiltriPreferiti = Base + "/filters/save";
             public const string GetFiltriPreferiti = Base + "/filters";
+            public const string EliminaFiltriPreferiti = Base + "/filters/delete";
         }
 
         public static class Notifiche

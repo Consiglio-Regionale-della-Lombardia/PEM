@@ -116,6 +116,22 @@ namespace PortaleRegione.Client.Controllers
         }
         
         [HttpGet]
+        [Route("elimina-gruppo-filtri")]
+        public async Task<ActionResult> EliminaGruppoFiltri(string nomeFiltro)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.EliminaGruppoFiltri(nomeFiltro);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
         [Route("gruppo-filtri")]
         public async Task<ActionResult> GetGruppoFiltri()
         {

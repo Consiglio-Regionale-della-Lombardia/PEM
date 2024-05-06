@@ -77,5 +77,6 @@ namespace PortaleRegione.Gateway
         Task CambiaPrioritaFirma(AttiFirmeDto firma);
         Task SalvaGruppoFiltri(FiltroPreferitoDto model);
         Task<List<FiltroPreferitoDto>> GetGruppoFiltri();
+        Task EliminaGruppoFiltri(string nomeFiltro);
     }
 }

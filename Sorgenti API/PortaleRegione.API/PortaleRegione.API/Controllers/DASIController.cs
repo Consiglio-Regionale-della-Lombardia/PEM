@@ -1089,5 +1089,26 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
+
+        /// <summary>
+        ///     Endpoint per eliminare un gruppo di filtri preferiti
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route(ApiRoutes.DASI.EliminaFiltriPreferiti)]
+        public async Task<IHttpActionResult> EliminaGruppoFiltri(string nomeFiltro)
+        {
+            try
+            {
+                await _dasiLogic.EliminaGruppoFiltri(nomeFiltro, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Elimina filtri preferiti", e);
+                return ErrorHandler(e);
+            }
+        }
     }
 }

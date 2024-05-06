@@ -26,5 +26,13 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
             return res;
         }
+
+        public async Task<FILTRI> Get(string nomeFiltro, Guid UidPersona)
+        {
+            var res = await PRContext
+                .FILTRI
+                .FirstOrDefaultAsync(f => f.UId_persona.Equals(UidPersona) && f.Nome.Equals(nomeFiltro));
+            return res;
+        }
     }
 }

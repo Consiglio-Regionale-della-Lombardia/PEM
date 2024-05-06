@@ -26,5 +26,6 @@ namespace PortaleRegione.Contracts
     public interface IFiltriRepository : IRepository<FILTRI>
     {
         Task<List<FILTRI>> GetByUser(Guid uidPersona);
+        Task<FILTRI> Get(string nomeFiltro, Guid UidPersona);
     }
 }

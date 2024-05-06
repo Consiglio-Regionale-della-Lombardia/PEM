@@ -579,6 +579,12 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task EliminaGruppoFiltri(string nomeFiltro)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaFiltriPreferiti}?nomeFiltro={nomeFiltro}";
+            await Delete(requestUrl, _token);
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";
