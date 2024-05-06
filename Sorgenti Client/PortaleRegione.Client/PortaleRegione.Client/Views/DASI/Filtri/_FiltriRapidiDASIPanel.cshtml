@@ -18,7 +18,7 @@
 	</div>
 	<div class="col l4 m12 s12 right-align">
 		<a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
-		<a class="btn-flat pink-text">Configura report</a>
+		<a id="btnReportConfig" class="btn-flat pink-text">Configura report</a>
 	</div>
 </div>
 
@@ -33,260 +33,9 @@ var availableFilterArray = [
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
-    async function inviaDatiChips(page, size) {
-		if (!page){
-		    page = 1;
-		}
-		if (!size){
-		    size = 20;
-		}
-		document.getElementById('tableResults').innerHTML = "";
-		document.getElementById('paginazione-container').innerHTML = "";
-		document.getElementById('loadingSpinner').style.display = 'block';
-
-	    var request = {};
-		var chipsData = [];
-		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
-			chipsData.push({
-				property: chip.getAttribute('data-filterby'),
-				value: chip.getAttribute('data-val')
-			});
-		});
-
-		try {
-			request.filters = chipsData;
-			request.page = page;
-			request.size = size;
-
-			// Invia la richiesta al server
-			const response = await fetch('@Url.Action("Riepilogo")', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(request),
-			});
-
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-
-			const responseData = await response.json();
-			if (responseData.message){
-				ErrorAlert(responseData.message);
-				return;
-			}
-
-			if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
-				CreaTabella(responseData);
-			} else {
-				if (chipsData.length == 0){
-					document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
-    <span class="center">
-        <p>Esegui una ricerca per poter visualizzare gli atti</p>
-    </span>
-</div>`;
-				}else{
-					// Se non ci sono risultati, mostra il messaggio
-					document.getElementById('tableResults').innerHTML = `<div class="card-panel panel-warning center">
-    <span class="center">
-         <p>Nessun atto trovato</p>
-    </span>
-</div>`;
-				}
-			}
-			creaPaginazione(responseData);
-			AggiornaContatori(responseData);
-			document.getElementById('loadingSpinner').style.display = 'none';
-		} catch (error) {
-			document.getElementById('loadingSpinner').style.display = 'none';
-			console.error('Errore durante l\'invio dei dati delle chips:', error);
-		}
-	}
-
-	function CreaTabella(responseData) {
-		// Pulisci i risultati precedenti
-		const tableResults = document.getElementById('tableResults');
-		tableResults.innerHTML = '';
-
-		// Crea la struttura della tabella
-		const table = document.createElement('table');
-		table.className = 'highlight';
-
-		// Crea l'intestazione della tabella
-		const thead = document.createElement('thead');
-		thead.innerHTML = `
-            <tr>
-                <th></th>
-			    <th>Atto</th>
-                <th>Tipo</th>
-                <th>Oggetto</th>
-                <th>Firmatari</th>
-                <th>Stato</th>
-            </tr>
-        `;
-		table.appendChild(thead);
-
-		// Crea il corpo della tabella e popolalo con i dati
-		const tbody = document.createElement('tbody');
-		responseData.Data.Results.forEach(result => {
-			var htmlFirme = ``;
-			if (result.Firmato_Dal_Proponente) {
-				htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
-			} else {
-				htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
-			}
-
-			if (result.ConteggioFirme > 1) {
-				htmlFirme += `<br/><a class='chip tooltipped blue white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
-    + ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
-</a>`
-			}
-
-			const row = document.createElement('tr');
-			row.innerHTML = `
-                <td style="width: 1%;">
-				    <p>
-                        <label>
-                            <input type="checkbox" id="chk_Atto_${result.UIDAtto}" onclick="AbilitaComandiMassivi_DASI('${result.UIDAtto}');"/>
-                            <span></span>
-                        </label>
-                    </p>
-                </td>
-			    <td style="width: 7%;">${result.Display}</td>
-                <td style="width: 8%;">${result.DisplayTipoRispostaRichiesta}</td>
-                <td>${result.Oggetto}</td>
-                <td>${htmlFirme}</td>
-                <td>${result.DisplayStato}</td>
-            `;
-			tbody.appendChild(row);
-		});
-		table.appendChild(tbody);
-
-		// Aggiungi la tabella al container dei risultati
-		tableResults.appendChild(table);
-
-		//reset tooltips
-		var elems = document.querySelectorAll('.tooltipped');
-		var instances = M.Tooltip.init(elems, {});
-	}
-
-	function creaPaginazione(data) {
-		if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
-			document.getElementById('paginazione-container').innerHTML = "";
-			return;
-		}
-		// Dati della paginazione ottenuti dalla risposta JSON
-		var totalePagine = data.Data.Paging.Last_Page;
-		var paginaCorrente = data.Data.Paging.Page;
-		var totaleRisultati = data.Data.Paging.Total;
-		var risultatiPerPagina = data.Data.Paging.Limit; // Aggiunto per gestire i tagli di paginazione
-
-		// Elemento HTML per la paginazione
-		var paginationHTML = `<ul class="pagination">`;
-		// Aggiungi controlli di navigazione se necessario
-		if (data.Data.Paging.Has_Prev) {
-			paginationHTML += `
-    <li class="waves-effect" style="margin-top: -4px;">
-        <a onclick="filterByPage(1)">
-            <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
-                first_page
-            </i>
-        </a>
-    </li>
-    <li class="waves-effect" style="margin-top: -4px;">
-        <a onclick="filterByPage(${paginaCorrente - 1})">
-            <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">
-                chevron_left
-            </i>
-        </a>
-    </li>`;
-		}
-
-		// Aggiungi informazioni sulla pagina corrente e il totale delle pagine
-		paginationHTML += `
-        <li class="waves-effect">
-            <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
-                Pagina ${paginaCorrente} di ${totalePagine}
-            </span>
-            <br>
-            <span class="hide-on-large-only" style="margin-top: -5px; margin-left: 20px; font-size: 12px; position: absolute;">
-                ${totaleRisultati} risultati
-            </span>
-        </li>`;
-
-		// Aggiungi controlli di navigazione se necessario
-		if (data.Data.Paging.Has_Next) {
-			paginationHTML += `
-            <li class="waves-effect" style="margin-top: -4px;">
-                <a onclick="filterByPage(${paginaCorrente + 1})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">
-                        chevron_right
-                    </i>
-                </a>
-            </li>
-            <li class="waves-effect" style="margin-top: -4px;">
-                <a onclick="filterByPage(${totalePagine})">
-                    <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
-                        last_page
-                    </i>
-                </a>
-            </li>`;
-		}
-
-		paginationHTML += `</ul>`;
-
-		// Costruzione del selettore per i tagli di paginazione
-		var tagliPaginazione = [20, 50, 100, 250]; // Definisci i tagli di paginazione disponibili
-		var dropdownHTML = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
-            Paginazione
-            <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
-            <ul id="ddlPaginazione" class="dropdown-content" style="width: 100px !important">`;
-
-		tagliPaginazione.forEach(function (limite) {
-			dropdownHTML += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
-		});
-
-		dropdownHTML += `</ul></div>`;
-
-		var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/><input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>`;
-
-		// Inserisci l'HTML nel DOM
-		document.getElementById('paginazione-container').innerHTML = paginationHTML + dropdownHTML + hiddenHTML;
-
-		// Inizializza il dropdown con Materialize
-		var elems = document.querySelectorAll('.dropdown-trigger');
-		var instances = M.Dropdown.init(elems, { constrainWidth: false });
-	}
-
-	function AggiornaContatori(responseData) {
-		aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);
-		aggiornaConteggi('li.collection-item div', "ITL", responseData.CountBarData.ITL);
-		aggiornaConteggi('li.collection-item div', "ITR", responseData.CountBarData.ITR);
-		aggiornaConteggi('li.collection-item div', "IQT", responseData.CountBarData.IQT);
-		aggiornaConteggi('li.collection-item div', "MOZ", responseData.CountBarData.MOZ);
-		aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
-
-		if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
-			aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);
-		}
-		aggiornaConteggi('li.collection-item div', "PRESENTATI", responseData.CountBarData.PRESENTATI);
-		aggiornaConteggi('li.collection-item div', "IN TRATTAZIONE", responseData.CountBarData.IN_TRATTAZIONE);
-		aggiornaConteggi('li.collection-item div', "CHIUSO", responseData.CountBarData.CHIUSO);
-	}
-
-	function aggiornaConteggi(selector, testo, valore) {
-		document.querySelectorAll(selector).forEach(function (element) {
-			if (element.textContent.includes(testo)) {
-				element.querySelector('span').textContent = valore;
-			}
-		});
-	}
+var chipsKeys = {};
 
 document.addEventListener('DOMContentLoaded', async function() {
-
-	var filtriPreferitiArray = [];
-    var chipsKeys = {};
 	document.getElementById('loadingSpinner').style.display = 'none';
 
 	ripristinaFiltri();
@@ -318,41 +67,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 	    // Chiudi la modal
 	    $('#infoModal').modal("close");
     });
-	document.getElementById('btnFiltroConfig').addEventListener('click', function () {
-	    openModalWithContent_Preferiti("", localStorage.getItem('filtriDasi'));
-    });
-    document.getElementById('btnSalvaConfig').addEventListener('click', async function () {
-        var request = {};
-	    var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
-        request.filters = JSON.stringify(filtri);
-        request.name = document.getElementById('filter_name').value;
-        request.favourite = document.getElementById('filter_favourite').checked;
-
-        // Invia la richiesta al server
-        const response = await fetch('@Url.Action("SalvaGruppoFiltri")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(request),
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-	    const data = await response.json();
-	    if(data.message){
-	        ErrorAlert(data.message);
-		    return;
-	    }
-
-	    addChipIfNotExists_Preferiti(request.name, request.filters, request.favourite);
-		M.toast({
-			html: `<span><b class="yellow-text">${request.name}</b> aggiunto con successo</span>`, classes: 'rounded', displayLength: 5000 });
-
-        $('#modalFiltroConfig').modal("close");
-    });
 
     var elems = document.querySelectorAll('#autocomplete-input');
     var instances = M.Autocomplete.init(elems, {
@@ -375,390 +89,454 @@ document.addEventListener('DOMContentLoaded', async function() {
 		    }
 	    }
     });
+});
 
-	function openModalWithContent_Preferiti(name, filters){
-		$('#filter_favourite').prop("checked", false);
-		$('#filter_name').val(name);
-		$('#chips-container-config').empty();
-		const filtri = JSON.parse(filters);
-		if (filtri) {
-			filtri.forEach(function (filtro) {
-				addChipConfig(filtro.chipText);
-			});
+async function inviaDatiChips(page, size) {
+	if (!page){
+		page = 1;
+	}
+	if (!size){
+		size = 20;
+	}
+	document.getElementById('tableResults').innerHTML = "";
+	document.getElementById('paginazione-container').innerHTML = "";
+	document.getElementById('loadingSpinner').style.display = 'block';
+
+	var request = {};
+	var chipsData = [];
+	document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+		chipsData.push({
+			property: chip.getAttribute('data-filterby'),
+			value: chip.getAttribute('data-val')
+		});
+	});
+
+	try {
+		request.filters = chipsData;
+		request.page = page;
+		request.size = size;
+
+		// Invia la richiesta al server
+		const response = await fetch('@Url.Action("Riepilogo")', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(request),
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
 		}
-		$('#modalFiltroConfig').modal("open");
-	}
 
-    function openModalWithContent(key, txt, isEditing, currentValue){
-	    document.getElementById('autocomplete-input').value = "";
-	    document.getElementById('modal-content').textContent = txt;
-	    document.getElementById('modal-filter-id-hidden').value = key;
-	    var selectHTML = '';
-	    switch (key) {
-		    case '@nameof(AttoDASIDto.Legislatura)':
-				var legislature = GetLegislature();
-				selectHTML = '<select id="legislature-select">';
-				legislature.forEach(function (item) {
-					var selected = isEditing && currentValue > 0 && item.id_legislatura == currentValue ? 'selected' : '';
-					selectHTML += `<option value="${item.id_legislatura}" ${selected}>${item.num_legislatura}</option>`;
-				});
-				selectHTML += '</select>';
-			    break;
-		    case '@nameof(AttoDASIDto.IDStato)':
-				var stati = GetStatiDASI();
-				selectHTML = '<select id="stati-select">';
-				stati.forEach(function (item) {
-					if (item.IDStato != 0) {
-						var selected = isEditing && currentValue > 0 && item.IDStato == currentValue ? 'selected' : '';
-						selectHTML += `<option value="${item.IDStato}" ${selected}>${item.Stato}</option>`;
-					}
-				});
-				selectHTML += '</select>';
-			    break;
-		    case '@nameof(AttoDASIDto.Tipo)':
-				var tipi = GetTipiDASI();
-				selectHTML = '<select id="tipi-select">';
-				tipi.forEach(function (item) {
-					if (item.IDTipoAtto != 0) {
-						var selected = isEditing && currentValue > 0 && item.IDTipoAtto == currentValue ? 'selected' : '';
-						selectHTML += `<option value="${item.IDTipoAtto}" ${selected}>${item.Tipo_Atto}</option>`;
-					}
-				});
-				selectHTML += '</select>';
-			    break;
-			case '@nameof(AttoDASIDto.IDTipo_Risposta)':
-				var tipiRisposta = [
-				    { id: @((int)TipoRispostaEnum.ORALE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE))'},
-				    { id: @((int)TipoRispostaEnum.SCRITTA), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA))'},
-				    { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE))'},
-				];
-
-				selectHTML = '<select id="tipi-risposta-select">';
-				tipiRisposta.forEach(function (item) {
-					if (item.id != 0) {
-						var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
-						selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
-					}
-				});
-				selectHTML += '</select>';
-			    break;
-			case '@nameof(AttoDASIDto.NAtto)':
-                var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
-                selectHTML = `<div class="input-field col s12">
-                    <input id="n_atto" type="text" ${currentValueFormatted} placeholder="Es. 100, 150-200">
-                    <div class="card blue lighten-5">
-                        <div class="card-content black-text">
-                            <span class="card-title">Informazioni</span>
-                            <p>È possibile filtrare nei seguenti modi:
-                            <ul style="padding-left:40px">
-                                <li style="list-style-type: disc;">Singolo numero: 100</li>
-                                <li style="list-style-type: disc;">Intervallo: 150-200</li>
-                            </ul>
-                            </p>
-                        </div>
-                    </div>
-                </div>`;
-                break;
-			case '@nameof(AttoDASIDto.Oggetto)':
-                var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
-                selectHTML = `<div class="input-field col s12">
-                    <input id="oggetto" type="text" ${currentValueFormatted}/>
-                </div>`;
-                break;
-		    default:
-			    console.log("Filtro non riconosciuto!");
-			    break;
-	    }
-	    document.getElementById('dynamic-select-container').innerHTML = selectHTML;
-	    M.FormSelect.init(document.querySelectorAll('select'));
-
-	    // Apri la modal
-	    $('#infoModal').modal("open");
-    }
-
-	function addChipConfig(chipText) {
-		var chipsContainer = document.getElementById('chips-container-config');
-		var newChip = document.createElement('div');
-		newChip.classList.add('chip', 'yellow', 'black-text');
-		newChip.textContent = chipText;
-
-		chipsContainer.appendChild(newChip);
-	}
-
-	function addChipIfNotExists_Preferiti(name, filters, favourite) {
-
-		var existingChip = document.querySelector(`.chip[data-nome-gruppo-filtri="${name}"]`);
-
-		if (existingChip) {
-		    return;
-        }
-		var item = {};
-		item.name = name;
-		item.favourite = favourite;
-		item.filters = filters;
-		filtriPreferitiArray.push(item);
-
-		creaPannelloFiltriLaterale();
-		
-		if (!favourite) {
+		const responseData = await response.json();
+		if (responseData.message){
+			ErrorAlert(responseData.message);
 			return;
 		}
 
-		var chipsContainer = document.getElementById('chips-container-groups');
-		var newChip = document.createElement('div');
-		newChip.classList.add('chip', 'white', 'black-text');
-		newChip.setAttribute('data-nome-gruppo-filtri', name);
-		newChip.textContent = name;
-
-		var starIcon = document.createElement('i');
-        starIcon.classList.add('material-icons', 'tiny');
-        starIcon.style.setProperty('margin-left', '10px');
-        starIcon.style.setProperty('top', '2px');
-        starIcon.textContent = 'star';
-        newChip.appendChild(starIcon);
-
-		newChip.onclick = function (event) {
-	        event.stopPropagation();
-	        resetSelezionePreferiti();
-	        newChip.classList.replace("white", "yellow");
-	        localStorage.setItem('filtriDasi', filters);
-	        chipsKeys = [];
-	        $('#chips-container').empty();
-	        ripristinaFiltri();
-        };
-
-		chipsContainer.appendChild(newChip);
-	}
-
-    function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
-
-		var existingChip = document.querySelector(`.chip[data-filterby="${key}"]`);
-
-		if (!existingChip) {
-		    // La chiave non esiste, quindi aggiungi la chip
-		    var chipsContainer = document.getElementById('chips-container');
-		    var newChip = document.createElement('div');
-		    newChip.setAttribute('data-val', val);
-		    newChip.setAttribute('data-label', label);
-		    newChip.setAttribute('data-filterby', key);
-		    newChip.setAttribute('data-filterby-label', keyLabel);
-		    newChip.classList.add('chip');
-		    newChip.textContent = chipText;
-
-			addIconsToChip(newChip, key, keyLabel, val);
-		    chipsContainer.appendChild(newChip);
-
-		    // Aggiorna l'elenco delle chiavi tracciate
-		    chipsKeys[key] = true;
-	    } else {
-			existingChip.setAttribute('data-val', val);
-			existingChip.setAttribute('data-label', label);
-			existingChip.setAttribute('data-filterby', key);
-			existingChip.setAttribute('data-filterby-label', keyLabel);
-			existingChip.textContent = chipText;
-			addIconsToChip(existingChip, key, keyLabel, val);
-	    }
-
-		salvaFiltri();
-
-		if (refresh) {
-			inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
-		}
-    }
-
-	function addIconsToChip(chip, key, keyLabel, val) {
-		// Aggiungi un'icona per modificare la chip, se desiderato
-		var editIcon = document.createElement('i');
-		editIcon.classList.add('material-icons', 'tiny');
-		editIcon.style.setProperty('margin-left', '10px');
-		editIcon.style.setProperty('top', '2px');
-		editIcon.textContent = 'edit';
-		editIcon.onclick = function (event) {
-			event.stopPropagation();
-			openModalWithContent(key, keyLabel, true, val);
-		};
-		chip.appendChild(editIcon);
-
-		// Aggiungi un'icona per rimuovere la chip
-		var closeIcon = document.createElement('i');
-		closeIcon.classList.add('close', 'material-icons');
-		closeIcon.style.setProperty('top', 'unset', 'important');
-		closeIcon.textContent = 'close';
-		closeIcon.onclick = function () {
-			delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
-			chip.remove();
-			resetSelezionePreferiti();
-			salvaFiltri();
-			inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
-		};
-		chip.appendChild(closeIcon);
-	}
-
-	function salvaFiltri() {
-		const filtri = [];
-		document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
-			const key = chip.getAttribute('data-filterby');
-			const keyLabel = chip.getAttribute('data-filterby-label');
-			const val = chip.getAttribute('data-val');
-			const label = chip.getAttribute('data-label');
-			// Rimuovi gli elementi icona dal testo della chip prima di salvarlo
-			const chipTextContent = chip.cloneNode(true); // Clona il nodo della chip
-			chipTextContent.querySelectorAll('.material-icons').forEach(icon => icon.remove()); // Rimuovi le icone
-			const chipText = chipTextContent.textContent.trim(); // Ottieni il testo pulito
-
-			filtri.push({
-				key: key,
-				keyLabel: keyLabel,
-				val: val,
-				label: label,
-				chipText: chipText
-			});
-		});
-		localStorage.setItem('filtriDasi', JSON.stringify(filtri));
-	}
-
-	function ripristinaFiltri(){
-		const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
-		if (filtri) {
-			filtri.forEach(function (filtro) {
-				addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
-			});
-			inviaDatiChips(1, 20);
-		}
-    }
-
-	async function ripristinaPreferiti(){
-	    var filtri = await GetFiltriPreferitiDASI();
-		filtriPreferitiArray = [];
-		$.each(filtri, function(index, item){
-		    addChipIfNotExists_Preferiti(item.name, item.filters, item.favourite)
-		});
-	}
-
-	function resetSelezionePreferiti(){
-		var chipsContainer = document.getElementById('chips-container-groups');
-		var chips = chipsContainer.getElementsByClassName('chip');
-		$.each(chips, function (index, chip) {
-			chip.className = 'chip white black-text';
-		});
-	}
-
-    function filterByPage(page){
-	    inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
-    }
-
-    function filterBySize(page, size){
-	    inviaDatiChips(page, size);
-    }
-
-	function creaPannelloFiltriLaterale() {
-	    var collection = document.getElementById('data-collection');
-	    $('#data-collection').empty();
-	    filtriPreferitiArray.forEach(function (item) {
-		    var li = document.createElement('li');
-			if (item.favourite){
-				li.className = 'collection-item badgeStarCollectionFilter';
-			}else {
-				li.className = 'collection-item badgeCollectionFilter';
+		if (responseData.Data && responseData.Data.Results && responseData.Data.Results.length > 0) {
+			CreaTabella(responseData);
+		} else {
+			if (chipsData.length == 0){
+				document.getElementById('tableResults').innerHTML = `<div class="card-panel blue lighten-5 center">
+<span class="center">
+    <p>Esegui una ricerca per poter visualizzare gli atti</p>
+</span>
+</div>`;
+			}else{
+				// Se non ci sono risultati, mostra il messaggio
+				document.getElementById('tableResults').innerHTML = `<div class="card-panel panel-warning center">
+<span class="center">
+     <p>Nessun atto trovato</p>
+</span>
+</div>`;
 			}
-		    
-		    li.textContent = item.name;
+		}
+		creaPaginazione(responseData);
+		AggiornaContatori(responseData);
+		document.getElementById('loadingSpinner').style.display = 'none';
+	} catch (error) {
+		document.getElementById('loadingSpinner').style.display = 'none';
+		console.error('Errore durante l\'invio dei dati delle chips:', error);
+	}
+}
 
-		    var addIcon = document.createElement('i');
-			addIcon.className = 'material-icons secondary-content';
-			addIcon.textContent = 'add_circle';
+function CreaTabella(responseData) {
+	// Pulisci i risultati precedenti
+	const tableResults = document.getElementById('tableResults');
+	tableResults.innerHTML = '';
 
-			addIcon.onclick = function (event) {
-                event.stopPropagation();	
-				
-				if (item.favourite){
-					$(`[data-nome-gruppo-filtri="${item.name}"]`).click();
-				}else {
-					resetSelezionePreferiti();
-					localStorage.setItem('filtriDasi', item.filters);
-					chipsKeys = [];
-					$('#chips-container').empty();
-					ripristinaFiltri();
+	// Crea la struttura della tabella
+	const table = document.createElement('table');
+	table.className = 'highlight';
+
+	// Crea l'intestazione della tabella
+	const thead = document.createElement('thead');
+	thead.innerHTML = `
+        <tr>
+            <th></th>
+			<th>Atto</th>
+            <th>Tipo</th>
+            <th>Oggetto</th>
+            <th>Firmatari</th>
+            <th>Stato</th>
+        </tr>
+    `;
+	table.appendChild(thead);
+
+	// Crea il corpo della tabella e popolalo con i dati
+	const tbody = document.createElement('tbody');
+	responseData.Data.Results.forEach(result => {
+		var htmlFirme = ``;
+		if (result.Firmato_Dal_Proponente) {
+			htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
+		} else {
+			htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
+		}
+
+		if (result.ConteggioFirme > 1) {
+			htmlFirme += `<br/><a class='chip tooltipped blue white-text' data-position='left' data-tooltip='${result.Firme}' style="min-width: unset;">
++ ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
+</a>`
+		}
+
+		const row = document.createElement('tr');
+		row.innerHTML = `
+            <td style="width: 1%;">
+				<p>
+                    <label>
+                        <input type="checkbox" id="chk_Atto_${result.UIDAtto}" onclick="AbilitaComandiMassivi_DASI('${result.UIDAtto}');"/>
+                        <span></span>
+                    </label>
+                </p>
+            </td>
+			<td style="width: 7%;">${result.Display}</td>
+            <td style="width: 8%;">${result.DisplayTipoRispostaRichiesta}</td>
+            <td>${result.Oggetto}</td>
+            <td>${htmlFirme}</td>
+            <td>${result.DisplayStato}</td>
+        `;
+		tbody.appendChild(row);
+	});
+	table.appendChild(tbody);
+
+	// Aggiungi la tabella al container dei risultati
+	tableResults.appendChild(table);
+
+	//reset tooltips
+	var elems = document.querySelectorAll('.tooltipped');
+	var instances = M.Tooltip.init(elems, {});
+}
+
+function creaPaginazione(data) {
+	if (!data.Data || !data.Data.Results || data.Data.Results.length == 0) {
+		document.getElementById('paginazione-container').innerHTML = "";
+		return;
+	}
+	// Dati della paginazione ottenuti dalla risposta JSON
+	var totalePagine = data.Data.Paging.Last_Page;
+	var paginaCorrente = data.Data.Paging.Page;
+	var totaleRisultati = data.Data.Paging.Total;
+	var risultatiPerPagina = data.Data.Paging.Limit; // Aggiunto per gestire i tagli di paginazione
+
+	// Elemento HTML per la paginazione
+	var paginationHTML = `<ul class="pagination">`;
+	// Aggiungi controlli di navigazione se necessario
+	if (data.Data.Paging.Has_Prev) {
+		paginationHTML += `
+<li class="waves-effect" style="margin-top: -4px;">
+    <a onclick="filterByPage(1)">
+        <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
+            first_page
+        </i>
+    </a>
+</li>
+<li class="waves-effect" style="margin-top: -4px;">
+    <a onclick="filterByPage(${paginaCorrente - 1})">
+        <i class="material-icons tooltipped" data-position="top" data-tooltip="Pagina precedente">
+            chevron_left
+        </i>
+    </a>
+</li>`;
+	}
+
+	// Aggiungi informazioni sulla pagina corrente e il totale delle pagine
+	paginationHTML += `
+    <li class="waves-effect">
+        <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
+            Pagina ${paginaCorrente} di ${totalePagine}
+        </span>
+        <br>
+        <span class="hide-on-large-only" style="margin-top: -5px; margin-left: 20px; font-size: 12px; position: absolute;">
+            ${totaleRisultati} risultati
+        </span>
+    </li>`;
+
+	// Aggiungi controlli di navigazione se necessario
+	if (data.Data.Paging.Has_Next) {
+		paginationHTML += `
+        <li class="waves-effect" style="margin-top: -4px;">
+            <a onclick="filterByPage(${paginaCorrente + 1})">
+                <i class="material-icons tooltipped" data-position="top" data-tooltip="Prossima pagina">
+                    chevron_right
+                </i>
+            </a>
+        </li>
+        <li class="waves-effect" style="margin-top: -4px;">
+            <a onclick="filterByPage(${totalePagine})">
+                <i class="material-icons tooltipped" data-position="top" data-tooltip="Ultima pagina">
+                    last_page
+                </i>
+            </a>
+        </li>`;
+	}
+
+	paginationHTML += `</ul>`;
+
+	// Costruzione del selettore per i tagli di paginazione
+	var tagliPaginazione = [20, 50, 100, 250]; // Definisci i tagli di paginazione disponibili
+	var dropdownHTML = `<div class="chip deep-purple lighten-5 center" style="min-width: unset">
+        Paginazione
+        <a class="dropdown-trigger chip grey white-text" href="#" data-target="ddlPaginazione" style="font-size: small; margin-right: -12px; min-width: unset">${risultatiPerPagina}</a>
+        <ul id="ddlPaginazione" class="dropdown-content" style="width: 100px !important">`;
+
+	tagliPaginazione.forEach(function (limite) {
+		dropdownHTML += `<li><a onclick="filterBySize(1, ${limite})">${limite}</a></li>`;
+	});
+
+	dropdownHTML += `</ul></div>`;
+
+	var hiddenHTML = `<input id="hdPaginaCorrente" type="hidden" value="${paginaCorrente}"/><input id="hdPaginazioneCorrente" type="hidden" value="${risultatiPerPagina}"/>`;
+
+	// Inserisci l'HTML nel DOM
+	document.getElementById('paginazione-container').innerHTML = paginationHTML + dropdownHTML + hiddenHTML;
+
+	// Inizializza il dropdown con Materialize
+	var elems = document.querySelectorAll('.dropdown-trigger');
+	var instances = M.Dropdown.init(elems, { constrainWidth: false });
+}
+
+function AggiornaContatori(responseData) {
+	aggiornaConteggi('li.collection-item div', "TOTALE", responseData.CountBarData.TUTTI);
+	aggiornaConteggi('li.collection-item div', "ITL", responseData.CountBarData.ITL);
+	aggiornaConteggi('li.collection-item div', "ITR", responseData.CountBarData.ITR);
+	aggiornaConteggi('li.collection-item div', "IQT", responseData.CountBarData.IQT);
+	aggiornaConteggi('li.collection-item div', "MOZ", responseData.CountBarData.MOZ);
+	aggiornaConteggi('li.collection-item div', "ODG", responseData.CountBarData.ODG);
+
+	if (!responseData.CurrentUser.IsSegreteriaAssemblea) {
+		aggiornaConteggi('li.collection-item div', "BOZZE", responseData.CountBarData.BOZZE);
+	}
+	aggiornaConteggi('li.collection-item div', "PRESENTATI", responseData.CountBarData.PRESENTATI);
+	aggiornaConteggi('li.collection-item div', "IN TRATTAZIONE", responseData.CountBarData.IN_TRATTAZIONE);
+	aggiornaConteggi('li.collection-item div', "CHIUSO", responseData.CountBarData.CHIUSO);
+}
+
+function aggiornaConteggi(selector, testo, valore) {
+	document.querySelectorAll(selector).forEach(function (element) {
+		if (element.textContent.includes(testo)) {
+			element.querySelector('span').textContent = valore;
+		}
+	});
+}
+
+function openModalWithContent(key, txt, isEditing, currentValue){
+    document.getElementById('autocomplete-input').value = "";
+    document.getElementById('modal-content').textContent = txt;
+    document.getElementById('modal-filter-id-hidden').value = key;
+    var selectHTML = '';
+    switch (key) {
+	    case '@nameof(AttoDASIDto.Legislatura)':
+			var legislature = GetLegislature();
+			selectHTML = '<select id="legislature-select">';
+			legislature.forEach(function (item) {
+				var selected = isEditing && currentValue > 0 && item.id_legislatura == currentValue ? 'selected' : '';
+				selectHTML += `<option value="${item.id_legislatura}" ${selected}>${item.num_legislatura}</option>`;
+			});
+			selectHTML += '</select>';
+		    break;
+	    case '@nameof(AttoDASIDto.IDStato)':
+			var stati = GetStatiDASI();
+			selectHTML = '<select id="stati-select">';
+			stati.forEach(function (item) {
+				if (item.IDStato != 0) {
+					var selected = isEditing && currentValue > 0 && item.IDStato == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.IDStato}" ${selected}>${item.Stato}</option>`;
 				}
-            };
+			});
+			selectHTML += '</select>';
+		    break;
+	    case '@nameof(AttoDASIDto.Tipo)':
+			var tipi = GetTipiDASI();
+			selectHTML = '<select id="tipi-select">';
+			tipi.forEach(function (item) {
+				if (item.IDTipoAtto != 0) {
+					var selected = isEditing && currentValue > 0 && item.IDTipoAtto == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.IDTipoAtto}" ${selected}>${item.Tipo_Atto}</option>`;
+				}
+			});
+			selectHTML += '</select>';
+		    break;
+		case '@nameof(AttoDASIDto.IDTipo_Risposta)':
+			var tipiRisposta = [
+			    { id: @((int)TipoRispostaEnum.ORALE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.ORALE))'},
+			    { id: @((int)TipoRispostaEnum.SCRITTA), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.SCRITTA))'},
+			    { id: @((int)TipoRispostaEnum.COMMISSIONE), text: '@(Utility.GetText_TipoRispostaDASI((int)TipoRispostaEnum.COMMISSIONE))'},
+			];
 
-            li.appendChild(addIcon);
-
-			var deleteIcon = document.createElement('i');
-			deleteIcon.className = 'material-icons secondary-content';
-			deleteIcon.style.marginRight = '10px';
-			deleteIcon.textContent = 'delete';
-			deleteIcon.classList.add('red-text');
-			deleteIcon.onclick = async function (event) {
-				event.stopPropagation();
-				swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.name}"?`, {
-					buttons: ["No", "Si"],
-				}).then(async (value) => {
-					if (value == true){
-						try {
-							var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
-							deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
-							let response = await fetch(deleteUrl, {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                }
-                            });
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-
-                            let data = await response.json();
-                            if(data.message){
-                                ErrorAlert(data.message);
-                                return;
-                            }
-
-							M.toast({
-								html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
-
-							li.remove();
-							var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
-							
-							if (indexToRemove !== -1) {
-								filtriPreferitiArray.splice(indexToRemove, 1);
-							}
-							$(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
-						} catch (error) {
-							console.error('Errore di fetch:', error);
-							ErrorAlert(error.message);
-						}
-					}
-				});
-			};
-			li.appendChild(deleteIcon);
-		    collection.appendChild(li);
-	    });
-
-	    availableFilterArray.forEach(function (item) {
-		    var li = document.createElement('li');
-		    li.className = 'collection-item';
-		    li.textContent = item.tag;
-
-		    // Crea il secondary-content con un'icona per aggiungere la chip
-		    var addIcon = document.createElement('i');
-		    addIcon.className = 'material-icons secondary-content';
-		    addIcon.textContent = 'add_circle';
-		    addIcon.onclick = function (event) {
-			    event.stopPropagation();
-			    openModalWithContent(item.id, item.tag, false, 0);
-		    };
-
-		    li.appendChild(addIcon);
-		    collection.appendChild(li);
-	    });
+			selectHTML = '<select id="tipi-risposta-select">';
+			tipiRisposta.forEach(function (item) {
+				if (item.id != 0) {
+					var selected = isEditing && currentValue > 0 && item.id == currentValue ? 'selected' : '';
+					selectHTML += `<option value="${item.id}" ${selected}>${item.text}</option>`;
+				}
+			});
+			selectHTML += '</select>';
+		    break;
+		case '@nameof(AttoDASIDto.NAtto)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="n_atto" type="text" ${currentValueFormatted} placeholder="Es. 100, 150-200">
+                <div class="card blue lighten-5">
+                    <div class="card-content black-text">
+                        <span class="card-title">Informazioni</span>
+                        <p>È possibile filtrare nei seguenti modi:
+                        <ul style="padding-left:40px">
+                            <li style="list-style-type: disc;">Singolo numero: 100</li>
+                            <li style="list-style-type: disc;">Intervallo: 150-200</li>
+                        </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>`;
+            break;
+		case '@nameof(AttoDASIDto.Oggetto)':
+            var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
+            selectHTML = `<div class="input-field col s12">
+                <input id="oggetto" type="text" ${currentValueFormatted}/>
+            </div>`;
+            break;
+	    default:
+		    console.log("Filtro non riconosciuto!");
+		    break;
     }
-});
+    document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+    M.FormSelect.init(document.querySelectorAll('select'));
+
+    // Apri la modal
+    $('#infoModal').modal("open");
+}
+
+function addChipIfNotExists(key, keyLabel, val, label, chipText, refresh) {
+
+	var existingChip = document.querySelector(`.chip[data-filterby="${key}"]`);
+
+	if (!existingChip) {
+	    // La chiave non esiste, quindi aggiungi la chip
+	    var chipsContainer = document.getElementById('chips-container');
+	    var newChip = document.createElement('div');
+	    newChip.setAttribute('data-val', val);
+	    newChip.setAttribute('data-label', label);
+	    newChip.setAttribute('data-filterby', key);
+	    newChip.setAttribute('data-filterby-label', keyLabel);
+	    newChip.classList.add('chip');
+	    newChip.textContent = chipText;
+
+		addIconsToChip(newChip, key, keyLabel, val);
+	    chipsContainer.appendChild(newChip);
+
+	    // Aggiorna l'elenco delle chiavi tracciate
+	    chipsKeys[key] = true;
+    } else {
+		existingChip.setAttribute('data-val', val);
+		existingChip.setAttribute('data-label', label);
+		existingChip.setAttribute('data-filterby', key);
+		existingChip.setAttribute('data-filterby-label', keyLabel);
+		existingChip.textContent = chipText;
+		addIconsToChip(existingChip, key, keyLabel, val);
+    }
+
+	salvaFiltri();
+
+	if (refresh) {
+		inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+	}
+}
+
+function addIconsToChip(chip, key, keyLabel, val) {
+	// Aggiungi un'icona per modificare la chip, se desiderato
+	var editIcon = document.createElement('i');
+	editIcon.classList.add('material-icons', 'tiny');
+	editIcon.style.setProperty('margin-left', '10px');
+	editIcon.style.setProperty('top', '2px');
+	editIcon.textContent = 'edit';
+	editIcon.onclick = function (event) {
+		event.stopPropagation();
+		openModalWithContent(key, keyLabel, true, val);
+	};
+	chip.appendChild(editIcon);
+
+	// Aggiungi un'icona per rimuovere la chip
+	var closeIcon = document.createElement('i');
+	closeIcon.classList.add('close', 'material-icons');
+	closeIcon.style.setProperty('top', 'unset', 'important');
+	closeIcon.textContent = 'close';
+	closeIcon.onclick = function () {
+		delete chipsKeys[key]; // Rimuovi la chiave dall'elenco tracciato quando la chip è rimossa
+		chip.remove();
+		resetSelezionePreferiti();
+		salvaFiltri();
+		inviaDatiChips($("#hdPaginaCorrente").val(), $("#hdPaginazioneCorrente").val());
+	};
+	chip.appendChild(closeIcon);
+}
+
+function salvaFiltri() {
+	const filtri = [];
+	document.querySelectorAll('#chips-container .chip').forEach(function (chip) {
+		const key = chip.getAttribute('data-filterby');
+		const keyLabel = chip.getAttribute('data-filterby-label');
+		const val = chip.getAttribute('data-val');
+		const label = chip.getAttribute('data-label');
+		// Rimuovi gli elementi icona dal testo della chip prima di salvarlo
+		const chipTextContent = chip.cloneNode(true); // Clona il nodo della chip
+		chipTextContent.querySelectorAll('.material-icons').forEach(icon => icon.remove()); // Rimuovi le icone
+		const chipText = chipTextContent.textContent.trim(); // Ottieni il testo pulito
+
+		filtri.push({
+			key: key,
+			keyLabel: keyLabel,
+			val: val,
+			label: label,
+			chipText: chipText
+		});
+	});
+	localStorage.setItem('filtriDasi', JSON.stringify(filtri));
+}
+
+function ripristinaFiltri(){
+	const filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+	if (filtri) {
+		filtri.forEach(function (filtro) {
+			addChipIfNotExists(filtro.key, filtro.keyLabel, filtro.val, filtro.label, filtro.chipText, false);
+		});
+		inviaDatiChips(1, 20);
+	}
+}
+
+function filterByPage(page){
+    inviaDatiChips(page, $("#hdPaginazioneCorrente").val());
+}
+
+function filterBySize(page, size){
+    inviaDatiChips(page, size);
+}
 </script>
 
 
 @{
 	Html.RenderPartial("Filtri/_DettaglioFiltroModal", Model);
-	Html.RenderPartial("Filtri/_FiltroConfiModal", Model);
+	Html.RenderPartial("Filtri/_FiltroConfigModal", Model);
 	Html.RenderPartial("Filtri/_ReportConfigModal", Model);
 }

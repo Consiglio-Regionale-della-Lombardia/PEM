@@ -486,7 +486,7 @@
     <Content Include="Views\DASI\AttoDASIView_Admin.cshtml" />
     <Content Include="Views\DASI\Filtri\_FiltriRapidiDASIPanel.cshtml" />
     <Content Include="Views\DASI\Filtri\_ReportConfigModal.cshtml" />
-    <Content Include="Views\DASI\Filtri\_FiltroConfiModal.cshtml" />
+    <Content Include="Views\DASI\Filtri\_FiltroConfigModal.cshtml" />
     <Content Include="Views\DASI\Filtri\_DettaglioFiltroModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
