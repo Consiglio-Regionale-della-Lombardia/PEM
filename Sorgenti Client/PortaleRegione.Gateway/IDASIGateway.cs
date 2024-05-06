@@ -78,5 +78,6 @@ namespace PortaleRegione.Gateway
         Task SalvaGruppoFiltri(FiltroPreferitoDto model);
         Task<List<FiltroPreferitoDto>> GetGruppoFiltri();
         Task EliminaGruppoFiltri(string nomeFiltro);
+        Task<FileResponse> GeneraReport(ReportDto request);
     }
 }

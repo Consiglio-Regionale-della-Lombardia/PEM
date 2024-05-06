@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             <div class="input-field col s6">
-                <select>
+                <select name="coverType">
                     <option value="" disabled selected>Scegli la copertina</option>
                     <option value="1">Copertina 1</option>
                     <option value="2">Copertina 2</option>
@@ -22,7 +22,7 @@
                 <label>Copertina</label>
             </div>
             <div class="input-field col s6">
-                <select>
+                <select name="dataViewType">
                     <option value="1" selected>GRIGLIA</option>
                     <option value="2">CARD</option>
                 </select>
@@ -31,7 +31,7 @@
         </div>
         <div class="row">
             <div class="input-field col s6">
-                <select multiple>
+                <select name="columns" multiple>
                     <option value="" disabled selected>Scegli colonne</option>
                     <option value="1">Colonna 1</option>
                     <option value="2">Colonna 2</option>
@@ -40,7 +40,7 @@
                 <label>Colonne da visualizzare</label>
             </div>
             <div class="input-field col s6">
-                <select>
+                <select name="exportFormat">
                     <option value="1" selected>WORD</option>
                     <option value="2">PDF</option>
                 </select>
@@ -54,15 +54,61 @@
 </div>
 
 <script>
-    
+
 	document.getElementById('btnReportConfig').addEventListener('click', function () {
 		openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
 	});
-    
+
 	document.getElementById('btnGenerateReport').addEventListener('click', function () {
-		
+		var request = {};
+		var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+        var filtriList = [];
+        $.each(filtri, function(index, item){
+			filtriList.push({
+				property: item.key,
+				value: item.val
+			});
+        });
+		request.filters = JSON.stringify(filtriList);
+		request.reportName = document.getElementById('report_name').value;
+		request.coverType = document.querySelector('select[name="coverType"]').value;
+		request.dataViewType = document.querySelector('select[name="dataViewType"]').value;
+		request.columns = Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value);
+		request.exportFormat = document.querySelector('select[name="exportFormat"]').value;
+
+         var url = '@Url.Action("GeneraReport", "DASI")';
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(request),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function() {
+                console.log("RICHIESTA INVIATA");
+                waiting(true, "Elaborazione in corso...");
+            },
+            success: function (response) {
+                console.log("Risposta ricevuta", response);
+                var a = document.createElement("a");
+                a.href = response;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                $('#modalReportConfig').modal("close");
+            },
+            error: function(xhr, status, error) {
+                console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+                waiting(false);
+            },
+            complete: function() {
+                console.log("Chiamata completata");
+                waiting(false);
+            }
+        });
+
+		$('#modalReportConfig').modal("close");
 	});
-    
+
 	function openModalWithContent_Report(name, filters) {
 		$('#report_name').val(name);
 		$('#chips-container-report-config').empty();
@@ -74,7 +120,7 @@
 		}
 		$('#modalReportConfig').modal("open");
 	}
-    
+
 	function addChipReportConfig(chipText) {
 		var chipsContainer = document.getElementById('chips-container-report-config');
 		var newChip = document.createElement('div');

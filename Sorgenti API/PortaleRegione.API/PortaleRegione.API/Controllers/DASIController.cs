@@ -1067,7 +1067,7 @@ namespace PortaleRegione.API.Controllers
                 return ErrorHandler(e);
             }
         }
-        
+
         /// <summary>
         ///     Endpoint per avere il proprio gruppo di filtri preferito
         /// </summary>
@@ -1079,7 +1079,7 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                List<FiltroPreferitoDto> res = await _dasiLogic.GetGruppoFiltri(CurrentUser);
+                var res = await _dasiLogic.GetGruppoFiltri(CurrentUser);
 
                 return Ok(res);
             }
@@ -1107,6 +1107,23 @@ namespace PortaleRegione.API.Controllers
             catch (Exception e)
             {
                 Log.Error("Elimina filtri preferiti", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        [HttpPost]
+        [Route(ApiRoutes.DASI.GeneraReport)]
+        public async Task<IHttpActionResult> GeneraReport(ReportDto request)
+        {
+            try
+            {
+                var file = await _dasiLogic.GeneraReport(request);
+
+                return ResponseMessage(file);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Genera report", e);
                 return ErrorHandler(e);
             }
         }

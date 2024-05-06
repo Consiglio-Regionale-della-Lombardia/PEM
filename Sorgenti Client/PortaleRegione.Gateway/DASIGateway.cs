@@ -585,6 +585,14 @@ namespace PortaleRegione.Gateway
             await Delete(requestUrl, _token);
         }
 
+        public async Task<FileResponse> GeneraReport(ReportDto request)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GeneraReport}";
+            var body = JsonConvert.SerializeObject(request);
+            var lst = await GetFile(requestUrl, body, _token);
+            return lst;
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

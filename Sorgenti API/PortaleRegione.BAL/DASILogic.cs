@@ -20,7 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -3290,6 +3292,18 @@ namespace PortaleRegione.API.Controllers
             var filtro = await _unitOfWork.Filtri.Get(nomeFiltro, currentUser.UID_persona);
             _unitOfWork.Filtri.Remove(filtro);
             await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<HttpResponseMessage> GeneraReport(ReportDto request)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(request.Filters);
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{request.ReportName}")
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+            return result;
         }
     }
 }
