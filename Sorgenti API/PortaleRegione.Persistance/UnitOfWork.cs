@@ -50,6 +50,7 @@ namespace PortaleRegione.Persistance
             DASI = new DASIRepository(context);
             Atti_Firme = new AttiFirmeRepository(context);
             Filtri = new FiltriRepository(context);
+            Reports = new ReportsRepository(context);
         }
 
         public ISeduteRepository Sedute { get; }
@@ -69,6 +70,7 @@ namespace PortaleRegione.Persistance
         public IDASIRepository DASI { get; }
         public IAttiFirmeRepository Atti_Firme { get; }
         public IFiltriRepository Filtri { get; }
+        public IReportsRepository Reports { get; }
 
         public async Task<int> CompleteAsync()
         {

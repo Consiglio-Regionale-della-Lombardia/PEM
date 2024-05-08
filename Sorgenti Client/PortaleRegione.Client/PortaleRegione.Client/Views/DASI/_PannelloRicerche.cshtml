@@ -34,11 +34,11 @@
     <div class="row">
         <div class="col s12">
             <ul class="tabs">
-                <li class="tab col s6"><a class="active" href="#test1">Filtri</a></li>
-                <li class="tab col s6"><a href="#test2">Report</a></li>
+                <li class="tab col s6"><a class="active" href="#tabFiltri">Filtri</a></li>
+                <li class="tab col s6"><a href="#tabReport">Report</a></li>
             </ul>
         </div>
-        <div id="test1" class="col s12">
+        <div id="tabFiltri" class="col s12">
             <div class="row">
                 <div class="input-field col s12">
                     <i class="material-icons prefix">search</i>
@@ -51,7 +51,19 @@
                 </div>
             </div>
         </div>
-        <div id="test2" class="col s12">Test 2</div>
+        <div id="tabReport" class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">search</i>
+                    <input id="search-input-report" type="text" placeholder="Cerca...">
+                </div>
+                <div class="col s12">
+                    <ul id="data-collection-report" class="collection">
+                        <!-- Gli elementi della lista saranno aggiunti dinamicamente qui -->
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -72,9 +84,23 @@
 				}
 			});
 		}
+		function updateCollectionReportVisibility() {
+			var searchQuery = document.getElementById('search-input-report').value.toLowerCase();
+			var collectionItems = document.querySelectorAll('#data-collection-report .collection-item');
+
+			collectionItems.forEach(function (item) {
+				var itemText = item.textContent.toLowerCase();
+				if (itemText.indexOf(searchQuery) !== -1) {
+					item.style.display = '';
+				} else {
+					item.style.display = 'none';
+				}
+			});
+		}
 
 		// Ascolta gli eventi di input sul campo di ricerca
 		document.getElementById('search-input').addEventListener('input', updateCollectionVisibility);
+		document.getElementById('search-input-report').addEventListener('input', updateCollectionReportVisibility);
     });
 
     function filtra() {

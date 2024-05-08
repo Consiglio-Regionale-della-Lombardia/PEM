@@ -1117,13 +1117,78 @@ namespace PortaleRegione.API.Controllers
         {
             try
             {
-                var file = await _dasiLogic.GeneraReport(request);
+                var file = await _dasiLogic.GeneraReport(request, CurrentUser);
 
                 return ResponseMessage(file);
             }
             catch (Exception e)
             {
                 Log.Error("Genera report", e);
+                return ErrorHandler(e);
+            }
+        }
+
+
+        /// <summary>
+        ///     Endpoint per salvare un report
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.DASI.SalvaReport)]
+        public async Task<IHttpActionResult> SalvaReport(ReportDto report)
+        {
+            try
+            {
+                await _dasiLogic.SalvaReport(report, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Salva report", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per avere i report
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.DASI.GetReports)]
+        public async Task<IHttpActionResult> GetReports()
+        {
+            try
+            {
+                var res = await _dasiLogic.GetReports(CurrentUser);
+
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Get reports", e);
+                return ErrorHandler(e);
+            }
+        }
+
+        /// <summary>
+        ///     Endpoint per eliminare un report
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route(ApiRoutes.DASI.EliminaReport)]
+        public async Task<IHttpActionResult> EliminaReport(string nomeReport)
+        {
+            try
+            {
+                await _dasiLogic.EliminaReport(nomeReport, CurrentUser);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Elimina report", e);
                 return ErrorHandler(e);
             }
         }

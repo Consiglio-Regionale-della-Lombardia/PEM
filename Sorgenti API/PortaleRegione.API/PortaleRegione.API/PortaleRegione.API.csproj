@@ -240,6 +240,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Content Include="Templates\DASI\template_report_item_card.html" />
+    <Content Include="Templates\DASI\template_report_header_default.html" />
     <Content Include="Templates\DASI\template_firma.html" />
     <Content Include="Templates\DASI\template_html.html" />
     <Content Include="Templates\DASI\template_html_testomodificabile.html" />

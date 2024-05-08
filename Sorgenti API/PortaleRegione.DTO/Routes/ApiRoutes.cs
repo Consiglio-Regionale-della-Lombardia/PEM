@@ -241,6 +241,9 @@ namespace PortaleRegione.DTO.Routes
             public const string GetFiltriPreferiti = Base + "/filters";
             public const string EliminaFiltriPreferiti = Base + "/filters/delete";
             public const string GeneraReport = Base + "/reports/generate";
+            public const string SalvaReport = Base + "/reports/save";
+            public const string EliminaReport = Base + "/reports/delete";
+            public const string GetReports = Base + "/reports";
         }
 
         public static class Notifiche

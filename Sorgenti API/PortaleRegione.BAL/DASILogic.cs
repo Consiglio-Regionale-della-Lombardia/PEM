@@ -25,9 +25,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
+using HtmlToOpenXml;
 using Newtonsoft.Json;
 using PortaleRegione.BAL;
 using PortaleRegione.Common;
@@ -2798,7 +2803,7 @@ namespace PortaleRegione.API.Controllers
             body =
                 "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
                 "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
-                "<link rel=\"stylesheet\" href=\"https://pem1.consiglio.regione.lombardia.it/content/site.css\">" +
+                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">" +
                 body;
             body = body.Replace("{LEGISLATURA}", legislatura.num_legislatura);
             body = body.Replace("{nomePiattaforma}", AppSettingsConfiguration.Titolo);
@@ -3251,11 +3256,33 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        public async Task SalvaReport(ReportDto report, PersonaDto currentUser)
+        {
+            if (string.IsNullOrEmpty(report.ReportName))
+            {
+                throw new Exception("E' necessario dare un nome al report per poterlo salvare.");
+            }
+
+            var item = new REPORTS
+            {
+                UId_persona = currentUser.UID_persona,
+                Filtri = report.Filters,
+                Nome = report.ReportName,
+                Colonne = report.Columns,
+                FormatoEsportazione = report.ExportFormat,
+                TipoCopertina = report.CoverType,
+                TipoVisualizzazione = report.DataViewType
+            };
+
+            _unitOfWork.Reports.Add(item);
+            await _unitOfWork.CompleteAsync();
+        }
+
         public async Task SalvaGruppoFiltri(FiltroPreferitoDto request, PersonaDto currentUser)
         {
             if (string.IsNullOrEmpty(request.name))
             {
-                throw new Exception("E' necessario dare un nome al filtro che si vuole salvare.");
+                throw new Exception("E' necessario dare un nome al filtro per poterlo salvare.");
             }
 
             var filtro = new FILTRI
@@ -3294,16 +3321,169 @@ namespace PortaleRegione.API.Controllers
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task<HttpResponseMessage> GeneraReport(ReportDto request)
+        public async Task<List<ReportDto>> GetReports(PersonaDto currentUser)
         {
-            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(request.Filters);
+            var listFromDb = await _unitOfWork.Reports.GetByUser(currentUser.UID_persona);
+            var res = new List<ReportDto>();
+            foreach (var f in listFromDb)
+            {
+                res.Add(new ReportDto
+                {
+                    ReportName = f.Nome,
+                    Filters = f.Filtri,
+                    Columns = f.Colonne,
+                    CoverType = f.TipoCopertina,
+                    DataViewType = f.TipoVisualizzazione,
+                    ExportFormat = f.FormatoEsportazione
+                });
+            }
+
+            return res;
+        }
+
+        public async Task EliminaReport(string nomeReport, PersonaDto currentUser)
+        {
+            var report = await _unitOfWork.Reports.Get(nomeReport, currentUser.UID_persona);
+            _unitOfWork.Reports.Remove(report);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task<HttpResponseMessage> GeneraReport(ReportDto model, PersonaDto currentUser)
+        {
+            var body = await ComposeReportBodyFromTemplate(model, currentUser);
+
+            // genera word o pdf
+            var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
+            var filePath = Path.Combine(tempFolderPath, $"Report_{DateTime.Now.Ticks}");
+            switch ((ExportFormatEnum)model.ExportFormat)
+            {
+                case ExportFormatEnum.PDF:
+                    filePath += ".pdf";
+                    var stamper = new PdfStamper_IronPDF(AppSettingsConfiguration.PDF_LICENSE);
+                    await stamper.CreaPDFAsync(filePath, body, "Report");
+                    break;
+                case ExportFormatEnum.WORD:
+                    filePath += ".docx";
+                    CreateWordReport(filePath, body);
+                    break;
+                default:
+                    throw new ArgumentException("Formato di esportazione non supportato");
+            }
+
             var result = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent($"{AppSettingsConfiguration.URL_API}/esportazioni/{request.ReportName}")
+                Content = new StringContent(
+                    $"{AppSettingsConfiguration.URL_API}/esportazioni/{Path.GetFileName(filePath)}")
             };
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
 
             return result;
+        }
+
+        private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
+        {
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.Filters);
+            var filterStatements = new List<FilterStatement<AttoDASIDto>>();
+            foreach (var filterItem in filtri)
+            {
+                filterStatements.Add(new FilterStatement<AttoDASIDto>
+                {
+                    PropertyId = filterItem.property,
+                    Operation = Operation.EqualTo,
+                    Value = filterItem.value,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            var request = new BaseRequest<AttoDASIDto>
+            {
+                page = 1,
+                size = 9999,
+                filtro = filterStatements,
+                param = new Dictionary<string, object> { { "CLIENT_MODE", (int)ClientModeEnum.GRUPPI } }
+            };
+
+            // get dati dal database
+            var idsList = await GetSoloIds(request, currentUser, null);
+
+            // comporre il body con la lista dei dati
+            var body =
+                "<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">" +
+                "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css\">" +
+                $"<link rel=\"stylesheet\" href=\"{AppSettingsConfiguration.url_CLIENT}/content/site.css\">";
+            var templateHeader = GetTemplate(TemplateTypeEnum.REPORT_HEADER_DEFAULT, true);
+            templateHeader = templateHeader.Replace("{{TOTALE_ATTI}}", idsList.Count.ToString());
+            body += templateHeader;
+
+            switch ((DataViewTypeEnum)model.DataViewType)
+            {
+                case DataViewTypeEnum.GRID:
+                    body += "<table>";
+                    foreach (var guid in idsList)
+                    {
+                        body += "<tr>";
+                        var atto = await GetAttoDto(guid);
+
+                        body += GetBodyItemGrid(atto);
+
+                        body += "</tr>";
+                    }
+
+                    body += "</table>";
+                    break;
+                case DataViewTypeEnum.CARD:
+                    var templateItemCard = GetTemplate(TemplateTypeEnum.REPORT_ITEM_CARD, true);
+                    foreach (var guid in idsList)
+                    {
+                        var atto = await GetAttoDto(guid);
+
+                        body += templateItemCard.Replace("{{ITEM}}", GetBodyItemCard(atto));
+                    }
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Visualizzazione non supportata");
+            }
+
+
+            return body;
+        }
+
+        private void CreateWordReport(string filePath, string body)
+        {
+            using var document = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document);
+            var mainPart = document.MainDocumentPart;
+            if (mainPart == null)
+            {
+                mainPart = document.AddMainDocumentPart();
+                new Document(new Body()).Save(mainPart);
+            }
+
+            var converter = new HtmlConverter(mainPart);
+            converter.ParseHtml(body);
+
+            // Salva il documento
+            mainPart.Document.Save();
+        }
+
+        private string GetBodyItemCard(AttoDASIDto dto)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"<b>{dto.Display}</b>");
+            sb.AppendLine($"<p>{dto.OggettoView()}</p>");
+
+            return sb.ToString();
+        }
+
+        private string GetBodyItemGrid(AttoDASIDto dto)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"<td><b>{dto.Display}</b></td>");
+            sb.AppendLine($"<td>{dto.OggettoView()}</td>");
+
+            return sb.ToString();
         }
     }
 }

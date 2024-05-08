@@ -593,6 +593,26 @@ namespace PortaleRegione.Gateway
             return lst;
         }
 
+        public async Task SalvaReport(ReportDto report)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.SalvaReport}";
+            var body = JsonConvert.SerializeObject(report);
+            await Post(requestUrl, body, _token);
+        }
+
+        public async Task<List<ReportDto>> GetReports()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.GetReports}";
+            var lst = JsonConvert.DeserializeObject<List<ReportDto>>(await Get(requestUrl, _token));
+            return lst;
+        }
+
+        public async Task EliminaReport(string nomeReport)
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.EliminaReport}?nomeReport={nomeReport}";
+            await Delete(requestUrl, _token);
+        }
+
         public async Task<Dictionary<Guid, string>> RitiraFirma(ComandiAzioneModel model)
         {
             var requestUrl = $"{apiUrl}/{ApiRoutes.DASI.RitiroFirma}";

@@ -1511,5 +1511,53 @@ namespace PortaleRegione.Client.Controllers
                 return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        [Route("salva-report")]
+        public async Task<ActionResult> SalvaReport(ReportDto report)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.SalvaReport(report);
+                return Json("OK");
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        [Route("elimina-report")]
+        public async Task<ActionResult> EliminaReport(string nomeReport)
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                await apiGateway.DASI.EliminaReport(nomeReport);
+                return Json("OK", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+        [HttpGet]
+        [Route("get-reports")]
+        public async Task<ActionResult> GetReports()
+        {
+            try
+            {
+                var apiGateway = new ApiGateway(Token);
+                var res = await apiGateway.DASI.GetReports();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new ErrorResponse(e.Message), JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

@@ -40,7 +40,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 	ripristinaFiltri();
 	await ripristinaPreferiti();
+	await ripristinaReports();
 	creaPannelloFiltriLaterale();
+	creaPannelloReportLaterale();
 
     document.getElementById('addFiltersButton').addEventListener('click', function () {
 		var key = document.getElementById('modal-filter-id-hidden').value;
@@ -267,8 +269,9 @@ function creaPaginazione(data) {
         <span class="badge tooltipped" data-tooltip="Seleziona pagina" data-position="top" onclick="ShowHidePaginationTabs()">
             Pagina ${paginaCorrente} di ${totalePagine}
         </span>
-        <br>
-        <span class="hide-on-large-only" style="margin-top: -5px; margin-left: 20px; font-size: 12px; position: absolute;">
+    </li>
+	<li class="waves-effect">
+        <span>
             ${totaleRisultati} risultati
         </span>
     </li>`;

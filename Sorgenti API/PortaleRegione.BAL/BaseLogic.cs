@@ -299,6 +299,14 @@ namespace PortaleRegione.BAL
                         path = HttpContext.Current.Server.MapPath(
                             "~/templates/dasi/template_indice.html");
                         break;
+                    case TemplateTypeEnum.REPORT_HEADER_DEFAULT:
+                        path = HttpContext.Current.Server.MapPath(
+                            "~/templates/dasi/template_report_header_default.html");
+                        break;
+                    case TemplateTypeEnum.REPORT_ITEM_CARD:
+                        path = HttpContext.Current.Server.MapPath(
+                            "~/templates/dasi/template_report_item_card.html");
+                        break;
                 }
 
             var result = File.ReadAllText(path);

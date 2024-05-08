@@ -96,6 +96,8 @@
     <Compile Include="Enum\AreaPoliticaEnum.cs" />
     <Compile Include="Enum\ClientModeEnum.cs" />
     <Compile Include="Enum\CounterEmendamentiEnum.cs" />
+    <Compile Include="Enum\DataViewTypeEnum.cs" />
+    <Compile Include="Enum\ExportFormatEnum.cs" />
     <Compile Include="Enum\FirmeTipoEnum.cs" />
     <Compile Include="Enum\ModuloStampaEnum.cs" />
     <Compile Include="Enum\PartiEMEnum.cs" />

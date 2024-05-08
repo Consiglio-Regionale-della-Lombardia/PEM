@@ -395,6 +395,20 @@ function GetFiltriPreferitiDASI() {
     });
 }
 
+function GetReportsDASI() {
+    return new Promise(async function(resolve, reject) {
+        $.ajax({
+            url: baseUrl + "/dasi/get-reports",
+            type: "GET"
+        }).done(function(result) {
+            resolve(result);
+        }).fail(function(err) {
+            console.log("error", err);
+            Error(err);
+        });
+    });
+}
+
 function GetTipiDASI() {
     var tipi = get_ListaTipiDASI();
     if (tipi.length > 0) {

@@ -27,29 +27,29 @@ using PortaleRegione.Domain;
 
 namespace PortaleRegione.Persistance
 {
-    public class FiltriRepository : Repository<FILTRI>, IFiltriRepository
+    public class ReportsRepository : Repository<REPORTS>, IReportsRepository
     {
-        public FiltriRepository(DbContext context) : base(context)
+        public ReportsRepository(DbContext context) : base(context)
         {
         }
 
         public PortaleRegioneDbContext PRContext => Context as PortaleRegioneDbContext;
-
-        public async Task<List<FILTRI>> GetByUser(Guid uidPersona)
+        
+        public async Task<List<REPORTS>> GetByUser(Guid uidPersona)
         {
-            var res = await PRContext.FILTRI
+            var res = await PRContext
+                .REPORTS
                 .Where(f => f.UId_persona.Equals(uidPersona))
-                .OrderByDescending(f => f.Preferito)
-                .ThenBy(f => f.Nome)
+                .OrderBy(f => f.Nome)
                 .ToListAsync();
             return res;
         }
 
-        public async Task<FILTRI> Get(string nomeFiltro, Guid UidPersona)
+        public async Task<REPORTS> Get(string nome, Guid UidPersona)
         {
             var res = await PRContext
-                .FILTRI
-                .FirstOrDefaultAsync(f => f.UId_persona.Equals(UidPersona) && f.Nome.Equals(nomeFiltro));
+                .REPORTS
+                .FirstOrDefaultAsync(f => f.UId_persona.Equals(UidPersona) && f.Nome.Equals(nome));
             return res;
         }
     }

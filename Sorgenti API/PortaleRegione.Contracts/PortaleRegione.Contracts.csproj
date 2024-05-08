@@ -50,6 +50,7 @@
     <Compile Include="INotificheRepository.cs" />
     <Compile Include="INotifiche_DestinatariRepository.cs" />
     <Compile Include="IPersoneRepository.cs" />
+    <Compile Include="IReportsRepository.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IAttiRepository.cs" />
     <Compile Include="IRuoliRepository.cs" />

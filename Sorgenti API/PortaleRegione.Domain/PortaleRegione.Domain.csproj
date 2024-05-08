@@ -69,6 +69,7 @@
     <Compile Include="PINS.cs" />
     <Compile Include="PINS_NoCons.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="REPORTS.cs" />
     <Compile Include="RUOLI.cs" />
     <Compile Include="RUOLI_UTENTE.cs" />
     <Compile Include="SEDUTE.cs" />

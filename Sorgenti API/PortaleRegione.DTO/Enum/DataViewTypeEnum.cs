@@ -18,16 +18,9 @@
 
 namespace PortaleRegione.DTO.Enum
 {
-    public enum TemplateTypeEnum
+    public enum DataViewTypeEnum
     {
-        PDF = 1,
-        PDF_COPERTINA = 2,
-        MAIL = 3,
-        HTML = 4,
-        HTML_MODIFICABILE = 5,
-        FIRMA = 6,
-        INDICE_DASI = 7,
-        REPORT_HEADER_DEFAULT = 8,
-        REPORT_ITEM_CARD = 9,
+        GRID = 1,
+        CARD = 2
     }
 }

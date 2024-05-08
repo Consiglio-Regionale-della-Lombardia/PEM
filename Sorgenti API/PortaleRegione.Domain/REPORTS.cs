@@ -16,18 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PortaleRegione.Domain
 {
-    public enum TemplateTypeEnum
+    [Table("REPORTS")]
+    public class REPORTS
     {
-        PDF = 1,
-        PDF_COPERTINA = 2,
-        MAIL = 3,
-        HTML = 4,
-        HTML_MODIFICABILE = 5,
-        FIRMA = 6,
-        INDICE_DASI = 7,
-        REPORT_HEADER_DEFAULT = 8,
-        REPORT_ITEM_CARD = 9,
+        public REPORTS()
+        {
+            Id = Guid.NewGuid();
+            DataCreazione = DateTime.Now;
+        }
+
+        [Key] public Guid Id { get; set; }
+        public DateTime DataCreazione { get; set; }
+        [Required] [StringLength(100)] public string Nome { get; set; }
+        public string Filtri { get; set; }
+        public int FormatoEsportazione { get; set; }
+        public int TipoVisualizzazione { get; set; }
+        public int TipoCopertina { get; set; }
+
+        public string Colonne { get; set; }
+        public Guid UId_persona { get; set; }
     }
 }

@@ -16,18 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using PortaleRegione.Domain;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+
+namespace PortaleRegione.Contracts
 {
-    public enum TemplateTypeEnum
+    public interface IReportsRepository : IRepository<REPORTS>
     {
-        PDF = 1,
-        PDF_COPERTINA = 2,
-        MAIL = 3,
-        HTML = 4,
-        HTML_MODIFICABILE = 5,
-        FIRMA = 6,
-        INDICE_DASI = 7,
-        REPORT_HEADER_DEFAULT = 8,
-        REPORT_ITEM_CARD = 9,
+        Task<List<REPORTS>> GetByUser(Guid uidPersona);
+        Task<REPORTS> Get(string nome, Guid UidPersona);
     }
 }

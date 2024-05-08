@@ -26,21 +26,25 @@ main { margin-bottom: 150px; }
 .sidenav li > a { padding: 0 16px !important; }
 
 .patreon-ad {
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	width: 299px;
 	background-color: #fff;
+	border-top: 1px solid rgba(0, 0, 0, 0.14);
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	width: 299px;
 	z-index: 1000;
-	border-top: 1px solid rgba(0,0,0,0.14);
 }
 
-.btn-flat {
-	font-weight: bold !important;
-}
+.btn-flat { font-weight: bold !important; }
 
 .btn-flat.black-text {
 	border: 1px black solid;
+	border-radius: 5px;
+	color: black !important;
+}
+
+.btn-flat.yellow-text {
+	border: 1px #ffeb3b solid;
 	border-radius: 5px;
 	color: black !important;
 }
@@ -875,9 +879,9 @@ span.highlight { background-color: yellow; }
 }
 
 .pagination-container {
+	align-items: center;
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
 }
 
 .pagination-container .pagination {

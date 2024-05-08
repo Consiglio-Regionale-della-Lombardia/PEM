@@ -49,14 +49,52 @@
         </div>
     </div>
     <div class="modal-footer">
+        <a id="btnSalvaReport" class="btn blue-text waves-effect waves-green btn-flat">Salva report</a>
+        <a class="btn orange-text waves-effect waves-green btn-flat">Estrai testi (ZIP)</a>
         <a id="btnGenerateReport" class="btn pink-text waves-effect waves-green btn-flat">Genera report</a>
     </div>
 </div>
 
 <script>
-
+	var reportsArray = [];
 	document.getElementById('btnReportConfig').addEventListener('click', function () {
 		openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
+	});
+
+	document.getElementById('btnSalvaReport').addEventListener('click', function () {
+		var request = {};
+		var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
+		var filtriList = [];
+		$.each(filtri, function (index, item) {
+			filtriList.push({
+				property: item.key,
+				value: item.val
+			});
+		});
+		request.filters = JSON.stringify(filtriList);
+		request.reportName = document.getElementById('report_name').value;
+		request.coverType = document.querySelector('select[name="coverType"]').value;
+		request.dataViewType = document.querySelector('select[name="dataViewType"]').value;
+		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
+		request.exportFormat = document.querySelector('select[name="exportFormat"]').value;
+
+        var url = '@Url.Action("SalvaReport", "DASI")';
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: JSON.stringify(request),
+			contentType: "application/json; charset=utf-8",
+			success: function (response) {
+				M.toast({
+					html: `<span><b class="yellow-text">${document.getElementById('report_name').value}</b> salvato con successo</span>`, classes: 'rounded', displayLength: 5000
+				});
+				creaPannelloReportLaterale();
+			},
+			error: function (xhr, status, error) {
+				console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
+			}
+		});
 	});
 
 	document.getElementById('btnGenerateReport').addEventListener('click', function () {
@@ -76,7 +114,7 @@
 		request.columns = Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value);
 		request.exportFormat = document.querySelector('select[name="exportFormat"]').value;
 
-         var url = '@Url.Action("GeneraReport", "DASI")';
+        var url = '@Url.Action("GeneraReport", "DASI")';
 
         $.ajax({
             url: url,
@@ -91,6 +129,7 @@
                 console.log("Risposta ricevuta", response);
                 var a = document.createElement("a");
                 a.href = response;
+				a.target = '_blank';
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -129,5 +168,89 @@
 
 		chipsContainer.appendChild(newChip);
 	}
+    
+	async function ripristinaReports() {
+		var reports = await GetReportsDASI();
+		console.log(reports)
+		reportsArray = [];
+		$.each(reports, function (index, item) {
+			reportsArray.push(item);
+		});
+	}
+
+    function creaPannelloReportLaterale() {
+    var collection = document.getElementById('data-collection-report');
+    $('#data-collection-report').empty();
+    reportsArray.forEach(function (item) {
+        var li = document.createElement('li');
+        li.textContent = item.reportname;
+
+        var addIcon = document.createElement('i');
+	    addIcon.className = 'material-icons secondary-content';
+	    addIcon.textContent = 'add_circle';
+
+	    addIcon.onclick = function (event) {
+            event.stopPropagation();
+
+			resetSelezionePreferiti();
+			localStorage.setItem('filtriDasi', item.filters);
+			chipsKeys = [];
+			$('#chips-container').empty();
+			ripristinaFiltri();
+        };
+
+        li.appendChild(addIcon);
+
+	    var deleteIcon = document.createElement('i');
+	    deleteIcon.className = 'material-icons secondary-content';
+	    deleteIcon.style.marginRight = '10px';
+	    deleteIcon.textContent = 'delete';
+	    deleteIcon.classList.add('red-text');
+	    deleteIcon.onclick = async function (event) {
+		    event.stopPropagation();
+		    swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.reportname}"?`, {
+			    buttons: ["No", "Si"],
+		    }).then(async (value) => {
+			    if (value == true){
+				    try {
+					    var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
+					    deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+					    let response = await fetch(deleteUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        let data = await response.json();
+                        if(data.message){
+                            ErrorAlert(data.message);
+                            return;
+                        }
+
+					    M.toast({
+						    html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+
+					    li.remove();
+					    var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
+
+					    if (indexToRemove !== -1) {
+						    filtriPreferitiArray.splice(indexToRemove, 1);
+					    }
+					    $(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
+				    } catch (error) {
+					    console.error('Errore di fetch:', error);
+					    ErrorAlert(error.message);
+				    }
+			    }
+		    });
+	    };
+	    li.appendChild(deleteIcon);
+        collection.appendChild(li);
+    });
+}
 
 </script>

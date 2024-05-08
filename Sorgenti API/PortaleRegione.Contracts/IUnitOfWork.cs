@@ -43,6 +43,7 @@ namespace PortaleRegione.Contracts
         IDASIRepository DASI { get; }
         IAttiFirmeRepository Atti_Firme { get; }
         IFiltriRepository Filtri { get; }
+        IReportsRepository Reports { get; }
 
         /// <summary>
         /// Salva le operazioni fatte finora nel Context
