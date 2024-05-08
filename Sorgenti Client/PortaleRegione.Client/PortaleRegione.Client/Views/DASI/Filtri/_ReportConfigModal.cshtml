@@ -48,11 +48,12 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+	<div class="modal-footer">
+		<a class="grey-text modal-close waves-effect waves-green btn-flat">Annulla</a>
         <a id="btnSalvaReport" class="btn blue-text waves-effect waves-green btn-flat">Salva report</a>
-        <a class="btn orange-text waves-effect waves-green btn-flat">Estrai testi (ZIP)</a>
-        <a id="btnGenerateReport" class="btn pink-text waves-effect waves-green btn-flat">Genera report</a>
-    </div>
+		<a class="btn orange-text waves-effect waves-green btn-flat">Estrai testi (ZIP)</a>
+		<a id="btnGenerateReport" class="btn pink-text waves-effect waves-green btn-flat">Genera report</a>
+	</div>
 </div>
 
 <script>
@@ -61,40 +62,43 @@
 		openModalWithContent_Report("", localStorage.getItem('filtriDasi'));
 	});
 
-	document.getElementById('btnSalvaReport').addEventListener('click', function () {
+	document.getElementById('btnSalvaReport').addEventListener('click', async function () {
 		var request = {};
-		var filtri = JSON.parse(localStorage.getItem('filtriDasi'));
-		var filtriList = [];
-		$.each(filtri, function (index, item) {
-			filtriList.push({
-				property: item.key,
-				value: item.val
-			});
-		});
-		request.filters = JSON.stringify(filtriList);
-		request.reportName = document.getElementById('report_name').value;
-		request.coverType = document.querySelector('select[name="coverType"]').value;
-		request.dataViewType = document.querySelector('select[name="dataViewType"]').value;
+		request.filters = localStorage.getItem('filtriDasi');
+		request.reportname = document.getElementById('report_name').value;
+		request.covertype = document.querySelector('select[name="coverType"]').value;
+		request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
 		request.columns = JSON.stringify(Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value));
-		request.exportFormat = document.querySelector('select[name="exportFormat"]').value;
+		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
 
         var url = '@Url.Action("SalvaReport", "DASI")';
-
-		$.ajax({
-			url: url,
-			type: "POST",
-			data: JSON.stringify(request),
-			contentType: "application/json; charset=utf-8",
-			success: function (response) {
-				M.toast({
-					html: `<span><b class="yellow-text">${document.getElementById('report_name').value}</b> salvato con successo</span>`, classes: 'rounded', displayLength: 5000
-				});
-				creaPannelloReportLaterale();
-			},
-			error: function (xhr, status, error) {
-				console.error("Errore nella richiesta: " + status + ". Motivo: " + error);
-			}
+		const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+		
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		
+		const data = await response.json();
+		if (data.message) {
+			ErrorAlert(data.message);
+			return;
+		}
+		
+		M.toast({
+			html: `<span><b class="yellow-text">${document.getElementById('report_name').value}</b> salvato con successo</span>`, classes: 'rounded', displayLength: 5000
 		});
+		var index = reportsArray.findIndex(el => el.reportname === item.reportname);
+		if (index !== -1) {
+			reportsArray.splice(index, 1);
+		}
+		reportsArray.push(request)
+		creaPannelloReportLaterale();
 	});
 
 	document.getElementById('btnGenerateReport').addEventListener('click', function () {
@@ -108,11 +112,11 @@
 			});
         });
 		request.filters = JSON.stringify(filtriList);
-		request.reportName = document.getElementById('report_name').value;
-		request.coverType = document.querySelector('select[name="coverType"]').value;
-		request.dataViewType = document.querySelector('select[name="dataViewType"]').value;
+		request.reportname = document.getElementById('report_name').value;
+		request.covertype = document.querySelector('select[name="coverType"]').value;
+		request.dataviewtype = document.querySelector('select[name="dataViewType"]').value;
 		request.columns = Array.from(document.querySelector('select[name="columns"]').selectedOptions).map(option => option.value);
-		request.exportFormat = document.querySelector('select[name="exportFormat"]').value;
+		request.exportformat = document.querySelector('select[name="exportFormat"]').value;
 
         var url = '@Url.Action("GeneraReport", "DASI")';
 
@@ -149,8 +153,35 @@
 	});
 
 	function openModalWithContent_Report(name, filters) {
-		$('#report_name').val(name);
 		$('#chips-container-report-config').empty();
+
+		var existingChip = document.querySelector(`.chip[data-selected-report]`);
+		if (existingChip) {
+			var report_name = $(existingChip).data("selected-report");
+			var index = reportsArray.findIndex(el => el.reportname === report_name);
+			var selectedReport = reportsArray[index];
+
+			$('#report_name').val(selectedReport.reportname);
+			$('select[name="coverType"]').val(selectedReport.covertype).formSelect();
+			$('select[name="dataViewType"]').val(selectedReport.dataviewtype).formSelect();
+			$('select[name="exportFormat"]').val(selectedReport.exportformat).formSelect();
+			$('select[name="columns"]').val([]);
+			$('select[name="columns"]').find('option').each(function () {
+				$(this).prop('selected', false);
+			});
+			var columns = JSON.parse(selectedReport.columns);
+			columns.forEach(function (columnId) {
+				$('select[name="columns"]').find(`option[value="${columnId}"]`).prop('selected', true);
+			});
+			$('select[name="columns"]').formSelect();
+		}else{
+			$('#report_name').val('');
+			$('select[name="coverType"]').prop('selectedIndex', 0).formSelect();
+			$('select[name="dataViewType"]').prop('selectedIndex', 0).formSelect();
+			$('select[name="columns"]').prop('selectedIndex', -1).formSelect();
+			$('select[name="exportFormat"]').prop('selectedIndex', 0).formSelect();
+		}		
+		
 		const filtri = JSON.parse(filters);
 		if (filtri) {
 			filtri.forEach(function (filtro) {
@@ -168,7 +199,7 @@
 
 		chipsContainer.appendChild(newChip);
 	}
-    
+
 	async function ripristinaReports() {
 		var reports = await GetReportsDASI();
 		console.log(reports)
@@ -183,7 +214,8 @@
     $('#data-collection-report').empty();
     reportsArray.forEach(function (item) {
         var li = document.createElement('li');
-        li.textContent = item.reportname;
+		li.className = 'collection-item';
+		li.textContent = item.reportname;
 
         var addIcon = document.createElement('i');
 	    addIcon.className = 'material-icons secondary-content';
@@ -191,12 +223,29 @@
 
 	    addIcon.onclick = function (event) {
             event.stopPropagation();
-
 			resetSelezionePreferiti();
 			localStorage.setItem('filtriDasi', item.filters);
 			chipsKeys = [];
 			$('#chips-container').empty();
 			ripristinaFiltri();
+            
+			$('#chips-container-selected-report').empty();
+			var chipsContainer = document.getElementById('chips-container-selected-report');
+			var selectedReportChip = document.createElement('div');
+			selectedReportChip.classList.add('chip', 'pink', 'black-text');
+			selectedReportChip.textContent = item.reportname;
+			selectedReportChip.setAttribute('data-selected-report', item.reportname);
+			
+			var removeSelectedReportIcon = document.createElement('i');
+			removeSelectedReportIcon.className = 'material-icons secondary-content black-text tiny';
+			removeSelectedReportIcon.style.marginLeft = '10px';
+			removeSelectedReportIcon.style.top = '9px';
+			removeSelectedReportIcon.textContent = 'close';
+			removeSelectedReportIcon.onclick = async function (event) {
+				selectedReportChip.remove();
+			};
+			selectedReportChip.appendChild(removeSelectedReportIcon);
+			chipsContainer.appendChild(selectedReportChip);
         };
 
         li.appendChild(addIcon);
@@ -208,13 +257,13 @@
 	    deleteIcon.classList.add('red-text');
 	    deleteIcon.onclick = async function (event) {
 		    event.stopPropagation();
-		    swal(`Sei sicuro di voler eliminare il gruppo di filtri "${item.reportname}"?`, {
+		    swal(`Sei sicuro di voler eliminare il report "${item.reportname}"?`, {
 			    buttons: ["No", "Si"],
 		    }).then(async (value) => {
 			    if (value == true){
 				    try {
-					    var deleteUrl = '@Url.Action("EliminaGruppoFiltri", "DASI")';
-					    deleteUrl = `${deleteUrl}?nomeFiltro=${encodeURIComponent(item.name)}`;
+					    var deleteUrl = '@Url.Action("EliminaReport", "DASI")';
+						deleteUrl = `${deleteUrl}?nomeReport=${encodeURIComponent(item.reportname)}`;
 					    let response = await fetch(deleteUrl, {
                             method: 'GET',
                             headers: {
@@ -232,15 +281,14 @@
                         }
 
 					    M.toast({
-						    html: `<span><b class="yellow-text">${item.name}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
+						    html: `<span><b class="yellow-text">${item.reportname}</b> eliminato con successo</span>`, classes: 'rounded', displayLength: 5000 });
 
 					    li.remove();
-					    var indexToRemove = filtriPreferitiArray.findIndex(el => el.name === item.name);
+						var indexToRemove = reportsArray.findIndex(el => el.reportname === item.reportname);
 
 					    if (indexToRemove !== -1) {
-						    filtriPreferitiArray.splice(indexToRemove, 1);
+							reportsArray.splice(indexToRemove, 1);
 					    }
-					    $(`[data-nome-gruppo-filtri="${item.name}"]`).remove();
 				    } catch (error) {
 					    console.error('Errore di fetch:', error);
 					    ErrorAlert(error.message);

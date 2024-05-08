@@ -22,11 +22,11 @@ namespace PortaleRegione.DTO.Domain
 {
     public class ReportDto
     {
-        public string ReportName { get; set; }
-        public int CoverType { get; set; }
-        public int DataViewType { get; set; }
-        public string Columns { get; set; }
-        public int ExportFormat { get; set; }
-        public string Filters { get; set; }
+        public string reportname { get; set; }
+        public int covertype { get; set; }
+        public int dataviewtype { get; set; }
+        public string columns { get; set; }
+        public int exportformat { get; set; }
+        public string filters { get; set; }
     }
 }

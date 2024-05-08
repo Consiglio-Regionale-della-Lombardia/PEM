@@ -3258,23 +3258,36 @@ namespace PortaleRegione.API.Controllers
 
         public async Task SalvaReport(ReportDto report, PersonaDto currentUser)
         {
-            if (string.IsNullOrEmpty(report.ReportName))
+            if (string.IsNullOrEmpty(report.reportname))
             {
                 throw new Exception("E' necessario dare un nome al report per poterlo salvare.");
             }
 
-            var item = new REPORTS
+            var reportInDb = await _unitOfWork.Reports.Get(report.reportname, currentUser.UID_persona);
+            if (reportInDb == null)
             {
-                UId_persona = currentUser.UID_persona,
-                Filtri = report.Filters,
-                Nome = report.ReportName,
-                Colonne = report.Columns,
-                FormatoEsportazione = report.ExportFormat,
-                TipoCopertina = report.CoverType,
-                TipoVisualizzazione = report.DataViewType
-            };
+                var item = new REPORTS
+                {
+                    UId_persona = currentUser.UID_persona,
+                    Filtri = report.filters,
+                    Nome = report.reportname,
+                    Colonne = report.columns,
+                    FormatoEsportazione = report.exportformat,
+                    TipoCopertina = report.covertype,
+                    TipoVisualizzazione = report.dataviewtype
+                };
 
-            _unitOfWork.Reports.Add(item);
+                _unitOfWork.Reports.Add(item);
+            }
+            else
+            {
+                reportInDb.Filtri = report.filters;
+                reportInDb.Colonne = report.columns;
+                reportInDb.FormatoEsportazione = report.exportformat;
+                reportInDb.TipoCopertina = report.covertype;
+                reportInDb.TipoVisualizzazione = report.dataviewtype;
+            }
+
             await _unitOfWork.CompleteAsync();
         }
 
@@ -3329,12 +3342,12 @@ namespace PortaleRegione.API.Controllers
             {
                 res.Add(new ReportDto
                 {
-                    ReportName = f.Nome,
-                    Filters = f.Filtri,
-                    Columns = f.Colonne,
-                    CoverType = f.TipoCopertina,
-                    DataViewType = f.TipoVisualizzazione,
-                    ExportFormat = f.FormatoEsportazione
+                    reportname = f.Nome,
+                    filters = f.Filtri,
+                    columns = f.Colonne,
+                    covertype = f.TipoCopertina,
+                    dataviewtype = f.TipoVisualizzazione,
+                    exportformat = f.FormatoEsportazione
                 });
             }
 
@@ -3355,7 +3368,7 @@ namespace PortaleRegione.API.Controllers
             // genera word o pdf
             var tempFolderPath = HttpContext.Current.Server.MapPath("~/esportazioni");
             var filePath = Path.Combine(tempFolderPath, $"Report_{DateTime.Now.Ticks}");
-            switch ((ExportFormatEnum)model.ExportFormat)
+            switch ((ExportFormatEnum)model.exportformat)
             {
                 case ExportFormatEnum.PDF:
                     filePath += ".pdf";
@@ -3382,7 +3395,7 @@ namespace PortaleRegione.API.Controllers
 
         private async Task<string> ComposeReportBodyFromTemplate(ReportDto model, PersonaDto currentUser)
         {
-            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.Filters);
+            var filtri = JsonConvert.DeserializeObject<List<FilterItem>>(model.filters);
             var filterStatements = new List<FilterStatement<AttoDASIDto>>();
             foreach (var filterItem in filtri)
             {
@@ -3415,7 +3428,7 @@ namespace PortaleRegione.API.Controllers
             templateHeader = templateHeader.Replace("{{TOTALE_ATTI}}", idsList.Count.ToString());
             body += templateHeader;
 
-            switch ((DataViewTypeEnum)model.DataViewType)
+            switch ((DataViewTypeEnum)model.dataviewtype)
             {
                 case DataViewTypeEnum.GRID:
                     body += "<table>";

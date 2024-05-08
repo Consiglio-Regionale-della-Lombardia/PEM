@@ -86,6 +86,7 @@
 		}
 		function updateCollectionReportVisibility() {
 			var searchQuery = document.getElementById('search-input-report').value.toLowerCase();
+            console.log(searchQuery)
 			var collectionItems = document.querySelectorAll('#data-collection-report .collection-item');
 
 			collectionItems.forEach(function (item) {
