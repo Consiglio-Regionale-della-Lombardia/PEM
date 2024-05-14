@@ -488,6 +488,7 @@
     <Content Include="Views\DASI\Filtri\_ReportConfigModal.cshtml" />
     <Content Include="Views\DASI\Filtri\_FiltroConfigModal.cshtml" />
     <Content Include="Views\DASI\Filtri\_DettaglioFiltroModal.cshtml" />
+    <Content Include="Views\DASI\_PannelloRicercheConsiglieri.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

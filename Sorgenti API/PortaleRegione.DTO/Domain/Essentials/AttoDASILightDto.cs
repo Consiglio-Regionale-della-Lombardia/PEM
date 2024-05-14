@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.DTO.Domain.Essentials
@@ -41,7 +42,10 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string tipo_risposta { get; set; }
         public string stato { get; set; }
         public string area_politica { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string data_ritiro { get; set; }
+
         public List<AttiFirmeDto> firme { get; set; } = new List<AttiFirmeDto>();
         public List<AttiFirmeDto> firme_dopo_deposito { get; set; } = new List<AttiFirmeDto>();
         public KeyValueDto gruppo { get; set; } = new KeyValueDto();

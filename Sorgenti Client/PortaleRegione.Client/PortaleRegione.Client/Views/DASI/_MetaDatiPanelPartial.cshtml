@@ -131,6 +131,14 @@
 </div>
 
 <script>
+
+	async function openMetaDatiDASI(attoUId) {
+		var atto = await GetAtto(attoUId);
+		console.log("atto", atto)
+		await LoadMetaDatiAtto(atto);
+		$("#modalMetaDati").modal("open");
+	}
+
     async function LoadMetaDatiAtto(atto) {
         await SetupMetaDati(atto);
 
@@ -297,7 +305,7 @@
 
     async function SetupMetaDati(atto) {
         waiting(true);
-        $('#NAtto').text($('div[id*="atto_' + atto.UIDAtto + '"]').data("nome-atto"));
+        $('#NAtto').text(atto.Display);
         LoadMetaDati_Oggetto(atto);
         LoadMetaDati_Premesse(atto);
         LoadMetaDati_Richiesta(atto);
@@ -419,5 +427,6 @@
             $('#metaDatiRichiesta' + '> .form-group > p').show();
         }
     }
+
 
 </script>

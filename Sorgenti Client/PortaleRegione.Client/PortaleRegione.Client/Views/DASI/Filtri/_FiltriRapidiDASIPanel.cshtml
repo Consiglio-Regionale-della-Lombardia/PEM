@@ -1,23 +1,24 @@
-﻿@using PortaleRegione.Common
+﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
+@using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
 <div class="row">
-	<div class="input-field col s12">
-		<i class="material-icons prefix">search</i>
-		<input type="text" id="autocomplete-input" class="autocomplete">
-		<label for="autocomplete-input">Ricerca filtri disponibili</label>
-	</div>
+    <div class="input-field col s12">
+        <i class="material-icons prefix">search</i>
+        <input type="text" id="autocomplete-input" class="autocomplete">
+        <label for="autocomplete-input">Ricerca filtri disponibili</label>
+    </div>
 </div>
 <div class="row">
-	<div class="col l8 m12 s12 left-align">
-		<div id="chips-container"></div>
-		<br />
-		<div id="chips-container-groups"></div>
-	</div>
-	<div class="col l4 m12 s12 right-align">
-		<a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
+    <div class="col l8 m12 s12 left-align">
+        <div id="chips-container"></div>
+        <br/>
+        <div id="chips-container-groups"></div>
+    </div>
+    <div class="col l4 m12 s12 right-align">
+        <a id="btnFiltroConfig" class="btn-flat blue-text">Salva filtro</a>
         <a id="btnReportConfig" class="btn-flat pink-text">Genera report</a>
         <div class="row">
             <div class="col s12">
@@ -188,6 +189,8 @@ function CreaTabella(responseData) {
             <th>Oggetto</th>
             <th>Firmatari</th>
             <th>Stato</th>
+            <th>Seduta</th>
+            <th></th>
         </tr>
     `;
 	table.appendChild(thead);
@@ -196,7 +199,7 @@ function CreaTabella(responseData) {
 	const tbody = document.createElement('tbody');
 	responseData.Data.Results.forEach(result => {
 		var htmlFirme = ``;
-		if (result.Firmato_Dal_Proponente) {
+		if (result.Firmato_Dal_Proponente == false) {
 			htmlFirme = `<span class="grey-text tooltipped" data-tooltip="Il Proponente non ha ancora firmato">${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</span>`;
 		} else {
 			htmlFirme = `<b>${result.PersonaProponente.DisplayName} (${result.gruppi_politici.codice_gruppo})</b>`;
@@ -220,9 +223,25 @@ function CreaTabella(responseData) {
             </td>
 			<td style="width: 7%;">${result.Display}</td>
             <td style="width: 8%;">${result.DisplayTipoRispostaRichiesta}</td>
-            <td>${result.Oggetto}</td>
-            <td>${htmlFirme}</td>
-            <td>${result.DisplayStato}</td>
+            <td style="width: 35%;">${result.Oggetto}</td>
+            <td style="width: 15%;">${htmlFirme}</td>
+            <td style="width: 8%;">${result.DisplayStato}</td>
+            <td style="width: 8%;"></td>
+            <td style="width: 10%;" class="center">
+			     <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('${result.DisplayTipo}', ${result.NAtto}, ${result.Legislatura})">
+                     <i class="icon material-icons">remove_red_eye</i>
+                 </a>
+                 <a class="black-text tooltipped" style="margin: 2px" data-tooltip="Stampa" data-url="@Url.Action("Download", "DASI")?id=${result.UIDAtto}"
+                    data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI")?id=${result.UIDAtto}" onclick="StampaUOLA(this)">
+                     <i class="material-icons">print</i>
+                 </a>
+                 <a class="black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
+                     <i class="icon material-icons">edit</i>
+                 </a>
+				 <a class="black-text tooltipped" data-tooltip="Visualizza atto" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')">
+                     <i class="icon material-icons">arrow_forward</i>
+                 </a>
+			</td>
         `;
 		tbody.appendChild(row);
 	});

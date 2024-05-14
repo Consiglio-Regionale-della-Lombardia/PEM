@@ -44,12 +44,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                 var worksheetFirme = package.Workbook.Worksheets.First(w => w.Name.Equals(foglioFirme));
                 var cellsFirme = worksheetFirme.Cells;
                 var rowCountF = worksheetFirme.Dimension.Rows;
-                
-                var worksheetRisposteAssociate = package.Workbook.Worksheets.First(w => w.Name.Equals(foglioRispostaAssociata));
+
+                var worksheetRisposteAssociate =
+                    package.Workbook.Worksheets.First(w => w.Name.Equals(foglioRispostaAssociata));
                 var cellsRisposteAssociate = worksheetRisposteAssociate.Cells;
                 var rowCountRA = worksheetRisposteAssociate.Dimension.Rows;
-                
-                var worksheetRisposteGiunta = package.Workbook.Worksheets.First(w => w.Name.Equals(foglioRispostaGiunta));
+
+                var worksheetRisposteGiunta =
+                    package.Workbook.Worksheets.First(w => w.Name.Equals(foglioRispostaGiunta));
                 var cellsRisposteGiunta = worksheetRisposteGiunta.Cells;
                 var rowCountRG = worksheetRisposteGiunta.Dimension.Rows;
 
@@ -108,6 +110,121 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     throw new Exception(
                                         $"Legislatura {legislaturaFromAlfresco} non trovata nel database.");
                                 }
+
+                                #region NOTE
+
+                                #region NOTE CHIUSURA ITER
+
+                                var noteChiusuraIter = Convert.ToString(cellsAtti[row, 29].Value);
+
+                                if (string.IsNullOrEmpty(noteChiusuraIter) ||
+                                    noteChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertNotaChiusuraIter =
+                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertNotaChiusuraIter =
+                                        new SqlCommand(queryInsertNotaChiusuraIter, connection);
+                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.CHIUSURA_ITER);
+                                    commandInsertNotaChiusuraIter.Parameters.AddWithValue("@Nota", noteChiusuraIter);
+                                    commandInsertNotaChiusuraIter.ExecuteNonQuery();
+                                }
+
+                                #endregion
+
+                                #region NOTE RISPOSTA
+
+                                var noteRisposta = Convert.ToString(cellsAtti[row, 45].Value);
+
+                                if (string.IsNullOrEmpty(noteRisposta) ||
+                                    noteRisposta.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertNotaRisposta =
+                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertNotaRisposta = new SqlCommand(queryInsertNotaRisposta, connection);
+                                    commandInsertNotaRisposta.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                                    commandInsertNotaRisposta.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertNotaRisposta.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.RISPOSTA);
+                                    commandInsertNotaRisposta.Parameters.AddWithValue("@Nota", noteRisposta);
+                                    commandInsertNotaRisposta.ExecuteNonQuery();
+                                }
+
+                                #endregion
+
+                                #region NOTE AGGIUNTIVE SIDAC
+
+                                var noteAggiuntive = Convert.ToString(cellsAtti[row, 24].Value);
+
+                                if (string.IsNullOrEmpty(noteAggiuntive) ||
+                                    noteAggiuntive.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertNoteAggiuntive =
+                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertNoteAggiuntive =
+                                        new SqlCommand(queryInsertNoteAggiuntive, connection);
+                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.GENERALE);
+                                    commandInsertNoteAggiuntive.Parameters.AddWithValue("@Nota", noteAggiuntive);
+                                    commandInsertNoteAggiuntive.ExecuteNonQuery();
+                                }
+
+                                #endregion
+                                
+                                #region NOTE AGGIUNTIVE DASI
+
+                                var noteAggiuntive2 = Convert.ToString(cellsAtti[row, 25].Value);
+
+                                if (string.IsNullOrEmpty(noteAggiuntive2) ||
+                                    noteAggiuntive2.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Ignored
+                                }
+                                else
+                                {
+                                    var queryInsertNoteAggiuntive2 =
+                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                                    VALUES
+                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                    var commandInsertNoteAggiuntive2 =
+                                        new SqlCommand(queryInsertNoteAggiuntive2, connection);
+                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDPersona",
+                                        Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
+                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Tipo",
+                                        (int)TipoNotaEnum.GENERALE);
+                                    commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Nota", noteAggiuntive2);
+                                    commandInsertNoteAggiuntive2.ExecuteNonQuery();
+                                }
+
+                                #endregion
+
+                                #endregion
 
                                 #region FIRME
 
@@ -218,7 +335,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 if (chkf == 0) throw new Exception("Nessuna firma trovata per l'atto.");
 
                                 if (chkf > 0 && id_gruppo == 0) throw new Exception("Nessun proponente trovato.");
-                                
+
                                 #endregion
 
                                 #region RISPOSTE ASSOCIATE
@@ -305,13 +422,13 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 #endregion
-                                
+
                                 var tipoAttoEnum = ConvertToEnumTipoAtto(tipoAttoFromAlfresco);
 
                                 //tipo mozione
                                 var tipoMozioneAttoFromAlfresco = Convert.ToString(cellsAtti[row, 22].Value);
                                 var tipoMozione = ParseDescr2Enum_TipoMozione(tipoMozioneAttoFromAlfresco);
-                                
+
                                 //etichette
                                 var etichettaAtto = $"{tipoAttoEnum}_{numeroAtto}_{legislatura.num_legislatura}";
                                 var etichettaAtto_Cifrata =
@@ -323,9 +440,10 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 //oggetto presentato
                                 var oggettoPresentato = Convert.ToString(cellsAtti[row, 21].Value);
 
-                                if (!string.IsNullOrEmpty(oggettoPresentato) 
+                                if (!string.IsNullOrEmpty(oggettoPresentato)
                                     && !oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase)
-                                    && (string.IsNullOrEmpty(oggetto) || oggetto.Equals("NULL", StringComparison.OrdinalIgnoreCase)))
+                                    && (string.IsNullOrEmpty(oggetto) ||
+                                        oggetto.Equals("NULL", StringComparison.OrdinalIgnoreCase)))
                                 {
                                     oggetto = oggettoPresentato;
                                 }
@@ -358,7 +476,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var tipoChiusuraIter = Convert.ToString(cellsAtti[row, 28].Value);
                                 var dataChiusuraIter = Convert.ToString(cellsAtti[row, 30].Value);
-                                var noteChiusuraIter = Convert.ToString(cellsAtti[row, 29].Value);
 
                                 var emendatoFromAlfresco = Convert.ToString(cellsAtti[row, 32].Value);
                                 var emendato = !string.IsNullOrEmpty(emendatoFromAlfresco)
@@ -366,7 +483,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     : false;
 
                                 var tipoVotazione = Convert.ToString(cellsAtti[row, 33].Value);
-
+                                
                                 var areaTematica = Convert.ToString(cellsAtti[row, 72].Value);
                                 var altriSoggetti = Convert.ToString(cellsAtti[row, 71].Value);
 
@@ -376,12 +493,12 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto{FIELD_OGGETTO_PRESENTATO}, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
-{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_NOTE_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
+{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto{PARAM_OGGETTO_PRESENTATO}, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
-{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_NOTE_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @AreaTematica, @AltriSoggetti, 0, 0, 0)
+{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @AreaTematica, @AltriSoggetti, 0, 0, 0)
                             END";
 
                                 if (string.IsNullOrEmpty(oggettoPresentato) ||
@@ -423,16 +540,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     query = query
                                         .Replace("{FIELD_DATA_CHIUSURA_ITER}", ", DataChiusuraIter")
                                         .Replace("{PARAM_DATA_CHIUSURA_ITER}", ", @DataChiusuraIter");
-
-                                if (string.IsNullOrEmpty(noteChiusuraIter)
-                                    || noteChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
-                                    query = query
-                                        .Replace("{FIELD_NOTE_CHIUSURA_ITER}", "")
-                                        .Replace("{PARAM_NOTE_CHIUSURA_ITER}", "");
-                                else
-                                    query = query
-                                        .Replace("{FIELD_NOTE_CHIUSURA_ITER}", ", NoteChiusuraIter")
-                                        .Replace("{PARAM_NOTE_CHIUSURA_ITER}", ", @NoteChiusuraIter");
 
                                 if (string.IsNullOrEmpty(tipoVotazione)
                                     || tipoVotazione.Equals("NULL", StringComparison.OrdinalIgnoreCase))
@@ -519,16 +626,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         Convert.ToDateTime(dataChiusuraIter));
                                 }
 
-                                if (string.IsNullOrEmpty(noteChiusuraIter) ||
-                                    noteChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    // Ignored
-                                }
-                                else
-                                {
-                                    command.Parameters.AddWithValue("@NoteChiusuraIter", noteChiusuraIter);
-                                }
-
                                 if (string.IsNullOrEmpty(tipoVotazione)
                                     || tipoVotazione.Equals("NULL", StringComparison.OrdinalIgnoreCase))
                                 {
@@ -548,7 +645,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             catch (Exception e)
                             {
                                 Console.WriteLine("Errore durante l'elaborazione della riga. Dettagli dell'errore:");
-                                sb.AppendLine($"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
+                                sb.AppendLine(
+                                    $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, {e.Message}");
                             }
                         }
 
@@ -559,7 +657,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         var filePath = Path.Combine(errorFolderPath, fileName);
 
                         // Scrivi il messaggio dell'eccezione nel file
-                        using (StreamWriter sw = File.AppendText(filePath))
+                        using (var sw = File.AppendText(filePath))
                         {
                             sw.WriteLine(sb.ToString());
                         }

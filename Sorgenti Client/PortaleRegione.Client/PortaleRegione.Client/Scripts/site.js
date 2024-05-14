@@ -190,12 +190,6 @@ async function openMetaDati(emendamentoUId) {
         });
 }
 
-async function openMetaDatiDASI(attoUId) {
-    var atto = await GetAtto(attoUId);
-    await LoadMetaDatiAtto(atto);
-    $("#modalMetaDati").modal("open");
-}
-
 function Sposta_EMTrattazione(em) {
 
     swal("Sposta emendamento selezionato in una posizione precisa",

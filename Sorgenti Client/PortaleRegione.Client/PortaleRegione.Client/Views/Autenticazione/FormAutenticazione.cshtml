@@ -25,6 +25,14 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .versione {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 10px;
+            font-size: 14px;
+        }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -89,20 +97,13 @@
     </div>
 </div>
 
-<div class="row" style="max-width: 500px">
+<div class="versione">
     <div class="col s12 center">
-        <div class="card">
-            <div class="card-content">
-				<b>versione @Model.versione</b>
-            </div>
-        </div>
-        
+        <b>versione @Model.versione</b>
     </div>
 </div>
 
-
 <script>
-
     document.addEventListener("DOMContentLoaded",
         function() {
             // INITIALIZE MATERIALIZE v1.0.0 - https://materializecss.com/

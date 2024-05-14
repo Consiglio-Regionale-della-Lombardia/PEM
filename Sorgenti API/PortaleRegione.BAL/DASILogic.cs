@@ -70,9 +70,7 @@ namespace PortaleRegione.API.Controllers
 
         public async Task<ATTI_DASI> Salva(AttoDASIDto attoDto, PersonaDto persona)
         {
-            if (!attoDto.UIDPersonaProponente.HasValue)
-                throw new InvalidOperationException("Indicare un proponente");
-            if (attoDto.UIDPersonaProponente.Value == Guid.Empty)
+            if (attoDto.UIDPersonaProponente == Guid.Empty)
                 throw new InvalidOperationException("Indicare un proponente");
 
             var result = new ATTI_DASI();
@@ -556,6 +554,42 @@ namespace PortaleRegione.API.Controllers
                     atti_da_firmare);
         }
 
+        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
+        {
+            var attoInDb = await _unitOfWork.DASI.Get(attoUid);
+
+            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
+
+            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
+            dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
+            dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
+
+            dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
+            dto.Firmato_Dal_Proponente =
+                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
+
+            dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
+
+            dto.gruppi_politici =
+                Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
+                    await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
+
+            if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
+                dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
+
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
+                dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
+                dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
+                dto.DataPresentazione_MOZ_URGENTE = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
+            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
+                dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
+            if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
+                dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
+            return dto;
+        }
+
         public async Task<AttoDASIDto> GetAttoDto(Guid attoUid, PersonaDto persona)
         {
             var attoInDb = await _unitOfWork.DASI.Get(attoUid);
@@ -563,7 +597,8 @@ namespace PortaleRegione.API.Controllers
             var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
 
             dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
-            dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
+            dto.DisplayTipo = Utility.GetText_Tipo(attoInDb.Tipo);
+            dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
 
@@ -729,41 +764,6 @@ namespace PortaleRegione.API.Controllers
             }
 
             return sb.Aggregate((i, j) => i + "<br>" + j);
-        }
-
-        public async Task<AttoDASIDto> GetAttoDto(Guid attoUid)
-        {
-            var attoInDb = await _unitOfWork.DASI.Get(attoUid);
-
-            var dto = Mapper.Map<ATTI_DASI, AttoDASIDto>(attoInDb);
-
-            dto.NAtto = GetNome(attoInDb.NAtto, attoInDb.Progressivo);
-            dto.Display = $"{Utility.GetText_Tipo(attoInDb.Tipo)} {dto.NAtto}";
-
-            dto.Firma_da_ufficio = await _unitOfWork.Atti_Firme.CheckFirmatoDaUfficio(attoUid);
-            dto.Firmato_Dal_Proponente =
-                await _unitOfWork.Atti_Firme.CheckFirmato(attoUid, attoInDb.UIDPersonaProponente);
-
-            dto.ConteggioFirme = await _logicAttiFirme.CountFirme(attoUid);
-
-            dto.gruppi_politici =
-                Mapper.Map<View_gruppi_politici_con_giunta, GruppiDto>(
-                    await _unitOfWork.Gruppi.Get(attoInDb.id_gruppo));
-
-            if (!string.IsNullOrEmpty(attoInDb.FirmeCartacee))
-                dto.FirmeCartacee = JsonConvert.DeserializeObject<List<KeyValueDto>>(attoInDb.FirmeCartacee);
-
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione))
-                dto.DataPresentazione = BALHelper.Decrypt(attoInDb.DataPresentazione);
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ))
-                dto.DataPresentazione_MOZ = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ);
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_URGENTE))
-                dto.DataPresentazione_MOZ_URGENTE = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_URGENTE);
-            if (!string.IsNullOrEmpty(attoInDb.DataPresentazione_MOZ_ABBINATA))
-                dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
-            if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
-                dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
-            return dto;
         }
 
         private async Task<CountBarData> GetResponseCountBar(PersonaDto persona, TipoAttoEnum tipo,

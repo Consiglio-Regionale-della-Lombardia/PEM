@@ -43,8 +43,43 @@ namespace PortaleRegione.Client.Controllers
     [RoutePrefix("dasi")]
     public class DASIController : BaseController
     {
-        [HttpPost]
+        /// <summary>
+        ///     Endpoint per visualizzare il riepilogo degli Atti di Sindacato ispettivo in base al ruolo dell'utente loggato
+        /// </summary>
+        /// <returns></returns>
         [Route("riepilogo")]
+        public async Task<ActionResult> RiepilogoDASI(int page = 1, int size = 50, int view = (int)ViewModeEnum.GRID,
+            int stato = (int)StatiAttoEnum.BOZZA, int tipo = (int)TipoAttoEnum.TUTTI)
+        {
+            var currentUser = CurrentUser;
+            CheckCacheClientMode(ClientModeEnum.GRUPPI);
+            await CheckCacheGruppiAdmin(currentUser.CurrentRole);
+            var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
+
+            var apiGateway = new ApiGateway(Token);
+            var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
+                currentUser.CurrentRole, view_require_my_sign);
+            model.CurrentUser = currentUser;
+            SetCache(page, size, tipo, stato, view);
+            if (view == (int)ViewModeEnum.PREVIEW)
+            {
+                model.ViewMode = ViewModeEnum.PREVIEW;
+                foreach (var atti in model.Data.Results)
+                    atti.BodyAtto =
+                        await apiGateway.DASI.GetBody(atti.UIDAtto, TemplateTypeEnum.HTML);
+            }
+
+            Session["RiepilogoDASI"] = model;
+
+            if (CanAccess(new List<RuoliIntEnum>
+                    { RuoliIntEnum.Amministratore_PEM, RuoliIntEnum.Segreteria_Assemblea }))
+                return View("RiepilogoDASI_Admin", model);
+
+            return View("RiepilogoDASI", model);
+        }
+
+        [HttpPost]
+        [Route("riepilogoUOLA")]
         public async Task<ActionResult> Riepilogo(FilterRequest model)
         {
             try
