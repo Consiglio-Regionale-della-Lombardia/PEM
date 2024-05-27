@@ -204,6 +204,19 @@ namespace PortaleRegione.Common
             }
         }
 
+        public static string GetText_TipoOrganoRispostaDASI(int tipoOrgano)
+        {
+            switch ((TipoOrganoEnum)tipoOrgano)
+            {
+                case TipoOrganoEnum.COMMISSIONE:
+                    return "Commissione";
+                case TipoOrganoEnum.GIUNTA:
+                    return "Giunta";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoOrgano), tipoOrgano, null);
+            }
+        }
+
         public static string GetText_TipoMOZDASI(int tipoMOZ)
         {
             switch ((TipoMOZEnum)tipoMOZ)
@@ -218,6 +231,25 @@ namespace PortaleRegione.Common
                     return "Censura";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tipoMOZ), tipoMOZ, null);
+            }
+        }
+        
+        public static string GetText_AreaPolitica(int area)
+        {
+            switch ((AreaPoliticaIntEnum)area)
+            {
+                case AreaPoliticaIntEnum.Maggioranza:
+                    return AreaPoliticaEnum.Maggioranza;
+                case AreaPoliticaIntEnum.Minoranza:
+                    return AreaPoliticaEnum.Minoranza;
+                case AreaPoliticaIntEnum.Misto_Maggioranza:
+                    return AreaPoliticaEnum.Misto_Maggioranza;
+                case AreaPoliticaIntEnum.Misto_Minoranza:
+                    return AreaPoliticaEnum.Misto_Minoranza;
+                case AreaPoliticaIntEnum.Misto:
+                    return AreaPoliticaEnum.Misto;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(area), area, null);
             }
         }
 

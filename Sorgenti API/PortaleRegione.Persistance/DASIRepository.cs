@@ -790,6 +790,46 @@ namespace PortaleRegione.Persistance
                 .ToListAsync();
         }
 
+        public async Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto)
+        {
+            var dataFromDb = await PRContext
+                .ATTI_RISPOSTE
+                .Where(r => r.UIDAtto == uidAtto)
+                .ToListAsync();
+
+            return dataFromDb.Select(r => new AttiRisposteDto
+            {
+                UIDAtto = r.UIDAtto,
+                Data = r.Data,
+                DataTrasmissione = r.DataTrasmissione,
+                DataTrattazione = r.DataTrattazione,
+                DescrizioneOrgano = r.DescrizioneOrgano,
+                IdOrgano = r.IdOrgano,
+                IdRisposta = r.IdRisposta,
+                Tipo = r.Tipo,
+                DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
+                TipoOrgano = r.TipoOrgano,
+                DisplayTipoOrgano = Utility.GetText_TipoOrganoRispostaDASI(r.TipoOrgano)
+            }).ToList();
+        }
+
+        public async Task<List<AttiMonitoraggioDto>> GetMonitoraggi(Guid uidAtto)
+        {
+            var dataFromDb = await PRContext
+                .ATTI_MONITORAGGIO
+                .Where(r => r.UIDAtto == uidAtto)
+                .ToListAsync();
+
+            return dataFromDb.Select(r => new AttiMonitoraggioDto
+            {
+                UIDAtto = r.UIDAtto,
+                DescrizioneOrgano = r.DescrizioneOrgano,
+                IdOrgano = r.IdOrgano,
+                TipoOrgano = r.TipoOrgano,
+                DisplayTipoOrgano = Utility.GetText_TipoOrganoRispostaDASI(r.TipoOrgano)
+            }).ToList();
+        }
+
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)
         {
             var query = PRContext

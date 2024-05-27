@@ -17,7 +17,6 @@
  */
 
 using AutoMapper;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using PortaleRegione.Contracts;
 using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain;

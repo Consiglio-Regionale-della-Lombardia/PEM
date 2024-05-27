@@ -34,6 +34,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             var foglioFirme = args[2];
             var foglioRispostaAssociata = args[3];
             var foglioRispostaGiunta = args[4];
+            var foglioMonitoraggioCommissioni = args[5];
+            var foglioMonitoraggioGiunta = args[6];
 
             var auth = AutenticazioneAPI();
 
@@ -54,6 +56,16 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     package.Workbook.Worksheets.First(w => w.Name.Equals(foglioRispostaGiunta));
                 var cellsRisposteGiunta = worksheetRisposteGiunta.Cells;
                 var rowCountRG = worksheetRisposteGiunta.Dimension.Rows;
+                
+                var worksheetMonitoraggioCommissioni =
+                    package.Workbook.Worksheets.First(w => w.Name.Equals(foglioMonitoraggioCommissioni));
+                var cellsMonitoraggioCommissioni = worksheetMonitoraggioCommissioni.Cells;
+                var rowCountMC = worksheetMonitoraggioCommissioni.Dimension.Rows;
+                
+                var worksheetMonitoraggioGiunta =
+                    package.Workbook.Worksheets.First(w => w.Name.Equals(foglioMonitoraggioGiunta));
+                var cellsMonitoraggioGiunta = worksheetMonitoraggioGiunta.Cells;
+                var rowCountMG = worksheetMonitoraggioGiunta.Dimension.Rows;
 
                 var sb = new StringBuilder();
                 var elaborationTicks = DateTime.Now.Ticks;
@@ -340,7 +352,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 #region RISPOSTE ASSOCIATE
 
-                                // Itera attraverso le righe del foglio delle firme
+                                // Itera attraverso le righe del foglio delle risposte
                                 for (var rowRA = 2; rowRA <= rowCountRA; rowRA++)
                                 {
                                     // Ottieni il valore della cella nella seconda colonna della riga corrente
@@ -423,6 +435,70 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 #endregion
 
+                                #region MONITORAGGIO COMMISSIONI
+
+                                for (var rowMC = 2; rowMC <= rowCountMC; rowMC++)
+                                {
+                                    var valoreCella = cellsMonitoraggioCommissioni[rowMC, 2].Value;
+                                    
+                                    if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
+                                    {
+                                        var tipoOrgano = (int)TipoOrganoEnum.COMMISSIONE;
+
+                                        var nomeMonitorato = cellsMonitoraggioCommissioni[rowMC, 8].Value;
+                                        var idMonitorato = cellsMonitoraggioCommissioni[rowMC, 10].Value;
+                                        var queryInsertMonitoraggio =
+                                            @"INSERT INTO ATTI_MONITORAGGIO (IdMonitoraggio, UIDAtto, TipoOrgano, DescrizioneOrgano, IdOrgano)
+                                         VALUES"
+                                            + "(@IdMonitoraggio, @UIDAtto, @Tipo, @Nome, @IdOrganoMonitorato)";
+
+                                        var commandMonitoraggioCommissione =
+                                            new SqlCommand(queryInsertMonitoraggio, connection);
+                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@IdMonitoraggio", Guid.NewGuid());
+                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@Tipo", tipoOrgano);
+                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@Nome", nomeMonitorato);
+                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@IdOrganoMonitorato",
+                                            Convert.ToInt16(idMonitorato));
+
+                                        commandMonitoraggioCommissione.ExecuteNonQuery();
+                                    }
+                                }
+
+                                #endregion
+                                
+                                #region MONITORAGGIO GIUNTA
+
+                                for (var rowMG = 2; rowMG <= rowCountMG; rowMG++)
+                                {
+                                    var valoreCella = cellsMonitoraggioGiunta[rowMG, 2].Value;
+                                    
+                                    if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
+                                    {
+                                        var tipoOrgano = (int)TipoOrganoEnum.GIUNTA;
+
+                                        var nomeMonitorato = cellsMonitoraggioGiunta[rowMG, 8].Value;
+                                        var idMonitorato = cellsMonitoraggioGiunta[rowMG, 10].Value;
+                                        var queryInsertMonitoraggio =
+                                            @"INSERT INTO ATTI_MONITORAGGIO (IdMonitoraggio, UIDAtto, TipoOrgano, DescrizioneOrgano, IdOrgano)
+                                         VALUES"
+                                            + "(@IdMonitoraggio, @UIDAtto, @Tipo, @Nome, @IdOrganoMonitorato)";
+
+                                        var commandMonitoraggioGiunta =
+                                            new SqlCommand(queryInsertMonitoraggio, connection);
+                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@IdMonitoraggio", Guid.NewGuid());
+                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@UIDAtto", uidAtto);
+                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@Tipo", tipoOrgano);
+                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@Nome", nomeMonitorato);
+                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@IdOrganoMonitorato",
+                                            Convert.ToInt16(idMonitorato));
+
+                                        commandMonitoraggioGiunta.ExecuteNonQuery();
+                                    }
+                                }
+
+                                #endregion
+
                                 var tipoAttoEnum = ConvertToEnumTipoAtto(tipoAttoFromAlfresco);
 
                                 //tipo mozione
@@ -490,26 +566,16 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var query = @"IF NOT EXISTS (SELECT 1 FROM [ATTI_DASI] WHERE Etichetta = @Etichetta)
                             BEGIN
                                 INSERT INTO [ATTI_DASI] 
-                                (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto{FIELD_OGGETTO_PRESENTATO}, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
+                                (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
 {FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
-                                (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto{PARAM_OGGETTO_PRESENTATO}, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
+                                (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
 {PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @AreaTematica, @AltriSoggetti, 0, 0, 0)
                             END";
-
-                                if (string.IsNullOrEmpty(oggettoPresentato) ||
-                                    oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase))
-                                    query = query
-                                        .Replace("{FIELD_OGGETTO_PRESENTATO}", "")
-                                        .Replace("{PARAM_OGGETTO_PRESENTATO}", "");
-                                else
-                                    query = query
-                                        .Replace("{FIELD_OGGETTO_PRESENTATO}", ", Oggetto_Presentato")
-                                        .Replace("{PARAM_OGGETTO_PRESENTATO}", ", @Oggetto_Presentato");
 
                                 if (string.IsNullOrEmpty(dataAnnunzio)
                                     || dataAnnunzio.Equals("NULL", StringComparison.OrdinalIgnoreCase))

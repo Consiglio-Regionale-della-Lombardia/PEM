@@ -27,6 +27,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
+using PortaleRegione.Domain;
 
 namespace PortaleRegione.DTO.Domain
 {
@@ -290,8 +291,6 @@ namespace PortaleRegione.DTO.Domain
         }
       
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Oggetto_Presentato { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? DataAnnunzio { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string CodiceMateria { get; set; }
@@ -317,6 +316,11 @@ namespace PortaleRegione.DTO.Domain
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string DisplayStato { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string DisplayAreaPolitica { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string DisplayTipo { get; set; }
+
+        public List<AttiRisposteDto> Risposte { get; set; }
+        public List<AttiMonitoraggioDto> Monitoraggi { get; set; }
     }
 }

@@ -41,6 +41,8 @@
     <Compile Include="ATTI.cs" />
     <Compile Include="ATTI_COMMISSIONI.cs" />
     <Compile Include="ATTI_DASI.cs" />
+    <Compile Include="ATTI_MONITORAGGIO.cs" />
+    <Compile Include="ATTI_RISPOSTE.cs" />
     <Compile Include="ATTI_DASI_CONTATORI.cs" />
     <Compile Include="ATTI_FIRME.cs" />
     <Compile Include="ATTI_RELATORI.cs" />

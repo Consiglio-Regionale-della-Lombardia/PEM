@@ -74,6 +74,8 @@
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
+    <Compile Include="Domain\AttiMonitoraggioDto.cs" />
+    <Compile Include="Domain\AttiRisposteDto.cs" />
     <Compile Include="Domain\AttoDASIDto.cs" />
     <Compile Include="Domain\CommissioneDto.cs" />
     <Compile Include="Domain\DestinatariNotificaDto.cs" />

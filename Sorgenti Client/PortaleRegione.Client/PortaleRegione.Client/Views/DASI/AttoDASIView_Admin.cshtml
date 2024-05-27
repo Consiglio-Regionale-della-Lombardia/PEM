@@ -106,71 +106,161 @@
         <ul class="collapsible">
             <li>
                 <div class="collapsible-header"><i class="material-icons">cloud_queue</i>Testo atto</div>
-                <div class="collapsible-body">
-                    <div class="row">
-                        <div class="col s12 center bodyEMClass">
-                            @Html.Raw(atto.BodyAtto)
-                        </div>
-                    </div>
-                    <div class="row" id="pnlStandardFirme">
-                        <div class="col s12">
-                            @if (atto.Tipo == (int)TipoAttoEnum.IQT
-                                 || atto.Tipo == (int)TipoAttoEnum.MOZ)
-                            {
-                                if ((atto.FirmeAnte.Any()
-                                     && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-                                    || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-                                        && Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-                                    || Model.CurrentUser.IsSegreteriaAssemblea)
-                                {
-                                    <a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-                                        Visualizza priorita
-                                        <i class="material-icons right pink-text">low_priority</i>
-                                    </a>
-                                    <br/>
-                                }
-                            }
+				<div class="collapsible-body">
+					<div class="row">
+						<div class="col s12 center bodyEMClass">
+							@Html.Raw(atto.BodyAtto)
+						</div>
+					</div>
+					<div class="row" id="pnlStandardFirme">
+						<div class="col s12">
+							@if (atto.Tipo == (int)TipoAttoEnum.IQT
+								 || atto.Tipo == (int)TipoAttoEnum.MOZ)
+							{
+								if ((atto.FirmeAnte.Any()
+									 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+									|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+										&& Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+									|| Model.CurrentUser.IsSegreteriaAssemblea)
+								{
+									<a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+										Visualizza priorita
+										<i class="material-icons right pink-text">low_priority</i>
+									</a>
+									<br />
+								}
+							}
 
-                            @Html.Raw(atto.Firme)
+							@Html.Raw(atto.Firme)
 
-                            @if (!string.IsNullOrEmpty(atto.DataPresentazione))
-                            {
-                                var testoDeposito = "Atto presentato";
+							@if (!string.IsNullOrEmpty(atto.DataPresentazione))
+							{
+								var testoDeposito = "Atto presentato";
 
-                                <label class="black-text">
-                                    <b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
-                                </label>
-                            }
+								<label class="black-text">
+									<b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
+								</label>
+							}
 
-                            @if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
-                            {
-                                @Html.Raw(atto.Firme_dopo_deposito)
-                            }
-                        </div>
-                    </div>
-                </div>
+							@if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
+							{
+								@Html.Raw(atto.Firme_dopo_deposito)
+							}
+						</div>
+					</div>
+					@if (atto.Tipo == (int)TipoAttoEnum.IQT
+|| atto.Tipo == (int)TipoAttoEnum.MOZ)
+					{
+						if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+							|| Model.CurrentUser.IsSegreteriaAssemblea
+							|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
+						{
+							@* FIRME PRIORITA' *@
+							<div class="row" id="pnlPrioritaFirme" style="display: none;">
+								<div class="col s12">
+									<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+										Visualizza griglia
+										<i class="material-icons right pink-text">grid_on</i>
+									</a>
+									<br />
+
+									<ul class="collapsible expandable">
+										@{
+											var firmeGroup = new List<AttiFirmeDto>();
+											firmeGroup.AddRange(atto.FirmeAnte);
+											firmeGroup.AddRange(atto.FirmePost);
+										}
+										@foreach (var firme in firmeGroup)
+										{
+											<li>
+												@if (firme.Prioritario)
+												{
+													<div class="collapsible-header valign-wrapper">
+														@if (atto.UIDPersonaProponente != firme.UID_persona)
+														{
+															<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+															   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+																<i class="material-icons black-text" style="margin-left: 5px;">star</i>
+															</a>
+														}
+														@firme.FirmaCert
+
+													</div>
+												}
+												else
+												{
+													<div class="collapsible-header valign-wrapper">
+														@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
+														{
+															<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+															   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+																<i class="material-icons" style="margin-left: 5px;">star_border</i>
+															</a>
+															@firme.FirmaCert
+														}
+														else
+														{
+															<del>@firme.FirmaCert</del>
+														}
+													</div>
+												}
+											</li>
+										}
+									</ul>
+
+								</div>
+							</div>
+						}
+					}
+				</div>
             </li>
             <li>
                 <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Informazioni generali</div>
                 <div class="collapsible-body">
                     <div class="row">
-                        <div class="input-field col s12">
-                            @Html.TextBoxFor(model => model.Atto.Oggetto_Presentato, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.Oggetto_Presentato)
+                        <div class="input-field col s4">
+                            @Html.TextBox("txtTipoAtto", atto.DisplayTipo)
+                            @Html.LabelFor(s => s.Atto.Tipo)
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s6">
+                        <div class="input-field col s4">
+                            @Html.TextBoxFor(model => model.Atto.NAtto, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.NAtto)
+                        </div>
+                        <div class="input-field col s4">
                             @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
                             @Html.LabelFor(s => s.Atto.Protocollo)
                         </div>
-                        <div class="input-field col s6">
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s4">
+                            @Html.TextBox("txtStatoAtto", atto.DisplayStato, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.IDStato)
+                        </div>
+                        <div class="input-field col s4">
+                            @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
+                            @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+                        </div>
+                        <div class="input-field col s4">
                             @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
                             @Html.LabelFor(s => s.Atto.CodiceMateria)
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field col s6">
+                        <div class="input-field col s12">
+                            @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.Oggetto)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s4">
+                            @Html.TextBox("txtAreaPoliticaAtto", atto.DisplayAreaPolitica, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.AreaPolitica)
+                        </div>
+                        <div class="input-field col s4">
+                            @Html.TextBox("txtTipoRispostaAtto", atto.DisplayTipoRispostaRichiesta, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.IDTipo_Risposta)
+                        </div>
+                        <div class="input-field col s2">
                             <p>
                                 <label>
                                     <input type="checkbox" value="true" @Html.Raw((Model.Atto.Pubblicato ? "checked=\"checked\"" : ""))/>
@@ -178,7 +268,7 @@
                                 </label>
                             </p>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s2">
                             <p>
                                 <label>
                                     <input type="checkbox" value="true" @Html.Raw((Model.Atto.Sollecito ? "checked=\"checked\"" : ""))/>
@@ -187,22 +277,86 @@
                             </p>
                         </div>
                     </div>
+                </div>
+            </li>
+        <li>
+            <div class="collapsible-header"><i class="material-icons">event_note</i>Trattazione</div>
+            <div class="collapsible-body">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Tipo risposta fornita</th>
+                        <th>Data risposta</th>
+                        <th>Tipo organo</th>
+                        <th>Organo</th>
+                        <th>Data trasmissione</th>
+                        <th>Data trattazione</th>
+                        <th>Documenti</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach (var risposta in atto.Risposte)
+                    {
+                        <tr>
+                            <td>@Html.Raw(risposta.DisplayTipo)</td>
+                            <td>@Html.Raw((risposta.Data.HasValue)? risposta.Data.Value.ToString("dd/MM/yyyy HH:mm") :"")</td>
+                            <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
+                            <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
+                            <td>@Html.Raw((risposta.DataTrattazione.HasValue)? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy HH:mm") :"")</td>
+                            <td>@Html.Raw((risposta.DataTrasmissione.HasValue)? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy HH:mm") :"")</td>
+                            <td></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </li>
+        @if (atto.Tipo == (int)TipoAttoEnum.MOZ
+             || atto.Tipo == (int)TipoAttoEnum.IQT
+             || atto.Tipo == (int)TipoAttoEnum.ODG
+             || atto.Tipo == (int)TipoAttoEnum.RIS)
+        {
+            <li>
+                <div class="collapsible-header"><i class="material-icons">network_check</i>Monitoraggio</div>
+                <div class="collapsible-body">
                     <div class="row">
-                        <div class="form-group col s12">
-                            @Html.LabelFor(s => s.Atto.DataAnnunzio)
-                            @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:s}", new {@class = "form-control", type = "datetime-local"})
+                        <div class="input-field col s6">
+                            @Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.AreaTematica)
+                        </div>
+                        <div class="input-field col s6">
+                            @Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
+                            @Html.LabelFor(s => s.Atto.AltriSoggetti)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Tipo organo monitorato</th>
+                                    <th>Organo monitorato</th>
+                                    <th>Documenti</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                @foreach (var monitoraggio in atto.Monitoraggi)
+                                {
+                                    <tr>
+                                        <td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
+                                        <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
+                                        <td></td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </li>
-            <li>
-                <div class="collapsible-header"><i class="material-icons">event_note</i>Trattazione</div>
-                <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-            </li>
-            <li>
-                <div class="collapsible-header"><i class="material-icons">network_check</i>Monitoraggio</div>
-                <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-            </li>
+        }
             <li>
                 <div class="collapsible-header"><i class="material-icons">perm_scan_wifi</i>Chiusura iter</div>
                 <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>

@@ -46,6 +46,7 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
+using static PortaleRegione.DTO.Routes.ApiRoutes.PEM;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -601,6 +602,7 @@ namespace PortaleRegione.API.Controllers
             dto.Display = $"{dto.DisplayTipo} {dto.NAtto}";
             dto.DisplayTipoRispostaRichiesta = Utility.GetText_TipoRispostaDASI(dto.IDTipo_Risposta);
             dto.DisplayStato = Utility.GetText_StatoDASI(dto.IDStato);
+            dto.DisplayAreaPolitica = Utility.GetText_AreaPolitica(dto.AreaPolitica);
 
             try
             {
@@ -741,6 +743,9 @@ namespace PortaleRegione.API.Controllers
                 }
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
+
+                dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+                dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
 
                 return dto;
             }

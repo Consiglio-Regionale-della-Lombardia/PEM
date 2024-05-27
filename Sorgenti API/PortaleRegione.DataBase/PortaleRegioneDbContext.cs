@@ -115,6 +115,8 @@ namespace PortaleRegione.DataBase
             View_Commissioni_per_legislatura { get; set; } // DASI - Commissioni per legislatura
 
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
+        public virtual DbSet<ATTI_RISPOSTE> ATTI_RISPOSTE { get; set; } // DASI - Risposte
+        public virtual DbSet<ATTI_MONITORAGGIO> ATTI_MONITORAGGIO { get; set; } // DASI - Monitoraggi
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
         public virtual DbSet<FILTRI> FILTRI { get; set; } // Filtri personalizzati
         public virtual DbSet<REPORTS> REPORTS { get; set; } // Reports personalizzati

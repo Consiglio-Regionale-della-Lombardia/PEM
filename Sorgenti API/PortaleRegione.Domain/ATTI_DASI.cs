@@ -107,7 +107,6 @@ namespace PortaleRegione.Domain
                                 || IDStato == (int)StatiAttoEnum.CHIUSO_DECADUTO;
 
         
-        public string Oggetto_Presentato { get; set; }
         public DateTime? DataAnnunzio { get; set; }
         public string CodiceMateria { get; set; }
         public string Protocollo{ get; set; }

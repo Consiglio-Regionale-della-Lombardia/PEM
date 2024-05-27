@@ -68,5 +68,7 @@ namespace PortaleRegione.Contracts
         Task<List<Guid>> GetAbbinamentiMozione(Guid uidAtto);
         Task<List<Guid>> GetAllCartacei(int legislatura);
         Task<List<Guid>> GetAttiProponente(Guid personaUid);
+        Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto);
+        Task<List<AttiMonitoraggioDto>> GetMonitoraggi(Guid uidAtto);
     }
 }
