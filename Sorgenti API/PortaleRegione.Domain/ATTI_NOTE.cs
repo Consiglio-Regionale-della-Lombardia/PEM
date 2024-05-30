@@ -16,13 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PortaleRegione.Domain
 {
-    public enum TipoVotazioneIterEnum
+    [Table("ATTI_NOTE")]
+    public class ATTI_NOTE
     {
-        NESSUNO,
-        APPELLO_NOMINALE = 1,
-        PALESE_ALZATA_DI_MANO = 2,
-        SCRUTINIO_SEGRETO = 3
+        public ATTI_NOTE()
+        {
+        }
+
+        [Key] public Guid IdNota { get; set; }
+        public Guid UIDPersona { get; set; }
+        public Guid UIDAtto { get; set; }
+        public int Tipo { get; set; }
+        public DateTime Data { get; set; }
+        public string Nota { get; set; }
     }
 }

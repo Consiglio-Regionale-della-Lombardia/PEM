@@ -209,26 +209,53 @@ namespace PortaleRegione.Api.Public.Business_Layer
             var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
             if (attoInDb == null)
                 throw new KeyNotFoundException($"Identificativo {uidAtto} non trovato.");
+            var gruppo = await _unitOfWork.Persone.GetGruppo(attoInDb.id_gruppo);
+            var proponente = await _unitOfWork.Persone.GetPersona(attoInDb.UIDPersonaProponente.Value);
+            if (proponente.DisplayName.Contains("--"))
+            {
+                proponente.DisplayName = proponente.DisplayName.Replace("--", gruppo.sigla.Trim());
+            }
+
+            var commissioni = await _unitOfWork.DASI.GetCommissioniPerAtto(attoInDb.UIDAtto);
+            var risposteInDb = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+            var risposte = risposteInDb.Select(r => new AttiRispostePublicDto
+            {
+                data = r.Data,
+                data_trasmissione = r.DataTrasmissione,
+                data_trattazione = r.DataTrattazione,
+                organo = r.DescrizioneOrgano,
+                id_organo = r.IdOrgano,
+                tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
+                tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
+            }).ToList();
+            
             var attoDto = new AttoDasiPublicDto
             {
                 uidAtto = attoInDb.UIDAtto,
                 oggetto = attoInDb.Oggetto,
                 display = GetDisplayFromEtichetta(attoInDb.Etichetta),
+                id_stato = attoInDb.IDStato,
                 stato = Utility.GetText_StatoDASI(attoInDb.IDStato),
+                id_tipo = attoInDb.Tipo,
                 tipo = Utility.GetText_Tipo(attoInDb.Tipo),
+                tipo_esteso = Utility.GetText_TipoEstesoDASI(attoInDb.Tipo),
+                n_atto = attoInDb.NAtto_search.ToString(),
                 data_presentazione = CryptoHelper.DecryptString(attoInDb.DataPresentazione,
                     AppSettingsConfigurationHelper.masterKey),
                 premesse = attoInDb.Premesse,
                 richiesta = attoInDb.Richiesta,
                 tipo_risposta = Utility.GetText_TipoRispostaDASI(attoInDb.IDTipo_Risposta),
-                area_politica = "",
-                data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy")
+                area_politica = Utility.GetText_AreaPolitica(attoInDb.AreaPolitica),
+                data_iscrizione = attoInDb.DataIscrizioneSeduta?.ToString("dd/MM/yyyy"),
+                gruppo = gruppo,
+                uid_proponente = attoInDb.UIDPersonaProponente.Value,
+                proponente = proponente,
+                commissioni = commissioni,
+                risposte = risposte
             };
 
-            var firmeAnte = await GetFirme(attoInDb, FirmeTipoEnum.PRIMA_DEPOSITO);
-            var firmePost = await GetFirme(attoInDb, FirmeTipoEnum.DOPO_DEPOSITO);
-            attoDto.firme = firmeAnte;
-            attoDto.firme_dopo_deposito = firmePost;
+            var firme = await GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
+            attoDto.firme = firme;
 
             return attoDto;
         }
@@ -303,7 +330,9 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 {
                     uidAtto = a.UIDAtto,
                     oggetto = a.Oggetto,
-                    display = GetDisplayFromEtichetta(a.Etichetta)
+                    display = GetDisplayFromEtichetta(a.Etichetta),
+                    tipo = Utility.GetText_Tipo(a.Tipo),
+                    tipo_esteso = Utility.GetText_TipoEstesoDASI(a.Tipo)
                 }).ToList(),
                 filtroFromRequest,
                 tot);
@@ -334,15 +363,18 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 });
             }
 
-            if (request.id_stato.HasValue && request.id_stato > 0)
+            if (request.stati.Length > 0)
             {
-                res.Add(new FilterStatement<AttoDASILightDto>
+                foreach (var stato in request.stati)
                 {
-                    PropertyId = nameof(ATTI_DASI.IDStato),
-                    Value = request.id_stato.Value,
-                    Operation = Operation.EqualTo,
-                    Connector = FilterStatementConnector.And
-                });
+                    res.Add(new FilterStatement<AttoDASILightDto>
+                    {
+                        PropertyId = nameof(ATTI_DASI.IDStato),
+                        Value = stato,
+                        Operation = Operation.EqualTo,
+                        Connector = FilterStatementConnector.Or
+                    });
+                }
             }
 
             if (request.id_tipo_risposta.HasValue && request.id_tipo_risposta > 0)
@@ -412,6 +444,28 @@ namespace PortaleRegione.Api.Public.Business_Layer
                     PropertyId = nameof(ATTI_DASI.Timestamp),
                     Value = request.data_presentazione_a.Value,
                     Operation = Operation.LessThanOrEqualTo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (request.id_proponente.HasValue)
+            {
+                res.Add(new FilterStatement<AttoDASILightDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.UIDPersonaProponente),
+                    Value = request.id_proponente.Value,
+                    Operation = Operation.EqualTo,
+                    Connector = FilterStatementConnector.And
+                });
+            }
+
+            if (!string.IsNullOrEmpty(request.oggetto))
+            {
+                res.Add(new FilterStatement<AttoDASILightDto>
+                {
+                    PropertyId = nameof(ATTI_DASI.UIDPersonaProponente),
+                    Value = request.oggetto,
+                    Operation = Operation.Contains,
                     Connector = FilterStatementConnector.And
                 });
             }

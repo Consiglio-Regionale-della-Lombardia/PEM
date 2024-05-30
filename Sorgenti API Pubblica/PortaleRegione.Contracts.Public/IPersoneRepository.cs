@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PortaleRegione.Domain;
@@ -50,6 +51,13 @@ namespace PortaleRegione.Contracts.Public
         /// <param name="idLegislatura">Identificativo della legislatura di interesse.</param>
         /// <returns>Una lista di oggetti KeyValueDto rappresentanti i gruppi legislativi.</returns>
         Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura);
+       
+        /// <summary>
+        ///     Ottiene il gruppo.
+        /// </summary>
+        /// <param name="idGruppo"></param>
+        /// <returns></returns>
+        Task<KeyValueDto> GetGruppo(int idGruppo);
 
         /// <summary>
         ///     Recupera i firmatari degli atti legislativi per una data legislatura.
@@ -63,5 +71,12 @@ namespace PortaleRegione.Contracts.Public
         /// </summary>
         /// <returns>Una lista di oggetti View_UTENTI rappresentanti tutti gli utenti.</returns>
         Task<List<View_UTENTI>> GetAll();
+
+        /// <summary>
+        ///     Ottiene le informazioni della persona
+        /// </summary>
+        /// <param name="uidPersonaProponente"></param>
+        /// <returns></returns>
+        Task<PersonaPublicDto> GetPersona(Guid uidPersonaProponente);
     }
 }

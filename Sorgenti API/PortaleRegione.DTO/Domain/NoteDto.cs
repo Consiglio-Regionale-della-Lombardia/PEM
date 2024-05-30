@@ -16,13 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System;
+using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Enum;
+
+namespace PortaleRegione.DTO.Domain;
+
+public class NoteDto
 {
-    public enum TipoVotazioneIterEnum
-    {
-        NESSUNO,
-        APPELLO_NOMINALE = 1,
-        PALESE_ALZATA_DI_MANO = 2,
-        SCRUTINIO_SEGRETO = 3
-    }
+    public Guid IdNota { get; set; }
+    public PersonaLightDto Persona { get; set; }
+    public TipoNotaEnum TipoEnum { get; set; }
+    public string Tipo { get; set; }
+    public DateTime Data { get; set; }
+    public string Nota { get; set; }
 }

@@ -204,7 +204,28 @@ namespace PortaleRegione.Common
             }
         }
 
-        public static string GetText_TipoOrganoRispostaDASI(int tipoOrgano)
+        public static string GetText_TipoEstesoDASI(int tipoAtto)
+        {
+            switch ((TipoAttoEnum)tipoAtto)
+            {
+                case TipoAttoEnum.ITR:
+                    return "Interrogazione";
+                case TipoAttoEnum.IQT:
+                    return "Interrogation question time";
+                case TipoAttoEnum.ITL:
+                    return "Interpellanza";
+                case TipoAttoEnum.MOZ:
+                    return "Mozione";
+                case TipoAttoEnum.ODG:
+                    return "Ordine del giorno";
+                case TipoAttoEnum.RIS:
+                    return "Risoluzione";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tipoAtto), tipoAtto, null);
+            }
+        }
+
+        public static string GetText_TipoOrganoDASI(int tipoOrgano)
         {
             switch ((TipoOrganoEnum)tipoOrgano)
             {
@@ -320,6 +341,30 @@ namespace PortaleRegione.Common
                 }
                 default:
                     return "";
+            }
+        }
+
+        public static string GetText_TipoVotazioneDASI(int tipoVotazioneIter)
+        {
+            try
+            {
+                switch ((TipoVotazioneIterEnum)tipoVotazioneIter)
+                {
+                    case TipoVotazioneIterEnum.NESSUNO:
+                        return string.Empty;
+                    case TipoVotazioneIterEnum.APPELLO_NOMINALE:
+                        return "Appello nominale";
+                    case TipoVotazioneIterEnum.PALESE_ALZATA_DI_MANO:
+                        return "Palese alzata di mano";
+                    case TipoVotazioneIterEnum.SCRUTINIO_SEGRETO:
+                        return "Scrutinio segreto";
+                    default:
+                        return string.Empty;
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
             }
         }
 

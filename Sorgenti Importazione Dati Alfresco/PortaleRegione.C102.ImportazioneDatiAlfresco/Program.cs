@@ -201,7 +201,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDPersona",
                                         Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
                                     commandInsertNoteAggiuntive.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE);
+                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
                                     commandInsertNoteAggiuntive.Parameters.AddWithValue("@Nota", noteAggiuntive);
                                     commandInsertNoteAggiuntive.ExecuteNonQuery();
                                 }
@@ -229,7 +229,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDPersona",
                                         Guid.Parse("AC98DA99-862D-4CFF-90E7-D5B324AAA7AE")); // corrisponde a matteo.c
                                     commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Tipo",
-                                        (int)TipoNotaEnum.GENERALE);
+                                        (int)TipoNotaEnum.GENERALE_PRIVATA);
                                     commandInsertNoteAggiuntive2.Parameters.AddWithValue("@Nota", noteAggiuntive2);
                                     commandInsertNoteAggiuntive2.ExecuteNonQuery();
                                 }
@@ -559,7 +559,21 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                     : false;
 
                                 var tipoVotazione = Convert.ToString(cellsAtti[row, 33].Value);
-                                
+                                var dcrl = Convert.ToString(cellsAtti[row, 34].Value);
+                                if (dcrl.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    dcrl = string.Empty;
+                                }
+                                var dcr = Convert.ToString(cellsAtti[row, 44].Value);
+                                if (dcr.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    dcr = "0";
+                                }
+                                var dcrc = Convert.ToString(cellsAtti[row, 48].Value);
+                                if (dcrc.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    dcrc = "0";
+                                }
                                 var areaTematica = Convert.ToString(cellsAtti[row, 72].Value);
                                 var altriSoggetti = Convert.ToString(cellsAtti[row, 71].Value);
 
@@ -569,12 +583,12 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
                                 UID_QRCode, id_gruppo, chkf, Timestamp, DataCreazione, OrdineVisualizzazione, AreaPolitica, Pubblicato, Sollecito, Protocollo, CodiceMateria{FIELD_DATA_ANNUNZIO}
-{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
+{FIELD_TIPO_CHIUSURA_ITER}{FIELD_DATA_CHIUSURA_ITER}{FIELD_TIPO_VOTAZIONE_ITER}, Emendato, DCR, DCRC, DCRL, AreaTematica, AltriSoggetti, Proietta, Firma_su_invito, Eliminato) 
                                 VALUES 
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
-{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @AreaTematica, @AltriSoggetti, 0, 0, 0)
+{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, 0, 0, 0)
                             END";
 
                                 if (string.IsNullOrEmpty(dataAnnunzio)
@@ -649,18 +663,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 command.Parameters.AddWithValue("@Protocollo", protocollo);
                                 command.Parameters.AddWithValue("@CodiceMateria", codiceMateria);
                                 command.Parameters.AddWithValue("@Emendato", emendato);
+                                command.Parameters.AddWithValue("@DCR", dcr);
+                                command.Parameters.AddWithValue("@DCRC", dcrc);
+                                command.Parameters.AddWithValue("@DCRL", dcrl);
                                 command.Parameters.AddWithValue("@AreaTematica", areaTematica);
                                 command.Parameters.AddWithValue("@AltriSoggetti", altriSoggetti);
-
-                                if (string.IsNullOrEmpty(oggettoPresentato) ||
-                                    oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    // Ignored
-                                }
-                                else
-                                {
-                                    command.Parameters.AddWithValue("@Oggetto_Presentato", oggettoPresentato);
-                                }
 
                                 if (string.IsNullOrEmpty(dataAnnunzio))
                                 {
@@ -912,13 +919,17 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             {
                 case "scritta":
                 case "scritto":
+                case "risposta_scritta":
                     return (int)TipoRispostaEnum.SCRITTA;
                 case "orale":
+                case "risposta_orale":
                     return (int)TipoRispostaEnum.ORALE;
                 case "in commissione":
+                case "risposta_in_commissione":
                     return (int)TipoRispostaEnum.COMMISSIONE;
                 case "Iter in assemblea + commissione":
                 case "Iter in assemblea e commissione":
+                case "risposta_iter_in_assemblea_e_commissione":
                     return (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA_COMMISSIONE;
                 case "Iter in assemblea":
                     return (int)TipoRispostaEnum.ITER_IN_ASSEMBLEA;

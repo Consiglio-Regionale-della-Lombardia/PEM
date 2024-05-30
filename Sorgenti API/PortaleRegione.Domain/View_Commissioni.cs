@@ -16,13 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System.ComponentModel.DataAnnotations;
+
+namespace PortaleRegione.Domain
 {
-    public enum TipoVotazioneIterEnum
+    public class View_Commissioni
     {
-        NESSUNO,
-        APPELLO_NOMINALE = 1,
-        PALESE_ALZATA_DI_MANO = 2,
-        SCRUTINIO_SEGRETO = 3
+        [Key]
+        public int id_organo { get; set; }
+        public string nome_organo { get; set; }
     }
 }

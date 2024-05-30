@@ -72,6 +72,7 @@
     <Compile Include="Autenticazione\LoginRequest.cs" />
     <Compile Include="Domain\ArticoliDto.cs" />
     <Compile Include="Domain\AssessoreInCaricaDto.cs" />
+    <Compile Include="Domain\AttiDocumentiDto.cs" />
     <Compile Include="Domain\AttiDto.cs" />
     <Compile Include="Domain\AttiFirmeDto.cs" />
     <Compile Include="Domain\AttiMonitoraggioDto.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Domain\LegislaturaDto.cs" />
     <Compile Include="Domain\LettereDto.cs" />
     <Compile Include="Domain\MissioniDto.cs" />
+    <Compile Include="Domain\NoteDto.cs" />
     <Compile Include="Domain\NotificaDto.cs" />
     <Compile Include="Domain\PersonaNoConsDto.cs" />
     <Compile Include="Domain\PinDto.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Enum\TipoAllegatoEnum.cs" />
     <Compile Include="Enum\TipoAttoCSSConst.cs" />
     <Compile Include="Enum\TipoDestinatarioNotificaEnum.cs" />
+    <Compile Include="Enum\TipoDocumentoEnum.cs" />
     <Compile Include="Enum\TipoMOZEnum.cs" />
     <Compile Include="Enum\TipoNotaEnum.cs" />
     <Compile Include="Enum\TipoNotificaEnum.cs" />

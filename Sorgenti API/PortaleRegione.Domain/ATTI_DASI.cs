@@ -120,5 +120,9 @@ namespace PortaleRegione.Domain
         public int? TipoVotazioneIter { get; set; }
         public string AreaTematica { get; set; }
         public string AltriSoggetti { get; set; }
+
+        public int DCR { get; set; }
+        public int DCRC { get; set; }
+        public string DCRL { get; set; }
     }
 }

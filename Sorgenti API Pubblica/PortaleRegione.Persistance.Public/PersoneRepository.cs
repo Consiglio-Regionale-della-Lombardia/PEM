@@ -27,6 +27,7 @@ using PortaleRegione.Domain;
 using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Model;
 using Z.EntityFramework.Plus;
+using static PortaleRegione.DTO.Routes.ApiRoutes;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -102,6 +103,24 @@ namespace PortaleRegione.Persistance.Public
             return lstGruppi;
         }
 
+        public async Task<KeyValueDto> GetGruppo(int idGruppo)
+        {
+            PRContext.View_gruppi_politici_con_giunta.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+
+            var gruppo = await PRContext
+            .View_gruppi_politici_con_giunta
+                .FirstOrDefaultAsync(g => g.id_gruppo == idGruppo);
+            if (gruppo == null)
+                throw new KeyNotFoundException("Gruppo non trovato");
+
+            return new KeyValueDto
+            {
+                id = gruppo.id_gruppo,
+                descr = gruppo.nome_gruppo,
+                sigla = gruppo.codice_gruppo
+            };
+        }
+
         public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
         {
             PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
@@ -132,6 +151,22 @@ namespace PortaleRegione.Persistance.Public
 
             return await query
                 .ToListAsync();
+        }
+
+        public async Task<PersonaPublicDto> GetPersona(Guid uidPersonaProponente)
+        {
+            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+
+            var consigliere = await PRContext
+                .View_consiglieri
+                .FirstAsync(p => p.UID_persona == uidPersonaProponente);
+            return  new PersonaPublicDto
+            {
+                id = consigliere.id_persona,
+                DisplayName = consigliere.DisplayName,
+                uid = consigliere.UID_persona
+            };
         }
     }
 }

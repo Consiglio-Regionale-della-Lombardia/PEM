@@ -16,13 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+namespace PortaleRegione.DTO.Enum;
+
+public enum TipoDocumentoEnum
 {
-    public enum TipoVotazioneIterEnum
-    {
-        NESSUNO,
-        APPELLO_NOMINALE = 1,
-        PALESE_ALZATA_DI_MANO = 2,
-        SCRUTINIO_SEGRETO = 3
-    }
+    TESTO_ALLEGATO = 0,
+    AGGIUNTIVO = 1,
+    MONITORAGGIO = 2,
+    ABBINAMENTO = 3,
+    CHIUSURA_ITER = 4,
+    RISPOSTA = 5
 }

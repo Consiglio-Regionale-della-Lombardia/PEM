@@ -16,13 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace PortaleRegione.DTO.Enum
+using System.ComponentModel.DataAnnotations;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+
+namespace PortaleRegione.Domain
 {
-    public enum TipoVotazioneIterEnum
+    [Table("ATTI_DOCUMENTI")]
+    public class ATTI_DOCUMENTI
     {
-        NESSUNO,
-        APPELLO_NOMINALE = 1,
-        PALESE_ALZATA_DI_MANO = 2,
-        SCRUTINIO_SEGRETO = 3
+        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ATTI_DOCUMENTI()
+        {
+        }
+
+        [Key] public Guid UIDDocumento { get; set; }
+        public Guid UIDAtto { get; set; }
+        public int Tipo { get; set; }
+        public DateTime Data { get; set; }
+        public string Path { get; set; }
+        public string Titolo { get; set; }
+        public bool Pubblica { get; set; }
     }
 }

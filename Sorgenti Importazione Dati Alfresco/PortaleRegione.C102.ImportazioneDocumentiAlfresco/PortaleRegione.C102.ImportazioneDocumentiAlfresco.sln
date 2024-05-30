@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33214.272
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.C102.ImportazioneDocumentiAlfresco", "PortaleRegione.C102.ImportazioneDocumentiAlfresco\PortaleRegione.C102.ImportazioneDocumentiAlfresco.csproj", "{38A0AE6A-4D20-40C2-8D62-14B76737B360}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.DTO", "..\..\Sorgenti API\PortaleRegione.DTO\PortaleRegione.DTO.csproj", "{A7ADA419-A178-40DA-85CC-63F6875E5793}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortaleRegione.Common", "..\..\Sorgenti API\PortaleRegione.Common\PortaleRegione.Common.csproj", "{4948DD2A-A842-46A9-B987-A537894487BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A7ADA419-A178-40DA-85CC-63F6875E5793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7ADA419-A178-40DA-85CC-63F6875E5793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7ADA419-A178-40DA-85CC-63F6875E5793}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4948DD2A-A842-46A9-B987-A537894487BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

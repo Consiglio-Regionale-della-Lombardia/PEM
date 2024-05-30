@@ -46,7 +46,6 @@ using PortaleRegione.DTO.Request;
 using PortaleRegione.DTO.Response;
 using PortaleRegione.GestioneStampe;
 using PortaleRegione.Logger;
-using static PortaleRegione.DTO.Routes.ApiRoutes.PEM;
 
 namespace PortaleRegione.API.Controllers
 {
@@ -588,6 +587,10 @@ namespace PortaleRegione.API.Controllers
                 dto.DataPresentazione_MOZ_ABBINATA = BALHelper.Decrypt(attoInDb.DataPresentazione_MOZ_ABBINATA);
             if (!string.IsNullOrEmpty(attoInDb.DataRichiestaIscrizioneSeduta))
                 dto.DataRichiestaIscrizioneSeduta = BALHelper.Decrypt(attoInDb.DataRichiestaIscrizioneSeduta);
+
+            dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
+            dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+
             return dto;
         }
 
@@ -744,8 +747,15 @@ namespace PortaleRegione.API.Controllers
 
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
 
+                if (attoInDb.TipoChiusuraIter.HasValue)
+                    dto.DisplayTipoChiusuraIter = Utility.GetText_TipoRispostaDASI(attoInDb.TipoChiusuraIter.Value);
+                if (attoInDb.TipoVotazioneIter.HasValue)
+                    dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
+
                 dto.Risposte = await _unitOfWork.DASI.GetRisposte(attoInDb.UIDAtto);
                 dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
+                dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+                dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
 
                 return dto;
             }

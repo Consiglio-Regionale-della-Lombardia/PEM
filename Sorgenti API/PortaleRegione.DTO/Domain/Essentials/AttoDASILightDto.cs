@@ -28,6 +28,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public Guid uidAtto { get; set; }
         public string oggetto { get; set; }
         public string display { get; set; }
+        public string tipo { get; set; }
+        public string tipo_esteso { get; set; }
     }
 
     public class AttoDasiPublicDto
@@ -37,6 +39,8 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string premesse { get; set; }
         public string richiesta { get; set; }
         public string tipo { get; set; }
+        public string tipo_esteso { get; set; }
+        public string n_atto { get; set; }
         public string data_presentazione { get; set; }
         public PersonaPublicDto proponente { get; set; } = new PersonaPublicDto();
         public string tipo_risposta { get; set; }
@@ -47,16 +51,18 @@ namespace PortaleRegione.DTO.Domain.Essentials
         public string data_ritiro { get; set; }
 
         public List<AttiFirmeDto> firme { get; set; } = new List<AttiFirmeDto>();
-        public List<AttiFirmeDto> firme_dopo_deposito { get; set; } = new List<AttiFirmeDto>();
         public KeyValueDto gruppo { get; set; } = new KeyValueDto();
         public string data_iscrizione { get; set; }
         public string display { get; set; }
-        public List<object> allegati { get; set; } = new List<object>();
+        public List<object> documenti { get; set; } = new List<object>();
         public object atto_odg { get; set; } = null;
         public bool non_passaggio_in_esame { get; set; }
         public string tipo_mozione { get; set; }
         public object abbinata { get; set; } = null;
         public List<KeyValueDto> commissioni { get; set; } = new List<KeyValueDto>();
-        public List<object> risposte { get; set; } = new List<object>();
+        public List<AttiRispostePublicDto> risposte { get; set; } = new List<AttiRispostePublicDto>();
+        public int id_stato { get; set; }
+        public int id_tipo { get; set; }
+        public Guid uid_proponente { get; set; }
     }
 }

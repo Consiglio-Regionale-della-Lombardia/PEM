@@ -33,6 +33,9 @@ namespace PortaleRegione.DTO.Request.Public
         public int? id_firmatario { get; set; }
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? id_proponente { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? id_gruppo { get; set; }
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -45,7 +48,7 @@ namespace PortaleRegione.DTO.Request.Public
         public int? id_commissione { get; set; }
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] 
-        public int? id_stato { get; set; }
+        public int[] stati { get; set; } = Array.Empty<int>();
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string oggetto { get; set; }

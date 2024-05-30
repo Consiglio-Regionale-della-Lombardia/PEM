@@ -90,6 +90,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_Conteggi_EM_Area_Politica> View_Conteggi_EM_Area_Politica { get; set; }
         public virtual DbSet<View_consiglieri_in_carica> View_consiglieri_in_carica { get; set; }
         public virtual DbSet<View_consiglieri_per_legislatura> View_consiglieri_per_legislatura { get; set; }
+        public virtual DbSet<View_consiglieri> View_consiglieri { get; set; }
         public virtual DbSet<View_assessori_in_carica> View_assessori_in_carica { get; set; }
         public virtual DbSet<ATTI_DASI> DASI { get; set; } // DASI - Atti
         public virtual DbSet<ATTI_FIRME> ATTI_FIRME { get; set; } // DASI - Firme
@@ -110,6 +111,7 @@ namespace PortaleRegione.DataBase
             ATTI_SOGGETTI_INTERROGATI { get; set; } // DASI - Soggetti interrogati
 
         public virtual DbSet<View_Commissioni_attive> View_Commissioni_attive { get; set; } // DASI - Commissioni
+        public virtual DbSet<View_Commissioni> View_Commissioni { get; set; } // DASI - Commissioni
 
         public virtual DbSet<View_Commissioni_per_legislatura>
             View_Commissioni_per_legislatura { get; set; } // DASI - Commissioni per legislatura
@@ -117,6 +119,8 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<ATTI_COMMISSIONI> ATTI_COMMISSIONI { get; set; } // DASI - Commissioni risposta
         public virtual DbSet<ATTI_RISPOSTE> ATTI_RISPOSTE { get; set; } // DASI - Risposte
         public virtual DbSet<ATTI_MONITORAGGIO> ATTI_MONITORAGGIO { get; set; } // DASI - Monitoraggi
+        public virtual DbSet<ATTI_DOCUMENTI> ATTI_DOCUMENTI { get; set; } // DASI - Documenti
+        public virtual DbSet<ATTI_NOTE> ATTI_NOTE { get; set; } // DASI - Note
         public virtual DbSet<TAGS> TAGS { get; set; } // Elenco tags per emendamenti
         public virtual DbSet<FILTRI> FILTRI { get; set; } // Filtri personalizzati
         public virtual DbSet<REPORTS> REPORTS { get; set; } // Reports personalizzati

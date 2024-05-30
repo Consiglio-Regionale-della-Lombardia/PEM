@@ -1,408 +1,525 @@
-﻿@using Newtonsoft.Json
-@using PortaleRegione.Client.Helpers
-@using PortaleRegione.DTO.Domain
+﻿@using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.DASIFormModel
 
 @{
-    var atto = Model.Atto;
-    ViewBag.Title = $"{Utility.GetText_Tipo(atto)} {atto.NAtto}";
-
-    PersonaDto currentUser = null;
-
-    if (HttpContext.Current.User.Identity.IsAuthenticated)
-    {
-        var authCookie1 = Request.Cookies["PRCookies1"];
-        var authCookie2 = Request.Cookies["PRCookies2"];
-        var authCookie3 = Request.Cookies["PRCookies3"];
-        if (authCookie1 != null && authCookie2 != null && authCookie3 != null)
-        {
-            if (!string.IsNullOrEmpty(authCookie1.Value) && !string.IsNullOrEmpty(authCookie2.Value) && !string.IsNullOrEmpty(authCookie3.Value))
-            {
-                var authenticationTicket1 = FormsAuthentication.Decrypt(authCookie1.Value);
-                var authenticationTicket2 = FormsAuthentication.Decrypt(authCookie2.Value);
-                var authenticationTicket3 = FormsAuthentication.Decrypt(authCookie3.Value);
-                var data = JsonConvert.DeserializeObject<PersonaDto>(string.Format("{0}{1}{2}", authenticationTicket1.UserData, authenticationTicket2.UserData, authenticationTicket3.UserData));
-
-                currentUser = data;
-            }
-        }
-    }
-
-    var tipoFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.TIPO_DASI}_{currentUser.UID_persona.ToString()}");
-    var statoFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.STATO_DASI}_{currentUser.UID_persona.ToString()}");
-    var pageFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.PAGE_DASI}_{currentUser.UID_persona.ToString()}");
-    var sizeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.SIZE_DASI}_{currentUser.UID_persona.ToString()}");
-    var viewFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.VIEW_MODE_DASI}_{currentUser.UID_persona.ToString()}");
-    var modeFromCache = HttpContext.Current.Cache.Get($"{CacheHelper.CLIENT_MODE}_{currentUser.UID_persona.ToString()}");
-
-    object objParams = null;
-    objParams = new
-    {
-        page = pageFromCache,
-        size = sizeFromCache,
-        tipo = tipoFromCache,
-        stato = statoFromCache,
-        view = viewFromCache
-    };
-
-    var previousPageUrl = HttpContext.Current.Request.Headers["Referer"];
-    var backUrl = string.Empty;
-    if (previousPageUrl.Contains(Url.Action("RiepilogoNotifiche", "Notifiche")))
-    {
-        backUrl = HttpContext.Current.Request.Headers["Referer"];
-    }
-    else
-    {
-        backUrl = Url.Action("RiepilogoDASI", objParams);
-        if (Convert.ToInt16(modeFromCache) == (int)ClientModeEnum.TRATTAZIONE)
-        {
-            if (atto.IsODG())
-            {
-                backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo, uidAtto = atto.UID_Atto_ODG, view = (int)viewFromCache });
-            }
-            else
-            {
-                backUrl = Url.Action("RiepilogoDASI_BySeduta", "DASI", new { id = atto.UIDSeduta, tipo = atto.Tipo, view = (int)viewFromCache });
-            }
-        }
-    }
+    Layout = null;
+	var atto = Model.Atto;
+	ViewBag.Title = $"{Utility.GetText_Tipo(atto)} {atto.NAtto} - {atto.GetLegislatura()}";
 }
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>@ViewBag.Title</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-<script>
-    $(document).ready(function() {
-        $('#btnSearch').hide();
-    });
-</script>
+	@Styles.Render("~/Content/css")
+	@*Import Trumbowyg plugins style...*@
+	<link href="~/Content/editor/plugins/table/ui/trumbowyg.table.min.css" rel="stylesheet" />
 
-<div class="row" style="margin-bottom: unset!important">
-    <div class="col s12">
-        <a class="btn-floating waves-effect waves-light grey header-back" onclick="go('@backUrl')">
-            <i class="material-icons">arrow_back</i>
-        </a>
-        <div class="row valign-wrapper">
-            <div class="col s12">
-                <h4>
-					<b>@Utility.GetText_Tipo(atto) @atto.NAtto</b>
-                </h4>
-            </div>
-        </div>
-    </div>
-</div>
-<hr />
-<div class="row">
-<div class="col s12">
-<div class="card">
-<div class="card-action grey lighten-4 center">
-    <div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: -18px;">@Utility.GetText_StatoDASI(atto.IDStato)</div>
-    <h6>
-        <b>
-            <span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
-        </b>
-    </h6>
-</div>
-    <div class="card-content">
-        <ul class="collapsible">
-            <li>
-                <div class="collapsible-header"><i class="material-icons">cloud_queue</i>Testo atto</div>
-				<div class="collapsible-body">
-					<div class="row">
-						<div class="col s12 center bodyEMClass">
-							@Html.Raw(atto.BodyAtto)
-						</div>
-					</div>
-					<div class="row" id="pnlStandardFirme">
-						<div class="col s12">
-							@if (atto.Tipo == (int)TipoAttoEnum.IQT
-								 || atto.Tipo == (int)TipoAttoEnum.MOZ)
-							{
-								if ((atto.FirmeAnte.Any()
-									 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
-									|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
-										&& Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
-									|| Model.CurrentUser.IsSegreteriaAssemblea)
-								{
-									<a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
-										Visualizza priorita
-										<i class="material-icons right pink-text">low_priority</i>
-									</a>
-									<br />
-								}
-							}
-
-							@Html.Raw(atto.Firme)
-
-							@if (!string.IsNullOrEmpty(atto.DataPresentazione))
-							{
-								var testoDeposito = "Atto presentato";
-
-								<label class="black-text">
-									<b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
-								</label>
-							}
-
-							@if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
-							{
-								@Html.Raw(atto.Firme_dopo_deposito)
-							}
-						</div>
-					</div>
-					@if (atto.Tipo == (int)TipoAttoEnum.IQT
-|| atto.Tipo == (int)TipoAttoEnum.MOZ)
-					{
-						if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
-							|| Model.CurrentUser.IsSegreteriaAssemblea
-							|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
-						{
-							@* FIRME PRIORITA' *@
-							<div class="row" id="pnlPrioritaFirme" style="display: none;">
-								<div class="col s12">
-									<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
-										Visualizza griglia
-										<i class="material-icons right pink-text">grid_on</i>
-									</a>
-									<br />
-
-									<ul class="collapsible expandable">
-										@{
-											var firmeGroup = new List<AttiFirmeDto>();
-											firmeGroup.AddRange(atto.FirmeAnte);
-											firmeGroup.AddRange(atto.FirmePost);
-										}
-										@foreach (var firme in firmeGroup)
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	@Scripts.Render("~/bundles/lib")
+	@Scripts.Render("~/bundles/logic")
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+	<script src="~/Scripts/moment.js"></script>
+</head>
+<body>
+	<script>
+		$(document).ready(function () {
+			$('#btnSearch').hide();
+		});
+	</script>
+	<div class="row" style="margin-bottom: unset !important">
+		<div class="col s12">
+			<a class="btn-floating waves-effect waves-light grey header-back" onclick="window.close()">
+				<i class="material-icons">close</i>
+			</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col s12">
+			<div class="card">
+				<div class="card-action grey lighten-4 center">
+					<div class="chip @PortaleRegione.Client.Helpers.Utility.GetCSS_StatoDASI(atto.IDStato) white-text" style="min-width: unset; position: absolute; right: 10px; top: -18px;">@Utility.GetText_StatoDASI(atto.IDStato)</div>
+					<h6>
+						<b>
+							<span>@Html.Raw(atto.gruppi_politici.nome_gruppo)</span>
+						</b>
+					</h6>
+				</div>
+				<div class="card-content">
+					<ul class="collapsible expandable">
+						<li class="active">
+							<div class="collapsible-header"><i class="material-icons">cloud_queue</i>Testo atto</div>
+							<div class="collapsible-body">
+								<div class="row">
+									<div class="col s12 center bodyEMClass">
+										@Html.Raw(atto.BodyAtto)
+									</div>
+								</div>
+								<div class="row" id="pnlStandardFirme">
+									<div class="col s12">
+										@if (atto.Tipo == (int)TipoAttoEnum.IQT
+											 || atto.Tipo == (int)TipoAttoEnum.MOZ)
 										{
-											<li>
-												@if (firme.Prioritario)
-												{
-													<div class="collapsible-header valign-wrapper">
-														@if (atto.UIDPersonaProponente != firme.UID_persona)
-														{
-															<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-															   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-																<i class="material-icons black-text" style="margin-left: 5px;">star</i>
-															</a>
-														}
-														@firme.FirmaCert
-
-													</div>
-												}
-												else
-												{
-													<div class="collapsible-header valign-wrapper">
-														@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
-														{
-															<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
-															   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
-																<i class="material-icons" style="margin-left: 5px;">star_border</i>
-															</a>
-															@firme.FirmaCert
-														}
-														else
-														{
-															<del>@firme.FirmaCert</del>
-														}
-													</div>
-												}
-											</li>
+											if ((atto.FirmeAnte.Any()
+												 && Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona)
+												|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo
+													&& Model.Atto.IDStato < (int)StatiAttoEnum.PRESENTATO)
+												|| Model.CurrentUser.IsSegreteriaAssemblea)
+											{
+												<a class="btn-flat pink-text" onclick="$('#pnlStandardFirme').hide();$('#pnlPrioritaFirme').show();">
+													Visualizza priorita
+													<i class="material-icons right pink-text">low_priority</i>
+												</a>
+												<br />
+											}
 										}
-									</ul>
 
+										@Html.Raw(atto.Firme)
+
+										@if (!string.IsNullOrEmpty(atto.DataPresentazione))
+										{
+											var testoDeposito = "Atto presentato";
+
+											<label class="black-text">
+												<b>@testoDeposito il @Html.Raw(atto.DataPresentazione)</b>
+											</label>
+										}
+
+										@if (!string.IsNullOrEmpty(atto.Firme_dopo_deposito))
+										{
+											@Html.Raw(atto.Firme_dopo_deposito)
+										}
+									</div>
+								</div>
+								@if (atto.Tipo == (int)TipoAttoEnum.IQT
+|| atto.Tipo == (int)TipoAttoEnum.MOZ)
+								{
+									if (Model.Atto.UIDPersonaProponente == Model.CurrentUser.UID_persona
+										|| Model.CurrentUser.IsSegreteriaAssemblea
+										|| (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
+									{
+										@* FIRME PRIORITA' *@
+										<div class="row" id="pnlPrioritaFirme" style="display: none;">
+											<div class="col s12">
+												<a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
+													Visualizza griglia
+													<i class="material-icons right pink-text">grid_on</i>
+												</a>
+												<br />
+
+												<ul class="collapsible expandable">
+													@{
+														var firmeGroup = new List<AttiFirmeDto>();
+														firmeGroup.AddRange(atto.FirmeAnte);
+														firmeGroup.AddRange(atto.FirmePost);
+													}
+													@foreach (var firme in firmeGroup)
+													{
+														<li>
+															@if (firme.Prioritario)
+															{
+																<div class="collapsible-header valign-wrapper">
+																	@if (atto.UIDPersonaProponente != firme.UID_persona)
+																	{
+																		<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+																		   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+																			<i class="material-icons black-text" style="margin-left: 5px;">star</i>
+																		</a>
+																	}
+																	@firme.FirmaCert
+
+																</div>
+															}
+															else
+															{
+																<div class="collapsible-header valign-wrapper">
+																	@if (string.IsNullOrEmpty(firme.Data_ritirofirma))
+																	{
+																		<a class="btn-floating white secondary-content tooltipped" data-tooltip="Aggiungi/rimuovi priorità firmatario"
+																		   onclick="CambiaPrioritaFirma(this, '@firme.UIDAtto', '@firme.UID_persona');">
+																			<i class="material-icons" style="margin-left: 5px;">star_border</i>
+																		</a>
+																		@firme.FirmaCert
+																	}
+																	else
+																	{
+																		<del>@firme.FirmaCert</del>
+																	}
+																</div>
+															}
+														</li>
+													}
+												</ul>
+
+											</div>
+										</div>
+									}
+								}
+							</div>
+						</li>
+						<li>
+							<div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Informazioni generali</div>
+							<div class="collapsible-body">
+								<div class="row">
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBox("txtTipoAtto", atto.DisplayTipo)
+										@Html.LabelFor(s => s.Atto.Tipo)
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBoxFor(model => model.Atto.NAtto, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.NAtto)
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.Protocollo)
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBox("txtStatoAtto", atto.DisplayStato, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.IDStato)
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
+										@Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.CodiceMateria)
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12">
+										@Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.Oggetto)
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBox("txtAreaPoliticaAtto", atto.DisplayAreaPolitica, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.AreaPolitica)
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBox("txtTipoRispostaAtto", atto.DisplayTipoRispostaRichiesta, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.IDTipo_Risposta)
+									</div>
+									<div class="input-field col s6 m6 l2">
+										<p>
+											<label>
+												<input type="checkbox" value="true" @Html.Raw((Model.Atto.Pubblicato ? "checked=\"checked\"" : "")) />
+												<span>Pubblicato</span>
+											</label>
+										</p>
+									</div>
+									<div class="input-field col s6 m6 l2">
+										<p>
+											<label>
+												<input type="checkbox" value="true" @Html.Raw((Model.Atto.Sollecito ? "checked=\"checked\"" : "")) />
+												<span>Sollecito</span>
+											</label>
+										</p>
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12">
+										@if (atto.Documenti.Any())
+										{
+											if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
+											{
+												<h6>
+													<b>Documenti aggiuntivi</b>
+												</h6>
+												<hr />
+												<ul class="collection">
+													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.AGGIUNTIVO))
+													{
+														<li class="collection-item"><a href="@doc.Link" target="_blank">@doc.Titolo</a></li>
+													}
+												</ul>
+											}
+										}
+									</div>
 								</div>
 							</div>
+						</li>
+						<li>
+							<div class="collapsible-header"><i class="material-icons">event_note</i>Trattazione</div>
+							<div class="collapsible-body">
+
+								@if (!atto.Risposte.Any())
+								{
+									<div class="card-panel panel-warning center">
+										<span class="center">
+											<p>Nessuna risposta</p>
+										</span>
+									</div>
+								}
+								else
+								{
+									<table>
+										<thead>
+											<tr>
+												<th>Tipo risposta fornita</th>
+												<th>Data risposta</th>
+												<th>Tipo organo</th>
+												<th>Organo</th>
+												<th>Data trasmissione</th>
+												<th>Data trattazione</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											@foreach (var risposta in atto.Risposte)
+											{
+												<tr>
+													<td>@Html.Raw(risposta.DisplayTipo)</td>
+													<td>@Html.Raw((risposta.Data.HasValue) ? risposta.Data.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+													<td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
+													<td>@Html.Raw(risposta.DescrizioneOrgano)</td>
+													<td>@Html.Raw((risposta.DataTrasmissione.HasValue) ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+													<td>@Html.Raw((risposta.DataTrattazione.HasValue) ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								}
+
+								@if (atto.Documenti.Any())
+								{
+									if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
+									{
+										<h6>
+											<b>Documenti risposte</b>
+										</h6>
+										<hr />
+										<ul class="collection">
+											@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.RISPOSTA))
+											{
+												<li class="collection-item"><a href="@doc.Link" target="_blank">@doc.Titolo</a></li>
+											}
+										</ul>
+									}
+								}
+							</div>
+						</li>
+						@if (atto.Tipo == (int)TipoAttoEnum.MOZ
+							 || atto.Tipo == (int)TipoAttoEnum.IQT
+							 || atto.Tipo == (int)TipoAttoEnum.ODG
+							 || atto.Tipo == (int)TipoAttoEnum.RIS)
+						{
+							<li>
+								<div class="collapsible-header"><i class="material-icons">network_check</i>Monitoraggio</div>
+								<div class="collapsible-body">
+									<div class="row">
+										<div class="input-field col s12 m12 l6">
+											@Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
+											@Html.LabelFor(s => s.Atto.AreaTematica)
+										</div>
+										<div class="input-field col s12 m12 l6">
+											@Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
+											@Html.LabelFor(s => s.Atto.AltriSoggetti)
+										</div>
+									</div>
+									<div class="row">
+										<div class="input-field col s12">
+
+											@if (!atto.Monitoraggi.Any())
+											{
+												<div class="card-panel panel-warning center">
+													<span class="center">
+														<p>Nessuna monitoraggio</p>
+													</span>
+												</div>
+											}
+											else
+											{
+												<table>
+													<thead>
+														<tr>
+															<th>Tipo organo monitorato</th>
+															<th>Organo monitorato</th>
+														</tr>
+													</thead>
+
+													<tbody>
+														@foreach (var monitoraggio in atto.Monitoraggi)
+														{
+															<tr>
+																<td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
+																<td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
+															</tr>
+														}
+													</tbody>
+												</table>
+											}
+
+											@if (atto.Documenti.Any())
+											{
+												if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
+												{
+													<h6>
+														<b>Documenti monitoraggio</b>
+													</h6>
+													<hr />
+													<ul class="collection">
+														@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.MONITORAGGIO))
+														{
+															<li class="collection-item"><a href="@doc.Link" target="_blank">@doc.Titolo</a></li>
+														}
+													</ul>
+												}
+											}
+										</div>
+									</div>
+								</div>
+							</li>
 						}
-					}
+						<li>
+							<div class="collapsible-header"><i class="material-icons">perm_scan_wifi</i>Chiusura iter</div>
+							<div class="collapsible-body">
+								<div class="row">
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBox("txtTipoChiusura", atto.DisplayTipoChiusuraIter, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.TipoChiusuraIter)
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
+										@Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+									</div>
+									<div class="input-field col s12 m12 l4">
+										@Html.TextBoxFor(model => model.Atto.DisplayTipoVotazioneIter, new { @class = "form-control" })
+										@Html.LabelFor(s => s.Atto.TipoVotazioneIter)
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12 m12 l8">
+										<div class="row">
+											<div class="input-field col s12 m12 l4">
+												<label>DCR</label>
+												@Html.TextBoxFor(model => model.Atto.DCRL, new { @class = "form-control" })
+											</div>
+											<div class="input-field col s12 m12 l4">
+												<label> </label>
+												@Html.TextBoxFor(model => model.Atto.DCR, new { @class = "form-control" })
+											</div>
+											<div class="input-field col s12 m12 l4">
+												<label> </label>
+												@Html.TextBoxFor(model => model.Atto.DCRC, new { @class = "form-control" })
+											</div>
+										</div>
+									</div>
+									<div class="input-field col s12 m12 l4">
+										<p>
+											<label>
+												<input type="checkbox" value="true" @Html.Raw((Model.Atto.Emendato ? "checked=\"checked\"" : "")) />
+												<span>Emendato</span>
+											</label>
+										</p>
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12 m12 l12">
+										@if (atto.Documenti.Any())
+										{
+											if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER))
+											{
+												<h6>
+													<b>Documenti di chiusura iter</b>
+												</h6>
+												<hr />
+												<ul class="collection">
+													@foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.CHIUSURA_ITER))
+													{
+														<li class="collection-item"><a href="@doc.Link" target="_blank">@doc.Titolo</a></li>
+													}
+												</ul>
+											}
+										}
+									</div>
+								</div>
+							</div>
+						</li>
+						<li>
+							<div class="collapsible-header"><i class="material-icons">comment</i>Note</div>
+							<div class="collapsible-body">
+								@if (!atto.Note.Any())
+								{
+									<div class="card-panel panel-warning center">
+										<span class="center">
+											<p>Nessuna nota</p>
+										</span>
+									</div>
+								}
+								else
+								{
+									<table>
+										<thead>
+											<tr>
+												<th>Tipo nota</th>
+												<th>Nota</th>
+												<th>Utente</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											@foreach (var nota in atto.Note)
+											{
+												<tr>
+													<td>@Html.Raw(nota.Tipo)</td>
+													<td>@Html.Raw(nota.Nota)</td>
+													<td>@Html.Raw(nota.Persona.DisplayName)</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								}
+
+							</div>
+						</li>
+						<li>
+							<div class="collapsible-header"><i class="material-icons">local_printshop</i>Stampe</div>
+							<div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+						</li>
+					</ul>
 				</div>
-            </li>
-            <li>
-                <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Informazioni generali</div>
-                <div class="collapsible-body">
-                    <div class="row">
-                        <div class="input-field col s4">
-                            @Html.TextBox("txtTipoAtto", atto.DisplayTipo)
-                            @Html.LabelFor(s => s.Atto.Tipo)
-                        </div>
-                        <div class="input-field col s4">
-                            @Html.TextBoxFor(model => model.Atto.NAtto, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.NAtto)
-                        </div>
-                        <div class="input-field col s4">
-                            @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.Protocollo)
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s4">
-                            @Html.TextBox("txtStatoAtto", atto.DisplayStato, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.IDStato)
-                        </div>
-                        <div class="input-field col s4">
-                            @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
-                            @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-                        </div>
-                        <div class="input-field col s4">
-                            @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.CodiceMateria)
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            @Html.TextBoxFor(model => model.Atto.Oggetto, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.Oggetto)
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s4">
-                            @Html.TextBox("txtAreaPoliticaAtto", atto.DisplayAreaPolitica, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.AreaPolitica)
-                        </div>
-                        <div class="input-field col s4">
-                            @Html.TextBox("txtTipoRispostaAtto", atto.DisplayTipoRispostaRichiesta, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.IDTipo_Risposta)
-                        </div>
-                        <div class="input-field col s2">
-                            <p>
-                                <label>
-                                    <input type="checkbox" value="true" @Html.Raw((Model.Atto.Pubblicato ? "checked=\"checked\"" : ""))/>
-                                    <span>Pubblicato</span>
-                                </label>
-                            </p>
-                        </div>
-                        <div class="input-field col s2">
-                            <p>
-                                <label>
-                                    <input type="checkbox" value="true" @Html.Raw((Model.Atto.Sollecito ? "checked=\"checked\"" : ""))/>
-                                    <span>Sollecito</span>
-                                </label>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </li>
-        <li>
-            <div class="collapsible-header"><i class="material-icons">event_note</i>Trattazione</div>
-            <div class="collapsible-body">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Tipo risposta fornita</th>
-                        <th>Data risposta</th>
-                        <th>Tipo organo</th>
-                        <th>Organo</th>
-                        <th>Data trasmissione</th>
-                        <th>Data trattazione</th>
-                        <th>Documenti</th>
-                    </tr>
-                    </thead>
+			</div>
+		</div>
+	</div>
 
-                    <tbody>
-                    @foreach (var risposta in atto.Risposte)
-                    {
-                        <tr>
-                            <td>@Html.Raw(risposta.DisplayTipo)</td>
-                            <td>@Html.Raw((risposta.Data.HasValue)? risposta.Data.Value.ToString("dd/MM/yyyy HH:mm") :"")</td>
-                            <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
-                            <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
-                            <td>@Html.Raw((risposta.DataTrattazione.HasValue)? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy HH:mm") :"")</td>
-                            <td>@Html.Raw((risposta.DataTrasmissione.HasValue)? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy HH:mm") :"")</td>
-                            <td></td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        </li>
-        @if (atto.Tipo == (int)TipoAttoEnum.MOZ
-             || atto.Tipo == (int)TipoAttoEnum.IQT
-             || atto.Tipo == (int)TipoAttoEnum.ODG
-             || atto.Tipo == (int)TipoAttoEnum.RIS)
-        {
-            <li>
-                <div class="collapsible-header"><i class="material-icons">network_check</i>Monitoraggio</div>
-                <div class="collapsible-body">
-                    <div class="row">
-                        <div class="input-field col s6">
-                            @Html.TextBoxFor(model => model.Atto.AreaTematica, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.AreaTematica)
-                        </div>
-                        <div class="input-field col s6">
-                            @Html.TextBoxFor(model => model.Atto.AltriSoggetti, new { @class = "form-control" })
-                            @Html.LabelFor(s => s.Atto.AltriSoggetti)
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <table>
-                                <thead>
-                                <tr>
-                                    <th>Tipo organo monitorato</th>
-                                    <th>Organo monitorato</th>
-                                    <th>Documenti</th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                @foreach (var monitoraggio in atto.Monitoraggi)
-                                {
-                                    <tr>
-                                        <td>@Html.Raw(monitoraggio.DisplayTipoOrgano)</td>
-                                        <td>@Html.Raw(monitoraggio.DescrizioneOrgano)</td>
-                                        <td></td>
-                                    </tr>
-                                }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </li>
-        }
-            <li>
-                <div class="collapsible-header"><i class="material-icons">perm_scan_wifi</i>Chiusura iter</div>
-                <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-            </li>
-            <li>
-                <div class="collapsible-header"><i class="material-icons">comment</i>Note</div>
-                <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-            </li>
-            <li>
-                <div class="collapsible-header"><i class="material-icons">local_printshop</i>Stampe</div>
-                <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-            </li>
-        </ul>
-    </div>
-</div>
-</div>
-</div>
-
-<div class="fixed-action-btn">
-    @if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
-    {
-        <a class="btn-floating btn-large white black-text tooltipped"
-           data-position="left"
-           data-tooltip="Stampa"
-           data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
-           data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
-           onclick="StampaUOLA(this)"
-           style="margin-right: 15px;">
-            <i class="material-icons">print</i>
-        </a>
-    }
-    else
-    {
-        <a class="btn-floating btn-large white black-text tooltipped"
-           data-position="left"
-           data-tooltip="Stampa"
-           target="_blank"
-           href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
-           style="margin-right: 15px;">
-            <i class="material-icons">print</i>
-        </a>
-    }
-</div>
+	<div class="fixed-action-btn">
+		@if (Model.CurrentUser.UID_persona == atto.UIDPersonaProponente)
+		{
+			<a class="btn-floating btn-large white black-text tooltipped"
+			   data-position="left"
+			   data-tooltip="Stampa"
+			   data-url="@Url.Action("Download", "DASI", new { id = atto.UIDAtto })"
+			   data-url-privacy="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+			   onclick="StampaUOLA(this)"
+			   style="margin-right: 15px;">
+				<i class="material-icons">print</i>
+			</a>
+		}
+		else
+		{
+			<a class="btn-floating btn-large white black-text tooltipped"
+			   data-position="left"
+			   data-tooltip="Stampa"
+			   target="_blank"
+			   href="@Url.Action("DownloadWithPrivacy", "DASI", new { id = atto.UIDAtto })"
+			   style="margin-right: 15px;">
+				<i class="material-icons">print</i>
+			</a>
+		}
+	</div>
 
 
-<script>
+	<script>
     function CambiaPrioritaFirma(ctrl, uidAtto, uidPersona) {
 
         var body = {};
@@ -450,4 +567,6 @@
             processData: false
         });
     }
-</script>
+	</script>
+</body>
+</html>

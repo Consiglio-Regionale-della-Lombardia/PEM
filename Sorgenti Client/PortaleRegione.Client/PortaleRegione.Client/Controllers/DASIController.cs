@@ -55,7 +55,7 @@ namespace PortaleRegione.Client.Controllers
             CheckCacheClientMode(ClientModeEnum.GRUPPI);
             await CheckCacheGruppiAdmin(currentUser.CurrentRole);
             var view_require_my_sign = Convert.ToBoolean(Request.QueryString["require_my_sign"]);
-
+            
             var apiGateway = new ApiGateway(Token);
             var model = await apiGateway.DASI.Get(page, size, (StatiAttoEnum)stato, (TipoAttoEnum)tipo,
                 currentUser.CurrentRole, view_require_my_sign);

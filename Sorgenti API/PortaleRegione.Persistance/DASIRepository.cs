@@ -30,6 +30,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using PortaleRegione.BAL;
+using PortaleRegione.DTO.Domain.Essentials;
+using PortaleRegione.DTO.Routes;
+using Z.EntityFramework.Plus;
 
 namespace PortaleRegione.Persistance
 {
@@ -809,7 +813,7 @@ namespace PortaleRegione.Persistance
                 Tipo = r.Tipo,
                 DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
                 TipoOrgano = r.TipoOrgano,
-                DisplayTipoOrgano = Utility.GetText_TipoOrganoRispostaDASI(r.TipoOrgano)
+                DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
             }).ToList();
         }
 
@@ -826,8 +830,53 @@ namespace PortaleRegione.Persistance
                 DescrizioneOrgano = r.DescrizioneOrgano,
                 IdOrgano = r.IdOrgano,
                 TipoOrgano = r.TipoOrgano,
-                DisplayTipoOrgano = Utility.GetText_TipoOrganoRispostaDASI(r.TipoOrgano)
+                DisplayTipoOrgano = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
             }).ToList();
+        }
+
+        public async Task<List<AttiDocumentiDto>> GetDocumenti(Guid uidAtto)
+        {
+            var docInDB = await PRContext
+                .ATTI_DOCUMENTI
+                .Where(d => d.UIDAtto == uidAtto)
+                .ToListAsync();
+
+            return docInDB
+                .Select(d => new AttiDocumentiDto
+                {
+                    Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
+                    Titolo = d.Titolo,
+                    Pubblico = d.Pubblica,
+                    Link = $"{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={d.Path}",
+                    TipoEnum = (TipoDocumentoEnum)d.Tipo
+                })
+                .ToList();
+        }
+
+        public async Task<List<NoteDto>> GetNote(Guid uidAtto)
+        {
+            var noteInDB = await PRContext
+                .ATTI_NOTE
+                .Where(d => d.UIDAtto == uidAtto)
+                .ToListAsync();
+            var res = new List<NoteDto>();
+            PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(2)).ToList();
+            
+            foreach (var nota in noteInDB)
+            {
+                var persona = await PRContext.View_UTENTI.FindAsync(nota.UIDPersona);
+                res.Add(new NoteDto
+                {
+                    Tipo = ((TipoNotaEnum)nota.Tipo).ToString(),
+                    TipoEnum = (TipoNotaEnum)nota.Tipo,
+                    Data = nota.Data,
+                    IdNota = nota.IdNota,
+                    Nota = nota.Nota,
+                    Persona = new PersonaLightDto(persona.cognome, persona.nome)
+                });
+            }
+
+            return res;
         }
 
         public async Task<List<ATTI_DASI>> GetMOZAbbinabili(Guid sedutaUId)

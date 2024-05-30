@@ -70,5 +70,7 @@ namespace PortaleRegione.Contracts
         Task<List<Guid>> GetAttiProponente(Guid personaUid);
         Task<List<AttiRisposteDto>> GetRisposte(Guid uidAtto);
         Task<List<AttiMonitoraggioDto>> GetMonitoraggi(Guid uidAtto);
+        Task<List<AttiDocumentiDto>> GetDocumenti(Guid uidAtto);
+        Task<List<NoteDto>> GetNote(Guid uidAtto);
     }
 }

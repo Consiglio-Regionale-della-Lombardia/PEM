@@ -16,6 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Runtime.Caching;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.Common;
@@ -27,17 +39,6 @@ using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Routes;
 using PortaleRegione.Logger;
 using QRCoder;
-using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.Caching;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace PortaleRegione.BAL
 {
@@ -165,6 +166,14 @@ namespace PortaleRegione.BAL
             var complete_path = Path.Combine(
                 AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
                 Path.GetFileName(path));
+
+            if (!path.Contains("~"))
+            {
+                complete_path = Path.Combine(
+                    AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
+                    path);
+            }
+
             var result = await ComposeFileResponse(complete_path);
             return result;
         }
@@ -401,18 +410,20 @@ namespace PortaleRegione.BAL
             body = body.Replace("{lblPremesseATTOView}", premesse);
             body = body.Replace("{lblRichiestaATTOView}", richieste);
 
-            var allegato_generico = string.Empty;
+            var allegato_generico = new StringBuilder();
 
-            #region Allegato Generico
+            if (atto.Documenti.Any())
+            {
+                if (atto.Documenti.Any(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
+                {
+                    foreach (var doc in atto.Documenti.Where(d => d.TipoEnum == TipoDocumentoEnum.TESTO_ALLEGATO))
+                    {
+                        allegato_generico.AppendLine($"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{doc.Link}' target='_blank'>SCARICA - {doc.Titolo}</a></td></tr>");
+                    }
+                }
+            }
 
-            //Allegato Generico
-            if (!string.IsNullOrEmpty(atto.PATH_AllegatoGenerico))
-                allegato_generico =
-                    $"<tr class=\"left-border\" style=\"border-bottom: 1px solid !important\"><td colspan='2' style='text-align:left;padding-left:10px'><a href='{AppSettingsConfiguration.URL_API}/{ApiRoutes.DASI.DownloadDoc}?path={atto.PATH_AllegatoGenerico}' target='_blank'>SCARICA ALLEGATO</a></td></tr>";
-
-            #endregion
-
-            body = body.Replace("{lblAllegati}", allegato_generico);
+            body = body.Replace("{lblAllegati}", allegato_generico.ToString());
         }
 
         public void GetBody(EmendamentiDto emendamento, AttiDto atto, List<FirmeDto> firme,
@@ -505,7 +516,8 @@ namespace PortaleRegione.BAL
                 var firmePost = firme.Where(f => f.Timestamp > emendamento.Timestamp).Select(i => (AttiFirmeDto)i);
 
                 if (firmeAnte.Any())
-                    body = body.Replace("{radGridFirmeView}", TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
+                    body = body.Replace("{radGridFirmeView}",
+                            TemplatefirmeANTE.Replace("{firme}", GetFirmatari(firmeAnte, "dd/MM/yyyy HH:mm")))
                         .Replace("{FIRMEANTE_COMMENTO_START}", string.Empty)
                         .Replace("{FIRMEANTE_COMMENTO_END}", string.Empty);
                 else

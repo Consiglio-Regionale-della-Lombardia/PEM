@@ -25,7 +25,9 @@ using ExpressionBuilder.Generics;
 using PortaleRegione.Contracts.Public;
 using PortaleRegione.DataBase;
 using PortaleRegione.Domain;
+using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.Persistance.Public
 {
@@ -129,6 +131,37 @@ namespace PortaleRegione.Persistance.Public
             if (firmaProponente != null && tipo != FirmeTipoEnum.DOPO_DEPOSITO) lst.Insert(0, firmaProponente);
 
             return lst;
+        }
+
+        public async Task<List<KeyValueDto>> GetCommissioniPerAtto(Guid uidAtto)
+        {
+            var commissioniTable = await PRContext
+                .ATTI_COMMISSIONI
+                .Where(item => item.UIDAtto == uidAtto)
+                .Select(item => item.id_organo)
+                .ToListAsync();
+            var query = PRContext
+                .View_Commissioni
+                .Where(item => commissioniTable.Contains(item.id_organo));
+            var res = await query
+                .Select(s=>new KeyValueDto
+                {
+                    id = s.id_organo,
+                    descr = s.nome_organo
+                })
+                .ToListAsync();
+
+            return res;
+        }
+
+        public async Task<List<ATTI_RISPOSTE>> GetRisposte(Guid uidAtto)
+        {
+            var dataFromDb = await PRContext
+                .ATTI_RISPOSTE
+                .Where(r => r.UIDAtto == uidAtto)
+                .ToListAsync();
+
+            return dataFromDb;
         }
     }
 }
