@@ -28,10 +28,7 @@ namespace PortaleRegione.DTO.Request.Public
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? id_tipo { get; set; }
-        
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? id_firmatario { get; set; }
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? id_proponente { get; set; }
         

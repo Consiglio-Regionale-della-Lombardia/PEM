@@ -50,11 +50,11 @@ namespace PortaleRegione.DTO.Domain.Essentials
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string data_ritiro { get; set; }
 
-        public List<AttiFirmeDto> firme { get; set; } = new List<AttiFirmeDto>();
+        public List<AttiFirmePublicDto> firme { get; set; } = new List<AttiFirmePublicDto>();
         public KeyValueDto gruppo { get; set; } = new KeyValueDto();
         public string data_iscrizione { get; set; }
         public string display { get; set; }
-        public List<object> documenti { get; set; } = new List<object>();
+        public List<AttiDocumentiPublicDto> documenti { get; set; } = new List<AttiDocumentiPublicDto>();
         public object atto_odg { get; set; } = null;
         public bool non_passaggio_in_esame { get; set; }
         public string tipo_mozione { get; set; }

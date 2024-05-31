@@ -20,7 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using ExpressionBuilder.Common;
@@ -921,5 +925,28 @@ namespace PortaleRegione.Common
 
             return sb.ToString();
         }
+
+        public static HttpResponseMessage ComposeFileResponse(string path)
+        {
+            var stream = new MemoryStream();
+            using (var fileStream = new FileStream(path, FileMode.Open))
+            {
+                fileStream.CopyTo(stream);
+            }
+
+            stream.Position = 0;
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(stream.GetBuffer())
+            };
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = Path.GetFileName(path)
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+            return result;
+        }
+
     }
 }

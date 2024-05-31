@@ -19,6 +19,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
+using PortaleRegione.DTO.Model;
 
 namespace PortaleRegione.DTO.Domain
 {
@@ -66,5 +67,23 @@ namespace PortaleRegione.DTO.Domain
                 Prioritario = false
             };
         }
+    }
+    public class AttiFirmePublicDto
+    {
+        public Guid UID_persona { get; set; }
+        public int id_persona { get; set; }
+
+        public string FirmaCert { get; set; }
+
+        [StringLength(255)]
+        public string Data_firma { get; set; }
+
+        [StringLength(255)]
+        public string Data_ritirofirma { get; set; }
+
+        public string AreaPolitica { get; set; }
+
+        public bool PrimoFirmatario { get; set; } = false;
+        public KeyValueDto Gruppo { get; set; }
     }
 }

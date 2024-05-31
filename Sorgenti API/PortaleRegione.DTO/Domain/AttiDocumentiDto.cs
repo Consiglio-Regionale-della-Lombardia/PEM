@@ -28,3 +28,11 @@ public class AttiDocumentiDto
     public string Link { get; set; }
     public TipoDocumentoEnum TipoEnum { get; set; }
 }
+
+public class AttiDocumentiPublicDto
+{
+    public string Tipo { get; set; }
+    public string Titolo { get; set; }
+    public string Link { get; set; }
+    public TipoDocumentoEnum TipoEnum { get; set; }
+}

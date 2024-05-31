@@ -77,5 +77,12 @@ namespace PortaleRegione.Contracts.Public
         /// <param name="uidAtto"></param>
         /// <returns></returns>
         Task<List<ATTI_RISPOSTE>> GetRisposte(Guid uidAtto);
+        
+        /// <summary>
+        ///     Ottiene i documenti dell'atto
+        /// </summary>
+        /// <param name="uidAtto"></param>
+        /// <returns></returns>
+        Task<List<ATTI_DOCUMENTI>> GetDocumenti(Guid uidAtto);
     }
 }

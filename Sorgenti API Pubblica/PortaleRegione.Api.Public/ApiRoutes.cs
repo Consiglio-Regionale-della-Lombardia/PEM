@@ -74,6 +74,11 @@ namespace PortaleRegione.Api.Public
         /// Rotta per ottenere i dettagli di un atto specifico mediante il suo identificativo.
         /// </summary>
         public const string GetAtto = Root + "/atto";
+        
+        /// <summary>
+        /// Rotta per ottenere i dettagli di un atto specifico mediante il suo identificativo.
+        /// </summary>
+        public const string ScaricaDocumento = Root + "/atto/download";
 
         /// <summary>
         /// Rotta per effettuare ricerche complesse all'interno del portale mediante parametri specifici.

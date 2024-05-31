@@ -163,5 +163,15 @@ namespace PortaleRegione.Persistance.Public
 
             return dataFromDb;
         }
+
+        public async Task<List<ATTI_DOCUMENTI>> GetDocumenti(Guid uidAtto)
+        {
+            var dataFromDb = await PRContext
+                .ATTI_DOCUMENTI
+                .Where(r => r.UIDAtto == uidAtto && r.Pubblica)
+                .ToListAsync();
+
+            return dataFromDb;
+        }
     }
 }

@@ -18,7 +18,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 using ExpressionBuilder.Common;
@@ -204,7 +206,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
         /// </summary>
         /// <param name="uidAtto">L'identificativo unico dell'atto.</param>
         /// <returns>Una task che, al suo completamento, restituisce un AttoDasiPublicDto con i dettagli dell'atto.</returns>
-        public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto)
+        public async Task<AttoDasiPublicDto> GetAtto(Guid uidAtto, string hostUrl)
         {
             var attoInDb = await _unitOfWork.DASI.Get(uidAtto);
             if (attoInDb == null)
@@ -228,7 +230,15 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 tipo_risposta = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
                 tipo_organo = Utility.GetText_TipoOrganoDASI(r.TipoOrgano)
             }).ToList();
-            
+            var documentiInDb = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
+            var documenti = documentiInDb.Select(d => new AttiDocumentiPublicDto
+            {
+                Tipo = ((TipoDocumentoEnum)d.Tipo).ToString(),
+                Titolo = d.Titolo,
+                Link = $"{hostUrl}/{ApiRoutes.ScaricaDocumento}?path={d.Path}",
+                TipoEnum = (TipoDocumentoEnum)d.Tipo
+            }).ToList();
+
             var attoDto = new AttoDasiPublicDto
             {
                 uidAtto = attoInDb.UIDAtto,
@@ -251,7 +261,8 @@ namespace PortaleRegione.Api.Public.Business_Layer
                 uid_proponente = attoInDb.UIDPersonaProponente.Value,
                 proponente = proponente,
                 commissioni = commissioni,
-                risposte = risposte
+                risposte = risposte,
+                documenti = documenti
             };
 
             var firme = await GetFirme(attoInDb, FirmeTipoEnum.ATTIVI);
@@ -260,7 +271,7 @@ namespace PortaleRegione.Api.Public.Business_Layer
             return attoDto;
         }
 
-        private async Task<List<AttiFirmeDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
+        private async Task<List<AttiFirmePublicDto>> GetFirme(ATTI_DASI atto, FirmeTipoEnum tipo)
         {
             try
             {
@@ -270,31 +281,31 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
                 var firme = firmeInDb.ToList();
 
-                if (!firme.Any()) return new List<AttiFirmeDto>();
+                if (!firme.Any()) return new List<AttiFirmePublicDto>();
 
-                var result = new List<AttiFirmeDto>();
+                var result = new List<AttiFirmePublicDto>();
                 foreach (var firma in firme)
                 {
-                    var dto = new AttiFirmeDto
+                    var gruppo = await _unitOfWork.Persone.GetGruppo(firma.id_gruppo);
+                    var dto = new AttiFirmePublicDto()
                     {
-                        UIDAtto = firma.UIDAtto,
                         UID_persona = firma.UID_persona,
                         id_persona = Users.First(u => u.UID_persona == firma.UID_persona).id_persona,
                         FirmaCert = CryptoHelper.DecryptString(firma.FirmaCert,
                             AppSettingsConfigurationHelper.masterKey),
                         PrimoFirmatario = firma.PrimoFirmatario,
-                        id_gruppo = firma.id_gruppo,
-                        ufficio = firma.ufficio,
+                        Gruppo = gruppo,
                         Data_ritirofirma = string.IsNullOrEmpty(firma.Data_ritirofirma)
                             ? null
                             : CryptoHelper.DecryptString(firma.Data_ritirofirma,
                                 AppSettingsConfigurationHelper.masterKey),
-                        Timestamp = firma.Timestamp,
-                        Capogruppo = firma.Capogruppo,
-                        id_AreaPolitica = firma.id_AreaPolitica,
-                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy"),
-                        Prioritario = firma.Prioritario
+                        Data_firma = firma.Timestamp.ToString("dd/MM/yyyy")
                     };
+
+                    if (firma.id_AreaPolitica.HasValue)
+                    {
+                        dto.AreaPolitica = Utility.GetText_AreaPolitica(firma.id_AreaPolitica.Value);
+                    }
 
                     result.Add(dto);
                 }
@@ -511,5 +522,24 @@ namespace PortaleRegione.Api.Public.Business_Layer
 
             Users = personeInDbLight;
         }
+
+        public HttpResponseMessage ScaricaDocumento(string path)
+        {
+            var complete_path = Path.Combine(
+                AppSettingsConfigurationHelper.PercorsoCompatibilitaDocumenti,
+                Path.GetFileName(path));
+
+            if (!path.Contains("~"))
+            {
+                complete_path = Path.Combine(
+                    AppSettingsConfigurationHelper.PercorsoCompatibilitaDocumenti,
+                    path);
+            }
+
+            var result = Utility.ComposeFileResponse(complete_path);
+            return result;
+        }
+
+
     }
 }

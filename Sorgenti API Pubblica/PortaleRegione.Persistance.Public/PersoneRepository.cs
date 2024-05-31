@@ -123,7 +123,7 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
         {
-            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_consiglieri_per_legislatura.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
 
             var consiglieri = await PRContext
@@ -132,9 +132,10 @@ namespace PortaleRegione.Persistance.Public
                 .Select(p => new PersonaPublicDto
                 {
                     id = p.id_persona,
-                    DisplayName = p.DisplayName
+                    DisplayName = p.DisplayName.Replace("(--)", "")
                 })
                 .ToListAsync();
+
             return consiglieri;
         }
 
@@ -155,7 +156,7 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<PersonaPublicDto> GetPersona(Guid uidPersonaProponente)
         {
-            PRContext.View_consiglieri_in_carica.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_consiglieri.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
 
             var consigliere = await PRContext

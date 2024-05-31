@@ -236,6 +236,28 @@ namespace PortaleRegione.Api.Public.Controllers
                 return ErrorHandler(e);
             }
         }
+        
+        /// <summary>
+        ///     Scarica i documenti di un atto
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.ScaricaDocumento)]
+        public Task<IHttpActionResult> Download(string path)
+        {
+            try
+            {
+                var response = ResponseMessage(_logic.ScaricaDocumento(path));
+
+                return Task.FromResult<IHttpActionResult>(response);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Download Allegato Atto", e);
+                return Task.FromResult(ErrorHandler(e));
+            }
+        }
 
         /// <summary>
         ///     Restituisce i dettagli di un atto specifico, identificato dall'UID fornito nella richiesta.
@@ -254,7 +276,7 @@ namespace PortaleRegione.Api.Public.Controllers
                 if (!parseguid)
                     throw new InvalidOperationException("L'identificativo dell'atto non è valido.");
 
-                return Ok(await _logic.GetAtto(guid));
+                return Ok(await _logic.GetAtto(guid, Request.RequestUri.OriginalString.Replace(Request.RequestUri.PathAndQuery, "")));
             }
             catch (Exception e)
             {
