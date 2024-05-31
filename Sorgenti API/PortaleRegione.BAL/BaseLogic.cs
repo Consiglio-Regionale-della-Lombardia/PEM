@@ -161,7 +161,7 @@ namespace PortaleRegione.BAL
             return result;
         }
 
-        public async Task<HttpResponseMessage> Download(string path)
+        public HttpResponseMessage Download(string path)
         {
             var complete_path = Path.Combine(
                 AppSettingsConfiguration.PercorsoCompatibilitaDocumenti,
@@ -174,7 +174,7 @@ namespace PortaleRegione.BAL
                     path);
             }
 
-            var result = await ComposeFileResponse(complete_path);
+            var result = Utility.ComposeFileResponse(complete_path);
             return result;
         }
 

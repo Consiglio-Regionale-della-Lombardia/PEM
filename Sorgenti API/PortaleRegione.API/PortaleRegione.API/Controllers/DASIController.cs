@@ -463,7 +463,6 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpPost]
         [Route(ApiRoutes.DASI.GetBody)]
         public async Task<IHttpActionResult> GetBody(GetBodyModel model)
@@ -516,21 +515,20 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="path">Percorso file</param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpGet]
         [Route(ApiRoutes.DASI.DownloadDoc)]
-        public async Task<IHttpActionResult> Download(string path)
+        public Task<IHttpActionResult> Download(string path)
         {
             try
             {
-                var response = ResponseMessage(await _dasiLogic.Download(path));
+                var response = ResponseMessage(_dasiLogic.Download(path));
 
-                return response;
+                return Task.FromResult<IHttpActionResult>(response);
             }
             catch (Exception e)
             {
                 Log.Error("Download Allegato Atto", e);
-                return ErrorHandler(e);
+                return Task.FromResult(ErrorHandler(e));
             }
         }
 

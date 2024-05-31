@@ -183,18 +183,18 @@ namespace PortaleRegione.API.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route(ApiRoutes.PEM.Emendamenti.DownloadDoc)]
-        public async Task<IHttpActionResult> Download(string path)
+        public Task<IHttpActionResult> Download(string path)
         {
             try
             {
-                var response = ResponseMessage(await _emendamentiLogic.Download(path));
+                var response = ResponseMessage(_emendamentiLogic.Download(path));
 
-                return response;
+                return Task.FromResult<IHttpActionResult>(response);
             }
             catch (Exception e)
             {
                 Log.Error("Download Allegato EM", e);
-                return ErrorHandler(e);
+                return Task.FromResult(ErrorHandler(e));
             }
         }
 
