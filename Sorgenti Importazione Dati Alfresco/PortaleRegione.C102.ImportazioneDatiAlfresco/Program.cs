@@ -525,7 +525,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 //premesse
-                                var premesse = "Atto importato da Alfresco";
+                                var premesse = "Atto presentato in modalità cartacea. Il testo originale, scansionato, è inserito in allegato";
 
                                 //tipo risposta richiesta
                                 var tipoRispostaRichiestaAttoFromAlfresco = Convert.ToString(cellsAtti[row, 20].Value);
