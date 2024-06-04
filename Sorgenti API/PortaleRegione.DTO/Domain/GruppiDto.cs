@@ -22,6 +22,10 @@ namespace PortaleRegione.DTO.Domain
 {
     public class GruppiDto
     {
+        public GruppiDto()
+        {
+            codice_gruppo = "ND";
+        }
         public int id_gruppo { get; set; }
         public string nome_gruppo { get; set; }
         public string codice_gruppo { get; set; }

@@ -155,7 +155,7 @@ else
                         </a>
                     }
                 }
-                <a class="btn-floating white black-text tooltipped" style="margin: 5px" data-tooltip="Visualizza" onclick="goIntoOtherTab('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })')">
+                <a class="btn-floating white black-text tooltipped" style="margin: 5px" data-tooltip="Visualizza" onclick="goIntoOtherTabWithName('@Url.Action("ViewAtto", "DASI", new { id = item.UIDAtto })', '@Html.Raw(Model.CurrentUser.DisplayName)', '@Html.Raw(Model.CurrentUser.Gruppo.codice_gruppo)')">
                     <i class="icon material-icons" style="margin-right: 5px">chevron_right</i>
                 </a>
             </div>

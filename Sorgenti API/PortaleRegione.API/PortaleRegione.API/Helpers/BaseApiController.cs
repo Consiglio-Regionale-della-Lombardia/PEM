@@ -16,22 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Data.Entity.Validation;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Web.Http;
 using PortaleRegione.API.Controllers;
 using PortaleRegione.BAL;
 using PortaleRegione.Contracts;
 using PortaleRegione.DTO.Domain;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
-using PortaleRegione.Logger;
-using System;
-using System.Data.Entity.Validation;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace PortaleRegione.API.Helpers
 {
-
     /// <summary>
     ///     Controller di base
     /// </summary>
@@ -107,14 +105,13 @@ namespace PortaleRegione.API.Helpers
             _stampeLogic = stampeLogic;
             _utilsLogic = utilsLogic;
             _adminLogic = adminLogic;
-
-            Log.Initialize();
         }
 
         /// <summary>
         ///     Utente richiesta corrente
         /// </summary>
         public PersonaDto CurrentUser => GetCurrentUser();
+
         /// <summary>
         ///     Sessione ricavata dal json di autenticazione
         /// </summary>
@@ -186,10 +183,10 @@ namespace PortaleRegione.API.Helpers
                         session._currentGroup = Convert.ToInt32(identityClaim.Value);
                         break;
                     case ClaimTypes.Name:
-                        {
-                            session._currentUId = new Guid(identityClaim.Value);
-                            break;
-                        }
+                    {
+                        session._currentUId = new Guid(identityClaim.Value);
+                        break;
+                    }
                 }
 
             return session;

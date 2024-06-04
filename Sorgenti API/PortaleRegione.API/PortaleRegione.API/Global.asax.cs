@@ -37,7 +37,7 @@ namespace PortaleRegione.API
         protected void Application_Start()
         {
             // Inizializza Log
-            Log.Initialize();
+            log4net.Config.XmlConfigurator.Configure();
             // Inizializza mappaggio dominio database
             Mapper.Initialize(c => c.AddProfile<MappingProfile>());
             AreaRegistration.RegisterAllAreas();
