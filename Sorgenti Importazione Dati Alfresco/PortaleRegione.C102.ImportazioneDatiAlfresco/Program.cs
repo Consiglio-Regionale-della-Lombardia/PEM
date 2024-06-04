@@ -36,6 +36,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             var foglioRispostaGiunta = args[4];
             var foglioMonitoraggioCommissioni = args[5];
             var foglioMonitoraggioGiunta = args[6];
+            var foglioAssociazione_Sind_Ind = args[7];
 
             var auth = AutenticazioneAPI();
 
@@ -56,16 +57,35 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     package.Workbook.Worksheets.First(w => w.Name.Equals(foglioRispostaGiunta));
                 var cellsRisposteGiunta = worksheetRisposteGiunta.Cells;
                 var rowCountRG = worksheetRisposteGiunta.Dimension.Rows;
-                
+
                 var worksheetMonitoraggioCommissioni =
                     package.Workbook.Worksheets.First(w => w.Name.Equals(foglioMonitoraggioCommissioni));
                 var cellsMonitoraggioCommissioni = worksheetMonitoraggioCommissioni.Cells;
                 var rowCountMC = worksheetMonitoraggioCommissioni.Dimension.Rows;
-                
+
                 var worksheetMonitoraggioGiunta =
                     package.Workbook.Worksheets.First(w => w.Name.Equals(foglioMonitoraggioGiunta));
                 var cellsMonitoraggioGiunta = worksheetMonitoraggioGiunta.Cells;
                 var rowCountMG = worksheetMonitoraggioGiunta.Dimension.Rows;
+
+                var worksheetAssociazione_Sind_Ind =
+                    package.Workbook.Worksheets.First(w => w.Name.Equals(foglioAssociazione_Sind_Ind));
+                var cellsAssociazione_Sind_Ind = worksheetAssociazione_Sind_Ind.Cells;
+                var rowCountASind_Ind = worksheetAssociazione_Sind_Ind.Dimension.Rows;
+
+                var abbinamentiDasi = new List<AbbinamentoDasi>();
+                for (var rowASind_Ind = 2; rowASind_Ind <= rowCountASind_Ind; rowASind_Ind++)
+                {
+                    var abbinamentoSind_Ind = new AbbinamentoDasi
+                    {
+                        idNodoAlfresco = cellsAssociazione_Sind_Ind[rowASind_Ind, 2].Value.ToString(),
+                        NumeroAtto = cellsAssociazione_Sind_Ind[rowASind_Ind, 4].Value.ToString(),
+                        Legislatura = cellsAssociazione_Sind_Ind[rowASind_Ind, 6].Value.ToString(),
+                        idAssociazione = cellsAssociazione_Sind_Ind[rowASind_Ind, 7].Value.ToString()
+                    };
+
+                    abbinamentiDasi.Add(abbinamentoSind_Ind);
+                }
 
                 var sb = new StringBuilder();
                 var elaborationTicks = DateTime.Now.Ticks;
@@ -74,6 +94,10 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                     Path.Combine(Environment.CurrentDirectory, $"errore_{elaborationTicks}");
                 // Crea la cartella "errori" se non esiste già
                 Directory.CreateDirectory(errorFolderPath);
+
+                var attiImportati = new List<AttoImportato>();
+                var attiImportatiDict = attiImportati.ToDictionary(a => 
+                    (a.idNodoAlfresco.Trim().ToLower(), a.Legislatura.Trim().ToLower(), a.NumeroAtto.Trim().ToLower()));
 
                 foreach (var foglio in foglioAtti)
                 {
@@ -85,6 +109,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                         var rowCount = worksheetAtti.Dimension.Rows;
                         sb.Clear();
+                        var attoImportato = new AttoImportato();
 
                         for (var row = 2; row <= rowCount; row++)
                         {
@@ -92,14 +117,20 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                             var legislaturaFromAlfresco = Convert.ToString(cellsAtti[row, 47].Value);
                             var numeroAtto = Convert.ToString(cellsAtti[row, 19].Value);
 
+                            attoImportato.Legislatura = legislaturaFromAlfresco;
+                            attoImportato.Tipo = tipoAttoFromAlfresco;
+                            attoImportato.NumeroAtto = numeroAtto;
+
                             try
                             {
                                 var uidAtto = Guid.NewGuid();
+                                attoImportato.UidAtto = uidAtto;
                                 var proponenteId = auth.id;
                                 var chkf = 0;
                                 var id_gruppo = 0;
                                 // nodeid alfresco 
                                 var nodeIdFromAlfresco = Convert.ToString(cellsAtti[row, 2].Value);
+                                attoImportato.idNodoAlfresco = nodeIdFromAlfresco;
 
                                 var stato = Convert.ToString(cellsAtti[row, 10].Value);
                                 var statoId = ParseDescr2Enum_Stato(stato);
@@ -123,14 +154,44 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         $"Legislatura {legislaturaFromAlfresco} non trovata nel database.");
                                 }
 
+                                var tipoAttoEnum = ConvertToEnumTipoAtto(tipoAttoFromAlfresco);
+
+                                //tipo mozione
+                                var tipoMozioneAttoFromAlfresco = Convert.ToString(cellsAtti[row, 22].Value);
+                                var tipoMozione = ParseDescr2Enum_TipoMozione(tipoMozioneAttoFromAlfresco);
+
+                                //etichette
+                                var etichettaAtto = $"{tipoAttoEnum}_{numeroAtto}_{legislatura.num_legislatura}";
+                                var etichettaAtto_Cifrata =
+                                    CryptoHelper.EncryptString(etichettaAtto, AppsettingsConfiguration.MASTER_KEY);
+
+                                attiImportati.Add(attoImportato);
+                                var key = (attoImportato.idNodoAlfresco.Trim().ToLower(), attoImportato.Legislatura.Trim().ToLower(), attoImportato.NumeroAtto.Trim().ToLower());
+                                attiImportatiDict[key] = attoImportato;
+
+                                var queryExists = @"SELECT 1 FROM [ATTI_DASI] WHERE Etichetta = @Etichetta";
+
+                                using (var commandExists = new SqlCommand(queryExists, connection))
+                                {
+                                    commandExists.Parameters.AddWithValue("@Etichetta", etichettaAtto);
+
+                                    var result = commandExists.ExecuteScalar();
+
+                                    if (result != null && Convert.ToInt32(result) == 1)
+                                    {
+                                        sb.AppendLine(
+                                            $"{foglio}, {row}, {legislaturaFromAlfresco}, {tipoAttoFromAlfresco}, {numeroAtto}, Il record esiste già.");
+                                        continue;
+                                    }
+                                }
+
                                 #region NOTE
 
                                 #region NOTE CHIUSURA ITER
 
                                 var noteChiusuraIter = Convert.ToString(cellsAtti[row, 29].Value);
 
-                                if (string.IsNullOrEmpty(noteChiusuraIter) ||
-                                    noteChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(noteChiusuraIter))
                                 {
                                     // Ignored
                                 }
@@ -157,8 +218,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var noteRisposta = Convert.ToString(cellsAtti[row, 45].Value);
 
-                                if (string.IsNullOrEmpty(noteRisposta) ||
-                                    noteRisposta.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(noteRisposta))
                                 {
                                     // Ignored
                                 }
@@ -184,8 +244,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var noteAggiuntive = Convert.ToString(cellsAtti[row, 24].Value);
 
-                                if (string.IsNullOrEmpty(noteAggiuntive) ||
-                                    noteAggiuntive.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(noteAggiuntive))
                                 {
                                     // Ignored
                                 }
@@ -207,13 +266,12 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 #endregion
-                                
+
                                 #region NOTE AGGIUNTIVE DASI
 
                                 var noteAggiuntive2 = Convert.ToString(cellsAtti[row, 25].Value);
 
-                                if (string.IsNullOrEmpty(noteAggiuntive2) ||
-                                    noteAggiuntive2.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(noteAggiuntive2))
                                 {
                                     // Ignored
                                 }
@@ -440,7 +498,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 for (var rowMC = 2; rowMC <= rowCountMC; rowMC++)
                                 {
                                     var valoreCella = cellsMonitoraggioCommissioni[rowMC, 2].Value;
-                                    
+
                                     if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
                                     {
                                         var tipoOrgano = (int)TipoOrganoEnum.COMMISSIONE;
@@ -454,7 +512,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                         var commandMonitoraggioCommissione =
                                             new SqlCommand(queryInsertMonitoraggio, connection);
-                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@IdMonitoraggio", Guid.NewGuid());
+                                        commandMonitoraggioCommissione.Parameters.AddWithValue("@IdMonitoraggio",
+                                            Guid.NewGuid());
                                         commandMonitoraggioCommissione.Parameters.AddWithValue("@UIDAtto", uidAtto);
                                         commandMonitoraggioCommissione.Parameters.AddWithValue("@Tipo", tipoOrgano);
                                         commandMonitoraggioCommissione.Parameters.AddWithValue("@Nome", nomeMonitorato);
@@ -466,13 +525,13 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 #endregion
-                                
+
                                 #region MONITORAGGIO GIUNTA
 
                                 for (var rowMG = 2; rowMG <= rowCountMG; rowMG++)
                                 {
                                     var valoreCella = cellsMonitoraggioGiunta[rowMG, 2].Value;
-                                    
+
                                     if (valoreCella != null && valoreCella.ToString() == nodeIdFromAlfresco)
                                     {
                                         var tipoOrgano = (int)TipoOrganoEnum.GIUNTA;
@@ -486,7 +545,8 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                         var commandMonitoraggioGiunta =
                                             new SqlCommand(queryInsertMonitoraggio, connection);
-                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@IdMonitoraggio", Guid.NewGuid());
+                                        commandMonitoraggioGiunta.Parameters.AddWithValue("@IdMonitoraggio",
+                                            Guid.NewGuid());
                                         commandMonitoraggioGiunta.Parameters.AddWithValue("@UIDAtto", uidAtto);
                                         commandMonitoraggioGiunta.Parameters.AddWithValue("@Tipo", tipoOrgano);
                                         commandMonitoraggioGiunta.Parameters.AddWithValue("@Nome", nomeMonitorato);
@@ -499,17 +559,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 #endregion
 
-                                var tipoAttoEnum = ConvertToEnumTipoAtto(tipoAttoFromAlfresco);
-
-                                //tipo mozione
-                                var tipoMozioneAttoFromAlfresco = Convert.ToString(cellsAtti[row, 22].Value);
-                                var tipoMozione = ParseDescr2Enum_TipoMozione(tipoMozioneAttoFromAlfresco);
-
-                                //etichette
-                                var etichettaAtto = $"{tipoAttoEnum}_{numeroAtto}_{legislatura.num_legislatura}";
-                                var etichettaAtto_Cifrata =
-                                    CryptoHelper.EncryptString(etichettaAtto, AppsettingsConfiguration.MASTER_KEY);
-
                                 //oggetto
                                 var oggetto = Convert.ToString(cellsAtti[row, 13].Value);
 
@@ -517,15 +566,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 var oggettoPresentato = Convert.ToString(cellsAtti[row, 21].Value);
 
                                 if (!string.IsNullOrEmpty(oggettoPresentato)
-                                    && !oggettoPresentato.Equals("NULL", StringComparison.OrdinalIgnoreCase)
-                                    && (string.IsNullOrEmpty(oggetto) ||
-                                        oggetto.Equals("NULL", StringComparison.OrdinalIgnoreCase)))
+                                    && string.IsNullOrEmpty(oggetto))
                                 {
                                     oggetto = oggettoPresentato;
                                 }
 
                                 //premesse
-                                var premesse = "Atto presentato in modalità cartacea. Il testo originale, scansionato, è inserito in allegato";
+                                var premesse =
+                                    "Atto presentato in modalità cartacea. Il testo originale, scansionato, è inserito in allegato.";
 
                                 //tipo risposta richiesta
                                 var tipoRispostaRichiestaAttoFromAlfresco = Convert.ToString(cellsAtti[row, 20].Value);
@@ -564,21 +612,23 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 {
                                     dcrl = string.Empty;
                                 }
+
                                 var dcr = Convert.ToString(cellsAtti[row, 44].Value);
                                 if (dcr.Equals("NULL", StringComparison.OrdinalIgnoreCase))
                                 {
                                     dcr = "0";
                                 }
+
                                 var dcrc = Convert.ToString(cellsAtti[row, 48].Value);
                                 if (dcrc.Equals("NULL", StringComparison.OrdinalIgnoreCase))
                                 {
                                     dcrc = "0";
                                 }
+
                                 var areaTematica = Convert.ToString(cellsAtti[row, 72].Value);
                                 var altriSoggetti = Convert.ToString(cellsAtti[row, 71].Value);
 
-                                var query = @"IF NOT EXISTS (SELECT 1 FROM [ATTI_DASI] WHERE Etichetta = @Etichetta)
-                            BEGIN
+                                var query = @"
                                 INSERT INTO [ATTI_DASI] 
                                 (UIDAtto, Tipo, TipoMOZ, NAtto, Etichetta, NAtto_search, Oggetto, Premesse, IDTipo_Risposta, DataPresentazione, IDStato, Legislatura, 
                                 UIDPersonaCreazione, UIDPersonaPresentazione, idRuoloCreazione, UIDPersonaProponente, UIDPersonaPrimaFirma, 
@@ -588,11 +638,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 (@UIDAtto, @Tipo, @TipoMOZ, @NAtto, @Etichetta, @NAtto_search, @Oggetto, @Premesse, @IDTipo_Risposta, @DataPresentazione, @IDStato, @Legislatura, 
                                 @UIDPersonaCreazione, @UIDPersonaPresentazione, @idRuoloCreazione, @UIDPersonaProponente, @UIDPersonaPrimaFirma, 
                                 @UID_QRCode, @id_gruppo, @chkf, @Timestamp, GETDATE(), @OrdineVisualizzazione, @AreaPolitica, @Pubblicato, @Sollecito, @Protocollo, @CodiceMateria{PARAM_DATA_ANNUNZIO}
-{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, 0, 0, 0)
-                            END";
+{PARAM_TIPO_CHIUSURA_ITER}{PARAM_DATA_CHIUSURA_ITER}{PARAM_TIPO_VOTAZIONE_ITER}, @Emendato, @DCR, @DCRC, @DCRL, @AreaTematica, @AltriSoggetti, 0, 0, 0)";
 
-                                if (string.IsNullOrEmpty(dataAnnunzio)
-                                    || dataAnnunzio.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(dataAnnunzio))
                                     query = query
                                         .Replace("{FIELD_DATA_ANNUNZIO}", "")
                                         .Replace("{PARAM_DATA_ANNUNZIO}", "");
@@ -601,8 +649,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         .Replace("{FIELD_DATA_ANNUNZIO}", ", DataAnnunzio")
                                         .Replace("{PARAM_DATA_ANNUNZIO}", ", @DataAnnunzio");
 
-                                if (string.IsNullOrEmpty(tipoChiusuraIter)
-                                    || tipoChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(tipoChiusuraIter))
                                     query = query
                                         .Replace("{FIELD_TIPO_CHIUSURA_ITER}", "")
                                         .Replace("{PARAM_TIPO_CHIUSURA_ITER}", "");
@@ -611,8 +658,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         .Replace("{FIELD_TIPO_CHIUSURA_ITER}", ", TipoChiusuraIter")
                                         .Replace("{PARAM_TIPO_CHIUSURA_ITER}", ", @TipoChiusuraIter");
 
-                                if (string.IsNullOrEmpty(dataChiusuraIter)
-                                    || dataChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(dataChiusuraIter))
                                     query = query
                                         .Replace("{FIELD_DATA_CHIUSURA_ITER}", "")
                                         .Replace("{PARAM_DATA_CHIUSURA_ITER}", "");
@@ -621,8 +667,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         .Replace("{FIELD_DATA_CHIUSURA_ITER}", ", DataChiusuraIter")
                                         .Replace("{PARAM_DATA_CHIUSURA_ITER}", ", @DataChiusuraIter");
 
-                                if (string.IsNullOrEmpty(tipoVotazione)
-                                    || tipoVotazione.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(tipoVotazione))
                                     query = query
                                         .Replace("{FIELD_TIPO_VOTAZIONE_ITER}", "")
                                         .Replace("{PARAM_TIPO_VOTAZIONE_ITER}", "");
@@ -688,8 +733,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         ParseDescr2Enum_Stato(tipoChiusuraIter));
                                 }
 
-                                if (string.IsNullOrEmpty(dataChiusuraIter) ||
-                                    dataChiusuraIter.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(dataChiusuraIter))
                                 {
                                     // Ignored
                                 }
@@ -699,8 +743,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         Convert.ToDateTime(dataChiusuraIter));
                                 }
 
-                                if (string.IsNullOrEmpty(tipoVotazione)
-                                    || tipoVotazione.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(tipoVotazione))
                                 {
                                     // Ignored
                                 }
@@ -711,9 +754,11 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 }
 
                                 // Esegui la query di inserimento
-                                command.ExecuteNonQuery();
-
-                                Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
+                                var resQuery = command.ExecuteNonQuery();
+                                if (resQuery == 1)
+                                {
+                                    Console.WriteLine($"[{row}/{rowCount}] {etichettaAtto}");
+                                }
                             }
                             catch (Exception e)
                             {
@@ -738,6 +783,49 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                         Console.WriteLine($"Dettagli dell'errore salvati in {filePath}");
 
                         Console.WriteLine("Complete!");
+                    }
+                }
+                using (var connection = new SqlConnection(AppsettingsConfiguration.CONNECTIONSTRING))
+                {
+                    connection.Open();
+                    if (attiImportati.Any())
+                    {
+                        foreach (var abbinamentoDasi in abbinamentiDasi)
+                        {
+                            var keyPadre = (abbinamentoDasi.idNodoAlfresco.Trim().ToLower(), abbinamentoDasi.Legislatura.Trim().ToLower(), abbinamentoDasi.NumeroAtto.Trim().ToLower());
+
+                            if (!attiImportatiDict.TryGetValue(keyPadre, out var attoPadre))
+                            {
+                                Console.WriteLine($"Atto padre non trovato: {abbinamentoDasi.idNodoAlfresco}, {abbinamentoDasi.Legislatura}, {abbinamentoDasi.NumeroAtto}");
+                                continue;
+                            }
+
+                            var abbinate = abbinamentiDasi.Where(a =>
+                                a.idAssociazione.Equals(abbinamentoDasi.idAssociazione)
+                                && !a.idNodoAlfresco.Trim().ToLower().Equals(abbinamentoDasi.idNodoAlfresco.Trim().ToLower()));
+
+                            foreach (var abbinataDasi in abbinate)
+                            {
+                                var keyAbbinata = (abbinataDasi.idNodoAlfresco.Trim().ToLower(), abbinataDasi.Legislatura.Trim().ToLower(), abbinataDasi.NumeroAtto.Trim().ToLower());
+
+                                if (!attiImportatiDict.TryGetValue(keyAbbinata, out var attoAbbinato))
+                                {
+                                    Console.WriteLine($"Atto abbinato non trovato: {abbinataDasi.idNodoAlfresco}, {abbinataDasi.Legislatura}, {abbinataDasi.NumeroAtto}");
+                                    continue;
+                                }
+
+                                var queryInsertAbbinamento =
+                                    @"INSERT INTO ATTI_ABBINAMENTI (IdAbbinamento, Data, UIDAtto, UIDAttoAbbinato)
+                                                    VALUES
+                                                (@IdAbbinamento, GETDATE(), @UIDAtto, @UIDAttoAbbinato)";
+                                var commandInsertAbbinamento =
+                                    new SqlCommand(queryInsertAbbinamento, connection);
+                                commandInsertAbbinamento.Parameters.AddWithValue("@IdAbbinamento", Guid.NewGuid());
+                                commandInsertAbbinamento.Parameters.AddWithValue("@UIDAtto", attoPadre.UidAtto);
+                                commandInsertAbbinamento.Parameters.AddWithValue("@UIDAttoAbbinato", attoAbbinato.UidAtto);
+                                commandInsertAbbinamento.ExecuteNonQuery();
+                            }
+                        }
                     }
                 }
             }
@@ -896,15 +984,6 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
             return task.Result;
         }
 
-        private static List<Tipi_AttoDto> GetTipiAttoFromAPI(LoginResponse auth)
-        {
-            var api = new ApiGateway(auth.jwt);
-
-            var task = Task.Run(async () => await api.Atti.GetTipi());
-
-            return task.Result.ToList();
-        }
-
         private static List<LegislaturaDto> GetLegislatureFromAPI(LoginResponse auth)
         {
             var api = new ApiGateway(auth.jwt);
@@ -955,6 +1034,23 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                 default:
                     throw new ArgumentException("Tipo atto non riconosciuto");
             }
+        }
+
+        public class AttoImportato
+        {
+            public Guid UidAtto { get; set; }
+            public string idNodoAlfresco { get; set; }
+            public string Tipo { get; set; }
+            public string Legislatura { get; set; }
+            public string NumeroAtto { get; set; }
+        }
+
+        public class AbbinamentoDasi
+        {
+            public string idNodoAlfresco { get; set; }
+            public string idAssociazione { get; set; }
+            public string Legislatura { get; set; }
+            public string NumeroAtto { get; set; }
         }
     }
 }

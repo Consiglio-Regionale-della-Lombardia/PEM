@@ -72,5 +72,6 @@ namespace PortaleRegione.Contracts
         Task<List<AttiMonitoraggioDto>> GetMonitoraggi(Guid uidAtto);
         Task<List<AttiDocumentiDto>> GetDocumenti(Guid uidAtto);
         Task<List<NoteDto>> GetNote(Guid uidAtto);
+        //Task<List> GetAbbinamenti(Guid uidAtto);
     }
 }

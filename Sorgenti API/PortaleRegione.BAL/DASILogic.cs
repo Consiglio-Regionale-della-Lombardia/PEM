@@ -756,6 +756,7 @@ namespace PortaleRegione.API.Controllers
                 dto.Monitoraggi = await _unitOfWork.DASI.GetMonitoraggi(attoInDb.UIDAtto);
                 dto.Documenti = await _unitOfWork.DASI.GetDocumenti(attoInDb.UIDAtto);
                 dto.Note = await _unitOfWork.DASI.GetNote(attoInDb.UIDAtto);
+                //dto.Abbinamenti = await _unitOfWork.DASI.GetAbbinamenti(attoInDb.UIDAtto);
 
                 return dto;
             }
