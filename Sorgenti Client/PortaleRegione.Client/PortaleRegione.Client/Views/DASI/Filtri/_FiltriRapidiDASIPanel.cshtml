@@ -36,6 +36,9 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.NAtto))", id: "@nameof(AttoDASIDto.NAtto)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataPresentazione))", id: "@nameof(AttoDASIDto.DataPresentazione)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDSeduta))", id: "@nameof(AttoDASIDto.UIDSeduta)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataIscrizioneSeduta))", id: "@nameof(AttoDASIDto.DataIscrizioneSeduta)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -62,6 +65,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             val = document.getElementById('oggetto').value;
             text = val;
             chipText = keyLabel + ": " + val;
+        }else if (key === "@nameof(AttoDASIDto.DataPresentazione)") {
+			var data_da_str = document.getElementById('data_presentazione_da').value;
+			var date_da_obj = new Date(data_da_str);
+			var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
+			val = data_da_formatted_date;
+			text = data_da_formatted_date;
+			if (document.getElementById('data_presentazione_a').value !== '') {
+			    var data_a_str = document.getElementById('data_presentazione_a').value;
+			    var date_a_obj = new Date(data_a_str);
+			    var data_a_formatted_date = ('0' + date_a_obj.getDate()).slice(-2) + '/' + ('0' + (date_a_obj.getMonth() + 1)).slice(-2) + '/' + date_a_obj.getFullYear();
+				val += "," + data_a_formatted_date;
+				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
+
+			}			
+            chipText = keyLabel + ": " + text;
         } else {
             // Per altri filtri che usano una select
             var selectedOption = document.querySelector('#dynamic-select-container select');
@@ -443,6 +461,19 @@ function openModalWithContent(key, txt, isEditing, currentValue){
             selectHTML = `<div class="input-field col s12">
                 <input id="oggetto" type="text" ${currentValueFormatted}/>
             </div>`;
+            break;
+		case '@nameof(AttoDASIDto.DataPresentazione)':
+			
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+      <input id="data_presentazione_da" type="date" ${currentValueFormatted1}/>
+  </div>
+  <div class="input-field col s12">
+      <input id="data_presentazione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
             break;
 	    default:
 		    console.log("Filtro non riconosciuto!");

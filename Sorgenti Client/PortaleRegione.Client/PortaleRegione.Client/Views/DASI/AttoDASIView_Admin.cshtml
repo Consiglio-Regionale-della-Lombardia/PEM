@@ -35,10 +35,10 @@
 	</script>
 
 <style>
-	.collection-header-custom {
-        background-color: #f5f5f5!important;
+    .collection-header-custom {
+        background-color: #f5f5f5 !important;
         font-weight: bold;
-	}
+    }
 </style>
 <div class="row" style="left: 10px; margin-bottom: unset !important; position: absolute; top: 12px;">
     <div class="col s12">
@@ -255,6 +255,30 @@
                             }
                         </ul>
                     }
+                }
+            </div>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="collapsible-header collection-header-custom"><i class="material-icons">insert_drive_file</i>Abbinamenti</div>
+    <div class="collapsible-body">
+        <div class="row">
+            <div class="input-field col s12 m12 l4">
+                @if (atto.Abbinamenti.Any())
+                {
+                    <h6>
+                        <b>Abbinamenti</b>
+                    </h6>
+                    <hr/>
+                    <ul class="collection">
+                        @foreach (var abb in atto.Abbinamenti)
+                        {
+                            <li class="collection-item">
+                                @abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato - @abb.OggettoAttoAbbinato
+                            </li>
+                        }
+                    </ul>
                 }
             </div>
         </div>

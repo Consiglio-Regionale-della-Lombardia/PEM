@@ -1638,3 +1638,21 @@ function removeA(arr) {
     }
     return arr;
 }
+
+function formatDateToISO(dateStr) {
+  var parts = dateStr.split('/');
+  return `${parts[2]}-${('0' + parts[1]).slice(-2)}-${('0' + parts[0]).slice(-2)}`;
+}
+
+function handleDateValue(currentValue) {
+	 if (!currentValue) {
+    return { date1: '', date2: '' };
+  }
+  var dates = currentValue.split(',');
+  if (dates.length === 1) {
+    return { date1: formatDateToISO(dates[0]), date2: '' };
+  } else if (dates.length === 2) {
+    return { date1: formatDateToISO(dates[0]), date2: formatDateToISO(dates[1]) };
+  }
+  return { date1: '', date2: '' };
+}
