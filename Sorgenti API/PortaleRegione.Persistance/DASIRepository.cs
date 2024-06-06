@@ -809,7 +809,7 @@ namespace PortaleRegione.Persistance
                 DataTrattazione = r.DataTrattazione,
                 DescrizioneOrgano = r.DescrizioneOrgano,
                 IdOrgano = r.IdOrgano,
-                IdRisposta = r.IdRisposta,
+                Uid = r.Uid,
                 Tipo = r.Tipo,
                 DisplayTipo = Utility.GetText_TipoRispostaDASI(r.Tipo, false),
                 TipoOrgano = r.TipoOrgano,
@@ -870,10 +870,50 @@ namespace PortaleRegione.Persistance
                     Tipo = ((TipoNotaEnum)nota.Tipo).ToString(),
                     TipoEnum = (TipoNotaEnum)nota.Tipo,
                     Data = nota.Data,
-                    IdNota = nota.IdNota,
+                    Uid = nota.Uid,
                     Nota = nota.Nota,
                     Persona = new PersonaLightDto(persona.cognome, persona.nome)
                 });
+            }
+
+            return res;
+        }
+
+        public async Task<List<AttiAbbinamentoDto>> GetAbbinamenti(Guid uidAtto)
+        {
+            var abbinamentiInDB = await PRContext
+                .ATTI_ABBINAMENTI
+                .Where(a => a.UIDAtto.Equals(uidAtto))
+                .ToListAsync();
+
+            var res = new List<AttiAbbinamentoDto>();
+            foreach (var attiAbbinamenti in abbinamentiInDB)
+            {
+                var abbinata = new AttiAbbinamentoDto
+                {
+                    Uid = attiAbbinamenti.Uid,
+                    Data = attiAbbinamenti.Data
+                };
+
+                if (!string.IsNullOrEmpty(attiAbbinamenti.TipoAttoAbbinato)
+                    || !string.IsNullOrEmpty(attiAbbinamenti.NumeroAttoAbbinato)
+                    || !string.IsNullOrEmpty(attiAbbinamenti.OggettoAttoAbbinato))
+                {
+                    abbinata.OggettoAttoAbbinato = attiAbbinamenti.OggettoAttoAbbinato;
+                    abbinata.TipoAttoAbbinato = attiAbbinamenti.TipoAttoAbbinato;
+                    abbinata.NumeroAttoAbbinato = attiAbbinamenti.NumeroAttoAbbinato;
+                }
+                else if(attiAbbinamenti.UIDAttoAbbinato.HasValue)
+                {
+                    var attoAbbinato = await PRContext
+                        .VIEW_ATTI
+                        .FirstAsync(a => a.UIDAtto.Equals(attiAbbinamenti.UIDAttoAbbinato));
+                    abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
+                    abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
+                    abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;
+                }
+
+                res.Add(abbinata);
             }
 
             return res;
