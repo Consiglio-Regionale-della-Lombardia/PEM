@@ -29,7 +29,7 @@ namespace PortaleRegione.Domain
         {
         }
 
-        [Key] public Guid IdNota { get; set; }
+        [Key] public Guid Uid { get; set; }
         public Guid UIDPersona { get; set; }
         public Guid UIDAtto { get; set; }
         public int Tipo { get; set; }

@@ -31,7 +31,7 @@ namespace PortaleRegione.Domain
         {
         }
 
-        [Key] public Guid IdRisposta { get; set; }
+        [Key] public Guid Uid { get; set; }
         public Guid UIDAtto { get; set; }
         public int TipoOrgano { get; set; }
         public int Tipo { get; set; }

@@ -18,23 +18,19 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace PortaleRegione.Domain
 {
-    [Table("ATTI_MONITORAGGIO")]
-    public class ATTI_MONITORAGGIO
+    public class ATTI_ABBINAMENTI
     {
-        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ATTI_MONITORAGGIO()
-        {
-        }
+        [Key]
+        public Guid Uid { get; set; }
 
-        [Key] public Guid Uid { get; set; }
+        public DateTime Data { get; set; }
         public Guid UIDAtto { get; set; }
-        public int TipoOrgano { get; set; }
-        public int IdOrgano { get; set; }
-        public string DescrizioneOrgano { get; set; }
+        public Guid? UIDAttoAbbinato { get; set; }
+        public string OggettoAttoAbbinato { get; set; }
+        public string TipoAttoAbbinato { get; set; }
+        public string NumeroAttoAbbinato { get; set; }
     }
 }

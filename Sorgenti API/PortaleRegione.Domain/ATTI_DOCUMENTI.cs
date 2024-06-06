@@ -31,7 +31,7 @@ namespace PortaleRegione.Domain
         {
         }
 
-        [Key] public Guid UIDDocumento { get; set; }
+        [Key] public Guid Uid { get; set; }
         public Guid UIDAtto { get; set; }
         public int Tipo { get; set; }
         public DateTime Data { get; set; }
