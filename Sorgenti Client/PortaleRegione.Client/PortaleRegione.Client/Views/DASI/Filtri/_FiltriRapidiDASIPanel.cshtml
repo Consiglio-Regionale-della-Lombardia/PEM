@@ -1,6 +1,7 @@
 ﻿@using PortaleRegione.Client.Helpers
 @using PortaleRegione.DTO.Domain
 @using PortaleRegione.DTO.Enum
+@using PortaleRegione.DTO.Routes
 @using Utility = PortaleRegione.Common.Utility
 @model PortaleRegione.DTO.Model.RiepilogoDASIModel
 
@@ -78,21 +79,21 @@ document.addEventListener('DOMContentLoaded', async function() {
 				val += "," + data_a_formatted_date;
 				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
 
-			}			
+			}
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
 			var data_seduta_str = document.getElementById('data_seduta').value;
 			var data_seduta_obj = new Date(data_seduta_str);
 			var data_seduta_formatted_date = ('0' + data_seduta_obj.getDate()).slice(-2) + '/' + ('0' + (data_seduta_obj.getMonth() + 1)).slice(-2) + '/' + data_seduta_obj.getFullYear();
 			val = data_seduta_formatted_date;
-			text = data_seduta_formatted_date;		
+			text = data_seduta_formatted_date;
             chipText = keyLabel + ": " + text;
         }else if (key === "@nameof(AttoDASIDto.DataIscrizioneSeduta)") {
 			var data_iscrizione_seduta_str = document.getElementById('data_iscrizione_seduta').value;
 			var data_iscrizione_seduta_obj = new Date(data_iscrizione_seduta_str);
 			var data_iscrizione_seduta_formatted_date = ('0' + data_iscrizione_seduta_obj.getDate()).slice(-2) + '/' + ('0' + (data_iscrizione_seduta_obj.getMonth() + 1)).slice(-2) + '/' + data_iscrizione_seduta_obj.getFullYear();
 			val = data_iscrizione_seduta_formatted_date;
-			text = data_iscrizione_seduta_formatted_date;		
+			text = data_iscrizione_seduta_formatted_date;
             chipText = keyLabel + ": " + text;
         } else {
             // Per altri filtri che usano una select
@@ -242,7 +243,7 @@ function CreaTabella(responseData) {
 + ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
 </a>`
 		}
-
+		console.log(result)
 		const row = document.createElement('tr');
 		row.innerHTML = `
             <td style="width: 1%;">
@@ -253,12 +254,12 @@ function CreaTabella(responseData) {
                     </label>
                 </p>
             </td>
-			<td style="width: 7%;">${result.Display}</td>
-            <td style="width: 8%;">${result.DisplayTipoRispostaRichiesta}</td>
-            <td style="width: 35%;">${result.Oggetto}</td>
-            <td style="width: 15%;">${htmlFirme}</td>
-            <td style="width: 8%;">${result.DisplayStato}</td>
-            <td style="width: 8%;"></td>
+			<td style="width: 10%;"><div class="chip chip-centered hoverable badge${result.DisplayTipo}" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')">${result.Display}</div></td>
+            <td>${result.DisplayTipoRispostaRichiesta}</td>
+            <td>${result.Oggetto}</td>
+            <td>${htmlFirme}</td>
+            <td>${result.DisplayStato}</td>
+            <td></td>
             <td style="width: 10%;" class="center">
 			     <a class="blue-text tooltipped" style="margin: 2px" data-tooltip="Vai alla banca dati in internet" onclick="goToGeasi('${result.DisplayTipo}', ${result.NAtto}, ${result.Legislatura})">
                      <i class="icon material-icons">remove_red_eye</i>
@@ -269,9 +270,6 @@ function CreaTabella(responseData) {
                  </a>
                  <a class="black-text tooltipped" data-tooltip="Modifica Metadati" onclick="openMetaDatiDASI('${result.UIDAtto}')">
                      <i class="icon material-icons">edit</i>
-                 </a>
-				 <a class="black-text tooltipped" data-tooltip="Visualizza atto" onclick="goIntoOtherTab('@Html.Raw(AppSettingsConfiguration.URL_CLIENT)/dasi/${result.UIDAtto}')">
-                     <i class="icon material-icons">arrow_forward</i>
                  </a>
 			</td>
         `;
@@ -477,7 +475,7 @@ function openModalWithContent(key, txt, isEditing, currentValue){
             </div>`;
             break;
 		case '@nameof(AttoDASIDto.Timestamp)':
-			
+
 			var dateValues = handleDateValue(currentValue);
 			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
 			var currentValueFormatted2 = dateValues.date2 ? `value="${dateValues.date2}"` : '';
@@ -490,7 +488,7 @@ function openModalWithContent(key, txt, isEditing, currentValue){
   </div>`;
             break;
 		case '@nameof(AttoDASIDto.UIDSeduta)':
-			
+
 			var dateValues = handleDateValue(currentValue);
 			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
 
@@ -499,7 +497,7 @@ function openModalWithContent(key, txt, isEditing, currentValue){
   </div>`;
             break;
 		case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
-			
+
 			var dateValues = handleDateValue(currentValue);
 			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
 
