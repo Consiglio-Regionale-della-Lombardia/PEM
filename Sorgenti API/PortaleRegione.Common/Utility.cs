@@ -948,5 +948,10 @@ namespace PortaleRegione.Common
             return result;
         }
 
+        public static string FormatDateToISO(string dateStr)
+        {
+            var parts = dateStr.Split('/');
+            return $"{parts[2]}-{parts[1].PadLeft(2, '0')}-{parts[0].PadLeft(2, '0')}";
+        }
     }
 }
