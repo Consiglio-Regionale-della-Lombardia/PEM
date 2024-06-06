@@ -36,7 +36,7 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Tipo))", id: "@nameof(AttoDASIDto.Tipo)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.IDTipo_Risposta))", id: "@nameof(AttoDASIDto.IDTipo_Risposta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.NAtto))", id: "@nameof(AttoDASIDto.NAtto)"},
-	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataPresentazione))", id: "@nameof(AttoDASIDto.DataPresentazione)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Timestamp))", id: "@nameof(AttoDASIDto.Timestamp)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDSeduta))", id: "@nameof(AttoDASIDto.UIDSeduta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataIscrizioneSeduta))", id: "@nameof(AttoDASIDto.DataIscrizioneSeduta)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             val = document.getElementById('oggetto').value;
             text = val;
             chipText = keyLabel + ": " + val;
-        }else if (key === "@nameof(AttoDASIDto.DataPresentazione)") {
+        }else if (key === "@nameof(AttoDASIDto.Timestamp)") {
 			var data_da_str = document.getElementById('data_presentazione_da').value;
 			var date_da_obj = new Date(data_da_str);
 			var data_da_formatted_date = ('0' + date_da_obj.getDate()).slice(-2) + '/' + ('0' + (date_da_obj.getMonth() + 1)).slice(-2) + '/' + date_da_obj.getFullYear();
@@ -79,6 +79,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 				text = " dal " + data_da_formatted_date + " al " + data_a_formatted_date;
 
 			}			
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.UIDSeduta)") {
+			var data_seduta_str = document.getElementById('data_seduta').value;
+			var data_seduta_obj = new Date(data_seduta_str);
+			var data_seduta_formatted_date = ('0' + data_seduta_obj.getDate()).slice(-2) + '/' + ('0' + (data_seduta_obj.getMonth() + 1)).slice(-2) + '/' + data_seduta_obj.getFullYear();
+			val = data_seduta_formatted_date;
+			text = data_seduta_formatted_date;		
+            chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.DataIscrizioneSeduta)") {
+			var data_iscrizione_seduta_str = document.getElementById('data_iscrizione_seduta').value;
+			var data_iscrizione_seduta_obj = new Date(data_iscrizione_seduta_str);
+			var data_iscrizione_seduta_formatted_date = ('0' + data_iscrizione_seduta_obj.getDate()).slice(-2) + '/' + ('0' + (data_iscrizione_seduta_obj.getMonth() + 1)).slice(-2) + '/' + data_iscrizione_seduta_obj.getFullYear();
+			val = data_iscrizione_seduta_formatted_date;
+			text = data_iscrizione_seduta_formatted_date;		
             chipText = keyLabel + ": " + text;
         } else {
             // Per altri filtri che usano una select
@@ -462,7 +476,7 @@ function openModalWithContent(key, txt, isEditing, currentValue){
                 <input id="oggetto" type="text" ${currentValueFormatted}/>
             </div>`;
             break;
-		case '@nameof(AttoDASIDto.DataPresentazione)':
+		case '@nameof(AttoDASIDto.Timestamp)':
 			
 			var dateValues = handleDateValue(currentValue);
 			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
@@ -473,6 +487,24 @@ function openModalWithContent(key, txt, isEditing, currentValue){
   </div>
   <div class="input-field col s12">
       <input id="data_presentazione_a" type="date" ${currentValueFormatted2}/>
+  </div>`;
+            break;
+		case '@nameof(AttoDASIDto.UIDSeduta)':
+			
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+      <input id="data_seduta" type="date" ${currentValueFormatted1}/>
+  </div>`;
+            break;
+		case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
+			
+			var dateValues = handleDateValue(currentValue);
+			var currentValueFormatted1 = dateValues.date1 ? `value="${dateValues.date1}"` : '';
+
+			selectHTML = `<div class="input-field col s12">
+      <input id="data_iscrizione_seduta" type="date" ${currentValueFormatted1}/>
   </div>`;
             break;
 	    default:

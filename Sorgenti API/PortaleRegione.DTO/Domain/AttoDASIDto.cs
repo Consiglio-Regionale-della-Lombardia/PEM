@@ -157,7 +157,7 @@ public class AttoDASIDto
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Firme { get; set; }
 
-    public DateTime Timestamp { get; set; }
+    [DisplayName("Data presentazione")]public DateTime Timestamp { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string Firme_dopo_deposito { get; set; }
@@ -357,6 +357,7 @@ public class AttoDASIDto
     public List<AttiMonitoraggioDto> Monitoraggi { get; set; } = new List<AttiMonitoraggioDto>();
     public List<AttiDocumentiDto> Documenti { get; set; } = new List<AttiDocumentiDto>();
     public List<NoteDto> Note { get; set; } = new List<NoteDto>();
+    public List<AttiAbbinamentoDto> Abbinamenti { get; set; } = new List<AttiAbbinamentoDto>();
     public string DisplayTipoChiusuraIter { get; set; }
     public string DisplayTipoVotazioneIter { get; set; }
     public int DCR { get; set; }
