@@ -22,7 +22,7 @@ namespace PortaleRegione.DTO.Domain;
 
 public class AttiRisposteDto
 {
-    public Guid IdRisposta { get; set; }
+    public Guid Uid { get; set; }
     public Guid UIDAtto { get; set; }
     public int TipoOrgano { get; set; }
     public int Tipo { get; set; }
