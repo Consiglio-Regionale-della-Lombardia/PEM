@@ -748,7 +748,7 @@ namespace PortaleRegione.API.Controllers
                 dto.DettaglioMozioniAbbinate = await GetDettagioMozioniAbbinate(dto.UIDAtto);
 
                 if (attoInDb.TipoChiusuraIter.HasValue)
-                    dto.DisplayTipoChiusuraIter = Utility.GetText_TipoRispostaDASI(attoInDb.TipoChiusuraIter.Value);
+                    dto.DisplayTipoChiusuraIter = Utility.GetText_StatoDASI(attoInDb.TipoChiusuraIter.Value);
                 if (attoInDb.TipoVotazioneIter.HasValue)
                     dto.DisplayTipoVotazioneIter = Utility.GetText_TipoVotazioneDASI(attoInDb.TipoVotazioneIter.Value);
 
