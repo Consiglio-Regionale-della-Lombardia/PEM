@@ -36,4 +36,24 @@ namespace PortaleRegione.DTO.Enum
         CHIUSO_INAMMISSIBILE= 23,
         TRATTAZIONE_IN_ASSEMBLEA= 24,
     }
+
+    //public enum StatiAttoEnum
+    //{
+    //    TUTTI = 0,
+    //    BOZZA_RISERVATA = 1,
+    //    BOZZA = 2,
+    //    PRESENTATO = 3,
+    //    IN_CORSO_DI_TRATTATAZIONE = 4,
+    //    CONCLUSO = 14,
+    //    BOZZA_CARTACEA = 20,
+    //}
+
+    //public enum TipoChiusuraIterEnum
+    //{
+    //    APPROVATO,
+    //    RITIRATO,
+    //    RESPINTO,
+    //    DECADENZA_PER_FINE_LEGISLATURA = 22,
+    //    INAMMISSIBILE= 23,
+    //}
 }
