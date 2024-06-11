@@ -907,7 +907,12 @@ namespace PortaleRegione.Persistance
                 {
                     var attoAbbinato = await PRContext
                         .VIEW_ATTI
-                        .FirstAsync(a => a.UIDAtto.Equals(attiAbbinamenti.UIDAttoAbbinato));
+                        .Where(a => a.UIDAtto.Equals(attiAbbinamenti.UIDAttoAbbinato.Value))
+                        .FirstOrDefaultAsync();
+
+                    if (attoAbbinato == null)
+                        continue;
+
                     abbinata.OggettoAttoAbbinato = attoAbbinato.Oggetto;
                     abbinata.TipoAttoAbbinato = Utility.GetText_Tipo(attoAbbinato.Tipo);
                     abbinata.NumeroAttoAbbinato = attoAbbinato.NAtto;
