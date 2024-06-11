@@ -114,7 +114,7 @@
                 || Model.CurrentUser.IsSegreteriaAssemblea
                 || (Model.CurrentUser.IsResponsabileSegreteriaPolitica && Model.CurrentUser.Gruppo.id_gruppo == atto.id_gruppo))
             {
-				@* FIRME PRIORITA' *@
+						@* FIRME PRIORITA' *@
                 <div class="row" id="pnlPrioritaFirme" style="display: none;">
                     <div class="col s12">
                         <a class="btn-flat pink-text" onclick="$('#pnlPrioritaFirme').hide();$('#pnlStandardFirme').show();">
@@ -261,21 +261,39 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">insert_drive_file</i>Abbinamenti</div>
+    <div class="collapsible-header collection-header-custom">
+        <i class="material-icons">insert_drive_file</i>Abbinamenti
+        @if (atto.Abbinamenti.Any())
+        {
+            <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">@atto.Abbinamenti.Count</div>
+        }
+    </div>
     <div class="collapsible-body">
         <div class="row">
             <div class="input-field col s12 m12 l4">
-                @if (atto.Abbinamenti.Any())
+                @if (!atto.Abbinamenti.Any())
+                {
+                    <div class="card-panel panel-warning center">
+                        <span class="center">
+                            <p>Nessun abbinamento</p>
+                        </span>
+                    </div>
+                }
+                else
                 {
                     <h6>
-                        <b>Abbinamenti</b>
+                        <b>Lista abbinamenti</b>
                     </h6>
                     <hr/>
                     <ul class="collection">
                         @foreach (var abb in atto.Abbinamenti)
                         {
                             <li class="collection-item">
-                                @abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato - @abb.OggettoAttoAbbinato
+                                @abb.TipoAttoAbbinato @abb.NumeroAttoAbbinato
+                                @if (!string.IsNullOrEmpty(abb.OggettoAttoAbbinato))
+                                {
+                                    @Html.Raw($"- {abb.OggettoAttoAbbinato}");
+                                }
                             </li>
                         }
                     </ul>
@@ -285,7 +303,21 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">event_note</i>Trattazione</div>
+    <div class="collapsible-header collection-header-custom">
+        <i class="material-icons">event_note</i>Trattazione
+        @if (atto.Risposte.Any())
+        {
+            <div style="left: 160px; position: absolute;">
+                <i class="material-icons icon right green-text">check_circle</i>
+            </div>
+        }
+        else
+        {
+            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
+                <i class="material-icons icon right amber-text">remove_circle</i>
+            </div>
+        }
+    </div>
     <div class="collapsible-body">
 
         @if (!atto.Risposte.Any())
@@ -298,6 +330,10 @@
         }
         else
         {
+            <h6>
+                <b>Risposte fornite</b>
+            </h6>
+            <hr/>
             <table>
                 <thead>
                 <tr>
@@ -352,7 +388,13 @@
      || atto.Tipo == (int)TipoAttoEnum.RIS)
 {
     <li>
-        <div class="collapsible-header collection-header-custom"><i class="material-icons">network_check</i>Monitoraggio</div>
+        <div class="collapsible-header collection-header-custom">
+            <i class="material-icons">network_check</i>Monitoraggio
+            @if (atto.Monitoraggi.Any())
+            {
+                <div class="chip" style="left: 195px; margin-top: -4px; position: absolute;">@atto.Monitoraggi.Count</div>
+            }
+        </div>
         <div class="collapsible-body">
             <div class="row">
                 <div class="input-field col s12 m12 l6">
@@ -421,7 +463,23 @@
     </li>
 }
 <li>
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">perm_scan_wifi</i>Chiusura iter</div>
+    <div class="collapsible-header collection-header-custom">
+        <i class="material-icons">perm_scan_wifi</i>
+        Chiusura iter
+
+        @if (atto.DataChiusuraIter.HasValue)
+        {
+            <div style="left: 160px; position: absolute;">
+                <i class="material-icons icon right green-text">check_circle</i>
+            </div>
+        }
+        else
+        {
+            <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
+                <i class="material-icons icon right amber-text">remove_circle</i>
+            </div>
+        }
+    </div>
     <div class="collapsible-body">
         <div class="row">
             <div class="input-field col s12 m12 l4">
@@ -488,7 +546,13 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">comment</i>Note</div>
+    <div class="collapsible-header collection-header-custom">
+        <i class="material-icons">comment</i>Note
+        @if (atto.Note.Any())
+        {
+            <div class="chip" style="left: 130px; margin-top: -4px; position: absolute;">@atto.Note.Count</div>
+        }
+    </div>
     <div class="collapsible-body">
         @if (!atto.Note.Any())
         {
@@ -500,6 +564,10 @@
         }
         else
         {
+            <h6>
+                <b>Note dell'atto</b>
+            </h6>
+            <hr/>
             <table>
                 <thead>
                 <tr>
