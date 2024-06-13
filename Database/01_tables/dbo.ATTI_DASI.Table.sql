@@ -1,13 +1,3 @@
-USE [dbDASI]
-GO
-
-/****** Object:  Table [dbo].[ATTI_DASI]    Script Date: 10/03/2023 11:25:30 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 CREATE TABLE [dbo].[ATTI_DASI](
 	[UIDAtto] [uniqueidentifier] NOT NULL,
 	[Tipo] [int] NOT NULL,
@@ -74,11 +64,22 @@ CREATE TABLE [dbo].[ATTI_DASI](
 	[CapogruppoNeiTermini] [bit] NOT NULL,
 	[MOZU_Capigruppo] [bit] NOT NULL,
 	[FirmeCartacee] [varchar](max) NULL,
- CONSTRAINT [PK_ATTI_DASI] PRIMARY KEY CLUSTERED 
-(
-	[UIDAtto] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+	[Pubblicato] [bit] NOT NULL,
+	[Sollecito] [bit] NOT NULL,
+	[IDTipo_Risposta_Effettiva] [int] NULL,
+	[Protocollo] [varchar](150) NULL,
+	[CodiceMateria] [varchar](150) NULL,
+	[DataAnnunzio] [datetime] NULL,
+	[TipoChiusuraIter] [int] NULL,
+	[DataChiusuraIter] [datetime] NULL,
+	[NoteChiusuraIter] [varchar](max) NULL,
+	[Emendato] [bit] NOT NULL,
+	[TipoVotazioneIter] [int] NULL,
+	[AreaTematica] [varchar](max) NULL,
+	[AltriSoggetti] [varchar](max) NULL,
+	[DCR] [int] NULL,
+	[DCRC] [int] NULL,
+	[DCRL] [varchar](50) NULL)
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoMOZ]  DEFAULT ((0)) FOR [TipoMOZ]
@@ -93,16 +94,34 @@ GO
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_TipoRichiestaDestinatario]  DEFAULT ((0)) FOR [TipoRichiestaDestinatario]
 GO
 
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Proietta]  DEFAULT ((0)) FOR [Proietta]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Firma_su_invito]  DEFAULT ((0)) FOR [Firma_su_invito]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Eliminato]  DEFAULT ((0)) FOR [Eliminato]
+GO
+
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Non_Passaggio_In_Esame]  DEFAULT ((0)) FOR [Non_Passaggio_In_Esame]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Inviato_Al_Protocollo]  DEFAULT ((0)) FOR [Inviato_Al_Protocollo]
 GO
 
-ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_public bool CapogruppoNeiTermini { get; set; } = false;
-CapogruppoNeiTermini]  DEFAULT ((0)) FOR [CapogruppoNeiTermini]
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_CapogruppoNeiTermini]  DEFAULT ((0)) FOR [CapogruppoNeiTermini]
 GO
 
 ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_MOZU_Capigruppo]  DEFAULT ((0)) FOR [MOZU_Capigruppo]
 GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Pubblicato]  DEFAULT ((0)) FOR [Pubblicato]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Sollecito]  DEFAULT ((0)) FOR [Sollecito]
+GO
+
+ALTER TABLE [dbo].[ATTI_DASI] ADD  CONSTRAINT [DF_ATTI_DASI_Emendato]  DEFAULT ((0)) FOR [Emendato]
+GO
+
 
