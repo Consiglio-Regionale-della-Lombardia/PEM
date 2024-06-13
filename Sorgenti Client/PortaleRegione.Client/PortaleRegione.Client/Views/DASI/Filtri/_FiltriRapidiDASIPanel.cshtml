@@ -96,6 +96,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 			val = data_iscrizione_seduta_formatted_date;
 			text = data_iscrizione_seduta_formatted_date;
             chipText = keyLabel + ": " + text;
+        }else if (key === "@nameof(AttoDASIDto.UIDPersonaProponente)") {
+			text = "";
+			val = "";
+			var existingChips = document.querySelectorAll(`.chip[data-proponente-uid]`);
+			existingChips.forEach(function (item, index){
+				var chipInnerText = Array.from(item.childNodes)
+					.filter(node => node.nodeType === Node.TEXT_NODE)
+					.map(node => node.textContent.trim())
+					.join('');
+				if (index > 0) {
+					text += ", ";
+					val += ",";
+				}
+				text += chipInnerText;
+				val += item.getAttribute('data-proponente-uid');
+			});
+            chipText = keyLabel + ": " + text;
         } else {
             // Per altri filtri che usano una select
             var selectedOption = document.querySelector('#dynamic-select-container select');
@@ -527,6 +544,8 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 			selectHTML = `<div class="input-field col s12">
 				            <i class="material-icons prefix">search</i>
 					        <input type="text" id="proponenti-autocomplete" class="autocomplete">
+							
+							<div id="proponenti-selected"></div>
 					     </div>`;
 						 
 			document.getElementById('dynamic-select-container').innerHTML = selectHTML;			
@@ -543,10 +562,56 @@ async function openModalWithContent(key, txt, isEditing, currentValue){
 				limit: 20,
 				minLength: 2,
 				onAutocomplete: function (txt, key) {
-					console.log('AUTOCOMPLETE PROPONENTI', txt, key);
+					
+					var existingChip = document.querySelector(`.chip[data-proponente-uid="${key}"]`);
+					if (!existingChip) {
+					    var chipsContainerProponenti = document.getElementById('proponenti-selected');
+					    var newChip = document.createElement('div');
+						newChip.setAttribute('data-proponente-uid', key);
+					    newChip.classList.add('chip');
+					    newChip.textContent = txt;
+					    
+					    var closeIcon = document.createElement('i');
+					    closeIcon.classList.add('close', 'material-icons');
+					    closeIcon.style.setProperty('top', 'unset', 'important');
+					    closeIcon.textContent = 'close';
+					    closeIcon.onclick = function () {
+						    newChip.remove();
+					    };
+					    newChip.appendChild(closeIcon);
 
+					    chipsContainerProponenti.appendChild(newChip);
+					}
+					
+					document.getElementById('proponenti-autocomplete').value = "";
 				}
 			});
+			
+			if (isEditing){
+				console.log('EDIT', currentValue)
+				var currentValueArray = currentValue.split(',');
+				var chipsContainerProponenti = document.getElementById('proponenti-selected');
+				currentValueArray.forEach(function (guid) {
+					var item = data.find(item => item.id === guid);
+					if (item) {
+						var newChip = document.createElement('div');
+						newChip.setAttribute('data-proponente-uid', item.id);
+						newChip.classList.add('chip');
+						newChip.textContent = item.tag;
+
+						var closeIcon = document.createElement('i');
+						closeIcon.classList.add('close', 'material-icons');
+						closeIcon.style.setProperty('top', 'unset', 'important');
+						closeIcon.textContent = 'close';
+						closeIcon.onclick = function () {
+							newChip.remove();
+						};
+						newChip.appendChild(closeIcon);
+
+						chipsContainerProponenti.appendChild(newChip);
+					}
+				});
+			}
             break;
 	    default:
 		    console.log("Filtro non riconosciuto!");

@@ -226,6 +226,23 @@ namespace PortaleRegione.Client.Controllers
                         continue;
                     }
 
+                    if (modelFilter.property.Equals(nameof(AttoDASIDto.UIDPersonaProponente)))
+                    {
+                        var splitProponenti = modelFilter.value.Split(',');
+                        foreach (var s in splitProponenti)
+                        {
+                            request.filtro.Add(new FilterStatement<AttoDASIDto>
+                            {
+                                PropertyId = modelFilter.property,
+                                Operation = Operation.EqualTo,
+                                Value = Guid.Parse(s),
+                                Connector = FilterStatementConnector.Or
+                            });
+                        }
+
+                        continue;
+                    }
+
                     request.filtro.Add(new FilterStatement<AttoDASIDto>
                     {
                         PropertyId = modelFilter.property,
