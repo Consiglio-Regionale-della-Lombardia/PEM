@@ -345,6 +345,26 @@ namespace PortaleRegione.API.Controllers
             }
         }
 
+        /// <summary>
+        ///     Endpoint per avere tutti i consiglieri
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(ApiRoutes.Persone.GetProponentiFirmatari)]
+        public async Task<IHttpActionResult> GetProponentiFirmatari()
+        {
+            try
+            {
+                var persone = await _personeLogic.GetProponentiFirmatari();
+
+                return Ok(persone);
+            }
+            catch (Exception e)
+            {
+                Log.Error("GetProponentiFirmatari", e);
+                return ErrorHandler(e);
+            }
+        }
 
         /// <summary>
         ///     Endpoint reset pin

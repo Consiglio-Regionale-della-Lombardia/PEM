@@ -24,6 +24,7 @@ using PortaleRegione.DTO.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
@@ -422,6 +423,15 @@ namespace PortaleRegione.Persistance
                                && item.pass_locale_crypt == password)
                 .FirstOrDefaultAsync();
             return user != null;
+        }
+
+        public async Task<List<View_consiglieri>> GetProponentiFirmatari()
+        {
+            return await PRContext
+                .View_consiglieri
+                .GroupBy(c => c.id_persona)
+                .Select(g => g.FirstOrDefault())
+                .ToListAsync();
         }
     }
 }

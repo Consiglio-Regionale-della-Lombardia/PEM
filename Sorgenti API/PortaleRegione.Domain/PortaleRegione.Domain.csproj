@@ -106,6 +106,7 @@
     <Compile Include="View_Conteggi_EM_Area_Politica.cs" />
     <Compile Include="View_Conteggi_EM_Gruppi_Politici.cs" />
     <Compile Include="View_gruppi_politici_con_giunta.cs" />
+    <Compile Include="View_gruppi_politici_ws.cs" />
     <Compile Include="View_PINS.cs" />
     <Compile Include="View_UTENTI.cs" />
   </ItemGroup>

@@ -515,20 +515,21 @@ namespace PortaleRegione.API.Controllers
         /// </summary>
         /// <param name="path">Percorso file</param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet]
         [Route(ApiRoutes.DASI.DownloadDoc)]
-        public Task<IHttpActionResult> Download(string path)
+        public async Task<IHttpActionResult> Download(string path)
         {
             try
             {
                 var response = ResponseMessage(_dasiLogic.Download(path));
 
-                return Task.FromResult<IHttpActionResult>(response);
+                return response;
             }
             catch (Exception e)
             {
                 Log.Error("Download Allegato Atto", e);
-                return Task.FromResult(ErrorHandler(e));
+                return ErrorHandler(e);
             }
         }
 

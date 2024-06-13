@@ -304,6 +304,7 @@ namespace PortaleRegione.DTO.Routes
             private const string Base = Root + "/persone";
 
             public const string GetAll = Base + "/all";
+            public const string GetProponentiFirmatari = Base + "/proponenti-firmatari";
             public const string GetPersona = Base + "/{id}/{is_giunta}";
             public const string CheckPin = Base + "/check-pin";
             public const string CambioPin = Base + "/cambio-pin";

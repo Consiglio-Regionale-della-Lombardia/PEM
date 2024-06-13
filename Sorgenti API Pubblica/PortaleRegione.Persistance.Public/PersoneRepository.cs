@@ -85,13 +85,8 @@ namespace PortaleRegione.Persistance.Public
         public async Task<List<KeyValueDto>> GetGruppiByLegislatura(int idLegislatura)
         {
             var query = PRContext
-                .JOIN_GRUPPO_AD
-                .Where(j => j.id_legislatura == idLegislatura)
-                .Join(PRContext
-                        .gruppi_politici,
-                    p => p.id_gruppo,
-                    g => g.id_gruppo,
-                    (p, g) => g);
+                .View_gruppi_politici_ws
+                .Where(j => j.id_legislatura == idLegislatura);
             var lstGruppi = await query
                 .Select(g => new KeyValueDto
                 {
@@ -123,11 +118,11 @@ namespace PortaleRegione.Persistance.Public
 
         public async Task<List<PersonaPublicDto>> GetFirmatariByLegislatura(int idLegislatura)
         {
-            PRContext.View_consiglieri_per_legislatura.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
+            PRContext.View_consiglieri.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
             PRContext.View_UTENTI.FromCache(DateTimeOffset.Now.AddHours(8)).ToList();
 
             var consiglieri = await PRContext
-                .View_consiglieri_per_legislatura
+                .View_consiglieri
                 .Where(p => p.id_legislatura == idLegislatura && p.id_persona > 0)
                 .Select(p => new PersonaPublicDto
                 {

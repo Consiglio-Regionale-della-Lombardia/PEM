@@ -83,6 +83,7 @@ namespace PortaleRegione.DataBase
         public virtual DbSet<View_CONSIGLIERE_GRUPPO> View_CONSIGLIERE_GRUPPO { get; set; }
         public virtual DbSet<View_CONSIGLIERI_PEM> View_CONSIGLIERI_PEM { get; set; }
         public virtual DbSet<View_gruppi_politici_con_giunta> View_gruppi_politici_con_giunta { get; set; }
+        public virtual DbSet<View_gruppi_politici_ws> View_gruppi_politici_ws { get; set; }
         public virtual DbSet<View_PINS> View_PINS { get; set; }
         public virtual DbSet<View_UTENTI> View_UTENTI { get; set; }
         public virtual DbSet<View_CAPIGRUPPO> View_CAPIGRUPPO { get; set; }

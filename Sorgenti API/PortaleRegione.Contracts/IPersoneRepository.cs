@@ -64,5 +64,6 @@ namespace PortaleRegione.Contracts
         Task UpdateUtente_NoCons(Guid uid_persona, int id_persona, string userAd);
         void Add(UTENTI_NoCons newUser);
         Task<bool> Autentica(string username, string password);
+        Task<List<View_consiglieri>> GetProponentiFirmatari();
     }
 }
