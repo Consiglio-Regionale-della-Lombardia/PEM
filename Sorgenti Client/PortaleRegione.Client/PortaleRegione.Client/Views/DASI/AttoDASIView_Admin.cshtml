@@ -7,6 +7,8 @@
     Layout = null;
     var atto = Model.Atto;
     ViewBag.Title = $"{Utility.GetText_Tipo(atto)} {atto.NAtto} - {atto.GetLegislatura()}";
+
+    var cssClass = PortaleRegione.Client.Helpers.Utility.GetCSS_TipoDASI(atto.Tipo);
 }
 <!DOCTYPE html>
 <html>
@@ -64,7 +66,7 @@
 <div class="col s12">
 <ul class="collapsible expandable">
 <li class="active">
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">cloud_queue</i>Testo atto - @Html.Raw($"{atto.Display} ({atto.GetLegislatura()})")</div>
+    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">cloud_queue</i>Testo atto - @Html.Raw($"{atto.Display} ({atto.GetLegislatura()})")</div>
     <div class="collapsible-body">
         <div class="row">
             <div class="col s12 center bodyEMClass">
@@ -174,34 +176,16 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">insert_drive_file</i>Informazioni generali</div>
+    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">info</i>Informazioni generali</div>
     <div class="collapsible-body">
         <div class="row">
-            <div class="input-field col s12 m12 l4">
-                @Html.TextBox("txtTipoAtto", atto.DisplayTipo)
-                @Html.LabelFor(s => s.Atto.Tipo)
-            </div>
-            <div class="input-field col s12 m12 l4">
-                @Html.TextBoxFor(model => model.Atto.NAtto, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.NAtto)
-            </div>
-            <div class="input-field col s12 m12 l4">
-                @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.Protocollo)
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m12 l4">
+            <div class="input-field col s12 m12 l6">
                 @Html.TextBox("txtStatoAtto", atto.DisplayStato, new { @class = "form-control" })
                 @Html.LabelFor(s => s.Atto.IDStato)
             </div>
-            <div class="input-field col s12 m12 l4">
+            <div class="input-field col s12 m12 l6">
                 @Html.LabelFor(s => s.Atto.DataAnnunzio, new { @class = "active" })
-                @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:s}", new { @class = "form-control", type = "datetime-local" })
-            </div>
-            <div class="input-field col s12 m12 l4">
-                @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
-                @Html.LabelFor(s => s.Atto.CodiceMateria)
+                @Html.TextBoxFor(s => s.Atto.DataAnnunzio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
             </div>
         </div>
         <div class="row">
@@ -211,15 +195,27 @@
             </div>
         </div>
         <div class="row">
-            <div class="input-field col s12 m12 l4">
+            <div class="input-field col s12 m12 l6">
+                @Html.TextBoxFor(model => model.Atto.Protocollo, new { @class = "form-control" })
+                @Html.LabelFor(s => s.Atto.Protocollo)
+            </div>
+            <div class="input-field col s12 m12 l6">
+                @Html.TextBoxFor(model => model.Atto.CodiceMateria, new { @class = "form-control" })
+                @Html.LabelFor(s => s.Atto.CodiceMateria)
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m12 l6">
                 @Html.TextBox("txtAreaPoliticaAtto", atto.DisplayAreaPolitica, new { @class = "form-control" })
                 @Html.LabelFor(s => s.Atto.AreaPolitica)
             </div>
-            <div class="input-field col s12 m12 l4">
+            <div class="input-field col s12 m12 l6">
                 @Html.TextBox("txtTipoRispostaAtto", atto.DisplayTipoRispostaRichiesta, new { @class = "form-control" })
                 @Html.LabelFor(s => s.Atto.IDTipo_Risposta)
             </div>
-            <div class="input-field col s6 m6 l2">
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m12 l6">
                 <p>
                     <label>
                         <input type="checkbox" value="true" @Html.Raw((Model.Atto.Pubblicato ? "checked=\"checked\"" : ""))/>
@@ -227,7 +223,7 @@
                     </label>
                 </p>
             </div>
-            <div class="input-field col s6 m6 l2">
+            <div class="input-field col s12 m12 l6">
                 <p>
                     <label>
                         <input type="checkbox" value="true" @Html.Raw((Model.Atto.Sollecito ? "checked=\"checked\"" : ""))/>
@@ -261,8 +257,8 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom">
-        <i class="material-icons">insert_drive_file</i>Abbinamenti
+    <div class="collapsible-header collection-header-custom @cssClass">
+		<i class="material-icons">insert_link</i>Abbinamenti
         @if (atto.Abbinamenti.Any())
         {
             <div class="chip" style="left: 190px; margin-top: -4px; position: absolute;">@atto.Abbinamenti.Count</div>
@@ -270,7 +266,7 @@
     </div>
     <div class="collapsible-body">
         <div class="row">
-            <div class="input-field col s12 m12 l4">
+            <div class="input-field col s12 m12 l12">
                 @if (!atto.Abbinamenti.Any())
                 {
                     <div class="card-panel panel-warning center">
@@ -303,7 +299,7 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom">
+    <div class="collapsible-header collection-header-custom @cssClass">
         <i class="material-icons">event_note</i>Trattazione
         @if (atto.Risposte.Any())
         {
@@ -314,7 +310,7 @@
         else
         {
             <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Nessuna risposta">
-                <i class="material-icons icon right amber-text">remove_circle</i>
+                <i class="material-icons icon right red-text">remove_circle</i>
             </div>
         }
     </div>
@@ -351,11 +347,11 @@
                 {
                     <tr>
                         <td>@Html.Raw(risposta.DisplayTipo)</td>
-                        <td>@Html.Raw((risposta.Data.HasValue) ? risposta.Data.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                        <td>@Html.Raw((risposta.Data.HasValue) ? risposta.Data.Value.ToString("dd/MM/yyyy") : "")</td>
                         <td>@Html.Raw(risposta.DisplayTipoOrgano)</td>
                         <td>@Html.Raw(risposta.DescrizioneOrgano)</td>
-                        <td>@Html.Raw((risposta.DataTrasmissione.HasValue) ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
-                        <td>@Html.Raw((risposta.DataTrattazione.HasValue) ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                        <td>@Html.Raw((risposta.DataTrasmissione.HasValue) ? risposta.DataTrasmissione.Value.ToString("dd/MM/yyyy") : "")</td>
+                        <td>@Html.Raw((risposta.DataTrattazione.HasValue) ? risposta.DataTrattazione.Value.ToString("dd/MM/yyyy") : "")</td>
                     </tr>
                 }
                 </tbody>
@@ -388,7 +384,7 @@
      || atto.Tipo == (int)TipoAttoEnum.RIS)
 {
     <li>
-        <div class="collapsible-header collection-header-custom">
+        <div class="collapsible-header collection-header-custom @cssClass">
             <i class="material-icons">network_check</i>Monitoraggio
             @if (atto.Monitoraggi.Any())
             {
@@ -463,8 +459,8 @@
     </li>
 }
 <li>
-    <div class="collapsible-header collection-header-custom">
-        <i class="material-icons">perm_scan_wifi</i>
+    <div class="collapsible-header collection-header-custom @cssClass">
+        <i class="material-icons">lock</i>
         Chiusura iter
 
         @if (atto.DataChiusuraIter.HasValue)
@@ -476,7 +472,7 @@
         else
         {
             <div class="tooltipped" style="left: 160px; position: absolute;" data-tooltip="Informazioni mancanti">
-                <i class="material-icons icon right amber-text">remove_circle</i>
+                <i class="material-icons icon right red-text">remove_circle</i>
             </div>
         }
     </div>
@@ -488,7 +484,7 @@
             </div>
             <div class="input-field col s12 m12 l4">
                 @Html.LabelFor(s => s.Atto.DataChiusuraIter, new { @class = "active" })
-                @Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:s}", new { @class = "form-control", type = "datetime-local" })
+                @Html.TextBoxFor(s => s.Atto.DataChiusuraIter, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
             </div>
             <div class="input-field col s12 m12 l4">
                 @Html.TextBoxFor(model => model.Atto.DisplayTipoVotazioneIter, new { @class = "form-control" })
@@ -546,7 +542,7 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom">
+    <div class="collapsible-header collection-header-custom @cssClass">
         <i class="material-icons">comment</i>Note
         @if (atto.Note.Any())
         {
@@ -593,7 +589,7 @@
     </div>
 </li>
 <li>
-    <div class="collapsible-header collection-header-custom"><i class="material-icons">local_printshop</i>Stampe</div>
+    <div class="collapsible-header collection-header-custom @cssClass"><i class="material-icons">local_printshop</i>Stampe</div>
     <div class="collapsible-body">
         <span>Lorem ipsum dolor sit amet.</span>
     </div>

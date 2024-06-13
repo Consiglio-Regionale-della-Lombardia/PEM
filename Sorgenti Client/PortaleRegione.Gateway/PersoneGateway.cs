@@ -18,6 +18,7 @@
 using Newtonsoft.Json;
 using PortaleRegione.DTO.Autenticazione;
 using PortaleRegione.DTO.Domain;
+using PortaleRegione.DTO.Domain.Essentials;
 using PortaleRegione.DTO.Enum;
 using PortaleRegione.DTO.Model;
 using PortaleRegione.DTO.Response;
@@ -120,6 +121,13 @@ namespace PortaleRegione.Gateway
             var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.CambioPin}";
             var body = JsonConvert.SerializeObject(model);
             await Post(requestUrl, body, _token);
+        }
+
+        public async Task<List<PersonaPublicDto>> GetProponentiFirmatari()
+        {
+            var requestUrl = $"{apiUrl}/{ApiRoutes.Persone.GetProponentiFirmatari}";
+            var lst = JsonConvert.DeserializeObject<List<PersonaPublicDto>>(await Get(requestUrl, _token));
+            return lst;
         }
 
         public async Task<IEnumerable<PersonaDto>> GetGiuntaRegionale()

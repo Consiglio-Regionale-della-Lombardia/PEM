@@ -23,6 +23,7 @@ using PortaleRegione.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PortaleRegione.DTO.Domain.Essentials;
 
 namespace PortaleRegione.Gateway
 {
@@ -43,5 +44,6 @@ namespace PortaleRegione.Gateway
         Task<IEnumerable<PersonaDto>> GetSegreteriaPolitica(int id, bool firma, bool deposito);
         Task<LoginResponse> Login(LoginRequest request);
         Task SalvaPin(CambioPinModel model);
+        Task<List<PersonaPublicDto>> GetProponentiFirmatari();
     }
 }

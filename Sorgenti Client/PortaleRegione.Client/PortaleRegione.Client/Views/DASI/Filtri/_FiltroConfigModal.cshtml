@@ -227,9 +227,9 @@
 	        var addIcon = document.createElement('i');
 	        addIcon.className = 'material-icons secondary-content';
 	        addIcon.textContent = 'add_circle';
-	        addIcon.onclick = function (event) {
+	        addIcon.onclick = async function (event) {
 		        event.stopPropagation();
-		        openModalWithContent(item.id, item.tag, false, 0);
+		        await openModalWithContent(item.id, item.tag, false, 0);
 	        };
 
 	        li.appendChild(addIcon);

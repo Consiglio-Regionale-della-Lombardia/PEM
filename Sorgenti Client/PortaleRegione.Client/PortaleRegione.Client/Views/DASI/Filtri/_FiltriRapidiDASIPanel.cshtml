@@ -40,6 +40,7 @@ var availableFilterArray = [
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.Timestamp))", id: "@nameof(AttoDASIDto.Timestamp)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDSeduta))", id: "@nameof(AttoDASIDto.UIDSeduta)"},
 	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.DataIscrizioneSeduta))", id: "@nameof(AttoDASIDto.DataIscrizioneSeduta)"},
+	{ tag:"@Utility.GetDisplayName(typeof(AttoDASIDto), nameof(AttoDASIDto.UIDPersonaProponente))", id: "@nameof(AttoDASIDto.UIDPersonaProponente)"},
 	{ tag:"Oggetto e Testo", id: "@nameof(AttoDASIDto.Oggetto)"},
 ];
 
@@ -112,9 +113,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     var elems = document.querySelectorAll('#autocomplete-input');
     var instances = M.Autocomplete.init(elems, {
         data: availableFilterArray,
-	    onAutocomplete: function (txt, key) {
+	    onAutocomplete: async function (txt, key) {
 		    // Mostra i dettagli dell'elemento selezionato nella modal
-		    openModalWithContent(key, txt, false, 0);
+		    await openModalWithContent(key, txt, false, 0);
 	    }
     });
 
@@ -243,7 +244,7 @@ function CreaTabella(responseData) {
 + ${result.ConteggioFirme - 1} <i class='icon material-icons right hide-on-med-and-down' style="margin-left: unset">group</i>
 </a>`
 		}
-		console.log(result)
+
 		const row = document.createElement('tr');
 		row.innerHTML = `
             <td style="width: 1%;">
@@ -398,23 +399,28 @@ function aggiornaConteggi(selector, testo, valore) {
 	});
 }
 
-function openModalWithContent(key, txt, isEditing, currentValue){
+async function openModalWithContent(key, txt, isEditing, currentValue){
+	
+	waiting(true);
+
     document.getElementById('autocomplete-input').value = "";
     document.getElementById('modal-content').textContent = txt;
     document.getElementById('modal-filter-id-hidden').value = key;
     var selectHTML = '';
     switch (key) {
 	    case '@nameof(AttoDASIDto.Legislatura)':
-			var legislature = GetLegislature();
+			var legislature = await GetLegislature();
 			selectHTML = '<select id="legislature-select">';
 			legislature.forEach(function (item) {
 				var selected = isEditing && currentValue > 0 && item.id_legislatura == currentValue ? 'selected' : '';
 				selectHTML += `<option value="${item.id_legislatura}" ${selected}>${item.num_legislatura}</option>`;
 			});
 			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
 		    break;
 	    case '@nameof(AttoDASIDto.IDStato)':
-			var stati = GetStatiDASI();
+			var stati = await GetStatiDASI();
 			selectHTML = '<select id="stati-select">';
 			stati.forEach(function (item) {
 				if (item.IDStato != 0) {
@@ -423,9 +429,11 @@ function openModalWithContent(key, txt, isEditing, currentValue){
 				}
 			});
 			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
 		    break;
 	    case '@nameof(AttoDASIDto.Tipo)':
-			var tipi = GetTipiDASI();
+			var tipi = await GetTipiDASI();
 			selectHTML = '<select id="tipi-select">';
 			tipi.forEach(function (item) {
 				if (item.IDTipoAtto != 0) {
@@ -434,6 +442,8 @@ function openModalWithContent(key, txt, isEditing, currentValue){
 				}
 			});
 			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
 		    break;
 		case '@nameof(AttoDASIDto.IDTipo_Risposta)':
 			var tipiRisposta = [
@@ -450,6 +460,8 @@ function openModalWithContent(key, txt, isEditing, currentValue){
 				}
 			});
 			selectHTML += '</select>';
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+			M.FormSelect.init(document.querySelectorAll('select'));
 		    break;
 		case '@nameof(AttoDASIDto.NAtto)':
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
@@ -467,12 +479,14 @@ function openModalWithContent(key, txt, isEditing, currentValue){
                     </div>
                 </div>
             </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Oggetto)':
             var currentValueFormatted = isEditing && currentValue ? `value="${currentValue}"` : '';
             selectHTML = `<div class="input-field col s12">
                 <input id="oggetto" type="text" ${currentValueFormatted}/>
             </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.Timestamp)':
 
@@ -486,6 +500,7 @@ function openModalWithContent(key, txt, isEditing, currentValue){
   <div class="input-field col s12">
       <input id="data_presentazione_a" type="date" ${currentValueFormatted2}/>
   </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.UIDSeduta)':
 
@@ -495,6 +510,7 @@ function openModalWithContent(key, txt, isEditing, currentValue){
 			selectHTML = `<div class="input-field col s12">
       <input id="data_seduta" type="date" ${currentValueFormatted1}/>
   </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
             break;
 		case '@nameof(AttoDASIDto.DataIscrizioneSeduta)':
 
@@ -504,15 +520,41 @@ function openModalWithContent(key, txt, isEditing, currentValue){
 			selectHTML = `<div class="input-field col s12">
       <input id="data_iscrizione_seduta" type="date" ${currentValueFormatted1}/>
   </div>`;
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;
+            break;
+		case '@nameof(AttoDASIDto.UIDPersonaProponente)':
+			var persone = await GetProponenti();
+			selectHTML = `<div class="input-field col s12">
+				            <i class="material-icons prefix">search</i>
+					        <input type="text" id="proponenti-autocomplete" class="autocomplete">
+					     </div>`;
+						 
+			document.getElementById('dynamic-select-container').innerHTML = selectHTML;			
+			var data = [];
+			persone.forEach(function (item) {
+				data.push({
+					tag: `${item.DisplayName}`,
+					id: `${item.uid}`
+				});
+			});
+			var elems = document.querySelectorAll('#proponenti-autocomplete');
+			var instances = M.Autocomplete.init(elems, {
+				data: data,
+				limit: 20,
+				minLength: 2,
+				onAutocomplete: function (txt, key) {
+					console.log('AUTOCOMPLETE PROPONENTI', txt, key);
+
+				}
+			});
             break;
 	    default:
 		    console.log("Filtro non riconosciuto!");
 		    break;
     }
-    document.getElementById('dynamic-select-container').innerHTML = selectHTML;
-    M.FormSelect.init(document.querySelectorAll('select'));
 
     // Apri la modal
+	waiting(false);
     $('#infoModal').modal("open");
 }
 
@@ -559,9 +601,9 @@ function addIconsToChip(chip, key, keyLabel, val) {
 	editIcon.style.setProperty('margin-left', '10px');
 	editIcon.style.setProperty('top', '2px');
 	editIcon.textContent = 'edit';
-	editIcon.onclick = function (event) {
+	editIcon.onclick = async function (event) {
 		event.stopPropagation();
-		openModalWithContent(key, keyLabel, true, val);
+		await openModalWithContent(key, keyLabel, true, val);
 	};
 	chip.appendChild(editIcon);
 

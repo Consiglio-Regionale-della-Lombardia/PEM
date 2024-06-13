@@ -81,6 +81,17 @@ function set_ListaLegislature(obj) {
     localStorage.setItem("ListaLegislature", JSON.stringify(obj));
 }
 
+function get_ListaProponenti() {
+    var session_raw = localStorage.getItem("ListaProponenti");
+    if (session_raw == null)
+        return {}
+    return JSON.parse(session_raw);
+}
+
+function set_ListaProponenti(obj) {
+    localStorage.setItem("ListaProponenti", JSON.stringify(obj));
+}
+
 function get_ListaStatiEM() {
     var session_raw = localStorage.getItem("ListaStatiEM");
     if (session_raw == null)

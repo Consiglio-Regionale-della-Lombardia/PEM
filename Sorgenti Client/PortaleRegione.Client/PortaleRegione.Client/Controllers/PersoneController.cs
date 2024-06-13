@@ -46,6 +46,14 @@ namespace PortaleRegione.Client.Controllers
             var apiGateway = new ApiGateway(Token);
             return Json(await apiGateway.Persone.Get(), JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpGet]
+        [Route("proponenti-firmatari")]
+        public async Task<ActionResult> GetProponentiFirmatari()
+        {
+            var apiGateway = new ApiGateway(Token);
+            return Json(await apiGateway.Persone.GetProponentiFirmatari(), JsonRequestBehavior.AllowGet);
+        }
 
         [Route("cambio-pin")]
         public ActionResult CambioPin()
