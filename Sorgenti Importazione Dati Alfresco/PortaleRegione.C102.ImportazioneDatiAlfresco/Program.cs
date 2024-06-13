@@ -299,9 +299,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 else
                                 {
                                     var queryInsertNotaChiusuraIter =
-                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
-                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
                                     var commandInsertNotaChiusuraIter =
                                         new SqlCommand(queryInsertNotaChiusuraIter, connection);
                                     commandInsertNotaChiusuraIter.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
@@ -326,9 +326,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 else
                                 {
                                     var queryInsertNotaRisposta =
-                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
-                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
                                     var commandInsertNotaRisposta = new SqlCommand(queryInsertNotaRisposta, connection);
                                     commandInsertNotaRisposta.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
                                     commandInsertNotaRisposta.Parameters.AddWithValue("@UIDPersona",
@@ -352,9 +352,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 else
                                 {
                                     var queryInsertNoteAggiuntive =
-                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                        @"INSERT INTO ATTI_NOTE (Uid,UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
-                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
                                     var commandInsertNoteAggiuntive =
                                         new SqlCommand(queryInsertNoteAggiuntive, connection);
                                     commandInsertNoteAggiuntive.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
@@ -379,9 +379,9 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                 else
                                 {
                                     var queryInsertNoteAggiuntive2 =
-                                        @"INSERT INTO ATTI_NOTE (UIDAtto, UIDPersona, Tipo, Data, Nota)
+                                        @"INSERT INTO ATTI_NOTE (Uid, UIDAtto, UIDPersona, Tipo, Data, Nota)
                                                     VALUES
-                                                (@UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
+                                                (NEWID(), @UIDAtto, @UIDPersona, @Tipo, GETDATE(), @Nota)";
                                     var commandInsertNoteAggiuntive2 =
                                         new SqlCommand(queryInsertNoteAggiuntive2, connection);
                                     commandInsertNoteAggiuntive2.Parameters.AddWithValue("@UIDAtto", attoImportato.UidAtto);
@@ -450,8 +450,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                                 (@UIDAtto, @UID_persona, @FirmaCert, @Data_firma{PARAM_DATA_RITIRO_FIRMA}, @PrimoFirmatario, @id_gruppo, @Timestamp, 1, 1)
                                             END";
 
-                                        if (string.IsNullOrEmpty(data_ritiro_firma) ||
-                                            data_ritiro_firma.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                        if (string.IsNullOrEmpty(data_ritiro_firma))
                                             queryInsertFirmatario = queryInsertFirmatario
                                                 .Replace("{FIELD_DATA_RITIRO_FIRMA}", "")
                                                 .Replace("{PARAM_DATA_RITIRO_FIRMA}", "");
@@ -471,8 +470,7 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                         commandInsertFirmatario.Parameters.AddWithValue("@Data_firma",
                                             CryptoHelper.EncryptString(data_firma,
                                                 AppsettingsConfiguration.MASTER_KEY));
-                                        if (string.IsNullOrEmpty(data_ritiro_firma) ||
-                                            data_ritiro_firma.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                        if (string.IsNullOrEmpty(data_ritiro_firma))
                                         {
                                             // Ignored
                                         }
@@ -525,26 +523,26 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
                                             @"(SELECT TOP(1) nome_organo FROM dbo.organi WHERE id_organo = @IdOrgano)";
                                         var tipoRispostaAssociata = cellsRisposteAssociate[rowRA, 10].Value;
                                         var dataRispostaAssociata = cellsRisposteAssociate[rowRA, 12].Value;
-                                        if (Convert.ToString(dataRispostaAssociata).Equals("NULL"))
+                                        if (Convert.ToString(dataRispostaAssociata).Equals(string.Empty))
                                         {
                                             dataRispostaAssociata = null;
                                         }
 
                                         var dataTrasmissioneRispostaAssociata = cellsRisposteAssociate[rowRA, 13].Value;
-                                        if (Convert.ToString(dataTrasmissioneRispostaAssociata).Equals("NULL"))
+                                        if (Convert.ToString(dataTrasmissioneRispostaAssociata).Equals(string.Empty))
                                         {
                                             dataTrasmissioneRispostaAssociata = null;
                                         }
 
                                         var dataTrattazioneRispostaAssociata = cellsRisposteAssociate[rowRA, 14].Value;
-                                        if (Convert.ToString(dataTrattazioneRispostaAssociata).Equals("NULL"))
+                                        if (Convert.ToString(dataTrattazioneRispostaAssociata).Equals(string.Empty))
                                         {
                                             dataTrattazioneRispostaAssociata = null;
                                         }
 
                                         var idCommissioneRispostaAssociata = cellsRisposteAssociate[rowRA, 16].Value;
 
-                                        if (Convert.ToString(idCommissioneRispostaAssociata).Equals("NULL"))
+                                        if (Convert.ToString(idCommissioneRispostaAssociata).Equals(string.Empty))
                                         {
                                             var nodeIdRisposta =
                                                 Convert.ToString(cellsRisposteAssociate[rowRA, 7].Value);
@@ -709,19 +707,14 @@ namespace PortaleRegione.C102.ImportazioneDatiAlfresco
 
                                 var tipoVotazione = Convert.ToString(cellsAtti[row, 33].Value);
                                 var dcrl = Convert.ToString(cellsAtti[row, 34].Value);
-                                if (dcrl.Equals("NULL", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    dcrl = string.Empty;
-                                }
-
                                 var dcr = Convert.ToString(cellsAtti[row, 44].Value);
-                                if (dcr.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(dcr))
                                 {
                                     dcr = "0";
                                 }
 
                                 var dcrc = Convert.ToString(cellsAtti[row, 48].Value);
-                                if (dcrc.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                                if (string.IsNullOrEmpty(dcrc))
                                 {
                                     dcrc = "0";
                                 }

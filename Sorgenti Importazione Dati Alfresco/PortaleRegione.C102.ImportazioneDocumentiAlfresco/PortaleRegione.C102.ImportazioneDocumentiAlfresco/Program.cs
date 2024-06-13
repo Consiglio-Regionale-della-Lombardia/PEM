@@ -62,7 +62,7 @@ internal class Program
                         var newPath = Path.Combine(newDirectoryPath, fileName);
                         
                         var sql = @"
-        INSERT INTO ATTI_DOCUMENTI (UIDDocumento, UIDAtto, Tipo, Data, Path, Titolo, Pubblica)
+        INSERT INTO ATTI_DOCUMENTI (Uid, UIDAtto, Tipo, Data, Path, Titolo, Pubblica)
         VALUES (NEWID(), @UIDAtto, @TipoDocumento, GETDATE(), @PercorsoFile, @Titolo, @Pubblica)";
                         var command = new SqlCommand(sql, connection);
                         command.Parameters.AddWithValue("@PercorsoFile",
@@ -113,27 +113,7 @@ internal class Program
         Debug("Operazione completata.");
         Console.ReadLine();
     }
-
-    private static Guid? GetUidAtto(SqlConnection connection, string legislatura, string numeroAtto, int tipoAtto)
-    {
-        var sql = @"
-SELECT TOP 1 UIDAtto
-FROM ATTI_DASI
-WHERE Legislatura = @Legislatura
-AND NAtto_search = @NumeroAtto
-AND Tipo = @TipoAtto";
-
-        using (var command = new SqlCommand(sql, connection))
-        {
-            command.Parameters.AddWithValue("@Legislatura", legislatura);
-            command.Parameters.AddWithValue("@NumeroAtto", numeroAtto);
-            command.Parameters.AddWithValue("@TipoAtto", tipoAtto);
-
-            var result = command.ExecuteScalar();
-            return result != DBNull.Value ? (Guid?)result : null;
-        }
-    }
-
+    
     private static Atto GetAtto(SqlConnection connection, string legislatura, string numeroAtto, int tipoAtto)
     {
         var sql = @"
