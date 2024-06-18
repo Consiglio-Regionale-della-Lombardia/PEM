@@ -108,7 +108,7 @@ namespace PortaleRegione.API.Controllers
                     return NotFound();
 
                 var countFirme = await _attiFirmeLogic.CountFirme(id);
-                if (countFirme > 1)
+                if (countFirme > 1 && (atto.IDStato == (int)StatiAttoEnum.BOZZA_CARTACEA && !currentUser.IsSegreteriaAssemblea))
                     throw new InvalidOperationException(
                         $"Non è possibile modificare l'atto. Ci sono ancora {countFirme} firme attive.");
 
