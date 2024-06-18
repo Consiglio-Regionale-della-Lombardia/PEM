@@ -59,7 +59,8 @@ namespace PortaleRegione.Persistance
         {
             var query = PRContext
                 .DASI
-                .Where(item => !item.Eliminato);
+                .Where(item => !item.Eliminato 
+                               && !item.IDStato.Equals((int)StatiAttoEnum.BOZZA_CARTACEA));
 
             var filtro2 = new Filter<ATTI_DASI>();
             foreach (var f in filtro.Statements)

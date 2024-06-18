@@ -69,7 +69,9 @@
                         }
                     }).then((value) => {
                         if (value) {
+                            waiting(true);
 							SalvaAttoCartaceo(true);
+                            waiting(false);
 							window.opener.postMessage("aggiornaPadre", "@AppSettingsConfiguration.URL_CLIENT");
                         }
                     });

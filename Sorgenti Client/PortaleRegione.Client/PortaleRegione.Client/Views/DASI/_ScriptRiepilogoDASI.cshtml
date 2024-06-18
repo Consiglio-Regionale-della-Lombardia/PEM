@@ -26,51 +26,6 @@
 
     $(document).ready(async function() {
         setSelezionaTutti_DASI(false);
-        var filters = @Html.Raw(Convert.ToInt16(Model.Data.Filters.Any()));
-        if (filters == 0) {
-            set_Filtri_DASI({});
-        } else {
-            var filtri = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Filters));
-            console.log("filtri", filtri);
-            var filtri_cache = get_Filtri_DASI();
-            var block_stato_each = false;
-            var block_tipo_each = false;
-
-            $.each(filtri,
-                function(i, item) {
-
-                    if (block_stato_each == false) {
-                        if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.IDStato))') {
-                            filtri_cache.stato = item.Value;
-                            set_Filtri_DASI(filtri_cache);
-                            block_stato_each = true;
-                        }
-                    }
-
-                    if (block_tipo_each == false) {
-                        if (item.PropertyId == '@Html.Raw(nameof(AttoDASIDto.Tipo))') {
-                            filtri_cache.tipo = item.Value;
-                            set_Filtri_DASI(filtri_cache);
-                            block_tipo_each = true;
-                        }
-                    }
-                });
-        }
-
-        Filtri_DASI_CaricaNAtto("qNAtto");
-        Filtri_DASI_CaricaNAtto2("qNAtto2");
-        Filtri_DASI_CaricaDataPresentazioneDA("qDataPresentazioneDA");
-        Filtri_DASI_CaricaDataPresentazioneA("qDataPresentazioneA");
-        Filtri_DASI_CaricaDataSeduta("qDataSeduta");
-        Filtri_DASI_CaricaDataIscrizioneSeduta("qDataIscrizioneSeduta");
-        Filtri_DASI_CaricaOggetto("qOggetto");
-        Filtri_DASI_CaricaTipoRisposta("qTipoRisposta");
-        Filtri_DASI_CaricaSoloMozioniUrgenti("qTipo_Mozione_Urgente");
-        await Filtri_DASI_CaricaStato("qStato");
-        await Filtri_DASI_CaricaTipo("qTipo");
-        await Filtri_DASI_CaricaLegislature("qLegislatura");
-        await SetupFiltriProponentiDASI();
-
         checkSelectedDASI();
     });
 
